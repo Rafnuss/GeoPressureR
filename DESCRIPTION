@@ -1,0 +1,17 @@
+Package: GeoPressureR
+Title: Location from Reanalysed Pressure
+Version: 1.0
+Authors@R:c(
+    person("Rapaël", "Nussbaumer", email="ryn5@cornell.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-8185-1020")),
+    person("Mathieu", "Gravey", email="mathieu@mgravey.com", role = c("aut"), comment = c(ORCID = "0000-0002-0871-1507"))
+    )
+Description: Use atmospheric pressure data from reanalysis to determine the location of a geolocator measure pressure. 
+License: use_gpl3_license()
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
