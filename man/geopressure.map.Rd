@@ -7,6 +7,8 @@
 geopressure.map(pressure, extent, scale = 10, maxSample = 250, margin = 30)
 }
 \arguments{
+\item{pressure}{pressure list from PAM logger dataset list (see https://github.com/KiranLDA/PAMLr for details).}
+
 \item{extent}{Geographical extend of the map to query as a list ordered by West,East,South,North  (e.g. c(-6,43,0,47))}
 
 \item{scale}{Number of pixel per latitude, longitude. 10 for a resoltion of 0.1° (~10) and 4 for a resolution of 0.25° (~30km). To avoid interpolating the ERA5 data, scale should be smaller than 10. Read more about scale on Google earth Engine documention.}
@@ -14,8 +16,6 @@ geopressure.map(pressure, extent, scale = 10, maxSample = 250, margin = 30)
 \item{maxSample}{The computation of the mismatch is only performed on \code{maxSample} datapoints of pressure to reduce computational time. The samples are randomly (uniformly) selected on the timeserie.}
 
 \item{margin}{The margin is used in the threshold map to accept some measurement error. unit in meter. (1hPa~10m)}
-
-\item{PAM_data}{PAM logger dataset list (see https://github.com/KiranLDA/PAMLr for details). This}
 }
 \value{
 List of raster map

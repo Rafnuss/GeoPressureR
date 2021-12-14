@@ -23,7 +23,10 @@ Imports:
     httr,
     future,
     rmarkdown,
-    remotes
+    remotes,
+    ggplot2,
+    utils,
+    leaflet
 Remotes: 
     KiranLDA/pamlr,
     slisovski/GeoLight,

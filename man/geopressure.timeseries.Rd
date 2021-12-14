@@ -17,11 +17,11 @@ geopressure.timeseries(
 
 \item{lat}{latitude to query (0° to 90°).}
 
-\item{pressure}{geolocator pressure structure (time and pressure) (optional)}
+\item{pressure}{pressure list from PAM logger dataset list (see https://github.com/KiranLDA/PAMLr for details).}
 
 \item{endTime}{same as starttime}
 
-\item{statTime}{if pressure not provided, then the starttime of the timeserie return is needed}
+\item{startTime}{if pressure not provided, then the starttime of the timeserie return is needed}
 }
 \value{
 Timeserie of date, pressure and optionally altitude

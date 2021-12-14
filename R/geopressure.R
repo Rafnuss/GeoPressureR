@@ -6,14 +6,14 @@
 #' for each stationary periods separately, (2) then read these map (geotiff) in
 #' a raster and (3) compute the likelihood map from the mismatch
 #'
-#' @param PAM_data PAM logger dataset list (see https://github.com/KiranLDA/PAMLr for details). This
+#' @param pressure pressure list from PAM logger dataset list (see https://github.com/KiranLDA/PAMLr for details).
 #' @param extent Geographical extend of the map to query as a list ordered by West,East,South,North  (e.g. c(-6,43,0,47))
 #' @param scale Number of pixel per latitude, longitude. 10 for a resoltion of 0.1° (~10) and 4 for a resolution of 0.25° (~30km). To avoid interpolating the ERA5 data, scale should be smaller than 10. Read more about scale on Google earth Engine documention.
 #' @param maxSample The computation of the mismatch is only performed on `maxSample` datapoints of pressure to reduce computational time. The samples are randomly (uniformly) selected on the timeserie.
 #' @param margin The margin is used in the threshold map to accept some measurement error. unit in meter. (1hPa~10m)
 #' @return List of raster map
 #' @export
-geopressure.map <-
+geopressure.map =
   function(pressure,
            extent,
            scale = 10,
@@ -67,7 +67,7 @@ geopressure.map <-
     pres[is.na(pressure$staID)] = NA
 
     # Format query
-    bodyDF <- list(
+    bodyDF = list(
       time = jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date[!is.na(pres)]))),
       label = jsonlite::toJSON(pressure$staID[!is.na(pres)]),
       pressure = jsonlite::toJSON(pres[!is.na(pres)]),
@@ -82,7 +82,7 @@ geopressure.map <-
 
     # Request URLS
     message("Sending requests...")
-    res <-
+    res =
       httr::POST("http://glp.mgravey.com:24853/GeoPressure/v1/map/", body = bodyDF) #httr::verbose()
 
     # check that the response is successful
@@ -109,7 +109,7 @@ geopressure.map <-
     f = c()
     message("Starting download:")
     for (i_u in 1:length(uris)) {
-      f[[i_u]] <- future::future({
+      f[[i_u]] = future::future({
         raster::brick(uris[i_u])
       }, seed = TRUE)
       progress(i_u, max = length(uris))
@@ -119,15 +119,14 @@ geopressure.map <-
     rasterList = c()
     message("Receiving download (geotiff):")
     for (i_u in 1:length(uris)) {
-      rasterList[[i_u]] <- future::value(f[[i_u]])
+      rasterList[[i_u]] = future::value(f[[i_u]])
       progress(i_u, max = length(uris))
 
       # convert MSE from Pa to hPa
-      values(rasterList[[i_u]][[1]]) <-
-        values(rasterList[[i_u]][[1]]) / 100 / 100
+      rasterList[[i_u]][[1]] = rasterList[[i_u]][[1]] / 100 / 100
 
       # Writing some metadata
-      metadata(rasterList[[i_u]]) <- list(
+      raster::metadata(rasterList[[i_u]]) = list(
         staID = labels[i_u],
         nbSample = sum(bodyDF$label == labels[i_u]),
         maxSample = maxSample,
@@ -158,11 +157,11 @@ geopressure.map <-
 #' @param thr threashold of the percentage of datapoint outside the elevation range to be considered not possible
 #' @return List of the probability raster map
 #' @export
-geopressure.Probmap <- function(rasterList, s = 1, thr = 0.9) {
+geopressure.Probmap = function(rasterList, s = 1, thr = 0.9) {
   rasterProbList = c()
   for (i_s in 1:length(rasterList)) {
     # get metadata
-    mt = metadata(rasterList[[i_s]])
+    mt = raster::metadata(rasterList[[i_s]])
 
     # compute Log-linear pooling weight
     # pres_n = min(nbSample, mt$maxSample)
@@ -174,12 +173,12 @@ geopressure.Probmap <- function(rasterList, s = 1, thr = 0.9) {
     # change 0 (water) in NA
     rasterProbList[[i_s]][rasterProbList[[i_s]] == 0] = NA
     # compute probability with equation
-    rasterProbList[[i_s]] <-  exp(-w * rasterProbList[[i_s]] / (s ^ 2))
+    rasterProbList[[i_s]] =  exp(-w * rasterProbList[[i_s]] / (s ^ 2))
     # mask value of threashold
-    rasterProbList[[i_s]] <- rasterProbList[[i_s]] * (rasterList[[i_s]][[2]] > thr)
+    rasterProbList[[i_s]] = rasterProbList[[i_s]] * (rasterList[[i_s]][[2]] > thr)
 
     # plot(rasterProbList[[i_s]])
-    metadata(rasterProbList[[i_s]]) <- metadata(rasterList[[i_s]])
+    raster::metadata(rasterProbList[[i_s]]) = raster::metadata(rasterList[[i_s]])
   }
   rasterProbList
 }
@@ -203,12 +202,12 @@ geopressure.Probmap <- function(rasterList, s = 1, thr = 0.9) {
 #'
 #' @param lon longitude to query (-180° to 180°).
 #' @param lat latitude to query (0° to 90°).
-#' @param pressure geolocator pressure structure (time and pressure) (optional)
-#' @param statTime if pressure not provided, then the starttime of the timeserie return is needed
+#' @param pressure pressure list from PAM logger dataset list (see https://github.com/KiranLDA/PAMLr for details).
+#' @param startTime if pressure not provided, then the starttime of the timeserie return is needed
 #' @param endTime same as starttime
 #' @return Timeserie of date, pressure and optionally altitude
 #' @export
-geopressure.timeseries <-
+geopressure.timeseries =
   function(lon,
            lat,
            pressure = NULL,
@@ -231,11 +230,11 @@ geopressure.timeseries <-
     } else {
       testthat::expect_is(endTime, "POSIXt")
       testthat::expect_is(startTime, "POSIXt")
-      restthat::expect_gt(endTime, startTime)
+      testthat::expect_gt(endTime, startTime)
     }
 
     # Format query
-    bodyDF <- list(lon = lon,
+    bodyDF = list(lon = lon,
                    lat = lat)
     if (!is.null(pressure)) {
       bodyDF$time = jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date)))
@@ -247,7 +246,7 @@ geopressure.timeseries <-
 
     # Request URLS
     message("Sending requests...")
-    res <-
+    res =
       httr::POST("http://glp.mgravey.com:24853/GeoPressure/v1/timeseries",
                  body = bodyDF) #httr::verbose()
 
@@ -259,14 +258,14 @@ geopressure.timeseries <-
       message('Request generated successfully.')
     }
     message('Downloading csv data.')
-    out = read.csv(httr::content(res)$data$url)
+    out = utils::read.csv(httr::content(res)$data$url)
 
     # convert Pa to hPa
     out$pressure = out$pressure / 100
 
     # convert time into date
     out$time = as.POSIXct(out$time, origin = "1970-01-01")
-    names(out)[names(out) == 'time'] <- 'date'
+    names(out)[names(out) == 'time'] = 'date'
 
     # return
     out
@@ -278,8 +277,8 @@ geopressure.timeseries <-
 
 
 # Progress bar function
-progress <- function (x, max = 100) {
-  percent <- x / max * 100
+progress = function (x, max = 100) {
+  percent = x / max * 100
   cat(sprintf('\r[%-50s] %d / %d',
               paste(rep('=', percent / 2), collapse = ''),
               x, max))

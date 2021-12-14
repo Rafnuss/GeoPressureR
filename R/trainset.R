@@ -22,7 +22,7 @@ trainset.edit <- function(PAM_data,
                    file.name)
 
     # Edit the file in browser
-    browseURL("https://trainset.geocene.com/")
+    utils::browseURL("https://trainset.geocene.com/")
 
     # When labilization finished and new file saved, press enter
     cond = T
@@ -81,7 +81,7 @@ trainset.write <- function(PAM_data,
   testthat::expect_true(dir.exists(file.location))
 
   # write a combined data.frame of pressure and acceleration in csv.
-  write.csv(
+  utils::write.csv(
     rbind(
       data.frame(
         series = "acceleration",
@@ -138,7 +138,7 @@ trainset.read <- function(PAM_data,
   testthat::expect_true(dir.exists(file.location))
 
   # read the file
-  tmp = read.csv(paste0(file.location, file.name, "-labeled.csv"))
+  tmp = utils::read.csv(paste0(file.location, file.name, "-labeled.csv"))
 
   # check that the file is in the right format and same size as PAM data
   testthat::expect_true("series" %in% names(tmp))

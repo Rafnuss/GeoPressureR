@@ -1,5 +1,5 @@
 ---
-title: "demo"
+title: "Demo"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{demo}
@@ -24,6 +24,7 @@ devtools::install_github("GeoPressureR")
 
 ```{r setup}
 library(GeoPressureR)
+library(GeoLight)
 library(pamlr)
 library(raster)
 library(leaflet)
@@ -95,7 +96,7 @@ PAM_data$pressure$staID[!(PAM_data$pressure$staID %in% staID_keep)] = NA
 In this part, we query the maps of pressure from the GeoPressure API ([see more information on github.com/Rafnuss/GeoPressureServer/](https://github.com/Rafnuss/GeoPressureServer/)). See details explanation of the parameter on https://github.com/Rafnuss/GeoPressureServer/#request
 ```{r}
 extent = c(-6,43,0,47) # coordinates of the map to request (W,E,S,N) 
-scale = 5 # request on a 0.2° grid to make the code faster
+scale = 1 # request on a 1° grid to make the code faster
 maxSample = 100
 margin = 30 # roughly equivalent to 3hPa
 rasterList = geopressure.map(PAM_data$pressure, extent=c(-16,20,0,50), scale=scale, maxSample=maxSample, margin=margin)
