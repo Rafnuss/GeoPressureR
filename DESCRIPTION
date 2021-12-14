@@ -14,3 +14,9 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+Imports: 
+    raster,
+    jsonlite,
+    httr,
+    future,
+    testthat
