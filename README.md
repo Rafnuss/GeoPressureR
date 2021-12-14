@@ -4,6 +4,9 @@
 # GeoPressureR
 
 <!-- badges: start -->
+
+[![Codecov test
+coverage](https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master)
 <!-- badges: end -->
 
 The goal of GeoPressureR is to help reasearch to analyse pressure
