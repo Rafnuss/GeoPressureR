@@ -11,12 +11,13 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Suggests: 
-    knitr,
-    rmarkdown
+    knitr
 VignetteBuilder: knitr
 Imports: 
     raster,
     jsonlite,
     httr,
     future,
-    testthat
+    testthat,
+    rmarkdown,
+    palmr
