@@ -24,4 +24,4 @@ Imports:
     rmarkdown,
     remotes
 Remotes: 
-    git::https://github.com/KiranLDA/PAMLr.git@master
+    KiranLDA/pamlr
