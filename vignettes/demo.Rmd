@@ -1,0 +1,145 @@
+---
+title: "demo"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{demo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Demo
+
+## Setup
+
+For this demo, we will use the standard packages for processing the raw geolocator data. If you haven't installed them, use the following lines:
+```{r, eval = FALSE}
+devtools::install_github("KiranLDA/pamlr")
+```
+
+```{r setup}
+library(pamlr)
+#library(GeoPressureR)
+library(raster)
+library(leaflet)
+```
+
+## Load data
+Load the hoopoe data and set the basic information for this track
+```{r}
+data("hoopoe")
+lon.calib=7.103	
+lat.calib=46.125
+crop.start = as.POSIXct("2016-07-01","%Y-%m-%d", tz="UTC")
+crop.end = as.POSIXct("2017-06-01","%Y-%m-%d", tz="UTC")
+```
+
+## Activity Processing
+Using PalmR package, we crop the data  and classify the activity. See more possible classification on https://kiranlda.github.io/PAMLrManual/index.html
+```{r}
+PAM_data= create_crop(hoopoe,crop.start,crop.end)
+behaviour = classify_flap(dta = PAM_data$acceleration, period = 12, to_plot=F)
+PAM_data$acceleration$class = behaviour$classification==3
+```
+
+## Editing of Pressure and Activity on Trainset
+For the matching of pressure to work correctly, we need that the bird was exactly at the same location during the stationary period. It is very likely that a manual editing of the activity classification is required.
+
+We suggest using TRAINNSET to edit your classification. The following code will export the automatically generated classification. It can be editted on TRAINSET, then export it back into.
+
+Make sure to keep these classified file on your project folder
+```{r}
+file.location = "/Users/raphael/Downloads/"
+PAM_data = trainset.edit(PAM_data,file.location)
+```
+
+## Activity to stationary period
+Build a data.frame of the stationary period.
+```{r}
+sta = data.frame(
+  start = c(crop.start,behaviour$timetable$end),
+  end = c(behaviour$timetable$start,crop.end),
+  nextFlightDuration = c(behaviour$timetable$`Duration (h)`,0)
+)
+sta$staID = 1:nrow(sta)
+```
+
+Assign to each pressure measure the stationary period to which it belong to
+(Please contact me if you can do that in a more elegant way, I hate R for unlist())
+```{r}
+staID = sapply(PAM_data$pressure$date, function(x) which(sta$start<=x & x<=sta$end))
+staID[sapply(staID, function(x) length(x)==0)] <- 0
+PAM_data$pressure$staID = unlist(staID)
+```
+
+
+## Request map of pressure
+In this part, we query the maps of pressure from the GeoPressure API ([see more information on github.com/Rafnuss/GeoPressureServer/](https://github.com/Rafnuss/GeoPressureServer/)). See details explaination of the parameter on https://github.com/Rafnuss/GeoPressureServer/#request
+```{r}
+extent=c(-6,43,0,47) # coordinates of the map to request (W,E,S,N) 
+scale=5 # request on a 0.2° grid to make the code faster
+maxSample=250
+margin=50 # hoopoe can be a bit more tricky with change of elevation
+v <- geopressure.request(PAM_data$pressure, extent=c(-16,20,0,50), scale=scale, maxSample=maxSample, margin=margin)
+```
+
+## Display
+```{r}
+i_s = 6;
+
+pal <- colorNumeric(c("#0C2C84", "#41B6C4", "#FFFFCC"), values(v[[i_s]][[3]]), na.color = "transparent")
+
+leaflet() %>% addTiles() %>%
+  addRasterImage(v[[1]][[3]], colors = pal, opacity = 0.8) %>%
+  addLegend(pal = pal, values = values(v[[i_s]][[3]]), title = "Probability")
+```
+
+
+## Check pressure match
+```{r}
+(PAM_data$pressure)
+```
+
+
+## Display
+```{r}
+(PAM_data$pressure)
+```
+
+
+
+# Combine with other data
+
+## Light
+Standard processure following https://geolocationmanual.vogelwarte.ch/twilight.html
+Get the twilight
+```{r}
+twl = twilightCalc(PAM_data$light$date, PAM_data$light$obs, LightThreshold = 2, ask = F)
+```
+
+Calibraiton
+```{r}
+d.calib <- subset(twl, (tSecond<=head(behaviour$timetable$start,1)) | 
+                       (tFirst>=tail(behaviour$timetable$end,1)))
+
+gE <- getElevation(twl = d.calib, known.coord = c(lon.calib, lat.calib),method = "gamma", plot = F)
+
+crds <- coord(twl, degElevation = 90-gE[1], note = FALSE)
+tripMap(crds)
+points(lon.calib, lat.calib, pch = 21, cex = 1.5, bg = "white") # adding the release location
+```
+
+## Movement
+```{r}
+
+```
+
+## Combined
+```{r}
+
+```
