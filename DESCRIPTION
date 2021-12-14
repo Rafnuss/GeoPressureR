@@ -12,14 +12,15 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Suggests: 
     covr,
-    knitr
+    knitr,
+    pamlr (>= 1.1),
+    testthat,
+    rmarkdown
 VignetteBuilder: knitr
 Imports: 
     raster,
     jsonlite,
     httr,
-    future,
-    testthat,
-    rmarkdown
-Remotes:
-    KiranLDA/PAMLr
+    future
+Remotes:  
+    git::https://github.com/KiranLDA/PAMLr.git
