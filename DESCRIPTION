@@ -14,13 +14,13 @@ Suggests:
     covr,
     knitr,
     pamlr (>= 1.1),
-    testthat,
-    rmarkdown
+    testthat
 VignetteBuilder: knitr
 Imports: 
     raster,
     jsonlite,
     httr,
-    future
+    future,
+    rmarkdown
 Remotes:  
-    git::https://github.com/KiranLDA/PAMLr.git
+    git::https://github.com/KiranLDA/PAMLr.git@master
