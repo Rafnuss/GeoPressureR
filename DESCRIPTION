@@ -21,6 +21,7 @@ Imports:
     jsonlite,
     httr,
     future,
-    rmarkdown
-Remotes:  
+    rmarkdown,
+    remotes
+Remotes: 
     git::https://github.com/KiranLDA/PAMLr.git@master
