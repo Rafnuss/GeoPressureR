@@ -19,13 +19,14 @@ knitr::opts_chunk$set(
 
 For this demo, we will use the standard packages for processing the raw geolocator data. If you haven't installed them, use the following lines:
 ```{r, eval = FALSE}
-devtools::install_github("KiranLDA/pamlr")
 devtools::install_github("GeoPressureR")
+
 ```
 
 ```{r setup}
-library(pamlr)
 library(GeoPressureR)
+devtools::install_github("KiranLDA/pamlr")
+library(pamlr)
 library(raster)
 library(leaflet)
 library(ggplot2)
