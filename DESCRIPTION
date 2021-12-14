@@ -13,7 +13,8 @@ RoxygenNote: 7.1.2
 Suggests: 
     covr,
     knitr,
-    pamlr (>= 1.1),
+    pamlr,
+    GeoLight,
     testthat
 VignetteBuilder: knitr
 Imports: 
@@ -24,4 +25,5 @@ Imports:
     rmarkdown,
     remotes
 Remotes: 
-    KiranLDA/pamlr
+    KiranLDA/pamlr,
+    slisovski/GeoLight,
