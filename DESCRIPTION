@@ -19,5 +19,6 @@ Imports:
     httr,
     future,
     testthat,
-    rmarkdown,
-    palmr
+    rmarkdown
+Remotes:
+    KiranLDA/PAMLr
