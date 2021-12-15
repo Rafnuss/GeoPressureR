@@ -10,16 +10,12 @@ License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
-Depends:
-    R (>= 2.10)
 Suggests: 
     covr,
     knitr,
     testthat,
     leaflet,
-    ggplot2,
-    pamlr (>= 1.1),
-    GeoLight (>= 2.0.1)
+    ggplot2
 VignetteBuilder: knitr
 Imports: 
     raster,
@@ -28,7 +24,4 @@ Imports:
     future,
     rmarkdown,
     remotes,
-    utils,
-Remotes: 
-    KiranLDA/pamlr,
-    slisovski/GeoLight@Update_2.01,
+    utils

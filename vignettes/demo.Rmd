@@ -22,8 +22,6 @@ devtools::install_github("GeoPressureR")
 
 ```{r setup}
 library(GeoPressureR)
-library(GeoLight)
-library(pamlr)
 library(raster)
 library(leaflet)
 library(ggplot2)
@@ -32,18 +30,19 @@ library(ggplot2)
 ## Load data
 Load the hoopoe data and set the basic information for this track
 ```{r}
-data("hoopoe")
-lon.calib = 7.103	
-lat.calib = 46.125
-crop.start = as.POSIXct("2016-07-01","%Y-%m-%d", tz="UTC")
-crop.end = as.POSIXct("2017-06-01","%Y-%m-%d", tz="UTC")
+#print(system.file("extdata", "/", package = "GeoPressureR"))
+PAM_data = create_import(pathname = system.file("extdata", "/", package = "GeoPressureR") )
+lon.calib = 17.05	
+lat.calib = 48.9
+crop.start = as.POSIXct("2017-06-20","%Y-%m-%d", tz="UTC")
+crop.end = as.POSIXct("2018-05-01","%Y-%m-%d", tz="UTC")
 ```
 
 ## Activity Processing
 Using PalmR package, we crop the data  and classify the activity. See more possible classification on https://kiranlda.github.io/PAMLrManual/index.html
 ```{r}
-PAM_data = create_crop(hoopoe,crop.start,crop.end)
-behaviour = classify_flap(dta = PAM_data$acceleration, period = 12, to_plot=F)
+PAM_data = create_crop(PAM_data,crop.start,crop.end)
+behaviour = classify_flap(PAM_data$acceleration, period = 12)
 PAM_data$acceleration$class = behaviour$classification==3
 ```
 
@@ -54,13 +53,13 @@ We suggest using TRAINNSET to edit your classification. The following code will 
 
 Make sure to keep these classified file on your project folder (e.g. under `/data/`)
 ```{r eval=F}
-PAM_data = trainset.edit(PAM_data, file.location="../data/")
+PAM_data = trainset.edit(PAM_data, file.location=system.file("extdata", "/", package = "GeoPressureR"))
 ```
 
 To re-edit an existing labeled file you can simply re-open the file on [trainset.geocene.com](https://trainset.geocene.com/) and read this file with `trainset.read`.
 ```{r}
 # browseURL("https://trainset.geocene.com/")
-PAM_data = trainset.read(PAM_data, file.location="../data/")
+PAM_data = trainset.read(PAM_data, file.location=system.file("extdata", "/", package = "GeoPressureR"))
 ```
 
 I will write another vignette on the best practice to label activity and pressure data. 
@@ -85,7 +84,7 @@ PAM_data$pressure$staID = unlist(staID)
 
 Initially, it might be easier to only query stationary period of a certain duration.
 ```{r}
-min_duration = 60*24*2 # in minutes
+min_duration = 60*24*16 # in minutes
 staID_keep = sta$staID[(sta$end-sta$start)>min_duration]
 PAM_data$pressure$staID[!(PAM_data$pressure$staID %in% staID_keep)] = NA
 ```
@@ -93,23 +92,23 @@ PAM_data$pressure$staID[!(PAM_data$pressure$staID %in% staID_keep)] = NA
 ## Request map of pressure
 In this part, we query the maps of pressure from the GeoPressure API ([see more information on github.com/Rafnuss/GeoPressureServer/](https://github.com/Rafnuss/GeoPressureServer/)). See details explanation of the parameter on https://github.com/Rafnuss/GeoPressureServer/#request
 ```{r}
-extent = c(-6,43,0,47) # coordinates of the map to request (W,E,S,N) 
+extent = c(-6,26,4,53) # coordinates of the map to request (W,E,S,N) 
 scale = 1 # request on a 1° grid to make the code faster
-maxSample = 100
+maxSample = 20
 margin = 30 # roughly equivalent to 3hPa
 rasterList = geopressure.map(PAM_data$pressure, extent=c(-16,20,0,50), scale=scale, maxSample=maxSample, margin=margin)
 ```
 
 Compute probability map
 ```{r}
-s = 1 # standard deviation of pressure
-thr = 0.9 # threashold of value acceptable 
+s = 0.4 # standard deviation of pressure
+thr = 0.9 # threashold of value acceptable 2
 rasterProbList = geopressure.Probmap(rasterList, s=s, thr=thr)
 ```
 
 ## Display
 ```{r}
-i_r = 3;
+i_r = 1;
 
 leaflet() %>% addTiles() %>%
   addRasterImage(rasterProbList[[i_r]], opacity = 0.8, group="Probability") %>%
@@ -146,6 +145,7 @@ pressure = list(
 # query the pressure at this location
 ptsr  = geopressure.timeseries(lon, lat, pressure = pressure)
 ```
+Visualize
 ```{r}
 ggplot() +
   geom_line(data=as.data.frame(pressure), aes(x=date,y=obs)) +
