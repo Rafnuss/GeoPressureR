@@ -19,6 +19,7 @@ Suggests:
 VignetteBuilder: knitr
 Imports: 
     raster,
+    rgdal,
     jsonlite,
     httr,
     future,
