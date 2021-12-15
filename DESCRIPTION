@@ -15,7 +15,9 @@ Suggests:
     knitr,
     testthat,
     leaflet,
-    ggplot2
+    ggplot2,
+    pamlr (>= 1.1),
+    GeoLight (>= 2.0.1)
 VignetteBuilder: knitr
 Imports: 
     raster,
@@ -25,8 +27,6 @@ Imports:
     rmarkdown,
     remotes,
     utils,
-    pamlr (>= 1.1),
-    GeoLight (>= 2.0.1)
 Remotes: 
     KiranLDA/pamlr,
     slisovski/GeoLight,
