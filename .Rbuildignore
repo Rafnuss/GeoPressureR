@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^GeoPressure\.Rproj$
 ^\.Rproj\.user$
 ^_pkgdown\.yml$
