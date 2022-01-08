@@ -1,0 +1,40 @@
+---
+title: "compare_to_light"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{compare_to_light}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(GeoPressureR)
+```
+
+# Combine with Light
+Standard processure following https://geolocationmanual.vogelwarte.ch/twilight.html
+Get the twilight
+```{r}
+lon.calib = 17.05	
+lat.calib = 48.9
+#twl = twilightCalc(PAM_data$light$date, PAM_data$light$obs, LightThreshold = 2, ask = F)
+```
+
+Calibraiton
+```{r}
+# d.calib = subset(twl, (tSecond<=head(behaviour$timetable$start,1)) | 
+#                        (tFirst>=tail(behaviour$timetable$end,1)))
+# 
+# gE = getElevation(twl = d.calib, known.coord = c(lon.calib, lat.calib),method = "gamma", plot = F)
+# 
+# crds = coord(twl, degElevation = 90-gE[1], note = FALSE)
+# tripMap(crds)
+# points(lon.calib, lat.calib, pch = 21, cex = 1.5, bg = "white") # adding the release location
+```

@@ -6,3 +6,5 @@ docs
 .DS_Store
 inst/doc
 .Rprofile
+/doc/
+/Meta/

@@ -1,0 +1,199 @@
+---
+title: "Basic Example"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Basic Example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE, 
+  message = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+# knitr::knit("vignettes/basic_example.Rmd.orig", output = "vignettes/basic_example.Rmd")
+```
+
+## Setup
+
+For this demo, we will use the standard packages for processing the raw geolocator data. If you haven't installed them, use the following lines:
+```{r, eval = FALSE}
+devtools::install_github("GeoPressureR")
+```
+
+```{r setup}
+library(GeoPressureR)
+library(raster)
+library(leaflet)
+library(ggplot2)
+library(plotly)
+library(RColorBrewer)
+```
+
+## Load data
+Load Great Reed Warbler (18LX) data
+```{r}
+pam_data = read_pam(pathname = system.file("extdata", "/", package = "GeoPressureR") )
+crop_start = as.POSIXct("2017-06-20","%Y-%m-%d", tz="UTC")
+crop_end = as.POSIXct("2018-05-02","%Y-%m-%d", tz="UTC")
+pam_data = crop_pam(pam_data, crop_start, crop_end)
+```
+
+## Activity Processing
+
+### Automatic classification
+
+We use a simple k-mean clustering to define period of relative high activity, and then classify high activities lasting more than 30 minutes as migratory activities. See more possible classification described in the [PALMr manual](https://kiranlda.github.io/PAMLrManual/index.html).
+
+```{r}
+pam_data = classify_pam(pam_data, min_duration = 30)
+```
+
+### Editing on TRAINSET
+For the matching of pressure to work correctly, we need that the bird was exactly at the same location during the stationary period. It is very likely that a manual editing of the activity classification is required.
+
+We suggest using TRAINSET to edit your classification. The following code will export the automatically generated classification in a `*.csv` file which can be edited in TRAINSET [www.trainset.geocene.com](https://trainset.geocene.com/). Once, finished, export the new `*-labeled.csv` file. 
+
+Make sure to keep these classified file on your project folder (e.g. under `/data/`)
+```{r eval=F}
+trainset_write(pam_data, pathname=system.file("extdata", "/", package = "GeoPressureR"))
+```
+
+![Printscreen of the manual classification in Trainset. See [labeling track vignette](labeling_tracks.html) for more information](labeling_tracks_4.png){width=100%}
+
+To re-edit an existing labeled file you can simply re-open the file on trainset and read this file directly with `trainset_read`.
+
+```{r}
+# browseURL("https://trainset.geocene.com/")
+pam_data = trainset_read(pam_data, pathname=system.file("extdata", "/", package = "GeoPressureR"))
+```
+
+You can read more about this manual editing in the [labeling track vignette](labeling_tracks.html). 
+
+### Compute stationary periods
+
+After reading the file, `trainset_read` also create the table of stationary periods
+```{r}
+pam_data = sta_pam(pam_data)
+knitr::kable(pam_data$sta)
+```
+
+```{r}
+p <- subset(pam_data$pressure, sta_id != 0) %>% 
+  ggplot() +
+  geom_line(aes(x=date,y=obs,col=as.factor(sta_id))) + 
+  theme_bw() +
+  scale_colour_manual(values=rep(RColorBrewer::brewer.pal(9,"Set1"),times=4))
+  #scale_colour_brewer(type="qualitative", palette = 'Set1')
+
+ggplotly(p, dynamicTicks = T)
+```
+
+## Request map of pressure
+Initially, it might be easier to only query stationary period of a certain duration.
+```{r}
+sta_id_keep = pam_data$sta$sta_id[difftime(pam_data$sta$end,pam_data$sta$start, units = "hours")>12]
+pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] = NA
+```
+
+We can query the data. To save time in this vignette I'll actually load this data that I've saved earlier. But the code is given below
+```{r}
+data("prob_map_list", package = "GeoPressureR")
+data("ts_list", package = "GeoPressureR")
+```
+
+In this part, we query the maps of pressure from the [GeoPressure API](https://github.com/Rafnuss/GeoPressureServer/).
+```{r, eval=F}
+extent = c(-16,20,0,50) # coordinates of the map to request (W,E,S,N) 
+scale = 10 # request on a 0.1° grid to make the code faster
+max_sample = 250
+margin = 30 # roughly equivalent to 3hPa
+raster_list = geopressure_map(pam_data$pressure, extent = extent, scale = scale, max_sample = max_sample, margin = margin)
+```
+
+Compute probability map
+```{r, eval = F}
+s = 0.4 # standard deviation of pressure
+thr = 0.9 # threashold of value acceptable 2
+prob_map_list = geopressure_prob_map(raster_list, s=s, thr=thr)
+```
+
+## Display
+Comparing map of mismatch, threadhold and probability
+```{r, eval = F}
+i_r = 1;
+
+leaflet() %>% addTiles() %>%
+  addRasterImage(prob_map_list[[i_r]], opacity = 0.8, group="Probability") %>%
+  addRasterImage(raster_list[[i_r]][[1]], opacity = 0.8, group="Mismatch") %>%
+  addRasterImage(raster_list[[i_r]][[2]], opacity = 0.8, group="Threashold") %>%
+  # addLegend(pal = pal, values = values(v[[i_s]][[3]]), title = "Probability") %>% 
+  addLayersControl(
+    overlayGroups = c("Probability","Mismatch","Threashold"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>% hideGroup(c("Mismatch","Threashold"))
+```
+```{r, eval = F}
+
+li_s=list()
+l = leaflet() %>% addTiles() 
+for (i_r in 1:length(prob_map_list)){
+  i_s = metadata(prob_map_list[[i_r]])$sta_id
+  
+  info = pam_data$sta[pam_data$sta$sta_id==i_s,]
+  info_str = paste0(i_s," | ",info$start,"->",info$end)
+  li_s <- append(li_s, info_str)
+  l = l %>% addRasterImage(prob_map_list[[i_r]], opacity = 0.8, group=info_str) 
+}
+
+l %>% 
+  addLayersControl(
+    overlayGroups = li_s,
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>% hideGroup(tail(li_s,length(li_s)-1))
+```
+
+
+## Check pressure match
+```{r}
+i_r=1
+
+i_s = metadata(prob_map_list[[i_r]])$sta_id
+
+# find the max value of probability
+tmp = as.data.frame(prob_map_list[[i_r]],xy=T)
+lon = tmp$x[which.max(tmp[,3])]
+lat = tmp$y[which.max(tmp[,3])]
+
+# filter pressure for the stationary period
+# include flight period before and after
+id = pam_data$pressure$sta_id==i_s & !is.na(pam_data$pressure$sta_id)
+pressure = list(
+  obs = pam_data$pressure$obs[id],
+  date = pam_data$pressure$date[id],
+  class = pam_data$pressure$class[id]
+)
+```
+
+Query the pressure at this location
+
+```{r, eval=F}
+ts_list[[i_r]]  = geopressureTs(lon, lat, pressure = pressure)
+```
+
+Visualize
+```{r}
+ts_list[[i_r]]$pressure0 = ts_list[[i_r]]$pressure - mean(ts_list[[i_r]]$pressure) + mean(pressure$obs)
+
+# rbind(as.data.frame(pressure),as.data.frame(ts_list))
+
+p <- ggplot() +
+  geom_point(data=as.data.frame(pressure), aes(x=date,y=obs,col="Geolocator")) +
+  geom_line(data=as.data.frame(ts_list[[i_r]]), aes(x=date,y=pressure0,col="ERA5 Reanalyis")) + 
+  theme_bw()
+
+ggplotly(p) #%>% layout(legend = list(orientation = "h", x = -0.5))
+```
+

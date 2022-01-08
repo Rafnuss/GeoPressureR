@@ -1,112 +1,82 @@
-#' Import PAM data
+#' Read pam data
 #'
-#' @description Imports and formats many datasets into one big nested list containing all the data from the different sensors. A subset of sensors can be selected using `measurements`.
+#' Imports multi-sensor logger data.
 #'
 #' @param pathname path where files are stored
-#' @param measurements a series of measurements logged by the PAM logger which are to be imported. Currently supports these file extentions: ".pressure", ".glf", ".gle",".acceleration", ".temperature", "AirTemperature", ".BodyTemperature" and ".magnetic"
+#' @param extension list of file extentions to read (e.g., ".pressure",
+#' ".glf", ".gle",".acceleration", ".temperature" and ".magnetic")
 #'
-#' @return a list of measurements for the one individual
+#' @return a list of all measurements
 #'
 #' @export
-create_import <- function(pathname = pathname,
-                          measurements = c(".pressure", ".glf", ".acceleration", ".temperature", ".magnetic")){
-  dta=list()
+read_pam <- function(pathname = pathname,
+                     extension = c(
+                       "pressure", "glf", "acceleration",
+                       "temperature", "magnetic"
+                     )) {
 
-  id = substring(list.files(pathname,pattern=measurements[1],full.names = FALSE),1,4)
-  dta$id = id
-  if(".pressure" %in% measurements){
-    tryCatch({
-    pressure = utils::read.delim(list.files(pathname,pattern=".pressure",full.names = TRUE),skip=6,sep="",header = FALSE)
-    pressure = as.data.frame(list(date=as.POSIXct(strptime(paste(pressure[,1],pressure[,2]),
-                                                           tz="UTC",format="%d.%m.%Y %H:%M")),obs=pressure[,3]))
-    dta$pressure = pressure
-    }, error = function(e) return("no pressure data"))
-  }
-  if(".glf" %in% measurements){
-    tryCatch({
-    light = utils::read.delim(list.files(pathname,pattern=".glf",full.names = TRUE)[1],skip=6,sep="",header = FALSE)
-    light = as.data.frame(list(date=as.POSIXct(strptime(paste(light[,1],light[,2]),
-                                                        tz="UTC",format="%d.%m.%Y %H:%M")),obs=light[,3]))
-    dta$light = light
-    }, error = function(e) return("no light data"))
-  }
-  if(".gle" %in% measurements){
-    tryCatch({
-    light = utils::read.delim(list.files(pathname,pattern=".gle",full.names = TRUE)[1],skip=6,sep="",header = FALSE)
-    light = as.data.frame(list(date=as.POSIXct(strptime(paste(light[,1],light[,2]),
-                                                        tz="UTC",format="%d.%m.%Y %H:%M")),obs=light[,3]))
-    dta$light = light
-    }, error = function(e) return("no light data"))
-  }
-  if(".acceleration" %in% measurements){
-    tryCatch({
-    acceleration = utils::read.delim(list.files(pathname,pattern=".acceleration",full.names = TRUE),skip=6,sep="",header = FALSE)
-    acceleration = as.data.frame(list(date=as.POSIXct(strptime(paste(acceleration[,1],acceleration[,2]),
-                                                               tz="UTC",format="%d.%m.%Y %H:%M")),pit=acceleration[,3], act=acceleration[,4]))
-    dta$acceleration = acceleration
-    }, error = function(e) return("no acceleration data"))
-  }
-  if(".temperature" %in% measurements){
-    tryCatch({
-    temperature = utils::read.delim(list.files(pathname,pattern=".temperature",full.names = TRUE),skip=6,sep="",header = FALSE)
-    temperature = as.data.frame(list(date=as.POSIXct(strptime(paste(temperature[,1],temperature[,2]),
-                                                              tz="UTC",format="%d.%m.%Y %H:%M")),obs=temperature[,3]))
-    dta$temperature = temperature
-    }, error = function(e) return("no temperature data"))
-  }
-  if(".AirTemperature" %in% measurements){
-    tryCatch({
-    temperature = utils::read.delim(list.files(pathname,pattern=".AirTemperature",full.names = TRUE),skip=6,sep="",header = FALSE)
-    temperature = as.data.frame(list(date=as.POSIXct(strptime(paste(temperature[,1],temperature[,2]),
-                                                              tz="UTC",format="%d.%m.%Y %H:%M")),obs=temperature[,3]))
-    dta$temperature = temperature
-    }, error = function(e) return("no air temperature data"))
-  }
-  if (".BodyTemperature" %in% measurements){
-    tryCatch({
-    bodytemperature = utils::read.delim(list.files(pathname,pattern=".BodyTemperature",full.names = TRUE),skip=6,sep="",header = FALSE)
-    bodytemperature = as.data.frame(list(date=as.POSIXct(strptime(paste(bodytemperature[,1],bodytemperature[,2]),
-                                                                  tz="UTC",format="%d.%m.%Y %H:%M")),obs=bodytemperature[,3]))
-    dta$bodytemperature = bodytemperature
-    }, error = function(e) return("no light data"))
-  }
-  if(".magnetic" %in% measurements){
-    tryCatch({
-    magnetic = utils::read.delim(list.files(pathname,pattern=".magnetic",full.names = TRUE),skip=6,sep="",header = FALSE)
-    magnetic = as.data.frame(list(date=as.POSIXct(strptime(paste(magnetic[,1],magnetic[,2]),
-                                                           tz="UTC",format="%d.%m.%Y %H:%M")),
-                                  gX=magnetic[,4],gY=magnetic[,5],gZ=magnetic[,6],
-                                  mX=magnetic[,7],mY=magnetic[,8],mZ=magnetic[,9]))
-    dta$magnetic = magnetic
-    }, error = function(e) return("no magnetic data"))
+  # find all files in the folder containing the extension
+  files <- list.files(
+    pathname,
+    pattern = paste0(".*\\.(", paste(extension, collapse = "|"), ")$")
+  )
+
+  # Initialize the pam list
+  pam <- list()
+
+  # add identifier from the filename
+  pam$id <- substr(files[1], 1, 4)
+
+  # read each file
+  for (f in files) {
+    if (grepl("glf", f)) {
+      fname <- "light"
+    } else {
+      fname <- strsplit(f, "\\.")[[1]][2]
+    }
+    pam[[fname]] <- read_pam_file(paste0(pathname, f))
   }
 
-  dta
+  # return
+  pam
 }
 
-
-
-
-
-
-#' Crop all sensor data to the same timeframe
+#' Read pam file
 #'
-#' @description Get rid of excess data. e.g. when a logger is kept in a rucksack or a lab before being downloaded.
+#' Read any pam file and return the corresponding data.frame.
 #'
-#' @param dta path where files are stored
-#' @param start posicxt object for date that PAM data should start
-#' @param end posicxt object for date that PAM data should end
+#' @param filename is the path where files are stored
 #'
-#' @return shortened PAM data
+#' @return a data.frame of the measurement
 #'
-#' @export
-create_crop <- function(dta, start, end){
-  test <- lapply(1:length(dta), function(x) {if(x>=2) {
-    as.data.frame(dta[[x]])[(as.data.frame(dta[[x]])[,1] >= start & as.data.frame(dta[[x]])[,1] < end),]
-  }else{ as.character(dta[[x]])}
-  })
-  names(test) = names(dta)
-  return(test)
+read_pam_file <- function(filename) {
+  # read data as delimiter
+  data_raw <- utils::read.delim(filename, skip = 6, sep = "", header = F)
+
+  # get and convert the date
+  data <- data.frame(
+    date = as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),
+      tz = "UTC", format = "%d.%m.%Y %H:%M"
+    ))
+  )
+
+  # Add other values
+  if (grepl("acceleration", filename)) {
+    data$pit <- data_raw[, 3]
+    data$act <- data_raw[, 4]
+  } else if (grepl("magnetic", filename)) {
+    data$gX <- data_raw[, 4]
+    data$gY <- data_raw[, 5]
+    data$gZ <- data_raw[, 6]
+    data$mX <- data_raw[, 7]
+    data$mY <- data_raw[, 8]
+    data$mZ <- data_raw[, 9]
+  } else {
+    data$obs <- data_raw[, 3]
+  }
+
+  # return
+  data
 }
 
 
@@ -115,105 +85,322 @@ create_crop <- function(dta, start, end){
 
 
 
-
-
-
-#' Classify flapping flight
+#' Crop pam in time
 #'
-#' @description This function uses activity data to classify migratory flapping flight.
+#' Crop the timeserie of all sensor to a given time frame
 #'
-#' @param dta data stored as a list see str(data(PAM_data)) for example format
-#' @param period number of timepoints after which behaviour is considered migratory e.g. for hoopoes, 3x5min = 15 minutes of intense activity is considered flight
-#' @param tz timezone, default is "UTC"
+#' @param pam data list
+#' @param crop_start posicxt object for date that pam data should start
+#' @param crop_end posicxt object for date that pam data should end
 #'
-#' @return timetable: a timetable for when the species was migrating or not,
-#' @return classification: a classification timeseries where datetime corresponds to activity, and
-#' @return no_movement: the value in classification which corresponds to no movement
-#' @return low_movement: the value in classification which corresponds to low activity
-#' @return high_movement: the value in classification which corresponds to high activity
-#' @return migration: the value in classification which corresponds to migratory flapping flight
-#' @return threshold: the threshold between low and high activity
+#' @return shortened pam data
 #'
 #'
 #' @export
-classify_flap <- function(dta ,
-                          period = 12,
-                          tz= "UTC"){
-
-  km = stats::kmeans(dta$act,centers=2)
-  dta$clust = km$cluster
-
-  type = "flapping"
-  threshold = sum(min(max(dta$act[dta$clust==1],na.rm=TRUE), max(dta$act[dta$clust==2],na.rm= TRUE)),
-                  max(min(dta$act[dta$clust==1],na.rm= TRUE), min(dta$act[dta$clust==2],na.rm= TRUE)))/2
-
-  # Count the length of each category
-  start=0
-  end=0
-
-  Duration_table = data.frame(matrix(c("2015-01-01","2015-01-01","2015-01-01","2015-01-01",0,0),nrow=2))
-  colnames(Duration_table) = c("start","end","Duration (h)")
-  Duration_table$start = as.POSIXct(Duration_table$start,tz=tz,format="%Y-%m-%d")
-  Duration_table$end = as.POSIXct(Duration_table$end,tz=tz,format="%Y-%m-%d")
-  Duration_table$`Duration (h)` = as.numeric(Duration_table$`Duration (h)`)
-
-  # now we take high activity, partition it into magration or not based on duration
-  high_movement = as.numeric(which(table(dta$clust) == min(table(dta$clust),na.rm= TRUE)))
-  low_movement = as.numeric(which(table(dta$clust) == max(table(dta$clust),na.rm= TRUE)))
-  dta$clust[is.na(dta$clust)] =  low_movement
-
-  # get rid of 1-off missclassifications
-  x = c(high_movement,low_movement,high_movement)
-  idx = which(dta$clust == x[1])
-  idx = idx[sapply(idx, function(i) all(dta$clust[i:(i+(length(x)-1))] == x))]
-  dta$clust[idx+1] = high_movement
-
-  x = c(low_movement,high_movement)
-  start = which(dta$clust == x[1])
-  start = start[sapply(start, function(i) all(dta$clust[i:(i+(length(x)-1))] == x))]
-  x = c(high_movement, low_movement)
-  end = which(dta$clust == x[1])
-  end = end[sapply(end, function(i) all(dta$clust[i:(i+(length(x)-1))] == x))]
-
-  if(end[1]< start[1]) end = end[-1] #if the series starts with an end not a start, remove the first ending
-  if (length(end)<length(start)) start= start[1:length(end)]
-  if (length(end)>length(start)) end= end[1:length(start)]
-
-
-  # make sure only periods where birds is flying longer than the flapping duration are stored
-  index = which((end-start) >= period)
-  start = start[index]
-  end = end[index]
-
-  index = unlist(sapply(1:length(start), function(i) start[i]:end[i]))
-  dta$clust[index] = 3
-
-
-  #look for start and end of migration
-  end = c(which(dta$clust ==3)[diff(which(dta$clust ==3)) > 1], which(dta$clust ==3)[length(which(dta$clust ==3))])
-  start = c(which(dta$clust ==3)[1], (which(dta$clust ==3)[which(diff(which(dta$clust ==3)) > 1)+ 1] ))
-
-  dur = difftime(dta$date[end], dta$date[start], tz= tz, units = "hours")
-  info = data.frame(dta$date[start], dta$date[end], dur)
-  names(info) = c("start","end","Duration (h)")
-  Duration_table = rbind(Duration_table, info)
-
-
-  # order so that low movement is lower than high movement
-  if (high_movement == 1){
-    dta$clust[dta$clust == 1] = 999
-    dta$clust[dta$clust == 2] = 1
-    dta$clust[dta$clust == 999] = 2
+crop_pam <- function(pam, crop_start, crop_end) {
+  for (i in 1:length(pam)) {
+    if ("date" %in% colnames(pam[[i]])) {
+      pam[[i]] <- pam[[i]][pam[[i]]$date >= crop_start & pam[[i]]$date < crop_end, ]
+    }
   }
-
-  Duration_table = Duration_table[-c(1,2),]
-  dta$clust[dta$act == 0] = 0
-  return(list(timetable = Duration_table,
-              classification = dta$clust,
-              no_movement = 0,
-              low_movement = 1,
-              high_movement = 2,
-              migration = 3,
-              threshold = threshold))
+  # return
+  pam
 }
 
+
+
+
+#' Automatic classification of pam
+#'
+#' This function uses activity data to classify migratory flapping flight.
+#' Inspired by [`classify_flap`]
+#' (https://github.com/KiranLDA/pamLr/blob/master/R/classify_flap.R) from
+#' [pamLr](https://github.com/KiranLDA/pamLr)
+#'
+#' @param pam data list
+#' @param min_duration duration in minutes
+#'
+#' @return pam
+#'
+#' @seealso \code{\link[pamLr]{classify_flap}}
+#'
+#' @export
+classify_pam <- function(pam,
+                         min_duration = 30) {
+  testthat::expect_type(pam, "list")
+  testthat::expect_true("acceleration" %in% names(pam))
+  testthat::expect_type(pam$acceleration, "list")
+  testthat::expect_true("date" %in% names(pam$acceleration))
+  testthat::expect_true("act" %in% names(pam$acceleration))
+  testthat::expect_type(min_duration, "double")
+  testthat::expect_true(min_duration > 0)
+
+  # Run a 2 class k mean clustering
+  km <- stats::kmeans(pam$acceleration$act[pam$acceleration$act > 0],
+    centers = 2
+  )
+
+  # classify all datapoints belonging to the high value cluster
+  act_class <- pam$acceleration$act > mean(km$centers)
+
+  # group continous activites (low or high) with and ID
+  act_id <- c(1, cumsum(diff(as.numeric(act_class)) != 0) + 1)
+
+  # compute the time resolution of the datset
+  dt <- as.double(pam$acceleration$date[2] - pam$acceleration$date[1],
+    units = "mins"
+  )
+
+  # Search all activity with high activity and with a duration above
+  # min_duration
+  tmp <- sapply(split(act_class, act_id), unique) &
+    table(act_id) * dt > min_duration
+
+  # Classify acceleration accordingly
+  pam$acceleration$class <- tmp[act_id]
+
+  # plot(pam$acceleration$date[pam$acceleration$class],
+  # pam$acceleration$act[pam$acceleration$class])
+
+  # return
+  pam
+}
+
+
+
+#' Edit classification of activity and pressure
+#'
+#' This function perform three steps: (1) write the \code{csv} file of the
+#' automatically labeled activity and pressure with
+#' \code{\link{trainset_write}}, (2) open trainset in your broweser
+#' (\url{https://trainset.geocene.com/}) so that you can edit
+#' the labels and (3) read the exported \code{csv} file from trainset with
+#' \code{\link{trainset_read}}.
+#'
+#' @param pam pam logger dataset list
+#' @param pathname Path to the folder where the labeled files should be
+#'   saved
+#' @param filename Name for the file.
+#' @return pam logger dataset list updated with the new label named \code{class}
+#'   (\code{pam$pressure$class} and \code{pam$acceleration$class})
+#' @export
+trainset_edit <- function(pam,
+                          pathname,
+                          filename = paste0(pam$id, "_act_pres-labeled.csv")) {
+
+  # Create file from pam if no labeled file for this bird exist
+  if (!file.exists(paste0(pathname, filename))) {
+    trainset_write(
+      pam,
+      pathname,
+      filename
+    )
+
+    # Edit the file in browser
+    utils::browseURL("https://trainset.geocene.com/")
+
+    # When labilization finished and new file saved, press enter
+    cond <- T
+    while (cond) {
+      readline(prompt = "Press [enter] to continue")
+      if (!file.exists(paste0(pathname, filename, "-labeled.csv"))) {
+        cond <- F
+      } else {
+        warning(
+          paste0(
+            "No labelized file found. Make sure you exported the file from
+            trainset as ",
+            paste0(pathname, filename, "-labeled.csv")
+          )
+        )
+      }
+    }
+  }
+
+  # Read the new file and return the updated pam data
+  trainset_read(
+    pam,
+    pathname,
+    filename
+  )
+}
+
+
+
+#' Write classification of activity and pressure
+#'
+#' This function writes the csv file of the automatically labeled activity and
+#' pressure which can be read with TRAINSET (https://trainset.geocene.com/).
+#'
+#' @param pam pam logger dataset list
+#' @param pathname Path to the folder where the labeled files should be
+#' saved
+#' @param filename Name for the file.
+#' @export
+trainset_write <- function(pam,
+                           pathname,
+                           filename = paste0(pam$id, "_act_pres")) {
+
+  # Perform test
+  testthat::expect_type(pam, "list")
+  testthat::expect_true("pressure" %in% names(pam))
+  testthat::expect_type(pam$pressure, "list")
+  testthat::expect_true("date" %in% names(pam$pressure))
+  testthat::expect_true("obs" %in% names(pam$pressure))
+  testthat::expect_true("acceleration" %in% names(pam))
+  testthat::expect_type(pam$acceleration, "list")
+  testthat::expect_true("date" %in% names(pam$acceleration))
+  testthat::expect_true("act" %in% names(pam$acceleration))
+  testthat::expect_true("class" %in% names(pam$acceleration))
+  testthat::expect_true(dir.exists(pathname))
+  testthat::expect_type(pathname, "character")
+  testthat::expect_type(filename, "character")
+  # create path if does not exit
+  if (!dir.exists(pathname)) {
+    dir.create(pathname)
+  }
+  testthat::expect_true(dir.exists(pathname))
+
+  # write a combined data.frame of pressure and acceleration in csv.
+  utils::write.csv(
+    rbind(
+      data.frame(
+        series = "acceleration",
+        timestamp = strftime(pam$acceleration$date, "%Y-%m-%dT%H:%M:%SZ",
+          tz = "UTC"
+        ),
+        value = pam$acceleration$act,
+        label = ifelse(pam$acceleration$class, "1", "")
+      ),
+      data.frame(
+        series = "pressure",
+        timestamp = strftime(pam$pressure$date, "%Y-%m-%dT%H:%M:%SZ",
+          tz = "UTC"
+        ),
+        value = pam$pressure$obs,
+        label = ""
+      )
+    ),
+    paste0(pathname, filename, ".csv"),
+    row.names = FALSE
+  )
+
+  # no return
+}
+
+
+
+#' Read classification of activity and pressure
+#'
+#' This function read an exported csv file from trainset
+#' (https://trainset.geocene.com/) and update the pam logger dataset
+#'
+#' @param pam pam logger dataset list
+#' @param pathname Path to the folder where the labeled file is.
+#' @param filename Name of the file.
+#' @return pam logger dataset list updated with the new label named `class`
+#' (`pam$pressure$class` and `pam$acceleration$class`)
+#' @export
+trainset_read <- function(pam,
+                          pathname,
+                          filename = paste0(pam$id, "_act_pres-labeled.csv")) {
+
+  # Perform test
+  testthat::expect_type(pam, "list")
+  testthat::expect_true("pressure" %in% names(pam))
+  testthat::expect_type(pam$pressure, "list")
+  testthat::expect_true("date" %in% names(pam$pressure))
+  testthat::expect_true("obs" %in% names(pam$pressure))
+  testthat::expect_true("acceleration" %in% names(pam))
+  testthat::expect_type(pam$acceleration, "list")
+  testthat::expect_true("date" %in% names(pam$acceleration))
+  testthat::expect_true("act" %in% names(pam$acceleration))
+  testthat::expect_true(dir.exists(pathname))
+  testthat::expect_type(pathname, "character")
+  testthat::expect_type(filename, "character")
+  testthat::expect_true(
+    dir.exists(pathname), paste0("Folder is not found at", pathname)
+  )
+  fullpath <- paste0(pathname, filename)
+  testthat::expect_true(
+    file.exists(fullpath), paste0("File is not found at", fullpath)
+  )
+
+  # read the file
+  csv <- utils::read.csv(fullpath)
+
+  # check that the file is in the right format and same size as pam data
+  testthat::expect_true("series" %in% names(csv))
+  testthat::expect_length(
+    csv$label, length(pam$acceleration$date) + length(pam$pressure$date)
+  )
+
+  # assign label value to class
+  pam$acceleration$class <- !is.na(csv$label[csv$series == "acceleration"])
+  pam$pressure$class <- !is.na(csv$label[csv$series == "pressure"])
+
+  # return
+  pam
+}
+
+
+
+#' Compute stationary periods
+#'
+#' This function computes the table of stationary periods from the class of
+#' acceleration `pam$acceleration$class` and add it to the pam
+#'
+#' @param pam pam logger dataset list
+#' @return pam logger dataset list with a the dataframe of stationary periods
+#' `pam$sta` as well as the new label named `sta_id` (`pam$pressure$sta_id` and
+#' `pam$acceleration$sta_id`)
+#' @export
+sta_pam <- function(pam) {
+
+  # Perform test
+  testthat::expect_type(pam, "list")
+  testthat::expect_true("pressure" %in% names(pam))
+  testthat::expect_type(pam$pressure, "list")
+  testthat::expect_true("date" %in% names(pam$pressure))
+  testthat::expect_true("obs" %in% names(pam$pressure))
+  testthat::expect_true("acceleration" %in% names(pam))
+  testthat::expect_type(pam$acceleration, "list")
+  testthat::expect_true("date" %in% names(pam$acceleration))
+  testthat::expect_true("act" %in% names(pam$acceleration))
+  testthat::expect_true("class" %in% names(pam$acceleration))
+
+  # Create a table of activities (migration or stationary)
+  act_id <- c(1, cumsum(diff(as.numeric(pam$acceleration$class)) != 0) + 1)
+
+  act <- data.frame(
+    id = unique(act_id),
+    start = do.call("c", lapply(split(pam$acceleration$date, act_id), min)),
+    end = do.call("c", lapply(split(pam$acceleration$date, act_id), max)),
+    mig = sapply(split(pam$acceleration$class, act_id), unique)
+  )
+
+  # filter to keep only migration activities
+  act_mig <- act[act$mig, ]
+  act_mig$duration <- act_mig$end - act_mig$start
+
+  # construct stationary period table based on migration activity and pressure
+  pam$sta <- data.frame(
+    start = c(pam$pressure$date[1], act_mig$end),
+    end = c(act_mig$start, utils::tail(pam$pressure$date, n = 1))
+  )
+
+  # Compute the duration
+  pam$sta$duration <- pam$sta$end - pam$sta$start
+  pam$sta$next_flight_duration <- c(act_mig$duration, 0)
+  pam$sta$sta_id <- 1:nrow(pam$sta)
+
+  # Assign to each pressure the stationary period to which it belong to.
+  pressure_sta_id <- sapply(
+    pam$pressure$date, function(x) which(pam$sta$start < x & x < pam$sta$end)
+  )
+  pressure_sta_id[sapply(pressure_sta_id, function(x) length(x) == 0)] <- 0
+  pam$pressure$sta_id <- unlist(pressure_sta_id)
+
+  # return the updated list
+  pam
+}

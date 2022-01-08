@@ -1,6 +1,6 @@
 Package: GeoPressureR
 Title: Location from Reanalysed Pressure
-Version: 1.0
+Version: 1.1
 Authors@R: c(
     person("Rapaël", "Nussbaumer", email="ryn5@cornell.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-8185-1020")),
     person("Mathieu", "Gravey", email="mathieu@mgravey.com", role = c("aut"), comment = c(ORCID = "0000-0002-0871-1507"))
@@ -15,7 +15,9 @@ Suggests:
     knitr,
     testthat,
     leaflet,
-    ggplot2
+    ggplot2,
+    plotly,
+    RColorBrewer
 VignetteBuilder: knitr
 Imports: 
     raster,
@@ -26,3 +28,6 @@ Imports:
     rmarkdown,
     remotes,
     utils
+Depends: 
+    R (>= 3.5.0)
+LazyData: true
