@@ -1,8 +1,8 @@
 ---
-title: "Basic Example"
+title: "How to use GeoPressureR: an example"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Basic Example}
+  %\VignetteIndexEntry{How to use GeoPressureR: an example}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,14 +15,16 @@ knitr::opts_chunk$set(
 )
 # knitr::knit("vignettes/basic_example.Rmd.orig", output = "vignettes/basic_example.Rmd")
 ```
+Using a basic example, we walk through the main steps of the methodology to demonstrate how it can be used. 
 
-## Setup
+## Preparing the data
 
-For this demo, we will use the standard packages for processing the raw geolocator data. If you haven't installed them, use the following lines:
+To start, install the GeoPressureR package from Github using the following line: 
 ```{r, eval = FALSE}
-devtools::install_github("GeoPressureR")
+devtools::install_github("rafnuss/GeoPressureR")
 ```
 
+We will be using the following libraries: 
 ```{r setup}
 library(GeoPressureR)
 library(raster)
@@ -32,8 +34,9 @@ library(plotly)
 library(RColorBrewer)
 ```
 
-## Load data
-Load Great Reed Warbler (18LX) data
+### Reading geolocator data
+In this example, we use data captured on a Great Reed Warbler (18LX). Below, we read the geolocator data and define the start and end time (crop_start and crop_end).
+
 ```{r}
 pam_data = read_pam(pathname = system.file("extdata", "/", package = "GeoPressureR") )
 crop_start = as.POSIXct("2017-06-20","%Y-%m-%d", tz="UTC")
@@ -41,50 +44,53 @@ crop_end = as.POSIXct("2018-05-02","%Y-%m-%d", tz="UTC")
 pam_data = crop_pam(pam_data, crop_start, crop_end)
 ```
 
-## Activity Processing
+### Automatic classification of activity
 
-### Automatic classification
-
-We use a simple k-mean clustering to define period of relative high activity, and then classify high activities lasting more than 30 minutes as migratory activities. See more possible classification described in the [PALMr manual](https://kiranlda.github.io/PAMLrManual/index.html).
+We use a simple k-mean clustering to define periods of relatively high activity, and then classify high activities lasting more than 30 minutes as migratory activities. See more possible classifications described in the [PALMr manual](https://kiranlda.github.io/PAMLrManual/index.html).
 
 ```{r}
 pam_data = classify_pam(pam_data, min_duration = 30)
 ```
 
 ### Editing on TRAINSET
-For the matching of pressure to work correctly, we need that the bird was exactly at the same location during the stationary period. It is very likely that a manual editing of the activity classification is required.
 
-We suggest using TRAINSET to edit your classification. The following code will export the automatically generated classification in a `*.csv` file which can be edited in TRAINSET [www.trainset.geocene.com](https://trainset.geocene.com/). Once, finished, export the new `*-labeled.csv` file. 
+To ensure the high level of precision needed for the pressure match, we must manually edit the activity classification and  the pressure timeseries to be matched. We suggest doing this with TRAINSET. A separate vignette dedicated to this exercise, including best practices and a sample code to get started, is available here [labeling track vignette](labeling_tracks.html).
 
-Make sure to keep these classified file on your project folder (e.g. under `/data/`)
+Use `trainset_write()` to export the automatically generated classifications in a `*.csv` file, which can be opened in [TRAINSET](https://trainset.geocene.com/).
+
 ```{r eval=F}
 trainset_write(pam_data, pathname=system.file("extdata", "/", package = "GeoPressureR"))
+# browseURL("https://trainset.geocene.com/")
 ```
+
 
 ![Printscreen of the manual classification in Trainset. See [labeling track vignette](labeling_tracks.html) for more information](labeling_tracks_4.png){width=100%}
 
-To re-edit an existing labeled file you can simply re-open the file on trainset and read this file directly with `trainset_read`.
+When you have finished the manual editing, export the new `*-labeled.csv` file. Make sure to keep these classified files in your project folder (e.g. under `/data/`).
+
+To re-edit an existing labeled file, you can simply re-open the file on TRAINSET and read this file directly with `trainset_read()`.
 
 ```{r}
-# browseURL("https://trainset.geocene.com/")
 pam_data = trainset_read(pam_data, pathname=system.file("extdata", "/", package = "GeoPressureR"))
 ```
 
-You can read more about this manual editing in the [labeling track vignette](labeling_tracks.html). 
+### Identifying stationary periods
 
-### Compute stationary periods
+Based on the activity labeling, `sta_pam()` creates a table of stationary periods, illustrated below.
 
-After reading the file, `trainset_read` also create the table of stationary periods
 ```{r}
 pam_data = sta_pam(pam_data)
-knitr::kable(pam_data$sta)
+knitr::kable(head(pam_data$sta))
 ```
+
+We can visualize the pressure measurements for each grouped stationary period (symbolized by the same color).
 
 ```{r}
 p <- subset(pam_data$pressure, sta_id != 0) %>% 
   ggplot() +
   geom_line(aes(x=date,y=obs,col=as.factor(sta_id))) + 
   theme_bw() +
+  scale_y_continuous(name="Pressure(hPa)") +
   scale_colour_manual(values=rep(RColorBrewer::brewer.pal(9,"Set1"),times=4))
   #scale_colour_brewer(type="qualitative", palette = 'Set1')
 
@@ -92,19 +98,21 @@ ggplotly(p, dynamicTicks = T)
 ```
 
 ## Request map of pressure
-Initially, it might be easier to only query stationary period of a certain duration.
+We can now clearly visualize the unique pressure timeseries for each stationary period, and are ready to match each one with atmospheric pressure data (ERA5). We use Google Earth Engine to overcome the challenge of computing mismatch on such a large dataset.
+
+Initially, it might be easier to query only stationary periods of a certain duration.
 ```{r}
 sta_id_keep = pam_data$sta$sta_id[difftime(pam_data$sta$end,pam_data$sta$start, units = "hours")>12]
 pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] = NA
 ```
 
-We can query the data. To save time in this vignette I'll actually load this data that I've saved earlier. But the code is given below
+We can query the data. To save time in this vignette I load this data that I've saved earlier. But the code is given below
 ```{r}
 data("prob_map_list", package = "GeoPressureR")
 data("ts_list", package = "GeoPressureR")
 ```
 
-In this part, we query the maps of pressure from the [GeoPressure API](https://github.com/Rafnuss/GeoPressureServer/).
+In this part, we query the pressure maps from the [GeoPressure API](https://github.com/Rafnuss/GeoPressureServer/).
 ```{r, eval=F}
 extent = c(-16,20,0,50) # coordinates of the map to request (W,E,S,N) 
 scale = 10 # request on a 0.1° grid to make the code faster
@@ -120,8 +128,8 @@ thr = 0.9 # threashold of value acceptable 2
 prob_map_list = geopressure_prob_map(raster_list, s=s, thr=thr)
 ```
 
-## Display
-Comparing map of mismatch, threadhold and probability
+### Display
+Comparing maps of mismatch, threadhold and probability
 ```{r, eval = F}
 i_r = 1;
 
