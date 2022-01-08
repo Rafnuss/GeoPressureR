@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,8 +41,9 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="articles/basic_example.html">Basic Example</a>
     <a class="dropdown-item" href="articles/compare_to_light.html">compare_to_light</a>
-    <a class="dropdown-item" href="articles/demo.html">demo</a>
+    <a class="dropdown-item" href="articles/labeling_tracks.html">Labeling Tracks</a>
   </div>
 </li>
       </ul>
@@ -62,39 +63,43 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of GeoPressureR is to help researcher to analyse pressure measurement made by geolocator. In particular, it provides a R wrapper around the .</p>
+<p>The goal of GeoPressureR is to help researcher to analyse pressure measurement from geolocator. In particular, it provides a R wrapper around the <a href="https://github.com/Rafnuss/GeoPressureServer" class="external-link">GeoPressure API</a> to query the proability map using ERA5 pressure.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of GeoPressureR from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>You can install the development version of GeoPressureR from <a href="https://github.com/Rafnuss/GeoPressureR" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># install.packages("devtools")</span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"Rafnuss/GeoPressureR"</span><span class="op">)</span></code></pre></div>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"Rafnuss/GeoPressureR"</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="how-to-use">How to use?<a class="anchor" aria-label="anchor" href="#how-to-use"></a>
+<h2 id="where-to-start">Where to start?<a class="anchor" aria-label="anchor" href="#where-to-start"></a>
 </h2>
-<ul>
-<li><a href="">Documentation</a></li>
-<li><a href="">Vignette demo</a></li>
-</ul>
+<p>The <a href="./basic_example.html">vignette basic esample</a> is probably the best place to understand the basic workflow of the package.</p>
 </div>
 <div class="section level2">
 <h2 id="related-ressources">Related ressources<a class="anchor" aria-label="anchor" href="#related-ressources"></a>
 </h2>
 <ul>
-<li>Multiple package to analyse light: <a href="https://github.com/slisovski/GeoLight/tree/Update_2.01" class="external-link">GeoLight</a>
-</li>
 <li>
-<a href="https://github.com/KiranLDA/PAMLr" class="external-link">PAMLr</a>: Extensive toolbox to analyse multi-sensor geolocator. <code>R/PAM.R</code> is directly from this package.</li>
-<li><a href="https://github.com/Rafnuss/GeoPressureServer" class="external-link">GeoPressure API</a></li>
-<li><a href="">GEE</a></li>
-<li><a href=""></a></li>
+<a href="https://github.com/Rafnuss/PressureGeolocator" class="external-link">PressureGeolocator</a> Developement of the method was done on MATLAB. Here is the repo with all the codes.</li>
+<li>
+<a href="https://github.com/Rafnuss/GeoPressureServer" class="external-link">GeoPressure API</a> This is where the hard core computation with Google Earth Engine is done. You can have a look here to see how this is done.</li>
+<li>
+<a href="https://github.com/slisovski/GeoLight/tree/Update_2.01" class="external-link">GeoLight</a> R package to analyse light data.</li>
+<li>
+<a href="https://github.com/KiranLDA/PAMLr" class="external-link">PAMLr</a>: Extensive toolbox to analyse multi-sensor geolocator. Several function from this package are inspired from this package.</li>
 </ul>
 </div>
 <div class="section level2">
 <h2 id="how-to-cite">How to cite?<a class="anchor" aria-label="anchor" href="#how-to-cite"></a>
 </h2>
+<p><em>manuscript in preparation</em></p>
+</div>
+<div class="section level2">
+<h2 id="want-to-contribute">Want to contribute?<a class="anchor" aria-label="anchor" href="#want-to-contribute"></a>
+</h2>
+<p>Don’t hesitate to reach out if you’re interested in contributing. You can also <a href="https://github.com/Rafnuss/GeoPressureR/issues" class="external-link">submit an issue on Github</a> with ideas, bug, etc…</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
@@ -124,7 +129,6 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master" class="external-link"><img src="https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
 <li><a href="https://github.com/Rafnuss/GeoPressureR/actions" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
 </ul>
 </div>
