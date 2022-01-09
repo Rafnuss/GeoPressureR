@@ -20,9 +20,7 @@ pam_read <- function(pathname,
                      ),
                      crop_start = "1900-01-01",
                      crop_end = "2100-01-01") {
-  testthat::expect_true(
-    dir.exists(pathname), paste0("Folder is not found at", pathname)
-  )
+  testthat::test_path(pathname, paste0("Folder is not found at", pathname))
   testthat::expect_type(extension, "character")
   testthat::expect_true(all(extension %in% c(
     "pressure", "glf", "acceleration",
@@ -259,7 +257,7 @@ trainset_write <- function(pam,
   if (!dir.exists(pathname)) {
     dir.create(pathname)
   }
-  testthat::expect_true(dir.exists(pathname))
+  testthat::test_path(pathname)
 
   # write a combined data.frame of pressure and acceleration in csv.
   utils::write.csv(
@@ -317,9 +315,7 @@ trainset_read <- function(pam,
   testthat::expect_true("act" %in% names(pam$acceleration))
   testthat::expect_type(pathname, "character")
   testthat::expect_type(filename, "character")
-  testthat::expect_true(
-    dir.exists(pathname), paste0("Folder is not found at", pathname)
-  )
+  testthat::test_path(pathname, paste0("Folder is not found at", pathname))
   fullpath <- paste0(pathname, filename)
   testthat::expect_true(
     file.exists(fullpath), paste0("File is not found at", fullpath)
