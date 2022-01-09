@@ -21,7 +21,7 @@ Using a basic example, we walk through the main steps of the methodology to demo
 
 To start, install the GeoPressureR package from Github using the following line: 
 ```{r, eval = FALSE}
-devtools::install_github("rafnuss/GeoPressureR")
+devtools::install_github("Rafnuss/GeoPressureR")
 ```
 
 We will be using the following libraries: 
@@ -35,13 +35,11 @@ library(RColorBrewer)
 ```
 
 ### Reading geolocator data
-In this example, we use data captured on a Great Reed Warbler (18LX). Below, we read the geolocator data and define the start and end time (crop_start and crop_end).
+In this example, we use data captured on a Great Reed Warbler (18LX). Below, we read the geolocator data and crop to equipment and retrieval date.
 
 ```{r}
-pam_data = read_pam(pathname = system.file("extdata", "/", package = "GeoPressureR") )
-crop_start = as.POSIXct("2017-06-20","%Y-%m-%d", tz="UTC")
-crop_end = as.POSIXct("2018-05-02","%Y-%m-%d", tz="UTC")
-pam_data = crop_pam(pam_data, crop_start, crop_end)
+pam_data = pam_read(pathname = system.file("extdata", "/", package = "GeoPressureR"),
+                    crop_start = "2017-06-20", crop_end = "2018-05-02")
 ```
 
 ### Automatic classification of activity
@@ -49,7 +47,7 @@ pam_data = crop_pam(pam_data, crop_start, crop_end)
 We use a simple k-mean clustering to define periods of relatively high activity, and then classify high activities lasting more than 30 minutes as migratory activities. See more possible classifications described in the [PALMr manual](https://kiranlda.github.io/PAMLrManual/index.html).
 
 ```{r}
-pam_data = classify_pam(pam_data, min_duration = 30)
+pam_data = pam_classify(pam_data, min_duration = 30)
 ```
 
 ### Editing on TRAINSET
@@ -76,10 +74,10 @@ pam_data = trainset_read(pam_data, pathname=system.file("extdata", "/", package 
 
 ### Identifying stationary periods
 
-Based on the activity labeling, `sta_pam()` creates a table of stationary periods, illustrated below.
+Based on the activity labeling, `pam_sta()` creates a table of stationary periods, illustrated below.
 
 ```{r}
-pam_data = sta_pam(pam_data)
+pam_data = pam_sta(pam_data)
 knitr::kable(head(pam_data$sta))
 ```
 
@@ -143,7 +141,8 @@ leaflet() %>% addTiles() %>%
     options = layersControlOptions(collapsed = FALSE)
   ) %>% hideGroup(c("Mismatch","Threashold"))
 ```
-```{r, eval = F}
+
+```{r}
 
 li_s=list()
 l = leaflet() %>% addTiles() 

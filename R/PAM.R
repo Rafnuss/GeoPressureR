@@ -1,19 +1,34 @@
 #' Read pam data
 #'
-#' Imports multi-sensor logger data.
+#' Imports multi-sensor logger data from a folder and optionally crop at
+#' specific date. Read all available file from the extension list AND which
+#' exist in the folder.
 #'
 #' @param pathname path where files are stored
 #' @param extension list of file extentions to read (e.g., ".pressure",
 #' ".glf", ".gle",".acceleration", ".temperature" and ".magnetic")
+#' @param crop_start is the date that pam data should start
+#' @param crop_end is the date that pam data should end
 #'
 #' @return a list of all measurements
 #'
 #' @export
-read_pam <- function(pathname = pathname,
-                     extension = c(
-                       "pressure", "glf", "acceleration",
-                       "temperature", "magnetic"
-                     )) {
+pam_read <- function(pathname,
+                     extension = c("pressure", "glf", "acceleration",
+                                   "temperature", "magnetic"),
+                     crop_start = "1900-01-01",
+                     crop_end = "2100-01-01"
+                     ) {
+  testthat::expect_true(
+    dir.exists(pathname), paste0("Folder is not found at", pathname)
+  )
+  testthat::expect_type(extension, "character")
+  testthat::expect_true(all(extension %in% c("pressure", "glf", "acceleration",
+                                         "temperature", "magnetic")))
+
+  # convert date to POSIXct date
+  crop_start = as.POSIXct(crop_start, tz="UTC")
+  crop_end = as.POSIXct(crop_end, tz="UTC")
 
   # find all files in the folder containing the extension
   files <- list.files(
@@ -34,7 +49,7 @@ read_pam <- function(pathname = pathname,
     } else {
       fname <- strsplit(f, "\\.")[[1]][2]
     }
-    pam[[fname]] <- read_pam_file(paste0(pathname, f))
+    pam[[fname]] <- pam_read_file(paste0(pathname, f), crop_start, crop_end)
   }
 
   # return
@@ -46,33 +61,41 @@ read_pam <- function(pathname = pathname,
 #' Read any pam file and return the corresponding data.frame.
 #'
 #' @param filename is the path where files are stored
+#' @param crop_start posicxt object for date that pam data should start
+#' @param crop_end posicxt object for date that pam data should end
 #'
 #' @return a data.frame of the measurement
 #'
-read_pam_file <- function(filename) {
+pam_read_file <- function(filename, crop_start, crop_end) {
   # read data as delimiter
   data_raw <- utils::read.delim(filename, skip = 6, sep = "", header = F)
 
   # get and convert the date
+  date = as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),
+                             tz = "UTC", format = "%d.%m.%Y %H:%M"
+  ))
+
+  # Filter date
+  id_date <- date >= crop_start & date < crop_end
+
+  # Create data.frame
   data <- data.frame(
-    date = as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),
-      tz = "UTC", format = "%d.%m.%Y %H:%M"
-    ))
+    date = date[id_date]
   )
 
   # Add other values
   if (grepl("acceleration", filename)) {
-    data$pit <- data_raw[, 3]
-    data$act <- data_raw[, 4]
+    data$pit <- data_raw[id_date, 3]
+    data$act <- data_raw[id_date, 4]
   } else if (grepl("magnetic", filename)) {
-    data$gX <- data_raw[, 4]
-    data$gY <- data_raw[, 5]
-    data$gZ <- data_raw[, 6]
-    data$mX <- data_raw[, 7]
-    data$mY <- data_raw[, 8]
-    data$mZ <- data_raw[, 9]
+    data$gX <- data_raw[id_date, 4]
+    data$gY <- data_raw[id_date, 5]
+    data$gZ <- data_raw[id_date, 6]
+    data$mX <- data_raw[id_date, 7]
+    data$mY <- data_raw[id_date, 8]
+    data$mZ <- data_raw[id_date, 9]
   } else {
-    data$obs <- data_raw[, 3]
+    data$obs <- data_raw[id_date, 3]
   }
 
   # return
@@ -85,35 +108,12 @@ read_pam_file <- function(filename) {
 
 
 
-#' Crop pam in time
-#'
-#' Crop the timeserie of all sensor to a given time frame
-#'
-#' @param pam data list
-#' @param crop_start posicxt object for date that pam data should start
-#' @param crop_end posicxt object for date that pam data should end
-#'
-#' @return shortened pam data
-#'
-#'
-#' @export
-crop_pam <- function(pam, crop_start, crop_end) {
-  for (i in 1:length(pam)) {
-    if ("date" %in% colnames(pam[[i]])) {
-      pam[[i]] <- pam[[i]][pam[[i]]$date >= crop_start & pam[[i]]$date < crop_end, ]
-    }
-  }
-  # return
-  pam
-}
-
-
 
 
 #' Automatic classification of pam
 #'
 #' This function uses activity data to classify migratory flapping flight.
-#' Inspired by [`classify_flap`]
+#' Inspired by [classify_flap]
 #' (https://github.com/KiranLDA/pamLr/blob/master/R/classify_flap.R) from
 #' [pamLr](https://github.com/KiranLDA/pamLr)
 #'
@@ -122,10 +122,9 @@ crop_pam <- function(pam, crop_start, crop_end) {
 #'
 #' @return pam
 #'
-#' @seealso \code{\link[pamLr]{classify_flap}}
 #'
 #' @export
-classify_pam <- function(pam,
+pam_classify <- function(pam,
                          min_duration = 30) {
   testthat::expect_type(pam, "list")
   testthat::expect_true("acceleration" %in% names(pam))
@@ -252,7 +251,6 @@ trainset_write <- function(pam,
   testthat::expect_true("date" %in% names(pam$acceleration))
   testthat::expect_true("act" %in% names(pam$acceleration))
   testthat::expect_true("class" %in% names(pam$acceleration))
-  testthat::expect_true(dir.exists(pathname))
   testthat::expect_type(pathname, "character")
   testthat::expect_type(filename, "character")
   # create path if does not exit
@@ -315,7 +313,6 @@ trainset_read <- function(pam,
   testthat::expect_type(pam$acceleration, "list")
   testthat::expect_true("date" %in% names(pam$acceleration))
   testthat::expect_true("act" %in% names(pam$acceleration))
-  testthat::expect_true(dir.exists(pathname))
   testthat::expect_type(pathname, "character")
   testthat::expect_type(filename, "character")
   testthat::expect_true(
@@ -355,7 +352,7 @@ trainset_read <- function(pam,
 #' `pam$sta` as well as the new label named `sta_id` (`pam$pressure$sta_id` and
 #' `pam$acceleration$sta_id`)
 #' @export
-sta_pam <- function(pam) {
+pam_sta <- function(pam) {
 
   # Perform test
   testthat::expect_type(pam, "list")

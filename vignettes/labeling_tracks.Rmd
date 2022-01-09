@@ -29,22 +29,22 @@ In this vignette, we'll explore how to label your track files (activity and pres
 
 You might wonder, with machine learning, surely, there is no need to do anything manually anymore. Why the heck should I bother with a manual editing?
 
-1. Put simply, it will be faster. Trying to find an algorithm that work for all species, individuals, type of migration is probably not possible. Trying to get any algorithm tuned to the specific track will take more time than going through each track. You can expect to spend between 30sec to 10min per tracks. 
+- Put simply, it will be faster. Trying to find an algorithm that work for all species, individuals, type of migration is probably not possible. Trying to get any algorithm tuned to the specific track will take more time than going through each track. You can expect to spend between 30sec to 10min per tracks. 
 
-More than saving time, it will give you a sense of what your bird is doing. You'll get to know how it's moving (e.g., long continuous high altitude flight, short ones over multiple days, alternation between short migration-stopover etc...). It will also give you an idea of the uncertainty of your classification. Is the bird really moving or is it just a changing altitude? All of that will be very useful to analyse the track later. 
+- More than saving time, it will give you a sense of what your bird is doing. You'll get to know how it's moving (e.g., long continuous high altitude flight, short ones over multiple days, alternation between short migration-stopover etc...). It will also give you an idea of the uncertainty of your classification. Is the bird really moving or is it just a changing altitude? All of that will be very useful to analyse the track later. 
 
-But the more important reason for doing that is that the pressure mapping required very highly accurately labelled acitivity and pressure data. Firstly activity labeling defined stationary period and flight duration. Short stationary period can be particularly hard to defined, so that expert knowledge might be very useful. Flight duration has an important impact on the movement model so that for short successive stationary period (when pressure mapping is not precise), you really want to be accurate with the flight duration to have good esitmation of bird's position. Secondly, the pressure timeserie matching algorithm is very sensitive to erroneously labeled pressure, such that even a single mislabeled datapoint can through off the estimation map. 
+- But the more important reason for doing that is that the pressure mapping required very highly accurately labelled acitivity and pressure data. Firstly activity labeling defined stationary period and flight duration. Short stationary period can be particularly hard to defined, so that expert knowledge might be very useful. Flight duration has an important impact on the movement model so that for short successive stationary period (when pressure mapping is not precise), you really want to be accurate with the flight duration to have good esitmation of bird's position. Secondly, the pressure timeserie matching algorithm is very sensitive to erroneously labeled pressure, such that even a single mislabeled datapoint can through off the estimation map. 
 
 That being said, it is worth starting the manual editing with the automatically labeled timeserie. Check out possible classification method on the [PALMr manual](https://kiranlda.github.io/PAMLrManual/index.html).
 
 ## Overview of the process
 
-1. run an automatic classification (e.g., `classify_flap()`)
-2. create the label csv file (`trainset.write()`, `18IC_act_pres.csv`)
-3. open the file on [www.trainset.geocene.com](https://trainset.geocene.com/)
-4. label activity and pressure
-5. export the labeled csv file (`18IC_act_pres-labeled.csv`)
-6. read the file in R (`trainset.read()`)
+1. Run an automatic classification (e.g., `classify_flap()`)
+2. Create the label csv file (`trainset.write()`, `18IC_act_pres.csv`)
+3. Open the file on [www.trainset.geocene.com](https://trainset.geocene.com/)
+4. Label activity and pressure
+5. Export the labeled csv file (`18IC_act_pres-labeled.csv`)
+6. Read the file in R (`trainset.read()`)
 
 See an example of this process in the section ["Editing of Pressure and Activity on Trainset" of basic example](basic_example.html#editing-of-pressure-and-activity-on-trainset)
 
@@ -100,8 +100,8 @@ This small script was written to help you get started with checking your labeliz
 
 You can see [the basic example vignette](basic_example) to get more background on the processing before the labelization.
 ```{r}
-pam_data = read_pam(pathname = system.file("extdata", "/", package = "GeoPressureR") )
-pam_data = crop_pam(pam_data, as.POSIXct("2017-06-20","%Y-%m-%d", tz="UTC"), as.POSIXct("2018-05-02","%Y-%m-%d", tz="UTC"))
+pam_data = pam_read(pathname = system.file("extdata", "/", package = "GeoPressureR"),
+                    crop_start = "2017-06-20", crop_end = "2018-05-02")
 ```
 
 **Test 1**: Duration of stationary period and flight
@@ -112,7 +112,7 @@ For this exemple, I'm using the first version exported from trainset
 
 ```{r}
 pam_data = trainset_read(pam_data, system.file("extdata", "/", package = "GeoPressureR"), filename = "18LX_act_pres-labeled-v1.csv")
-pam_data = sta_pam(pam_data)
+pam_data = pam_sta(pam_data)
 knitr::kable(pam_data$sta[difftime(pam_data$sta$end,pam_data$sta$start, units = "mins")<60 | pam_data$sta$next_flight_duration<30,])
 ```
 You probably don't want stationary period and flight duration shorter than a couple of hours. You can go back to trainset using the exact time from the table above to adapt the labelization as you see fit and export a new version of the `csv` file. 
@@ -124,7 +124,7 @@ Note that the last row has a `nextFlightDuration` of zero because it's the last 
 The second check to do before computing the map is to visualize the timeserie of pressure and their grouping into stationary period.
 ```{r}
 pam_data = trainset_read(pam_data, system.file("extdata", "/", package = "GeoPressureR"), filename = "18LX_act_pres-labeled-v2.csv")
-pam_data = sta_pam(pam_data)
+pam_data = pam_sta(pam_data)
 
 p <- subset(pam_data$pressure, sta_id != 0) %>% 
   ggplot() +
@@ -145,7 +145,7 @@ We have checked so far that the pressure timeseries are correctly label with the
 You might want to start with only the long stationary periods at first and see the result. Once you're happy, you can test the shortest one.
 ```{r}
 pam_data = trainset_read(pam_data, system.file("extdata", "/", package = "GeoPressureR"), filename = "18LX_act_pres-labeled-v3.csv")
-pam_data = sta_pam(pam_data)
+pam_data = pam_sta(pam_data)
 
 sta_id_keep = pam_data$sta$sta_id[difftime(pam_data$sta$end,pam_data$sta$start, units = "hours")>12]
 pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] = NA
