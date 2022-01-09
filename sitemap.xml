@@ -25,12 +25,6 @@
     <loc>/index.html</loc>
   </url>
   <url>
-    <loc>/reference/classify_pam.html</loc>
-  </url>
-  <url>
-    <loc>/reference/crop_pam.html</loc>
-  </url>
-  <url>
     <loc>/reference/geopressure_map.html</loc>
   </url>
   <url>
@@ -43,16 +37,19 @@
     <loc>/reference/index.html</loc>
   </url>
   <url>
+    <loc>/reference/pam_classify.html</loc>
+  </url>
+  <url>
+    <loc>/reference/pam_read.html</loc>
+  </url>
+  <url>
+    <loc>/reference/pam_read_file.html</loc>
+  </url>
+  <url>
+    <loc>/reference/pam_sta.html</loc>
+  </url>
+  <url>
     <loc>/reference/prob_map_list.html</loc>
-  </url>
-  <url>
-    <loc>/reference/read_pam.html</loc>
-  </url>
-  <url>
-    <loc>/reference/read_pam_file.html</loc>
-  </url>
-  <url>
-    <loc>/reference/sta_pam.html</loc>
   </url>
   <url>
     <loc>/reference/trainset_edit.html</loc>
