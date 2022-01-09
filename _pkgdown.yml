@@ -2,3 +2,16 @@ url: ~
 template:
   bootstrap: 5
 
+reference:
+- title: Handle PAM data
+  desc: Reading, crop, and basic operation for PAM data
+- contents:
+  - starts_with("pam_")
+- title: Trainset
+  desc: Read and write csv file for trainset.net
+  contents:
+  - starts_with("trainset_")
+- title: GeoPressure
+  desc: Wrapper to the GeoPressure API
+- contents:
+  - starts_with("geopressure_")
