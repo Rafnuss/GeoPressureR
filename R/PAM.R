@@ -14,21 +14,24 @@
 #'
 #' @export
 pam_read <- function(pathname,
-                     extension = c("pressure", "glf", "acceleration",
-                                   "temperature", "magnetic"),
+                     extension = c(
+                       "pressure", "glf", "acceleration",
+                       "temperature", "magnetic"
+                     ),
                      crop_start = "1900-01-01",
-                     crop_end = "2100-01-01"
-                     ) {
+                     crop_end = "2100-01-01") {
   testthat::expect_true(
     dir.exists(pathname), paste0("Folder is not found at", pathname)
   )
   testthat::expect_type(extension, "character")
-  testthat::expect_true(all(extension %in% c("pressure", "glf", "acceleration",
-                                         "temperature", "magnetic")))
+  testthat::expect_true(all(extension %in% c(
+    "pressure", "glf", "acceleration",
+    "temperature", "magnetic"
+  )))
 
   # convert date to POSIXct date
-  crop_start = as.POSIXct(crop_start, tz="UTC")
-  crop_end = as.POSIXct(crop_end, tz="UTC")
+  crop_start <- as.POSIXct(crop_start, tz = "UTC")
+  crop_end <- as.POSIXct(crop_end, tz = "UTC")
 
   # find all files in the folder containing the extension
   files <- list.files(
@@ -71,8 +74,8 @@ pam_read_file <- function(filename, crop_start, crop_end) {
   data_raw <- utils::read.delim(filename, skip = 6, sep = "", header = F)
 
   # get and convert the date
-  date = as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),
-                             tz = "UTC", format = "%d.%m.%Y %H:%M"
+  date <- as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),
+    tz = "UTC", format = "%d.%m.%Y %H:%M"
   ))
 
   # Filter date
@@ -88,12 +91,12 @@ pam_read_file <- function(filename, crop_start, crop_end) {
     data$pit <- data_raw[id_date, 3]
     data$act <- data_raw[id_date, 4]
   } else if (grepl("magnetic", filename)) {
-    data$gX <- data_raw[id_date, 4]
-    data$gY <- data_raw[id_date, 5]
-    data$gZ <- data_raw[id_date, 6]
-    data$mX <- data_raw[id_date, 7]
-    data$mY <- data_raw[id_date, 8]
-    data$mZ <- data_raw[id_date, 9]
+    data$gx <- data_raw[id_date, 4]
+    data$gy <- data_raw[id_date, 5]
+    data$gz <- data_raw[id_date, 6]
+    data$mx <- data_raw[id_date, 7]
+    data$my <- data_raw[id_date, 8]
+    data$mz <- data_raw[id_date, 9]
   } else {
     data$obs <- data_raw[id_date, 3]
   }
@@ -112,10 +115,9 @@ pam_read_file <- function(filename, crop_start, crop_end) {
 
 #' Automatic classification of pam
 #'
-#' This function uses activity data to classify migratory flapping flight.
-#' Inspired by [classify_flap]
-#' (https://github.com/KiranLDA/pamLr/blob/master/R/classify_flap.R) from
-#' [pamLr](https://github.com/KiranLDA/pamLr)
+#' This function uses activity data to classify migratory flapping flight. This
+#' fonction is inspired by the function `classify_flap` from
+#' the [pamLr package](https://github.com/KiranLDA/pamLr).
 #'
 #' @param pam data list
 #' @param min_duration duration in minutes

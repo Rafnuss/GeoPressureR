@@ -166,13 +166,20 @@ geopressure_map <-
 
 
 
-#' Convert MSE to probability
+#' Compute probability raster
 #'
-#' This function
+#' This function convert the raster of noramlized MSE and altitude threshold
+#' \eqn{z_{thr}} computed by `geopressure_map()` into a probability map with,
+#' \eqn{p = \exp \left(-w \frac{MSE}{s} \right) \left[z_{thr}>thr \right],}
+#' where \eqn{s} is the standard deviation of pressure and \eqn{thr} is the
+#' threashold. Because the auto-correlation of the timeseries is not accounted
+#' for in this equation, we use a log-linear pooling weight \eqn{w=\log(n) - 1},
+#' with \eqn{n} is the number of data point in the timeserie. This operation is
+#' describe in
 #'
 #' @param raster_list list of raster loaded from `geopressure_map()`
-#' @param s standardeviation of the pressure error
-#' @param thr threashold of the percentage of datapoint outside the elevation
+#' @param s standard deviation of the pressure error
+#' @param thr threshold of the percentage of data point outside the elevation
 #' range to be considered not possible
 #' @return List of the probability raster map
 #' @export

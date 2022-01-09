@@ -2,21 +2,28 @@
 % Please edit documentation in R/geopressure.R
 \name{geopressure_prob_map}
 \alias{geopressure_prob_map}
-\title{Convert MSE to probability}
+\title{Compute probability raster}
 \usage{
 geopressure_prob_map(raster_list, s = 1, thr = 0.9)
 }
 \arguments{
 \item{raster_list}{list of raster loaded from \code{geopressure_map()}}
 
-\item{s}{standardeviation of the pressure error}
+\item{s}{standard deviation of the pressure error}
 
-\item{thr}{threashold of the percentage of datapoint outside the elevation
+\item{thr}{threshold of the percentage of data point outside the elevation
 range to be considered not possible}
 }
 \value{
 List of the probability raster map
 }
 \description{
-This function
+This function convert the raster of noramlized MSE and altitude threshold
+\eqn{z_{thr}} computed by \code{geopressure_map()} into a probability map with,
+\eqn{p = \exp \left(-w \frac{MSE}{s} \right) \left[z_{thr}>thr \right],}
+where \eqn{s} is the standard deviation of pressure and \eqn{thr} is the
+threashold. Because the auto-correlation of the timeseries is not accounted
+for in this equation, we use a log-linear pooling weight \eqn{w=\log(n) - 1},
+with \eqn{n} is the number of data point in the timeserie. This operation is
+describe in
 }
