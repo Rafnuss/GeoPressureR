@@ -320,7 +320,7 @@ trainset_read <- function(pam,
   testthat::expect_true(
     dir.exists(pathname), paste0("Folder is not found at", pathname)
   )
-  fullpath <- paste0(pathname, filename)
+  fullpath <- paste0(pathname, '/', filename)
   testthat::expect_true(
     file.exists(fullpath), paste0("File is not found at", fullpath)
   )
