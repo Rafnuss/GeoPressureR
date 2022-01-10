@@ -38,7 +38,7 @@ library(RColorBrewer)
 In this example, we use data captured on a Great Reed Warbler *Acrocephalus arundinaceus* (18LX). Below, we read the geolocator data and crop it so that it starts on the equipment date and ends on the retrieval date.
 
 ```{r}
-pam_data = pam_read(pathname = system.file("extdata", "/", package = "GeoPressureR"),
+pam_data = pam_read(pathname = system.file("extdata", package = "GeoPressureR"),
                     crop_start = "2017-06-20", crop_end = "2018-05-02")
 ```
 
@@ -57,7 +57,7 @@ To ensure the high level of precision needed for the pressure match, we must man
 Use `trainset_write()` to export the automatically generated classifications in a `csv` file, which can be opened in TRAINSET: [https://trainset.geocene.com/](https://trainset.geocene.com/).
 
 ```{r eval=F}
-trainset_write(pam_data, pathname=system.file("extdata", "/", package = "GeoPressureR"))
+trainset_write(pam_data, pathname=system.file("extdata", package = "GeoPressureR"))
 # browseURL("https://trainset.geocene.com/")
 ```
 
@@ -69,7 +69,7 @@ When you have finished the manual editing, export the new `csv` file (TRAINSET w
 To edit an existing file, re-open the file on TRAINSET and read this file directly with `trainset_read()`.
 
 ```{r}
-pam_data = trainset_read(pam_data, pathname=system.file("extdata", "/", package = "GeoPressureR"))
+pam_data = trainset_read(pam_data, pathname=system.file("extdata", package = "GeoPressureR"))
 ```
 
 ### Identifying stationary periods

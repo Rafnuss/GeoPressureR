@@ -52,7 +52,7 @@ pam_read <- function(pathname,
     } else {
       fname <- strsplit(f, "\\.")[[1]][2]
     }
-    pam[[fname]] <- pam_read_file(paste0(pathname, f), crop_start, crop_end)
+    pam[[fname]] <- pam_read_file(paste0(pathname, '/', f), crop_start, crop_end)
   }
 
   # return
@@ -259,7 +259,7 @@ trainset_write <- function(pam,
   if (!dir.exists(pathname)) {
     dir.create(pathname)
   }
-  # testthat::expect_true(dir.exists(pathname))
+  testthat::expect_true(dir.exists(pathname))
 
   # write a combined data.frame of pressure and acceleration in csv.
   utils::write.csv(

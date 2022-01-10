@@ -5,7 +5,8 @@ Authors@R: c(
     person("Raphaël", "Nussbaumer", email="rafnuss@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-8185-1020")),
     person("Mathieu", "Gravey", email="mathieu@mgravey.com", role = c("aut"), comment = c(ORCID = "0000-0002-0871-1507"))
     )
-Description: Use atmospheric pressure data from reanalysis to determine the location of a geolocator measure pressure. 
+Description: Determine the position of a geolocator from atmospheric pressure measurements. 
+URL: https://github.com/Rafnuss/GeoPressureR, https://raphaelnussbaumer.com/GeoPressureR/
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -27,7 +28,8 @@ Imports:
     future,
     rmarkdown,
     remotes,
-    utils
+    utils,
+    sp
 Depends: 
     R (>= 3.5.0)
 LazyData: true
