@@ -204,11 +204,92 @@ for (i_r in seq_along(ts_list)){
 
 ## Common challenges and tips to address them
 
-![Missing a single datapoint in acceleration will create a staionary period and split the flight in two. This happens regularly with the KNN classfier.](labeling_tracks_5.png){width=100%}
+In the following section, we use examples to illustrate common challenges that may be encountered during manual editing, and suggestions on how to address them. 
 
-![Accurate classification of flight duration can be difficult when the bird migrates with less intensity at the end the flight. ](labeling_tracks_6.png){width=100%}
+### Outliars during flights due to low bird activity
 
-![Defining exaclty stationary period for some species can be difficult (here Tawny Pipit) with activities before 6am which could be low-intensity migratory movement or long non-migratory acitivity (feeding), or anything in between!](labeling_tracks_7.png){width=100%}
+Birds can have periods of low activity during their flight (e.g., less flapping). In those cases, the automatic labeling of activity with the KNN classifier mislabels these points as stationary periods, as illustrated in this example below for the night of the 31st of August. A single mislabeled point can incorrectly split the flight into multiple short flights. This error will be highlighted bytest 1 described above. However, birds might also display lower activity at the beginning or end of their flight, which are often mis-classified as illustrated all three night in the figure above. In such case, test 1 will not be able to pick them up.
+
+![](1.png){width=100%}
+
+But if the low activity happen well before the bird reach the ground as illustrated in the exemple below, it will be visible in the figure of test #2. However this is not always the case and we must assess on a case-by-case basis whether this should be included in the flight or not. 
+
+![](2.png){width=100%}
+
+### Make sure you zoom in before you edit outliers!
+
+Anomlies in a pressure timeseries might not be obvious at first.
+
+![](3.png){width=100%}
+
+But if you zoom-in to narrower pressure range, you will see what is happening. This is a Tawny pipit breeding near a mine site white accidentaly topography. While breeding it look like staying at a realative constant elevation, but toward the end, you can see suddent drop in pressure indicating that the bird changed altitude.
+
+![](4.png){width=100%}
+
+In such case, you aim at labeling all pressure dapoint recorded while the bird was at a different altitude. Sometime it if not obvious what is temporal variation of pressue and what is due to the bird changing altitude. In such case, keep only the datapoint that you are confident (first part of the timeseries) and run test 3.  
+
+![](5.png){width=100%}
+
+With a long time serie as this one, it will easily pick up the right location and the timeseries that you want to match. There you simply have to de-label de datapoint at the end of your timeseries that fit the ERA5 green line. For shorter timeserie, you might need several iteration to pick up the correct match.
+
+
+### Short stationary halts between flights
+
+Interpreting bird behaviour and defining stationary periods can be difficult, for example when birds extend their migration into the day but with loyer intensity so that there is no clear end. 
+
+![](14.png){width=100%}
+
+In other case, the bird stop for a couple of hour and then seem to be active afaint. Could be low-intensity migratory movement, a short break followed by more migratory flight, or landing at the stopover location, but relocating early morning with the light
+
+![](15.png){width=100%}
+
+The question is whether to label these breaks as stationary periods or not. 
+
+Referring to the pressure timeseries can help assess whether the bird changes location. For example, if the low activity is followed by high activity accompanied by pressure change, we can consider that the bird then changed location, and label the low activity as a stationary period. 
+
+However, the bird may also land and then complete local flights within its stopover location (with very little pressure variation), in which case we do not want to create two different stationary periods. 
+
+Test 3 will be essential to insure that no local vertical movement happened. Use the reanalysis data to find the best match.
+
+![](16.png){width=100%}
+
+###	Mountainous species
+Mountainous species will display very specific behaviour with regular altitudinal changes. 
+
+This is very clear with the Ring Ouzel’s timeseries, with daily recuring movement, but no regular enough to make the process automatic and sometimes changing altitude. Choose which datapoint to keep and those to discard might not always be easy. Both the 790hPa and 900hPa might work.
+
+![](8.png){width=100%}
+It's often a good idea to zoom back on the time axis to see if a certain elevation seems more commonly used. Then proceed similaryl to the Tawny pipit case with an iterative manner to keep only the datapoint at the sams elevation. Test 4 is often quite useful to make sur you haven't forgotten some datatpoint
+
+![](6.png){width=100%}
+
+![](7.png){width=100%}
+
+The Eurasian Hoopoe is a bit more difficult because it's moving more continously through the day showing a more sinosoidal pattern. 
+
+![](9.png){width=100%}
+This is the most difficult case as you really can't distinguisth temporal varation from altitude. 
+
+![](10.png){width=100%}
+After some iteration, you'll end-up with something relatively correct. Note that to estimate the uncertainty correctly for such case, you will have to increase the standard deviation `s`. Howver, this behaviour is luckyly restricted to its breeding ground. 
+
+![](11.png){width=100%}
+
+In some case, find a single timeserie is too difficult. This is the case for the wintering site of this Ring Ouzel, never returning to the same elevation. In such case, you can discard the entire timeserie and only use the mask of absolute value of pressure. 
+
+![](12.png){width=100%}
+
+Luckily, mountainous species lives in rather narrow area (moutain), and in this case, it it easy from previous stationay period that it was in Maroc, and with so low pressure (high elevation), only the atlas mountain fits the criteria of threashold. 
+
+![](13.png){width=100%}
+
+
+
+
+
+![Accurate classification of flight duration can be difficult when the bird migrates with less intensity at the end the flight. Refer to the pressure timeseries to help you define the beginning and end of flight stages. Here, at the end of its nocturnal flight on 30 August, the bird may have completed shorter flights at its stopover location. These points should not be included in the stationary period.](Screenshot 2022-01-10 at 11.56.10.png){width=100%}
+
+![Defining exaclty stationary period for some species can be difficult (here XX) with activities which could be low-intensity migratory movement or long non-migratory acitivity (feeding), or anything in between!](Screenshot 2022-01-10 at 11.57.20.png){width=100%}
 
 There will be situation were certain classification of activity is not possible. It is worth reminding that the labelisation of activity is two-fold: 
 - Define flight duration, which will be used in the movement model and ultimately have the strongest impact on (1) the estimation of the position of short stopver between long flight (i.e, how ) and (2) estimation of fight speed when the position of the bird is well constrain. Ultimately a few datapoint more or less won't have strong impact on long flight. But estimation of short movement can be relatively tricky. To partially accommodate for this, we compute an `effort_duration` for each flight, which normalize the duration of migratory flight by the intensity of the activity over the entire journey of the bird. 
@@ -232,12 +313,13 @@ So, one option we have is to label activity to create new stationary period. The
 <select id="track">
     <option value='18IC'>Great Reed Warbler (18IC)</option><option value='18LX'>Great Reed Warbler (18LX)</option><option value='22BK'>Tawny Pipit (22BK)</option><option value='22BN'>Tawny Pipit (22BN)</option><option value='22KT'>Eurasian Nightjar (22KT)</option><option value='24FF'>Eurasian Nightjar (24FF)</option><option value='24TA'>Red-capped Robin-Chat (24TA)</option><option value='24UL'>Mangrove Kingfisher (24UL)</option><option value='16LP'>Woodland Kingfisher (16LP)</option><option value='20IK'>Woodland Kingfisher (20IK)</option><option value='22QL'>Eurasian Wryneck (22QL)</option><option value='22QO'>Eurasian Wryneck (22QO)</option><option value='20OA'>Ring Ouzel (20OA)</option><option value='20OE'>Ring Ouzel (20OE)</option><option value='16AQ'>Eurasian Hoopoe (16AQ)</option><option value='16DM'>Eurasian Hoopoe (16DM)</option>
 </select>
+<div id="loader"></div>
 <div id="plotlyID" style="width:100%;height:500px;"></div>
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly-basic.min.js"></script>
 <script src="https://raw.githubusercontent.com/Rafnuss/GeoPressureMAT/main/html/AllTracksPressureWithReanalsis.js"></script>
-<script>
-[View full screen](https://raphaelnussbaumer.com/GeoPressureMAT/html/AllTracksPressureWithReanalsis.html)
-</script>
+<link rel="stylesheet" href="https://raw.githubusercontent.com/Rafnuss/GeoPressureMAT/main/html/AllTracksPressureWithReanalsis.css">
+<a href="https://raphaelnussbaumer.com/GeoPressureMAT/html/AllTracksPressureWithReanalsis.html">View in full screen</a>
+
 
 
 ## Future improvements
