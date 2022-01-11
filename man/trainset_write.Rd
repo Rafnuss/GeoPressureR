@@ -18,3 +18,13 @@ saved}
 This function writes the csv file of the automatically labeled activity and
 pressure which can be read with TRAINSET (https://trainset.geocene.com/).
 }
+\examples{
+\dontrun{
+pam_data = pam_read(
+   pathname = system.file("extdata", package = "GeoPressureR"),
+   crop_start = "2017-06-20", crop_end = "2018-05-02")
+pam_data = pam_classify(pam_data)
+trainset_write(pam_data,
+            pathname=system.file("extdata", package = "GeoPressureR"))
+}
+}

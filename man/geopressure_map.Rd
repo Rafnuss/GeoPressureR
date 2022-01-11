@@ -32,5 +32,25 @@ This function return the mismatch map of atmospheric pressure measured by a
 geolocator (\code{PAM_data}). It performs the following actions: (1) Send a query
 to produce the Google Earth Engine (GEE) url of the code producing the maps
 for each stationary periods separately, (2) then read these map (geotiff) in
-a raster and (3) compute the likelihood map from the mismatch
+a raster and (3) compute the likelihood map from the mismatch. See \href{https://raphaelnussbaumer.com/GeoPressureServer/#description}{the GeoPressure API documentation }
+}
+\examples{
+\dontrun{
+pam_data = pam_read(
+   pathname = system.file("extdata", package = "GeoPressureR"),
+   crop_start = "2017-06-20", crop_end = "2018-05-02")
+pam_data = trainset_read(pam_data,
+            pathname=system.file("extdata", package = "GeoPressureR"))
+pam_data = pam_sta(pam_data)
+raster_list = geopressure_map(
+  pam_data$pressure,
+  extent = c(-16,20,0,50),
+  scale = 10,
+  max_sample = 250,
+  margin = 30
+  )
+}
+data("raster_list", package = "GeoPressureR")
+raster::metadata(raster_list[[1]])
+raster::plot(raster_list[[1]],main=c("Mean Square Error","Mask of pressure"))
 }

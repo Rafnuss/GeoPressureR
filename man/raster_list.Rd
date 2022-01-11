@@ -16,6 +16,8 @@ vignettes
 }
 \details{
 \code{raster_list} was created with
+}
+\examples{
 \dontrun{
 pam_data = pam_read(system.file("extdata", package = "GeoPressureR"),
 crop_start = "2017-06-20", crop_end = "2018-05-02")
@@ -23,7 +25,7 @@ pam_data = trainset_read(pam_data, system.file("extdata", package = "GeoPressure
 pam_data = pam_sta(pam_data)
 
 sta_id_keep = pam_data$sta$sta_id[difftime(pam_data$sta$end,pam_data$sta$start, units = "hours")>12]
-pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] = NA
+pam_data$pressure$sta_id[!(pam_data$pressure$sta_id \%in\% sta_id_keep)] = NA
 
 raster_list = geopressure_map(pam_data$pressure, extent=c(-16,20,0,50), scale=10, max_sample=100)
 

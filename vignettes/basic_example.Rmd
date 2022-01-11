@@ -186,21 +186,10 @@ lon = tmp$x[which.max(tmp[,3])]
 lat = tmp$y[which.max(tmp[,3])]
 ```
 
-We extract the pressure for this stationary period:
-
-```{r}
-id = pam_data$pressure$sta_id==i_s & !is.na(pam_data$pressure$sta_id)
-pressure = list(
-  obs = pam_data$pressure$obs[id],
-  date = pam_data$pressure$date[id],
-  class = pam_data$pressure$class[id]
-)
-```
-
-And then call the function `geopressure_ts`:
+And then call the function `geopressure_ts` with the subset of pressure containing `sta_id==1`
 
 ```{r, eval=F}
-ts_list[[i_r]]  = geopressure_ts(lon, lat, pressure = pressure)
+ts_list[[i_r]]  = geopressure_ts(lon, lat, pressure = subset(pam_data$pressure,sta_id==1))
 ```
 
 We can compare the altitude produced to the one computed without the correction for temperature and pressure:

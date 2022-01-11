@@ -29,3 +29,12 @@ Imports multi-sensor logger data from a folder and optionally crop at
 specific date. Read all available file from the extension list AND which
 exist in the folder.
 }
+\examples{
+pam_data = pam_read(
+   pathname = system.file("extdata", package = "GeoPressureR"),
+   crop_start = "2017-06-20", crop_end = "2018-05-02")
+summary(pam_data)
+for (i in 1:length(pam_data)) {
+   head(pam_data[[i]])
+}
+}

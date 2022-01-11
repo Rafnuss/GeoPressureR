@@ -18,3 +18,13 @@ pam logger dataset list with a the dataframe of stationary periods
 This function computes the table of stationary periods from the class of
 acceleration \code{pam$acceleration$class} and add it to the pam
 }
+\examples{
+pam_data = pam_read(
+   pathname = system.file("extdata", package = "GeoPressureR"),
+   crop_start = "2017-06-20", crop_end = "2018-05-02")
+pam_data = trainset_read(pam_data,
+            pathname=system.file("extdata", package = "GeoPressureR"))
+pam_data = pam_sta(pam_data)
+head(pam_data$pressure)
+head(pam_data$acceleration)
+}

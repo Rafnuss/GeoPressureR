@@ -12,6 +12,14 @@
 #'
 #' @return a list of all measurements
 #'
+#' @examples
+#' pam_data = pam_read(
+#'    pathname = system.file("extdata", package = "GeoPressureR"),
+#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
+#' summary(pam_data)
+#' for (i in 1:length(pam_data)) {
+#'    head(pam_data[[i]])
+#' }
 #' @export
 pam_read <- function(pathname,
                      extension = c(
@@ -115,16 +123,24 @@ pam_read_file <- function(filename, crop_start, crop_end) {
 
 #' Automatic classification of pam
 #'
-#' This function uses activity data to classify migratory flapping flight. This
-#' fonction is inspired by the function `classify_flap` from
-#' the [pamLr package](https://github.com/KiranLDA/pamLr).
+#' This function uses activity data to classify migratory flapping flight. It
+#' returns the same dats list `pam` adding a column `class` to the data.frame
+#' `acceleration`.
+#'
+#' This fonction is inspired by the function `classify_flap` from the
+#' [pamLr package](https://github.com/KiranLDA/pamLr).
 #'
 #' @param pam data list
 #' @param min_duration duration in minutes
 #'
 #' @return pam
 #'
-#'
+#' @examples
+#' pam_data = pam_read(
+#'    pathname = system.file("extdata", package = "GeoPressureR"),
+#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
+#' pam_data = pam_classify(pam_data, min_duration = 30)
+#' head(pam_data$acceleration)
 #' @export
 pam_classify <- function(pam,
                          min_duration = 30) {
@@ -237,6 +253,16 @@ trainset_edit <- function(pam,
 #' @param pathname Path to the folder where the labeled files should be
 #' saved
 #' @param filename Name for the file.
+#'
+#' @examples
+#' \dontrun{
+#' pam_data = pam_read(
+#'    pathname = system.file("extdata", package = "GeoPressureR"),
+#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
+#' pam_data = pam_classify(pam_data)
+#' trainset_write(pam_data,
+#'             pathname=system.file("extdata", package = "GeoPressureR"))
+#' }
 #' @export
 trainset_write <- function(pam,
                            pathname,
@@ -300,6 +326,15 @@ trainset_write <- function(pam,
 #' @param filename Name of the file.
 #' @return pam logger dataset list updated with the new label named `class`
 #' (`pam$pressure$class` and `pam$acceleration$class`)
+#'
+#' @examples
+#' pam_data = pam_read(
+#'    pathname = system.file("extdata", package = "GeoPressureR"),
+#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
+#' pam_data = trainset_read(pam_data,
+#'             pathname=system.file("extdata", package = "GeoPressureR"))
+#' head(pam_data$pressure)
+#' head(pam_data$acceleration)
 #' @export
 trainset_read <- function(pam,
                           pathname,
@@ -353,6 +388,16 @@ trainset_read <- function(pam,
 #' @return pam logger dataset list with a the dataframe of stationary periods
 #' `pam$sta` as well as the new label named `sta_id` (`pam$pressure$sta_id` and
 #' `pam$acceleration$sta_id`)
+#'
+#' @examples
+#' pam_data = pam_read(
+#'    pathname = system.file("extdata", package = "GeoPressureR"),
+#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
+#' pam_data = trainset_read(pam_data,
+#'             pathname=system.file("extdata", package = "GeoPressureR"))
+#' pam_data = pam_sta(pam_data)
+#' head(pam_data$pressure)
+#' head(pam_data$acceleration)
 #' @export
 pam_sta <- function(pam) {
 

@@ -25,3 +25,12 @@ pam logger dataset list updated with the new label named \code{class}
 This function read an exported csv file from trainset
 (https://trainset.geocene.com/) and update the pam logger dataset
 }
+\examples{
+pam_data = pam_read(
+   pathname = system.file("extdata", package = "GeoPressureR"),
+   crop_start = "2017-06-20", crop_end = "2018-05-02")
+pam_data = trainset_read(pam_data,
+            pathname=system.file("extdata", package = "GeoPressureR"))
+head(pam_data$pressure)
+head(pam_data$acceleration)
+}

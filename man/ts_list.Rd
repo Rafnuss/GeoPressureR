@@ -16,6 +16,8 @@ vignette \code{basic_example.Rmd}and \code{labeling_tracks.Rmd}.
 }
 \details{
 \code{ts_list} was created with
+}
+\examples{
 \dontrun{
 ts_list=list()
 for (i_r in 1:length(prob_map_list)){
@@ -26,20 +28,11 @@ for (i_r in 1:length(prob_map_list)){
   lon = tmp$x[which.max(tmp[,3])]
   lat = tmp$y[which.max(tmp[,3])]
 
-  # filter pressure for the stationary period and include flight period before and after
-  id = pam_data$pressure$sta_id==i_s & !is.na(pam_data$pressure$sta_id)
-
-  # Visual check
-  # leaflet() %>% addTiles() %>% addRasterImage(prob_map_list[[i_r]]) %>% addMarkers(lat=lat,lng=lon)
-
   # query the pressure at this location
   message("query:",i_r,"/",length(sta_id_keep))
   ts_list[[i_r]] = geopressure_ts(lon,
                                   lat,
-                                  pressure = list(
-                                    obs = pam_data$pressure$obs[id],
-                                    date = pam_data$pressure$date[id]
-                                  ))
+                                  pressure = subset(pam_data$pressure,sta_id==1))
   # Add sta_id
   ts_list[[i_r]]['sta_id'] = i_s
 

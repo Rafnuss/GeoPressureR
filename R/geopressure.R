@@ -4,7 +4,9 @@
 #' geolocator (`PAM_data`). It performs the following actions: (1) Send a query
 #' to produce the Google Earth Engine (GEE) url of the code producing the maps
 #' for each stationary periods separately, (2) then read these map (geotiff) in
-#' a raster and (3) compute the likelihood map from the mismatch
+#' a raster and (3) compute the likelihood map from the mismatch. See [the
+#' GeoPressure API documentation
+#' ](https://raphaelnussbaumer.com/GeoPressureServer/#description)
 #'
 #' @param pressure pressure list from PAM logger dataset list.
 #' @param extent Geographical extend of the map to query as a list ordered by
@@ -19,6 +21,25 @@
 #' @param margin The margin is used in the threshold map to accept some
 #' measurement error. unit in meter. (1hPa~10m)
 #' @return List of raster map
+#' @examples
+#' \dontrun{
+#' pam_data = pam_read(
+#'    pathname = system.file("extdata", package = "GeoPressureR"),
+#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
+#' pam_data = trainset_read(pam_data,
+#'             pathname=system.file("extdata", package = "GeoPressureR"))
+#' pam_data = pam_sta(pam_data)
+#' raster_list = geopressure_map(
+#'   pam_data$pressure,
+#'   extent = c(-16,20,0,50),
+#'   scale = 10,
+#'   max_sample = 250,
+#'   margin = 30
+#'   )
+#' }
+#' data("raster_list", package = "GeoPressureR")
+#' raster::metadata(raster_list[[1]])
+#' raster::plot(raster_list[[1]],main=c("Mean Square Error","Mask of pressure"))
 #' @export
 geopressure_map <-
   function(pressure,
@@ -182,6 +203,28 @@ geopressure_map <-
 #' @param thr threshold of the percentage of data point outside the elevation
 #' range to be considered not possible
 #' @return List of the probability raster map
+#' @examples
+#' \dontrun{
+#' pam_data = pam_read(
+#'    pathname = system.file("extdata", package = "GeoPressureR"),
+#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
+#' pam_data = trainset_read(pam_data,
+#'             pathname=system.file("extdata", package = "GeoPressureR"))
+#' pam_data = pam_sta(pam_data)
+#' raster_list = geopressure_map(
+#'   pam_data$pressure,
+#'   extent = c(-16,20,0,50),
+#'   scale = 10
+#'   )
+#' prob_map_list = geopressure_prob_map(
+#'   raster_list,
+#'   s=0.4,
+#'   thr=0.9
+#'   )
+#' }
+#' data("prob_map_list", package = "GeoPressureR")
+#' raster::metadata(prob_map_list[[1]])
+#' raster::plot(prob_map_list[[1]],main="Probability",xlim=c(5,20), ylim=c(42,50))
 #' @export
 geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
   raster_prob_list <- c()
@@ -240,6 +283,24 @@ geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
 #' timeserie return is needed
 #' @param end_time same as start_time
 #' @return Timeserie of date, pressure and optionally altitude
+#' @examples
+#' \dontrun{
+#' pam_data = pam_read(
+#'    pathname = system.file("extdata", package = "GeoPressureR"),
+#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
+#' pam_data = trainset_read(pam_data,
+#'             pathname=system.file("extdata", package = "GeoPressureR"))
+#' pam_data = pam_sta(pam_data)
+#' ts_list[[1]]  = geopressure_ts(
+#'   lon = 16.85,
+#'   lat = 48.75,
+#'   pressure = subset(pam_data$pressure,sta_id==1)
+#'   )
+#' }
+#' data("ts_list", package = "GeoPressureR")
+#' par(mfrow=c(2,1), mar=c(2,5,1,1))
+#' plot(ts_list[[1]]$date,ts_list[[1]]$pressure,ylab="Pressure [hPa]", xlab="")
+#' plot(ts_list[[1]]$date,ts_list[[1]]$altitude,ylab="Altitude [m asl]", xlab="")
 #' @export
 geopressure_ts <-
   function(lon,

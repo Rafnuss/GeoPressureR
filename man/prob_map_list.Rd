@@ -16,6 +16,8 @@ vignettes
 }
 \details{
 \code{prob_map_list} was created with
+}
+\examples{
 \dontrun{
 prob_map_list = geopressure_prob_map(raster_list)
 # Save the data for vignette
