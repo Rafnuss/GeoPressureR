@@ -12,6 +12,14 @@ prob_map_list
 }
 \description{
 This dataset contains the data generated with the GeoPressure API for the
-vignette \code{basic_example.Rmd}and \code{labeling_tracks.Rmd}.
+vignettes
+}
+\details{
+\code{prob_map_list} was created with
+\dontrun{
+prob_map_list = geopressure_prob_map(raster_list)
+# Save the data for vignette
+usethis::use_data(prob_map_list, overwrite=T)
+}
 }
 \keyword{datasets}
