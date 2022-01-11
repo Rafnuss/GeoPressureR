@@ -145,9 +145,9 @@ geopressure_map <-
       # Writing some metadata
       raster::metadata(raster_list[[i_u]]) <- list(
         sta_id = labels[i_u],
-        nbSample = sum(body_df$label == labels[i_u]),
+        nb_sample = sum(pressure$sta_id[!is.na(pres)] == labels[i_u]),
         max_sample = max_sample,
-        extendSample = c(
+        extend_sample = c(
           min(pressure$date[!is.na(pres) & pressure$sta_id == labels[i_u]]),
           max(pressure$date[!is.na(pres) & pressure$sta_id == labels[i_u]])
         ),
@@ -190,9 +190,10 @@ geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
     mt <- raster::metadata(raster_list[[i_s]])
 
     # compute Log-linear pooling weight
-    pres_n <- as.numeric(
-      difftime(mt$extendSample[2], mt$extendSample[1], units = "hours")
-    )
+    # Number of datapoint could also be measured with
+    # pres_n <- as.numeric(difftime(mt$extend_sample[2], mt$extend_sample[1],
+    # units = "hours"))
+    pres_n <- mt$nb_sample
     w <- log(pres_n) - 1
 
     # get MSE layer
