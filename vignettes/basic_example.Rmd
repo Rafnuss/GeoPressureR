@@ -110,6 +110,7 @@ We can now query the data on the API with `geopressure_map()`. A detailed descri
 
 ```{r, include = FALSE}
 # For this vignette, we can load the pre-computed value to save time. 
+data("raster_list", package = "GeoPressureR")
 data("prob_map_list", package = "GeoPressureR")
 data("ts_list", package = "GeoPressureR")
 ```
@@ -136,7 +137,7 @@ prob_map_list = geopressure_prob_map(raster_list, s=s, thr=thr)
 
 We use `leaflet()` to visualize the threshold mask, mismatch map, and overall probability map for a single stationary period.
 
-```{r, eval = F}
+```{r}
 i_r = 1;
 leaflet() %>% addTiles() %>%
   addRasterImage(prob_map_list[[i_r]], opacity = 0.8, group="Probability") %>%
