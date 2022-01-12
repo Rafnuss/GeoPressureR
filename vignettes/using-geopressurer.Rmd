@@ -52,7 +52,7 @@ pam_data = pam_classify(pam_data, min_duration = 30)
 
 ### Editing activity on TRAINSET
 
-To ensure the high level of precision needed for the pressure match, we must manually edit the activity classification and  the pressure timeseries to be matched. We suggest doing this with TRAINSET. A separate vignette dedicated to this exercise, including best practices and a sample code to get started, is available [here](labeling_tracks.html).
+To ensure the high level of precision needed for the pressure match, we must manually edit the activity classification and  the pressure timeseries to be matched. We suggest doing this with TRAINSET. A separate vignette dedicated to this exercise, including best practices and a sample code to get started, is available [here](labelling-tracks.html).
 
 Use `trainset_write()` to export the automatically generated classifications in a `csv` file, which can be opened in TRAINSET: [https://trainset.geocene.com/](https://trainset.geocene.com/).
 
@@ -62,7 +62,7 @@ trainset_write(pam_data, pathname=system.file("extdata", package = "GeoPressureR
 ```
 
 
-![*Printscreen of the manual classification in TRAINSET. See the [labeling track vignette](labeling_tracks.html) for more information.*](labeling_tracks_4.png){width=100%}
+![*Printscreen of the manual classification in TRAINSET. See the [labelling track vignette](labelling-tracks.html) for more information.*](labelling-tracks-0.png){width=100%}
 
 When you have finished the manual editing, export the new `csv` file (TRAINSET will add `-labeled` in the name). Make sure to keep this classification file (e.g. under `/data/`).
 
@@ -74,7 +74,7 @@ pam_data = trainset_read(pam_data, pathname=system.file("extdata", package = "Ge
 
 ### Identifying stationary periods
 
-Based on the activity labeling, `pam_sta()` creates a table of stationary periods as illustrated below.
+Based on the activity labelling, `pam_sta()` creates a table of stationary periods as illustrated below.
 
 ```{r}
 pam_data = pam_sta(pam_data)
@@ -216,4 +216,4 @@ p <- ggplot() +
 ggplotly(p)
 ```
 
-The function `geopressure_ts()` also returns the ground level pressure timeseries from ERA5 at the location specified. This is useful to check whether there is a good match between the pressure measured by the geolocator and the one at the assumed location. This operation is typically used to check the quality of the manual labeling (see [the labeling track vignette](labeling_tracks.html)).
+The function `geopressure_ts()` also returns the ground level pressure timeseries from ERA5 at the location specified. This is useful to check whether there is a good match between the pressure measured by the geolocator and the one at the assumed location. This operation is typically used to check the quality of the manual labelling (see [the vignette on how to label tracks](labelling-tracks.html)).
