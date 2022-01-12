@@ -37,7 +37,8 @@ for (i_r in 1:length(prob_map_list)){
   ts_list[[i_r]]['sta_id'] = i_s
 
   # Remove mean
-  ts_list[[i_r]]$pressure0 = ts_list[[i_r]]$pressure - mean(ts_list[[i_r]]$pressure) + mean(pam_data$pressure$obs[id])
+  ts_list[[i_r]]$pressure0 = ts_list[[i_r]]$pressure -
+   mean(ts_list[[i_r]]$pressure) + mean(pam_data$pressure$obs[id])
 }
 # Save the data for vignette
 usethis::use_data(ts_list, overwrite=T)
