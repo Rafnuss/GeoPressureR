@@ -172,7 +172,7 @@ From this observation, one option would be to construct a covariance matrix base
 2. The second issue is in link with the definition of our error term and the different duration of stationary period. 
 
 
-## Log-linear pooling, general terminology
+## Probability aggregation
 
 In the rest of this vignette, we will take a different angle, re-framing the problem differently and exploring other options to compute the likelihood.
 
@@ -181,35 +181,35 @@ $$p(\textbf{x}\mid \varepsilon[1],\ldots,\varepsilon[n]) \approx F(p(\textbf{x} 
 which, with our gaussian assumption, we can written,
 $$ F(f(\varepsilon[1]),\ldots,f(\varepsilon[n]))=F(\boldsymbol{\varepsilon})$$
 
+## Introduction to Log-linear pooling
+
 The most popular aggregation function is the log-linear pooling,
 
 $$F(\boldsymbol{\varepsilon}) \propto \prod_{t=1}^n f(\varepsilon[t])^{w_t} = \sum_{t=1}^n w_t \ell (\varepsilon[t])$$
 using the log-likelihood notation $\ell=\log{f}$.
 
-This equation is reminiIt's quite easy to see that if $w_t=1$, the log linear pooling become identical to the case of independent $F = f_{ind}(\boldsymbol{\varepsilon})$. Case that we have alread explored earlier.
+This equation also relies on the principale of conjuction of probability, but it uses a weight $w_t$ which is related to the new information brought by each additional $\varepsilon[t]$. Formally, it can be defined by
+$$w_t=\frac{\ln p(\varepsilon[t] \mid \boldsymbol{x},\varepsilon[1],\ldots \varepsilon[t-1])}{\ln p(\varepsilon[t] \mid \boldsymbol{x})}.$$
+[Allard et al. (2012)](http://link.springer.com/10.1007/s11004-012-9396-3) is a great ressource to learn more about probability aggregation and log linear pooling.
 
-Using the gaussian probability density function formula, we can write
+The log-linear pooling aggregation can be simplify to the case of Gaussian independence when $w_t=1$. We have already explored this case earlier.
 
+In the more general case, using the Gaussian probability density function formula, we can write,
 $$f(\varepsilon[t])^{w_t} = \left({\frac {1}{2\pi \sigma ^{2}}}\right)^{w_t/2}\exp \left(-w_t{\frac {\varepsilon[t]^2}{2\sigma ^2}}\right).$$
 
-As such, if we assume $w_t=w$ to be constant, we can rewritte the pooling aggregator as
-$$F(\boldsymbol{\varepsilon}) \propto \left({\frac {1}{2\pi \sigma ^{2}}}\right)^{\frac{wn}{2}} \exp \left(-{\frac {w}{2\sigma ^2}}\sum _{t=1}^{n}\varepsilon[t]^2\right).$$
+As such, if we assume the weight to be constant $w_t=w$, we can rewrite the pooling aggregator as
+$$F(\boldsymbol{\varepsilon}) \propto \left({\frac {1}{2\pi \sigma ^{2}}}\right)^{\frac{wn}{2}} \exp \left(-{\frac {w}{2\sigma ^2}}\sum _{t=1}^{n}\varepsilon[t]^2\right),$$
 
-written with the MSE
+and even write it as a function of the MSE,
 $$F(\boldsymbol{\varepsilon}) \propto \left({\frac {1}{2\pi \sigma ^{2}}}\right)^{\frac{wn}{2}} \exp \left(-{\frac {wn}{2\sigma ^2}}\textit{MSE}\right).$$
 
 ## Log-linear pooling, $w=1/n$
 
-An intresting case of is if $w_t=1/n$, in which case $\sum_t w_t=1$ 
+An interesting case is if $w=1/n$, so that $\sum_t w_t=1$. This would simplify the log-linear pooling aggregator to
+$$ F(\boldsymbol{\varepsilon})={\frac {1}{\sigma\sqrt{2\pi} }}\exp \left(-{\frac {1}{2\sigma ^2}\mathit{MSE}}\right),$$
+which can be interpreted as the Gaussian probability distributions of the MSE. The length of the timeserie $n$ has disappeared from the equation, so that the aggregation dependence only on the means square of the errors, regardless of how many datapoint.
 
-$$ F(\boldsymbol{\varepsilon})={\frac {1}{\sigma\sqrt{2\pi} }}\exp \left(-{\frac {1}{2\sigma ^2}\mathit{MSE}}\right).$$
-This equation is actually the normal prob dist of the MSE.
-
-You can see from that expression that $n$ disappeared. In such case, the probability is only dependent from the means square of the error.
-
--> external Bayesianity is preseverve. 
-
-Let see the influence on the probability map.
+We can try this and see the influence on the probability map.
 
 ```{r}
 f_prob = function(n,s,x){
@@ -221,15 +221,15 @@ fun_plot_prob(f_prob,sta,raster_list)
 
 As expected from the disappearance of n, the uncertainty is now completely independent from the duration of the stationary period.
 
-This is obviously not what we want, but shows the other extreme.
+This is again obviously not what we want, but it shows the other extreme of the log-linear pooling.
 
 ## Log-linear pooling, $w = \log(n)/n$
 
-In the paper we chosed to use $w=\frac{\log(n)}{n}$, 
+For this study, we chose to use $w=\frac{\log(n)}{n}$, which result in the pooling aggregation
 
 $$F(\boldsymbol{\varepsilon}) \propto \left({\frac {1}{2\pi \sigma ^{2}}}\right)^{\frac{w\log(n)}{2}} \exp \left(-{\frac {\log(n)}{2\sigma ^2}}\textit{MSE}\right).$$
 
-This scheme offers a sch
+This scheme was design to minimize the strength of $1/n$
 
 ```{r}
 f_prob = function(n,s,x){
@@ -238,3 +238,15 @@ f_prob = function(n,s,x){
 }
 fun_plot_prob(f_prob,sta,raster_list)
 ```
+
+## Validation
+
+Validation of uncertainty estimation is relatively difficult, specially when there are only a few datapoint and that you assume that the behaviour of the bird to be different at these calibration site (equipement and retrival) from the rest of its journey. 
+
+To quantify the correctness of the uncertainty estimate of the probability map produced at the calibration site, we quantify the error of an estimated position as the great circle distance to the most likely point. 
+
+![](probability-aggregation-histogram.png){width=100%}
+
+![](probability-aggregation-qq.png){width=100%}
+
+
