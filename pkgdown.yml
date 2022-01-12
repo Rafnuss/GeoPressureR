@@ -3,7 +3,7 @@ pkgdown: 2.0.1
 pkgdown_sha: ~
 articles:
   Probability-aggregation: Probability-aggregation.html
-  basic_example: basic_example.html
-  labeling_tracks: labeling_tracks.html
-last_built: 2022-01-12T03:24Z
+  labelling-tracks: labelling-tracks.html
+  using-geopressurer: using-geopressurer.html
+last_built: 2022-01-12T03:54Z
 
