@@ -115,16 +115,17 @@ We can compute the probability for each stationary periods of our bird
 
 ```{r}
 s=0.5
-raster_prob_list <- c()
+
+f_prob = function(n,s,x){
+  (1/(2*pi*s^2))^(n/2)*exp(-n*x/2/s^2)
+}
+
+fun_plot_prob <- function(f_prob,sta,raster_list){
+  raster_prob_list <- c()
 for (i_s in 1:length(raster_list)) {
   n = sta$nb_sample[i_s]
-  raster_prob_list[[i_s]] <- (1/(2*pi*s^2))^(n/2)*exp(-n*raster_mse_list[[i_s]]/2/s^2)
+  raster_prob_list[[i_s]] <- f_prob(n,s,raster_mse_list[[i_s]])
 }
-```
-
-We plot the MSE and probability map for 6 stationary periods of various duration.
-
-```{r}
 iis = c(1, 2, 5, 17, 24, 26)
 sta[iis,]
 dl=5
@@ -146,6 +147,10 @@ for (i_s in iis){
        )
   points(sta$lon[i_s],sta$lat[i_s] )
 }
+}
+
+fun_plot_prob(f_prob,sta,raster_list)
+
 ```
 
 As you can see from theses 6 examples that the probability transform the MSE into very narrow  uncertainties range. So narrow that for very long stationay period (i_s=1 and 17), the map becomes 0 everywhere.
@@ -182,7 +187,6 @@ $$F(\boldsymbol{\varepsilon}) \propto \left({\frac {1}{2\pi \sigma ^{2}}}\right)
 written with the MSE
 $$F(\boldsymbol{\varepsilon}) \propto \left({\frac {1}{2\pi \sigma ^{2}}}\right)^{\frac{wn}{2}} \exp \left(-{\frac {wn}{2\sigma ^2}}\textit{MSE}\right).$$
 
-
 ## Log-linear pooling, $w=1/n$
 
 An intresting case of is if $w_t=1/n$, in which case $\sum_t w_t=1$ 
@@ -197,41 +201,29 @@ You can see from that expression that $n$ disappeared. In such case, the probabi
 Let see the influence on the probability map.
 
 ```{r}
-s=0.5
-raster_prob_list <- c()
-for (i_s in 1:length(raster_list)) {
-  n = sta$nb_sample[i_s]
-  raster_prob_list[[i_s]] <- (1/(2*pi*s^2))^(1/2)*exp(-raster_mse_list[[i_s]]/2/s^2)
+f_prob = function(n,s,x){
+  w = 1/n
+  (1/(2*pi*s^2))^(n*w/2)*exp(-w*n/2/(s^2)*x)
 }
-
-iis = c(1, 2, 5, 17, 24, 26)
-dl=5
-par(mfcol=c(2, length(iis)), mar=c(0,0,7,0), mai=c(0, 0, .1, 0))
-for (i_s in iis){
-  plot(raster_mse_list[[i_s]], 
-       main=paste0("MSE|i_s=",i_s,"|n=",sta$nb_sample[i_s]), 
-       horizontal = TRUE, 
-       axes = FALSE, 
-       legend.shrink=.8,
-       xlim=c(sta$lon[i_s]-dl,sta$lon[i_s]+dl), ylim=c(sta$lat[i_s]-dl,sta$lat[i_s]+dl)
-       )
-  points(sta$lon[i_s],sta$lat[i_s] )
-}
-for (i_s in iis){
-  plot(raster_prob_list[[i_s]], main="Prob", 
-       horizontal = TRUE, axes = FALSE, legend.shrink=.8,
-       xlim=c(sta$lon[i_s]-dl,sta$lon[i_s]+dl), ylim=c(sta$lat[i_s]-dl,sta$lat[i_s]+dl)
-       )
-  points(sta$lon[i_s],sta$lat[i_s] )
-}
+fun_plot_prob(f_prob,sta,raster_list)
 ```
 
 As expected from the disappearance of n, the uncertainty is now completely independent from the duration of the stationary period.
 
 This is obviously not what we want, but shows the other extreme.
 
-## Log-linear pooling, $w=\ln(n)$
+## Log-linear pooling, $w = \log(n)/n$
 
-$$F(\boldsymbol{\varepsilon}) \propto \left({\frac {1}{2\pi \sigma ^{2}}}\right)^{\frac{n\ln(n)}{2}} \exp \left(-{\frac {\ln(n)}{2\sigma ^2}}\sum _{t=1}^{n}\varepsilon[t]^2\right).$$
+In the paper we chosed to use $w=\frac{\log(n)}{n}$, 
 
-$$F(\boldsymbol{\varepsilon}) \propto \left({\frac {1}{2\pi \sigma ^{2}}}\right)^{\frac{n\ln(n)}{2}} \exp \left(-{\frac {n\ln(n)}{2\sigma ^2}}\mathit{MSE}\right).$$
+$$F(\boldsymbol{\varepsilon}) \propto \left({\frac {1}{2\pi \sigma ^{2}}}\right)^{\frac{w\log(n)}{2}} \exp \left(-{\frac {\log(n)}{2\sigma ^2}}\textit{MSE}\right).$$
+
+This scheme offers a sch
+
+```{r}
+f_prob = function(n,s,x){
+  w = log(n)/n
+  (1/(2*pi*s^2))^(n*w/2)*exp(-w*n/2/(s^2)*x)
+}
+fun_plot_prob(f_prob,sta,raster_list)
+```
