@@ -232,20 +232,23 @@ geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
     # get metadata
     mt <- raster::metadata(raster_list[[i_s]])
 
+    # get MSE layer
+    raster_prob_list[[i_s]] <- raster_list[[i_s]][[1]]
+    # change 0 (water) in NA
+    raster_prob_list[[i_s]][raster_prob_list[[i_s]] == 0] <- NA
+
     # compute Log-linear pooling weight
     # Number of datapoint could also be measured with
     # pres_n <- as.numeric(difftime(mt$extend_sample[2], mt$extend_sample[1],
     # units = "hours"))
     pres_n <- mt$nb_sample
-    w <- log(pres_n) - 1
 
-    # get MSE layer
-    raster_prob_list[[i_s]] <- raster_list[[i_s]][[1]]
-    # change 0 (water) in NA
-    raster_prob_list[[i_s]][raster_prob_list[[i_s]] == 0] <- NA
+    # Weight
+    w = log(n)/n
+
     # compute probability with equation
     raster_prob_list[[i_s]] <-
-      exp(-w * raster_prob_list[[i_s]] / (s^2))
+      (1/(2*pi*s^2))^(n*w/2)*exp(-w*n/2/(s^2)*raster_prob_list[[i_s]])
     # mask value of threashold
     raster_prob_list[[i_s]] <-
       raster_prob_list[[i_s]] * (raster_list[[i_s]][[2]] > thr)
