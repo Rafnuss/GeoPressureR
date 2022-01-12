@@ -244,11 +244,11 @@ geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
     pres_n <- mt$nb_sample
 
     # Weight
-    w = log(n)/n
+    w = log(pres_n)/pres_n
 
     # compute probability with equation
     raster_prob_list[[i_s]] <-
-      (1/(2*pi*s^2))^(n*w/2)*exp(-w*n/2/(s^2)*raster_prob_list[[i_s]])
+      (1/(2*pi*s^2))^(pres_n*w/2)*exp(-w*pres_n/2/(s^2)*raster_prob_list[[i_s]])
     # mask value of threashold
     raster_prob_list[[i_s]] <-
       raster_prob_list[[i_s]] * (raster_list[[i_s]][[2]] > thr)
