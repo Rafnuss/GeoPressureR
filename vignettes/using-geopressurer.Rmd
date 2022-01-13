@@ -86,14 +86,17 @@ We can visualize the pressure measurements for each grouped stationary period (s
 ```{r}
 p <- subset(pam_data$pressure, sta_id != 0) %>% 
   ggplot() +
-  geom_point(data=pam_data$pressure, aes(x=date,y=obs), colour="black",size=0.25) +
+  geom_line(data=pam_data$pressure, aes(x=date,y=obs),col="grey") +
   geom_line(aes(x=date,y=obs,col=as.factor(sta_id))) + 
   theme_bw() +
   scale_y_continuous(name="Pressure(hPa)") +
   scale_colour_manual(values=rep(RColorBrewer::brewer.pal(9,"Set1"),times=4))
   #scale_colour_brewer(type="qualitative", palette = 'Set1')
 
-ggplotly(p, dynamicTicks = T)
+ggplotly(p, dynamicTicks = T) %>% 
+  layout(showlegend=F,
+         legend = list(orientation = "h", x = -0.5),
+         yaxis = list(title="Pressure [hPa]"))
 ```
 
 ## Computing the map of pressure
@@ -213,7 +216,8 @@ p <- ggplot() +
   labs(col="") +
   theme_bw()
 
-ggplotly(p)
+ggplotly(p) %>% 
+  layout(legend = list(orientation = "h", x = -0.5))
 ```
 
 The function `geopressure_ts()` also returns the ground level pressure timeseries from ERA5 at the location specified. This is useful to check whether there is a good match between the pressure measured by the geolocator and the one at the assumed location. This operation is typically used to check the quality of the manual labelling (see [the vignette on how to label tracks](labelling-tracks.html)).
