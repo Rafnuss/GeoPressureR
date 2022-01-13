@@ -21,7 +21,7 @@ In this vignette, we will explore this challenge, look at the theory behind it a
 
 ## Problem presentation
 
-For each stationary period, we estimate the probability of the position of the bird $\textbf{x}$ based on a pressure timeseries measured by the geolocator $P_{gl}[t] \quad \forall t \in [1,\ldots,n]$, which in a Bayesian framework can be written as, 
+For each stationary period, we estimate the probability of the position $\textbf{x}$ of the bird based on a pressure timeseries measured by the geolocator $P_{gl}[t] \quad \forall t \in [1,\ldots,n]$, which in a Bayesian framework can be written as, 
 $$p(\textbf{x}\mid P_{gl}[1],\ldots,P_{gl}[n]) \propto p(P_{gl}[1],\ldots,P_{gl}[n] \mid \textbf{x}) p(\textbf{x}).$$
 
 We are interested here in determining the likelihood term $p(P_{gl} \mid \textbf{x})$ using quantify the probability of observing the timeserie $P_{gl}$ knowing that the bird is at location $\textbf{x}$. To quantify this probability, we look at the mismatch between $P_{gl}$ and the pressure timesrie of the ERA5 database $P_{ERA5}(\textbf{x})$ extracted at location $\textbf{x}$. We can reformulate the likelihood as as a probability function $f$ of an error term $\varepsilon(\textbf{x})$ which measure a distance between $P_{gl}$ and $P_{ERA5}(\textbf{x})$
@@ -33,7 +33,7 @@ This formulation of the problem help us to split our problem in two: first defin
 In most cases, we would expect to measure the error term with a simple difference $P_{ERA5}(\textbf{x})[t]-P_{gl}[t].$ However, within a ERA5 grid cell of 9-30km, we can expect a wide range of altitude at which the bird can be location. As such there any offset between the two timeserie can be explained by the difference of altitude.
 
 To solve this issue, we remove the mean pressure difference, essentially ignoring the absolute value of pressure (and altitude) such that the error term only look at the mismatch of the temporal variation, 
-$$\varepsilon[t] =  P_{ERA5}(\textbf{x})[t]-P_{gl}[t] - \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\textbf{x})[i]-P_{gl}[i] \right).$$
+$$\varepsilon[t] =\right( P_{ERA5}(\textbf{x})[t]-P_{gl}[t]\right) - \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\textbf{x})[i]-P_{gl}[i] \right).$$
 
 This way of building the error term has some important consequences. If you think of a timeseries of only one datapoint, the error term will be zero at all locations, resulting in an equally probable map. As the number of datapoint increase, the errors term will be more and more able to distinguish between "good" and "bad" location.
 
@@ -110,7 +110,7 @@ As the covariance is difficult to quantify explicitly, we can first look at the 
 $$ f_{ind}(\boldsymbol{\varepsilon})=\prod _{t=1}^{n}f_\mathcal{N}(\varepsilon[t])=\left({\frac {1}{2\pi \sigma ^{2}}}\right)^{n/2}\exp \left(-{\frac {\sum _{t=1}^{n}\varepsilon[t]^2}{2\sigma ^2}}\right).$$
 
 We can re-write this equation as a function of the MSE
-$$ f_{ind}(\boldsymbol{\varepsilon})=\left({\frac {1}{2\pi \sigma ^{2}}}\right)^{n/2}\exp \left(-{\frac {n\mathit{MSE}}{2\sigma ^2}}\right).$$
+$$ f_{ind}(\boldsymbol{\varepsilon})=\left({\frac {1}{2\pi \sigma ^{2}}}\right)^{n/2}\exp \left(-n{\frac {\mathit{MSE}}{2\sigma ^2}}\right).$$
 
 Using this equation, we can compute the probability for each stationary periods. In the code below, we define a likelihood function `f_prob` as a function of $n$, $\sigma$ and the MSE.
 ```{r}
@@ -185,8 +185,7 @@ $$ F(f(\varepsilon[1]),\ldots,f(\varepsilon[n]))=F(\boldsymbol{\varepsilon})$$
 
 The most popular aggregation function is the log-linear pooling,
 
-$$F(\boldsymbol{\varepsilon}) \propto \prod_{t=1}^n f(\varepsilon[t])^{w_t} = \sum_{t=1}^n w_t \ell (\varepsilon[t])$$
-using the log-likelihood notation $\ell=\log{f}$.
+$$F(\boldsymbol{\varepsilon}) \propto \prod_{t=1}^n f(\varepsilon[t])^{w_t}$$
 
 This equation also relies on the principale of conjuction of probability, but it uses a weight $w_t$ which is related to the new information brought by each additional $\varepsilon[t]$. Formally, it can be defined by
 $$w_t=\frac{\ln p(\varepsilon[t] \mid \boldsymbol{x},\varepsilon[1],\ldots \varepsilon[t-1])}{\ln p(\varepsilon[t] \mid \boldsymbol{x})}.$$
@@ -243,10 +242,21 @@ fun_plot_prob(f_prob,sta,raster_list)
 
 Validation of uncertainty estimation is relatively difficult, specially when there are only a few datapoint and that you assume that the behaviour of the bird to be different at these calibration site (equipement and retrival) from the rest of its journey. 
 
-To quantify the correctness of the uncertainty estimate of the probability map produced at the calibration site, we quantify the error of an estimated position as the great circle distance to the most likely point. 
+In the figure below, some example of uncertainty estimate are shown below. Ideally, you wand the colored area to be small (low uncertainty), but when assessing an uncertainty, you are looking that the red cross is distributed on the map according to the colored area. That is, if the red cross is too often outside, your uncertainty is too confident, and if too often at high value, you are overconfident. Both extreme are not good.
 
-![](probability-aggregation-histogram.png){width=100%}
+In addition the shape of the uncertainty can be quite special (e.g., hoopoe bottom right) making the distance between the most likely point (blue) and true value (red cross) not a good measure of uncertainty. 
+
+![Uncertainty of pressure mismatch (colorscale) for the equipement period shwoing the true equipement sire (red cross) wihtin the probability map estimated and the most likely value](probability-aggregation-map-uncertainty.png){width=100%}
+
+Assessing uncertainty relies on checking that that the red cross is distributed according to each uncertainty shape. A more formal way to quantifiying the uncertainty is of the quantile of the true value $q=p(\boldsymbol{x}\leq \boldsymbol{x}_{true})$, which correspond to the proability that the variable is less than or equal to the true value. So, if the true value belong to the distribution, it should have its distribution of quantile should follow a uniform distribution.
+
+This ca be visualize with the empirical cumulatie distribution of the quantiles which should fall on the 1:1 line (like a qq-plot). The two expreme cases ($w=1$ and $w=1/n$) shows overconfidence (above the line) and  underconfidence (under the line) respectively. Indeed, the distribution of quantile using the $w=1/n$ method shows a lot of quantile value between 0.9-1, which indicates that the true value is within the 90% uncertainty contour (underconfident).
+
 
 ![](probability-aggregation-qq.png){width=100%}
 
+The method chosen ($w=\log(n)/n$) is doing better than both, but is still in general underconfident. Because the calibration the validation is performed with rather long temporal serie (equipement and retrival), one can expect that the labelisation of pressure is better/easier than for other place. Thus, it seems more appropriate to be slightly underconfident while the method is being developed. 
 
+The covariance aggregation scheme was implemented by computing the covariance matrix of the multi-variate Gaussian distribution. The covariance function was build using the exact on the variogram of each species. This is, in theory, the more correct method, but it look too overconfident. Thus we didn't use it for now.
+
+Looking forward, calibration is highly dependant on the local topograph and the ability of the bird to move up and down. Manual edition/labeling has also a strong impact. 
