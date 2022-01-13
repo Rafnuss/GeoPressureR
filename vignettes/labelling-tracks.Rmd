@@ -37,7 +37,7 @@ Each species' migration behaviour is so specific that **manual editing remains t
 
 **Manual editing also provides a sense of what the bird is doing**. You will learn how the bird is moving (e.g. long continuous high altitude flight, short flights over multiple days, alternation between short migration flights and stopovers, etc.). It also provides a sense of the uncertainty of your classification, which is useful to understand and interpret your results. 
 
-That being said, it is still worth starting the manual editing from an automatically labeled timeseries. `pam_classify()` defines migratory flight when activity is hight for a long period. Refer to possible classification methods on the [PALMr manual](https://kiranlda.github.io/PAMLrManual/index.html).
+That being said, it is still worth starting the manual editing from an automatically labeled timeseries. `pam_classify()` defines migratory flight when activity is hight for a long period. Refer to possible classification methods on the [PAMLr manual](https://kiranlda.github.io/PAMLrManual/index.html).
 
 ```{r eval=F}
 pam_data = pam_classify(pam_data, min_duration = 30)
@@ -51,9 +51,9 @@ The procedure involves labelling (1) migratory activity as `1` and (2) identifyi
 The outcome of the activity labelling is twofold:
 
 1. defined stationary periods, during which the bird is considered static relative to the size of the grid (~10-30km). The start and end of the stationary period is then used to define the pressure timeseries to be matched. 
-2. defined flight durations, which is used in the movement model to define the distance between stationary periods.
+2. defined flight duration, which is used in the movement model and, indirectly, impact the distance between stationary periods.
 
-Labelling of pressure allows to deals with situation when the bird is changing altitude. Indeed, since the reanalysis data to be match with is provided at ground level, we want the pressure timeserie of the geolocator to be at a single elevation and must hence discard any datapoint from a different altitude.
+Labelling of pressure allows to deal with situations when the bird is changing altitude. Since the reanalysis data to be matched is provided at ground level, the geolocator's pressure series should be at a single elevation and therefore we must discard all data points from a different elevation.
 
 ## Introduction to TRAINSET
 
@@ -111,11 +111,11 @@ ggplotly(p, dynamicTicks = T) %>%
          yaxis = list(title="Pressure [hPa]"))
 ```
 
-Ploting this figure with [PlotlyR](https://plotly.com/r/) allows you to zoom-in and pan to check all timeseries are correctly grouped. Make sure each stationary period does not include any pressure measurement from flight (e.g. 1-Sep-2019). You might spot some anomalies in the temporal variation of pressure. In some cases, you can already label the pressure timeseries to remove them.
+Ploting this figure with [PlotlyR](https://plotly.com/r/) allows you to zoom-in and pan to check all timeseries are correctly grouped. Make sure each stationary period does not include any pressure measurement from flight (e.g. 1-Sep-2017 in the figure above). You might spot some anomalies in the temporal variation of pressure. In some cases, you can already label the pressure timeseries to remove them.
 
 ### Test 3: Pressure timeseries match
 
-So far, we have checked that the pressure timeseries are correctly labeled with their respective stationary periods and that they look relatively smooth. At this stage, the timeseries are good enough to be matched with the reanalyisis data. The third test consists of finding the location with the best match and comparing the pressure timeseries. This allows to distinguish bird movements from natural variations in pressure. This is by far the more difficult step, and multiple iterations will be necessary to achieve the best results. 
+So far, we have checked that the pressure timeseries are correctly labeled with their respective stationary periods and that they look relatively smooth. At this stage, the timeseries are good enough to be matched with the reanalyisis data. The third test consists of finding the location with the best match and comparing the pressure timeseries. This allows to distinguish bird movements from natural variations in pressure. This is by far the most difficult step, and multiple iterations will be necessary to achieve the best results. 
 
 As computation can take time, we recommend starting with a few long stationary periods, and once results are satisfying, moving to the shorter periods.
 
@@ -208,11 +208,11 @@ In the following section, we use examples to illustrate common challenges that m
 
 ### Outliars during flights due to low bird activity
 
-During their flight, birds can display periods of low activity, for example with less intensive flapping. The automatic labelling of activity with the KNN classifier may mislabel these points as stationary periods, as illustrated in the example below for the night of the 31st of August. A single mislabeled point can incorrectly split the flight into multiple short flights. This error is highlighted with Test #1 described above. However, birds may also display lower activity at the beginning or end of their flight, which is often misclassified, as illustrated in all three nights in the example below and would not be picked up by Test #1.
+During a flight, single activity measurements can display low activity due to e.g. short gliding flights with no flapping. The automatic labelling of activity with the KNN classifier may mislabel these points as stationary periods, as illustrated in the example below for the night of the 31st of August. A single mislabeled point can incorrectly split the flight into multiple short flights. This error is highlighted with Test #1 described above. However, birds may also display lower activity at the beginning or end of their flight, which is often misclassified, as illustrated in all three nights in the example below and would not be picked up by Test #1.
 
 ![](labelling-tracks-1.png){width=100%}
 
-However, if the low activity happens well before the bird reaches the ground, as illustrated in the example below, it is visible in the figure generated by Test #2. Yet this is not always the case, so we must assess on a case-by-case basis whether this such datapoints should be included in the flight or not. 
+However, if the low activity happens well before the bird reaches the ground, as illustrated in the example below, the low pressure measurement of flight will be included in the stationary period. These error can sometimes be pick-up in Test #2. Yet this is worth checking all flights activity and assess on a case-by-case basis whether this such datapoints should be included in the flight or not. 
 
 ![](labelling-tracks-2.png){width=100%}
 
@@ -222,7 +222,7 @@ Anomalies in a pressure timeseries might not be obvious at first sight.
 
 ![](labelling-tracks-3.png){width=100%}
 
-Zooming in to narrower pressure range helps to understand what is happening. In this example, we have a Tawny Pipit breeding near a mine site with accidental topography. While breeding, it looks like it is staying at a relatively constant elevation, but the sudden drop in pressure towards the end indicates that the bird has changed altitude.
+Zooming in to narrower pressure range helps to understand what is happening. In this example, we have a Tawny Pipit breeding near a mine site with a rough topography. While breeding, it looks like it is staying at a relatively constant elevation, but the sudden drop in pressure towards the end indicates that the bird has changed altitude.
 
 ![](labelling-tracks-4.png){width=100%}
 
