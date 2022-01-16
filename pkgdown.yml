@@ -1,9 +1,12 @@
 pandoc: 2.7.3
-pkgdown: 2.0.1
+pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
   Probability-aggregation: Probability-aggregation.html
   labelling-tracks: labelling-tracks.html
   using-geopressurer: using-geopressurer.html
-last_built: 2022-01-13T14:53Z
+last_built: 2022-01-16T18:17Z
+urls:
+  reference: https://raphaelnussbaumer.com/GeoPressureR/reference
+  article: https://raphaelnussbaumer.com/GeoPressureR/articles
 
