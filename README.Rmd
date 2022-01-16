@@ -13,13 +13,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-# GeoPressureR
+# GeoPressureR <img src="man/figures/logo.svg" align="right" height="139" />
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions)
 <!-- badges: end -->
 
-The goal of GeoPressureR is to help researcher to analyse pressure measurement from geolocator. In particular, it provides a R wrapper around the [GeoPressure API](https://github.com/Rafnuss/GeoPressureServer) to query the proability map using ERA5 pressure.
+The goal of GeoPressureR is to help researcher to analyse pressure measurement from geolocator. In particular, it provides a R wrapper around the [GeoPressure API](https://github.com/Rafnuss/GeoPressureServer) to query the probability map using ERA5 pressure.
 
 ## Installation
 
@@ -32,8 +32,7 @@ devtools::install_github("Rafnuss/GeoPressureR")
 
 ## Where to start?
 
-The [vignette basic esample](./basic_example.html) is probably the best place to understand the basic workflow of the package. 
-
+The vignette [basic example](./basic_example.html) is probably the best place to understand the basic workflow of the package. 
 
 ## Related ressources
 

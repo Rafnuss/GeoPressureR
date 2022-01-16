@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# GeoPressureR
+# GeoPressureR <img src="man/figures/logo.svg" align="right" height="139" />
 
 <!-- badges: start -->
 
@@ -12,7 +12,7 @@ The goal of GeoPressureR is to help researcher to analyse pressure
 measurement from geolocator. In particular, it provides a R wrapper
 around the [GeoPressure
 API](https://github.com/Rafnuss/GeoPressureServer) to query the
-proability map using ERA5 pressure.
+probability map using ERA5 pressure.
 
 ## Installation
 
@@ -26,7 +26,7 @@ devtools::install_github("Rafnuss/GeoPressureR")
 
 ## Where to start?
 
-The [vignette basic esample](./basic_example.html) is probably the best
+The vignette [basic example](./basic_example.html) is probably the best
 place to understand the basic workflow of the package.
 
 ## Related ressources
