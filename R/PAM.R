@@ -382,7 +382,7 @@ trainset_read <- function(pam,
 #' Compute stationary periods
 #'
 #' This function computes the table of stationary periods from the class of
-#' acceleration `pam$acceleration$class` and add it to the pam
+#' acceleration `pam$acceleration$class` and add it to the pam data as `sta_id`
 #'
 #' @param pam pam logger dataset list
 #' @return pam logger dataset list with a the dataframe of stationary periods
@@ -412,6 +412,9 @@ pam_sta <- function(pam) {
   testthat::expect_true("date" %in% names(pam$acceleration))
   testthat::expect_true("act" %in% names(pam$acceleration))
   testthat::expect_true("class" %in% names(pam$acceleration))
+  testthat::expect_type(pam$light, "list")
+  testthat::expect_true("date" %in% names(pam$light))
+  testthat::expect_true("obs" %in% names(pam$light))
 
   # Create a table of activities (migration or stationary)
   act_id <- c(1, cumsum(diff(as.numeric(pam$acceleration$class)) != 0) + 1)
@@ -444,6 +447,13 @@ pam_sta <- function(pam) {
   )
   pressure_sta_id[sapply(pressure_sta_id, function(x) length(x) == 0)] <- 0
   pam$pressure$sta_id <- unlist(pressure_sta_id)
+
+  # Assign to each light measurement the stationary period
+  light_sta_id <- sapply(
+    pam$light$date, function(x) which(pam$sta$start < x & x < pam$sta$end)
+  )
+  light_sta_id[sapply(light_sta_id, function(x) length(x) == 0)] <- 0
+  pam$light$sta_id <- unlist(light_sta_id)
 
   # return the updated list
   pam

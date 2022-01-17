@@ -17,7 +17,8 @@ Suggests:
     leaflet,
     ggplot2,
     plotly,
-    RColorBrewer
+    RColorBrewer,
+    GeoLocTools
 VignetteBuilder: knitr
 Imports: 
     raster,
