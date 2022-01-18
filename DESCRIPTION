@@ -34,3 +34,4 @@ Depends:
     R (>= 3.5.0)
 LazyData: true
 LazyDataCompression: xz
+Remotes: SLisovski/GeoLocTools
