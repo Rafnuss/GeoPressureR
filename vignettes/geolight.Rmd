@@ -148,12 +148,9 @@ twl$sta_id <- unlist(twilight_sta_id)
 
 We first define a grid on which to compute the probabilities
 ```{r}
-lon = seq(lon.lim[1], lon.lim[2], by=.25)
-lat = seq(lat.lim[1], lat.lim[2], by=.25)
-g = data.frame(
-  lon = rep(lon,length(lat)),
-  lat = rep(lat,each=length(lon))
-)
+data("prob_map_list", package = "GeoPressureR")
+g <- as.data.frame(prob_map_list[[1]], xy=TRUE)
+g$layer=NA
 ```
 
 The, selecting only the twilight not labeled as deleted, we compute the probability of observing the zenith angle of each twilights using the calibrated error function for each grid cell. 
@@ -181,11 +178,11 @@ raster_light_list <- c()
 for (i_s in seq_len(nrow(pam_data$sta))){
   id = twl.clean$sta_id==pam_data$sta$sta_id[i_s]
   if (sum(id)>1){
-    g$p = exp(colSums(w*log(pgz[id,]))) # Log-linear equation express in log 
+    g$layer = exp(colSums(w*log(pgz[id,]))) # Log-linear equation express in log 
   } else if(sum(id)==1) {
-    g$p = pgz[id,]
+    g$layer = pgz[id,]
   } else {
-    g$p = 1
+    g$layer = 1
   }
   gr <- rasterFromXYZ(g)
   crs(gr) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
