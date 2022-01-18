@@ -1,0 +1,37 @@
+---
+title: "How to create graph"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How to create graph}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(GeoPressureR)
+```
+
+Load data
+```{r}
+data("prob_map_list", package = "GeoPressureR")
+data("raster_light_list", package = "GeoPressureR")
+```
+
+
+```{r}
+for (i_s in seq_len(length(prob_map_list))){
+  A=as.matrix(prob_map_list[[i_s]])spts <- rasterToPoints(r, spatial = TRUE)
+  B=as.matrix(raster_light_list[[i_s]])
+}
+```
+
+
+
+
