@@ -29,24 +29,29 @@ describe in
 }
 \examples{
 \dontrun{
-pam_data = pam_read(
-   pathname = system.file("extdata", package = "GeoPressureR"),
-   crop_start = "2017-06-20", crop_end = "2018-05-02")
-pam_data = trainset_read(pam_data,
-            pathname=system.file("extdata", package = "GeoPressureR"))
-pam_data = pam_sta(pam_data)
-raster_list = geopressure_map(
+pam_data <- pam_read(
+  pathname = system.file("extdata", package = "GeoPressureR"),
+  crop_start = "2017-06-20", crop_end = "2018-05-02"
+)
+pam_data <- trainset_read(pam_data,
+  pathname = system.file("extdata", package = "GeoPressureR")
+)
+pam_data <- pam_sta(pam_data)
+raster_list <- geopressure_map(
   pam_data$pressure,
-  extent = c(-16,20,0,50),
+  extent = c(-16, 20, 0, 50),
   scale = 10
-  )
-prob_map_list = geopressure_prob_map(
+)
+prob_map_list <- geopressure_prob_map(
   raster_list,
-  s=0.4,
-  thr=0.9
-  )
+  s = 0.4,
+  thr = 0.9
+)
 }
 data("prob_map_list", package = "GeoPressureR")
 raster::metadata(prob_map_list[[1]])
-raster::plot(prob_map_list[[1]],main="Probability",xlim=c(5,20), ylim=c(42,50))
+raster::plot(prob_map_list[[1]],
+  main = "Probability",
+  xlim = c(5, 20), ylim = c(42, 50)
+)
 }

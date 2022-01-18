@@ -19,9 +19,9 @@ vignettes
 }
 \examples{
 \dontrun{
-prob_map_list = geopressure_prob_map(raster_list)
+prob_map_list <- geopressure_prob_map(raster_list)
 # Save the data for vignette
-usethis::use_data(prob_map_list, overwrite=T)
+usethis::use_data(prob_map_list, overwrite = T)
 }
 }
 \keyword{datasets}

@@ -24,9 +24,10 @@ This fonction is inspired by the function \code{classify_flap} from the
 \href{https://github.com/KiranLDA/pamLr}{pamLr package}.
 }
 \examples{
-pam_data = pam_read(
-   pathname = system.file("extdata", package = "GeoPressureR"),
-   crop_start = "2017-06-20", crop_end = "2018-05-02")
-pam_data = pam_classify(pam_data, min_duration = 30)
+pam_data <- pam_read(
+  pathname = system.file("extdata", package = "GeoPressureR"),
+  crop_start = "2017-06-20", crop_end = "2018-05-02"
+)
+pam_data <- pam_classify(pam_data, min_duration = 30)
 head(pam_data$acceleration)
 }

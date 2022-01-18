@@ -42,7 +42,8 @@
 #' data("raster_list", package = "GeoPressureR")
 #' raster::metadata(raster_list[[1]])
 #' raster::plot(raster_list[[1]],
-#' main = c("Mean Square Error", "Mask of pressure"))
+#'   main = c("Mean Square Error", "Mask of pressure")
+#' )
 #' @export
 geopressure_map <-
   function(pressure,
@@ -229,8 +230,10 @@ geopressure_map <-
 #' }
 #' data("prob_map_list", package = "GeoPressureR")
 #' raster::metadata(prob_map_list[[1]])
-#' raster::plot(prob_map_list[[1]], main = "Probability",
-#' xlim = c(5, 20), ylim = c(42, 50))
+#' raster::plot(prob_map_list[[1]],
+#'   main = "Probability",
+#'   xlim = c(5, 20), ylim = c(42, 50)
+#' )
 #' @export
 geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
   raster_prob_list <- c()
@@ -254,8 +257,8 @@ geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
 
     # compute probability with equation
     raster_prob_list[[i_s]] <-
-       (1 / (2 * pi * s^2))^(pres_n * w / 2) * exp(-w * pres_n / 2 / (s^2)
-                                                  * raster_prob_list[[i_s]])
+      (1 / (2 * pi * s^2)) ^ (pres_n * w / 2) * exp(-w * pres_n / 2 / (s^2)
+        * raster_prob_list[[i_s]])
     # mask value of threashold
     raster_prob_list[[i_s]] <-
       raster_prob_list[[i_s]] * (raster_list[[i_s]][[2]] > thr)
@@ -312,9 +315,13 @@ geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
 #' data("ts_list", package = "GeoPressureR")
 #' par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
 #' plot(ts_list[[1]]$date,
-#' ts_list[[1]]$pressure, ylab = "Pressure [hPa]", xlab = "")
+#'   ts_list[[1]]$pressure,
+#'   ylab = "Pressure [hPa]", xlab = ""
+#' )
 #' plot(ts_list[[1]]$date,
-#' ts_list[[1]]$altitude, ylab = "Altitude [m asl]", xlab = "")
+#'   ts_list[[1]]$altitude,
+#'   ylab = "Altitude [m asl]", xlab = ""
+#' )
 #' @export
 geopressure_ts <-
   function(lon,

@@ -38,20 +38,28 @@ otherwise, it will return on a hourly basis between \code{start_time} and
 }
 \examples{
 \dontrun{
-pam_data = pam_read(
-   pathname = system.file("extdata", package = "GeoPressureR"),
-   crop_start = "2017-06-20", crop_end = "2018-05-02")
-pam_data = trainset_read(pam_data,
-            pathname=system.file("extdata", package = "GeoPressureR"))
-pam_data = pam_sta(pam_data)
-ts_list[[1]]  = geopressure_ts(
+pam_data <- pam_read(
+  pathname = system.file("extdata", package = "GeoPressureR"),
+  crop_start = "2017-06-20", crop_end = "2018-05-02"
+)
+pam_data <- trainset_read(pam_data,
+  pathname = system.file("extdata", package = "GeoPressureR")
+)
+pam_data <- pam_sta(pam_data)
+ts_list[[1]] <- geopressure_ts(
   lon = 16.85,
   lat = 48.75,
-  pressure = subset(pam_data$pressure,sta_id==1)
-  )
+  pressure = subset(pam_data$pressure, sta_id == 1)
+)
 }
 data("ts_list", package = "GeoPressureR")
-par(mfrow=c(2,1), mar=c(2,5,1,1))
-plot(ts_list[[1]]$date,ts_list[[1]]$pressure,ylab="Pressure [hPa]", xlab="")
-plot(ts_list[[1]]$date,ts_list[[1]]$altitude,ylab="Altitude [m asl]", xlab="")
+par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
+plot(ts_list[[1]]$date,
+  ts_list[[1]]$pressure,
+  ylab = "Pressure [hPa]", xlab = ""
+)
+plot(ts_list[[1]]$date,
+  ts_list[[1]]$altitude,
+  ylab = "Altitude [m asl]", xlab = ""
+)
 }

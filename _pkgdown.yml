@@ -15,6 +15,13 @@ reference:
   desc: Wrapper to the GeoPressure API
   contents:
   - starts_with("geopressure_")
+- title: GeoLight
+  desc: Functions for geopositioning based on light data
+  contents:
+  - solar
+  - zenith
+  - refracted
+  - findTwilights
 - title: Dataset
   desc: Dataset used for vignettes
   contents:

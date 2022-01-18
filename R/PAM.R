@@ -62,7 +62,8 @@ pam_read <- function(pathname,
       fname <- strsplit(f, "\\.")[[1]][2]
     }
     pam[[fname]] <- pam_read_file(
-      paste0(pathname, "/", f), crop_start, crop_end)
+      paste0(pathname, "/", f), crop_start, crop_end
+    )
   }
 
   # return

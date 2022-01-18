@@ -19,29 +19,30 @@ vignette \code{basic_example.Rmd}and \code{labeling_tracks.Rmd}.
 }
 \examples{
 \dontrun{
-ts_list=list()
-for (i_r in 1:length(prob_map_list)){
-  i_s = metadata(prob_map_list[[i_r]])$sta_id
+ts_list <- list()
+for (i_r in 1:length(prob_map_list)) {
+  i_s <- metadata(prob_map_list[[i_r]])$sta_id
 
   # find the max value of probability
-  tmp = as.data.frame(prob_map_list[[i_r]],xy=T)
-  lon = tmp$x[which.max(tmp[,3])]
-  lat = tmp$y[which.max(tmp[,3])]
+  tmp <- as.data.frame(prob_map_list[[i_r]], xy = T)
+  lon <- tmp$x[which.max(tmp[, 3])]
+  lat <- tmp$y[which.max(tmp[, 3])]
 
   # query the pressure at this location
-  message("query:",i_r,"/",length(sta_id_keep))
-  ts_list[[i_r]] = geopressure_ts(lon,
-                                  lat,
-                                  pressure = subset(pam_data$pressure,sta_id==1))
+  message("query:", i_r, "/", length(sta_id_keep))
+  ts_list[[i_r]] <- geopressure_ts(lon,
+    lat,
+    pressure = subset(pam_data$pressure, sta_id == 1)
+  )
   # Add sta_id
-  ts_list[[i_r]]['sta_id'] = i_s
+  ts_list[[i_r]]["sta_id"] <- i_s
 
   # Remove mean
-  ts_list[[i_r]]$pressure0 = ts_list[[i_r]]$pressure -
-   mean(ts_list[[i_r]]$pressure) + mean(pam_data$pressure$obs[id])
+  ts_list[[i_r]]$pressure0 <- ts_list[[i_r]]$pressure -
+    mean(ts_list[[i_r]]$pressure) + mean(pam_data$pressure$obs[id])
 }
 # Save the data for vignette
-usethis::use_data(ts_list, overwrite=T)
+usethis::use_data(ts_list, overwrite = T)
 }
 }
 \keyword{datasets}

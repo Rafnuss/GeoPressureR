@@ -11,10 +11,10 @@ solar(tm)
 }
 \value{
 A list containing the following vectors.
-\item{\code{solarTime}}{the solar time (degrees)}
-\item{\code{eqnTime}}{the equation of time (minutes of time)}
-\item{\code{sinSolarDec}}{sine of the solar declination}
-\item{\code{cosSolarDec}}{cosine of the solar declination}
+\item{\code{solar_time}}{the solar time (degrees)}
+\item{\code{eqn_time}}{the equation of time (minutes of time)}
+\item{\code{sin_solar_dec}}{sine of the solar declination}
+\item{\code{cos_solar_dec}}{cosine of the solar declination}
 }
 \description{
 Calculate solar time, the equation of time and solar declination

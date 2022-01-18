@@ -29,29 +29,17 @@ library(raster)
 Define basic information about calibration. The second calibration is so short (1 day), that we don't consider it here
 
 ```{r}
-lon.calib <- 17.05	
-lat.calib <- 48.9
-tm.calib.1 <- c(as.POSIXct("2017-06-20"), as.POSIXct("2017-07-20"))
-# tm.calib.2 <- c(as.POSIXct("2018-04-29"), as.POSIXct("2018-05-1"))
-lon.lim <- c(-18, 23)
-lat.lim <- c(4, 53)
-tm.lim <- c("2017-06-20", "2018-05-02")
+lon_calib <- 17.05	
+lat_calib <- 48.9
+tm_calib_1 <- c(as.POSIXct("2017-06-20"), as.POSIXct("2017-07-20"))
+# tm_calib_2 <- c(as.POSIXct("2018-04-29"), as.POSIXct("2018-05-1"))
 ```
 
 Read pam data
 
 ```{r}
 pam_data = pam_read(pathname = system.file("extdata", package = "GeoPressureR"),
-                    crop_start = tm.lim[1], crop_end = tm.lim[2])
-```
-
-and convert to the format required in the `GeoLocTools` functions.
-
-```{r}
-raw = data.frame(
-  Date = pam_data$light$date,
-  Light = pam_data$light$obs
-)
+                    crop_start = "2017-06-20", crop_end = "2018-05-02")
 ```
 
 ## Twilight Annotation
@@ -60,11 +48,11 @@ The twilight annotation follow closely the [chapter 4 of the geolocation manual]
 
 Find the time of twilight and change the timezone to UTC
 ```{r}
-twl <- findTwilights(raw, 
+twl <- find_twilights(pam_data$light, 
                      threshold = min(raw$Light[raw$Light>0]), # first light of the day
                      include = "2017-09-23 00:00:00 UTC" # Not sure why
                      )
-attr(twl$Twilight, "tzone") <- "UTC" 
+attr(twl$twilight, "tzone") <- "UTC" 
 ```
 
 But the manual editing is quite easy with trainset. The main adventage is that you can come back to it after running the rest of the analysis to improve the editing.
@@ -76,10 +64,10 @@ First write the csv file, then open it in trainset, edit on trainset and finally
 ```{r, eval=F}
 write.csv(
   data.frame(
-    series = ifelse(twl$Rise,"Rise","Set"),
-    timestamp = strftime(twl$Twilight, "%Y-%m-%dT00:00:00Z", tz = "UTC"),
-    value = as.numeric(format(twl$Twilight, "%H")) * 60 + as.numeric(format(twl$Twilight, "%M")),
-    label = ifelse(is.null(twl$Delete), "", ifelse(twl$Delete,'Delete',''))
+    series = ifelse(twl$rise,"Rise","Set"),
+    timestamp = strftime(twl$twilight, "%Y-%m-%dT00:00:00Z", tz = "UTC"),
+    value = as.numeric(format(twl$twilight, "%H")) * 60 + as.numeric(format(twl$twilight, "%M")),
+    label = ifelse(is.null(twl$delete), "", ifelse(twl$delete,'Delete',''))
   ),
   paste0(system.file("extdata", package = "GeoPressureR"), "/18LX_light.csv"),
   row.names = FALSE
@@ -91,7 +79,7 @@ Read the exported csv file and update the `Deleted` field in `twl`
 
 ```{r}
 csv <- read.csv( paste0(system.file("extdata", package = "GeoPressureR"), "/18LX_light-labeled.csv"))
-twl$Deleted = !csv$label==""
+twl$deleted = !csv$label==""
 ```
 
 We can visualize the final annotated twilight.
@@ -102,14 +90,14 @@ lightImage( tagdata = raw,
             offset = offset,     
             zlim = c(0, 4))
 
-tsimagePoints(twl$Twilight, offset = offset, pch = 16, cex = 1.2,
+tsimagePoints(twl$twilight, offset = offset, pch = 16, cex = 1.2,
               col = ifelse(twl$Deleted, "grey20", ifelse(twl$Rise, "firebrick", "cornflowerblue")))
 
-tsimageDeploymentLines(twl$Twilight, lon.calib, lat.calib, offset = offset,
+tsimageDeploymentLines(twl$twilight, lon_calib, lat_calib, offset = offset,
                        lwd = 2, col = adjustcolor("orange", alpha.f = 0.8))
 
-abline(v = tm.calib.1, lty = c(1,2), col = "firebrick", lwd = 1.5)
-#abline(v = tm.calib.2, lty = c(1,2), col = "firebrick", lwd = 1.5)
+abline(v = tm_calib_1, lty = c(1,2), col = "firebrick", lwd = 1.5)
+#abline(v = tm_calib_2, lty = c(1,2), col = "firebrick", lwd = 1.5)
 ```
 
 ## Calibration
@@ -118,16 +106,16 @@ Instead of calibrating the twilights in term of duration, we model the zenith an
 
 First, get the twilight during the calibration period
 ```{r}
-twl.calib <- subset(twl, !Deleted & Twilight>=tm.calib.1[1] & Twilight<=tm.calib.1[2])
+twl_calib <- subset(twl, !deleted & twilight>=tm_calib_1[1] & twilight<=tm_calib_1[2])
 ```
 
 We compute the zenith angle (i.e., elevation of the sun) of the time of the twilights at calibration site.  We fit a simple gamma distribution.
 
 ```{r}
-sun <- solar(twl.calib$Twilight)
-z = refracted(zenith(sun, lon.calib, lat.calib)) 
+sun <- solar(twl_calib$twilight)
+z = refracted(zenith(sun, lon_calib, lat_calib)) 
 fitE = fitdistr(z,"gamma")
-hist(z,freq=F)
+hist(z, freq=F)
 z.axes = seq(90,100,0.1)
 lines(z.axes, dgamma(z.axes, fitE$estimate["shape"], fitE$estimate["rate"]), col="red")
 ```
@@ -139,7 +127,7 @@ Before computing the probability map, we group the twilights by stationary perio
 ```{r}
 pam_data = trainset_read(pam_data, pathname=system.file("extdata", package = "GeoPressureR"))
 pam_data = pam_sta(pam_data)
-twilight_sta_id <- sapply(twl$Twilight, function(x) which(pam_data$sta$start < x & x < pam_data$sta$end))
+twilight_sta_id <- sapply(twl$twilight, function(x) which(pam_data$sta$start < x & x < pam_data$sta$end))
 twilight_sta_id[sapply(twilight_sta_id, function(x) length(x) == 0)] <- 0
 twl$sta_id <- unlist(twilight_sta_id)
 ```
@@ -156,8 +144,8 @@ g$layer=NA
 The, selecting only the twilight not labeled as deleted, we compute the probability of observing the zenith angle of each twilights using the calibrated error function for each grid cell. 
 
 ```{r}
-twl.clean <- subset(twl, !Deleted)
-sun <- solar(twl.clean$Twilight)
+twl.clean <- subset(twl, !deleted)
+sun <- solar(twl.clean$twilight)
 pgz = apply(g,1, function(x) {
     z = refracted(zenith(sun, x[1], x[2])) 
     dgamma(z, fitE$estimate["shape"], fitE$estimate["rate"])
@@ -207,7 +195,7 @@ for (i_r in 1:length(raster_light_list)){
   l = l %>% addRasterImage(raster_light_list[[i_r]], opacity = 0.8, group=info_str) 
 }
 l %>% 
-  addCircles(lng=lon.calib,lat=lat.calib,color = "white", opacity=1) %>% 
+  addCircles(lng=lon_calib,lat=lat_calib,color = "white", opacity=1) %>% 
   addLayersControl(
     overlayGroups = li_s,
     options = layersControlOptions(collapsed = FALSE)
