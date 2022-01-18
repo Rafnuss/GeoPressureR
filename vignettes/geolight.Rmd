@@ -1,8 +1,8 @@
 ---
-title: "Combine with Geolight"
+title: "How to estimate position with light data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Combine with Geolight}
+  %\VignetteIndexEntry{How to estimate position with light data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -10,22 +10,24 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  warning = FALSE, 
   comment = "#>"
 )
 ```
 
-In this vignette, we will combine the probability map of pressure computed in the vignette [How to use GeoPressureR](using-geopressurer.html) with probability map of light data using the package [`GeoLocTools`](https://github.com/slisovski/GeoLocTools).
+In this vignette, we will compute the probability map of the Great Reed Warbler (18IC) using light data. Note that there are no specific functions from this package for computing the proability map of light and most functions are from the `GeoLight` package loaded through [`GeoLocTools`](https://github.com/slisovski/GeoLocTools). 
 
 ## Setup
 
 ```{r setup}
 library(GeoPressureR)
-library(leaflet)
 library(GeoLocTools)
 setupGeolocation()
+library(leaflet)
 ```
 
-Read pam data and define basic information about calibration. The second calibration is so short (1 day), that we don not consider it here
+Define basic information about calibration. The second calibration is so short (1 day), that we don't consider it here
+
 ```{r}
 lon.calib <- 17.05	
 lat.calib <- 48.9
@@ -36,6 +38,7 @@ lat.lim <- c(4, 53)
 tm.lim <- c("2017-06-20", "2018-05-02")
 ```
 
+Read pam data
 
 ```{r}
 pam_data = pam_read(pathname = system.file("extdata", package = "GeoPressureR"),
@@ -53,9 +56,9 @@ raw = data.frame(
 
 ## Twilight Annotation
 
-The twilight annotation follow closely the [chapter 4 of the geolocation manual](https://geolocationmanual.vogelwarte.ch/twilight.html) adding a manual editing through trainset.
+The twilight annotation follow closely the [chapter 4 of the geolocation manual](https://geolocationmanual.vogelwarte.ch/twilight.html) with the addion of a manual editing through trainset.
 
-Find the time of twilight
+Find the time of twilight and change the timezone to UTC
 ```{r}
 twl <- findTwilights(raw, 
                      threshold = min(raw$Light[raw$Light>0]), # first light of the day
@@ -64,18 +67,20 @@ twl <- findTwilights(raw,
 attr(twl$Twilight, "tzone") <- "UTC" 
 ```
 
-You can perform the automatic editing
+You can optionally perform the automatic editing
 
 ```{r, eval=F}
 twl <- twilightEdit(twl, plot=F)
 ```
 
-But I would advice to do it manually with trainset. After running the rest of the analysis, you can come back to this step to improve the light derived map.
+But the manual editing is quite easy with trainset. The main adventage is that you can come back to it after running the rest of the analysis to improve the editing.
 
-Read more about trainset in the vignette [How to label tracks](labeling_tracks.html#introduction-to-trainset). In this case, use any label name you wish to delete a datapoint and leave it empty (black dot) to keep the datapoint.
+Read more about trainset in the vignette [How to label tracks](labeling_tracks.html#introduction-to-trainset). In this case, you can label the datapoint you want to delete with any label name (and leave the label empty (black dot) to keep the datapoint).
+
+First write the csv file, then open it in trainset, edit on trainset and finally export the new csv file.
 
 ```{r, eval=F}
-utils::write.csv(
+write.csv(
   data.frame(
     series = ifelse(twl$Rise,"Rise","Set"),
     timestamp = strftime(twl$Twilight, "%Y-%m-%dT00:00:00Z", tz = "UTC"),
@@ -88,12 +93,14 @@ utils::write.csv(
 browseURL("https://trainset.geocene.com/")
 ```
 
+Read the exported csv file and update the `Deleted` field in `twl`
+
 ```{r}
-csv <- utils::read.csv( paste0(system.file("extdata", package = "GeoPressureR"), "/18LX_light-labeled.csv"))
+csv <- read.csv( paste0(system.file("extdata", package = "GeoPressureR"), "/18LX_light-labeled.csv"))
 twl$Deleted = !csv$label==""
 ```
 
-Visualize
+We can visualize the final annotated twilight.
 
 ```{r}
 offset <- 12
@@ -113,16 +120,19 @@ abline(v = tm.calib.1, lty = c(1,2), col = "firebrick", lwd = 1.5)
 
 ## Calibration
 
-Instead of calibrating the twilights in term of duration, we model the zenith angle error
+Instead of calibrating the twilights in term of duration, we model the zenith angle error.
 
+First, get the twilight during the calibration period
 ```{r}
 twl.calib <- subset(twl, !Deleted & Twilight>=tm.calib.1[1] & Twilight<=tm.calib.1[2])
 ```
 
+We compute the zenith angle (i.e., elevation of the sun) of the time of the twilights at calibration site.  We fit a simple gamma distribution.
+
 ```{r}
 sun <- solar(twl.calib$Twilight)
 z = refracted(zenith(sun, lon.calib, lat.calib)) 
-fitE = MASS::fitdistr(z,"gamma")
+fitE = fitdistr(z,"gamma")
 hist(z,freq=F)
 z.axes = seq(90,100,0.1)
 lines(z.axes, dgamma(z.axes, fitE$estimate["shape"], fitE$estimate["rate"]), col="red")
@@ -130,11 +140,11 @@ lines(z.axes, dgamma(z.axes, fitE$estimate["shape"], fitE$estimate["rate"]), col
 
 ## Stationary period
 
+Before computing the probability map, we group the twilights by stationary periods using the activity data. You can learn more about this step in [How to use GeoPressureR](using-geopressurer.html#identifying-stationary-periods)
+
 ```{r}
-# pam_data = pam_classify(pam_data, min_duration = 30)
 pam_data = trainset_read(pam_data, pathname=system.file("extdata", package = "GeoPressureR"))
 pam_data = pam_sta(pam_data)
-
 twilight_sta_id <- sapply(twl$Twilight, function(x) which(pam_data$sta$start < x & x < pam_data$sta$end))
 twilight_sta_id[sapply(twilight_sta_id, function(x) length(x) == 0)] <- 0
 twl$sta_id <- unlist(twilight_sta_id)
@@ -142,6 +152,7 @@ twl$sta_id <- unlist(twilight_sta_id)
 
 ## Proability map
 
+We first define a grid on which to compute the probabilities
 ```{r}
 lon = seq(lon.lim[1], lon.lim[2], by=.25)
 lat = seq(lat.lim[1], lat.lim[2], by=.25)
@@ -151,27 +162,34 @@ g = data.frame(
 )
 ```
 
+The, selecting only the twilight not labeled as deleted, we compute the probability of observing the zenith angle of each twilights using the calibrated error function for each grid cell. 
+
 ```{r}
 twl.clean <- subset(twl, !Deleted)
 sun <- solar(twl.clean$Twilight)
-t = apply(g,1, function(x) {
-    z = refracted(zenith(s, x[1], x[2])) 
+pgz = apply(g,1, function(x) {
+    z = refracted(zenith(sun, x[1], x[2])) 
     dgamma(z, fitE$estimate["shape"], fitE$estimate["rate"])
   })
 ```
+
+Aggregating the probability map of each twilight per stationary periods required some assumption on the independance/correlation of the twilight errors.
+Here we use a log-linear pooling with a weight of $w=0.1$,
 
 ```{r}
 w=0.1
 ```
 
+We loop through each stationary period and create a raster map with the aggregated probabilities
+
 ```{r}
-raster_prob_list <- c()
+raster_light_list <- c()
 for (i_s in seq_len(nrow(pam_data$sta))){
   id = twl.clean$sta_id==pam_data$sta$sta_id[i_s]
   if (sum(id)>1){
-    g$p = exp(colSums(w*log(t[id,])))
+    g$p = exp(colSums(w*log(pgz[id,]))) # Log-linear equation express in log 
   } else if(sum(id)==1) {
-    g$p = t[id,]
+    g$p = pgz[id,]
   } else {
     g$p = 1
   }
@@ -181,26 +199,33 @@ for (i_s in seq_len(nrow(pam_data$sta))){
         sta_id = pam_data$sta$sta_id[i_s],
         nb_sample = sum(id)
       )
-  raster_prob_list[[i_s]] <- gr
+  raster_light_list[[i_s]] <- gr
 }
 ```
+
+We can finally visualize the probability map for each stationary period
 
 ```{r}
 li_s=list()
 l = leaflet() %>% addTiles() 
-for (i_r in 1:length(raster_prob_list)){
-  i_s = metadata(raster_prob_list[[i_r]])$sta_id
+for (i_r in 1:length(raster_light_list)){
+  i_s = metadata(raster_light_list[[i_r]])$sta_id
   info = pam_data$sta[pam_data$sta$sta_id==i_s,]
   info_str = paste0(i_s," | ",info$start,"->",info$end)
   li_s <- append(li_s, info_str)
-  l = l %>% addRasterImage(raster_prob_list[[i_r]], opacity = 0.8, group=info_str) 
+  l = l %>% addRasterImage(raster_light_list[[i_r]], opacity = 0.8, group=info_str) 
 }
 l %>% 
+  addCircles(lng=lon.calib,lat=lat.calib,color = "white", opacity=1) %>% 
   addLayersControl(
     overlayGroups = li_s,
     options = layersControlOptions(collapsed = FALSE)
   ) %>% hideGroup(tail(li_s,length(li_s)-1))
 ```
 
+Export the data generated
 
+```{r, eval=F}
+usethis::use_data(raster_light_list, overwrite=T)
+```
 

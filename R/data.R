@@ -69,3 +69,7 @@
 #' }
 "ts_list"
 
+#' Probability map of light for 18LX
+#'
+#' This dataset was generated with the vignette `Light-based geopositiong`
+"raster_light_list"
