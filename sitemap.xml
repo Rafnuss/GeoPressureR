@@ -10,6 +10,9 @@
     <loc>https://raphaelnussbaumer.com/GeoPressureR/articles/Probability-aggregation.html</loc>
   </url>
   <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/articles/geolight.html</loc>
+  </url>
+  <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/articles/index.html</loc>
   </url>
   <url>
@@ -23,6 +26,9 @@
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/index.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/find_twilights.html</loc>
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map.html</loc>
@@ -52,7 +58,16 @@
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/prob_map_list.html</loc>
   </url>
   <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/raster_light_list.html</loc>
+  </url>
+  <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/raster_list.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/refracted.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/solar.html</loc>
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/trainset_edit.html</loc>
@@ -65,5 +80,8 @@
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/ts_list.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/zenith.html</loc>
   </url>
 </urlset>

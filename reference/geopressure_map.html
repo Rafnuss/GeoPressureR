@@ -33,6 +33,7 @@ a raster and (3) compute the likelihood map from the mismatch. See the GeoPressu
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/Probability-aggregation.html">Probability-aggregation</a>
+    <a class="dropdown-item" href="../articles/geolight.html">How to estimate position with light data</a>
     <a class="dropdown-item" href="../articles/labelling-tracks.html">How to label tracks</a>
     <a class="dropdown-item" href="../articles/using-geopressurer.html">How to use GeoPressureR</a>
   </div>
@@ -99,19 +100,21 @@ measurement error. unit in meter. (1hPa~10m)</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">pam_data</span> <span class="op">=</span> <span class="fu"><a href="pam_read.html">pam_read</a></span><span class="op">(</span></span>
-<span class="r-in">   pathname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span>,</span>
-<span class="r-in">   crop_start <span class="op">=</span> <span class="st">"2017-06-20"</span>, crop_end <span class="op">=</span> <span class="st">"2018-05-02"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pam_data</span> <span class="op">=</span> <span class="fu"><a href="trainset_read.html">trainset_read</a></span><span class="op">(</span><span class="va">pam_data</span>,</span>
-<span class="r-in">            pathname<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pam_data</span> <span class="op">=</span> <span class="fu"><a href="pam_sta.html">pam_sta</a></span><span class="op">(</span><span class="va">pam_data</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">raster_list</span> <span class="op">=</span> <span class="fu">geopressure_map</span><span class="op">(</span></span>
+<span class="r-in"><span class="va">pam_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="pam_read.html">pam_read</a></span><span class="op">(</span></span>
+<span class="r-in">  pathname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span>,</span>
+<span class="r-in">  crop_start <span class="op">=</span> <span class="st">"2017-06-20"</span>, crop_end <span class="op">=</span> <span class="st">"2018-05-02"</span></span>
+<span class="r-in"><span class="op">)</span></span>
+<span class="r-in"><span class="va">pam_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="trainset_read.html">trainset_read</a></span><span class="op">(</span><span class="va">pam_data</span>,</span>
+<span class="r-in">  pathname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span></span>
+<span class="r-in"><span class="op">)</span></span>
+<span class="r-in"><span class="va">pam_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="pam_sta.html">pam_sta</a></span><span class="op">(</span><span class="va">pam_data</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">raster_list</span> <span class="op">&lt;-</span> <span class="fu">geopressure_map</span><span class="op">(</span></span>
 <span class="r-in">  <span class="va">pam_data</span><span class="op">$</span><span class="va">pressure</span>,</span>
-<span class="r-in">  extent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">16</span>,<span class="fl">20</span>,<span class="fl">0</span>,<span class="fl">50</span><span class="op">)</span>,</span>
+<span class="r-in">  extent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">16</span>, <span class="fl">20</span>, <span class="fl">0</span>, <span class="fl">50</span><span class="op">)</span>,</span>
 <span class="r-in">  scale <span class="op">=</span> <span class="fl">10</span>,</span>
 <span class="r-in">  max_sample <span class="op">=</span> <span class="fl">250</span>,</span>
 <span class="r-in">  margin <span class="op">=</span> <span class="fl">30</span></span>
-<span class="r-in">  <span class="op">)</span></span>
+<span class="r-in"><span class="op">)</span></span>
 <span class="r-in"><span class="op">}</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"raster_list"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/metadata.html" class="external-link">metadata</a></span><span class="op">(</span><span class="va">raster_list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
@@ -132,7 +135,9 @@ measurement error. unit in meter. (1hPa~10m)</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $margin</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 30</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">raster_list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,main<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Mean Square Error"</span>,<span class="st">"Mask of pressure"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">raster_list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span class="r-in">  main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Mean Square Error"</span>, <span class="st">"Mask of pressure"</span><span class="op">)</span></span>
+<span class="r-in"><span class="op">)</span></span>
 <span class="r-plt img"><img src="geopressure_map-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>

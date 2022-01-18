@@ -29,6 +29,7 @@ exist in the folder."><meta property="og:image" content="https://raphaelnussbaum
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/Probability-aggregation.html">Probability-aggregation</a>
+    <a class="dropdown-item" href="../articles/geolight.html">How to estimate position with light data</a>
     <a class="dropdown-item" href="../articles/labelling-tracks.html">How to label tracks</a>
     <a class="dropdown-item" href="../articles/using-geopressurer.html">How to use GeoPressureR</a>
   </div>
@@ -89,9 +90,10 @@ exist in the folder.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">pam_data</span> <span class="op">=</span> <span class="fu">pam_read</span><span class="op">(</span></span>
-<span class="r-in">   pathname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span>,</span>
-<span class="r-in">   crop_start <span class="op">=</span> <span class="st">"2017-06-20"</span>, crop_end <span class="op">=</span> <span class="st">"2018-05-02"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">pam_data</span> <span class="op">&lt;-</span> <span class="fu">pam_read</span><span class="op">(</span></span>
+<span class="r-in">  pathname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span>,</span>
+<span class="r-in">  crop_start <span class="op">=</span> <span class="st">"2017-06-20"</span>, crop_end <span class="op">=</span> <span class="st">"2018-05-02"</span></span>
+<span class="r-in"><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pam_data</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              Length Class      Mode     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> id           1      -none-     character</span>
@@ -100,7 +102,7 @@ exist in the folder.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pressure     2      data.frame list     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> temperature  2      data.frame list     </span>
 <span class="r-in"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">pam_data</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in">   <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pam_data</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span class="r-in">  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pam_data</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span class="r-in"><span class="op">}</span></span>
 </code></pre></div>
     </div>
