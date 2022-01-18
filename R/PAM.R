@@ -13,12 +13,13 @@
 #' @return a list of all measurements
 #'
 #' @examples
-#' pam_data = pam_read(
-#'    pathname = system.file("extdata", package = "GeoPressureR"),
-#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
+#' pam_data <- pam_read(
+#'   pathname = system.file("extdata", package = "GeoPressureR"),
+#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#' )
 #' summary(pam_data)
 #' for (i in 1:length(pam_data)) {
-#'    head(pam_data[[i]])
+#'   head(pam_data[[i]])
 #' }
 #' @export
 pam_read <- function(pathname,
@@ -60,7 +61,8 @@ pam_read <- function(pathname,
     } else {
       fname <- strsplit(f, "\\.")[[1]][2]
     }
-    pam[[fname]] <- pam_read_file(paste0(pathname, '/', f), crop_start, crop_end)
+    pam[[fname]] <- pam_read_file(
+      paste0(pathname, "/", f), crop_start, crop_end)
   }
 
   # return
@@ -136,10 +138,11 @@ pam_read_file <- function(filename, crop_start, crop_end) {
 #' @return pam
 #'
 #' @examples
-#' pam_data = pam_read(
-#'    pathname = system.file("extdata", package = "GeoPressureR"),
-#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
-#' pam_data = pam_classify(pam_data, min_duration = 30)
+#' pam_data <- pam_read(
+#'   pathname = system.file("extdata", package = "GeoPressureR"),
+#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#' )
+#' pam_data <- pam_classify(pam_data, min_duration = 30)
 #' head(pam_data$acceleration)
 #' @export
 pam_classify <- function(pam,
@@ -256,12 +259,14 @@ trainset_edit <- function(pam,
 #'
 #' @examples
 #' \dontrun{
-#' pam_data = pam_read(
-#'    pathname = system.file("extdata", package = "GeoPressureR"),
-#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
-#' pam_data = pam_classify(pam_data)
+#' pam_data <- pam_read(
+#'   pathname = system.file("extdata", package = "GeoPressureR"),
+#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#' )
+#' pam_data <- pam_classify(pam_data)
 #' trainset_write(pam_data,
-#'             pathname=system.file("extdata", package = "GeoPressureR"))
+#'   pathname = system.file("extdata", package = "GeoPressureR")
+#' )
 #' }
 #' @export
 trainset_write <- function(pam,
@@ -328,11 +333,13 @@ trainset_write <- function(pam,
 #' (`pam$pressure$class` and `pam$acceleration$class`)
 #'
 #' @examples
-#' pam_data = pam_read(
-#'    pathname = system.file("extdata", package = "GeoPressureR"),
-#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
-#' pam_data = trainset_read(pam_data,
-#'             pathname=system.file("extdata", package = "GeoPressureR"))
+#' pam_data <- pam_read(
+#'   pathname = system.file("extdata", package = "GeoPressureR"),
+#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#' )
+#' pam_data <- trainset_read(pam_data,
+#'   pathname = system.file("extdata", package = "GeoPressureR")
+#' )
 #' head(pam_data$pressure)
 #' head(pam_data$acceleration)
 #' @export
@@ -355,7 +362,7 @@ trainset_read <- function(pam,
   testthat::expect_true(
     dir.exists(pathname), paste0("Folder is not found at", pathname)
   )
-  fullpath <- paste0(pathname, '/', filename)
+  fullpath <- paste0(pathname, "/", filename)
   testthat::expect_true(
     file.exists(fullpath), paste0("File is not found at", fullpath)
   )
@@ -390,12 +397,14 @@ trainset_read <- function(pam,
 #' `pam$acceleration$sta_id`)
 #'
 #' @examples
-#' pam_data = pam_read(
-#'    pathname = system.file("extdata", package = "GeoPressureR"),
-#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
-#' pam_data = trainset_read(pam_data,
-#'             pathname=system.file("extdata", package = "GeoPressureR"))
-#' pam_data = pam_sta(pam_data)
+#' pam_data <- pam_read(
+#'   pathname = system.file("extdata", package = "GeoPressureR"),
+#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#' )
+#' pam_data <- trainset_read(pam_data,
+#'   pathname = system.file("extdata", package = "GeoPressureR")
+#' )
+#' pam_data <- pam_sta(pam_data)
 #' head(pam_data$pressure)
 #' head(pam_data$acceleration)
 #' @export
@@ -439,7 +448,7 @@ pam_sta <- function(pam) {
   # Compute the duration
   pam$sta$duration <- pam$sta$end - pam$sta$start
   pam$sta$next_flight_duration <- c(act_mig$duration, 0)
-  pam$sta$sta_id <- 1:nrow(pam$sta)
+  pam$sta$sta_id <- seq_len(nrow(pam$sta))
 
   # Assign to each pressure the stationary period to which it belong to.
   pressure_sta_id <- sapply(
