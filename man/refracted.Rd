@@ -29,6 +29,4 @@ computed by \code{\link{zenith}}.
 \examples{
 ## Refraction causes the sun to appears higher on the horizon
 refracted(85:92)
-## unrefracted gives unadjusted zenith
-unrefracted(refracted(90))
 }

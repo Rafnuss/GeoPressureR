@@ -157,8 +157,6 @@ zenith <- function(sun,lon,lat) {
 ##' @examples
 ##' ## Refraction causes the sun to appears higher on the horizon
 ##' refracted(85:92)
-##' ## unrefracted gives unadjusted zenith
-##' unrefracted(refracted(90))
 ##' @export
 refracted <- function(zenith) {
   rad <- pi/180
