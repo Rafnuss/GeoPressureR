@@ -16,7 +16,7 @@ pam logger dataset list with a the dataframe of stationary periods
 }
 \description{
 This function computes the table of stationary periods from the class of
-acceleration \code{pam$acceleration$class} and add it to the pam
+acceleration \code{pam$acceleration$class} and add it to the pam data as \code{sta_id}
 }
 \examples{
 pam_data = pam_read(

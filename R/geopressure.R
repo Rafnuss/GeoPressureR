@@ -23,23 +23,26 @@
 #' @return List of raster map
 #' @examples
 #' \dontrun{
-#' pam_data = pam_read(
-#'    pathname = system.file("extdata", package = "GeoPressureR"),
-#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
-#' pam_data = trainset_read(pam_data,
-#'             pathname=system.file("extdata", package = "GeoPressureR"))
-#' pam_data = pam_sta(pam_data)
-#' raster_list = geopressure_map(
+#' pam_data <- pam_read(
+#'   pathname = system.file("extdata", package = "GeoPressureR"),
+#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#' )
+#' pam_data <- trainset_read(pam_data,
+#'   pathname = system.file("extdata", package = "GeoPressureR")
+#' )
+#' pam_data <- pam_sta(pam_data)
+#' raster_list <- geopressure_map(
 #'   pam_data$pressure,
-#'   extent = c(-16,20,0,50),
+#'   extent = c(-16, 20, 0, 50),
 #'   scale = 10,
 #'   max_sample = 250,
 #'   margin = 30
-#'   )
+#' )
 #' }
 #' data("raster_list", package = "GeoPressureR")
 #' raster::metadata(raster_list[[1]])
-#' raster::plot(raster_list[[1]],main=c("Mean Square Error","Mask of pressure"))
+#' raster::plot(raster_list[[1]],
+#' main = c("Mean Square Error", "Mask of pressure"))
 #' @export
 geopressure_map <-
   function(pressure,
@@ -139,7 +142,7 @@ geopressure_map <-
     f <- c()
     message("Starting download:")
     progress_bar(0, max = length(uris))
-    for (i_u in 1:length(uris)) {
+    for (i_u in seq_len(length(uris))) {
       f[[i_u]] <- future::future({
           raster::brick(uris[i_u])
         },
@@ -152,7 +155,7 @@ geopressure_map <-
     raster_list <- c()
     message("Receiving download (geotiff):")
     progress_bar(0, max = length(uris))
-    for (i_u in 1:length(uris)) {
+    for (i_u in seq_len(length(uris))) {
       raster_list[[i_u]] <- future::value(f[[i_u]])
       progress_bar(i_u, max = length(uris))
 
@@ -205,30 +208,33 @@ geopressure_map <-
 #' @return List of the probability raster map
 #' @examples
 #' \dontrun{
-#' pam_data = pam_read(
-#'    pathname = system.file("extdata", package = "GeoPressureR"),
-#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
-#' pam_data = trainset_read(pam_data,
-#'             pathname=system.file("extdata", package = "GeoPressureR"))
-#' pam_data = pam_sta(pam_data)
-#' raster_list = geopressure_map(
+#' pam_data <- pam_read(
+#'   pathname = system.file("extdata", package = "GeoPressureR"),
+#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#' )
+#' pam_data <- trainset_read(pam_data,
+#'   pathname = system.file("extdata", package = "GeoPressureR")
+#' )
+#' pam_data <- pam_sta(pam_data)
+#' raster_list <- geopressure_map(
 #'   pam_data$pressure,
-#'   extent = c(-16,20,0,50),
+#'   extent = c(-16, 20, 0, 50),
 #'   scale = 10
-#'   )
-#' prob_map_list = geopressure_prob_map(
+#' )
+#' prob_map_list <- geopressure_prob_map(
 #'   raster_list,
-#'   s=0.4,
-#'   thr=0.9
-#'   )
+#'   s = 0.4,
+#'   thr = 0.9
+#' )
 #' }
 #' data("prob_map_list", package = "GeoPressureR")
 #' raster::metadata(prob_map_list[[1]])
-#' raster::plot(prob_map_list[[1]],main="Probability",xlim=c(5,20), ylim=c(42,50))
+#' raster::plot(prob_map_list[[1]], main = "Probability",
+#' xlim = c(5, 20), ylim = c(42, 50))
 #' @export
 geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
   raster_prob_list <- c()
-  for (i_s in 1:length(raster_list)) {
+  for (i_s in seq_len(length(raster_list))) {
     # get metadata
     mt <- raster::metadata(raster_list[[i_s]])
 
@@ -244,11 +250,12 @@ geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
     pres_n <- mt$nb_sample
 
     # Weight
-    w = log(pres_n)/pres_n
+    w <- log(pres_n) / pres_n
 
     # compute probability with equation
     raster_prob_list[[i_s]] <-
-      (1/(2*pi*s^2))^(pres_n*w/2)*exp(-w*pres_n/2/(s^2)*raster_prob_list[[i_s]])
+       (1 / (2 * pi * s^2))^(pres_n * w / 2) * exp(-w * pres_n / 2 / (s^2)
+                                                  * raster_prob_list[[i_s]])
     # mask value of threashold
     raster_prob_list[[i_s]] <-
       raster_prob_list[[i_s]] * (raster_list[[i_s]][[2]] > thr)
@@ -288,22 +295,26 @@ geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
 #' @return Timeserie of date, pressure and optionally altitude
 #' @examples
 #' \dontrun{
-#' pam_data = pam_read(
-#'    pathname = system.file("extdata", package = "GeoPressureR"),
-#'    crop_start = "2017-06-20", crop_end = "2018-05-02")
-#' pam_data = trainset_read(pam_data,
-#'             pathname=system.file("extdata", package = "GeoPressureR"))
-#' pam_data = pam_sta(pam_data)
-#' ts_list[[1]]  = geopressure_ts(
+#' pam_data <- pam_read(
+#'   pathname = system.file("extdata", package = "GeoPressureR"),
+#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#' )
+#' pam_data <- trainset_read(pam_data,
+#'   pathname = system.file("extdata", package = "GeoPressureR")
+#' )
+#' pam_data <- pam_sta(pam_data)
+#' ts_list[[1]] <- geopressure_ts(
 #'   lon = 16.85,
 #'   lat = 48.75,
-#'   pressure = subset(pam_data$pressure,sta_id==1)
-#'   )
+#'   pressure = subset(pam_data$pressure, sta_id == 1)
+#' )
 #' }
 #' data("ts_list", package = "GeoPressureR")
-#' par(mfrow=c(2,1), mar=c(2,5,1,1))
-#' plot(ts_list[[1]]$date,ts_list[[1]]$pressure,ylab="Pressure [hPa]", xlab="")
-#' plot(ts_list[[1]]$date,ts_list[[1]]$altitude,ylab="Altitude [m asl]", xlab="")
+#' par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
+#' plot(ts_list[[1]]$date,
+#' ts_list[[1]]$pressure, ylab = "Pressure [hPa]", xlab = "")
+#' plot(ts_list[[1]]$date,
+#' ts_list[[1]]$altitude, ylab = "Altitude [m asl]", xlab = "")
 #' @export
 geopressure_ts <-
   function(lon,
