@@ -18,7 +18,7 @@ Suggests:
     ggplot2,
     plotly,
     RColorBrewer,
-    GeoLocTools
+    MASS
 VignetteBuilder: knitr
 Imports: 
     raster,
@@ -34,4 +34,3 @@ Depends:
     R (>= 3.5.0)
 LazyData: true
 LazyDataCompression: xz
-Remotes: SLisovski/GeoLocTools

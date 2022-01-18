@@ -21,9 +21,9 @@ In this vignette, we will compute the probability map of the Great Reed Warbler 
 
 ```{r setup}
 library(GeoPressureR)
-library(GeoLocTools)
-setupGeolocation()
 library(leaflet)
+library(MASS)
+library(raster)
 ```
 
 Define basic information about calibration. The second calibration is so short (1 day), that we don't consider it here
@@ -67,12 +67,6 @@ twl <- findTwilights(raw,
 attr(twl$Twilight, "tzone") <- "UTC" 
 ```
 
-You can optionally perform the automatic editing
-
-```{r, eval=F}
-twl <- twilightEdit(twl, plot=F)
-```
-
 But the manual editing is quite easy with trainset. The main adventage is that you can come back to it after running the rest of the analysis to improve the editing.
 
 Read more about trainset in the vignette [How to label tracks](labeling_tracks.html#introduction-to-trainset). In this case, you can label the datapoint you want to delete with any label name (and leave the label empty (black dot) to keep the datapoint).
@@ -102,7 +96,7 @@ twl$Deleted = !csv$label==""
 
 We can visualize the final annotated twilight.
 
-```{r}
+```{r, eval=F}
 offset <- 12
 lightImage( tagdata = raw,
             offset = offset,     
@@ -205,7 +199,7 @@ for (i_s in seq_len(nrow(pam_data$sta))){
 
 We can finally visualize the probability map for each stationary period
 
-```{r}
+```{r, warning=F}
 li_s=list()
 l = leaflet() %>% addTiles() 
 for (i_r in 1:length(raster_light_list)){
