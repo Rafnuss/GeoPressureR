@@ -31,7 +31,7 @@ place to understand the basic workflow of the package.
 
 ## Related ressources
 
--   [PressureGeolocator](https://github.com/Rafnuss/PressureGeolocator)
+-   [GeoPressureMAT](https://github.com/Rafnuss/GeoPressureMAT)
     Developement of the method was done on MATLAB. Here is the repo with
     all the codes.
 -   [GeoPressure API](https://github.com/Rafnuss/GeoPressureServer) This
