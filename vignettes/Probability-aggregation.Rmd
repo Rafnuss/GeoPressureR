@@ -17,25 +17,25 @@ knitr::opts_chunk$set(
 
 At the core of GeoPressure, we try to estimate the position of the bird based on a pressure mismatch of the geolocator and the ERA5. A major challenge in this process is the transformation of map of errors (mismatch) into a probability.
 
-In this vignette, we will explore this challenge, look at the theory behind it and explore possible solution. The Great Reed Warbler (18IC), we serve us as example to illustrate the solutions. 
+In this vignette, we will explore this challenge, look at the theory behind it and explore possible solution using Great Reed Warbler (18IC) as an example. 
 
 ## Problem presentation
 
 For each stationary period, we estimate the probability of the position $\textbf{x}$ of the bird based on a pressure timeseries measured by the geolocator $P_{gl}[t] \quad \forall t \in [1,\ldots,n]$, which in a Bayesian framework can be written as, 
 $$p(\textbf{x}\mid P_{gl}[1],\ldots,P_{gl}[n]) \propto p(P_{gl}[1],\ldots,P_{gl}[n] \mid \textbf{x}) p(\textbf{x}).$$
 
-We are interested here in determining the likelihood term $p(P_{gl} \mid \textbf{x})$ using quantify the probability of observing the timeserie $P_{gl}$ knowing that the bird is at location $\textbf{x}$. To quantify this probability, we look at the mismatch between $P_{gl}$ and the pressure timesrie of the ERA5 database $P_{ERA5}(\textbf{x})$ extracted at location $\textbf{x}$. We can reformulate the likelihood as as a probability function $f$ of an error term $\varepsilon(\textbf{x})$ which measure a distance between $P_{gl}$ and $P_{ERA5}(\textbf{x})$
+We are interested here in determining the likelihood term $p(P_{gl} \mid \textbf{x})$ which represents the probability of observing the timeseries $P_{gl}$ knowing that the bird is at location $\textbf{x}$. To quantify this probability, we look at the mismatch between $P_{gl}$ and the pressure timeseries of the ERA5 database $P_{ERA5}(\textbf{x})$ extracted at location $\textbf{x}$. We can reformulate the likelihood as as a probability function $f$ of an error term $\varepsilon(\textbf{x})$ which measures a distance between $P_{gl}$ and $P_{ERA5}(\textbf{x})$
 $$p(P_{gl} \mid \textbf{x}) = f(\varepsilon[1],\ldots,\varepsilon[n])$$
 
-This formulation of the problem help us to split our problem in two: first defining an error term $\varepsilon[t]$ and secondly defining the likelihood function $f$.
+This formulation of the problem helps us to split our problem in two: first defining an error term $\varepsilon[t]$ and secondly defining the likelihood function $f$.
 
 ## Error term
-In most cases, we would expect to measure the error term with a simple difference $P_{ERA5}(\textbf{x})[t]-P_{gl}[t].$ However, within a ERA5 grid cell of 9-30km, we can expect a wide range of altitude at which the bird can be location. As such there any offset between the two timeserie can be explained by the difference of altitude.
+In most cases, we would expect to measure the error term with a simple difference $P_{ERA5}(\textbf{x})[t]-P_{gl}[t].$ However, within a ERA5 grid cell of 9-30km, we can expect a wide range of altitude at which the bird can be located. As such any offset between the two timeseries might be due to nothing more than a difference of altitude.
 
-To solve this issue, we remove the mean pressure difference, essentially ignoring the absolute value of pressure (and altitude) such that the error term only look at the mismatch of the temporal variation, 
+To solve this issue, we remove the mean pressure difference, essentially ignoring the absolute value of pressure (and altitude) such that the error term only looks at the mismatch of the temporal variation, 
 $$\varepsilon[t] =\right( P_{ERA5}(\textbf{x})[t]-P_{gl}[t]\right) - \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\textbf{x})[i]-P_{gl}[i] \right).$$
 
-This way of building the error term has some important consequences. If you think of a timeseries of only one datapoint, the error term will be zero at all locations, resulting in an equally probable map. As the number of datapoint increase, the errors term will be more and more able to distinguish between "good" and "bad" location.
+This way of building the error term has some important consequences. A timeseries of only one datapoint will always yield zero error at all locations, resulting in an equally probable map. As the number of datapoints increases, the error term will become more and more able to distinguish between "good" and "bad" locations.
 
 ## Error term for the Great Reed Warbler
 
@@ -53,7 +53,7 @@ sta_id_keep = pam_data$sta$sta_id[difftime(pam_data$sta$end,pam_data$sta$start, 
 pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] = NA
 ```
 
-We are using [the GeoPressure API](https://raphaelnussbaumer.com/GeoPressureServer/#description) with the `geopressure_map()` function tom easure the mismatch of the pressure series. Because the API can realistically return only a single map per stationary period, it aggregatea the error timeseris with the Mean Square Error (MSE), 
+We are using [the GeoPressure API](https://raphaelnussbaumer.com/GeoPressureServer/#description) with the `geopressure_map()` function to measure the mismatch of the pressure series. Because the API can realistically return only a single map per stationary period, it aggregates the error timeseries with the Mean Squared Error (MSE), 
 $$\mathit{MSE} = \frac{1}{n}\sum_{t=1}^{n} \varepsilon[t]^2.$$
 ```{r, include=F}
 data("raster_list", package = "GeoPressureR")
@@ -62,7 +62,7 @@ data("raster_list", package = "GeoPressureR")
 raster_list = geopressure_map(pam_data$pressure, extent=c(-16,20,0,50), scale=10, max_sample=100)
 ```
 
-We can post-process the data to get back some basic metadata, such as the number of datapoint of each stationay period used. We also compute the position with the minimum MSE
+We can post-process the data to get back some basic metadata, such as the number of datapoints of each stationay period used. We also compute the position with the minimum MSE
 
 ```{r}
 sta <- data.frame()
@@ -89,12 +89,12 @@ knitr::kable(head(sta))
 
 ## Gaussian likelihood function
 
-In order to find an appropriate likelihood function, we first need to assume a distribution of the error. The sources of the errors are (1) the sensor measurement error, (2) the ERA5 reanalysis error and (3) the attitudinal movement of the bird during this time. Because we arw removing the mean error, we can ignore any long-term errors (e.g., constant temporal error in ERA5 or biases in the geolocator sensor). 
+In order to find an appropriate likelihood function, we first need to assume a distribution of the error. The sources of the errors are (1) the sensor measurement error, (2) the ERA5 reanalysis error and (3) the attitudinal movement of the bird during this time. Because we are removing the mean error, we can ignore any long-term errors (e.g., constant temporal error in ERA5 or biases in the geolocator sensor). 
 
 The figure below shows the error distribution at the known location of equipment and retrieval.
 
 ![Histogram of the error term](./Appendix_F_4.png){width=100%}
- They all good close enough to a Gaussian distribution. In the case of the Great Reed Warbler, the standard deviation is around 0.5.
+ They all look close enough to a Gaussian distribution. In the case of the Great Reed Warbler, the standard deviation is around 0.5.
  
 ```{r}
 s=0.5
@@ -168,15 +168,15 @@ Ploting the auto-covariance at the calibration site for all the species allow us
 
 From this observation, one option would be to construct a covariance matrix based on the auto-covariance. While this would look like the cleanest way of doing it, we have two issues. 
 
-1. The first one is the absence of stationary. Indeed, the auto-covariance amplitude (and potnetially shape) is strongly influenced by the vertical displacement of the bird, which are strongly correlated with topography. For instance, the Eurasian Hoopoe has a high variance and large temporal range because it breeds at the feet of the Alps. During the rest of the year, it lives in rather flat area. Therefore, the covariance built from the breeding site would not be appropriate for the other sites. 
-2. The second issue is in link with the definition of our error term and the different duration of stationary period. 
+1. The first one is the absence of stationarity. Indeed, the auto-covariance amplitude (and potentially shape) is strongly influenced by the vertical displacement of the bird, which is strongly correlated with topography. For instance, the Eurasian Hoopoe has a high variance and large temporal range because it breeds at the feet of the Alps. During the rest of the year, it lives in rather flat area. Therefore, the covariance built from the breeding site would not be appropriate for the other sites. 
+2. The second issue has to do with the definition of our error term and the different duration of stationary period. 
 
 
 ## Probability aggregation
 
 In the rest of this vignette, we will take a different angle, re-framing the problem differently and exploring other options to compute the likelihood.
 
-In the field of [proability aggreation](https://link.springer.com/article/10.1007/s11004-012-9396-3), the problem of combining sources of information with overlapping/redundant content is frame as finding a pooling operator $F$ such that,
+In the field of [probability aggreation](https://link.springer.com/article/10.1007/s11004-012-9396-3), the problem of combining sources of information with overlapping/redundant content is frame as finding a pooling operator $F$ such that,
 $$p(\textbf{x}\mid \varepsilon[1],\ldots,\varepsilon[n]) \approx F(p(\textbf{x} \mid \varepsilon[1]) ,\ldots,p(\textbf{x} \mid \varepsilon[n])),$$
 which, with our gaussian assumption, we can written,
 $$ F(f(\varepsilon[1]),\ldots,f(\varepsilon[n]))=F(\boldsymbol{\varepsilon})$$
@@ -187,11 +187,11 @@ The most popular aggregation function is the log-linear pooling,
 
 $$F(\boldsymbol{\varepsilon}) \propto \prod_{t=1}^n f(\varepsilon[t])^{w_t}$$
 
-This equation also relies on the principale of conjuction of probability, but it uses a weight $w_t$ which is related to the new information brought by each additional $\varepsilon[t]$. Formally, it can be defined by
+This equation also relies on the principle of conjuction of probability, but it uses a weight $w_t$ which is related to the new information brought by each additional $\varepsilon[t]$. Formally, it can be defined by
 $$w_t=\frac{\ln p(\varepsilon[t] \mid \boldsymbol{x},\varepsilon[1],\ldots \varepsilon[t-1])}{\ln p(\varepsilon[t] \mid \boldsymbol{x})}.$$
-[Allard et al. (2012)](http://link.springer.com/10.1007/s11004-012-9396-3) is a great ressource to learn more about probability aggregation and log linear pooling.
+[Allard et al. (2012)](http://link.springer.com/10.1007/s11004-012-9396-3) is a great resource to learn more about probability aggregation and log linear pooling.
 
-The log-linear pooling aggregation can be simplify to the case of Gaussian independence when $w_t=1$. We have already explored this case earlier.
+The log-linear pooling aggregation simplifies to the case of Gaussian independence when $w_t=1$. We have already explored this case earlier.
 
 In the more general case, using the Gaussian probability density function formula, we can write,
 $$f(\varepsilon[t])^{w_t} = \left({\frac {1}{2\pi \sigma ^{2}}}\right)^{w_t/2}\exp \left(-w_t{\frac {\varepsilon[t]^2}{2\sigma ^2}}\right).$$
@@ -206,7 +206,7 @@ $$F(\boldsymbol{\varepsilon}) \propto \left({\frac {1}{2\pi \sigma ^{2}}}\right)
 
 An interesting case is if $w=1/n$, so that $\sum_t w_t=1$. This would simplify the log-linear pooling aggregator to
 $$ F(\boldsymbol{\varepsilon})={\frac {1}{\sigma\sqrt{2\pi} }}\exp \left(-{\frac {1}{2\sigma ^2}\mathit{MSE}}\right),$$
-which can be interpreted as the Gaussian probability distributions of the MSE. The length of the timeserie $n$ has disappeared from the equation, so that the aggregation dependence only on the means square of the errors, regardless of how many datapoint.
+which can be interpreted as the Gaussian probability distributions of the MSE. The length of the timeseries $n$ has disappeared from the equation, so that the aggregation dependence only on the mean square of the errors, regardless of how many datapoints.
 
 We can try this and see the influence on the probability map.
 
@@ -228,7 +228,7 @@ For this study, we chose to use $w=\frac{\log(n)}{n}$, which result in the pooli
 
 $$F(\boldsymbol{\varepsilon}) \propto \left({\frac {1}{2\pi \sigma ^{2}}}\right)^{\frac{w\log(n)}{2}} \exp \left(-{\frac {\log(n)}{2\sigma ^2}}\textit{MSE}\right).$$
 
-This scheme was design to minimize the strength of $1/n$
+This scheme was designed to minimize the strength of $1/n$
 
 ```{r}
 f_prob = function(n,s,x){
@@ -240,23 +240,23 @@ fun_plot_prob(f_prob,sta,raster_list)
 
 ## Validation
 
-Validation of uncertainty estimation is relatively difficult, specially when there are only a few datapoint and that you assume that the behaviour of the bird to be different at these calibration site (equipement and retrival) from the rest of its journey. 
+Validation of uncertainty estimation is relatively difficult, especially when there are only a few datapoints and we assume that the behaviour of the bird might differ between calibration sites (equipement and retrival) and the rest of its journey. 
 
-In the figure below, some example of uncertainty estimate are shown below. Ideally, you wand the colored area to be small (low uncertainty), but when assessing an uncertainty, you are looking that the red cross is distributed on the map according to the colored area. That is, if the red cross is too often outside, your uncertainty is too confident, and if too often at high value, you are overconfident. Both extreme are not good.
+In the figure below, some examples of uncertainty estimate are shown. Ideally, we want the colored area to be small (low uncertainty), but when assessing an uncertainty, we also want the red cross to fall within the colored area. That is, if the red cross is too often outside, our estimator is too confident.
 
-In addition the shape of the uncertainty can be quite special (e.g., hoopoe bottom right) making the distance between the most likely point (blue) and true value (red cross) not a good measure of uncertainty. 
+Furthermore, the shape of the uncertainty can be strongly anisotripic (e.g., hoopoe bottom right) making the distance between the most likely point (blue) and true value (red cross) a poor measure of uncertainty. 
 
 ![Uncertainty of pressure mismatch (colorscale) for the equipement period shwoing the true equipement sire (red cross) wihtin the probability map estimated and the most likely value](probability-aggregation-map-uncertainty.png){width=100%}
 
-Assessing uncertainty relies on checking that that the red cross is distributed according to each uncertainty shape. A more formal way to quantifiying the uncertainty is of the quantile of the true value $q=p(\boldsymbol{x}\leq \boldsymbol{x}_{true})$, which correspond to the proability that the variable is less than or equal to the true value. So, if the true value belong to the distribution, it should have its distribution of quantile should follow a uniform distribution.
+Assessing uncertainty relies on checking that that the red cross is distributed according to each uncertainty shape. A more formal way to quantifiying the uncertainty is of the quantile of the true value $q=p(\boldsymbol{x}\leq \boldsymbol{x}_{true})$, which corresponds to the proability that the variable is less than or equal to the true value. So, if the true value belongs to the distribution, the distribution of its quantile should be uniform.
 
-This ca be visualize with the empirical cumulatie distribution of the quantiles which should fall on the 1:1 line (like a qq-plot). The two expreme cases ($w=1$ and $w=1/n$) shows overconfidence (above the line) and  underconfidence (under the line) respectively. Indeed, the distribution of quantile using the $w=1/n$ method shows a lot of quantile value between 0.9-1, which indicates that the true value is within the 90% uncertainty contour (underconfident).
+This can be visualize with the empirical cumulative distribution of the quantiles which should fall on the 1:1 line (like a qq-plot). The two extreme cases ($w=1$ and $w=1/n$) show overconfidence (above the line) and  underconfidence (below the line) respectively. Indeed, the distribution of quantile using the $w=1/n$ method shows a lot of quantile values between 0.9-1, which indicates that the true value is within the 90% uncertainty contour (underconfident).
 
 
 ![](probability-aggregation-qq.png){width=100%}
 
-The method chosen ($w=\log(n)/n$) is doing better than both, but is still in general underconfident. Because the calibration the validation is performed with rather long temporal serie (equipement and retrival), one can expect that the labelisation of pressure is better/easier than for other place. Thus, it seems more appropriate to be slightly underconfident while the method is being developed. 
+The method chosen ($w=\log(n)/n$) is doing better than both, but is still in general underconfident. Because the calibration the validation is performed with rather long temporal serie (equipement and retrival), one can expect that the labelisation of pressure is better/easier than for other places. Thus, it seems more appropriate to be slightly underconfident while the method is being developed. 
 
-The covariance aggregation scheme was implemented by computing the covariance matrix of the multi-variate Gaussian distribution. The covariance function was build using the exact on the variogram of each species. This is, in theory, the more correct method, but it look too overconfident. Thus we didn't use it for now.
+The covariance aggregation scheme was implemented by computing the covariance matrix of the multi-variate Gaussian distribution. The covariance function was build using the exact on the variogram of each species. This is, in theory, the more correct method, but it looks too overconfident. Thus we didn't use it for now.
 
-Looking forward, calibration is highly dependant on the local topograph and the ability of the bird to move up and down. Manual edition/labeling has also a strong impact. 
+Looking forward, calibration is highly dependant on the local topography and the ability of the bird to move up and down. Manual edition/labeling has also a strong impact. 
