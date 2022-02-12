@@ -15,18 +15,18 @@ knitr::opts_chunk$set(
 )
 ```
 
-In this vignette, we will compute the probability map of the Great Reed Warbler (18IC) using light data. Note that there are no specific functions from this package for computing the proability map of light and most functions are from the `GeoLight` package loaded through [`GeoLocTools`](https://github.com/slisovski/GeoLocTools). 
+In this vignette, we will use light data to estimate the position of the Great Reed Warbler (18IC) at each stationary period as a probability map. All functions used are a modification from the `GeoLight` package. 
 
 ## Setup
 
-```{r setup}
+```{r setup, warning=F}
 library(GeoPressureR)
 library(leaflet)
 library(MASS)
 library(raster)
 ```
 
-Define basic information about calibration. The second calibration is so short (1 day), that we don't consider it here
+Define basic information about the calibration period and location. The second calibration is so short (1 day), that we don't consider it in this example.
 
 ```{r}
 lon_calib <- 17.05	
@@ -55,11 +55,9 @@ twl <- find_twilights(pam_data$light,
 attr(twl$twilight, "tzone") <- "UTC" 
 ```
 
-But the manual editing is quite easy with trainset. The main adventage is that you can come back to it after running the rest of the analysis to improve the editing.
+The manual editing is easily performed with trainset. In this case, you label the datapoint you want to delete with any label name and do not assign any label to the datapoint you want to keep (leave as black dot). Read more about trainset in the vignette [How to label tracks](labeling_tracks.html#introduction-to-trainset).
 
-Read more about trainset in the vignette [How to label tracks](labeling_tracks.html#introduction-to-trainset). In this case, you can label the datapoint you want to delete with any label name (and leave the label empty (black dot) to keep the datapoint).
-
-First write the csv file, then open it in trainset, edit on trainset and finally export the new csv file.
+First write the `csv` file, then open it in trainset, edit on trainset and finally export the new `csv` file.
 
 ```{r, eval=F}
 write.csv(
@@ -82,27 +80,9 @@ csv <- read.csv( paste0(system.file("extdata", package = "GeoPressureR"), "/18LX
 twl$deleted = !csv$label==""
 ```
 
-We can visualize the final annotated twilight.
-
-```{r, eval=F}
-offset <- 12
-lightImage( tagdata = raw,
-            offset = offset,     
-            zlim = c(0, 4))
-
-tsimagePoints(twl$twilight, offset = offset, pch = 16, cex = 1.2,
-              col = ifelse(twl$Deleted, "grey20", ifelse(twl$Rise, "firebrick", "cornflowerblue")))
-
-tsimageDeploymentLines(twl$twilight, lon_calib, lat_calib, offset = offset,
-                       lwd = 2, col = adjustcolor("orange", alpha.f = 0.8))
-
-abline(v = tm_calib_1, lty = c(1,2), col = "firebrick", lwd = 1.5)
-#abline(v = tm_calib_2, lty = c(1,2), col = "firebrick", lwd = 1.5)
-```
-
 ## Calibration
 
-Instead of calibrating the twilights in term of duration, we model the zenith angle error.
+Instead of calibrating the twilights error in term of duration, we model directly the zenith angle error.
 
 First, get the twilight during the calibration period
 ```{r}
@@ -122,7 +102,7 @@ lines(z.axes, dgamma(z.axes, fitE$estimate["shape"], fitE$estimate["rate"]), col
 
 ## Stationary period
 
-Before computing the probability map, we group the twilights by stationary periods using the activity data. You can learn more about this step in [How to use GeoPressureR](using-geopressurer.html#identifying-stationary-periods)
+Before computing the probability map, we group the twilights by stationary periods using the activity data. You can learn more about this step in [How to use GeoPressureR](using-geopressurer.html#identifying-stationary-periods).
 
 ```{r}
 pam_data = trainset_read(pam_data, pathname=system.file("extdata", package = "GeoPressureR"))
@@ -134,14 +114,14 @@ twl$sta_id <- unlist(twilight_sta_id)
 
 ## Proability map
 
-We first define a grid on which to compute the probabilities
+We first define a grid on which to compute the probabilities. For ease of comparison with the pressure derived map, we simply load the grid size and resolution from `prob_map_list` (computed in [How to use GeoPressureR](using-geopressurer.html#computing-the-map-of-pressure))
 ```{r}
 data("prob_map_list", package = "GeoPressureR")
 g <- as.data.frame(prob_map_list[[1]], xy=TRUE)
 g$layer=NA
 ```
 
-The, selecting only the twilight not labeled as deleted, we compute the probability of observing the zenith angle of each twilights using the calibrated error function for each grid cell. 
+Selecting only the twilights not labeled as deleted, we compute the probability of observing the zenith angle of each twilights using the calibrated error function for each grid cell.
 
 ```{r}
 twl.clean <- subset(twl, !deleted)
@@ -152,7 +132,7 @@ pgz = apply(g,1, function(x) {
   })
 ```
 
-Aggregating the probability map of each twilight per stationary periods required some assumption on the independance/correlation of the twilight errors.
+Aggregating the probability map of each twilight per stationary periods required some assumption on the independence/correlation of the twilight errors. Read more about this in the vignette [Probability-aggregation](Probability-aggregation.html))
 Here we use a log-linear pooling with a weight of $w=0.1$,
 
 ```{r}
