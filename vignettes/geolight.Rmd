@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-In this vignette, we will use light data to estimate the position of the Great Reed Warbler (18IC) at each stationary period as a probability map. All functions used are a modification from the `GeoLight` package. 
+In this vignette, we use light data to estimate the position of the Great Reed Warbler (18IC) at each stationary period, displayed as a probability map. All functions used are a modification from the `GeoLight` package. 
 
 ## Setup
 
@@ -26,7 +26,7 @@ library(MASS)
 library(raster)
 ```
 
-Define basic information about the calibration period and location. The second calibration is so short (1 day), that we don't consider it in this example.
+The first step is to define basic information about the calibration period and location. The second calibration is so short (1 day) that we discard it in this example.
 
 ```{r}
 lon_calib <- 17.05	
@@ -35,7 +35,7 @@ tm_calib_1 <- c(as.POSIXct("2017-06-20"), as.POSIXct("2017-07-20"))
 # tm_calib_2 <- c(as.POSIXct("2018-04-29"), as.POSIXct("2018-05-1"))
 ```
 
-Read pam data
+We then read the pam data retrieved from the geolocator.
 
 ```{r}
 pam_data = pam_read(pathname = system.file("extdata", package = "GeoPressureR"),
@@ -44,9 +44,9 @@ pam_data = pam_read(pathname = system.file("extdata", package = "GeoPressureR"),
 
 ## Twilight Annotation
 
-The twilight annotation follow closely the [chapter 4 of the geolocation manual](https://geolocationmanual.vogelwarte.ch/twilight.html) with the addion of a manual editing through trainset.
+The twilight annotation closely follows [chapter 4 of the geolocation manual](https://geolocationmanual.vogelwarte.ch/twilight.html) with the addition of a manual editing with TRAINSET.
 
-Find the time of twilight and change the timezone to UTC
+We find the time of twilight and change the timezone to UTC.
 ```{r}
 twl <- find_twilights(pam_data$light, 
                      threshold = min(pam_data$light$obs[pam_data$light$obs>0]), # first light of the day
@@ -55,9 +55,9 @@ twl <- find_twilights(pam_data$light,
 attr(twl$twilight, "tzone") <- "UTC" 
 ```
 
-The manual editing is easily performed with trainset. In this case, you label the datapoint you want to delete with any label name and do not assign any label to the datapoint you want to keep (leave as black dot). Read more about trainset in the vignette [How to label tracks](labeling_tracks.html#introduction-to-trainset).
+The manual editing is easily performed with TRAINSET. In this case, we must label the datapoints we want to delete with any label name and make sure we do not assign any label to the datapoints we want to keep (left as black dots). Read more about TRAINSET labelling in the dedicated vignette: [How to label tracks](labeling_tracks.html#introduction-to-trainset).
 
-First write the `csv` file, then open it in trainset, edit on trainset and finally export the new `csv` file.
+First, we write the `csv` file, then open and edit it in TRAINSET, and finally we export the new `csv` file.
 
 ```{r, eval=F}
 write.csv(
@@ -73,7 +73,7 @@ write.csv(
 browseURL("https://trainset.geocene.com/")
 ```
 
-Read the exported csv file and update the `Deleted` field in `twl`
+We read the exported csv file and update the `Deleted` field in `twl`.
 
 ```{r}
 csv <- read.csv( paste0(system.file("extdata", package = "GeoPressureR"), "/18LX_light-labeled.csv"))
@@ -82,14 +82,14 @@ twl$deleted = !csv$label==""
 
 ## Calibration
 
-Instead of calibrating the twilights error in term of duration, we model directly the zenith angle error.
+Instead of calibrating the twilight errors in terms of duration, we directly model the zenith angle error.
 
-First, get the twilight during the calibration period
+First, we retrieve the twilight during the calibration period.
 ```{r}
 twl_calib <- subset(twl, !deleted & twilight>=tm_calib_1[1] & twilight<=tm_calib_1[2])
 ```
 
-We compute the zenith angle (i.e., elevation of the sun) of the time of the twilights at calibration site.  We fit a simple gamma distribution.
+We then compute the zenith angle (i.e., elevation of the sun) of the twilight time at the calibration site.  We fit a simple gamma distribution.
 
 ```{r}
 sun <- solar(twl_calib$twilight)
@@ -102,7 +102,7 @@ lines(z.axes, dgamma(z.axes, fitE$estimate["shape"], fitE$estimate["rate"]), col
 
 ## Stationary period
 
-Before computing the probability map, we group the twilights by stationary periods using the activity data. You can learn more about this step in [How to use GeoPressureR](using-geopressurer.html#identifying-stationary-periods).
+Before computing the probability map, we group the twilights by stationary period using activity data. Learn more about this step in [How to use GeoPressureR](using-geopressurer.html#identifying-stationary-periods).
 
 ```{r}
 pam_data = trainset_read(pam_data, pathname=system.file("extdata", package = "GeoPressureR"))
@@ -112,16 +112,16 @@ twilight_sta_id[sapply(twilight_sta_id, function(x) length(x) == 0)] <- 0
 twl$sta_id <- unlist(twilight_sta_id)
 ```
 
-## Proability map
+## Probability map
 
-We first define a grid on which to compute the probabilities. For ease of comparison with the pressure derived map, we simply load the grid size and resolution from `prob_map_list` (computed in [How to use GeoPressureR](using-geopressurer.html#computing-the-map-of-pressure))
+We first define a grid on which to compute the probabilities. For ease of comparison with the pressure-derived map, we load the grid size and resolution from `prob_map_list` (computed in [How to use GeoPressureR](using-geopressurer.html#computing-the-map-of-pressure))
 ```{r}
 data("prob_map_list", package = "GeoPressureR")
 g <- as.data.frame(prob_map_list[[1]], xy=TRUE)
 g$layer=NA
 ```
 
-Selecting only the twilights not labeled as deleted, we compute the probability of observing the zenith angle of each twilights using the calibrated error function for each grid cell.
+Selecting only the unlabelled twilights, we compute the probability of observing the zenith angle of each twilight using the calibrated error function for each grid cell.
 
 ```{r}
 twl.clean <- subset(twl, !deleted)
@@ -132,14 +132,14 @@ pgz = apply(g,1, function(x) {
   })
 ```
 
-Aggregating the probability map of each twilight per stationary periods required some assumption on the independence/correlation of the twilight errors. Read more about this in the vignette [Probability-aggregation](Probability-aggregation.html))
-Here we use a log-linear pooling with a weight of $w=0.1$,
+Aggregating the probability map of each twilight per stationary period requires some assumptions on the independence/correlation of the twilight errors. Read more about this in the vignette [Probability-aggregation](Probability-aggregation.html)).
+Here, we use a log-linear pooling with a weight of $w=0.1$,
 
 ```{r}
 w=0.1
 ```
 
-We loop through each stationary period and create a raster map with the aggregated probabilities
+We loop through each stationary period and create a raster map with the aggregated probabilities.
 
 ```{r}
 raster_light_list <- c()
@@ -162,7 +162,7 @@ for (i_s in seq_len(nrow(pam_data$sta))){
 }
 ```
 
-We can finally visualize the probability map for each stationary period
+Finally, we can visualize the probability map for each stationary period.
 
 ```{r, warning=F}
 li_s=list()
@@ -182,7 +182,7 @@ l %>%
   ) %>% hideGroup(tail(li_s,length(li_s)-1))
 ```
 
-Export the data generated
+We can export the data generated.
 
 ```{r, eval=F}
 usethis::use_data(raster_light_list, overwrite=T)
