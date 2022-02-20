@@ -1,0 +1,206 @@
+---
+title: "How to create graph"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How to create graph}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(GeoPressureR)
+library(leaflet)
+library(raster)
+library(igraph)
+```
+
+## Preparing the data
+
+Load data
+```{r}
+data("prob_map_list", package = "GeoPressureR")
+raster_pressure_list = prob_map_list
+data("raster_light_list", package = "GeoPressureR")
+pam_data = pam_read(pathname = system.file("extdata", package = "GeoPressureR"),
+                    crop_start = "2017-06-20", crop_end = "2018-05-02")
+pam_data = trainset_read(pam_data, pathname=system.file("extdata", package = "GeoPressureR"))
+pam_data = pam_sta(pam_data)
+```
+
+  Because pressure might not be computed on all stationary period, we need to filter the map of light and compute the equivalent flight duration
+
+```{r}
+sta_pres = unlist(lapply(raster_pressure_list, function(x) raster::metadata(x)$sta_id))
+sta_light = unlist(lapply(raster_light_list, function(x) raster::metadata(x)$sta_id))
+
+# filter light map
+raster_light_list = raster_light_list[sta_light %in% sta_pres]
+
+# compute flight  duration
+grp_id = seq_len(nrow(pam_data$sta)) %in% sta_pres
+sta = pam_data$sta[grp_id,]
+sta$all_next_flight_duration =  aggregate(pam_data$sta$next_flight_duration, by=list(Category=cumsum(grp_id)), sum )$x
+```
+
+Compute the static probability with the product of light and pressure probability map. We also add the flight duration in the metadata
+
+```{r}
+raster_list = mapply(function(light,pressure,next_flight_duration){
+  raster_list = light * pressure
+  # keep metadata
+  metadata(raster_list)  <- metadata(pressure)
+  metadata(raster_list)$next_flight_duration  <- next_flight_duration
+  # return
+  raster_list
+}, raster_light_list, raster_pressure_list,as.numeric(sta$all_next_flight_duration, units="hours"))
+```
+
+Downscale the map size by a factor of 4. We keep the maximum probability of each sub-pixel
+
+```{r}
+raster_list_ds = lapply(raster_list, function(raster){
+  raster_ds  <- aggregate(raster , fact=4, fun = max)
+  # keep metadata
+  metadata(raster_ds)  <- metadata(raster)
+  # return
+  raster_ds
+})
+```
+
+Overwrite probability at the equipment and retrival site
+
+```{r}
+lon_calib <- 17.05	
+lat_calib <- 48.9
+
+lat = seq(raster::ymax(raster_list_ds[[1]]), raster::ymin(raster_list_ds[[1]]), length.out=nrow(raster_list_ds[[1]])+1)
+lat = lat[1:length(lat)-1]+diff(lat[1:2])/2
+lon = seq(raster::xmin(raster_list_ds[[1]]), raster::xmax(raster_list_ds[[1]]), length.out=ncol(raster_list_ds[[1]])+1)
+lon = lon[1:length(lon)-1]+diff(lon[1:2])/2
+
+lon_calib_id = which.min(abs(lon_calib-lon))
+lat_calib_id = which.min(abs(lat_calib-lat))
+
+tmp = as.matrix(raster_list_ds[[1]])
+tmp[,] <- F
+tmp[lat_calib_id,lon_calib_id] <- T
+values(raster_list_ds[[1]]) <- tmp
+
+tmp = as.matrix(raster_list_ds[[length(raster_list_ds)]])
+tmp[,] <- F
+tmp[lat_calib_id,lon_calib_id] <- T
+values(raster_list_ds[[length(raster_list_ds)]]) <- tmp
+```
+
+## Create the graph 
+
+Use `geopressure_graph` to create the graph
+
+```{r}
+grl <- geopressure_graph(raster_list_ds, 
+                        thr_prob_percentile = .99, 
+                        thr_gs= 150 # threshold km/h
+)
+```
+
+## Movement model
+
+Compute the probability as
+
+```{r}
+grl$p = grl$ps * dgamma(grl$gs, shape=7, scale = 7)
+```
+
+## Shortest path
+
+```{r}
+g = igraph::graph_from_data_frame(data.frame(
+  from = grl$s,
+  to = grl$t,
+  weight=grl$p
+))
+sp = as.numeric(igraph::shortest_paths(g, from=paste(grl$equipement), to=paste(grl$retrival))$vpath[[1]]$name)
+grl$shortest_path = path2lonlat(sp,grl)
+```
+
+```{r, eval=F}
+library(moveVis)
+
+data.frame(
+  x = grl$shortest_path$lon,
+  y = grl$shortest_path$lat,
+  time = grl$
+)
+grl$shortest_path 
+
+df2move()
+
+```
+
+
+## Proability map of staionary period
+
+Compute the marginal distribution
+
+```{r}
+raster_list_marginal <- geopressure_graph_marginal(grl)
+```
+
+```{r, warning=F}
+li_s=list()
+l = leaflet() %>% addTiles() 
+for (i_r in 1:length(raster_list_marginal)){
+  i_s = metadata(raster_list_ds[[i_r]])$sta_id
+  info = pam_data$sta[pam_data$sta$sta_id==i_s,]
+  info_str = paste0(i_s," | ",info$start,"->",info$end)
+  li_s <- append(li_s, info_str)
+  l = l %>% addRasterImage(raster_list_marginal[[i_r]], opacity = 0.8, group=info_str) 
+}
+l %>% 
+  addLayersControl(
+    overlayGroups = li_s,
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>% hideGroup(tail(li_s,length(li_s)-1))
+```
+
+## Simulate path
+
+
+```{r}
+path <- geopressure_graph_simulation(grl)
+```
+
+## Other visualization
+
+```{r}
+animate(brick(raster_list_marginal),n=1)
+```
+
+```{r}
+library(ggplot2)
+library(gganimate)
+
+lapply(raster_list_marginal,function(x){
+  mt = metadata(x)
+  as.data.frame(x,xy=T) %>% 
+    mutate(fill=layer,
+           sta_id=sta_id)
+})
+as.data.frame(brick(prob_map_list),xy=T) %>% 
+  ggplot() +
+    geom_raster(aes(x=x, y=y, fill=layer.2))
+```
+
+
+
+```{r}
+library(moveVis)
+df2mov()
+```
