@@ -18,7 +18,8 @@ Suggests:
     ggplot2,
     plotly,
     RColorBrewer,
-    MASS
+    MASS,
+    igraph
 VignetteBuilder: knitr
 Imports: 
     raster,
@@ -29,7 +30,10 @@ Imports:
     rmarkdown,
     remotes,
     utils,
-    sp
+    sp,
+    geosphere,
+    EBImage,
+    Matrix
 Depends: 
     R (>= 3.5.0)
 LazyData: true
