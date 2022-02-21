@@ -1,0 +1,92 @@
+---
+title: "Creating the graph"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Creating the graph}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=F}
+library(GeoPressureR)
+library(leaflet)
+library(raster)
+library(igraph)
+```
+
+See Prepare data to see how to prepare the correct format for creating the graph
+Load data
+```{r}
+data("static_prob", package = "GeoPressureR")
+data("grl", package = "GeoPressureR")
+```
+
+## Create the graph 
+
+Use `geopressure_graph` to create the graph
+```{r, eval=F}
+grl <- graph_create(static_prob, 
+                        thr_prob_percentile = .99, 
+                        thr_gs= 150 # threshold km/h
+)
+usethis::use_data(grl, overwrite=T)
+```
+
+## Movement model
+
+Compute the probability as
+
+```{r}
+grl$p = grl$ps * dgamma(grl$gs, shape=7, scale = 7)
+```
+
+## Shortest path
+
+```{r}
+g = igraph::graph_from_data_frame(data.frame(
+  from = grl$s,
+  to = grl$t,
+  weight=grl$p
+))
+sp = as.numeric(igraph::shortest_paths(g, from=paste(grl$equipement), to=paste(grl$retrival))$vpath[[1]]$name)
+grl$shortest_path = graph_path2lonlat(sp,grl)
+```
+
+
+## Proability map of staionary period
+
+Compute the marginal distribution
+
+```{r}
+grl_marginal <- graph_marginal(grl)
+```
+
+```{r, warning=F}
+li_s=list()
+l = leaflet() %>% addTiles() 
+for (i_r in 1:length(grl_marginal)){
+  i_s = metadata(static_prob[[i_r]])$sta_id
+  info = metadata(static_prob[[i_r]])$extend_sample
+  info_str = paste0(i_s," | ",info[1],"->",info[2])
+  li_s <- append(li_s, info_str)
+  l = l %>% addRasterImage(grl_marginal[[i_r]], opacity = 0.8, group=info_str) 
+}
+l %>% 
+  addLayersControl(
+    overlayGroups = li_s,
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>% hideGroup(tail(li_s,length(li_s)-1))
+```
+
+## Simulate path
+
+```{r}
+path <- graph_simulation(grl)
+```

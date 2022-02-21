@@ -1,0 +1,187 @@
+---
+title: "Preparing data for trajectory modelling"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Preparing data for trajectory modelling}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=F}
+library(GeoPressureR)
+library(raster)
+library(leaflet)
+```
+
+## Load data
+```{r}
+data("pressure_prob", package = "GeoPressureR")
+pressure_prob = pressure_prob
+data("light_prob", package = "GeoPressureR")
+pam_data = pam_read(pathname = system.file("extdata", package = "GeoPressureR"),
+                    crop_start = "2017-06-20", crop_end = "2018-05-02")
+pam_data = trainset_read(pam_data, pathname=system.file("extdata", package = "GeoPressureR"))
+pam_data = pam_sta(pam_data)
+```
+
+## Align and pressure and light
+Because pressure might not be computed on all stationary period, we need to filter the map of light and compute the equivalent flight duration
+
+```{r}
+sta_pres = unlist(lapply(pressure_prob, function(x) raster::metadata(x)$sta_id))
+sta_light = unlist(lapply(light_prob, function(x) raster::metadata(x)$sta_id))
+
+# filter light map
+light_prob = light_prob[sta_light %in% sta_pres]
+
+# compute flight  duration
+grp_id = seq_len(nrow(pam_data$sta)) %in% sta_pres
+sta = pam_data$sta[grp_id,]
+sta$all_next_flight_duration =  aggregate(pam_data$sta$next_flight_duration, by=list(Category=cumsum(grp_id)), sum )$x
+```
+
+Compute the static probability with the product of light and pressure probability map. We also add the flight duration in the metadata
+
+```{r}
+static_prob = mapply(function(light,pressure,next_flight_duration){
+  static_prob = light * pressure
+  tmp <- values(static_prob)
+  tmp[is.na(tmp)] <- 0
+  values(static_prob) <- tmp
+  # keep metadata
+  metadata(static_prob)  <- metadata(pressure)
+  metadata(static_prob)$next_flight_duration  <- next_flight_duration
+  # return
+  static_prob
+}, light_prob, pressure_prob,as.numeric(sta$all_next_flight_duration, units="hours"))
+```
+
+## Downscaling
+
+It is possible to downscale the map with the following code. But we don't use it here.
+
+```{r, eval=F}
+static_prob = lapply(static_prob, function(raster){
+  raster_ds  <- aggregate(raster , fact=1, fun = max, na.rm=T, expand=T)
+  # keep metadata
+  metadata(raster_ds)  <- metadata(raster)
+  # return
+  raster_ds
+})
+```
+
+## Add equipement and retrival information
+
+Overwrite probability at the equipment and retrival site
+
+```{r}
+lon_calib <- 17.05
+lat_calib <- 48.9
+
+lat = seq(raster::ymax(static_prob[[1]]), raster::ymin(static_prob[[1]]), length.out=nrow(static_prob[[1]])+1)
+lat = lat[1:length(lat)-1]+diff(lat[1:2])/2
+lon = seq(raster::xmin(static_prob[[1]]), raster::xmax(static_prob[[1]]), length.out=ncol(static_prob[[1]])+1)
+lon = lon[1:length(lon)-1]+diff(lon[1:2])/2
+
+lon_calib_id = which.min(abs(lon_calib-lon))
+lat_calib_id = which.min(abs(lat_calib-lat))
+
+tmp = as.matrix(static_prob[[1]])
+tmp[,] <- 0
+tmp[lat_calib_id,lon_calib_id] <- 1
+values(static_prob[[1]]) <- tmp
+
+tmp = as.matrix(static_prob[[length(static_prob)]])
+tmp[,] <- 0
+tmp[lat_calib_id,lon_calib_id] <- 1
+values(static_prob[[length(static_prob)]]) <- tmp
+```
+
+
+## Visualization
+
+```{r, warning=F}
+li_s=list()
+l = leaflet() %>% addTiles() 
+for (i_r in 1:length(static_prob)){
+  i_s = metadata(static_prob[[i_r]])$sta_id
+  info = metadata(static_prob[[i_r]])$extend_sample
+  info_str = paste0(i_s," | ",info[1],"->",info[2])
+  li_s <- append(li_s, info_str)
+  l = l %>% addRasterImage(static_prob[[i_r]], opacity = 0.8, group=info_str) 
+}
+l %>% 
+  addLayersControl(
+    overlayGroups = li_s,
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>% hideGroup(tail(li_s,length(li_s)-1))
+```
+
+```{r, animation.hook="gifski", eval=F}
+library(gifski)
+raster::animate(brick(static_prob),n=1)
+```
+
+```{r, eval=F}
+library(ggplot2)
+library(gganimate)
+dfb = do.call("rbind",lapply(static_prob,function(x){
+  mt = metadata(x)
+  df = as.data.frame(x,xy=T)
+  df$sta_id=mt$sta_id
+  df$extend_sample = mt$extend_sample
+  df$next_flight_duration = mt$next_flight_duration
+  df
+}))
+
+dfb %>% 
+  ggplot() +
+  geom_raster(aes(x=x, y=y, fill=layer)) +
+  transition_time(sta_id)
+```
+
+## Check compatibility
+
+First check that at a probability exist at each stationary period.
+```{r}
+for (i_s in seq_len(length(static_prob))){
+  if (sum(values(static_prob[[i_s]]), na.rm=T)==0){
+    stop(paste('Probability map of stationary period', i_s, 'is null. Check part 1 process (light and pressure)', sep=' '))
+  }
+}
+```
+
+Then check that there are always at least one transition possible from one stationary period to the next
+
+```{r}
+for (i_s in seq_len(length(static_prob)-1)){
+  cur = as.matrix(static_prob[[i_s]])>0
+  nex = as.matrix(static_prob[[i_s+1]])>0
+  
+  flight_duration = metadata(static_prob[[i_s]])$next_flight_duration # hours
+  resolution = mean(res(static_prob[[1]]))*111 # assuming 1°= 111km
+  thr_gs = 150 # Assuming a max groundspeed of 150km/h
+  
+  # Check possible position at next stationary period 
+  possible_next = (EBImage::distmap(!cur) * resolution /flight_duration)<thr_gs
+  
+  if (sum(possible_next & nex)==0){
+    stop(paste('There are no possible transition from stationary period', i_s, 'to',i_s+1,'. Check part 1 process (light and pressure)', sep=' '))
+  }
+}
+```
+
+
+## Export data
+We can export the data generated.
+
+```{r, eval=F}
+usethis::use_data(static_prob, overwrite=T)
+```

@@ -3,7 +3,7 @@ template:
   bootstrap: 5
 
 reference:
-- title: Handle PAM data
+- title: PAM data
   desc: Reading, crop, and basic operation for PAM data
   contents:
   - starts_with("pam_")
@@ -22,7 +22,34 @@ reference:
   - zenith
   - refracted
   - find_twilights
+- title: Graph
+  desc: create a graph and compute graph products
+  contents:
+  - starts_with("graph_")
 - title: Dataset
   desc: Dataset used for vignettes
   contents:
   - ends_with("_list")
+
+navbar:
+  left:
+    - text: "Part 1: Pressure"
+      menu:
+      -  text: "1. Labelling Tracks"
+         href: articles/labelling-tracks.html
+      -  text: "2. Pressure Map"
+         href: articles/pressure-map.html
+      -  text: "3. Light Map"
+         href: articles/light-map.html
+      -  text: "Probability Aggregation"
+         href: articles/probability-aggregation.html
+    - text: "Part 2: Trajectory"
+      menu:
+      -  text: "1. Preparing Data"
+         href: articles/preparing-data.html
+      -  text: "2. Gridded Gibbs"
+         href: articles/gridded-gibbs.html
+      -  text: "3. Basic Graph"
+         href: articles/basic-graph.html
+    - text: "Functions"
+      href: reference/index.html

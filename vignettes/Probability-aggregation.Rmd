@@ -1,8 +1,8 @@
 ---
-title: "Probability-aggregation"
+title: "Probability aggregation"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Probability-aggregation}
+  %\VignetteIndexEntry{Probability aggregation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -56,10 +56,10 @@ pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] = NA
 We are using [the GeoPressure API](https://raphaelnussbaumer.com/GeoPressureServer/#description) with the `geopressure_map()` function to measure the mismatch of the pressure series. Because the API can realistically return only a single map per stationary period, it aggregates the error timeseries with the Mean Squared Error (MSE), 
 $$\mathit{MSE} = \frac{1}{n}\sum_{t=1}^{n} \varepsilon[t]^2.$$
 ```{r, include=F}
-data("raster_list", package = "GeoPressureR")
+data("pressure_maps", package = "GeoPressureR")
 ```
 ```{r, eval = F}
-raster_list = geopressure_map(pam_data$pressure, extent=c(-16,20,0,50), scale=10, max_sample=100)
+pressure_maps = geopressure_map(pam_data$pressure, extent=c(-16,20,0,50), scale=10, max_sample=100)
 ```
 
 We can post-process the data to get back some basic metadata, such as the number of datapoints of each stationay period used. We also compute the position with the minimum MSE
@@ -67,14 +67,14 @@ We can post-process the data to get back some basic metadata, such as the number
 ```{r}
 sta <- data.frame()
 raster_mse_list <- c()
-for (i_s in 1:length(raster_list)) {
+for (i_s in 1:length(pressure_maps)) {
   # get MSE layer
-  raster_mse_list[[i_s]] <- raster_list[[i_s]][[1]]
+  raster_mse_list[[i_s]] <- pressure_maps[[i_s]][[1]]
   # change 0 (water) in NA
   raster_mse_list[[i_s]][raster_mse_list[[i_s]] == 0] <- NA
   
   # Acess geotiff metadata
-  mt <- raster::metadata(raster_list[[i_s]])
+  mt <- raster::metadata(pressure_maps[[i_s]])
   
   mt$start=mt$extend_sample[1]
   mt$end=mt$extend_sample[2]
@@ -122,9 +122,9 @@ f_prob = function(n,s,MSE){
 We define a function below to display the MSE and probability for 8 stationary periods based on a likelihood function. This function will be used later to compare with other likelihood function.
 
 ```{r}
-fun_plot_prob <- function(f_prob,sta,raster_list){
+fun_plot_prob <- function(f_prob,sta,pressure_maps){
   raster_prob_list <- c()
-  for (i_s in 1:length(raster_list)) {
+  for (i_s in 1:length(pressure_maps)) {
     n = sta$nb_sample[i_s]
     raster_prob_list[[i_s]] <- f_prob(n,s,raster_mse_list[[i_s]])
   }
@@ -153,7 +153,7 @@ fun_plot_prob <- function(f_prob,sta,raster_list){
 ```
 
 ```{r}
-fun_plot_prob(f_prob,sta,raster_list)
+fun_plot_prob(f_prob,sta,pressure_maps)
 ```
 
 Assuming independance, the gaussian likelihood transforms the MSE into probability with narrow ranges of uncertaintie. So narrow that for long stationary period (i_s=1 and 17), the enterie map is 0.
@@ -215,7 +215,7 @@ f_prob = function(n,s,x){
   w = 1/n
   (1/(2*pi*s^2))^(n*w/2)*exp(-w*n/2/(s^2)*x)
 }
-fun_plot_prob(f_prob,sta,raster_list)
+fun_plot_prob(f_prob,sta,pressure_maps)
 ```
 
 As expected from the disappearance of n, the uncertainty is now completely independent from the duration of the stationary period.
@@ -235,7 +235,7 @@ f_prob = function(n,s,x){
   w = log(n)/n
   (1/(2*pi*s^2))^(n*w/2)*exp(-w*n/2/(s^2)*x)
 }
-fun_plot_prob(f_prob,sta,raster_list)
+fun_plot_prob(f_prob,sta,pressure_maps)
 ```
 
 ## Validation
