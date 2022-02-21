@@ -16,7 +16,7 @@ both temporal varation of pressure and temperature."><meta property="og:image" c
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,17 +24,25 @@ both temporal varation of pressure and temperature."><meta property="og:image" c
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item">
-  <a class="nav-link" href="../reference/index.html">Reference</a>
+      <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-pressure">Part 1: Pressure</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-part-pressure">
+    <a class="dropdown-item" href="../articles/labelling-tracks.html">1. Labelling Tracks</a>
+    <a class="dropdown-item" href="../articles/pressure-map.html">2. Pressure Map</a>
+    <a class="dropdown-item" href="../articles/light-map.html">3. Light Map</a>
+    <a class="dropdown-item" href="../articles/probability-aggregation.html">Probability Aggregation</a>
+  </div>
 </li>
 <li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/Probability-aggregation.html">Probability-aggregation</a>
-    <a class="dropdown-item" href="../articles/geolight.html">How to estimate position with light data</a>
-    <a class="dropdown-item" href="../articles/labelling-tracks.html">How to label tracks</a>
-    <a class="dropdown-item" href="../articles/using-geopressurer.html">How to use GeoPressureR</a>
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-trajectory">Part 2: Trajectory</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-part-trajectory">
+    <a class="dropdown-item" href="../articles/preparing-data.html">1. Preparing Data</a>
+    <a class="dropdown-item" href="../articles/gridded-gibbs.html">2. Gridded Gibbs</a>
+    <a class="dropdown-item" href="../articles/basic-graph.html">3. Basic Graph</a>
   </div>
+</li>
+<li class="active nav-item">
+  <a class="nav-link" href="../reference/index.html">Functions</a>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -108,20 +116,20 @@ otherwise, it will return on a hourly basis between <code>start_time</code> and
 <span class="r-in">  pathname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span></span>
 <span class="r-in"><span class="op">)</span></span>
 <span class="r-in"><span class="va">pam_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="pam_sta.html">pam_sta</a></span><span class="op">(</span><span class="va">pam_data</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">ts_list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">geopressure_ts</span><span class="op">(</span></span>
+<span class="r-in"><span class="va">pressure_timeserie</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">geopressure_ts</span><span class="op">(</span></span>
 <span class="r-in">  lon <span class="op">=</span> <span class="fl">16.85</span>,</span>
 <span class="r-in">  lat <span class="op">=</span> <span class="fl">48.75</span>,</span>
 <span class="r-in">  pressure <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">pam_data</span><span class="op">$</span><span class="va">pressure</span>, <span class="va">sta_id</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span></span>
 <span class="r-in"><span class="op">)</span></span>
 <span class="r-in"><span class="op">}</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"ts_list"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pressure_timeserie"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ts_list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">date</span>,</span>
-<span class="r-in">  <span class="va">ts_list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">pressure</span>,</span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pressure_timeserie</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">date</span>,</span>
+<span class="r-in">  <span class="va">pressure_timeserie</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">pressure</span>,</span>
 <span class="r-in">  ylab <span class="op">=</span> <span class="st">"Pressure [hPa]"</span>, xlab <span class="op">=</span> <span class="st">""</span></span>
 <span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ts_list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">date</span>,</span>
-<span class="r-in">  <span class="va">ts_list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">altitude</span>,</span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pressure_timeserie</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">date</span>,</span>
+<span class="r-in">  <span class="va">pressure_timeserie</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">altitude</span>,</span>
 <span class="r-in">  ylab <span class="op">=</span> <span class="st">"Altitude [m asl]"</span>, xlab <span class="op">=</span> <span class="st">""</span></span>
 <span class="r-in"><span class="op">)</span></span>
 <span class="r-plt img"><img src="geopressure_ts-1.png" alt="" width="700" height="433"></span>

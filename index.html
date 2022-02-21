@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,17 +42,25 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item">
-  <a class="nav-link" href="reference/index.html">Reference</a>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-pressure">Part 1: Pressure</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-part-pressure">
+    <a class="dropdown-item" href="articles/labelling-tracks.html">1. Labelling Tracks</a>
+    <a class="dropdown-item" href="articles/pressure-map.html">2. Pressure Map</a>
+    <a class="dropdown-item" href="articles/light-map.html">3. Light Map</a>
+    <a class="dropdown-item" href="articles/probability-aggregation.html">Probability Aggregation</a>
+  </div>
 </li>
 <li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="articles/Probability-aggregation.html">Probability-aggregation</a>
-    <a class="dropdown-item" href="articles/geolight.html">How to estimate position with light data</a>
-    <a class="dropdown-item" href="articles/labelling-tracks.html">How to label tracks</a>
-    <a class="dropdown-item" href="articles/using-geopressurer.html">How to use GeoPressureR</a>
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-trajectory">Part 2: Trajectory</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-part-trajectory">
+    <a class="dropdown-item" href="articles/preparing-data.html">1. Preparing Data</a>
+    <a class="dropdown-item" href="articles/gridded-gibbs.html">2. Gridded Gibbs</a>
+    <a class="dropdown-item" href="articles/basic-graph.html">3. Basic Graph</a>
   </div>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="reference/index.html">Functions</a>
 </li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
@@ -80,7 +88,7 @@
 </div>
 <!-- badges: start -->
 
-<p>The goal of GeoPressureR is to help researcher to analyse pressure measurement from geolocator. In particular, it provides a R wrapper around the <a href="https://github.com/Rafnuss/GeoPressureServer" class="external-link">GeoPressure API</a> to query the probability map using ERA5 pressure.</p>
+<p>The goal of GeoPressureR is to help researcher to analyse pressure measurement from geolocator. Firstly, it provides a R wrapper around the <a href="https://github.com/Rafnuss/GeoPressureServer" class="external-link">GeoPressure API</a> to query the probability map using ERA5 pressure. Secondly, using a mathematical graph, it allows you to model the trajectory producing the exact probability map at stationary period and simulating paths.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -92,7 +100,9 @@
 <div class="section level2">
 <h2 id="where-to-start">Where to start?<a class="anchor" aria-label="anchor" href="#where-to-start"></a>
 </h2>
-<p>The vignette <a href="./basic_example.html">basic example</a> is probably the best place to understand the basic workflow of the package.</p>
+<p>Using the example of a Great Reed Warbler (18LX), the vignettes were designed to guide you through all the steps with great details.</p>
+<p>The vignette <a href="./articles/pressure-map.html">Pressure map</a> is a good place to understand the basic workflow used to compute a proability map from pressure measurement. It will guide you through all the steps.</p>
+<p>Once the probability maps are computed, <a href="./articles/basic-graph.html">the vignette on graph</a> will help you create the graph and compute the three outputs: the most likely trajectory, the (posteriori) probability map of each stationary period and simulation of possible path.</p>
 </div>
 <div class="section level2">
 <h2 id="related-ressources">Related ressources<a class="anchor" aria-label="anchor" href="#related-ressources"></a>
@@ -116,7 +126,7 @@
 <div class="section level2">
 <h2 id="want-to-contribute">Want to contribute?<a class="anchor" aria-label="anchor" href="#want-to-contribute"></a>
 </h2>
-<p>Don’t hesitate to reach out if you’re interested in contributing. You can also <a href="https://github.com/Rafnuss/GeoPressureR/issues" class="external-link">submit an issue on Github</a> with ideas, bug, etc…</p>
+<p>The code is still in active development. Feel free to <a href="https://github.com/Rafnuss/GeoPressureR/issues" class="external-link">submit an issue on Github</a> with suggetions or bugs</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,17 +18,25 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item">
-  <a class="nav-link" href="../reference/index.html">Reference</a>
+      <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-pressure">Part 1: Pressure</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-part-pressure">
+    <a class="dropdown-item" href="../articles/labelling-tracks.html">1. Labelling Tracks</a>
+    <a class="dropdown-item" href="../articles/pressure-map.html">2. Pressure Map</a>
+    <a class="dropdown-item" href="../articles/light-map.html">3. Light Map</a>
+    <a class="dropdown-item" href="../articles/probability-aggregation.html">Probability Aggregation</a>
+  </div>
 </li>
 <li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/Probability-aggregation.html">Probability-aggregation</a>
-    <a class="dropdown-item" href="../articles/geolight.html">How to estimate position with light data</a>
-    <a class="dropdown-item" href="../articles/labelling-tracks.html">How to label tracks</a>
-    <a class="dropdown-item" href="../articles/using-geopressurer.html">How to use GeoPressureR</a>
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-trajectory">Part 2: Trajectory</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-part-trajectory">
+    <a class="dropdown-item" href="../articles/preparing-data.html">1. Preparing Data</a>
+    <a class="dropdown-item" href="../articles/gridded-gibbs.html">2. Gridded Gibbs</a>
+    <a class="dropdown-item" href="../articles/basic-graph.html">3. Basic Graph</a>
   </div>
+</li>
+<li class="active nav-item">
+  <a class="nav-link" href="../reference/index.html">Functions</a>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -50,7 +58,7 @@
     </div>
 
     <div class="section level2">
-      <h2 id="handle-pam-data">Handle PAM data<a class="anchor" aria-label="anchor" href="#handle-pam-data"></a></h2>
+      <h2 id="pam-data">PAM data<a class="anchor" aria-label="anchor" href="#pam-data"></a></h2>
       
       <p class="section-desc"></p><p>Reading, crop, and basic operation for PAM data</p>
 
@@ -164,6 +172,37 @@
         </dt>
         <dd>Search for twilight times</dd>
       </dl></div><div class="section level2">
+      <h2 id="graph">Graph<a class="anchor" aria-label="anchor" href="#graph"></a></h2>
+      
+      <p class="section-desc"></p><p>create a graph and compute graph products</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="graph_create.html">graph_create()</a></code> 
+        </dt>
+        <dd>Create graph</dd>
+      </dl><dl><dt>
+          
+          <code><a href="graph_marginal.html">graph_marginal()</a></code> 
+        </dt>
+        <dd>Marginal Probability Map</dd>
+      </dl><dl><dt>
+          
+          <code><a href="graph_path2lonlat.html">graph_path2lonlat()</a></code> 
+        </dt>
+        <dd>Find the lattitude and longitude from a path index</dd>
+      </dl><dl><dt>
+          
+          <code><a href="graph_simulation.html">graph_simulation()</a></code> 
+        </dt>
+        <dd>Simulation of trajectory</dd>
+      </dl></div><div class="section level2">
       <h2 id="dataset">Dataset<a class="anchor" aria-label="anchor" href="#dataset"></a></h2>
       
       <p class="section-desc"></p><p>Dataset used for vignettes</p>
@@ -176,24 +215,34 @@
 
       <dl><dt>
           
-          <code><a href="prob_map_list.html">prob_map_list</a></code> 
+          <code><a href="pressure_maps.html">pressure_maps</a></code> 
         </dt>
-        <dd>Probability map for 18LX</dd>
+        <dd>Pressure mismatch and threshold map for 18LX</dd>
       </dl><dl><dt>
           
-          <code><a href="raster_light_list.html">raster_light_list</a></code> 
+          <code><a href="pressure_prob.html">pressure_prob</a></code> 
+        </dt>
+        <dd>Pressure probability map for 18LX</dd>
+      </dl><dl><dt>
+          
+          <code><a href="pressure_timeserie.html">pressure_timeserie</a></code> 
+        </dt>
+        <dd>Pressure timeseries for 18LX</dd>
+      </dl><dl><dt>
+          
+          <code><a href="light_prob.html">light_prob</a></code> 
+        </dt>
+        <dd>Light probability map for 18LX</dd>
+      </dl><dl><dt>
+          
+          <code><a href="static_prob.html">static_prob</a></code> 
+        </dt>
+        <dd>Static probability map for 18LX</dd>
+      </dl><dl><dt>
+          
+          <code><a href="grl.html">grl</a></code> 
         </dt>
         <dd>Probability map of light for 18LX</dd>
-      </dl><dl><dt>
-          
-          <code><a href="raster_list.html">raster_list</a></code> 
-        </dt>
-        <dd>Mismatch map for 18LX</dd>
-      </dl><dl><dt>
-          
-          <code><a href="ts_list.html">ts_list</a></code> 
-        </dt>
-        <dd>Probability timeseries for 18LX</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
