@@ -2,6 +2,10 @@ url: https://raphaelnussbaumer.com/GeoPressureR/
 template:
   bootstrap: 5
 
+home:
+  sidebar:
+    structure: [citation, authors, dev]
+
 reference:
 - title: PAM data
   desc: Reading, crop, and basic operation for PAM data
