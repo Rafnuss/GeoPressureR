@@ -42,7 +42,7 @@
 "static_prob"
 
 
-#' Probability map of light for 18LX
+#' Graph for 18LX
 #'
-#' This dataset was generated with the vignette `Prepare-data`
+#' This dataset was generated with the vignette [Basic Graph](articles/basic-graph.html)
 "grl"

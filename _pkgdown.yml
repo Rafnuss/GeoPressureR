@@ -29,7 +29,12 @@ reference:
 - title: Dataset
   desc: Dataset used for vignettes
   contents:
-  - ends_with("_list")
+  - "pressure_maps"
+  - "pressure_prob"
+  - "pressure_timeserie"
+  - "light_prob"
+  - "static_prob"
+  - "grl"
 
 navbar:
   left:
