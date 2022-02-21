@@ -2,14 +2,14 @@ pandoc: 2.7.3
 pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
-  Probability-aggregation: Probability-aggregation.html
   basic-graph: basic-graph.html
   gridded-gibbs: gridded-gibbs.html
   labelling-tracks: labelling-tracks.html
   light-map: light-map.html
   preparing-data: preparing-data.html
   pressure-map: pressure-map.html
-last_built: 2022-02-21T13:10Z
+  probability-aggregation: probability-aggregation.html
+last_built: 2022-02-21T14:30Z
 urls:
   reference: https://raphaelnussbaumer.com/GeoPressureR/reference
   article: https://raphaelnussbaumer.com/GeoPressureR/articles
