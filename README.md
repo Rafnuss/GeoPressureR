@@ -9,10 +9,11 @@
 <!-- badges: end -->
 
 The goal of GeoPressureR is to help researcher to analyse pressure
-measurement from geolocator. In particular, it provides a R wrapper
-around the [GeoPressure
-API](https://github.com/Rafnuss/GeoPressureServer) to query the
-probability map using ERA5 pressure.
+measurement from geolocator. Firstly, it provides a R wrapper around the
+[GeoPressure API](https://github.com/Rafnuss/GeoPressureServer) to query
+the probability map using ERA5 pressure. Secondly, using a mathematical
+graph, it allows you to model the trajectory producing the exact
+probability map at stationary period and simulating paths.
 
 ## Installation
 
@@ -26,8 +27,18 @@ devtools::install_github("Rafnuss/GeoPressureR")
 
 ## Where to start?
 
-The vignette [basic example](./basic_example.html) is probably the best
-place to understand the basic workflow of the package.
+Using the example of a Great Reed Warbler (18LX), the vignettes were
+designed to guide you through all the steps with great details.
+
+The vignette [Pressure map](./articles/pressure-map.html) is a good
+place to understand the basic workflow used to compute a proability map
+from pressure measurement. It will guide you through all the steps.
+
+Once the probability maps are computed, [the vignette on
+graph](./articles/basic-graph.html) will help you create the graph and
+compute the three outputs: the most likely trajectory, the (posteriori)
+probability map of each stationary period and simulation of possible
+path.
 
 ## Related ressources
 
@@ -49,7 +60,6 @@ place to understand the basic workflow of the package.
 
 ## Want to contribute?
 
-Don’t hesitate to reach out if you’re interested in contributing. You
-can also [submit an issue on
-Github](https://github.com/Rafnuss/GeoPressureR/issues) with ideas, bug,
-etc…
+The code is still in active development. Feel free to [submit an issue
+on Github](https://github.com/Rafnuss/GeoPressureR/issues) with
+suggetions or bugs

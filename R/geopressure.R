@@ -31,7 +31,7 @@
 #'   pathname = system.file("extdata", package = "GeoPressureR")
 #' )
 #' pam_data <- pam_sta(pam_data)
-#' raster_list <- geopressure_map(
+#' pressure_maps <- geopressure_map(
 #'   pam_data$pressure,
 #'   extent = c(-16, 20, 0, 50),
 #'   scale = 10,
@@ -39,9 +39,9 @@
 #'   margin = 30
 #' )
 #' }
-#' data("raster_list", package = "GeoPressureR")
-#' raster::metadata(raster_list[[1]])
-#' raster::plot(raster_list[[1]],
+#' data("pressure_maps", package = "GeoPressureR")
+#' raster::metadata(pressure_maps[[1]])
+#' raster::plot(pressure_maps[[1]],
 #'   main = c("Mean Square Error", "Mask of pressure")
 #' )
 #' @export
@@ -153,22 +153,22 @@ geopressure_map <-
     }
 
     # Get the raster
-    raster_list <- c()
+    pressure_maps <- c()
     message("Receiving download (geotiff):")
     progress_bar(0, max = length(uris))
     for (i_u in seq_len(length(uris))) {
-      raster_list[[i_u]] <- future::value(f[[i_u]])
+      pressure_maps[[i_u]] <- future::value(f[[i_u]])
       progress_bar(i_u, max = length(uris))
 
       # Add datum
-      raster::crs(raster_list[[i_u]]) <-
+      raster::crs(pressure_maps[[i_u]]) <-
         "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
       # convert MSE from Pa to hPa
-      raster_list[[i_u]][[1]] <- raster_list[[i_u]][[1]] / 100 / 100
+      pressure_maps[[i_u]][[1]] <- pressure_maps[[i_u]][[1]] / 100 / 100
 
       # Writing some metadata
-      raster::metadata(raster_list[[i_u]]) <- list(
+      raster::metadata(pressure_maps[[i_u]]) <- list(
         sta_id = labels[i_u],
         nb_sample = sum(pressure$sta_id[!is.na(pres)] == labels[i_u]),
         max_sample = max_sample,
@@ -181,7 +181,7 @@ geopressure_map <-
     }
 
     # return
-    raster_list
+    pressure_maps
   }
 
 
@@ -202,7 +202,7 @@ geopressure_map <-
 #' with \eqn{n} is the number of data point in the timeserie. This operation is
 #' describe in
 #'
-#' @param raster_list list of raster loaded from `geopressure_map()`
+#' @param pressure_maps list of raster loaded from `geopressure_map()`
 #' @param s standard deviation of the pressure error
 #' @param thr threshold of the percentage of data point outside the elevation
 #' range to be considered not possible
@@ -217,32 +217,32 @@ geopressure_map <-
 #'   pathname = system.file("extdata", package = "GeoPressureR")
 #' )
 #' pam_data <- pam_sta(pam_data)
-#' raster_list <- geopressure_map(
+#' pressure_maps <- geopressure_map(
 #'   pam_data$pressure,
 #'   extent = c(-16, 20, 0, 50),
 #'   scale = 10
 #' )
-#' prob_map_list <- geopressure_prob_map(
-#'   raster_list,
+#' pressure_prob <- geopressure_prob_map(
+#'   pressure_maps,
 #'   s = 0.4,
 #'   thr = 0.9
 #' )
 #' }
-#' data("prob_map_list", package = "GeoPressureR")
-#' raster::metadata(prob_map_list[[1]])
-#' raster::plot(prob_map_list[[1]],
+#' data("pressure_prob", package = "GeoPressureR")
+#' raster::metadata(pressure_prob[[1]])
+#' raster::plot(pressure_prob[[1]],
 #'   main = "Probability",
 #'   xlim = c(5, 20), ylim = c(42, 50)
 #' )
 #' @export
-geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
+geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
   raster_prob_list <- c()
-  for (i_s in seq_len(length(raster_list))) {
+  for (i_s in seq_len(length(pressure_maps))) {
     # get metadata
-    mt <- raster::metadata(raster_list[[i_s]])
+    mt <- raster::metadata(pressure_maps[[i_s]])
 
     # get MSE layer
-    raster_prob_list[[i_s]] <- raster_list[[i_s]][[1]]
+    raster_prob_list[[i_s]] <- pressure_maps[[i_s]][[1]]
     # change 0 (water) in NA
     raster_prob_list[[i_s]][raster_prob_list[[i_s]] == 0] <- NA
 
@@ -261,10 +261,10 @@ geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
         * raster_prob_list[[i_s]])
     # mask value of threashold
     raster_prob_list[[i_s]] <-
-      raster_prob_list[[i_s]] * (raster_list[[i_s]][[2]] > thr)
+      raster_prob_list[[i_s]] * (pressure_maps[[i_s]][[2]] > thr)
 
     raster::metadata(raster_prob_list[[i_s]]) <-
-      raster::metadata(raster_list[[i_s]])
+      raster::metadata(pressure_maps[[i_s]])
   }
   raster_prob_list
 }
@@ -306,20 +306,20 @@ geopressure_prob_map <- function(raster_list, s = 1, thr = 0.9) {
 #'   pathname = system.file("extdata", package = "GeoPressureR")
 #' )
 #' pam_data <- pam_sta(pam_data)
-#' ts_list[[1]] <- geopressure_ts(
+#' pressure_timeserie[[1]] <- geopressure_ts(
 #'   lon = 16.85,
 #'   lat = 48.75,
 #'   pressure = subset(pam_data$pressure, sta_id == 1)
 #' )
 #' }
-#' data("ts_list", package = "GeoPressureR")
+#' data("pressure_timeserie", package = "GeoPressureR")
 #' par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
-#' plot(ts_list[[1]]$date,
-#'   ts_list[[1]]$pressure,
+#' plot(pressure_timeserie[[1]]$date,
+#'   pressure_timeserie[[1]]$pressure,
 #'   ylab = "Pressure [hPa]", xlab = ""
 #' )
-#' plot(ts_list[[1]]$date,
-#'   ts_list[[1]]$altitude,
+#' plot(pressure_timeserie[[1]]$date,
+#'   pressure_timeserie[[1]]$altitude,
 #'   ylab = "Altitude [m asl]", xlab = ""
 #' )
 #' @export

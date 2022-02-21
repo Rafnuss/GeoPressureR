@@ -1,9 +1,9 @@
 ---
-title: "How to label tracks"
+title: "Labelling tracks"
 output: 
   rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{How to label tracks}
+  %\VignetteIndexEntry{Labelling tracks}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -139,10 +139,10 @@ prob_map_list = geopressure_prob_map(raster_list)
 For each stationary period, we locate the best match and query the pressure timeseries with `geopressure_ts()` at this location. If you get errors, check the probability map and the best match (see commented line starting with `leaflet()`)
 
 ```{r, include=F}
-data("ts_list", package = "GeoPressureR")
+data("pressure_timeserie", package = "GeoPressureR")
 ```
 ```{r, eval = F}
-ts_list=list()
+pressure_timeserie=list()
 for (i_r in 1:length(prob_map_list)){
   i_s = metadata(prob_map_list[[i_r]])$sta_id
 
@@ -156,14 +156,14 @@ for (i_r in 1:length(prob_map_list)){
   
   # query the pressure at this location
   message("query:",i_r,"/",length(prob_map_list))
-  ts_list[[i_r]] = geopressure_ts(lon,
+  pressure_timeserie[[i_r]] = geopressure_ts(lon,
                               lat, 
                               pressure = subset(pam_data$pressure,sta_id==1))
   # Add sta_id
-    ts_list[[i_r]]['sta_id'] = i_s
+    pressure_timeserie[[i_r]]['sta_id'] = i_s
     
   # Remove mean
-  ts_list[[i_r]]$pressure0 = ts_list[[i_r]]$pressure - mean(ts_list[[i_r]]$pressure) + mean(pam_data$pressure$obs[id])
+  pressure_timeserie[[i_r]]$pressure0 = pressure_timeserie[[i_r]]$pressure - mean(pressure_timeserie[[i_r]]$pressure) + mean(pam_data$pressure$obs[id])
 }
 ```
 
@@ -173,7 +173,7 @@ We can now look at a similar figure of pressure timeseries, but this time compar
 p <- ggplot() +
   geom_line(data=pam_data$pressure, aes(x=date,y=obs), colour="grey") +
   geom_point(data=subset(pam_data$pressure, class), aes(x=date,y=obs), colour="black") +
-  geom_line(data=do.call("rbind", ts_list), aes(x=date,y=pressure0,col=as.factor(sta_id))) + 
+  geom_line(data=do.call("rbind", pressure_timeserie), aes(x=date,y=pressure0,col=as.factor(sta_id))) + 
   theme_bw() +
   scale_colour_manual(values=rep(RColorBrewer::brewer.pal(9,"Set1"),times=4))
 
@@ -193,9 +193,9 @@ You might also want to check the spread of the distribution. This value can guid
 
 ```{r}
 par(mfrow = c(5,6), mar=c(1,1,3,1))
-for (i_r in seq_along(ts_list)){
-  i_s = unique(ts_list[[i_r]]$sta_id)
-  df3 <- merge(ts_list[[i_r]], subset(pam_data$pressure, !class & sta_id==i_s), by = "date")
+for (i_r in seq_along(pressure_timeserie)){
+  i_s = unique(pressure_timeserie[[i_r]]$sta_id)
+  df3 <- merge(pressure_timeserie[[i_r]], subset(pam_data$pressure, !class & sta_id==i_s), by = "date")
   df3$error = df3$pressure0-df3$obs
   hist(df3$error, main = i_s, xlab="", ylab="")
   abline(v = 0, col="red")

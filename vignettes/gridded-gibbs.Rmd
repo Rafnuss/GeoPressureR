@@ -1,0 +1,189 @@
+---
+title: "Sampling paths with a gridded Gibbs sampler"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Sampling paths with a gridded Gibbs sampler}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=F}
+library(GeoPressureR)
+library(leaflet)
+library(raster)
+library(zoo)
+```
+
+
+
+## Stationary probability
+
+See Prepare data to see how to prepare the correct format for the gibbs sampler
+```{r}
+data("static_prob", package = "GeoPressureR")
+```
+
+Normalize the static probability
+```{r}
+static_prob_n <- lapply(static_prob, function(x) {
+  probt <- raster::as.matrix(x)
+  probt[is.na(probt)] <- 0
+  probt / sum(probt, na.rm = T)
+})
+```
+
+Find indexes of allpixels above to the percentile
+```{r}
+thr_prob_percentile=.99
+nds_id <- lapply(static_prob_n, function(probi) {
+  # First, compute the threshold of prob corresponding to percentile
+  probis <- sort(probi)
+  id_prob_percentile <- sum(cumsum(probis) <= (1 - thr_prob_percentile))
+  thr_prob <- probis[id_prob_percentile + 1]
+
+  # filter the pixels above the threashold
+  nds <- probi >= thr_prob
+  # return
+  which(nds)
+})
+```
+
+## Movement Model
+
+Define the function of groundspeed to probability
+
+```{r}
+mvt_pdf <- function(x){ dgamma(x, shape=7, scale = 7)} 
+```
+
+Compute the grid cell-centered position
+
+```{r}
+lat = seq(raster::ymax(static_prob[[1]]), raster::ymin(static_prob[[1]]), length.out=nrow(static_prob[[1]])+1)
+lat = lat[1:length(lat)-1]+diff(lat[1:2])/2
+lon = seq(raster::xmin(static_prob[[1]]), raster::xmax(static_prob[[1]]), length.out=ncol(static_prob[[1]])+1)
+lon = lon[1:length(lon)-1]+diff(lon[1:2])/2
+
+latlon=expand.grid(lat=lat, lon=lon)
+```
+
+Find the flight duration
+
+```{r}
+flight_duration = unlist(lapply(static_prob,function(x){
+  metadata(x)$next_flight_duration
+}))
+```
+
+Create the function which convert position (in index of grid) to a probaility given the stationary period
+
+```{r}
+prob_mvt <- function(pt,i_s,id) {
+  gs =  geosphere::distGeo(
+      latlon[pt,],
+      latlon[id,]
+    ) / 1000 / flight_duration[i_s]
+  mvt_pdf(gs)
+}
+```
+
+## Initialize the path
+
+Set the number of iteration
+```{r}
+nj = 100
+```
+
+Compute length of grid and stationay period
+
+```{r}
+nsta = length(static_prob)
+nll = dim(static_prob[[1]])
+```
+
+Itinilize the first path with the most likely position of each stationary period
+
+```{r}
+path <- matrix(ncol = nsta, nrow = nj)
+path[1,] <- unlist(lapply(static_prob,function(x){
+  which.max(as.matrix(x))
+}))
+```
+
+But the position is likely not reliable for short stationay period. We remove them and interpolate them
+
+```{r}
+short_sta = unlist(lapply(static_prob,function(x){
+  tmp = metadata(x)$extend_sample
+  abs(as.numeric(difftime(tmp[1],tmp[2],units="hours")))<24
+}))
+path[1,short_sta] <- NA
+```
+
+Set the first and last (equipement and retrival)
+
+```{r}
+path[, 1] <- which(as.matrix(static_prob[[1]])==1)
+path[, nsta] <- which(as.matrix(static_prob[[nsta]])==1)
+```
+
+Interpolate in lat-lon
+
+```{r}
+path_ll_1 = arrayInd(path[1,], nll)
+path_ll_1_inter = round(na.approx(path_ll_1))
+path[1,] <- (path_ll_1_inter[,2]-1)*nll[1] + path_ll_1_inter[,1]
+path_ll_1 = arrayInd(path[1,], nll)
+# Check the initial path
+# leaflet() %>% addTiles() %>%addPolylines(lng=lon[path_ll_1[,2]], lat=lat[path_ll_1[,1]])
+```
+
+Get the stationay period to simulat
+
+```{r}
+ss = which(is.na(path[2,]))
+```
+
+
+## Run the sampler
+
+```{r}
+for(j in seq(from=2,to=nj)){
+  for (i_s in ss){
+    # probability to next stationary period
+    prob_next = prob_mvt(path[j-1,i_s+1],i_s,nds_id[[i_s]])
+    
+    # probability from the previous stationary period
+    prob_prev = prob_mvt(path[j,i_s-1],i_s-1,nds_id[[i_s]])
+    
+    # static probability
+    prob = static_prob_n[[i_s]][nds_id[[i_s]]] * prob_next * prob_prev
+    
+    # Ransom sample the postion
+    path[j,i_s] = nds_id[[i_s]][sum(stats::runif(1) > cumsum(prob) / sum(prob)) + 1]
+  }
+}
+
+
+```
+
+
+## Display 
+
+```{r}
+
+
+m <- leaflet() %>% addTiles()
+for (i in seq(from=50, to=nj,length.out=10)){
+  path_ll = arrayInd(path[i,], nll)
+  m = m %>% addPolylines(lng=lon[path_ll[,2]], lat=lat[path_ll[,1]])
+}
+m
+```

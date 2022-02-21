@@ -46,20 +46,20 @@ pam_data <- trainset_read(pam_data,
   pathname = system.file("extdata", package = "GeoPressureR")
 )
 pam_data <- pam_sta(pam_data)
-ts_list[[1]] <- geopressure_ts(
+pressure_timeserie[[1]] <- geopressure_ts(
   lon = 16.85,
   lat = 48.75,
   pressure = subset(pam_data$pressure, sta_id == 1)
 )
 }
-data("ts_list", package = "GeoPressureR")
+data("pressure_timeserie", package = "GeoPressureR")
 par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
-plot(ts_list[[1]]$date,
-  ts_list[[1]]$pressure,
+plot(pressure_timeserie[[1]]$date,
+  pressure_timeserie[[1]]$pressure,
   ylab = "Pressure [hPa]", xlab = ""
 )
-plot(ts_list[[1]]$date,
-  ts_list[[1]]$altitude,
+plot(pressure_timeserie[[1]]$date,
+  pressure_timeserie[[1]]$altitude,
   ylab = "Altitude [m asl]", xlab = ""
 )
 }

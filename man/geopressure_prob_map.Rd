@@ -4,10 +4,10 @@
 \alias{geopressure_prob_map}
 \title{Compute probability raster}
 \usage{
-geopressure_prob_map(raster_list, s = 1, thr = 0.9)
+geopressure_prob_map(pressure_maps, s = 1, thr = 0.9)
 }
 \arguments{
-\item{raster_list}{list of raster loaded from \code{geopressure_map()}}
+\item{pressure_maps}{list of raster loaded from \code{geopressure_map()}}
 
 \item{s}{standard deviation of the pressure error}
 
@@ -37,20 +37,20 @@ pam_data <- trainset_read(pam_data,
   pathname = system.file("extdata", package = "GeoPressureR")
 )
 pam_data <- pam_sta(pam_data)
-raster_list <- geopressure_map(
+pressure_maps <- geopressure_map(
   pam_data$pressure,
   extent = c(-16, 20, 0, 50),
   scale = 10
 )
-prob_map_list <- geopressure_prob_map(
-  raster_list,
+pressure_prob <- geopressure_prob_map(
+  pressure_maps,
   s = 0.4,
   thr = 0.9
 )
 }
-data("prob_map_list", package = "GeoPressureR")
-raster::metadata(prob_map_list[[1]])
-raster::plot(prob_map_list[[1]],
+data("pressure_prob", package = "GeoPressureR")
+raster::metadata(pressure_prob[[1]])
+raster::plot(pressure_prob[[1]],
   main = "Probability",
   xlim = c(5, 20), ylim = c(42, 50)
 )

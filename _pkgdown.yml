@@ -3,7 +3,7 @@ template:
   bootstrap: 5
 
 reference:
-- title: Handle PAM data
+- title: PAM data
   desc: Reading, crop, and basic operation for PAM data
   contents:
   - starts_with("pam_")
@@ -22,6 +22,10 @@ reference:
   - zenith
   - refracted
   - find_twilights
+- title: Graph
+  desc: create a graph and compute graph products
+  contents:
+  - starts_with("graph_")
 - title: Dataset
   desc: Dataset used for vignettes
   contents:

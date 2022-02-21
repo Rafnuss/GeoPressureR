@@ -17,32 +17,32 @@
 #' - `equipement`: node(s) of the first sta (index in the 3d grid lat-lon-sta)
 #' - `retrival`: node(s) of the last sta (index in the 3d grid lat-lon-sta)
 #' - `flight_duration`: list of flight duration to next sta in hours
-#' - `lat`: list of the `raster_list` latitude in cell center
-#' - `lon`: list of the `raster_list` longitude in cell center
-#' - `extent`: raster extent of the `raster_list``
-#' - `resolution`: raster res of the `raster_list`
+#' - `lat`: list of the `static_prob` latitude in cell center
+#' - `lon`: list of the `static_prob` longitude in cell center
+#' - `extent`: raster extent of the `static_prob``
+#' - `resolution`: raster res of the `static_prob`
 #'
 #'
 #' The vignette `How to use the graph` provided an example how to prepare the
 #' data for the function and the output of this function
 #'
-#' @param raster_list list of raster containing probability map of each
-#' stationary period. The metadata of `raster_list` needs to include the flight
+#' @param static_prob list of raster containing probability map of each
+#' stationary period. The metadata of `static_prob` needs to include the flight
 #' duration to the next stationary period in the variable
 #' `next_flight_duration` as a numeric in hours.
 #' @param thr_prob_percentile threshold of percentile (see explanation above)
 #' @param thr_gs threashold of groundspeed (km/h)  (see explanation above)
 #' @return graph as a list (see description above)
 #' @export
-geopressure_graph <- function(raster_list,
+graph_create <- function(static_prob,
                               thr_prob_percentile = .99,
                               thr_gs = 150) {
 
   # Check input
-  testthat::expect_type(raster_list, "list")
-  testthat::expect_is(raster_list[[1]], "RasterLayer")
+  testthat::expect_type(static_prob, "list")
+  testthat::expect_is(static_prob[[1]], "RasterLayer")
   testthat::expect_true("next_flight_duration" %in%
-    names(raster::metadata(raster_list[[1]])))
+    names(raster::metadata(static_prob[[1]])))
   testthat::expect_is(thr_prob_percentile, c("integer", "numeric"))
   testthat::expect_length(thr_prob_percentile, 1)
   testthat::expect_true(thr_prob_percentile >= 0 & thr_prob_percentile <= 1)
@@ -51,25 +51,25 @@ geopressure_graph <- function(raster_list,
   testthat::expect_true(thr_gs >= 0)
 
   # compute size
-  nsta <- length(raster_list)
-  sz <- c(nrow(raster_list[[1]]), ncol(raster_list[[1]]), nsta)
+  nsta <- length(static_prob)
+  sz <- c(nrow(static_prob[[1]]), ncol(static_prob[[1]]), nsta)
   nll <- sz[1] * sz[2]
 
   # convert raster into normalized matrix
-  prob_list <- lapply(raster_list, function(x) {
+  static_prob_n <- lapply(static_prob, function(x) {
     probt <- raster::as.matrix(x)
     probt[is.na(probt)] <- 0
     probt / sum(probt, na.rm = T)
   })
 
-  tmp <- unlist(lapply(prob_list, sum)) == 0
+  tmp <- unlist(lapply(static_prob_n, sum)) == 0
   if (any(tmp)) {
-    stop(paste0("The `raster_list provided` has a probability map equal to zero
+    stop(paste0("The `static_prob provided` has a probability map equal to zero
                 for the stationay period: ", which(tmp)))
   }
 
   # find the pixels above to the percentile
-  nds <- lapply(prob_list, function(probi) {
+  nds <- lapply(static_prob_n, function(probi) {
     # First, compute the threshold of prob corresponding to percentile
     probis <- sort(probi)
     id_prob_percentile <- sum(cumsum(probis) <= (1 - thr_prob_percentile))
@@ -91,24 +91,24 @@ geopressure_graph <- function(raster_list,
   }
 
   # Get latitude and longitude of the center of the pixel
-  lat <- seq(raster::ymax(raster_list[[1]]), raster::ymin(raster_list[[1]]),
-    length.out = nrow(raster_list[[1]]) + 1
+  lat <- seq(raster::ymax(static_prob[[1]]), raster::ymin(static_prob[[1]]),
+    length.out = nrow(static_prob[[1]]) + 1
   )
-  lat <- head(lat, -1) + diff(lat[1:2]) / 2
-  lon <- seq(raster::xmin(raster_list[[1]]), raster::xmax(raster_list[[1]]),
-    length.out = ncol(raster_list[[1]]) + 1
+  lat <- utils::head(lat, -1) + diff(lat[1:2]) / 2
+  lon <- seq(raster::xmin(static_prob[[1]]), raster::xmax(static_prob[[1]]),
+    length.out = ncol(static_prob[[1]]) + 1
   )
-  lon <- head(lon, -1) + diff(lon[1:2]) / 2
+  lon <- utils::head(lon, -1) + diff(lon[1:2]) / 2
 
   # Approximate resolution of the grid in km assuming 111km/lat-lon
   resolution <- mean(diff(lon)) * 111
 
   # exctract the flight duration
-  flight_duration <- unlist(lapply(raster_list, function(x) {
+  flight_duration <- unlist(lapply(static_prob, function(x) {
     raster::metadata(x)$next_flight_duration
   }))
 
-  tmp <- (thr_gs * head(flight_duration, -1) / resolution) < 1
+  tmp <- (thr_gs * utils::head(flight_duration, -1) / resolution) < 1
   if (any(tmp)) {
     stop(paste0("The flight duration provided is too small for the stationay
                 period: ", which(tmp)))
@@ -151,7 +151,7 @@ geopressure_graph <- function(raster_list,
   # Create the graph list from nds together with the exact groundspeed
   gr <- list()
   nds_sum <- unlist(lapply(nds, sum))
-  nds_expend_sum <- head(nds_sum, -1) * tail(nds_sum, -1)
+  nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
   progress_bar(0, max = sum(nds_expend_sum))
   for (i_s in seq_len(nsta - 1)) {
     # find all the possible equipement and target based on nds and expand to
@@ -176,7 +176,7 @@ geopressure_graph <- function(raster_list,
     grt <- grt[id, ]
 
     # assign the static probability of the target node (pressure * light)
-    grt$ps <- prob_list[[i_s + 1]][grt$t - i_s * nll]
+    grt$ps <- static_prob_n[[i_s + 1]][grt$t - i_s * nll]
 
     # add the edges from this stationary period to all others
     gr <- rbind(gr, grt)
@@ -219,9 +219,9 @@ geopressure_graph <- function(raster_list,
   grl$flight_duration <- flight_duration
   grl$lat <- lat
   grl$lon <- lon
-  grl$extent <- raster::extent(raster_list[[1]])
-  grl$resolution <- raster::res(raster_list[[1]])
-  grl$extend_sample <- lapply(raster_list, function(x) {
+  grl$extent <- raster::extent(static_prob[[1]])
+  grl$resolution <- raster::res(static_prob[[1]])
+  grl$extend_sample <- lapply(static_prob, function(x) {
     raster::metadata(x)$extend_sample
   })
 
@@ -238,7 +238,7 @@ geopressure_graph <- function(raster_list,
 #' @param grl graph constructed with `geopressure_graph_create()`
 #' @return list of raster of the marginal probability at each stationary period
 #' @export
-geopressure_graph_marginal <- function(grl) {
+graph_marginal <- function(grl) {
 
   # number of nodes in the 3d grid
   n <- prod(grl$sz)
@@ -277,18 +277,19 @@ geopressure_graph_marginal <- function(grl) {
   dim(map) <- grl$sz
 
   # convert to raster
-  raster_list_marginal <- list()
+  static_prob_marginal <- list()
   for (i_s in seq_len(dim(map)[3])) {
-    raster_list_marginal[[i_s]] <- raster::raster(grl$extent,
+    static_prob_marginal[[i_s]] <- raster::raster(grl$extent,
       resolution = grl$resolution,
       vals = map[, , i_s]
     )
-    proj4string(raster_list_marginal[[i_s]]) <-
-      CRS("+proj=longlat +datum=WGS84 +no_defs")
+    raster::crs(static_prob_marginal[[i_s]]) <-
+      "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
   }
 
   # return
-  raster_list_marginal
+  static_prob_marginal
 }
 
 
@@ -302,7 +303,7 @@ geopressure_graph_marginal <- function(grl) {
 #' @param nj number of simulation
 #' @return list of the simulated path
 #' @export
-geopressure_graph_simulation <- function(grl, nj = 100) {
+graph_simulation <- function(grl, nj = 100) {
 
   # number of nodes in the 3d grid
   n <- prod(grl$sz)
@@ -354,7 +355,7 @@ geopressure_graph_simulation <- function(grl, nj = 100) {
     # Combine forward and backward and samples
     ids <- apply(map_f[, nll * (i_sta - 1) + (1:nll)], 1, function(x) {
       map <- x * map_b[[i_sta]][nll * (i_sta - 1) + (1:nll)]
-      sum(runif(1) > cumsum(map) / sum(map)) + 1
+      sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
     })
 
     #
@@ -364,7 +365,7 @@ geopressure_graph_simulation <- function(grl, nj = 100) {
     progress_bar(i_sta, max = grl$sz[3])
   }
 
-  path2lonlat(path, grl)
+  graph_path2lonlat(path, grl)
 }
 
 
@@ -374,7 +375,7 @@ geopressure_graph_simulation <- function(grl, nj = 100) {
 #' @param grl graph constructed with `geopressure_graph_create()`
 #' @return list of the path with latitude and longitude
 #' @export
-path2lonlat <- function(path_id, grl) {
+graph_path2lonlat <- function(path_id, grl) {
   ind <- arrayInd(path_id, grl$sz)
   p <- list()
   p$id <- path_id
