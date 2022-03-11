@@ -233,8 +233,8 @@ We can repeat the computation of the pressure timeserie for all stationary perio
 
 ```{r, eval=F}
 pressure_timeserie <- list()
-for (i_r in 19:length(prob_map_list)) {
-  i_s <- metadata(prob_map_list[[i_r]])$sta_id
+for (i_r in 1:length(pressure_prob)) {
+  i_s <- metadata(pressure_prob[[i_r]])$sta_id
   pressure_i_s = subset(pam_data$pressure, sta_id == i_s)
 
   # find the max value of probability
