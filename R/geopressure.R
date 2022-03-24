@@ -54,16 +54,16 @@ geopressure_map <-
     # Check input
     testthat::expect_type(pressure, "list")
     testthat::expect_true("date" %in% names(pressure))
-    testthat::expect_is(pressure$date, "POSIXt")
+    testthat::expect_s3_class(pressure$date, "POSIXt")
     testthat::expect_true("obs" %in% names(pressure))
-    testthat::expect_is(pressure$obs, c("integer", "numeric"))
+    testthat::expect_type(pressure$obs, "double")
     testthat::expect_true("class" %in% names(pressure))
-    testthat::expect_is(pressure$class, "logical")
+    testthat::expect_type(pressure$class, "logical")
     testthat::expect_true("sta_id" %in% names(pressure))
     testthat::expect_length(pressure$obs, length(pressure$date))
     testthat::expect_length(pressure$class, length(pressure$date))
     testthat::expect_length(pressure$sta_id, length(pressure$date))
-    testthat::expect_is(extent, c("integer", "numeric"))
+    testthat::expect_type(extent, "double")
     testthat::expect_length(extent, 4)
     testthat::expect_true(extent[1] >= -180 & extent[1] <= 180)
     testthat::expect_true(extent[2] >= -180 & extent[2] <= 180)
@@ -71,12 +71,12 @@ geopressure_map <-
     testthat::expect_true(extent[4] >= -90 & extent[4] <= 90)
     testthat::expect_true(extent[1] < extent[2])
     testthat::expect_true(extent[3] < extent[4])
-    testthat::expect_is(scale, c("integer", "numeric"))
+    testthat::expect_type(scale, "double")
     testthat::expect_gt(scale, 0)
     testthat::expect_lte(scale, 10)
-    testthat::expect_is(max_sample, c("integer", "numeric"))
+    testthat::expect_type(max_sample, "double")
     testthat::expect_gt(max_sample, 0)
-    testthat::expect_is(margin, c("integer", "numeric"))
+    testthat::expect_type(margin, "double")
     testthat::expect_gte(margin, 0)
 
     # convert from hPa to Pa
@@ -330,22 +330,22 @@ geopressure_ts <-
            end_time = NULL,
            start_time = NULL) {
     # Test
-    testthat::expect_is(lon, "numeric")
-    testthat::expect_is(lat, "numeric")
+    testthat::expect_type(lon, "double")
+    testthat::expect_type(lat, "double")
     testthat::expect_true(lon >= -180 & lon <= 180)
     testthat::expect_true(lat >= -90 & lat <= 90)
     if (!is.null(pressure)) {
       testthat::expect_type(pressure, "list")
       testthat::expect_true("date" %in% names(pressure))
-      testthat::expect_is(pressure$date, "POSIXt")
+      testthat::expect_s3_class(pressure$date, "POSIXt")
       testthat::expect_true("obs" %in% names(pressure))
-      testthat::expect_is(pressure$obs, c("numeric", "integer"))
+      testthat::expect_type(pressure$obs, "double")
       testthat::expect_length(pressure$obs, length(pressure$date))
       end_time <- NULL
       start_time <- NULL
     } else {
-      testthat::expect_is(end_time, "POSIXt")
-      testthat::expect_is(start_time, "POSIXt")
+      testthat::expect_s3_class(end_time, "POSIXt")
+      testthat::expect_s3_class(start_time, "POSIXt")
       testthat::expect_gt(end_time, start_time)
     }
 
