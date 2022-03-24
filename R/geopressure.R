@@ -359,10 +359,8 @@ geopressure_ts <-
         jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date)))
       body_df$pressure <- jsonlite::toJSON(pressure$obs * 100)
     } else {
-      body_df$start_time <-
-        jsonlite::toJSON(as.numeric(as.POSIXct(start_time)))
-      body_df$end_time <-
-        jsonlite::toJSON(as.numeric(as.POSIXct(end_time)))
+      body_df$startTime <-as.numeric(as.POSIXct(start_time))
+      body_df$endTime <-as.numeric(as.POSIXct(end_time))
     }
 
     # Request URLS
