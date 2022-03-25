@@ -109,7 +109,7 @@ sta_id_keep = pam_data$sta$sta_id[difftime(pam_data$sta$end,pam_data$sta$start, 
 pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] = NA
 ```
 
-We can now query the data on the API with `geopressure_map()`. A detailed description of the parameters can be found [here](https://raphaelnussbaumer.com/GeoPressureServer/#request).
+We can now query the data on the API with `geopressure_map()`. A detailed description of the parameters can be found [here](https://raphaelnussbaumer.com/GeoPressureServer/#request). This will take a couple of minutes to run.
 
 ```{r, include = FALSE}
 # For this vignette, we can load the pre-computed value to save time. 
@@ -238,9 +238,14 @@ for (i_r in 1:length(pressure_prob)) {
   pressure_i_s = subset(pam_data$pressure, sta_id == i_s)
 
   # find the max value of probability
-  tmp <- as.data.frame(prob_map_list[[i_r]], xy = T)
+  tmp <- as.data.frame(pressure_prob[[i_r]], xy = T)
   lon <- tmp$x[which.max(tmp[, 3])]
   lat <- tmp$y[which.max(tmp[, 3])]
+  
+  # Dirty fix for i_s where the center of grid cell falls into water. This is due to `geopressure_map` looks for any location within a given grid cell being on land
+  if (i_s==5){
+    lat=lat+res(pressure_prob[[i_r]])[1]/2
+  }
 
   # query the pressure at this location
   message("query:", i_r, "/", length(sta_id_keep))

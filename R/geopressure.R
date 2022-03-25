@@ -390,10 +390,7 @@ geopressure_ts <-
 
     # check for errors
     if (nrow(out) == 0) {
-      stop(
-        "Returned csv file is empty. Check that the time range is none-empty
-        and that the location is not on water"
-      )
+      stop("Returned csv file is empty. Check that the time range is none-empty and that the location is not on water: maps.google.com/maps?q=",lat,",",lon)
     }
 
     # convert Pa to hPa
