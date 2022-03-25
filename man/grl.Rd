@@ -3,7 +3,7 @@
 \docType{data}
 \name{grl}
 \alias{grl}
-\title{Probability map of light for 18LX}
+\title{Graph for 18LX}
 \format{
 An object of class \code{list} of length 13.
 }
@@ -11,6 +11,6 @@ An object of class \code{list} of length 13.
 grl
 }
 \description{
-This dataset was generated with the vignette \code{Prepare-data}
+This dataset was generated with the vignette \href{articles/basic-graph.html}{Basic Graph}
 }
 \keyword{datasets}
