@@ -125,7 +125,7 @@ pam_read_file <- function(filename, crop_start, crop_end) {
 #' Automatic classification of pam
 #'
 #' This function uses activity data to classify migratory flapping flight. It
-#' returns the same dats list `pam` adding a column `class` to the data.frame
+#' returns the same dats list `pam` adding a column `ismig` to the data.frame
 #' `acceleration`.
 #'
 #' This fonction is inspired by the function `classify_flap` from the
@@ -160,10 +160,10 @@ pam_classify <- function(pam,
   )
 
   # classify all datapoints belonging to the high value cluster
-  act_class <- pam$acceleration$act > mean(km$centers)
+  act_mig <- pam$acceleration$act > mean(km$centers)
 
   # group continous activites (low or high) with and ID
-  act_id <- c(1, cumsum(diff(as.numeric(act_class)) != 0) + 1)
+  act_id <- c(1, cumsum(diff(as.numeric(act_mig)) != 0) + 1)
 
   # compute the time resolution of the datset
   dt <- as.double(pam$acceleration$date[2] - pam$acceleration$date[1],
@@ -172,14 +172,14 @@ pam_classify <- function(pam,
 
   # Search all activity with high activity and with a duration above
   # min_duration
-  tmp <- sapply(split(act_class, act_id), unique) &
+  tmp <- sapply(split(act_mig, act_id), unique) &
     table(act_id) * dt > min_duration
 
   # Classify acceleration accordingly
-  pam$acceleration$class <- tmp[act_id]
+  pam$acceleration$ismig <- tmp[act_id]
 
-  # plot(pam$acceleration$date[pam$acceleration$class],
-  # pam$acceleration$act[pam$acceleration$class])
+  # plot(pam$acceleration$date[pam$acceleration$ismig],
+  # pam$acceleration$act[pam$acceleration$ismig])
 
   # return
   pam
@@ -200,8 +200,8 @@ pam_classify <- function(pam,
 #' @param pathname Path to the folder where the labeled files should be
 #'   saved
 #' @param filename Name for the file.
-#' @return pam logger dataset list updated with the new label named \code{class}
-#'   (\code{pam$pressure$class} and \code{pam$acceleration$class})
+#' @return pam logger dataset list updated with the labels
+#'   (\code{pam$pressure$isoutliar} and \code{pam$acceleration$ismig})
 #' @export
 trainset_edit <- function(pam,
                           pathname,
@@ -282,7 +282,7 @@ trainset_write <- function(pam,
   stopifnot(is.data.frame(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
   stopifnot("act" %in% names(pam$acceleration))
-  stopifnot("class" %in% names(pam$acceleration))
+  stopifnot("ismig" %in% names(pam$acceleration))
   stopifnot(is.character(pathname))
   stopifnot(is.character(filename))
   # create path if does not exit
@@ -300,7 +300,7 @@ trainset_write <- function(pam,
           tz = "UTC"
         ),
         value = pam$acceleration$act,
-        label = ifelse(pam$acceleration$class, "1", "")
+        label = ifelse(pam$acceleration$ismig, "1", "")
       ),
       data.frame(
         series = "pressure",
@@ -328,8 +328,8 @@ trainset_write <- function(pam,
 #' @param pam pam logger dataset list
 #' @param pathname Path to the folder where the labeled file is.
 #' @param filename Name of the file.
-#' @return pam logger dataset list updated with the new label named `class`
-#' (`pam$pressure$class` and `pam$acceleration$class`)
+#' @return pam logger dataset list updated with the labels
+#' (`pam$pressure$isoutliar` and `pam$acceleration$ismig`)
 #'
 #' @examples
 #' pam_data <- pam_read(
@@ -372,8 +372,8 @@ trainset_read <- function(pam,
   )
 
   # assign label value to class
-  pam$acceleration$class <- !is.na(csv$label[csv$series == "acceleration"])
-  pam$pressure$class <- !is.na(csv$label[csv$series == "pressure"])
+  pam$acceleration$ismig <- !is.na(csv$label[csv$series == "acceleration"])
+  pam$pressure$isoutliar <- !is.na(csv$label[csv$series == "pressure"])
 
   # return
   pam
@@ -384,7 +384,7 @@ trainset_read <- function(pam,
 #' Compute stationary periods
 #'
 #' This function computes the table of stationary periods from the class of
-#' acceleration `pam$acceleration$class` and add it to the pam data as `sta_id`
+#' acceleration `pam$acceleration$ismig` and add it to the pam data as `sta_id`
 #'
 #' @param pam pam logger dataset list
 #' @return pam logger dataset list with a the dataframe of stationary periods
@@ -415,19 +415,19 @@ pam_sta <- function(pam) {
   stopifnot(is.data.frame(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
   stopifnot("act" %in% names(pam$acceleration))
-  stopifnot("class" %in% names(pam$acceleration))
+  stopifnot("ismig" %in% names(pam$acceleration))
   stopifnot(is.data.frame(pam$light))
   stopifnot("date" %in% names(pam$light))
   stopifnot("obs" %in% names(pam$light))
 
   # Create a table of activities (migration or stationary)
-  act_id <- c(1, cumsum(diff(as.numeric(pam$acceleration$class)) != 0) + 1)
+  act_id <- c(1, cumsum(diff(as.numeric(pam$acceleration$ismig)) != 0) + 1)
 
   act <- data.frame(
     id = unique(act_id),
     start = do.call("c", lapply(split(pam$acceleration$date, act_id), min)),
     end = do.call("c", lapply(split(pam$acceleration$date, act_id), max)),
-    mig = sapply(split(pam$acceleration$class, act_id), unique)
+    mig = sapply(split(pam$acceleration$ismig, act_id), unique)
   )
 
   # filter to keep only migration activities

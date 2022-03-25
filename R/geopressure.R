@@ -57,8 +57,8 @@ geopressure_map <-
     stopifnot(inherits(pressure$date, "POSIXt"))
     stopifnot("obs" %in% names(pressure))
     stopifnot(is.numeric(pressure$obs))
-    stopifnot("class" %in% names(pressure))
-    stopifnot(is.logical(pressure$class))
+    stopifnot("isoutliar" %in% names(pressure))
+    stopifnot(is.logical(pressure$isoutliar))
     stopifnot("sta_id" %in% names(pressure))
     stopifnot(is.numeric(extent))
     stopifnot(length(extent)==4)
@@ -80,7 +80,7 @@ geopressure_map <-
     pres <- pressure$obs * 100
 
     # remove outliar as labeled in TRAINSET
-    pres[pressure$class] <- NA
+    pres[pressure$isoutliar] <- NA
 
     # remove flight period
     pres[pressure$sta_id == 0] <- NA
