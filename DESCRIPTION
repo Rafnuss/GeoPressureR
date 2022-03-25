@@ -34,7 +34,8 @@ Imports:
     sp,
     geosphere,
     EBImage,
-    Matrix
+    Matrix,
+    readr
 Depends: 
     R (>= 3.5.0)
 LazyData: true
