@@ -20,22 +20,23 @@ Suggests:
     RColorBrewer,
     MASS,
     igraph,
-    zoo
+    zoo,
+    rmarkdown,
+    remotes,
+    rgdal,
+    sp,
+    readr
 VignetteBuilder: knitr
 Imports: 
+    utils,
+    stats,
     raster,
-    rgdal,
     jsonlite,
     httr,
     future,
-    rmarkdown,
-    remotes,
-    utils,
-    sp,
     geosphere,
     EBImage,
-    Matrix,
-    readr
+    Matrix
 Depends: 
     R (>= 3.5.0)
 LazyData: true
