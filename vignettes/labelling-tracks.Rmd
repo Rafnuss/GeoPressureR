@@ -129,10 +129,12 @@ message("Number of stationay period to query: ",length(sta_id_keep))
 ```
 
 We can estimate the probability map for each stationary period:
-
+```{r, include=F}
+data("pressure_prob", package = "GeoPressureR")
+```
 ```{r, eval = F}
-raster_list = geopressure_map(pam_data$pressure, extent=c(-16,20,0,50), scale=10, max_sample=100)
-prob_map_list = geopressure_prob_map(raster_list)
+pressure_maps = geopressure_map(pam_data$pressure, extent=c(-16,20,0,50), scale=10, max_sample=100)
+pressure_prob = geopressure_prob_map(pressure_maps)
 ```
 
 
@@ -143,27 +145,31 @@ data("pressure_timeserie", package = "GeoPressureR")
 ```
 ```{r, eval = F}
 pressure_timeserie=list()
-for (i_r in 1:length(prob_map_list)){
-  i_s = metadata(prob_map_list[[i_r]])$sta_id
+for (i_r in 1:length(pressure_prob)){
+  i_s = metadata(pressure_prob[[i_r]])$sta_id
 
-  # find the max value of probability
-  tmp = as.data.frame(prob_map_list[[i_r]],xy=T)
+  # find the position with the highest probability
+  tmp = as.data.frame(pressure_prob[[i_r]],xy=T)
   lon = tmp$x[which.max(tmp[,3])]
   lat = tmp$y[which.max(tmp[,3])]
   
   # Visual check
-  # leaflet() %>% addTiles() %>% addRasterImage(prob_map_list[[i_r]]) %>% addMarkers(lat=lat,lng=lon)
+  # library(leaflet)
+  # leaflet() %>% addTiles() %>% addRasterImage(pressure_prob[[i_r]]) %>% addMarkers(lat=lat,lng=lon)
+  
+  # Subset the pressure timeserie for the period of the current stationary period
+  pam_pressure_sta = subset(pam_data$pressure,sta_id==i_s)
   
   # query the pressure at this location
-  message("query:",i_r,"/",length(prob_map_list))
+  message("query:",i_r,"/",length(pressure_prob))
   pressure_timeserie[[i_r]] = geopressure_ts(lon,
                               lat, 
-                              pressure = subset(pam_data$pressure,sta_id==1))
+                              pressure = pam_pressure_sta)
   # Add sta_id
     pressure_timeserie[[i_r]]['sta_id'] = i_s
     
   # Remove mean
-  pressure_timeserie[[i_r]]$pressure0 = pressure_timeserie[[i_r]]$pressure - mean(pressure_timeserie[[i_r]]$pressure) + mean(pam_data$pressure$obs[id])
+  pressure_timeserie[[i_r]]$pressure0 = pressure_timeserie[[i_r]]$pressure - mean(pressure_timeserie[[i_r]]$pressure) + mean(pam_pressure_sta$obs[!pam_pressure_sta$class])
 }
 ```
 
