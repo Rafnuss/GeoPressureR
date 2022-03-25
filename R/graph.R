@@ -39,16 +39,16 @@ graph_create <- function(static_prob,
                               thr_gs = 150) {
 
   # Check input
-  testthat::expect_type(static_prob, "list")
-  testthat::expect_is(static_prob[[1]], "RasterLayer")
-  testthat::expect_true("next_flight_duration" %in%
+  stopifnot(is.list(static_prob))
+  stopifnot(inherits(static_prob[[1]],'RasterLayer'))
+  stopifnot("next_flight_duration" %in%
     names(raster::metadata(static_prob[[1]])))
-  testthat::expect_is(thr_prob_percentile, c("integer", "numeric"))
-  testthat::expect_length(thr_prob_percentile, 1)
-  testthat::expect_true(thr_prob_percentile >= 0 & thr_prob_percentile <= 1)
-  testthat::expect_is(thr_gs, c("integer", "numeric"))
-  testthat::expect_length(thr_gs, 1)
-  testthat::expect_true(thr_gs >= 0)
+  stopifnot(is.numeric(thr_prob_percentile))
+  stopifnot(length(thr_prob_percentile) == 1)
+  stopifnot(thr_prob_percentile >= 0 & thr_prob_percentile <= 1)
+  stopifnot(is.numeric(thr_gs))
+  stopifnot(length(thr_gs)==1)
+  stopifnot(thr_gs >= 0)
 
   # compute size
   nsta <- length(static_prob)
