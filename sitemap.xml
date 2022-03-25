@@ -1,69 +1,114 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/404.html</loc>
   </url>
   <url>
-    <loc>/LICENSE.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/LICENSE.html</loc>
   </url>
   <url>
-    <loc>/articles/basic_example.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html</loc>
   </url>
   <url>
-    <loc>/articles/compare_to_light.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/articles/gridded-gibbs.html</loc>
   </url>
   <url>
-    <loc>/articles/index.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/articles/index.html</loc>
   </url>
   <url>
-    <loc>/articles/labeling_tracks.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/articles/labelling-tracks.html</loc>
   </url>
   <url>
-    <loc>/authors.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/articles/light-map.html</loc>
   </url>
   <url>
-    <loc>/index.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/articles/preparing-data.html</loc>
   </url>
   <url>
-    <loc>/reference/classify_pam.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html</loc>
   </url>
   <url>
-    <loc>/reference/crop_pam.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/articles/probability-aggregation.html</loc>
   </url>
   <url>
-    <loc>/reference/geopressure_map.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/authors.html</loc>
   </url>
   <url>
-    <loc>/reference/geopressure_prob_map.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/index.html</loc>
   </url>
   <url>
-    <loc>/reference/geopressure_ts.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/find_twilights.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map.html</loc>
   </url>
   <url>
-    <loc>/reference/prob_map_list.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_prob_map.html</loc>
   </url>
   <url>
-    <loc>/reference/read_pam.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_ts.html</loc>
   </url>
   <url>
-    <loc>/reference/read_pam_file.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/graph_create.html</loc>
   </url>
   <url>
-    <loc>/reference/sta_pam.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/graph_marginal.html</loc>
   </url>
   <url>
-    <loc>/reference/trainset_edit.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/graph_path2lonlat.html</loc>
   </url>
   <url>
-    <loc>/reference/trainset_read.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/graph_simulation.html</loc>
   </url>
   <url>
-    <loc>/reference/trainset_write.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/grl.html</loc>
   </url>
   <url>
-    <loc>/reference/ts_list.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/light_prob.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pam_classify.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pam_read.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pam_read_file.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pam_sta.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pressure_maps.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pressure_prob.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pressure_timeserie.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/refracted.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/solar.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/static_prob.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/trainset_edit.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/trainset_read.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/trainset_write.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/zenith.html</loc>
   </url>
 </urlset>
