@@ -30,7 +30,7 @@ pam_read <- function(pathname,
                      crop_start = "1900-01-01",
                      crop_end = "2100-01-01") {
   stopifnot(dir.exists(pathname))
-  stopifnot(class(extension) == "character")
+  stopifnot(is.character(extension))
   stopifnot(all(extension %in% c(
     "pressure", "glf", "acceleration",
     "temperature", "magnetic"
@@ -146,12 +146,12 @@ pam_read_file <- function(filename, crop_start, crop_end) {
 #' @export
 pam_classify <- function(pam,
                          min_duration = 30) {
-  stopifnot(class(pam) == "list")
+  stopifnot(is.list(pam))
   stopifnot("acceleration" %in% names(pam))
-  stopifnot(class(pam$acceleration) == "data.frame")
+  stopifnot(is.data.frame(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
   stopifnot("act" %in% names(pam$acceleration))
-  stopifnot(class(min_duration) == "numeric")
+  stopifnot(is.numeric(min_duration))
   stopifnot(min_duration > 0)
 
   # Run a 2 class k mean clustering
@@ -273,18 +273,18 @@ trainset_write <- function(pam,
                            filename = paste0(pam$id, "_act_pres")) {
 
   # Perform test
-  stopifnot(class(pam) == "list")
+  stopifnot(is.list(pam))
   stopifnot("pressure" %in% names(pam))
-  stopifnot(class(pam$pressure) == "data.frame")
+  stopifnot(is.data.frame(pam$pressure))
   stopifnot("date" %in% names(pam$pressure))
   stopifnot("obs" %in% names(pam$pressure))
   stopifnot("acceleration" %in% names(pam))
-  stopifnot(class(pam$acceleration) == "data.frame")
+  stopifnot(is.data.frame(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
   stopifnot("act" %in% names(pam$acceleration))
   stopifnot("class" %in% names(pam$acceleration))
-  stopifnot(class(pathname) == "character")
-  stopifnot(class(filename) == "character")
+  stopifnot(is.character(pathname))
+  stopifnot(is.character(filename))
   # create path if does not exit
   if (!dir.exists(pathname)) {
     dir.create(pathname)
@@ -347,17 +347,17 @@ trainset_read <- function(pam,
                           filename = paste0(pam$id, "_act_pres-labeled.csv")) {
 
   # Perform test
-  stopifnot(class(pam) == "list")
+  stopifnot(is.list(pam))
   stopifnot("pressure" %in% names(pam))
-  stopifnot(class(pam$pressure) == "data.frame")
+  stopifnot(is.data.frame(pam$pressure))
   stopifnot("date" %in% names(pam$pressure))
   stopifnot("obs" %in% names(pam$pressure))
   stopifnot("acceleration" %in% names(pam))
-  stopifnot(class(pam$acceleration) == "data.frame")
+  stopifnot(is.list(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
   stopifnot("act" %in% names(pam$acceleration))
-  stopifnot(class(pathname) == "character")
-  stopifnot(class(filename) == "character")
+  stopifnot(is.character(pathname))
+  stopifnot(is.character(filename))
   stopifnot(dir.exists(pathname))
   fullpath <- paste0(pathname, "/", filename)
   stopifnot(file.exists(fullpath))
@@ -406,17 +406,17 @@ trainset_read <- function(pam,
 pam_sta <- function(pam) {
 
   # Perform test
-  stopifnot(class(pam) == "list")
+  stopifnot(is.list(pam))
   stopifnot("pressure" %in% names(pam))
-  stopifnot(class(pam$pressure) == "data.frame")
+  stopifnot(is.data.frame(pam$pressure))
   stopifnot("date" %in% names(pam$pressure))
   stopifnot("obs" %in% names(pam$pressure))
   stopifnot("acceleration" %in% names(pam))
-  stopifnot(class(pam$acceleration) == "data.frame")
+  stopifnot(is.data.frame(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
   stopifnot("act" %in% names(pam$acceleration))
   stopifnot("class" %in% names(pam$acceleration))
-  stopifnot(class(pam$light) == "data.frame")
+  stopifnot(is.data.frame(pam$light))
   stopifnot("date" %in% names(pam$light))
   stopifnot("obs" %in% names(pam$light))
 

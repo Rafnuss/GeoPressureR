@@ -52,15 +52,15 @@ geopressure_map <-
            max_sample = 250,
            margin = 30) {
     # Check input
-    stopifnot(class(pressure)=="data.frame")
+    stopifnot(is.data.frame(pressure))
     stopifnot("date" %in% names(pressure))
-    stopifnot(any(class(pressure$date)=="POSIXt"))
+    stopifnot(inherits(pressure$date, "POSIXt"))
     stopifnot("obs" %in% names(pressure))
-    stopifnot(class(pressure$obs)=="numeric")
+    stopifnot(is.numeric(pressure$obs))
     stopifnot("class" %in% names(pressure))
-    stopifnot(class(pressure$class)=="logical")
+    stopifnot(is.logical(pressure$class))
     stopifnot("sta_id" %in% names(pressure))
-    stopifnot(class(extent)=="numeric")
+    stopifnot(is.numeric(extent))
     stopifnot(length(extent)==4)
     stopifnot(extent[1] >= -180 & extent[1] <= 180)
     stopifnot(extent[2] >= -180 & extent[2] <= 180)
@@ -68,12 +68,12 @@ geopressure_map <-
     stopifnot(extent[4] >= -90 & extent[4] <= 90)
     stopifnot(extent[1] <= extent[2])
     stopifnot(extent[3] <= extent[4])
-    stopifnot(class(scale)=="numeric")
+    stopifnot(is.numeric(scale))
     stopifnot(0 < scale)
     stopifnot(scale <= 10)
-    stopifnot(class(max_sample)=="numeric")
+    stopifnot(is.numeric(max_sample))
     stopifnot(0 < max_sample)
-    stopifnot(class(margin)=="numeric")
+    stopifnot(is.numeric(margin))
     stopifnot(0 < margin)
 
     # convert from hPa to Pa
@@ -327,23 +327,23 @@ geopressure_ts <-
            end_time = NULL,
            start_time = NULL) {
     # Check input
-    stopifnot(class(lon)=="numeric")
-    stopifnot(class(lat)=="numeric")
+    stopifnot(is.numeric(lon))
+    stopifnot(is.numeric(lat))
     stopifnot(lon >= -180 & lon <= 180)
     stopifnot(lat >= -90 & lat <= 90)
     if (!is.null(pressure)) {
-      stopifnot(class(pressure)=="data.frame")
+      stopifnot(is.data.frame(pressure))
       stopifnot("date" %in% names(pressure))
-      stopifnot(any(class(pressure$date)=="POSIXt"))
+      stopifnot(inherits(pressure$date, "POSIXt"))
       stopifnot("obs" %in% names(pressure))
-      stopifnot(class(pressure$obs)=="numeric")
+      stopifnot(is.numeric(pressure$obs))
       end_time <- NULL
       start_time <- NULL
     } else {
       stopifnot(!is.na(end_time))
       stopifnot(!is.na(start_time))
-      stopifnot(any(class(end_time)=="POSIXt"))
-      stopifnot(any(class(start_time)=="POSIXt"))
+      stopifnot(inherits(end_time, "POSIXt"))
+      stopifnot(inherits(start_time, "POSIXt"))
       stopifnot(start_time <= end_time)
     }
 
