@@ -29,11 +29,9 @@ pam_read <- function(pathname,
                      ),
                      crop_start = "1900-01-01",
                      crop_end = "2100-01-01") {
-  testthat::expect_true(
-    dir.exists(pathname), paste0("Folder is not found at", pathname)
-  )
-  testthat::expect_type(extension, "character")
-  testthat::expect_true(all(extension %in% c(
+  stopifnot(dir.exists(pathname))
+  stopifnot(class(extension) == "character")
+  stopifnot(all(extension %in% c(
     "pressure", "glf", "acceleration",
     "temperature", "magnetic"
   )))
@@ -148,13 +146,13 @@ pam_read_file <- function(filename, crop_start, crop_end) {
 #' @export
 pam_classify <- function(pam,
                          min_duration = 30) {
-  testthat::expect_type(pam, "list")
-  testthat::expect_true("acceleration" %in% names(pam))
-  testthat::expect_type(pam$acceleration, "list")
-  testthat::expect_true("date" %in% names(pam$acceleration))
-  testthat::expect_true("act" %in% names(pam$acceleration))
-  testthat::expect_type(min_duration, "double")
-  testthat::expect_true(min_duration > 0)
+  stopifnot(class(pam) == "list")
+  stopifnot("acceleration" %in% names(pam))
+  stopifnot(class(pam$acceleration) == "data.frame")
+  stopifnot("date" %in% names(pam$acceleration))
+  stopifnot("act" %in% names(pam$acceleration))
+  stopifnot(class(min_duration) == "numeric")
+  stopifnot(min_duration > 0)
 
   # Run a 2 class k mean clustering
   km <- stats::kmeans(pam$acceleration$act[pam$acceleration$act > 0],
@@ -275,23 +273,23 @@ trainset_write <- function(pam,
                            filename = paste0(pam$id, "_act_pres")) {
 
   # Perform test
-  testthat::expect_type(pam, "list")
-  testthat::expect_true("pressure" %in% names(pam))
-  testthat::expect_type(pam$pressure, "list")
-  testthat::expect_true("date" %in% names(pam$pressure))
-  testthat::expect_true("obs" %in% names(pam$pressure))
-  testthat::expect_true("acceleration" %in% names(pam))
-  testthat::expect_type(pam$acceleration, "list")
-  testthat::expect_true("date" %in% names(pam$acceleration))
-  testthat::expect_true("act" %in% names(pam$acceleration))
-  testthat::expect_true("class" %in% names(pam$acceleration))
-  testthat::expect_type(pathname, "character")
-  testthat::expect_type(filename, "character")
+  stopifnot(class(pam) == "list")
+  stopifnot("pressure" %in% names(pam))
+  stopifnot(class(pam$pressure) == "data.frame")
+  stopifnot("date" %in% names(pam$pressure))
+  stopifnot("obs" %in% names(pam$pressure))
+  stopifnot("acceleration" %in% names(pam))
+  stopifnot(class(pam$acceleration) == "data.frame")
+  stopifnot("date" %in% names(pam$acceleration))
+  stopifnot("act" %in% names(pam$acceleration))
+  stopifnot("class" %in% names(pam$acceleration))
+  stopifnot(class(pathname) == "character")
+  stopifnot(class(filename) == "character")
   # create path if does not exit
   if (!dir.exists(pathname)) {
     dir.create(pathname)
   }
-  testthat::expect_true(dir.exists(pathname))
+  stopifnot(dir.exists(pathname))
 
   # write a combined data.frame of pressure and acceleration in csv.
   utils::write.csv(
@@ -349,32 +347,28 @@ trainset_read <- function(pam,
                           filename = paste0(pam$id, "_act_pres-labeled.csv")) {
 
   # Perform test
-  testthat::expect_type(pam, "list")
-  testthat::expect_true("pressure" %in% names(pam))
-  testthat::expect_type(pam$pressure, "list")
-  testthat::expect_true("date" %in% names(pam$pressure))
-  testthat::expect_true("obs" %in% names(pam$pressure))
-  testthat::expect_true("acceleration" %in% names(pam))
-  testthat::expect_type(pam$acceleration, "list")
-  testthat::expect_true("date" %in% names(pam$acceleration))
-  testthat::expect_true("act" %in% names(pam$acceleration))
-  testthat::expect_type(pathname, "character")
-  testthat::expect_type(filename, "character")
-  testthat::expect_true(
-    dir.exists(pathname), paste0("Folder is not found at", pathname)
-  )
+  stopifnot(class(pam) == "list")
+  stopifnot("pressure" %in% names(pam))
+  stopifnot(class(pam$pressure) == "data.frame")
+  stopifnot("date" %in% names(pam$pressure))
+  stopifnot("obs" %in% names(pam$pressure))
+  stopifnot("acceleration" %in% names(pam))
+  stopifnot(class(pam$acceleration) == "data.frame")
+  stopifnot("date" %in% names(pam$acceleration))
+  stopifnot("act" %in% names(pam$acceleration))
+  stopifnot(class(pathname) == "character")
+  stopifnot(class(filename) == "character")
+  stopifnot(dir.exists(pathname))
   fullpath <- paste0(pathname, "/", filename)
-  testthat::expect_true(
-    file.exists(fullpath), paste0("File is not found at", fullpath)
-  )
+  stopifnot(file.exists(fullpath))
 
   # read the file
   csv <- utils::read.csv(fullpath)
 
   # check that the file is in the right format and same size as pam data
-  testthat::expect_true("series" %in% names(csv))
-  testthat::expect_length(
-    csv$label, length(pam$acceleration$date) + length(pam$pressure$date)
+  stopifnot("series" %in% names(csv))
+  stopifnot(
+    length(csv$label) == length(pam$acceleration$date) + length(pam$pressure$date)
   )
 
   # assign label value to class
@@ -412,19 +406,19 @@ trainset_read <- function(pam,
 pam_sta <- function(pam) {
 
   # Perform test
-  testthat::expect_type(pam, "list")
-  testthat::expect_true("pressure" %in% names(pam))
-  testthat::expect_type(pam$pressure, "list")
-  testthat::expect_true("date" %in% names(pam$pressure))
-  testthat::expect_true("obs" %in% names(pam$pressure))
-  testthat::expect_true("acceleration" %in% names(pam))
-  testthat::expect_type(pam$acceleration, "list")
-  testthat::expect_true("date" %in% names(pam$acceleration))
-  testthat::expect_true("act" %in% names(pam$acceleration))
-  testthat::expect_true("class" %in% names(pam$acceleration))
-  testthat::expect_type(pam$light, "list")
-  testthat::expect_true("date" %in% names(pam$light))
-  testthat::expect_true("obs" %in% names(pam$light))
+  stopifnot(class(pam) == "list")
+  stopifnot("pressure" %in% names(pam))
+  stopifnot(class(pam$pressure) == "data.frame")
+  stopifnot("date" %in% names(pam$pressure))
+  stopifnot("obs" %in% names(pam$pressure))
+  stopifnot("acceleration" %in% names(pam))
+  stopifnot(class(pam$acceleration) == "data.frame")
+  stopifnot("date" %in% names(pam$acceleration))
+  stopifnot("act" %in% names(pam$acceleration))
+  stopifnot("class" %in% names(pam$acceleration))
+  stopifnot(class(pam$light) == "data.frame")
+  stopifnot("date" %in% names(pam$light))
+  stopifnot("obs" %in% names(pam$light))
 
   # Create a table of activities (migration or stationary)
   act_id <- c(1, cumsum(diff(as.numeric(pam$acceleration$class)) != 0) + 1)

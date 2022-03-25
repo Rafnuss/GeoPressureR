@@ -52,32 +52,29 @@ geopressure_map <-
            max_sample = 250,
            margin = 30) {
     # Check input
-    testthat::expect_type(pressure, "list")
-    testthat::expect_true("date" %in% names(pressure))
-    testthat::expect_s3_class(pressure$date, "POSIXt")
-    testthat::expect_true("obs" %in% names(pressure))
-    testthat::expect_type(pressure$obs, "double")
-    testthat::expect_true("class" %in% names(pressure))
-    testthat::expect_type(pressure$class, "logical")
-    testthat::expect_true("sta_id" %in% names(pressure))
-    testthat::expect_length(pressure$obs, length(pressure$date))
-    testthat::expect_length(pressure$class, length(pressure$date))
-    testthat::expect_length(pressure$sta_id, length(pressure$date))
-    testthat::expect_type(extent, "double")
-    testthat::expect_length(extent, 4)
-    testthat::expect_true(extent[1] >= -180 & extent[1] <= 180)
-    testthat::expect_true(extent[2] >= -180 & extent[2] <= 180)
-    testthat::expect_true(extent[3] >= -90 & extent[3] <= 90)
-    testthat::expect_true(extent[4] >= -90 & extent[4] <= 90)
-    testthat::expect_true(extent[1] < extent[2])
-    testthat::expect_true(extent[3] < extent[4])
-    testthat::expect_type(scale, "double")
-    testthat::expect_gt(scale, 0)
-    testthat::expect_lte(scale, 10)
-    testthat::expect_type(max_sample, "double")
-    testthat::expect_gt(max_sample, 0)
-    testthat::expect_type(margin, "double")
-    testthat::expect_gte(margin, 0)
+    stopifnot(class(pressure)=="data.frame")
+    stopifnot("date" %in% names(pressure))
+    stopifnot(any(class(pressure$date)=="POSIXt"))
+    stopifnot("obs" %in% names(pressure))
+    stopifnot(class(pressure$obs)=="numeric")
+    stopifnot("class" %in% names(pressure))
+    stopifnot(class(pressure$class)=="logical")
+    stopifnot("sta_id" %in% names(pressure))
+    stopifnot(class(extent)=="numeric")
+    stopifnot(length(extent)==4)
+    stopifnot(extent[1] >= -180 & extent[1] <= 180)
+    stopifnot(extent[2] >= -180 & extent[2] <= 180)
+    stopifnot(extent[3] >= -90 & extent[3] <= 90)
+    stopifnot(extent[4] >= -90 & extent[4] <= 90)
+    stopifnot(extent[1] <= extent[2])
+    stopifnot(extent[3] <= extent[4])
+    stopifnot(class(scale)=="numeric")
+    stopifnot(0 < scale)
+    stopifnot(scale <= 10)
+    stopifnot(class(max_sample)=="numeric")
+    stopifnot(0 < max_sample)
+    stopifnot(class(margin)=="numeric")
+    stopifnot(0 < margin)
 
     # convert from hPa to Pa
     pres <- pressure$obs * 100
@@ -329,24 +326,25 @@ geopressure_ts <-
            pressure = NULL,
            end_time = NULL,
            start_time = NULL) {
-    # Test
-    testthat::expect_type(lon, "double")
-    testthat::expect_type(lat, "double")
-    testthat::expect_true(lon >= -180 & lon <= 180)
-    testthat::expect_true(lat >= -90 & lat <= 90)
+    # Check input
+    stopifnot(class(lon)=="numeric")
+    stopifnot(class(lat)=="numeric")
+    stopifnot(lon >= -180 & lon <= 180)
+    stopifnot(lat >= -90 & lat <= 90)
     if (!is.null(pressure)) {
-      testthat::expect_type(pressure, "list")
-      testthat::expect_true("date" %in% names(pressure))
-      testthat::expect_s3_class(pressure$date, "POSIXt")
-      testthat::expect_true("obs" %in% names(pressure))
-      testthat::expect_type(pressure$obs, "double")
-      testthat::expect_length(pressure$obs, length(pressure$date))
+      stopifnot(class(pressure)=="data.frame")
+      stopifnot("date" %in% names(pressure))
+      stopifnot(any(class(pressure$date)=="POSIXt"))
+      stopifnot("obs" %in% names(pressure))
+      stopifnot(class(pressure$obs)=="numeric")
       end_time <- NULL
       start_time <- NULL
     } else {
-      testthat::expect_s3_class(end_time, "POSIXt")
-      testthat::expect_s3_class(start_time, "POSIXt")
-      testthat::expect_gt(end_time, start_time)
+      stopifnot(!is.na(end_time))
+      stopifnot(!is.na(start_time))
+      stopifnot(any(class(end_time)=="POSIXt"))
+      stopifnot(any(class(start_time)=="POSIXt"))
+      stopifnot(start_time <= end_time)
     }
 
     # Format query
@@ -378,7 +376,7 @@ geopressure_ts <-
     message("Request generated successfully.")
 
     # Download the csv file
-    message("Downloading csv data.")
+    message("Downloading csv data...")
     res2 <- httr::GET(httr::content(res)$data$url)
 
     # read csv
