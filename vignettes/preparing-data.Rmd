@@ -115,7 +115,7 @@ for (i_r in 1:length(static_prob)){
   info = metadata(static_prob[[i_r]])$extend_sample
   info_str = paste0(i_s," | ",info[1],"->",info[2])
   li_s <- append(li_s, info_str)
-  l = l %>% addRasterImage(static_prob[[i_r]], opacity = 0.8, group=info_str) 
+  l = l %>% addRasterImage(static_prob[[i_r]], opacity = 0.8, colors = 'OrRd', group=info_str) 
 }
 l %>% 
   addLayersControl(

@@ -144,11 +144,11 @@ usethis::use_data(pressure_prob, overwrite = T)
 We use `leaflet()` to visualize the threshold mask, mismatch map, and overall probability map for a single stationary period.
 
 ```{r, warning=F}
-i_r = 1;
+i_r = 4;
 leaflet() %>% addTiles() %>%
-  addRasterImage(pressure_prob[[i_r]], opacity = 0.8, group="Probability") %>%
-  addRasterImage(pressure_maps[[i_r]][[1]], opacity = 0.8, group="Mismatch") %>%
-  addRasterImage(pressure_maps[[i_r]][[2]], opacity = 0.8, group="Threashold") %>%
+  addRasterImage(pressure_prob[[i_r]], opacity = 0.8, colors = 'OrRd', group="Probability") %>%
+  addRasterImage(pressure_maps[[i_r]][[1]], opacity = 0.8, colors = 'OrRd', group="Mismatch") %>%
+  addRasterImage(pressure_maps[[i_r]][[2]], opacity = 0.8, colors = 'OrRd', group="Threashold") %>%
   # addLegend(pal = pal, values = values(v[[i_s]][[3]]), title = "Probability") %>% 
   addLayersControl(
     overlayGroups = c("Probability","Mismatch","Threashold"),
@@ -166,7 +166,7 @@ for (i_r in 1:length(pressure_prob)){
   info = pam_data$sta[pam_data$sta$sta_id==i_s,]
   info_str = paste0(i_s," | ",info$start,"->",info$end)
   li_s <- append(li_s, info_str)
-  l = l %>% addRasterImage(pressure_prob[[i_r]], opacity = 0.8, group=info_str) 
+  l = l %>% addRasterImage(pressure_prob[[i_r]], opacity = 0.8, colors = 'OrRd', group=info_str) 
 }
 l %>% 
   addLayersControl(

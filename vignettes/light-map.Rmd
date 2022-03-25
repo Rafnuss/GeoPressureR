@@ -172,7 +172,7 @@ for (i_r in 1:length(light_prob)){
   info = pam_data$sta[pam_data$sta$sta_id==i_s,]
   info_str = paste0(i_s," | ",info$start,"->",info$end)
   li_s <- append(li_s, info_str)
-  l = l %>% addRasterImage(light_prob[[i_r]], opacity = 0.8, group=info_str) 
+  l = l %>% addRasterImage(light_prob[[i_r]], opacity = 0.8, colors = 'OrRd', group=info_str) 
 }
 l %>% 
   addCircles(lng=lon_calib,lat=lat_calib,color = "white", opacity=1) %>% 
