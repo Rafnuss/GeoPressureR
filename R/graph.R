@@ -64,7 +64,7 @@ graph_create <- function(static_prob,
 
   tmp <- unlist(lapply(static_prob_n, sum)) == 0
   if (any(tmp)) {
-    stop(paste0("The `static_prob provided` has a probability map equal to zero
+    stop(paste0("The `static_prob` provided has a probability map equal to zero
                 for the stationay period: ", which(tmp)))
   }
 
@@ -75,7 +75,7 @@ graph_create <- function(static_prob,
     id_prob_percentile <- sum(cumsum(probis) <= (1 - thr_prob_percentile))
     thr_prob <- probis[id_prob_percentile + 1]
 
-    # filter the pixels above the threashold
+    # filter the pixels above the threshold
     nds <- probi >= thr_prob
     # return
     nds
@@ -154,14 +154,14 @@ graph_create <- function(static_prob,
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
   progress_bar(0, max = sum(nds_expend_sum))
   for (i_s in seq_len(nsta - 1)) {
-    # find all the possible equipement and target based on nds and expand to
-    # all possible combinaison
+    # find all the possible equipment and target based on nds and expand to
+    # all possible combination
     grt <- expand.grid(
       s = as.integer(which(nds[[i_s]]) + (i_s - 1) * nll),
       t = as.integer(which(nds[[i_s + 1]]) + i_s * nll)
     )
 
-    # Find the index in lat,lon,sta of those equipement and target
+    # Find the index in lat, lon, sta of those equipment and target
     s_id <- arrayInd(grt$s, sz)
     t_id <- arrayInd(grt$t, sz)
 
