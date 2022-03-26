@@ -16,7 +16,7 @@ pam
 }
 \description{
 This function uses activity data to classify migratory flapping flight. It
-returns the same dats list \code{pam} adding a column \code{class} to the data.frame
+returns the same dats list \code{pam} adding a column \code{ismig} to the data.frame
 \code{acceleration}.
 }
 \details{

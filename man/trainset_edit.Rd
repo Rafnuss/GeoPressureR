@@ -19,8 +19,8 @@ saved}
 \item{filename}{Name for the file.}
 }
 \value{
-pam logger dataset list updated with the new label named \code{class}
-(\code{pam$pressure$class} and \code{pam$acceleration$class})
+pam logger dataset list updated with the labels
+(\code{pam$pressure$isoutliar} and \code{pam$acceleration$ismig})
 }
 \description{
 This function perform three steps: (1) write the \code{csv} file of the

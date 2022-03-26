@@ -18,8 +18,8 @@ trainset_read(
 \item{filename}{Name of the file.}
 }
 \value{
-pam logger dataset list updated with the new label named \code{class}
-(\code{pam$pressure$class} and \code{pam$acceleration$class})
+pam logger dataset list updated with the labels
+(\code{pam$pressure$isoutliar} and \code{pam$acceleration$ismig})
 }
 \description{
 This function read an exported csv file from trainset
