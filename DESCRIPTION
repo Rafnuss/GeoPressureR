@@ -25,7 +25,8 @@ Suggests:
     remotes,
     rgdal,
     sp,
-    readr
+    readr,
+    ecmwfr
 VignetteBuilder: knitr
 Imports: 
     utils,

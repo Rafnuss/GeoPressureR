@@ -1,7 +1,6 @@
 pressure=data.frame(
   date=as.POSIXct(c('2017-06-20 00:00:00 UTC','2017-06-20 01:00:00 UTC','2017-06-20 02:00:00 UTC')),
   obs=c(1000,1000,1000),
-  class=c(FALSE,FALSE,FALSE),
   sta_id=c(1,1,1)
 )
 raster_list <- geopressure_map(pressure, extent=c(0,1,0,1),scale=1)

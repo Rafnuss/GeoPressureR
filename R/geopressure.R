@@ -57,7 +57,9 @@ geopressure_map <-
     stopifnot(inherits(pressure$date, "POSIXt"))
     stopifnot("obs" %in% names(pressure))
     stopifnot(is.numeric(pressure$obs))
-    stopifnot("isoutliar" %in% names(pressure))
+    if(!("isoutliar" %in% names(pressure))){
+      pressure$isoutliar = FALSE
+    }
     stopifnot(is.logical(pressure$isoutliar))
     stopifnot("sta_id" %in% names(pressure))
     stopifnot(is.numeric(extent))
@@ -93,6 +95,10 @@ geopressure_map <-
 
     # remove stationary period with NA
     pres[is.na(pressure$sta_id)] <- NA
+
+    if (sum(is.na(pres))!=0){
+      stop("No pressure to query. Check outliar and staID==0 (for flight).")
+    }
 
     # Format query
     body_df <- list(
