@@ -87,8 +87,8 @@
 </h1>
 </div>
 <!-- badges: start -->
-
-<p>The goal of GeoPressureR is to help researcher to analyse pressure measurement from geolocator. Firstly, it provides a R wrapper around the <a href="https://github.com/Rafnuss/GeoPressureServer" class="external-link">GeoPressure API</a> to query the probability map using ERA5 pressure. Secondly, using a mathematical graph, it allows you to model the trajectory producing the exact probability map at stationary period and simulating paths.</p>
+<p><a href="https://github.com/Rafnuss/GeoPressureR/actions" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a> <a href="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown"></a> <!-- badges: end --></p>
+<p>The goal of GeoPressureR is to help researcher to analyse pressure measurement from geolocator. - Part 1: Firstly, it provides a R wrapper around the <a href="https://github.com/Rafnuss/GeoPressureServer" class="external-link">GeoPressure API</a> to query the probability map using ERA5 pressure. - Part 2: Secondly, using a mathematical graph, it allows you to model the trajectory producing the exact probability map at stationary period and simulating paths.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -101,27 +101,32 @@
 <h2 id="where-to-start">Where to start?<a class="anchor" aria-label="anchor" href="#where-to-start"></a>
 </h2>
 <p>Using the example of a Great Reed Warbler (18LX), the vignettes were designed to guide you through all the steps with great details.</p>
-<p>The vignette <a href="./articles/pressure-map.html">Pressure map</a> is a good place to understand the basic workflow used to compute a proability map from pressure measurement. It will guide you through all the steps.</p>
-<p>Once the probability maps are computed, <a href="./articles/basic-graph.html">the vignette on graph</a> will help you create the graph and compute the three outputs: the most likely trajectory, the (posteriori) probability map of each stationary period and simulation of possible path.</p>
+<p>The vignette <a href="./articles/pressure-map.html">Pressure map</a> is a good place to understand the basic workflow used to compute a probability map from pressure measurement (part 1). It will guide you (or redirect you) through all the steps from the loading the data, labeling of the timeseries, querying the ERA5 pressure map and finally computing the likelihood map.</p>
+<p>Once the probability maps are computed, the vignette <a href="./articles/basic-graph.html">Basic graph</a> will help you create the graph and compute three main outputs: (1) the most likely trajectory, (2) the (posterior) probability map of each stationary period and (3) simulation of possible path.</p>
 </div>
 <div class="section level2">
-<h2 id="related-ressources">Related ressources<a class="anchor" aria-label="anchor" href="#related-ressources"></a>
+<h2 id="related-ressources">Related Ressources<a class="anchor" aria-label="anchor" href="#related-ressources"></a>
+</h2>
+<blockquote>
+<p>Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti Global positioning by atmospheric pressure retrieved from multi-sensor geolocators, 25 February 2022, PREPRINT (Version 1) available at Research Square [<a href="https://doi.org/10.21203/rs.3.rs-1381915/v1" class="external-link uri">https://doi.org/10.21203/rs.3.rs-1381915/v1</a>]</p>
+</blockquote>
+<blockquote>
+<p>Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti et al. Improving the spatial accuracy of multi-sensor geolocators’ position using atmospheric surface pressure. October 2021. <em>7th International Bio-logging Science Symposium</em>.PRESENTATION available on <a href="https://www.youtube.com/watch?v=0JsYU_xfKN8" class="external-link">Youtube</a>.</p>
+</blockquote>
+</div>
+<div class="section level2">
+<h2 id="related-code">Related Code<a class="anchor" aria-label="anchor" href="#related-code"></a>
 </h2>
 <ul>
 <li>
-<a href="https://github.com/Rafnuss/GeoPressureMAT" class="external-link">GeoPressureMAT</a> Developement of the method was done on MATLAB. Here is the repo with all the codes.</li>
+<a href="https://github.com/Rafnuss/GeoPressureMAT" class="external-link">GeoPressureMAT</a> The development of the method was done on MATLAB. Here is the repo with all the codes.</li>
 <li>
-<a href="https://github.com/Rafnuss/GeoPressureServer" class="external-link">GeoPressure API</a> This is where the hard core computation with Google Earth Engine is done. You can have a look here to see how this is done.</li>
+<a href="https://github.com/Rafnuss/GeoPressureServer" class="external-link">GeoPressure API</a> This is where the core computation with Google Earth Engine is done. You can have a look here to see how this is done.</li>
 <li>
-<a href="https://github.com/slisovski/GeoLight/tree/Update_2.01" class="external-link">GeoLight</a> R package to analyse light data.</li>
+<a href="https://github.com/slisovski/GeoLight/tree/Update_2.01" class="external-link">GeoLight</a> R package to analyse light data. We are borrowing some of their function (see <a href="./reference/index.html#geolight"><code>geolight.R</code></a>)</li>
 <li>
-<a href="https://github.com/KiranLDA/PAMLr" class="external-link">PAMLr</a>: Extensive toolbox to analyse multi-sensor geolocator. Several function from this package are inspired from this package.</li>
+<a href="https://github.com/KiranLDA/PAMLr" class="external-link">PAMLr</a>: Extensive toolbox to analyse multi-sensor geolocator. Several function from this package are inspired from this package (see <a href="./reference/index.html#pam-data"><code>pam.R</code></a>).</li>
 </ul>
-</div>
-<div class="section level2">
-<h2 id="how-to-cite">How to cite?<a class="anchor" aria-label="anchor" href="#how-to-cite"></a>
-</h2>
-<p><em>manuscript in preparation</em></p>
 </div>
 <div class="section level2">
 <h2 id="want-to-contribute">Want to contribute?<a class="anchor" aria-label="anchor" href="#want-to-contribute"></a>
@@ -141,14 +146,6 @@
 <ul class="list-unstyled">
 <li>Raphaël Nussbaumer <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-8185-1020" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 <li>Mathieu Gravey <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-0871-1507" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-</ul>
-</div>
-
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://github.com/Rafnuss/GeoPressureR/actions" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown"></a></li>
 </ul>
 </div>
 
