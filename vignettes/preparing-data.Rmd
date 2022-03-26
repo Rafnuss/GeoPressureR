@@ -31,7 +31,9 @@ pam_data = trainset_read(pam_data, pathname=system.file("extdata", package = "Ge
 pam_data = pam_sta(pam_data)
 ```
 
-## Align and pressure and light
+## Prepare static probability map
+
+### Align and pressure and light
 Because pressure might not be computed on all stationary period, we need to filter the map of light and compute the equivalent flight duration
 
 ```{r}
@@ -63,7 +65,7 @@ static_prob = mapply(function(light,pressure,next_flight_duration){
 }, light_prob, pressure_prob,as.numeric(sta$all_next_flight_duration, units="hours"))
 ```
 
-## Downscaling
+### Optional downscaling
 
 It is possible to downscale the map with the following code. But we don't use it here.
 
@@ -77,9 +79,9 @@ static_prob = lapply(static_prob, function(raster){
 })
 ```
 
-## Add equipement and retrival information
+### Add equipement and retrival information
 
-Overwrite probability at the equipment and retrival site
+Overwrite probability at the equipment and retrieval site
 
 ```{r}
 lon_calib <- 17.05
@@ -105,7 +107,7 @@ values(static_prob[[length(static_prob)]]) <- tmp
 ```
 
 
-## Visualization
+### Visualization
 
 ```{r, warning=F}
 li_s=list()
@@ -147,7 +149,7 @@ dfb %>%
   transition_time(sta_id)
 ```
 
-## Check compatibility
+### Check compatibility
 
 First check that at a probability exist at each stationary period.
 ```{r}
@@ -179,9 +181,72 @@ for (i_s in seq_len(length(static_prob)-1)){
 ```
 
 
-## Export data
+### Export static probability
 We can export the data generated.
 
 ```{r, eval=F}
 usethis::use_data(static_prob, overwrite=T)
+```
+
+
+## Prepare wind data
+
+### Download ERA5 data
+
+As the flight are of short duration, we suggest that you download a file for each flight. Using the [`ecmfr`](https://bluegreen-labs.github.io/ecmwfr) package, we can send the query and download the files. 
+
+```{r, eval=F}
+library(ecmwfr)
+cds.key <- "381a49e9-7c3a-45e9-9b9a-d4ca16b3ed0e"#"Insert_your_CDS_API_KEY_here"
+cds.user <- "15631"# "Insert_your_CDS_UID_here"
+wf_set_key(user = cds.user, key = cds.key, service = "cds")
+
+# Define the 37 pressure level possible with ERA5 
+possible_pressure = c(1, 2, 3, 5, 7, 10, 20, 30, 50, 70, seq(100,250,25), seq(300,750,50), seq(775,1000,25))
+
+# Define the area for the query
+area = extent(static_prob[[1]])
+area = c(area@ymax, area@xmin, area@ymin, area@xmax)
+ 
+req <- list()
+for (i_s in seq_len(nrow(pam_data$sta)-1){
+  # Get the timeserie of the flight on a 1 hour resolution
+  flight_time = seq(round(pam_data$sta$end[i_s]-30*60, units = "hours"), round(pam_data$sta$start[i_s+1]+30*60, units = "hours"), by=60*60)
+  
+  # Find the pressure level needed during this flight
+  flight_id =  flight_time[1] <= pam_data$pressure$date & pam_data$pressure$date <=  tail(flight_time,1)
+  pres_id_min = sum(!(min(pam_data$pressure$obs[flight_id]) < possible_pressure))
+  pres_id_max = sum(max(pam_data$pressure$obs[flight_id]) > possible_pressure)+1
+  flight_pres_id = seq(pres_id_min, min(pres_id_max,length(possible_pressure)))
+  
+  # Prepare the query
+  request <- list(
+    dataset_short_name = "reanalysis-era5-pressure-levels",
+    product_type   = "reanalysis",
+    format = "netcdf",
+    variable = c('u_component_of_wind', 'v_component_of_wind'),
+    pressure_level = possible_pressure[flight_pres_id],
+    year = sort(unique(format(flight_time,'%Y'))),
+    month = sort(unique(format(flight_time,'%m'))),
+    day = sort(unique(format(flight_time,'%d'))),
+    time = sort(unique(format(flight_time,'%H:%M'))),
+    # area is specified as N, W, S, E
+    area = area
+  )
+  # We can send the query without downloading the data. This allows to send all of them and then wait to get them back later.  
+  req[[i_s]] <- wf_request(user = cds.user, request = request, transfer = F)
+}
+
+# Define a temporary folder to download the data
+dir.save <- tempdir()
+
+# Download all the data and read the file in raster format
+wind_maps = list()
+for (i_s in seq_len(nrow(pam_data$sta)-1){
+  ncfile <- wf_transfer(url = req[[i_s]]$request_id, service = "cds", user = cds.user, path = dir.save, filename=paste0("18IC_",i_s,".nc"))
+  wind_maps[[i_s]] <- raster::raster(ncfile)
+}
+
+# Save the file
+usethis::use_data(wind_maps, overwrite=T)
 ```
