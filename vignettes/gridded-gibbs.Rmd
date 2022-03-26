@@ -14,6 +14,28 @@ knitr::opts_chunk$set(
 )
 ```
 
+In this vignette, we present an alternative approach to the graph (see vignette [Basic graph](./articles/basic-graph)) using a [Gibb’s sampler](https://en.wikipedia.org/wiki/Gibbs_sampling). Compared to the graph approach, (1) it is simpler to implement, (2) can be faster in some situation and (3) can solve potential memory issue but (1) is an approximation (MCMC sampler), (2) cannot account for wind data (at least, not easily).
+
+The aim is to produce possible migration trajectory of the bird considering the information of (1) light, (2) pressure and (3) flight distance.
+
+## Introduction and background
+
+Gibb’s sampler is a special case of the [Metropolis hasting](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm) where each states of the Markov chains is re-sampled iteratively conditional to the others, thus reducing the probability to sample to conditional probability. With the full conditional probability known, it can be sampled exactly, resulting in proposal always accepted in a traditional Metropolis Hasting framework. This approach thus requires to be able to compute the probability map of the position at one stationary period conditional to the previous and next stationary period.
+
+In the bird trajectory model, the conditional probability is simple to compute because (1) the static probability part (pressure and light) dependent only the destination position and can easily be pre-computed as a map (see part 1) and (2) the transitional probability (i.e., movement model) is just based on a distance between the departure and destination, which can be computed efficiently on a grid if either the departure or destination is known. 
+We implemented the gridded gibbs approach will the following procedure:
+1. Initial the chain with the following path: 
+ - Create the path with the highest probability of the static probability (light and pressure)
+ - Use the known equipment/retrieval site for the first and/or last states of the path
+ - For stationary period shorter than 24hours, interpolate the position based on the other position.
+2. Loop through the stationary period to produce a new simulated path. For each stationay period, 
+- Compute the probability of the position conditional to the position of the bird at the previous and next stationary period of the current path. This conditional probability is the product of (1) the static probability of pressure and light at the current stationary period, (2) the probability from the movement model based on the position of the previous stationary period and previous flight duration and (3) the probability from the movement model based on the position of the next stationary period and next flight duration (see Figure 7). 
+- Update the current state of the path with the position sampled from to the probability map computed.
+
+![*Illustration of the gridded gibbs sampler for the 6th stationary period of a specific iteration. On one hand, we can compute the static probability based on the combinaison of pressure  and light. On the other hand, we can compute the conditional proability of transition based on the position of the previous and next stationary period (green dot). Based on both information, we can sample possible position (small white dots).*](gridded-gibbs-1.png){width=100%}
+The gibbs samples presents several advantages compare to traditional MH. First, by accepting all propostion, it is generally faster to run. Second, it is simple to implement and easier to setup as no step size is necessary. Thirdly, it can sample discontinuous probability space easily, thus allowing to “jump” over the sea. 
+However, Gibbs samples remains sensitive to local minimun in the case where consecutive states are correlated. This is typically the case if several short flights follows a long flight (e.g. pre-breeding stopover in Lybia for 18IC inFigure 8). The next flight constrains so much the position, that gibbs sampler cannot explore correctly the space.This could be solved by using a block gibbs sampler, where the position of all stationary periods separated by short flights are re-sampled together. 
+
 ```{r setup, message=F}
 library(GeoPressureR)
 library(leaflet)
@@ -21,16 +43,14 @@ library(raster)
 library(zoo)
 ```
 
-
-
 ## Stationary probability
 
-See Prepare data to see how to prepare the correct format for the gibbs sampler
+We already pre-processed the light and pressure data data in the vignette [Preparing data](./articles/preparing-data).
 ```{r}
 data("static_prob", package = "GeoPressureR")
 ```
 
-Normalize the static probability
+We first normalize the static probability (light and pressure combine) to ensure that the sum of all probabilities on the map is 1.
 ```{r}
 static_prob_n <- lapply(static_prob, function(x) {
   probt <- raster::as.matrix(x)
@@ -39,7 +59,7 @@ static_prob_n <- lapply(static_prob, function(x) {
 })
 ```
 
-Find indexes of allpixels above to the percentile
+Instead of considering all grids cell of the map, we pre-select only the grid cell of each stationary period which are possible according to the static probability . 'Possible' is here defined by all grid cells whose cumulative sum of probability is 99%. 
 ```{r}
 thr_prob_percentile=.99
 nds_id <- lapply(static_prob_n, function(probi) {
@@ -57,13 +77,13 @@ nds_id <- lapply(static_prob_n, function(probi) {
 
 ## Movement Model
 
-Define the function of groundspeed to probability
+In the movement model, we define the function to convert a groundspeed [km/h] to a probability value. We here use a standard gamma distribution. Note that in the graph approach, we use windspeed sot that the movement model is defined on the **air**speed.
 
 ```{r}
 mvt_pdf <- function(x){ dgamma(x, shape=7, scale = 7)} 
 ```
 
-Compute the grid cell-centered position
+We pre-compute the position of the center of all grid cell.
 
 ```{r}
 lat = seq(raster::ymax(static_prob[[1]]), raster::ymin(static_prob[[1]]), length.out=nrow(static_prob[[1]])+1)
@@ -74,7 +94,7 @@ lon = lon[1:length(lon)-1]+diff(lon[1:2])/2
 latlon=expand.grid(lat=lat, lon=lon)
 ```
 
-Find the flight duration
+Extract the flight duration from the metadata of the `static_prob` raster data.
 
 ```{r}
 flight_duration = unlist(lapply(static_prob,function(x){
@@ -82,33 +102,27 @@ flight_duration = unlist(lapply(static_prob,function(x){
 }))
 ```
 
-Create the function which convert position (in index of grid) to a probaility given the stationary period
+Create a function which compute the distance from a point `pt` to all other location of the grid `id` and return the probability that the bird flew these distances at a particular stationary period `i_s`. 
 
 ```{r}
-prob_mvt <- function(pt,i_s,id) {
-  gs =  geosphere::distGeo(
-      latlon[pt,],
-      latlon[id,]
-    ) / 1000 / flight_duration[i_s]
+prob_mvt <- function(pt, i_s, id) {
+  gs =  geosphere::distGeo( latlon[pt,],latlon[id,]) / 1000 / flight_duration[i_s]
   mvt_pdf(gs)
 }
 ```
 
 ## Initialize the path
 
-Set the number of iteration
+As any Metropolis-hasting, we need to provide an initial path to the sampler. 
+
+Before that, let's set a few constant
 ```{r}
-nj = 100
+nj = 100 # number of iteration/samples
+nsta = length(static_prob) # number of stationary period
+nll = dim(static_prob[[1]])[1:2] # number of grid cell
 ```
 
-Compute length of grid and stationay period
-
-```{r}
-nsta = length(static_prob)
-nll = dim(static_prob[[1]])
-```
-
-Itinilize the first path with the most likely position of each stationary period
+Initialize the first path with the most likely position of each stationary period
 
 ```{r}
 path <- matrix(ncol = nsta, nrow = nj)
@@ -117,7 +131,7 @@ path[1,] <- unlist(lapply(static_prob,function(x){
 }))
 ```
 
-But the position is likely not reliable for short stationay period. We remove them and interpolate them
+Yet the position is unlikely to be reliable for short stationary period. To fix this, we will linearly interpolate the position of short stationary period. We first identify and remove the position of short stationary period (<24hr).
 
 ```{r}
 short_sta = unlist(lapply(static_prob,function(x){
@@ -127,63 +141,89 @@ short_sta = unlist(lapply(static_prob,function(x){
 path[1,short_sta] <- NA
 ```
 
-Set the first and last (equipement and retrival)
+Then, on a slight tangent which need to be set here, we set the position of the first and last stationary period (equipment and retrieval) to the known site.
 
 ```{r}
 path[, 1] <- which(as.matrix(static_prob[[1]])==1)
 path[, nsta] <- which(as.matrix(static_prob[[nsta]])==1)
 ```
 
-Interpolate in lat-lon
+Finally, we can interpolate the position in latitude and longitude separately using the function `na.approx` from the `zoo` packages. A more elegant solution would be to account for the difference in flight duration. (Contact me if you have a better solution to this)
 
 ```{r}
 path_ll_1 = arrayInd(path[1,], nll)
-path_ll_1_inter = round(na.approx(path_ll_1))
+path_ll_1_inter = round(zoo::na.approx(path_ll_1))
 path[1,] <- (path_ll_1_inter[,2]-1)*nll[1] + path_ll_1_inter[,1]
 path_ll_1 = arrayInd(path[1,], nll)
-# Check the initial path
-# leaflet() %>% addTiles() %>%addPolylines(lng=lon[path_ll_1[,2]], lat=lat[path_ll_1[,1]])
 ```
 
-Get the stationay period to simulat
+Visualize the initial path
+```{r}
+leaflet() %>% addTiles() %>% 
+  addPolylines(lng=lon[path_ll_1[,2]], lat=lat[path_ll_1[,1]], opacity = 1, color = "#808080",weight = 3) %>% 
+  addCircles(lng=lon[path_ll_1[,2]], lat=lat[path_ll_1[,1]], opacity = 1, color = "#000", weight = 10)
+```
+
+We can set/get the stationary period to simulate
 
 ```{r}
 ss = which(is.na(path[2,]))
 ```
 
 
-## Run the sampler
+## Run the Gibbs sampler
+
+Now that all the preparation are done, we can perform the simulation by simply iterating through `nj`
 
 ```{r}
 for(j in seq(from=2,to=nj)){
+  # Looping through the stationay period to simulate
   for (i_s in ss){
-    # probability to next stationary period
+    # get the probability from the position of the current path for the previous stationary period to all possible location of the current stationary period
+    prob_prev = prob_mvt(path[j,i_s-1],i_s-1,nds_id[[i_s]])
+    # get the probability from all possible location of the current stationary period to the position of the previous path for the next stationary period
     prob_next = prob_mvt(path[j-1,i_s+1],i_s,nds_id[[i_s]])
     
-    # probability from the previous stationary period
-    prob_prev = prob_mvt(path[j,i_s-1],i_s-1,nds_id[[i_s]])
-    
-    # static probability
+    # Compute the probability as the product of the static probability and the dynamic probability
     prob = static_prob_n[[i_s]][nds_id[[i_s]]] * prob_next * prob_prev
     
-    # Ransom sample the postion
+    # Ransom sample a position according to the proability computed
     path[j,i_s] = nds_id[[i_s]][sum(stats::runif(1) > cumsum(prob) / sum(prob)) + 1]
   }
 }
-
-
 ```
 
+## Illustration
 
-## Display 
+Illustration of the simulation with 10 paths
 
 ```{r}
-
-
 m <- leaflet() %>% addTiles()
 for (i in seq(from=50, to=nj,length.out=10)){
   path_ll = arrayInd(path[i,], nll)
-  m = m %>% addPolylines(lng=lon[path_ll[,2]], lat=lat[path_ll[,1]])
+  m = m %>% addPolylines(lng=lon[path_ll[,2]], lat=lat[path_ll[,1]], opacity = 0.7, weight = 1, color = "#808080") %>% addCircles(lng=lon[path_ll[,2]], lat=lat[path_ll[,1]], opacity = 1, weight = 1, color = "#000")
 }
 m
+```
+
+Compare the simulated position of each stationary period with the corresponding static probability.
+
+```{r, warning=F}
+li_s=list()
+l = leaflet() %>% addTiles() 
+for (i_r in 1:length(static_prob)){
+  i_s = metadata(static_prob[[i_r]])$sta_id
+  info = metadata(static_prob[[i_r]])$extend_sample
+  info_str = paste0(i_s," | ",info[1],"->",info[2])
+  li_s <- append(li_s, info_str)
+  
+  path_ll = arrayInd(path[,i_r], nll)
+  l = l %>% addRasterImage(static_prob[[i_r]], opacity = 0.8, colors = 'OrRd', group=info_str) %>% 
+    addCircles(lng=lon[path_ll[,2]], lat=lat[path_ll[,1]], opacity = .1, color = "#000", group=info_str)
+}
+l %>% 
+  addLayersControl(
+    overlayGroups = li_s,
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>% hideGroup(tail(li_s,length(li_s)-1))
 ```
