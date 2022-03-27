@@ -57,11 +57,16 @@ geopressure_map <-
     stopifnot(inherits(pressure$date, "POSIXt"))
     stopifnot("obs" %in% names(pressure))
     stopifnot(is.numeric(pressure$obs))
-    if(!("isoutliar" %in% names(pressure))){
-      pressure$isoutliar = FALSE
+    stopifnot("sta_id" %in% names(pressure))
+    if (!("isoutliar" %in% names(pressure))) {
+      pressure$isoutliar <- FALSE
+    }
+    if (min(pressure$obs[!pressure$isoutliar]) < 250 | 1100 <
+                max(pressure$obs[!pressure$isoutliar])){
+      stop( paste0( 'Pressure observation should be between 250 hPa (~10000m) ',
+        'and 1100 hPa (sea level at 1013 hPa)'))
     }
     stopifnot(is.logical(pressure$isoutliar))
-    stopifnot("sta_id" %in% names(pressure))
     stopifnot(is.numeric(extent))
     stopifnot(length(extent)==4)
     stopifnot(extent[1] >= -180 & extent[1] <= 180)
