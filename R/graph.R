@@ -221,8 +221,8 @@ graph_create <- function(static_prob,
   grl$lon <- lon
   grl$extent <- raster::extent(static_prob[[1]])
   grl$resolution <- raster::res(static_prob[[1]])
-  grl$extend_sample <- lapply(static_prob, function(x) {
-    raster::metadata(x)$extend_sample
+  grl$temporal_extent <- lapply(static_prob, function(x) {
+    raster::metadata(x)$temporal_extent
   })
 
   # return

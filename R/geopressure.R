@@ -9,7 +9,7 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureServer/#description)
 #'
 #' @param pressure pressure list from PAM logger dataset list.
-#' @param extent Geographical extend of the map to query as a list ordered by
+#' @param extent Geographical extent of the map to query as a list ordered by
 #' West,East,South,North  (e.g. c(-6,43,0,47))
 #' @param scale Number of pixel per latitude, longitude. 10 for a resoltion of
 #' 0.1° (~10) and 4 for a resolution of 0.25° (~30km). To avoid interpolating
@@ -175,7 +175,7 @@ geopressure_map <-
         sta_id = labels[i_u],
         nb_sample = sum(pressure$sta_id[!is.na(pres)] == labels[i_u]),
         max_sample = max_sample,
-        extend_sample = c(
+        temporal_extent = c(
           min(pressure$date[!is.na(pres) & pressure$sta_id == labels[i_u]]),
           max(pressure$date[!is.na(pres) & pressure$sta_id == labels[i_u]])
         ),
@@ -251,7 +251,7 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
 
     # compute Log-linear pooling weight
     # Number of datapoint could also be measured with
-    # pres_n <- as.numeric(difftime(mt$extend_sample[2], mt$extend_sample[1],
+    # pres_n <- as.numeric(difftime(mt$temporal_extent[2], mt$temporal_extent[1],
     # units = "hours"))
     pres_n <- mt$nb_sample
 
