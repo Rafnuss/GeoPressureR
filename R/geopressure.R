@@ -92,16 +92,30 @@ geopressure_map <-
     # remove flight period
     pres[pressure$sta_id == 0] <- NA
 
+    # remove stationary period with NA
+    pres[is.na(pressure$sta_id)] <- NA
+
     # smooth the data to 1hr
-    # need to be done
+    # find the number of element
+    dt <- as.numeric(difftime(pressure$date[2],pressure$date[1], units="hours"))
+    n <- 1/dt + 1
+    for (i_s in seq(1,max(pressure$sta_id,na.rm=T))){
+      pres_i_s = pres
+      pres_i_s[pressure$sta_id != i_s] = NA
+      pres_i_s_smoothNA <- stats::filter( c(F, !is.na(pres_i_s), F), rep(1 / n, n))
+      pres_i_s[is.na(pres_i_s)] <- 0
+      pres_i_s_smooth <- stats::filter( c(0, pres_i_s, 0), rep(1 / n, n))
+
+      tmp <- pres_i_s_smooth/pres_i_s_smoothNA
+      tmp <- tmp[seq(2,length(tmp)-1)]
+
+      pres[!is.na(pressure$sta_id) & pressure$sta_id == i_s] <- tmp[!is.na(pressure$sta_id) &pressure$sta_id == i_s]
+    }
 
     # downscale to 1hour
     pres[format(pressure$date, "%M") != "00"] <- NA
 
-    # remove stationary period with NA
-    pres[is.na(pressure$sta_id)] <- NA
-
-    if (sum(is.na(pres))!=0){
+    if (sum(!is.na(pres)) == 0) {
       stop("No pressure to query. Check outliar and staID==0 (for flight).")
     }
 
