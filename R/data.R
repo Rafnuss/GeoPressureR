@@ -40,9 +40,3 @@
 #' [Prepare Data](articles/prepare-data.html). `static_prob` is a list of
 #' raster containing the probability map of each stationary period.
 "static_prob"
-
-
-#' Graph for 18LX
-#'
-#' This dataset was generated with the vignette [Basic Graph](articles/basic-graph.html)
-"grl"
