@@ -120,7 +120,7 @@ pressure_timeserie_1=pressure_timeserie[[1]]
 ```
 
 ```{r, eval=F}
-extent = c(-16,20,0,50) # coordinates of the map to request (W,E,S,N) 
+extent = c(50, -16, 0, 23) # coordinates of the map to request (N, W, S, E)
 scale = 2 # request on a 0.5° grid to make the code faster
 max_sample = 250 # limit the query to the first 250 datapoints. 
 margin = 30 # roughly equivalent to 3hPa

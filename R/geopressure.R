@@ -10,7 +10,7 @@
 #'
 #' @param pressure pressure list from PAM logger dataset list.
 #' @param extent Geographical extent of the map to query as a list ordered by
-#' West,East,South,North  (e.g. c(-6,43,0,47))
+#' North, West, South, East  (e.g. `c(50,-16,0,20)`).
 #' @param scale Number of pixel per latitude, longitude. 10 for a resoltion of
 #' 0.1° (~10) and 4 for a resolution of 0.25° (~30km). To avoid interpolating
 #' the ERA5 data, scale should be smaller than 10. Read more about scale on
@@ -68,13 +68,13 @@ geopressure_map <-
     }
     stopifnot(is.logical(pressure$isoutliar))
     stopifnot(is.numeric(extent))
-    stopifnot(length(extent)==4)
-    stopifnot(extent[1] >= -180 & extent[1] <= 180)
+    stopifnot(length(extent) == 4)
+    stopifnot(extent[1] >= -90 & extent[1] <= 90)
     stopifnot(extent[2] >= -180 & extent[2] <= 180)
     stopifnot(extent[3] >= -90 & extent[3] <= 90)
-    stopifnot(extent[4] >= -90 & extent[4] <= 90)
-    stopifnot(extent[1] <= extent[2])
-    stopifnot(extent[3] <= extent[4])
+    stopifnot(extent[4] >= -180 & extent[4] <= 180)
+    stopifnot(extent[3] <= extent[1])
+    stopifnot(extent[2] <= extent[4])
     stopifnot(is.numeric(scale))
     stopifnot(0 < scale)
     stopifnot(scale <= 10)
@@ -126,10 +126,10 @@ geopressure_map <-
       ),
       label = jsonlite::toJSON(pressure$sta_id[!is.na(pres)]),
       pressure = jsonlite::toJSON(pres[!is.na(pres)]),
-      W = extent[1],
+      N = extent[1],
+      W = extent[2],
       S = extent[3],
-      E = extent[2],
-      N = extent[4],
+      E = extent[4],
       scale = scale,
       max_sample = max_sample,
       margin = margin
@@ -241,7 +241,7 @@ geopressure_map <-
 #' pam_data <- pam_sta(pam_data)
 #' pressure_maps <- geopressure_map(
 #'   pam_data$pressure,
-#'   extent = c(-16, 20, 0, 50),
+#'   extent = c(50, -16, 0, 20),
 #'   scale = 10
 #' )
 #' pressure_prob <- geopressure_prob_map(
