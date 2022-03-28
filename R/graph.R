@@ -13,14 +13,17 @@
 #' - `s`: source node (index in the 3d grid lat-lon-sta),
 #' - `t`: target node (index in the 3d grid lat-lon-sta),
 #' - `gs`: average ground speed required to make that transition (km/h)
+#' - `ps`: static probability of each target node
 #' - `sz`: size of the 3d grid lat-lon-sta
 #' - `equipement`: node(s) of the first sta (index in the 3d grid lat-lon-sta)
 #' - `retrival`: node(s) of the last sta (index in the 3d grid lat-lon-sta)
 #' - `flight_duration`: list of flight duration to next sta in hours
 #' - `lat`: list of the `static_prob` latitude in cell center
 #' - `lon`: list of the `static_prob` longitude in cell center
-#' - `extent`: raster extent of the `static_prob``
+#' - `extent`: raster geographical extent of the `static_prob``
 #' - `resolution`: raster res of the `static_prob`
+#' - `temporal_extent`: start and end date time retrieved from the metadata of
+#' `static_prob`
 #'
 #'
 #' The vignette `How to use the graph` provided an example how to prepare the
@@ -35,19 +38,19 @@
 #' @return graph as a list (see description above)
 #' @export
 graph_create <- function(static_prob,
-                              thr_prob_percentile = .99,
-                              thr_gs = 150) {
+                         thr_prob_percentile = .99,
+                         thr_gs = 150) {
 
   # Check input
   stopifnot(is.list(static_prob))
-  stopifnot(inherits(static_prob[[1]],'RasterLayer'))
+  stopifnot(inherits(static_prob[[1]], "RasterLayer"))
   stopifnot("next_flight_duration" %in%
     names(raster::metadata(static_prob[[1]])))
   stopifnot(is.numeric(thr_prob_percentile))
   stopifnot(length(thr_prob_percentile) == 1)
   stopifnot(thr_prob_percentile >= 0 & thr_prob_percentile <= 1)
   stopifnot(is.numeric(thr_gs))
-  stopifnot(length(thr_gs)==1)
+  stopifnot(length(thr_gs) == 1)
   stopifnot(thr_gs >= 0)
 
   # compute size
@@ -103,7 +106,7 @@ graph_create <- function(static_prob,
   # Approximate resolution of the grid in km assuming 111km/lat-lon
   resolution <- mean(diff(lon)) * 111
 
-  # exctract the flight duration
+  # extract the flight duration
   flight_duration <- unlist(lapply(static_prob, function(x) {
     raster::metadata(x)$next_flight_duration
   }))
@@ -122,11 +125,25 @@ graph_create <- function(static_prob,
     for (i_s in seq_len(nsta - 1)) {
       nds[[i_s + 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
         flight_duration[i_s] * thr_gs & nds[[i_s + 1]]
+      if (sum(nds[[i_s + 1]])==0) {
+        stop(paste0(
+          "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary",
+          "distance, there are not any nodes left at stationay period ", i_s+1,
+          " from stationay period ", i_s
+        ))
+      }
     }
     for (i_sr in seq_len(nsta - 1)) {
       i_s <- nsta - i_sr + 1
       nds[[i_s - 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
         flight_duration[i_s - 1] * thr_gs & nds[[i_s - 1]]
+      if (sum(nds[[i_s - 1]])==0) {
+        stop(paste0(
+          "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary",
+          "distance, there are not any nodes left at stationay period ", i_s-1,
+          " from stationay period ", i_s
+        ))
+      }
     }
     n_new <- sum(unlist(lapply(nds, sum)))
     if (n_new == n_old) {
@@ -137,9 +154,8 @@ graph_create <- function(static_prob,
   tmp <- unlist(lapply(nds, sum)) == 0
   if (any(tmp)) {
     stop(paste0(
-      "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary
-      distance, there are not any nodes left for the stationay period: ",
-      which(tmp)
+      "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary",
+      "distance, there are not any nodes left"
     ))
   }
 
@@ -233,7 +249,7 @@ graph_create <- function(static_prob,
 
 #' Marginal Probability Map
 #'
-#' This function return the marginal proability map as raster from a graph.
+#' This function return the marginal probability map as raster from a graph.
 #'
 #' @param grl graph constructed with `geopressure_graph_create()`
 #' @return list of raster of the marginal probability at each stationary period
@@ -285,7 +301,6 @@ graph_marginal <- function(grl) {
     )
     raster::crs(static_prob_marginal[[i_s]]) <-
       "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
-
   }
 
   # return

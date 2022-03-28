@@ -13,5 +13,5 @@ graph_marginal(grl)
 list of raster of the marginal probability at each stationary period
 }
 \description{
-This function return the marginal proability map as raster from a graph.
+This function return the marginal probability map as raster from a graph.
 }

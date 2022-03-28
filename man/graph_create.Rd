@@ -37,14 +37,17 @@ The graph returned is a list of the edges of the graph containing:
 \item \code{s}: source node (index in the 3d grid lat-lon-sta),
 \item \code{t}: target node (index in the 3d grid lat-lon-sta),
 \item \code{gs}: average ground speed required to make that transition (km/h)
+\item \code{ps}: static probability of each target node
 \item \code{sz}: size of the 3d grid lat-lon-sta
 \item \code{equipement}: node(s) of the first sta (index in the 3d grid lat-lon-sta)
 \item \code{retrival}: node(s) of the last sta (index in the 3d grid lat-lon-sta)
 \item \code{flight_duration}: list of flight duration to next sta in hours
 \item \code{lat}: list of the \code{static_prob} latitude in cell center
 \item \code{lon}: list of the \code{static_prob} longitude in cell center
-\item \code{extent}: raster extent of the `static_prob``
+\item \code{extent}: raster geographical extent of the `static_prob``
 \item \code{resolution}: raster res of the \code{static_prob}
+\item \code{temporal_extent}: start and end date time retrieved from the metadata of
+\code{static_prob}
 }
 
 The vignette \verb{How to use the graph} provided an example how to prepare the

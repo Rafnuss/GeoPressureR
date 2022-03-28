@@ -368,7 +368,8 @@ trainset_read <- function(pam,
   # check that the file is in the right format and same size as pam data
   stopifnot("series" %in% names(csv))
   stopifnot(
-    length(csv$label) == length(pam$acceleration$date) + length(pam$pressure$date)
+    length(csv$label) == length(pam$acceleration$date) +
+      length(pam$pressure$date)
   )
 
   # assign label value to class

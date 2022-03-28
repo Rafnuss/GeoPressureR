@@ -61,7 +61,7 @@ static_prob_n <- lapply(static_prob, function(x) {
 
 Instead of considering all grids cell of the map, we pre-select only the grid cell of each stationary period which are possible according to the static probability . 'Possible' is here defined by all grid cells whose cumulative sum of probability is 99%. 
 ```{r}
-thr_prob_percentile=.99
+thr_prob_percentile <- .99
 nds_id <- lapply(static_prob_n, function(probi) {
   # First, compute the threshold of prob corresponding to percentile
   probis <- sort(probi)
@@ -80,24 +80,26 @@ nds_id <- lapply(static_prob_n, function(probi) {
 In the movement model, we define the function to convert a groundspeed [km/h] to a probability value. We here use a standard gamma distribution. Note that in the graph approach, we use windspeed sot that the movement model is defined on the **air**speed.
 
 ```{r}
-mvt_pdf <- function(x){ dgamma(x, shape=7, scale = 7)} 
+mvt_pdf <- function(x) {
+  dgamma(x, shape = 7, scale = 7)
+}
 ```
 
 We pre-compute the position of the center of all grid cell.
 
 ```{r}
-lat = seq(raster::ymax(static_prob[[1]]), raster::ymin(static_prob[[1]]), length.out=nrow(static_prob[[1]])+1)
-lat = lat[1:length(lat)-1]+diff(lat[1:2])/2
-lon = seq(raster::xmin(static_prob[[1]]), raster::xmax(static_prob[[1]]), length.out=ncol(static_prob[[1]])+1)
-lon = lon[1:length(lon)-1]+diff(lon[1:2])/2
+lat <- seq(raster::ymax(static_prob[[1]]), raster::ymin(static_prob[[1]]), length.out = nrow(static_prob[[1]]) + 1)
+lat <- lat[seq_len(length(lat) - 1)] + diff(lat[1:2]) / 2
+lon <- seq(raster::xmin(static_prob[[1]]), raster::xmax(static_prob[[1]]), length.out = ncol(static_prob[[1]]) + 1)
+lon <- lon[seq_len(length(lon) - 1)] + diff(lon[1:2]) / 2
 
-latlon=expand.grid(lat=lat, lon=lon)
+latlon <- expand.grid(lat = lat, lon = lon)
 ```
 
 Extract the flight duration from the metadata of the `static_prob` raster data.
 
 ```{r}
-flight_duration = unlist(lapply(static_prob,function(x){
+flight_duration <- unlist(lapply(static_prob, function(x) {
   metadata(x)$next_flight_duration
 }))
 ```
@@ -106,7 +108,7 @@ Create a function which compute the distance from a point `pt` to all other loca
 
 ```{r}
 prob_mvt <- function(pt, i_s, id) {
-  gs =  geosphere::distGeo( latlon[pt,],latlon[id,]) / 1000 / flight_duration[i_s]
+  gs <- geosphere::distGeo(latlon[pt, ], latlon[id, ]) / 1000 / flight_duration[i_s]
   mvt_pdf(gs)
 }
 ```
@@ -117,16 +119,16 @@ As any Metropolis-hasting, we need to provide an initial path to the sampler.
 
 Before that, let's set a few constant
 ```{r}
-nj = 100 # number of iteration/samples
-nsta = length(static_prob) # number of stationary period
-nll = dim(static_prob[[1]])[1:2] # number of grid cell
+nj <- 100 # number of iteration/samples
+nsta <- length(static_prob) # number of stationary period
+nll <- dim(static_prob[[1]])[1:2] # number of grid cell
 ```
 
 Initialize the first path with the most likely position of each stationary period
 
 ```{r}
 path <- matrix(ncol = nsta, nrow = nj)
-path[1,] <- unlist(lapply(static_prob,function(x){
+path[1, ] <- unlist(lapply(static_prob, function(x) {
   which.max(as.matrix(x))
 }))
 ```
@@ -134,40 +136,41 @@ path[1,] <- unlist(lapply(static_prob,function(x){
 Yet the position is unlikely to be reliable for short stationary period. To fix this, we will linearly interpolate the position of short stationary period. We first identify and remove the position of short stationary period (<24hr).
 
 ```{r}
-short_sta = unlist(lapply(static_prob,function(x){
-  tmp = metadata(x)$extend_sample
-  abs(as.numeric(difftime(tmp[1],tmp[2],units="hours")))<24
+short_sta <- unlist(lapply(static_prob, function(x) {
+  tmp <- metadata(x)$extend_sample
+  abs(as.numeric(difftime(tmp[1], tmp[2], units = "hours"))) < 24
 }))
-path[1,short_sta] <- NA
+path[1, short_sta] <- NA
 ```
 
 Then, on a slight tangent which need to be set here, we set the position of the first and last stationary period (equipment and retrieval) to the known site.
 
 ```{r}
-path[, 1] <- which(as.matrix(static_prob[[1]])==1)
-path[, nsta] <- which(as.matrix(static_prob[[nsta]])==1)
+path[, 1] <- which(as.matrix(static_prob[[1]]) == 1)
+path[, nsta] <- which(as.matrix(static_prob[[nsta]]) == 1)
 ```
 
 Finally, we can interpolate the position in latitude and longitude separately using the function `na.approx` from the `zoo` packages. A more elegant solution would be to account for the difference in flight duration. (Contact me if you have a better solution to this)
 
 ```{r}
-path_ll_1 = arrayInd(path[1,], nll)
-path_ll_1_inter = round(zoo::na.approx(path_ll_1))
-path[1,] <- (path_ll_1_inter[,2]-1)*nll[1] + path_ll_1_inter[,1]
-path_ll_1 = arrayInd(path[1,], nll)
+path_ll_1 <- arrayInd(path[1, ], nll)
+path_ll_1_inter <- round(zoo::na.approx(path_ll_1))
+path[1, ] <- (path_ll_1_inter[, 2] - 1) * nll[1] + path_ll_1_inter[, 1]
+path_ll_1 <- arrayInd(path[1, ], nll)
 ```
 
 Visualize the initial path
 ```{r}
-leaflet() %>% addTiles() %>% 
-  addPolylines(lng=lon[path_ll_1[,2]], lat=lat[path_ll_1[,1]], opacity = 1, color = "#808080",weight = 3) %>% 
-  addCircles(lng=lon[path_ll_1[,2]], lat=lat[path_ll_1[,1]], opacity = 1, color = "#000", weight = 10)
+leaflet() %>%
+  addTiles() %>%
+  addPolylines(lng = lon[path_ll_1[, 2]], lat = lat[path_ll_1[, 1]], opacity = 1, color = "#808080", weight = 3) %>%
+  addCircles(lng = lon[path_ll_1[, 2]], lat = lat[path_ll_1[, 1]], opacity = 1, color = "#000", weight = 10)
 ```
 
 We can set/get the stationary period to simulate
 
 ```{r}
-ss = which(is.na(path[2,]))
+ss <- which(is.na(path[2, ]))
 ```
 
 
@@ -176,19 +179,19 @@ ss = which(is.na(path[2,]))
 Now that all the preparation are done, we can perform the simulation by simply iterating through `nj`
 
 ```{r}
-for(j in seq(from=2,to=nj)){
+for (j in seq(from = 2, to = nj)) {
   # Looping through the stationay period to simulate
-  for (i_s in ss){
+  for (i_s in ss) {
     # get the probability from the position of the current path for the previous stationary period to all possible location of the current stationary period
-    prob_prev = prob_mvt(path[j,i_s-1],i_s-1,nds_id[[i_s]])
+    prob_prev <- prob_mvt(path[j, i_s - 1], i_s - 1, nds_id[[i_s]])
     # get the probability from all possible location of the current stationary period to the position of the previous path for the next stationary period
-    prob_next = prob_mvt(path[j-1,i_s+1],i_s,nds_id[[i_s]])
-    
+    prob_next <- prob_mvt(path[j - 1, i_s + 1], i_s, nds_id[[i_s]])
+
     # Compute the probability as the product of the static probability and the dynamic probability
-    prob = static_prob_n[[i_s]][nds_id[[i_s]]] * prob_next * prob_prev
-    
+    prob <- static_prob_n[[i_s]][nds_id[[i_s]]] * prob_next * prob_prev
+
     # Ransom sample a position according to the proability computed
-    path[j,i_s] = nds_id[[i_s]][sum(stats::runif(1) > cumsum(prob) / sum(prob)) + 1]
+    path[j, i_s] <- nds_id[[i_s]][sum(stats::runif(1) > cumsum(prob) / sum(prob)) + 1]
   }
 }
 ```
@@ -199,9 +202,11 @@ Illustration of the simulation with 10 paths
 
 ```{r}
 m <- leaflet() %>% addTiles()
-for (i in seq(from=50, to=nj,length.out=10)){
-  path_ll = arrayInd(path[i,], nll)
-  m = m %>% addPolylines(lng=lon[path_ll[,2]], lat=lat[path_ll[,1]], opacity = 0.7, weight = 1, color = "#808080") %>% addCircles(lng=lon[path_ll[,2]], lat=lat[path_ll[,1]], opacity = 1, weight = 1, color = "#000")
+for (i in seq(from = 50, to = nj, length.out = 10)) {
+  path_ll <- arrayInd(path[i, ], nll)
+  m <- m %>%
+    addPolylines(lng = lon[path_ll[, 2]], lat = lat[path_ll[, 1]], opacity = 0.7, weight = 1, color = "#808080") %>%
+    addCircles(lng = lon[path_ll[, 2]], lat = lat[path_ll[, 1]], opacity = 1, weight = 1, color = "#000")
 }
 m
 ```
@@ -209,21 +214,23 @@ m
 Compare the simulated position of each stationary period with the corresponding static probability.
 
 ```{r, warning=F}
-li_s=list()
-l = leaflet() %>% addTiles() 
-for (i_r in 1:length(static_prob)){
-  i_s = metadata(static_prob[[i_r]])$sta_id
-  info = metadata(static_prob[[i_r]])$extend_sample
-  info_str = paste0(i_s," | ",info[1],"->",info[2])
+li_s <- list()
+l <- leaflet() %>% addTiles()
+for (i_r in seq_len(length(static_prob))) {
+  i_s <- metadata(static_prob[[i_r]])$sta_id
+  info <- metadata(static_prob[[i_r]])$extend_sample
+  info_str <- paste0(i_s, " | ", info[1], "->", info[2])
   li_s <- append(li_s, info_str)
-  
-  path_ll = arrayInd(path[,i_r], nll)
-  l = l %>% addRasterImage(static_prob[[i_r]], opacity = 0.8, colors = 'OrRd', group=info_str) %>% 
-    addCircles(lng=lon[path_ll[,2]], lat=lat[path_ll[,1]], opacity = .1, color = "#000", group=info_str)
+
+  path_ll <- arrayInd(path[, i_r], nll)
+  l <- l %>%
+    addRasterImage(static_prob[[i_r]], opacity = 0.8, colors = "OrRd", group = info_str) %>%
+    addCircles(lng = lon[path_ll[, 2]], lat = lat[path_ll[, 1]], opacity = .1, color = "#000", group = info_str)
 }
-l %>% 
+l %>%
   addLayersControl(
     overlayGroups = li_s,
     options = layersControlOptions(collapsed = FALSE)
-  ) %>% hideGroup(tail(li_s,length(li_s)-1))
+  ) %>%
+  hideGroup(tail(li_s, length(li_s) - 1))
 ```

@@ -7,7 +7,7 @@
 geopressure_prob_map(pressure_maps, s = 1, thr = 0.9)
 }
 \arguments{
-\item{pressure_maps}{list of raster loaded from \code{geopressure_map()}}
+\item{pressure_maps}{list of raster built with \code{geopressure_map()}}
 
 \item{s}{standard deviation of the pressure error}
 
@@ -39,7 +39,7 @@ pam_data <- trainset_read(pam_data,
 pam_data <- pam_sta(pam_data)
 pressure_maps <- geopressure_map(
   pam_data$pressure,
-  extent = c(-16, 20, 0, 50),
+  extent = c(50, -16, 0, 20),
   scale = 10
 )
 pressure_prob <- geopressure_prob_map(

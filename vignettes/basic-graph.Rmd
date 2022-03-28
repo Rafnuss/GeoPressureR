@@ -1,8 +1,8 @@
 ---
-title: "Creating the graph"
+title: "Modeling trajectory with a graph"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Creating the graph}
+  %\VignetteIndexEntry{Modeling trajectory with a graph}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,6 +14,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+In this vignette, we will see how to create a 'basic' graph to model the trajectory of the bird. We will then use this graph to compute three main output: (1) the shortest path (i.e., the most likely trajectory, (2) the probability maps at each stationary period and (3) simulated paths sampled according to their likelihood. 
+
+We called this a 'basic' graph because it does not integrate windspeed, and make assumption of the groundspeed distribution of the bird. The vignette [Wind graph](./articles/wind-graph.html) will explain how we can retrieve wind data and improve the graph model. 
+
 ```{r setup, message=F}
 library(GeoPressureR)
 library(leaflet)
@@ -21,71 +25,105 @@ library(raster)
 library(igraph)
 ```
 
-See Prepare data to see how to prepare the correct format for creating the graph
-Load data
+We already pre-processed the light and pressure data data in the vignette [Preparing data](./articles/preparing-data). Make sure that the data was passing all the check before moving to this vignette.
+
 ```{r}
 data("static_prob", package = "GeoPressureR")
-data("grl", package = "GeoPressureR")
 ```
 
 ## Create the graph 
 
-Use `geopressure_graph` to create the graph
-```{r, eval=F}
-grl <- graph_create(static_prob, 
-                        thr_prob_percentile = .99, 
-                        thr_gs= 150 # threshold km/h
+We create the graph with the function `geopressure_graph()`, which perform the following steps: 
+1. We only keep the nodes of all locations within the 99% percentile of the static pressure map. (A node is uniquely identify by a latitude, longitude and stationary period).
+2. We only keep the nodes which are within reach of distance of all other nodes based on a average groundspeed of 150km/h. This accounts for the distance of all other possible nodes from the previous stationay period and to the next stationary period. This is computed with the image binary distance function [distmap()](https://rdrr.io/bioc/EBImage/man/distmap.html) from the EBImage package. This step allows to eliminate multiple impossible nodes without having to compute all possible transition.
+3. We then build the graph based on the filtered nodes and containing the edges requiring an average groundspeed less than 150km/h.
+4. Finally, we trim the graph based on the flow graph constraint, that is, the nodes must be connected to the equipment node and retrieval node. Indeed, after filtering, some nodes might be connected in a single direction (so called dead branch). We thus ensure that each node is on a path that connects the equipment site to the retrieval site. This operation is performed with the Breadth-first search (BFS) algorithm.
+
+The duration of this operation is strongly variable depending on the grid (resolution and size), the number of stationary periods and the level of contains from the static probability. 
+
+```{r}
+grl <- graph_create(static_prob,
+  thr_prob_percentile = .99,
+  thr_gs = 150 # threshold km/h
 )
-usethis::use_data(grl, overwrite=T)
+summary(grl)
 ```
 
-## Movement model
+The graph returned is a list of the edges of the graph containing:
+- `s`: source node (index in the 3d grid lat-lon-sta),
+- `t`: target node (index in the 3d grid lat-lon-sta),
+- `gs`: average ground speed required to make that transition (km/h)
+- `ps`: static probability of each target node
+- `sz`: size of the 3d grid lat-lon-sta
+- `equipement`: node(s) of the first sta (index in the 3d grid lat-lon-sta)
+- `retrival`: node(s) of the last sta (index in the 3d grid lat-lon-sta)
+- `flight_duration`: list of flight duration to next sta in hours
+- `lat`: list of the `static_prob` latitude in cell center
+- `lon`: list of the `static_prob` longitude in cell center
+- `extent`: raster geographical extent of the `static_prob``
+- `resolution`: raster res of the `static_prob`
+- `temporal_extent`: start and end date time retrieved from the metadata of
+`static_prob`
 
-Compute the probability as
+We finally need to compute the probability of the transition represented by each edge of the graph. We use here a simple gamma distribution to model the probability of groundspeed.
 
 ```{r}
-grl$p = grl$ps * dgamma(grl$gs, shape=7, scale = 7)
+grl$p <- grl$ps * dgamma(grl$gs, shape = 7, scale = 7)
 ```
 
-## Shortest path
+## Output 1: Shortest path
+
+In graph theroy, [the shortest path](https://en.wikipedia.org/wiki/Shortest_path_problem) correspond to the set of nodes whose sum of the edges weights are as small as possible. By weighting the edges with the minus of the log of the porbability, this corresponds to finding the most likely trajectory of our bird. We solve this problem with the [igraph package](https://igraph.org/r/)
 
 ```{r}
-g = igraph::graph_from_data_frame(data.frame(
+g <- graph_from_data_frame(data.frame(
   from = grl$s,
   to = grl$t,
-  weight=grl$p
+  weight = -log(grl$p)
 ))
-sp = as.numeric(igraph::shortest_paths(g, from=paste(grl$equipement), to=paste(grl$retrival))$vpath[[1]]$name)
-grl$shortest_path = graph_path2lonlat(sp,grl)
+sp <- shortest_paths(g, from = paste(grl$equipement), to = paste(grl$retrival))
+# Convert igraph representation to lat-lon
+grl$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), grl)
 ```
 
 
-## Proability map of staionary period
+```{r}
+leaflet() %>%
+  addTiles() %>%
+  addPolylines(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#808080", weight = 3) %>%
+  addCircles(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#000", weight = 10)
+```
 
-Compute the marginal distribution
+
+## Output 2: Proability map of stationary period
+
+Estimating the position of the bird for each stationary period is generally the most sought-after output of tracking studies. Using the graph built, we can compute this exactly (i.e., without iterative approach such as MCMC). This problem is the same as computing the marginal distribution of a Markov process which can be solved mathematically.
 
 ```{r}
 grl_marginal <- graph_marginal(grl)
 ```
 
 ```{r, warning=F}
-li_s=list()
-l = leaflet() %>% addTiles() 
-for (i_r in 1:length(grl_marginal)){
-  i_s = metadata(static_prob[[i_r]])$sta_id
-  info = metadata(static_prob[[i_r]])$extend_sample
-  info_str = paste0(i_s," | ",info[1],"->",info[2])
+li_s <- list()
+l <- leaflet() %>% addTiles()
+for (i_r in seq_len(length(grl_marginal))) {
+  i_s <- metadata(static_prob[[i_r]])$sta_id
+  info <- metadata(static_prob[[i_r]])$temporal_extent
+  info_str <- paste0(i_s, " | ", info[1], "->", info[2])
   li_s <- append(li_s, info_str)
-  l = l %>% addRasterImage(grl_marginal[[i_r]], opacity = 0.8, group=info_str) 
+  l <- l %>%
+    addRasterImage(grl_marginal[[i_r]], colors = "OrRd", opacity = 0.8, group = info_str) %>%
+    addCircles(lng = grl$shortest_path$lon[i_s], lat = grl$shortest_path$lat[i_s], opacity = 1, color = "#000", weight = 10, group = info_str)
 }
-l %>% 
+l %>%
   addLayersControl(
     overlayGroups = li_s,
     options = layersControlOptions(collapsed = FALSE)
-  ) %>% hideGroup(tail(li_s,length(li_s)-1))
+  ) %>%
+  hideGroup(tail(li_s, length(li_s) - 1))
 ```
 
-## Simulate path
+## Output 3: Simulate path
 
 ```{r}
 path <- graph_simulation(grl)

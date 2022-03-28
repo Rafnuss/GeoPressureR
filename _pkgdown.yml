@@ -56,9 +56,11 @@ navbar:
       menu:
       -  text: "1. Preparing Data"
          href: articles/preparing-data.html
-      -  text: "2. Gridded Gibbs"
-         href: articles/gridded-gibbs.html
-      -  text: "3. Basic Graph"
+      -  text: "2. Basic Graph"
          href: articles/basic-graph.html
+      -  text: "3. Wind Graph"
+         href: articles/wind-graph.html
+      -  text: "Gridded Gibbs"
+         href: articles/gridded-gibbs.html
     - text: "Functions"
       href: reference/index.html

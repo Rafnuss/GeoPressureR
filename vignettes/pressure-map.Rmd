@@ -8,7 +8,7 @@ vignette: >
 ---
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  warning = FALSE, 
+  warning = FALSE,
   message = FALSE,
   collapse = TRUE,
   comment = "#>"
@@ -38,8 +38,10 @@ library(RColorBrewer)
 In this example, we use data captured on a Great Reed Warbler *Acrocephalus arundinaceus* (18LX). Below, we read the geolocator data and crop it so that it starts on the equipment date and ends on the retrieval date.
 
 ```{r}
-pam_data = pam_read(pathname = system.file("extdata", package = "GeoPressureR"),
-                    crop_start = "2017-06-20", crop_end = "2018-05-02")
+pam_data <- pam_read(
+  pathname = system.file("extdata", package = "GeoPressureR"),
+  crop_start = "2017-06-20", crop_end = "2018-05-02"
+)
 ```
 
 ### Automatic classification of activity
@@ -47,7 +49,7 @@ pam_data = pam_read(pathname = system.file("extdata", package = "GeoPressureR"),
 We use a [k-mean clustering](https://en.wikipedia.org/wiki/K-means_clustering) to group periods of low and high activity. We then classify high activities lasting more than 30 minutes as migratory activities. See more possible classifications described in the [PALMr manual](https://kiranlda.github.io/PAMLrManual/index.html).
 
 ```{r}
-pam_data = pam_classify(pam_data, min_duration = 30)
+pam_data <- pam_classify(pam_data, min_duration = 30)
 ```
 
 ### Editing activity on TRAINSET
@@ -57,7 +59,7 @@ To ensure the high level of precision needed for the pressure match, we must man
 Use `trainset_write()` to export the automatically generated classifications in a `csv` file, which can be opened in TRAINSET: [https://trainset.geocene.com/](https://trainset.geocene.com/).
 
 ```{r eval=F}
-trainset_write(pam_data, pathname=system.file("extdata", package = "GeoPressureR"))
+trainset_write(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
 # browseURL("https://trainset.geocene.com/")
 ```
 
@@ -69,34 +71,36 @@ When you have finished the manual editing, export the new `csv` file (TRAINSET w
 To edit an existing file, re-open the file on TRAINSET and read this file directly with `trainset_read()`.
 
 ```{r}
-pam_data = trainset_read(pam_data, pathname=system.file("extdata", package = "GeoPressureR"))
+pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
 ```
 
 ### Identifying stationary periods
 
-Based on the activity labelling, `pam_sta()` creates a table of stationary periods as illustrated below.
+Based on the activity labeling, `pam_sta()` creates a table of stationary periods as illustrated below.
 
 ```{r}
-pam_data = pam_sta(pam_data)
+pam_data <- pam_sta(pam_data)
 knitr::kable(head(pam_data$sta))
 ```
 
 We can visualize the pressure measurements for each grouped stationary period (symbolized by a different color).
 
 ```{r}
-p <- subset(pam_data$pressure, sta_id != 0) %>% 
+p <- subset(pam_data$pressure, sta_id != 0) %>%
   ggplot() +
-  geom_line(data=pam_data$pressure, aes(x=date,y=obs),col="grey") +
-  geom_line(aes(x=date,y=obs,col=as.factor(sta_id))) + 
+  geom_line(data = pam_data$pressure, aes(x = date, y = obs), col = "grey") +
+  geom_line(aes(x = date, y = obs, col = as.factor(sta_id))) +
   theme_bw() +
-  scale_y_continuous(name="Pressure(hPa)") +
-  scale_colour_manual(values=rep(RColorBrewer::brewer.pal(9,"Set1"),times=4))
-  #scale_colour_brewer(type="qualitative", palette = 'Set1')
+  scale_y_continuous(name = "Pressure(hPa)") +
+  scale_colour_manual(values = rep(RColorBrewer::brewer.pal(9, "Set1"), times = 4))
+# scale_colour_brewer(type="qualitative", palette = 'Set1')
 
-ggplotly(p, dynamicTicks = T) %>% 
-  layout(showlegend=F,
-         legend = list(orientation = "h", x = -0.5),
-         yaxis = list(title="Pressure [hPa]"))
+ggplotly(p, dynamicTicks = T) %>%
+  layout(
+    showlegend = F,
+    legend = list(orientation = "h", x = -0.5),
+    yaxis = list(title = "Pressure [hPa]")
+  )
 ```
 
 ## Computing the map of pressure
@@ -105,26 +109,26 @@ Now that we have clean pressure timeseries for each stationary period, we are re
 Initially, it is easier and faster to query only long stationary periods (in the example below, we select only periods longer than 12hrs). You can do so by setting the pressure of the stationary periods you wish to discard to `NA`.
 
 ```{r}
-sta_id_keep = pam_data$sta$sta_id[difftime(pam_data$sta$end,pam_data$sta$start, units = "hours")>12]
-pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] = NA
+sta_id_keep <- pam_data$sta$sta_id[difftime(pam_data$sta$end, pam_data$sta$start, units = "hours") > 12]
+pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] <- NA
 ```
 
 We can now query the data on the API with `geopressure_map()`. A detailed description of the parameters can be found [here](https://raphaelnussbaumer.com/GeoPressureServer/#request). This will take a couple of minutes to run.
 
 ```{r, include = FALSE}
-# For this vignette, we can load the pre-computed value to save time. 
+# For this vignette, we can load the pre-computed value to save time.
 data("pressure_maps", package = "GeoPressureR")
 data("pressure_prob", package = "GeoPressureR")
 data("pressure_timeserie", package = "GeoPressureR")
-pressure_timeserie_1=pressure_timeserie[[1]]
+pressure_timeserie_1 <- pressure_timeserie[[1]]
 ```
 
 ```{r, eval=F}
-extent = c(50, -16, 0, 23) # coordinates of the map to request (N, W, S, E)
-scale = 2 # request on a 0.5° grid to make the code faster
-max_sample = 250 # limit the query to the first 250 datapoints. 
-margin = 30 # roughly equivalent to 3hPa
-pressure_maps = geopressure_map(pam_data$pressure, extent = extent, scale = scale, max_sample = max_sample, margin = margin)
+extent <- c(50, -16, 0, 23) # coordinates of the map to request (N, W, S, E)
+scale <- 2 # request on a 1/2=0.5° grid to make the code faster
+max_sample <- 250 # limit the query to the first 250 datapoints.
+margin <- 30 # roughly equivalent to 3hPa
+pressure_maps <- geopressure_map(pam_data$pressure, extent = extent, scale = scale, max_sample = max_sample, margin = margin)
 usethis::use_data(pressure_maps, overwrite = T)
 ```
 
@@ -135,48 +139,51 @@ $$\textbf{P} = \exp \left(-w \frac{\textbf{MSE}}{s} \right) [\textbf{z}_{thr}>th
 where $s$ is the standard deviation of pressure and $thr$ is the threshold mask. Because the auto-correlation of the timeseries is not accounted for in this equation, we use a log-linear pooling weight $w=\log(n) - 1$, where $n$ is the number of datapoints in the timeseries. This operation is described in publication [...]. Another vignette describing the influence of log-linear pooling and length of timeseries will be added later. 
 
 ```{r, eval = F}
-s = 0.4 # standard deviation of pressure
-thr = 0.9 # threshold of the threshold proportion value acceptable
-pressure_prob = geopressure_prob_map(pressure_maps, s=s, thr=thr)
+s <- 0.4 # standard deviation of pressure
+thr <- 0.9 # threshold of the threshold proportion value acceptable
+pressure_prob <- geopressure_prob_map(pressure_maps, s = s, thr = thr)
 usethis::use_data(pressure_prob, overwrite = T)
 ```
 
 We use `leaflet()` to visualize the threshold mask, mismatch map, and overall probability map for a single stationary period.
 
 ```{r, warning=F}
-i_r = 4;
-leaflet() %>% addTiles() %>%
-  addRasterImage(pressure_prob[[i_r]], opacity = 0.8, colors = 'OrRd', group="Probability") %>%
-  addRasterImage(pressure_maps[[i_r]][[1]], opacity = 0.8, colors = 'OrRd', group="Mismatch") %>%
-  addRasterImage(pressure_maps[[i_r]][[2]], opacity = 0.8, colors = 'OrRd', group="Threashold") %>%
-  # addLegend(pal = pal, values = values(v[[i_s]][[3]]), title = "Probability") %>% 
+i_r <- 2
+leaflet() %>%
+  addTiles() %>%
+  addRasterImage(pressure_prob[[i_r]], opacity = 0.8, colors = "OrRd", group = "Probability") %>%
+  addRasterImage(pressure_maps[[i_r]][[1]], opacity = 0.8, colors = "OrRd", group = "Mismatch") %>%
+  addRasterImage(pressure_maps[[i_r]][[2]], opacity = 0.8, colors = "OrRd", group = "Threashold") %>%
+  # addLegend(pal = pal, values = values(v[[i_s]][[3]]), title = "Probability") %>%
   addLayersControl(
-    overlayGroups = c("Probability","Mismatch","Threashold"),
+    overlayGroups = c("Probability", "Mismatch", "Threashold"),
     options = layersControlOptions(collapsed = FALSE)
-  ) %>% hideGroup(c("Mismatch","Threashold"))
+  ) %>%
+  hideGroup(c("Mismatch", "Threashold"))
 ```
 
 We can also visualize the probability map for all stationary periods:
 
 ```{r}
-li_s=list()
-l = leaflet() %>% addTiles() 
-for (i_r in 1:length(pressure_prob)){
-  i_s = metadata(pressure_prob[[i_r]])$sta_id
-  info = pam_data$sta[pam_data$sta$sta_id==i_s,]
-  info_str = paste0(i_s," | ",info$start,"->",info$end)
+li_s <- list()
+l <- leaflet() %>% addTiles()
+for (i_r in seq_len(length(pressure_prob))) {
+  i_s <- metadata(pressure_prob[[i_r]])$sta_id
+  info <- pam_data$sta[pam_data$sta$sta_id == i_s, ]
+  info_str <- paste0(i_s, " | ", info$start, "->", info$end)
   li_s <- append(li_s, info_str)
-  l = l %>% addRasterImage(pressure_prob[[i_r]], opacity = 0.8, colors = 'OrRd', group=info_str) 
+  l <- l %>% addRasterImage(pressure_prob[[i_r]], opacity = 0.8, colors = "OrRd", group = info_str)
 }
-l %>% 
+l %>%
   addLayersControl(
     overlayGroups = li_s,
     options = layersControlOptions(collapsed = FALSE)
-  ) %>% hideGroup(tail(li_s,length(li_s)-1))
+  ) %>%
+  hideGroup(tail(li_s, length(li_s) - 1))
 ```
 
 ```{r, eval=F}
-raster::animate(brick(pressure_prob),n=1)
+raster::animate(brick(pressure_prob), n = 1)
 ```
 
 
@@ -189,41 +196,41 @@ where $z_{ERA}$, $T_{ERA}$ and $T_{ERA}$  respectively correspond to the ground 
 We can compute the bird's elevation for its first stationary period using the most likely position on the probability map.
 
 ```{r}
-i_r = 1
-i_s = metadata(pressure_prob[[i_r]])$sta_id
-tmp = as.data.frame(pressure_prob[[i_r]],xy=T)
-lon = tmp$x[which.max(tmp[,3])]
-lat = tmp$y[which.max(tmp[,3])]
+i_r <- 1
+i_s <- metadata(pressure_prob[[i_r]])$sta_id
+tmp <- as.data.frame(pressure_prob[[i_r]], xy = T)
+lon <- tmp$x[which.max(tmp[, 3])]
+lat <- tmp$y[which.max(tmp[, 3])]
 ```
 
-And then call the function `geopressure_ts` with the subset of pressure containing `sta_id==1`
+And then call the function `geopressure_ts()` with the subset of pressure containing `sta_id==1`
 
 ```{r, eval=F}
-pressure_timeserie_1  = geopressure_ts(lon, lat, pressure = subset(pam_data$pressure,sta_id==1))
+pressure_timeserie_1 <- geopressure_ts(lon, lat, pressure = subset(pam_data$pressure, sta_id == 1))
 ```
 
 We can compare the altitude produced to the one computed without the correction for temperature and pressure:
 
 ```{r}
-Lb = -0.0065
-R = 8.31432
-g0 = 9.80665
-M = 0.0289644
-T0 = 273.15+15
-P0 = 1013.25
-pressure_timeserie_1$altitude_baro = T0/Lb * ((pressure_timeserie_1$pressure/P0)^(-R*Lb/g0/M) - 1 )
+Lb <- -0.0065
+R <- 8.31432
+g0 <- 9.80665
+M <- 0.0289644
+T0 <- 273.15 + 15
+P0 <- 1013.25
+pressure_timeserie_1$altitude_baro <- T0 / Lb * ((pressure_timeserie_1$pressure / P0)^(-R * Lb / g0 / M) - 1)
 ```
 
 and visualize this comparison:
 
 ```{r}
 p <- ggplot() +
-  geom_line(data=as.data.frame(pressure_timeserie_1), aes(x=date,y=altitude, col=as.factor("Corrected elevation with ERA5"))) + 
-  geom_line(data=as.data.frame(pressure_timeserie_1), aes(x=date,y=altitude_baro, col=as.factor("Uncorrected elevation"))) + 
-  labs(col="") +
+  geom_line(data = as.data.frame(pressure_timeserie_1), aes(x = date, y = altitude, col = as.factor("Corrected elevation with ERA5"))) +
+  geom_line(data = as.data.frame(pressure_timeserie_1), aes(x = date, y = altitude_baro, col = as.factor("Uncorrected elevation"))) +
+  labs(col = "") +
   theme_bw()
 
-ggplotly(p) %>% 
+ggplotly(p) %>%
   layout(legend = list(orientation = "h", x = -0.5))
 ```
 
@@ -233,24 +240,24 @@ We can repeat the computation of the pressure timeserie for all stationary perio
 
 ```{r, eval=F}
 pressure_timeserie <- list()
-for (i_r in 1:length(pressure_prob)) {
+for (i_r in seq_len(length(pressure_prob))) {
   i_s <- metadata(pressure_prob[[i_r]])$sta_id
-  pressure_i_s = subset(pam_data$pressure, sta_id == i_s)
+  pressure_i_s <- subset(pam_data$pressure, sta_id == i_s)
 
   # find the max value of probability
   tmp <- as.data.frame(pressure_prob[[i_r]], xy = T)
   lon <- tmp$x[which.max(tmp[, 3])]
   lat <- tmp$y[which.max(tmp[, 3])]
-  
+
   # Dirty fix for i_s where the center of grid cell falls into water. This is due to `geopressure_map` looks for any location within a given grid cell being on land
-  if (i_s==5){
-    lat=lat+res(pressure_prob[[i_r]])[1]/2
+  if (i_s == 5) {
+    lat <- lat + res(pressure_prob[[i_r]])[1] / 2
   }
 
   # query the pressure at this location
   message("query:", i_r, "/", length(sta_id_keep))
   pressure_timeserie[[i_r]] <- geopressure_ts(lon, lat, pressure = pressure_i_s)
-  
+
   # Add sta_id
   pressure_timeserie[[i_r]]["sta_id"] <- i_s
 

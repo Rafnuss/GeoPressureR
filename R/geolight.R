@@ -216,7 +216,7 @@ refracted <- function(zenith) {
 ##' where each row corresponds to a single twilight.
 ##' @export
 find_twilights <- function(light, threshold, include,
-                          exclude = NULL, extend = 0, dark_min = 0) {
+                           exclude = NULL, extend = 0, dark_min = 0) {
   ## Extract date and light data
   date <- light$date
   light <- light$obs

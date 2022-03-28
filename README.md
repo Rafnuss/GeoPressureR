@@ -10,12 +10,14 @@
 <!-- badges: end -->
 
 The goal of GeoPressureR is to help researcher to analyse pressure
-measurement from geolocator. - Part 1: Firstly, it provides a R wrapper
-around the [GeoPressure
-API](https://github.com/Rafnuss/GeoPressureServer) to query the
-probability map using ERA5 pressure. - Part 2: Secondly, using a
-mathematical graph, it allows you to model the trajectory producing the
-exact probability map at stationary period and simulating paths.
+measurement from geolocator.
+
+-   Part 1: Firstly, it provides a R wrapper around the [GeoPressure
+    API](https://github.com/Rafnuss/GeoPressureServer) to query the
+    probability map using ERA5 pressure.
+-   Part 2: Secondly, using a mathematical graph, it allows you to model
+    the trajectory producing the exact probability map at stationary
+    period and simulating paths.
 
 ## Installation
 

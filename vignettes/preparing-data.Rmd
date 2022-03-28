@@ -14,6 +14,9 @@ knitr::opts_chunk$set(
 )
 ```
 
+This vignette covers the combination of pressure and light data as well as important checks which should be performed to ensure that the modeling with a graph can succeed.
+
+
 ```{r setup, message=F}
 library(GeoPressureR)
 library(raster)
@@ -21,232 +24,175 @@ library(leaflet)
 ```
 
 ## Load data
+
+We load the light and pressure data computed in the vignette [Light map](./articles/light-map.html) and [Pressure map](./articles/pressure-map.html) respectively.
+
 ```{r}
 data("pressure_prob", package = "GeoPressureR")
-pressure_prob = pressure_prob
 data("light_prob", package = "GeoPressureR")
-pam_data = pam_read(pathname = system.file("extdata", package = "GeoPressureR"),
-                    crop_start = "2017-06-20", crop_end = "2018-05-02")
-pam_data = trainset_read(pam_data, pathname=system.file("extdata", package = "GeoPressureR"))
-pam_data = pam_sta(pam_data)
+pam_data <- pam_read(
+  pathname = system.file("extdata", package = "GeoPressureR"),
+  crop_start = "2017-06-20", crop_end = "2018-05-02"
+)
+pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
+pam_data <- pam_sta(pam_data)
 ```
 
-## Prepare static probability map
+## Combine pressure and light probabibility maps
 
-### Align and pressure and light
 Because pressure might not be computed on all stationary period, we need to filter the map of light and compute the equivalent flight duration
 
 ```{r}
-sta_pres = unlist(lapply(pressure_prob, function(x) raster::metadata(x)$sta_id))
-sta_light = unlist(lapply(light_prob, function(x) raster::metadata(x)$sta_id))
+sta_pres <- unlist(lapply(pressure_prob, function(x) raster::metadata(x)$sta_id))
+sta_light <- unlist(lapply(light_prob, function(x) raster::metadata(x)$sta_id))
 
 # filter light map
-light_prob = light_prob[sta_light %in% sta_pres]
+light_prob <- light_prob[sta_light %in% sta_pres]
 
 # compute flight  duration
-grp_id = seq_len(nrow(pam_data$sta)) %in% sta_pres
-sta = pam_data$sta[grp_id,]
-sta$all_next_flight_duration =  aggregate(pam_data$sta$next_flight_duration, by=list(Category=cumsum(grp_id)), sum )$x
+grp_id <- seq_len(nrow(pam_data$sta)) %in% sta_pres
+sta <- pam_data$sta[grp_id, ]
+sta$all_next_flight_duration <- aggregate(pam_data$sta$next_flight_duration, by = list(Category = cumsum(grp_id)), sum)$x
 ```
 
 Compute the static probability with the product of light and pressure probability map. We also add the flight duration in the metadata
 
 ```{r}
-static_prob = mapply(function(light,pressure,next_flight_duration){
-  static_prob = light * pressure
+static_prob <- mapply(function(light, pressure, next_flight_duration) {
+  static_prob <- light * pressure
   tmp <- values(static_prob)
   tmp[is.na(tmp)] <- 0
   values(static_prob) <- tmp
   # keep metadata
-  metadata(static_prob)  <- metadata(pressure)
-  metadata(static_prob)$next_flight_duration  <- next_flight_duration
+  metadata(static_prob) <- metadata(pressure)
+  metadata(static_prob)$next_flight_duration <- next_flight_duration
   # return
   static_prob
-}, light_prob, pressure_prob,as.numeric(sta$all_next_flight_duration, units="hours"))
+}, light_prob, pressure_prob, as.numeric(sta$all_next_flight_duration, units = "hours"))
 ```
 
-### Optional downscaling
-
-It is possible to downscale the map with the following code. But we don't use it here.
-
-```{r, eval=F}
-static_prob = lapply(static_prob, function(raster){
-  raster_ds  <- aggregate(raster , fact=1, fun = max, na.rm=T, expand=T)
-  # keep metadata
-  metadata(raster_ds)  <- metadata(raster)
-  # return
-  raster_ds
-})
-```
-
-### Add equipement and retrival information
-
-Overwrite probability at the equipment and retrieval site
+Overwrite probability of the first and last stationary period with the known location of the equipment/retrieval site.
 
 ```{r}
 lon_calib <- 17.05
 lat_calib <- 48.9
 
-lat = seq(raster::ymax(static_prob[[1]]), raster::ymin(static_prob[[1]]), length.out=nrow(static_prob[[1]])+1)
-lat = lat[1:length(lat)-1]+diff(lat[1:2])/2
-lon = seq(raster::xmin(static_prob[[1]]), raster::xmax(static_prob[[1]]), length.out=ncol(static_prob[[1]])+1)
-lon = lon[1:length(lon)-1]+diff(lon[1:2])/2
+lat <- seq(raster::ymax(static_prob[[1]]), raster::ymin(static_prob[[1]]), length.out = nrow(static_prob[[1]]) + 1)
+lat <- lat[seq_len(length(lat) - 1)] + diff(lat[1:2]) / 2
+lon <- seq(raster::xmin(static_prob[[1]]), raster::xmax(static_prob[[1]]), length.out = ncol(static_prob[[1]]) + 1)
+lon <- lon[seq_len(length(lon) - 1)] + diff(lon[1:2]) / 2
 
-lon_calib_id = which.min(abs(lon_calib-lon))
-lat_calib_id = which.min(abs(lat_calib-lat))
+lon_calib_id <- which.min(abs(lon_calib - lon))
+lat_calib_id <- which.min(abs(lat_calib - lat))
 
-tmp = as.matrix(static_prob[[1]])
-tmp[,] <- 0
-tmp[lat_calib_id,lon_calib_id] <- 1
+tmp <- as.matrix(static_prob[[1]])
+tmp[, ] <- 0
+tmp[lat_calib_id, lon_calib_id] <- 1
 values(static_prob[[1]]) <- tmp
 
-tmp = as.matrix(static_prob[[length(static_prob)]])
-tmp[,] <- 0
-tmp[lat_calib_id,lon_calib_id] <- 1
+tmp <- as.matrix(static_prob[[length(static_prob)]])
+tmp[, ] <- 0
+tmp[lat_calib_id, lon_calib_id] <- 1
 values(static_prob[[length(static_prob)]]) <- tmp
 ```
 
+It might be useful to first run the model on a downscale map to improve computational cost. We won't need it for this example.
 
-### Visualization
+```{r, eval=F}
+static_prob <- lapply(static_prob, function(raster) {
+  raster_ds <- aggregate(raster, fact = 1, fun = max, na.rm = T, expand = T)
+  # keep metadata
+  metadata(raster_ds) <- metadata(raster)
+  # return
+  raster_ds
+})
+```
+
+
+## Checking model input
+
+In this section, we will look at a few check to perform before moving to the modeling step.
+
+A first and easy check is that there is always at least one location with probability greater than one that exists at each stationary period.
+
+```{r}
+for (i_s in seq_len(length(static_prob))) {
+  if (sum(values(static_prob[[i_s]]), na.rm = T) == 0) {
+    stop(paste("Probability map of stationary period", i_s, "is null. Check part 1 process (light and pressure)", sep = " "))
+  }
+}
+```
+
+Then, some visual quality control are always very useful and helpful to get a good understanding of the movement of the bird. Check that the trajectory make sense based  on the transition from one stationay period to the next (look at flight duration)
 
 ```{r, warning=F}
-li_s=list()
-l = leaflet() %>% addTiles() 
-for (i_r in 1:length(static_prob)){
-  i_s = metadata(static_prob[[i_r]])$sta_id
-  info = metadata(static_prob[[i_r]])$extend_sample
-  info_str = paste0(i_s," | ",info[1],"->",info[2])
+li_s <- list()
+l <- leaflet() %>% addTiles()
+for (i_r in seq_len(length(static_prob))) {
+  i_s <- metadata(static_prob[[i_r]])$sta_id
+  info <- metadata(static_prob[[i_r]])$extend_sample
+  info_str <- paste0(i_s, " | ", info[1], "->", info[2])
   li_s <- append(li_s, info_str)
-  l = l %>% addRasterImage(static_prob[[i_r]], opacity = 0.8, colors = 'OrRd', group=info_str) 
+  l <- l %>% addRasterImage(static_prob[[i_r]], opacity = 0.8, colors = "OrRd", group = info_str)
 }
-l %>% 
+l %>%
   addLayersControl(
     overlayGroups = li_s,
     options = layersControlOptions(collapsed = FALSE)
-  ) %>% hideGroup(tail(li_s,length(li_s)-1))
+  ) %>%
+  hideGroup(tail(li_s, length(li_s) - 1))
 ```
+
+Some animated figure might be helpful too.
 
 ```{r, animation.hook="gifski", eval=F}
 library(gifski)
-raster::animate(brick(static_prob),n=1)
+raster::animate(brick(static_prob), n = 1)
 ```
 
 ```{r, eval=F}
 library(ggplot2)
 library(gganimate)
-dfb = do.call("rbind",lapply(static_prob,function(x){
-  mt = metadata(x)
-  df = as.data.frame(x,xy=T)
-  df$sta_id=mt$sta_id
-  df$extend_sample = mt$extend_sample
-  df$next_flight_duration = mt$next_flight_duration
+dfb <- do.call("rbind", lapply(static_prob, function(x) {
+  mt <- metadata(x)
+  df <- as.data.frame(x, xy = T)
+  df$sta_id <- mt$sta_id
+  df$extend_sample <- mt$extend_sample
+  df$next_flight_duration <- mt$next_flight_duration
   df
 }))
 
-dfb %>% 
+dfb %>%
   ggplot() +
-  geom_raster(aes(x=x, y=y, fill=layer)) +
+  geom_raster(aes(x = x, y = y, fill = layer)) +
   transition_time(sta_id)
 ```
 
-### Check compatibility
-
-First check that at a probability exist at each stationary period.
-```{r}
-for (i_s in seq_len(length(static_prob))){
-  if (sum(values(static_prob[[i_s]]), na.rm=T)==0){
-    stop(paste('Probability map of stationary period', i_s, 'is null. Check part 1 process (light and pressure)', sep=' '))
-  }
-}
-```
-
-Then check that there are always at least one transition possible from one stationary period to the next
+Finally, we can check that there are always at least one transition possible from one stationary period to the next. 
 
 ```{r}
-for (i_s in seq_len(length(static_prob)-1)){
-  cur = as.matrix(static_prob[[i_s]])>0
-  nex = as.matrix(static_prob[[i_s+1]])>0
-  
-  flight_duration = metadata(static_prob[[i_s]])$next_flight_duration # hours
-  resolution = mean(res(static_prob[[1]]))*111 # assuming 1°= 111km
-  thr_gs = 150 # Assuming a max groundspeed of 150km/h
-  
-  # Check possible position at next stationary period 
-  possible_next = (EBImage::distmap(!cur) * resolution /flight_duration)<thr_gs
-  
-  if (sum(possible_next & nex)==0){
-    stop(paste('There are no possible transition from stationary period', i_s, 'to',i_s+1,'. Check part 1 process (light and pressure)', sep=' '))
+for (i_s in seq_len(length(static_prob) - 1)) {
+  cur <- as.matrix(static_prob[[i_s]]) > 0
+  nex <- as.matrix(static_prob[[i_s + 1]]) > 0
+
+  flight_duration <- metadata(static_prob[[i_s]])$next_flight_duration # hours
+  resolution <- mean(res(static_prob[[1]])) * 111 # assuming 1°= 111km
+  thr_gs <- 150 # Assuming a max groundspeed of 150km/h
+
+  # Check possible position at next stationary period
+  possible_next <- (EBImage::distmap(!cur) * resolution / flight_duration) < thr_gs
+
+  if (sum(possible_next & nex) == 0) {
+    stop(paste("There are no possible transition from stationary period", i_s, "to", i_s + 1, ". Check part 1 process (light and pressure)", sep = " "))
   }
 }
 ```
 
 
-### Export static probability
-We can export the data generated.
+## Export static probability
+
+Now that all the check are completed, we can export the data generated and move to the modeling. 
 
 ```{r, eval=F}
-usethis::use_data(static_prob, overwrite=T)
-```
-
-
-## Prepare wind data
-
-### Download ERA5 data
-
-As the flight are of short duration, we suggest that you download a file for each flight. Using the [`ecmfr`](https://bluegreen-labs.github.io/ecmwfr) package, we can send the query and download the files. 
-
-```{r, eval=F}
-library(ecmwfr)
-cds.key <- "381a49e9-7c3a-45e9-9b9a-d4ca16b3ed0e"#"Insert_your_CDS_API_KEY_here"
-cds.user <- "15631"# "Insert_your_CDS_UID_here"
-wf_set_key(user = cds.user, key = cds.key, service = "cds")
-
-# Define the 37 pressure level possible with ERA5 
-possible_pressure = c(1, 2, 3, 5, 7, 10, 20, 30, 50, 70, seq(100,250,25), seq(300,750,50), seq(775,1000,25))
-
-# Define the area for the query
-area = extent(static_prob[[1]])
-area = c(area@ymax, area@xmin, area@ymin, area@xmax)
- 
-req <- list()
-for (i_s in seq_len(nrow(pam_data$sta)-1){
-  # Get the timeserie of the flight on a 1 hour resolution
-  flight_time = seq(round(pam_data$sta$end[i_s]-30*60, units = "hours"), round(pam_data$sta$start[i_s+1]+30*60, units = "hours"), by=60*60)
-  
-  # Find the pressure level needed during this flight
-  flight_id =  flight_time[1] <= pam_data$pressure$date & pam_data$pressure$date <=  tail(flight_time,1)
-  pres_id_min = sum(!(min(pam_data$pressure$obs[flight_id]) < possible_pressure))
-  pres_id_max = sum(max(pam_data$pressure$obs[flight_id]) > possible_pressure)+1
-  flight_pres_id = seq(pres_id_min, min(pres_id_max,length(possible_pressure)))
-  
-  # Prepare the query
-  request <- list(
-    dataset_short_name = "reanalysis-era5-pressure-levels",
-    product_type   = "reanalysis",
-    format = "netcdf",
-    variable = c('u_component_of_wind', 'v_component_of_wind'),
-    pressure_level = possible_pressure[flight_pres_id],
-    year = sort(unique(format(flight_time,'%Y'))),
-    month = sort(unique(format(flight_time,'%m'))),
-    day = sort(unique(format(flight_time,'%d'))),
-    time = sort(unique(format(flight_time,'%H:%M'))),
-    # area is specified as N, W, S, E
-    area = area
-  )
-  # We can send the query without downloading the data. This allows to send all of them and then wait to get them back later.  
-  req[[i_s]] <- wf_request(user = cds.user, request = request, transfer = F)
-}
-
-# Define a temporary folder to download the data
-dir.save <- tempdir()
-
-# Download all the data and read the file in raster format
-wind_maps = list()
-for (i_s in seq_len(nrow(pam_data$sta)-1){
-  ncfile <- wf_transfer(url = req[[i_s]]$request_id, service = "cds", user = cds.user, path = dir.save, filename=paste0("18IC_",i_s,".nc"))
-  wind_maps[[i_s]] <- raster::raster(ncfile)
-}
-
-# Save the file
-usethis::use_data(wind_maps, overwrite=T)
+usethis::use_data(static_prob, overwrite = T)
 ```

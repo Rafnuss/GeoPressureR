@@ -1,0 +1,110 @@
+---
+title: "graph-with-wind"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{graph-with-wind}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(GeoPressureR)
+library(ecmwfr)
+library(raster)
+library(leaflet)
+```
+
+
+## Download wind data
+
+As the flight are of short duration, we suggest that you download a file for each flight. Using the [`ecmfr`](https://bluegreen-labs.github.io/ecmwfr) package, we can send the query and download the files. 
+
+## Setup-up CDS access
+
+
+```{r, eval=F}
+#Sys.setenv( cds.key="Insert_your_CDS_API_KEY_here")
+#Sys.setenv( cds.user="Insert_your_CDS_UID_here")
+cds.key <- Sys.getenv('cds.key')
+cds.user <- Sys.getenv('cds.user')
+wf_set_key(user = cds.user, key = cds.key, service = "cds")
+```
+
+Define the 37 pressure level possible with ERA5 and Define the area for the query
+
+```{r, eval=F}
+possible_pressure = c(1, 2, 3, 5, 7, 10, 20, 30, 50, 70, seq(100,250,25), seq(300,750,50), seq(775,1000,25))
+
+area = extent(static_prob[[1]])
+area = c(area@ymax, area@xmin, area@ymin, area@xmax)
+```
+
+
+
+```{r, eval=F}
+req <- list()
+for (i_s in seq_len(nrow(pam_data$sta)-1)){
+  # Get the timeserie of the flight on a 1 hour resolution
+  flight_time = seq(round(pam_data$sta$end[i_s]-30*60, units = "hours"), round(pam_data$sta$start[i_s+1]+30*60, units = "hours"), by=60*60)
+  
+  # Find the pressure level needed during this flight
+  flight_id =  flight_time[1] <= pam_data$pressure$date & pam_data$pressure$date <=  tail(flight_time,1)
+  pres_id_min = sum(!(min(pam_data$pressure$obs[flight_id]) < possible_pressure))
+  pres_id_max = sum(max(pam_data$pressure$obs[flight_id]) > possible_pressure)+1
+  flight_pres_id = seq(pres_id_min, min(pres_id_max,length(possible_pressure)))
+  
+  # Prepare the query
+  request <- list(
+    dataset_short_name = "reanalysis-era5-pressure-levels",
+    product_type   = "reanalysis",
+    format = "netcdf",
+    variable = c('u_component_of_wind', 'v_component_of_wind'),
+    pressure_level = possible_pressure[flight_pres_id],
+    year = sort(unique(format(flight_time,'%Y'))),
+    month = sort(unique(format(flight_time,'%m'))),
+    day = sort(unique(format(flight_time,'%d'))),
+    time = sort(unique(format(flight_time,'%H:%M'))),
+    # area is specified as N, W, S, E
+    area = area
+  )
+  # We can send the query without downloading the data. This allows to send all of them and then wait to get them back later.  
+  req[[i_s]] <- wf_request(user = cds.user, request = request, transfer = F)
+}
+```
+
+
+
+```{r, eval=F}
+# Define a temporary folder to download the data. wf_transfer will download the file in the temporary folder by default
+dir.save <- tempdir() # ~
+
+for (i_s in seq_len(nrow(pam_data$sta)-1)){
+  filename = paste0("18IC_",i_s,".nc")
+  ncfile <- wf_transfer(url = req[[i_s]]$request_id, service = "cds", user = cds.user, path = dir.save, filename=filename)
+}
+```
+
+```{r, eval=F}
+
+# Download all the data and read the file in raster format
+wind_maps_u = list()
+wind_maps_v = list()
+
+c_data <- nc_open(paste0(dir.save,"/",filename))
+t <- ncvar_get(c_data, "u")
+
+for (i_s in seq_len(nrow(pam_data$sta)-1)){
+  filename = paste0("18IC_",i_s,".nc")
+  ncfile <- wf_transfer(url = req[[i_s]]$request_id, service = "cds", user = cds.user, path = dir.save, filename=filename)
+  # wind_maps_u[[i_s]] <- raster::raster(paste0(dir.save,"/",filename),varname="u",lvar=4)
+  # raster::brick(paste0(dir.save,"/",filename),varname="u")
+  # wind_maps_v[[i_s]] <- raster::raster(paste0(dir.save,"/",filename),varname="v")
+}
+```

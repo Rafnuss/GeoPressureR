@@ -6,15 +6,19 @@
 #' for each stationary periods separately, (2) then read these map (geotiff) in
 #' a raster and (3) compute the likelihood map from the mismatch. See [the
 #' GeoPressure API documentation
-#' ](https://raphaelnussbaumer.com/GeoPressureServer/#description)
+#' ](https://raphaelnussbaumer.com/GeoPressureServer/#description).
 #'
-#' @param pressure pressure list from PAM logger dataset list.
+#' @param pressure pressure data from a PAM logger. This data.frame needs to
+#' contains `date` as POSIXt, `obs` in hPa, `sta_id` grouping observation
+#' measured during the same stationary period and `isoutliar` as logical to
+#' label observation which need to be ignorede. It is best practice to use
+#' `pam_read()` and `pam_sta()` to build this data.frame.
 #' @param extent Geographical extent of the map to query as a list ordered by
 #' North, West, South, East  (e.g. `c(50,-16,0,20)`).
 #' @param scale Number of pixel per latitude, longitude. 10 for a resoltion of
 #' 0.1° (~10) and 4 for a resolution of 0.25° (~30km). To avoid interpolating
 #' the ERA5 data, scale should be smaller than 10. Read more about scale on
-#' Google earth Engine documention.
+#' Google earth Engine documentation.
 #' @param max_sample The computation of the mismatch is only performed on
 #' `max_sample` datapoints of pressure to reduce computational time. The samples
 #' are randomly (uniformly) selected on the timeserie.
@@ -62,9 +66,11 @@ geopressure_map <-
       pressure$isoutliar <- FALSE
     }
     if (min(pressure$obs[!pressure$isoutliar]) < 250 | 1100 <
-                max(pressure$obs[!pressure$isoutliar])){
-      stop( paste0( 'Pressure observation should be between 250 hPa (~10000m) ',
-        'and 1100 hPa (sea level at 1013 hPa)'))
+      max(pressure$obs[!pressure$isoutliar])) {
+      stop(paste0(
+        "Pressure observation should be between 250 hPa (~10000m) ",
+        "and 1100 hPa (sea level at 1013 hPa)"
+      ))
     }
     stopifnot(is.logical(pressure$isoutliar))
     stopifnot(is.numeric(extent))
@@ -95,21 +101,28 @@ geopressure_map <-
     # remove stationary period with NA
     pres[is.na(pressure$sta_id)] <- NA
 
-    # smooth the data to 1hr
-    # find the number of element
-    dt <- as.numeric(difftime(pressure$date[2],pressure$date[1], units="hours"))
-    n <- 1/dt + 1
-    for (i_s in seq(1,max(pressure$sta_id,na.rm=T))){
-      pres_i_s = pres
-      pres_i_s[pressure$sta_id != i_s] = NA
-      pres_i_s_smoothNA <- stats::filter( c(F, !is.na(pres_i_s), F), rep(1 / n, n))
+    # smooth the data with a moving average of 1hr
+    # find the size of the windows for 1 hour
+    dt <- as.numeric(difftime(pressure$date[2], pressure$date[1],
+      units = "hours"
+    ))
+    n <- 1 / dt + 1
+    # make the convolution for each stationary period separately
+    for (i_s in seq(1, max(pressure$sta_id, na.rm = T))) {
+      pres_i_s <- pres
+      pres_i_s[pressure$sta_id != i_s] <- NA
+      pres_i_s_smoothna <- stats::filter(
+        c(F, !is.na(pres_i_s), F),
+        rep(1 / n, n)
+      )
       pres_i_s[is.na(pres_i_s)] <- 0
-      pres_i_s_smooth <- stats::filter( c(0, pres_i_s, 0), rep(1 / n, n))
+      pres_i_s_smooth <- stats::filter(c(0, pres_i_s, 0), rep(1 / n, n))
 
-      tmp <- pres_i_s_smooth/pres_i_s_smoothNA
-      tmp <- tmp[seq(2,length(tmp)-1)]
+      tmp <- pres_i_s_smooth / pres_i_s_smoothna
+      tmp <- tmp[seq(2, length(tmp) - 1)]
 
-      pres[!is.na(pressure$sta_id) & pressure$sta_id == i_s] <- tmp[!is.na(pressure$sta_id) &pressure$sta_id == i_s]
+      pres[!is.na(pressure$sta_id) & pressure$sta_id == i_s] <-
+        tmp[!is.na(pressure$sta_id) & pressure$sta_id == i_s]
     }
 
     # downscale to 1hour
@@ -136,7 +149,7 @@ geopressure_map <-
     )
 
     # Request URLS
-    message("Sending requests...")
+    message("Generate requests:")
     res <-
       httr::POST("http://glp.mgravey.com:24853/GeoPressure/v1/map/",
         body = body_df
@@ -145,13 +158,13 @@ geopressure_map <-
     # check that the response is successful
     if (!httr::content(res)$status == "success") {
       message(httr::content(res))
-      stop("Error with request")
+      stop("Error with requests")
     } else {
       # Get URIS
       uris <- unlist(httr::content(res)$data$urls)
       labels <- unlist(httr::content(res)$data$labels)
       message(
-        "Request generated successfully for ",
+        "Requests generated successfully for ",
         length(labels),
         " stationary periods (",
         sprintf("%d, ", sort(labels)),
@@ -163,7 +176,7 @@ geopressure_map <-
     # GEE allows up to 12 requests at the same time, so we set the worker to 10
     future::plan(future::multisession, workers = 10)
     f <- c()
-    message("Starting download:")
+    message("Send requests:")
     progress_bar(0, max = length(uris))
     for (i_u in seq_len(length(uris))) {
       f[[i_u]] <- future::future({
@@ -176,7 +189,7 @@ geopressure_map <-
 
     # Get the raster
     pressure_maps <- c()
-    message("Receiving download (geotiff):")
+    message("Download geotiff:")
     progress_bar(0, max = length(uris))
     for (i_u in seq_len(length(uris))) {
       pressure_maps[[i_u]] <- future::value(f[[i_u]])
@@ -224,7 +237,7 @@ geopressure_map <-
 #' with \eqn{n} is the number of data point in the timeserie. This operation is
 #' describe in
 #'
-#' @param pressure_maps list of raster loaded from `geopressure_map()`
+#' @param pressure_maps list of raster built with `geopressure_map()`
 #' @param s standard deviation of the pressure error
 #' @param thr threshold of the percentage of data point outside the elevation
 #' range to be considered not possible
@@ -270,8 +283,8 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
 
     # compute Log-linear pooling weight
     # Number of datapoint could also be measured with
-    # pres_n <- as.numeric(difftime(mt$temporal_extent[2], mt$temporal_extent[1],
-    # units = "hours"))
+    # pres_n <- as.numeric(difftime(mt$temporal_extent[2],
+    # mt$temporal_extent[1], units = "hours"))
     pres_n <- mt$nb_sample
 
     # Weight
@@ -279,9 +292,9 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
 
     # compute probability with equation
     raster_prob_list[[i_s]] <-
-      (1 / (2 * pi * s^2)) ^ (pres_n * w / 2) * exp(-w * pres_n / 2 / (s^2)
+      (1 / (2 * pi * s^2))^(pres_n * w / 2) * exp(-w * pres_n / 2 / (s^2)
         * raster_prob_list[[i_s]])
-    # mask value of threashold
+    # mask value of threshold
     raster_prob_list[[i_s]] <-
       raster_prob_list[[i_s]] * (pressure_maps[[i_s]][[2]] > thr)
 
@@ -382,8 +395,8 @@ geopressure_ts <-
         jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date)))
       body_df$pressure <- jsonlite::toJSON(pressure$obs * 100)
     } else {
-      body_df$startTime <-as.numeric(as.POSIXct(start_time))
-      body_df$endTime <-as.numeric(as.POSIXct(end_time))
+      body_df$startTime <- as.numeric(as.POSIXct(start_time))
+      body_df$endTime <- as.numeric(as.POSIXct(end_time))
     }
 
     # Request URLS
@@ -415,7 +428,11 @@ geopressure_ts <-
 
     # check for errors
     if (nrow(out) == 0) {
-      stop("Returned csv file is empty. Check that the time range is none-empty and that the location is not on water: maps.google.com/maps?q=",lat,",",lon)
+      stop(paste0(
+        "Returned csv file is empty. Check that the time range is ",
+        "none-empty and that the location is not on water: ",
+        "maps.google.com/maps?q=", lat, ",", lon
+      ))
     }
 
     # convert Pa to hPa
