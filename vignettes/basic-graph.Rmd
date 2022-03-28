@@ -50,6 +50,7 @@ summary(grl)
 ```
 
 The graph returned is a list of the edges of the graph containing:
+
 - `s`: source node (index in the 3d grid lat-lon-sta),
 - `t`: target node (index in the 3d grid lat-lon-sta),
 - `gs`: average ground speed required to make that transition (km/h)
