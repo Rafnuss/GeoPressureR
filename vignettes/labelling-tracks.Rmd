@@ -117,7 +117,7 @@ ggplotly(p, dynamicTicks = T) %>%
   )
 ```
 
-Ploting this figure with [PlotlyR](https://plotly.com/r/) allows you to zoom-in and pan to check all timeseries are correctly grouped. Make sure each stationary period does not include any pressure measurement from flight (e.g. 1-Sep-2017 in the figure above). You might spot some anomalies in the temporal variation of pressure. In some cases, you can already label the pressure timeseries to remove them.
+Ploting this figure with [Plotly](https://plotly.com/r/) allows you to zoom-in and pan to check all timeseries are correctly grouped. Make sure each stationary period does not include any pressure measurement from flight (e.g. 1-Sep-2017 in the figure above). You might spot some anomalies in the temporal variation of pressure. In some cases, you can already label the pressure timeseries to remove them.
 
 ### Test 3: Pressure timeseries match
 
@@ -139,7 +139,7 @@ We can estimate the probability map for each stationary period:
 data("pressure_prob", package = "GeoPressureR")
 ```
 ```{r, eval = F}
-pressure_maps <- geopressure_map(pam_data$pressure, extent = c(-16, 20, 0, 50), scale = 10, max_sample = 100)
+pressure_maps <- geopressure_map(pam_data$pressure, extent = c(50, -16, 0, 23), scale = 10, max_sample = 100)
 pressure_prob <- geopressure_prob_map(pressure_maps)
 ```
 
@@ -200,10 +200,31 @@ ggplotly(p, dynamicTicks = T) %>%
 
 You can use this figure to identify periods where the mismatch indicates a problem with the labelling. Often, it will indicate that the bird was changing altitude. This happens regularly during migration, the bird lands in one location and performs one or two short flights in the morning, resulting in a change in altitude. Activity data on TRAINSET can also help understand what the bird is doing.
 
+In this example, removing a few more pressure datapoints can improve the match, especially for short stopover (e.g. 2017-9-11). See below for the final labeled file.
+
+```{r}
+pam_data <- trainset_read(pam_data, system.file("extdata", package = "GeoPressureR"), filename = "18LX_act_pres-labeled.csv")
+pam_data <- pam_sta(pam_data)
+
+p <- ggplot() +
+  geom_line(data = pam_data$pressure, aes(x = date, y = obs), colour = "grey") +
+  geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
+  geom_line(data = do.call("rbind", pressure_timeserie), aes(x = date, y = pressure0, col = as.factor(sta_id))) +
+  theme_bw() +
+  scale_colour_manual(values = rep(RColorBrewer::brewer.pal(9, "Set1"), times = 4))
+
+ggplotly(p, dynamicTicks = T) %>%
+  layout(
+    showlegend = F,
+    legend = list(orientation = "h", x = -0.5),
+    yaxis = list(title = "Pressure [hPa]")
+  )
+```
+
 ### Test 4: Histogram of pressure error
 
 Finally, you can also look at the histogram of the pressure error (geolocator-ERA5). 
-For long stationary periods (over 5 days), you want to check that there is a single[mode](https://en.wikipedia.org/wiki/Mode_(statistics)) in your distribution. Two modes indicate that the bird is spending time at two different altitudes. This is usual when birds have a day site and a night roost at different elevations. 
+For long stationary periods (over 5 days), you want to check that there is a single [mode](https://en.wikipedia.org/wiki/Mode_(statistics)) in your distribution. Two modes indicate that the bird is spending time at two different altitudes. This is usual when birds have a day site and a night roost at different elevations. 
 You might also want to check the spread of the distribution. This value can guide you in setting the standard deviation parameter `s` in `geopressure_prob_map()`.
 
 ```{r}
@@ -334,6 +355,7 @@ Luckily, by definition mountainous species live in specific areas, which restric
 ## Future improvements
 
 A lot can be done to improve this process:
+
 - Run TRAINSET offline
 - Bypass the create/upload/read csv by running a browser session directly in R
 - Build an R (shiny) equivalent of TRAINSET to be directly integrated with the R package, but unable to find a good package to label points in a Figure in R, would have to maintain it, while TRAINSET does this for free. 
