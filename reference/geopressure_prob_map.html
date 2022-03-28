@@ -45,8 +45,9 @@ describe in"><meta property="og:image" content="https://raphaelnussbaumer.com/Ge
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-trajectory">Part 2: Trajectory</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-part-trajectory">
     <a class="dropdown-item" href="../articles/preparing-data.html">1. Preparing Data</a>
-    <a class="dropdown-item" href="../articles/gridded-gibbs.html">2. Gridded Gibbs</a>
-    <a class="dropdown-item" href="../articles/basic-graph.html">3. Basic Graph</a>
+    <a class="dropdown-item" href="../articles/basic-graph.html">2. Basic Graph</a>
+    <a class="dropdown-item" href="../articles/wind-graph.html">3. Wind Graph</a>
+    <a class="dropdown-item" href="../articles/gridded-gibbs.html">Gridded Gibbs</a>
   </div>
 </li>
 <li class="active nav-item">
@@ -92,7 +93,7 @@ describe in</p>
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>pressure_maps</dt>
-<dd><p>list of raster loaded from <code><a href="geopressure_map.html">geopressure_map()</a></code></p></dd>
+<dd><p>list of raster built with <code><a href="geopressure_map.html">geopressure_map()</a></code></p></dd>
 <dt>s</dt>
 <dd><p>standard deviation of the pressure error</p></dd>
 <dt>thr</dt>
@@ -117,7 +118,7 @@ range to be considered not possible</p></dd>
 <span class="r-in"><span class="va">pam_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="pam_sta.html">pam_sta</a></span><span class="op">(</span><span class="va">pam_data</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">pressure_maps</span> <span class="op">&lt;-</span> <span class="fu"><a href="geopressure_map.html">geopressure_map</a></span><span class="op">(</span></span>
 <span class="r-in">  <span class="va">pam_data</span><span class="op">$</span><span class="va">pressure</span>,</span>
-<span class="r-in">  extent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">16</span>, <span class="fl">20</span>, <span class="fl">0</span>, <span class="fl">50</span><span class="op">)</span>,</span>
+<span class="r-in">  extent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="op">-</span><span class="fl">16</span>, <span class="fl">0</span>, <span class="fl">20</span><span class="op">)</span>,</span>
 <span class="r-in">  scale <span class="op">=</span> <span class="fl">10</span></span>
 <span class="r-in"><span class="op">)</span></span>
 <span class="r-in"><span class="va">pressure_prob</span> <span class="op">&lt;-</span> <span class="fu">geopressure_prob_map</span><span class="op">(</span></span>

@@ -33,8 +33,9 @@ filtering and triming the probability maps provided."><meta property="og:image" 
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-trajectory">Part 2: Trajectory</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-part-trajectory">
     <a class="dropdown-item" href="../articles/preparing-data.html">1. Preparing Data</a>
-    <a class="dropdown-item" href="../articles/gridded-gibbs.html">2. Gridded Gibbs</a>
-    <a class="dropdown-item" href="../articles/basic-graph.html">3. Basic Graph</a>
+    <a class="dropdown-item" href="../articles/basic-graph.html">2. Basic Graph</a>
+    <a class="dropdown-item" href="../articles/wind-graph.html">3. Wind Graph</a>
+    <a class="dropdown-item" href="../articles/gridded-gibbs.html">Gridded Gibbs</a>
   </div>
 </li>
 <li class="active nav-item">
@@ -96,14 +97,17 @@ each stationary period.</p></li>
 </ol><p>The graph returned is a list of the edges of the graph containing:</p><ul><li><p><code>s</code>: source node (index in the 3d grid lat-lon-sta),</p></li>
 <li><p><code>t</code>: target node (index in the 3d grid lat-lon-sta),</p></li>
 <li><p><code>gs</code>: average ground speed required to make that transition (km/h)</p></li>
+<li><p><code>ps</code>: static probability of each target node</p></li>
 <li><p><code>sz</code>: size of the 3d grid lat-lon-sta</p></li>
 <li><p><code>equipement</code>: node(s) of the first sta (index in the 3d grid lat-lon-sta)</p></li>
 <li><p><code>retrival</code>: node(s) of the last sta (index in the 3d grid lat-lon-sta)</p></li>
 <li><p><code>flight_duration</code>: list of flight duration to next sta in hours</p></li>
 <li><p><code>lat</code>: list of the <code>static_prob</code> latitude in cell center</p></li>
 <li><p><code>lon</code>: list of the <code>static_prob</code> longitude in cell center</p></li>
-<li><p><code>extent</code>: raster extent of the `static_prob``</p></li>
+<li><p><code>extent</code>: raster geographical extent of the `static_prob``</p></li>
 <li><p><code>resolution</code>: raster res of the <code>static_prob</code></p></li>
+<li><p><code>temporal_extent</code>: start and end date time retrieved from the metadata of
+<code>static_prob</code></p></li>
 </ul><p>The vignette <code>How to use the graph</code> provided an example how to prepare the
 data for the function and the output of this function</p>
     </div>
