@@ -90,6 +90,7 @@ p <- subset(pam_data$pressure, sta_id != 0) %>%
   ggplot() +
   geom_line(data = pam_data$pressure, aes(x = date, y = obs), col = "grey") +
   geom_line(aes(x = date, y = obs, col = as.factor(sta_id))) +
+  geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
   theme_bw() +
   scale_y_continuous(name = "Pressure(hPa)") +
   scale_colour_manual(values = rep(RColorBrewer::brewer.pal(9, "Set1"), times = 4))
@@ -108,8 +109,8 @@ Now that we have clean pressure timeseries for each stationary period, we are re
 
 Initially, it is easier and faster to query only long stationary periods (in the example below, we select only periods longer than 12hrs). You can do so by setting the pressure of the stationary periods you wish to discard to `NA`.
 
-```{r}
-sta_id_keep <- pam_data$sta$sta_id[difftime(pam_data$sta$end, pam_data$sta$start, units = "hours") > 12]
+```{r, eval=F}
+sta_id_keep <- pam_data$sta$sta_id[difftime(pam_data$sta$end, pam_data$sta$start, units = "hours") > 0]
 pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] <- NA
 ```
 
@@ -255,7 +256,7 @@ for (i_r in seq_len(length(pressure_prob))) {
   }
 
   # query the pressure at this location
-  message("query:", i_r, "/", length(sta_id_keep))
+  message("query:", i_r, "/", length(pressure_prob))
   pressure_timeserie[[i_r]] <- geopressure_ts(lon, lat, pressure = pressure_i_s)
 
   # Add sta_id
