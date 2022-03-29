@@ -5,7 +5,7 @@
 \alias{static_prob}
 \title{Static probability map for 18LX}
 \format{
-An object of class \code{list} of length 27.
+An object of class \code{list} of length 29.
 }
 \usage{
 static_prob

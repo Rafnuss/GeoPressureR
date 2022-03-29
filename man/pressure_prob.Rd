@@ -5,7 +5,7 @@
 \alias{pressure_prob}
 \title{Pressure probability map for 18LX}
 \format{
-An object of class \code{list} of length 27.
+An object of class \code{list} of length 29.
 }
 \usage{
 pressure_prob
