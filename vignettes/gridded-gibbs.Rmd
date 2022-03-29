@@ -99,9 +99,10 @@ latlon <- expand.grid(lat = lat, lon = lon)
 Extract the flight duration from the metadata of the `static_prob` raster data.
 
 ```{r}
-flight_duration <- unlist(lapply(static_prob, function(x) {
-  metadata(x)$next_flight_duration
-}))
+  flight_duration <- unlist(lapply(static_prob, function(x) {
+    mtf <- metadata(x)
+    as.numeric(sum(difftime(mtf$flight$end, mtf$flight$start, units = "hours")))
+  }))
 ```
 
 Create a function which compute the distance from a point `pt` to all other location of the grid `id` and return the probability that the bird flew these distances at a particular stationary period `i_s`. 

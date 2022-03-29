@@ -31,8 +31,7 @@
 #'
 #' @param static_prob list of raster containing probability map of each
 #' stationary period. The metadata of `static_prob` needs to include the flight
-#' duration to the next stationary period in the variable
-#' `next_flight_duration` as a numeric in hours.
+#' information to the next stationary period in the metadata `flight`.
 #' @param thr_prob_percentile threshold of percentile (see explanation above)
 #' @param thr_gs threashold of groundspeed (km/h)  (see explanation above)
 #' @return graph as a list (see description above)
