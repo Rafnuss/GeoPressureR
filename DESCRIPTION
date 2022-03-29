@@ -2,44 +2,50 @@ Package: GeoPressureR
 Title: Location from Reanalysed Pressure
 Version: 2.0
 Authors@R: c(
-    person("Raphaël", "Nussbaumer", email="rafnuss@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-8185-1020")),
-    person("Mathieu", "Gravey", email="mathieu@mgravey.com", role = c("aut"), comment = c(ORCID = "0000-0002-0871-1507"))
-    )
-Description: Determine the position of a geolocator from atmospheric pressure measurements. 
-URL: https://github.com/Rafnuss/GeoPressureR, https://raphaelnussbaumer.com/GeoPressureR/
+    person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-8185-1020")),
+    person("Mathieu", "Gravey", , "mathieu@mgravey.com", role = "aut",
+           comment = c(ORCID = "0000-0002-0871-1507"))
+  )
+Description: Determine the position of a geolocator from atmospheric
+    pressure measurements.
 License: GPL (>= 3)
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
-Suggests: 
-    knitr,
-    testthat (>= 3.0.0),
-    leaflet,
-    ggplot2,
-    plotly,
-    RColorBrewer,
-    MASS,
-    igraph,
-    zoo,
-    rmarkdown,
-    remotes,
-    rgdal,
-    sp,
-    readr,
-    ecmwfr
-VignetteBuilder: knitr
-Imports: 
-    utils,
-    stats,
-    raster,
-    jsonlite,
-    httr,
-    future,
-    geosphere,
-    EBImage,
-    Matrix
+URL: https://github.com/Rafnuss/GeoPressureR,
+    https://raphaelnussbaumer.com/GeoPressureR/
 Depends: 
     R (>= 3.5.0)
+Imports: 
+    EBImage,
+    future,
+    geosphere,
+    httr,
+    jsonlite,
+    Matrix,
+    raster,
+    stats,
+    utils
+Suggests: 
+    ecmwfr,
+    ggplot2,
+    igraph,
+    knitr,
+    leaflet,
+    MASS,
+    plotly,
+    RColorBrewer,
+    readr,
+    remotes,
+    rgdal,
+    rmarkdown,
+    sp,
+    testthat (>= 3.0.0),
+    zoo
+VignetteBuilder: 
+    knitr
+biocViews:
+Config/testthat/edition: 3
+Encoding: UTF-8
 LazyData: true
 LazyDataCompression: xz
-Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
