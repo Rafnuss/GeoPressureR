@@ -14,15 +14,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette covers the combination of pressure and light data as well as important checks which should be performed to ensure that the modeling with a graph can succeed. 
+This vignette covers important checks which should be performed to ensure that modelling with a graph is successful. 
 
-So far, we have check that the pressure timeseries measure on the bird is consistent with a least one location on the map with the vignette [Labelling tracks](./articles/labelling-tracks). Make sure that the test 4 was carefully checked before running this vignette. 
+In the vignette [Labelling tracks](./articles/labelling-tracks), we checked that the pressure timeseries measured by the geolocator are consistent with a least one location on the map. Make sure that Test #4 outlined in that vignette is carefully carried out before running the steps outlined below.
 
-In this vignette, we will check that pressure, light and flight duration allow for a coherent trajectory. It is quite likely that some manual editing of the labeling of the pressure data will still be required, especially on the short stopover.
+In the following vignette, we will check that pressure, light and flight duration data allow for a coherent trajectory. It is possible that some manual editing of the pressure data labelling will be required, especially for short stopovers.
 
-We suggest to start selecting only long stopover (24-48hours), as this will help you to see the general trajectory of your birds. And only after, we can add the shorter ones which might be a bit confusing at first (best match can be completely off). But this is where flight duration will help you get realistic trajectory.
+We suggest starting by selecting only long stopovers (24-48hours), as this will help to draw out the general trajectory followed by the bird, and only later adding the shorter stopovers which could raise more confusion (the best match can be completely off). This is where the flight duration can help identify a realistic trajectory.
 
-As a general guideline, always use your common sense on where the bird was rather than letting the model guide its course. The model needs to give realistic trajectory, otherwise, there is a labeling issue. A small vertical movement of the bird in a stopover can completely through off the estimation. 
+As a general guideline, use your common sense, rather than solely on the model, to draw out the trajectory course. The model needs to give realistic trajectories, otherwise there is a labelling issue. For example, a small vertical movement of the bird during a stopover can completely throw off the estimation. 
 
 ```{r setup, message=F}
 library(GeoPressureR)
@@ -32,7 +32,7 @@ library(leaflet)
 
 ## Load data
 
-Let starte by loading the light and pressure data computed in the vignette [Light map](./articles/light-map.html) and [Pressure map](./articles/pressure-map.html) respectively.
+Start by loading the light and pressure data computed in the respective vignettes [Light map](./articles/light-map.html) and [Pressure map](./articles/pressure-map.html).
 
 ```{r}
 data("pressure_prob", package = "GeoPressureR")
@@ -45,22 +45,22 @@ pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = 
 pam_data <- pam_sta(pam_data)
 ```
 
-## Combine pressure and light probabibility maps
+## Combine pressure and light probability maps
 
-In this step, we need to get the pressure and light data for the same stationary period. There are three source of data to overlap, the last one (`sta_id_keep`) is where you can choose to modeling on only part of the data. It is easier to start keeping longer stationary period and then reduce the threshold on duration.
+In this step, we need to retrieve the pressure and light data for the same stationary period. There are three sources of data to overlap, the last one (`sta_id_keep`) is where you can choose to include only part of the data. As mentioned above, it is easier to start by filtering only longer stationary periods, and then reduce the threshold on stopover duration.
 
 ```{r}
 sta_pres <- unlist(lapply(pressure_prob, function(x) raster::metadata(x)$sta_id))
 sta_light <- unlist(lapply(light_prob, function(x) raster::metadata(x)$sta_id))
 sta_thres <- pam_data$sta$sta_id[difftime(pam_data$sta$end, pam_data$sta$start, units = "hours") > 0]
-# Get the sta_id present on all three data source
+# Get the sta_id present on all three data sources
 sta_id_keep = intersect(intersect(sta_pres,sta_light),sta_thres)
-# filter pressure and light map
+# Filter pressure and light map
 pressure_prob <- pressure_prob[sta_pres %in% sta_id_keep]
 light_prob <- light_prob[sta_light %in% sta_id_keep]
 ```
 
-We then need to keep all the flight between each stationary period separately so that we can estimate the wind support correctly.
+We then need to keep all the flights between each stationary period separate so that we can estimate the wind support correctly.
 
 ```{r}
 flight = list()
@@ -76,7 +76,7 @@ for (i_f in seq_len(length(sta_id_keep)-1)){
 flight[[i_f+1]]=list()
 ```
 
-Compute the static probability with the product of light and pressure probability map. We also add the flight duration in the metadata
+We compute the static probability with the product of light and pressure probability maps, and add the flight duration in the metadata.
 
 ```{r}
 static_prob <- mapply(function(light, pressure, flight) {
@@ -97,7 +97,7 @@ static_prob <- mapply(function(light, pressure, flight) {
 }, light_prob, pressure_prob, flight)
 ```
 
-Overwrite probability of the first and last stationary period with the known location of the equipment/retrieval site.
+We overwrite the probability of the first and last stationary periods with the known location of the equipment/retrieval sites.
 
 ```{r}
 lon_calib <- 17.05
@@ -126,11 +126,11 @@ values(static_prob[[length(static_prob)]]) <- tmp
 
 ## Checking model input
 
-In this section, we will look at a few check to perform before moving to the modeling step.
+In this section, we will look at a few checks to perform before moving to the modelling step.
 
-### Check 1: At least one position exist
+### Check 1: Presence of at least one position 
 
-A first and easy check is that there is always at least one location with probability greater than one that exists at each stationary period.
+A first and easy check is that there be at least one location with a probability greater than 1 for each stationary period.
 
 ```{r}
 for (i_s in seq_len(length(static_prob))) {
@@ -140,9 +140,9 @@ for (i_s in seq_len(length(static_prob))) {
 }
 ```
 
-### Check 2: At least one transition
+### Check 2: Presence of at least one transition
 
-Secondly, we can check that there are always at least one transition possible from one stationary period to the next. 
+Secondly, we check that there always be at least one possible transition from one stationary period to the next. 
 
 ```{r}
 for (i_s in seq_len(length(static_prob) - 1)) {
@@ -168,12 +168,12 @@ for (i_s in seq_len(length(static_prob) - 1)) {
 
 ### Check 3: Visual inspection
 
-This second check is the most important and can be slight more complicated to performed correctly. We will check that the proabbility map is coherent with the flight distance from the previous location. The distance is computed based on an assumed average groundspeed. Birds can fly with a groundspeed up to 120-150 km/h (with wind support) but usually the average is 40km/h. We will iteratively plot at the most likely position (black dot) from the static probability contains within the distance of flight from the previous most likely position (green dot). 
+This third check is the most important yet also the most complex. We check that the probability map is coherent with the flight distance from the previous location. The distance is computed based on an assumed average groundspeed. Birds can fly with a groundspeed up to 120-150 km/h (with wind support) although their usual average is around 40km/h. We iteratively plot the most likely position (black dot) based on the static probability contained within flight distance from the previous most likely position (green dot). 
 
-Some key element to correctly understand/check this figure. 
-Firstly, bird can fly in "zig-zag", meaning that the total distance possible (green circle) might be much larger than the actual distance from previous stationary period (distance green to black).
+Note the following key elements to correctly understand this figure. 
+Firstly, birds can fly in zig-zag patterns, meaning that the total distance possible (green circle) might be greater than the actual distance from the previous stationary period (distance green to black).
 
-Secondly, this visualization only account for the lag-1 movement, thus, it will choose the most likely position (black dot) independently than if it this is overall coherent with the trajectory. This typically happens for short stationary period where the match of pressure is slightly better at another place than where the bird went. The visualization become completely wrong on the location (e.g., sending the bird north while it's suppose to migrate south). Don't worry about this, just try to see that you can draw a path which seems coherent. This happen at stationary period 14 in this example. The great reed warbler was moving south to Burkina Faso or Ghana, but a slight more likely position occur in Algeria. It is worth checking the pressure timeserie to see if something can be improve there. 
+Secondly, this visualization only accounts for the lag-1 movement, thus it chooses the most likely position (black dot) independently from its overall coherence with the trajectory. This typically happens for short stationary periods where the pressure match is slightly better in a different place than where the bird went. In thoses cases the visualization is wrong on the location (e.g., sending the bird north while it should be migrating south), but try to see where you can draw a path which seems coherent. In the example we use below, this happens at stationary period 14. The Great Reed Warbler was moving south towards Burkina Faso or Ghana, but a slightly more likely position occurs in Algeria. It is worth checking the pressure timeseries to see whether manual editing could change this. 
 
 
 ```{r, warning=F, results = 'asis'}
@@ -226,7 +226,7 @@ l %>%
   hideGroup(tail(li_s, length(li_s) - 1))
 ```
 
-Some animated figure might be helpful too.
+Some animated figures might be helpful too.
 
 ```{r, animation.hook="gifski", eval=F}
 library(gifski)
@@ -256,7 +256,7 @@ dfb %>%
 
 ## Export static probability
 
-It might be useful to first run the model on a downscale map to improve computational cost. We won't need it for this example.
+It can be useful to first run the model on a downscale map to improve computational costs. This is not necessary in this example.
 
 ```{r, eval=F}
 static_prob <- lapply(static_prob, function(raster) {
@@ -268,7 +268,7 @@ static_prob <- lapply(static_prob, function(raster) {
 })
 ```
 
-Now that all the check are completed, we can export the data generated and move to the modeling. 
+Now that all the checks are completed, we can export the data generated and start the modeling, outlined in the vignette [Basic graph](./articles/basic-graph).
 
 ```{r, eval=F}
 usethis::use_data(static_prob, overwrite = T)
