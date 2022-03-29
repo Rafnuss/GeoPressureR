@@ -441,9 +441,7 @@ pam_sta <- function(pam) {
     end = c(act_mig$start, utils::tail(pam$pressure$date, n = 1))
   )
 
-  # Compute the duration
-  pam$sta$duration <- pam$sta$end - pam$sta$start
-  pam$sta$next_flight_duration <- c(act_mig$duration, 0)
+  # Define ID for stationary period
   pam$sta$sta_id <- seq_len(nrow(pam$sta))
 
   # Assign to each pressure the stationary period to which it belong to.

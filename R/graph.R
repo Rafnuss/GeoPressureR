@@ -44,7 +44,7 @@ graph_create <- function(static_prob,
   # Check input
   stopifnot(is.list(static_prob))
   stopifnot(inherits(static_prob[[1]], "RasterLayer"))
-  stopifnot("next_flight_duration" %in%
+  stopifnot("flight" %in%
     names(raster::metadata(static_prob[[1]])))
   stopifnot(is.numeric(thr_prob_percentile))
   stopifnot(length(thr_prob_percentile) == 1)
@@ -108,7 +108,8 @@ graph_create <- function(static_prob,
 
   # extract the flight duration
   flight_duration <- unlist(lapply(static_prob, function(x) {
-    raster::metadata(x)$next_flight_duration
+    mtf <- raster::metadata(x)
+    as.numeric(sum(difftime(mtf$flight$end, mtf$flight$start, units = "hours")))
   }))
 
   tmp <- (thr_gs * utils::head(flight_duration, -1) / resolution) < 1
@@ -125,11 +126,11 @@ graph_create <- function(static_prob,
     for (i_s in seq_len(nsta - 1)) {
       nds[[i_s + 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
         flight_duration[i_s] * thr_gs & nds[[i_s + 1]]
-      if (sum(nds[[i_s + 1]])==0) {
+      if (sum(nds[[i_s + 1]]) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary",
-          "distance, there are not any nodes left at stationay period ", i_s+1,
-          " from stationay period ", i_s
+          "distance, there are not any nodes left at stationay period ",
+          i_s + 1, " from stationay period ", i_s
         ))
       }
     }
@@ -137,11 +138,11 @@ graph_create <- function(static_prob,
       i_s <- nsta - i_sr + 1
       nds[[i_s - 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
         flight_duration[i_s - 1] * thr_gs & nds[[i_s - 1]]
-      if (sum(nds[[i_s - 1]])==0) {
+      if (sum(nds[[i_s - 1]]) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary",
-          "distance, there are not any nodes left at stationay period ", i_s-1,
-          " from stationay period ", i_s
+          "distance, there are not any nodes left at stationay period ",
+          i_s - 1, " from stationay period ", i_s
         ))
       }
     }
