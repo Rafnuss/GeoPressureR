@@ -152,25 +152,24 @@ geopressure_map <-
     message("Generate requests:")
     res <-
       httr::POST("http://glp.mgravey.com:24853/GeoPressure/v1/map/",
-        body = body_df
+        body = body_df,
+        encode = "form"
       )
-
-    # check that the response is successful
-    if (!httr::content(res)$status == "success") {
-      message(httr::content(res))
-      stop("Error with requests")
-    } else {
-      # Get URIS
-      uris <- unlist(httr::content(res)$data$urls)
-      labels <- unlist(httr::content(res)$data$labels)
-      message(
-        "Requests generated successfully for ",
-        length(labels),
-        " stationary periods (",
-        sprintf("%d, ", sort(labels)),
-        ")"
-      )
+    if (httr::http_error(res)){
+      print(httr::content(res))
+      stop("Error with request son http://glp.mgravey.com:24853/GeoPressure/v1/map/. Please contact us with the error message if the error persists")
     }
+
+    # Get URIS
+    uris <- unlist(httr::content(res)$data$urls)
+    labels <- unlist(httr::content(res)$data$labels)
+    message(
+      "Requests generated successfully for ",
+      length(labels),
+      " stationary periods (",
+      sprintf("%d, ", sort(labels)),
+      ")"
+    )
 
     # Perform the call in parallel
     # GEE allows up to 12 requests at the same time, so we set the worker to 10
@@ -402,16 +401,17 @@ geopressure_ts <-
     # Request URLS
     message("Sending request...")
     res <-
-      httr::POST("http://glp.mgravey.com:24853/GeoPressure/v1/timeseries",
-        body = body_df
+      httr::POST("http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/",
+        body = body_df,
+        encode = "form"
       )
 
-    # check that the response is successful
-    if (!httr::content(res)$status == "success") {
+    if (httr::http_error(res)){
       print(httr::content(res))
-      stop("Error with request")
+      stop("Error with request son http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/. Please contact us with the error message if the error persists")
+    } else {
+      message("Request generated successfully.")
     }
-    message("Request generated successfully.")
 
     # Download the csv file
     message("Downloading csv data...")
