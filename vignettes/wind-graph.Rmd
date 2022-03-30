@@ -1,8 +1,8 @@
 ---
-title: "graph-with-wind"
+title: "Improving the graph with wind"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{graph-with-wind}
+  %\VignetteIndexEntry{Improving the graph with wind}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,26 +18,39 @@ knitr::opts_chunk$set(
 library(GeoPressureR)
 library(ecmwfr)
 library(raster)
+library(ncdf4)
 library(leaflet)
 ```
 
+In this vignette, we will enhance the [basic graph](./articles/basic-graph) by adding the wind speed. This allows to defines the movement model on the airspeed (instead of groundspeed). In addition, we can extract windsupport information on the journey of the bird. 
+
+```{r}
+pam_data <- pam_read(
+  pathname = system.file("extdata", package = "GeoPressureR"),
+  crop_start = "2017-06-20", crop_end = "2018-05-02"
+)
+pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
+pam_data <- pam_sta(pam_data)
+data("static_prob", package = "GeoPressureR")
+```
 
 ## Download wind data
 
-As the flight are of short duration, we suggest that you download a file for each flight. Using the [`ecmfr`](https://bluegreen-labs.github.io/ecmwfr) package, we can send the query and download the files. 
+Wind data is available at high resolution (1hr, 0.25°, 37 pressure level) on [ERA5 hourly data on pressure levels](https://doi.org/10.24381/cds.bd0915c6). And this data is easily accessible through the [`ecmfr`](https://bluegreen-labs.github.io/ecmwfr) package. 
+As the flight are of short duration, we suggest to download a file for each flight.
 
-## Setup-up CDS access
-
-
+The first step is to setup-up your CDS access. You will need to create an account on [https://cds.climate.copernicus.eu/](https://cds.climate.copernicus.eu/user/register) to generate your API key and uid number. You can stored them in your `.Rprofile` with the commented code.
+ 
 ```{r, eval=F}
 #Sys.setenv( cds.key="Insert_your_CDS_API_KEY_here")
 #Sys.setenv( cds.user="Insert_your_CDS_UID_here")
+# usethis::edit_r_environ()
 cds.key <- Sys.getenv('cds.key')
 cds.user <- Sys.getenv('cds.user')
 wf_set_key(user = cds.user, key = cds.key, service = "cds")
 ```
 
-Define the 37 pressure level possible with ERA5 and Define the area for the query
+To efficiently query only the data needed, we will sub-select the pressure level needed for each flight. We enter the [37 pressure level of ERA-5](https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Levellistings) and define the geographical area.
 
 ```{r, eval=F}
 possible_pressure = c(1, 2, 3, 5, 7, 10, 20, 30, 50, 70, seq(100,250,25), seq(300,750,50), seq(775,1000,25))
@@ -46,7 +59,7 @@ area = extent(static_prob[[1]])
 area = c(area@ymax, area@xmin, area@ymin, area@xmax)
 ```
 
-
+It will be faster to send all the requests (one per flight) with `wf_request()` using `transfer = F` without waiting to get the data from one before requesting the next. These query can be very quick or sometime take a couple of hours, usually not more. You can monitor easily at [https://cds.climate.copernicus.eu/cdsapp#!/yourrequests](https://cds.climate.copernicus.eu/cdsapp#!/yourrequests) the status of your requests, delete them or download them manually if needed. 
 
 ```{r, eval=F}
 req <- list()
@@ -79,32 +92,33 @@ for (i_s in seq_len(nrow(pam_data$sta)-1)){
 }
 ```
 
+Define the folder where to download the data. `wf_transfer()` will download the file in the temporary folder by default.
 
+```{r}
+dir.save <- '~'
+```
+
+The following code will return the status of the request if then have not yet been processed, or return the data otherwise. I suggest to check on [https://cds.climate.copernicus.eu/cdsapp#!/yourrequests] if the request have been completed before running this code. It can take a couple of minutes to a few hours.    
 
 ```{r, eval=F}
-# Define a temporary folder to download the data. wf_transfer will download the file in the temporary folder by default
-dir.save <- tempdir() # ~
-
 for (i_s in seq_len(nrow(pam_data$sta)-1)){
   filename = paste0("18IC_",i_s,".nc")
-  ncfile <- wf_transfer(url = req[[i_s]]$request_id, service = "cds", user = cds.user, path = dir.save, filename=filename)
+  wf_transfer(url = req[[i_s]]$request_id, service = "cds", user = cds.user, path = dir.save, filename=filename)
 }
 ```
 
-```{r, eval=F}
+## Create graph
 
-# Download all the data and read the file in raster format
-wind_maps_u = list()
-wind_maps_v = list()
+We first create the graph identically to in [basic graph](./articles/basic-graph)
 
-c_data <- nc_open(paste0(dir.save,"/",filename))
-t <- ncvar_get(c_data, "u")
+```{r}
+grl <- graph_create(static_prob, thr_prob_percentile = .99, thr_gs = 150)  
+```
 
-for (i_s in seq_len(nrow(pam_data$sta)-1)){
-  filename = paste0("18IC_",i_s,".nc")
-  ncfile <- wf_transfer(url = req[[i_s]]$request_id, service = "cds", user = cds.user, path = dir.save, filename=filename)
-  # wind_maps_u[[i_s]] <- raster::raster(paste0(dir.save,"/",filename),varname="u",lvar=4)
-  # raster::brick(paste0(dir.save,"/",filename),varname="u")
-  # wind_maps_v[[i_s]] <- raster::raster(paste0(dir.save,"/",filename),varname="v")
-}
+
+## Add wind to graph
+
+```{r}
+filename = paste0(dir.save,"/","18IC_")
+grl$ws <- graph_add_wind(grl, pam_data$pressure, filename, thr_as = 100)
 ```

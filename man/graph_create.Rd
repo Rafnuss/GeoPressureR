@@ -9,12 +9,11 @@ graph_create(static_prob, thr_prob_percentile = 0.99, thr_gs = 150)
 \arguments{
 \item{static_prob}{list of raster containing probability map of each
 stationary period. The metadata of \code{static_prob} needs to include the flight
-duration to the next stationary period in the variable
-\code{next_flight_duration} as a numeric in hours.}
+information to the next stationary period in the metadata \code{flight}.}
 
 \item{thr_prob_percentile}{threshold of percentile (see explanation above)}
 
-\item{thr_gs}{threashold of groundspeed (km/h)  (see explanation above)}
+\item{thr_gs}{threshold of groundspeed (km/h)  (see explanation above)}
 }
 \value{
 graph as a list (see description above)
@@ -37,6 +36,7 @@ The graph returned is a list of the edges of the graph containing:
 \item \code{s}: source node (index in the 3d grid lat-lon-sta),
 \item \code{t}: target node (index in the 3d grid lat-lon-sta),
 \item \code{gs}: average ground speed required to make that transition (km/h)
+as complex number representing the E-W as real and S-N as imaginary.
 \item \code{ps}: static probability of each target node
 \item \code{sz}: size of the 3d grid lat-lon-sta
 \item \code{equipement}: node(s) of the first sta (index in the 3d grid lat-lon-sta)
@@ -50,6 +50,6 @@ The graph returned is a list of the edges of the graph containing:
 \code{static_prob}
 }
 
-The vignette \verb{How to use the graph} provided an example how to prepare the
-data for the function and the output of this function
+The vignette \href{./articles/basic-graph.html}{Basic graph} provided an example
+how to prepare the data for the function and the output of this function.
 }

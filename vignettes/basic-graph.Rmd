@@ -69,7 +69,7 @@ The graph returned is a list of the edges of the graph containing:
 We finally need to compute the probability of the transition represented by each edge of the graph. We use here a simple gamma distribution to model the probability of groundspeed.
 
 ```{r}
-grl$p <- grl$ps * dgamma(grl$gs, shape = 7, scale = 7)
+grl$p <- grl$ps * dgamma(abs(grl$gs), shape = 7, scale = 7)
 ```
 
 ## Output 1: Shortest path
@@ -89,10 +89,11 @@ grl$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), grl)
 
 
 ```{r}
+sta_duration <- unlist(lapply(static_prob,function(x){as.numeric(difftime(metadata(x)$temporal_extent[2],metadata(x)$temporal_extent[1],units="days"))}))
 leaflet() %>%
   addTiles() %>%
   addPolylines(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#808080", weight = 3) %>%
-  addCircles(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#000", weight = 10)
+  addCircles(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#000", weight = sta_duration^(0.3)*10)
 ```
 
 

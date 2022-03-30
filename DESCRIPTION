@@ -21,6 +21,7 @@ Imports:
     httr,
     jsonlite,
     Matrix,
+    pracma,
     raster,
     stats,
     utils
@@ -31,6 +32,7 @@ Suggests:
     knitr,
     leaflet,
     MASS,
+    ncdf4,
     plotly,
     RColorBrewer,
     readr,
