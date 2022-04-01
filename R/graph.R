@@ -54,8 +54,7 @@ graph_create <- function(static_prob,
   stopifnot(thr_gs >= 0)
 
   # compute size
-  nsta <- length(static_prob)
-  sz <- c(nrow(static_prob[[1]]), ncol(static_prob[[1]]), nsta)
+  sz <- c(nrow(static_prob[[1]]), ncol(static_prob[[1]]), length(static_prob))
   nll <- sz[1] * sz[2]
 
   # convert raster into normalized matrix
@@ -123,7 +122,7 @@ graph_create <- function(static_prob,
   cond <- T
   while (cond) {
     n_old <- sum(unlist(lapply(nds, sum)))
-    for (i_s in seq_len(nsta - 1)) {
+    for (i_s in seq_len(sz[3] - 1)) {
       nds[[i_s + 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
         flight_duration[i_s] * thr_gs & nds[[i_s + 1]]
       if (sum(nds[[i_s + 1]]) == 0) {
@@ -134,8 +133,8 @@ graph_create <- function(static_prob,
         ))
       }
     }
-    for (i_sr in seq_len(nsta - 1)) {
-      i_s <- nsta - i_sr + 1
+    for (i_sr in seq_len(sz[3] - 1)) {
+      i_s <- sz[3] - i_sr + 1
       nds[[i_s - 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
         flight_duration[i_s - 1] * thr_gs & nds[[i_s - 1]]
       if (sum(nds[[i_s - 1]]) == 0) {
@@ -162,7 +161,7 @@ graph_create <- function(static_prob,
 
   # Identify equipement and retrival
   equipement <- which(nds[[1]] == T)
-  retrival <- which(nds[[nsta]] == T) + (nsta - 1) * nll
+  retrival <- which(nds[[sz[3]]] == T) + (sz[3] - 1) * nll
 
 
   # Create the graph list from nds together with the exact groundspeed
@@ -170,7 +169,7 @@ graph_create <- function(static_prob,
   nds_sum <- unlist(lapply(nds, sum))
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
   progress_bar(0, max = sum(nds_expend_sum))
-  for (i_s in seq_len(nsta - 1)) {
+  for (i_s in seq_len(sz[3] - 1)) {
     # find all the possible equipment and target based on nds and expand to
     # all possible combination
     grt <- expand.grid(
@@ -222,36 +221,20 @@ graph_create <- function(static_prob,
     }
     progress_bar(sum(nds_expend_sum[seq(1, i_s)]),
       max = sum(nds_expend_sum),
-      text = paste0("| sta = ", i_s, "/", nsta - 1)
+      text = paste0("| sta = ", i_s, "/", sz[3] - 1)
     )
   }
 
-  gr <- do.call("rbind", gr)
-
-  # Trim
-  for (i in seq_len(nsta)) {
-    unique_s <- c(retrival, unique(gr$s))
-    unique_t <- c(equipement, unique(gr$t))
-
-    unique_s_new <- unique_s[unique_t %in% unique_s]
-    unique_t_new <- unique_t[unique_s %in% unique_t]
-
-    id <- gr$s %in% unique_s_new & gr$t %in% unique_t_new
-    if (all(id)) {
-      break
-    }
-    gr <- gr[id, ]
-  }
-
-  if (nrow(gr) == 0) {
-    stop(paste0("Triming in the graph resulted in an empty graph"))
-  }
-
-  # convert gr to a list to add other information
-  grl <- as.list(gr)
+  # convert gr to a list to a graph list with basic information
+  grl <- as.list(do.call("rbind", gr))
   grl$sz <- sz
   grl$equipement <- equipement
   grl$retrival <- retrival
+
+  # Trim
+  grl <- graph_trim(grl)
+
+  # Add metadata information
   grl$flight_duration <- flight_duration
   grl$lat <- lat
   grl$lon <- lon
@@ -269,6 +252,37 @@ graph_create <- function(static_prob,
 }
 
 
+
+#' Trim a graph
+#'
+#'
+#'
+#' @param grl graph constructed with `graph_create()`
+#' @return graph trimmed
+graph_trim <- function(grl) {
+  for (i in seq_len(grl$sz[3])) {
+    unique_s <- c(grl$retrival, unique(grl$s))
+    unique_t <- c(grl$equipement, unique(grl$t))
+
+    unique_s_new <- unique_s[unique_t %in% unique_s]
+    unique_t_new <- unique_t[unique_s %in% unique_t]
+
+    id <- grl$s %in% unique_s_new & grl$t %in% unique_t_new
+    if (all(id)) {
+      break
+    }
+    grl$s <- grl$s[id]
+    grl$t <- grl$t[id]
+    grl$gs <- grl$gs[id]
+    grl$ps <- grl$ps[id]
+  }
+
+  if (length(grl$s) == 0) {
+    stop(paste0("Triming in the graph resulted in an empty graph"))
+  }
+
+  return(grl)
+}
 
 #' Add windspeed and airspeed
 #'
@@ -291,6 +305,7 @@ graph_create <- function(static_prob,
 graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
   stopifnot(is.list(grl))
   stopifnot(c("s", "t", "sz", "lat", "lon", "flight") %in% names(grl))
+  stopifnot(length(grl$s) > 0)
   stopifnot(is.data.frame(pressure))
   stopifnot("date" %in% names(pressure))
   stopifnot(inherits(pressure$date, "POSIXt"))
@@ -310,17 +325,14 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
   uv <- matrix(NA, nrow = length(grl$s), ncol = 2)
 
   # Start progress bar
-  nsta <- max(unlist(lapply(grl$flight, function(x) {
-    x$sta_id
-  })))
   nds_expend_sum <- table(s[, 3])
   progress_bar(0,
     max = sum(nds_expend_sum),
-    text = paste0("| sta = ", 0, "/", nsta - 1)
+    text = paste0("| sta = ", 0, "/", grl$sz[3] - 1)
   )
 
   # Loop through the stationary period kept in the graph
-  for (i1 in seq_len(grl$sz[3])) {
+  for (i1 in seq_len(grl$sz[3]-1)) {
 
     # Extract the flight information from the current sta to the next one
     # considered in the graph. It can be the next, or if some sta are skipped
@@ -337,11 +349,11 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
     # We are assuming that the bird flight as a straight line between the source
     # and the target node of each edge.
     # If multiple flights happen during this transition, we assume that the bird
-    # flew with a constant groundspeed during each flight, thus considering its
+    # flew with a cosz[3]nt groundspeed during each flight, thus considering its
     # stop-over position to be spread according to the flight duration. This
     # does not account for habitat, so that it would assume a bird can stop over
     # water.
-    # While we could improve this part of the code to assume constant airspeed
+    # While we could improve this part of the code to assume cosz[3]nt airspeed
     # rather than groundspeed, we suggest to create the graph considering all
     # stopovers.
     ratio_sta <- as.matrix(c(0, cumsum(fl_s_dur) / sum(fl_s_dur)))
@@ -388,7 +400,7 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
       )
       t_q <- seq(from = t_s, to = t_e, by = 60 * 60)
 
-      # We assume that the bird is moving with a constant groundspeed between
+      # We assume that the bird is moving with a cosz[3]nt groundspeed between
       # `flight$start` and `flight$end`. Using a linear interpolation, we
       # extract the position (lat, lon) at every hour on `t_q`. Extrapolation
       # outside (before the bird departure or after he arrived) is with a
@@ -398,7 +410,8 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
       dlat <- (lat_e - lat_s) / dt
       dlon <- (lon_e - lon_s) / dt
       w <- pmax(pmin(as.numeric(
-        difftime(t_q, fl_s$start[i2], units = "hours")), dt), 0)
+        difftime(t_q, fl_s$start[i2], units = "hours")
+      ), dt), 0)
       w2 <- matrix(w, nrow = length(dlat), ncol = length(w), byrow = TRUE)
       lat_int <- lat_s + w2 * replicate(length(w), dlat)
       lon_int <- lon_s + w2 * replicate(length(w), dlon)
@@ -458,11 +471,11 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
 
         dlon <- lon[2] - lon[1]
         id_lon <- which(lon >= (min(lon_int[, i3]) - dlon) &
-                          (max(lon_int[, i3]) + dlon) >= lon)
+          (max(lon_int[, i3]) + dlon) >= lon)
 
         dlat <- abs(lat[2] - lat[1])
         id_lat <- which(lat >= (min(lat_int[, i3]) - dlat) &
-                          (max(lat_int[, i3]) + dlat) >= lat)
+          (max(lat_int[, i3]) + dlat) >= lat)
 
 
         # get the two maps of u- and v-
@@ -487,8 +500,10 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
         # the current time step.
         ll_int <- round(cbind(lat_int[, i3], lon_int[, i3]), 1)
         ll_int_uniq <- unique(ll_int)
-        id_uniq <- match(ll_int[, 1] * 1000 + ll_int[, 2],
-                         ll_int_uniq[, 1] * 1000 + ll_int_uniq[, 2])
+        id_uniq <- match(
+          ll_int[, 1] * 1000 + ll_int[, 2],
+          ll_int_uniq[, 1] * 1000 + ll_int_uniq[, 2]
+        )
 
         tmp <- pracma::interp2(rev(lat[id_lat]), lon[id_lon],
           u[, rev(seq_len(ncol(u)))],
@@ -510,7 +525,7 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
 
       progress_bar(sum(nds_expend_sum[seq(1, i_s)]),
         max = sum(nds_expend_sum),
-        text = paste0("| sta = ", i_s, "/", nsta - 1)
+        text = paste0("| sta = ", i_s, "/", grl$sz[3] - 1)
       )
     }
     # Compute the average  over all the flight of the transition accounting for
@@ -520,17 +535,27 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
   }
 
   # save windspeed in complex notation
-  grl$ws <- uv[st_id, 1] + 1i * uv[st_id, 2]
+  grl$ws <- uv[, 1] + 1i * uv[, 2]
 
   # compute airspeed
   grl$as <- grl$gs - grl$ws
 
   # filter edges based on airspeed
   id <- abs(grl$as) <= thr_as
+  sta_pass <- which(!(seq_len(grl$sz[3]-1) %in% unique(s[id,3])))
+  if ( length(sta_pass) > 0 ) {
+    stop(paste0("Using the `thr_as` of ", thr_as, " km/h provided with the
+                  exact distance of edges, there are not any nodes left for
+                  the stationay period: ", paste(sta_pass, collapse = ', '),
+                  " with a minimum airspeed of ",
+                min(abs(grl$as[s[,3]==sta_pass])), " km/h"))
+  }
+
   grl$s <- grl$s[id]
   grl$t <- grl$t[id]
   grl$gs <- grl$gs[id]
   grl$as <- grl$as[id]
+  grl$ws <- grl$ws[id]
 
   grl
 }
