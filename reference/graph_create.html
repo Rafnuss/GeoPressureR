@@ -77,12 +77,11 @@ filtering and triming the probability maps provided.</p>
     <dl><dt>static_prob</dt>
 <dd><p>list of raster containing probability map of each
 stationary period. The metadata of <code>static_prob</code> needs to include the flight
-duration to the next stationary period in the variable
-<code>next_flight_duration</code> as a numeric in hours.</p></dd>
+information to the next stationary period in the metadata <code>flight</code>.</p></dd>
 <dt>thr_prob_percentile</dt>
 <dd><p>threshold of percentile (see explanation above)</p></dd>
 <dt>thr_gs</dt>
-<dd><p>threashold of groundspeed (km/h)  (see explanation above)</p></dd>
+<dd><p>threshold of groundspeed (km/h)  (see explanation above)</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -96,7 +95,8 @@ each stationary period.</p></li>
 <li><p>those which average ground speed is lower than <code>thr_gs</code> km/h.</p></li>
 </ol><p>The graph returned is a list of the edges of the graph containing:</p><ul><li><p><code>s</code>: source node (index in the 3d grid lat-lon-sta),</p></li>
 <li><p><code>t</code>: target node (index in the 3d grid lat-lon-sta),</p></li>
-<li><p><code>gs</code>: average ground speed required to make that transition (km/h)</p></li>
+<li><p><code>gs</code>: average ground speed required to make that transition (km/h)
+as complex number representing the E-W as real and S-N as imaginary.</p></li>
 <li><p><code>ps</code>: static probability of each target node</p></li>
 <li><p><code>sz</code>: size of the 3d grid lat-lon-sta</p></li>
 <li><p><code>equipement</code>: node(s) of the first sta (index in the 3d grid lat-lon-sta)</p></li>
@@ -108,8 +108,8 @@ each stationary period.</p></li>
 <li><p><code>resolution</code>: raster res of the <code>static_prob</code></p></li>
 <li><p><code>temporal_extent</code>: start and end date time retrieved from the metadata of
 <code>static_prob</code></p></li>
-</ul><p>The vignette <code>How to use the graph</code> provided an example how to prepare the
-data for the function and the output of this function</p>
+</ul><p>The vignette <a href="./articles/basic-graph.html">Basic graph</a> provided an example
+how to prepare the data for the function and the output of this function.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
