@@ -94,7 +94,7 @@ for (i_s in seq_len(nrow(pam_data$sta)-1)){
 
 Define the folder where to download the data. `wf_transfer()` will download the file in the temporary folder by default.
 
-```{r}
+```{r, eval=F}
 dir.save <- '~'
 ```
 
@@ -111,14 +111,14 @@ for (i_s in seq_len(nrow(pam_data$sta)-1)){
 
 We first create the graph identically to in [basic graph](./articles/basic-graph)
 
-```{r}
+```{r, eval=F}
 grl <- graph_create(static_prob, thr_prob_percentile = .99, thr_gs = 150)  
 ```
 
 
 ## Add wind to graph
 
-```{r}
+```{r, eval=F}
 filename = paste0(dir.save,"/","18IC_")
 grl$ws <- graph_add_wind(grl, pam_data$pressure, filename, thr_as = 100)
 ```
