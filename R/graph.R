@@ -247,8 +247,7 @@ graph_create <- function(static_prob,
     raster::metadata(x)$flight
   })
 
-  # return
-  grl
+  return(grl)
 }
 
 
@@ -557,7 +556,7 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
   grl$as <- grl$as[id]
   grl$ws <- grl$ws[id]
 
-  grl
+  return(grl)
 }
 
 
@@ -618,8 +617,7 @@ graph_marginal <- function(grl) {
       "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
   }
 
-  # return
-  static_prob_marginal
+  return(static_prob_marginal)
 }
 
 
@@ -695,7 +693,7 @@ graph_simulation <- function(grl, nj = 100) {
     progress_bar(i_sta, max = grl$sz[3])
   }
 
-  graph_path2lonlat(path, grl)
+  return(graph_path2lonlat(path, grl))
 }
 
 
@@ -713,7 +711,7 @@ graph_path2lonlat <- function(path_id, grl) {
   dim(p$lat) <- dim(p$id)
   p$lon <- grl$lon[ind[, 2]]
   dim(p$lon) <- dim(p$id)
-  p
+  return(p)
 }
 
 

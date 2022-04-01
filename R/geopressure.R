@@ -214,8 +214,7 @@ geopressure_map <-
       )
     }
 
-    # return
-    pressure_maps
+    return(pressure_maps)
   }
 
 
@@ -300,7 +299,7 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
     raster::metadata(raster_prob_list[[i_s]]) <-
       raster::metadata(pressure_maps[[i_s]])
   }
-  raster_prob_list
+  return(raster_prob_list)
 }
 
 
@@ -442,8 +441,7 @@ geopressure_ts <-
     out$time <- as.POSIXct(out$time, origin = "1970-01-01")
     names(out)[names(out) == "time"] <- "date"
 
-    # return
-    out
+    return(out)
   }
 
 

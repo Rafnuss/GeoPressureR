@@ -64,8 +64,7 @@ pam_read <- function(pathname,
     )
   }
 
-  # return
-  pam
+  return(pam)
 }
 
 #' Read pam file
@@ -110,8 +109,7 @@ pam_read_file <- function(filename, crop_start, crop_end) {
     data$obs <- data_raw[id_date, 3]
   }
 
-  # return
-  data
+  return(data)
 }
 
 
@@ -181,8 +179,7 @@ pam_classify <- function(pam,
   # plot(pam$acceleration$date[pam$acceleration$ismig],
   # pam$acceleration$act[pam$acceleration$ismig])
 
-  # return
-  pam
+  return(pam)
 }
 
 
@@ -237,11 +234,7 @@ trainset_edit <- function(pam,
   }
 
   # Read the new file and return the updated pam data
-  trainset_read(
-    pam,
-    pathname,
-    filename
-  )
+  return(trainset_read(pam, pathname,filename))
 }
 
 
@@ -314,8 +307,6 @@ trainset_write <- function(pam,
     paste0(pathname, filename, ".csv"),
     row.names = FALSE
   )
-
-  # no return
 }
 
 
@@ -376,8 +367,7 @@ trainset_read <- function(pam,
   pam$acceleration$ismig <- !is.na(csv$label[csv$series == "acceleration"])
   pam$pressure$isoutliar <- !is.na(csv$label[csv$series == "pressure"])
 
-  # return
-  pam
+  return(pam)
 }
 
 
@@ -458,6 +448,5 @@ pam_sta <- function(pam) {
   light_sta_id[sapply(light_sta_id, function(x) length(x) == 0)] <- 0
   pam$light$sta_id <- unlist(light_sta_id)
 
-  # return the updated list
-  pam
+  return(pam)
 }
