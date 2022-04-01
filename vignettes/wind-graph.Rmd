@@ -94,7 +94,7 @@ for (i_s in seq_len(nrow(pam_data$sta)-1)){
 
 Define the folder where to download the data. `wf_transfer()` will download the file in the temporary folder by default.
 
-```{r, eval=F}
+```{r}
 dir.save <- '~'
 ```
 
@@ -118,7 +118,87 @@ grl <- graph_create(static_prob, thr_prob_percentile = .99, thr_gs = 150)
 
 ## Add wind to graph
 
+We can compute the windspeed experienced by the bird if he had flew each possible transition (i.e. edge in the graph). Based on this windspeed and groundspeed, we also compute the airspeed. All of these are stored as complex value with the real part representing the E-W component and the imaginary part corresponding to the N-S. 
+
 ```{r, eval=F}
 filename = paste0(dir.save,"/","18IC_")
-grl$ws <- graph_add_wind(grl, pam_data$pressure, filename, thr_as = 100)
+grl <- graph_add_wind(grl, pressure=pam_data$pressure, filename)#, thr_as = 100)
+usethis::use_data(grl, overwrite = T)
+```
+
+```{r}
+data("grl", package = "GeoPressureR")
+```
+
+## Compute the edges probability
+
+Now that the have computed the airspeed required for performing the transition of each edge, we can improve the computation of the probability by modeling the probability of airspeed rather than groundspeed. 
+
+We first search the morphological information of the Great Reed Warbler using the [AVONET database](https://doi.org/10.6084/m9.figshare.16586228.v5). You can also overwrite any of these value if you know them. See `flight_bird()` for more details
+```{r}
+bird <- flight_bird("Acrocephalus arundinaceus")
+speed <- seq(0,80)
+prob <- flight_prob(speed, method = "power", bird = bird, low_speed_fix = 10)
+plot(speed, prob, type="l", xlab="Airspeed [km/h]", ylab="Probability")
+grl$p <- grl$ps * flight_prob(grl$gs, method = "power", bird = bird, low_speed_fix = 10)
+```
+
+
+## Output 1: Shortest path
+
+In graph theroy, [the shortest path](https://en.wikipedia.org/wiki/Shortest_path_problem) correspond to the set of nodes whose sum of the edges weights are as small as possible. By weighting the edges with the minus of the log of the porbability, this corresponds to finding the most likely trajectory of our bird. We solve this problem with the [igraph package](https://igraph.org/r/)
+
+```{r}
+g <- graph_from_data_frame(data.frame(
+  from = grl$s,
+  to = grl$t,
+  weight = -log(grl$p)
+))
+sp <- shortest_paths(g, from = paste(grl$equipement), to = paste(grl$retrival))
+# Convert igraph representation to lat-lon
+grl$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), grl)
+```
+
+
+```{r}
+sta_duration <- unlist(lapply(static_prob,function(x){as.numeric(difftime(metadata(x)$temporal_extent[2],metadata(x)$temporal_extent[1],units="days"))}))
+leaflet() %>%
+  addTiles() %>%
+  addPolylines(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#808080", weight = 3) %>%
+  addCircles(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#000", weight = sta_duration^(0.3)*10)
+```
+
+
+## Output 2: Proability map of stationary period
+
+Estimating the position of the bird for each stationary period is generally the most sought-after output of tracking studies. Using the graph built, we can compute this exactly (i.e., without iterative approach such as MCMC). This problem is the same as computing the marginal distribution of a Markov process which can be solved mathematically.
+
+```{r}
+grl_marginal <- graph_marginal(grl)
+```
+
+```{r, warning=F}
+li_s <- list()
+l <- leaflet() %>% addTiles()
+for (i_r in seq_len(length(grl_marginal))) {
+  i_s <- metadata(static_prob[[i_r]])$sta_id
+  info <- metadata(static_prob[[i_r]])$temporal_extent
+  info_str <- paste0(i_s, " | ", info[1], "->", info[2])
+  li_s <- append(li_s, info_str)
+  l <- l %>%
+    addRasterImage(grl_marginal[[i_r]], colors = "OrRd", opacity = 0.8, group = info_str) %>%
+    addCircles(lng = grl$shortest_path$lon[i_s], lat = grl$shortest_path$lat[i_s], opacity = 1, color = "#000", weight = 10, group = info_str)
+}
+l %>%
+  addLayersControl(
+    overlayGroups = li_s,
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+  hideGroup(tail(li_s, length(li_s) - 1))
+```
+
+## Output 3: Simulate path
+
+```{r}
+path <- graph_simulation(grl)
 ```

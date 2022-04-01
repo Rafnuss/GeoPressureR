@@ -66,10 +66,17 @@ The graph returned is a list of the edges of the graph containing:
 - `temporal_extent`: start and end date time retrieved from the metadata of
 `static_prob`
 
-We finally need to compute the probability of the transition represented by each edge of the graph. We use here a simple gamma distribution to model the probability of groundspeed.
+## Compute the edges probability
+
+We finally need to compute the probability of the transition represented by each edge of the graph. We use here a simple gamma distribution to model the probability of groundspeed. Because bird may flight back and forth over small distance, we give apparent groundspeed smaller than 20km/h the same probability than for 20 km/h.
 
 ```{r}
-grl$p <- grl$ps * dgamma(abs(grl$gs), shape = 7, scale = 7)
+speed <- seq(1,120)
+low_speed_fix = 20 # minimum speed allowed
+prob <- flight_prob(speed, method="gamma",shape = 7, scale = 7, low_speed_fix = low_speed_fix)
+plot(speed,prob, type="l", xlab="Groundspeed [km/h]", ylab="Probability")
+abline(v=low_speed_fix)
+grl$p <- grl$ps * flight_prob(grl$gs, method="gamma", shape = 7, scale = 7, low_speed_fix = low_speed_fix)
 ```
 
 ## Output 1: Shortest path
