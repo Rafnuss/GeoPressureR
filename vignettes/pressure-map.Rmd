@@ -116,7 +116,7 @@ pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] <- NA
 
 We can now query the data on the API with `geopressure_map()`. A detailed description of the parameters can be found [here](https://raphaelnussbaumer.com/GeoPressureServer/#request). This will take a couple of minutes to run.
 
-```{r, include = FALSE}
+```{r}
 # For this vignette, we can load the pre-computed value to save time.
 data("pressure_maps", package = "GeoPressureR")
 data("pressure_prob", package = "GeoPressureR")
