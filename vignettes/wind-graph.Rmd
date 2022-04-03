@@ -20,6 +20,7 @@ library(ecmwfr)
 library(raster)
 library(ncdf4)
 library(leaflet)
+library(igraph)
 ```
 
 In this vignette, we will enhance the [basic graph](./articles/basic-graph) by adding the wind speed. This allows to defines the movement model on the airspeed (instead of groundspeed). In addition, we can extract windsupport information on the journey of the bird. 
