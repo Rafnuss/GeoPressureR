@@ -30,6 +30,10 @@ reference:
   desc: create a graph and compute graph products
   contents:
   - starts_with("graph_")
+- title: Flight
+  desc: groundspeed or airspeed to probability
+  contents:
+  - starts_with("flight_")
 - title: Dataset
   desc: Dataset used for vignettes
   contents:
