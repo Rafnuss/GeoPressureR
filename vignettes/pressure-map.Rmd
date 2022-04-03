@@ -140,7 +140,7 @@ $$\textbf{P} = \exp \left(-w \frac{\textbf{MSE}}{s} \right) [\textbf{z}_{thr}>th
 where $s$ is the standard deviation of pressure and $thr$ is the threshold mask. Because the auto-correlation of the timeseries is not accounted for in this equation, we use a log-linear pooling weight $w=\log(n) - 1$, where $n$ is the number of datapoints in the timeseries. This operation is described in publication [...]. Another vignette describing the influence of log-linear pooling and length of timeseries will be added later. 
 
 ```{r, eval = F}
-s <- 0.4 # standard deviation of pressure
+s <- 1 # standard deviation of pressure
 thr <- 0.9 # threshold of the threshold proportion value acceptable
 pressure_prob <- geopressure_prob_map(pressure_maps, s = s, thr = thr)
 usethis::use_data(pressure_prob, overwrite = T)
