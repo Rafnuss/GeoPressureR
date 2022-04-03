@@ -171,7 +171,7 @@ l <- leaflet() %>% addTiles()
 for (i_r in seq_len(length(pressure_prob))) {
   i_s <- metadata(pressure_prob[[i_r]])$sta_id
   info <- pam_data$sta[pam_data$sta$sta_id == i_s, ]
-  info_str <- paste0(i_s, " | ", info$start, "->", info$end)
+  info_str <- paste0(i_s, " | ", format(info$start,"%d-%b %H:%M"), "->", format(info$end,"%d-%b %H:%M")) 
   li_s <- append(li_s, info_str)
   l <- l %>% addRasterImage(pressure_prob[[i_r]], opacity = 0.8, colors = "OrRd", group = info_str)
 }

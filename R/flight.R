@@ -6,8 +6,8 @@
 #'
 #' When any of these variables are missing, we query the AVONET database]
 #' (https://doi.org/10.6084/m9.figshare.16586228.v5)
-#' using the sciencific name from [the Clements Checklist of Birds of the World]
-#' (https://www.birds.cornell.edu/clementschecklist/).
+#' using the sciencific name from
+#' [the Clements Checklist](https://www.birds.cornell.edu/clementschecklist/).
 #'
 #' @param species_name scientific name of the species
 #' @param mass in kilogram
@@ -48,7 +48,7 @@ flight_bird <- function(species_name,
       stop(
         "No match for '", species_name,
         "'. Please use the exact name. \nClosest matches are: \n",
-        paste(capture.output(print(tmp)), collapse = "\n")
+        paste(utils::capture.output(print(tmp)), collapse = "\n")
       )
     } else if (length(sp_id) > 1) {
       tmp <- print(avonet[sp_id, ])
@@ -192,9 +192,15 @@ flight_power <- function(as, bird) {
 #' @param speed airspeed or groundspeed in km/h
 #' @param method method used to convert the speed to probability ("gamma" or
 #' "power")
+#' @param shape parameter of the gamma distribution
+#' @param scale  parameter of the gamma distribution
 #' @param bird list of basic morphological trait necessary: mass, wing span,
 #' wing aspect ratio and body frontal area. It is best practice to create bird
 #' with `flight_bird()`.
+#' @param fun_power function taking power as a single argument and returning a
+#' probability
+#' @param low_speed_fix speed below which the probability remains the same. This
+#' parameter is used to allow short flight covering small distance.
 #' @return Probability values corresponding to the speed provided
 #' @examples
 #' speed <- seq(1, 120)
@@ -233,7 +239,7 @@ flight_prob <- function(speed,
   speed <- pmax(speed, low_speed_fix)
 
   if (method == "gamma") {
-    return(dgamma(speed, shape, 1 / scale))
+    return(stats::dgamma(speed, shape, 1 / scale))
   } else if (method == "power") {
     # `flight_power` is defined in m/s (SI), but the rest of your code is using
     # km/h. This is where we need to convert.

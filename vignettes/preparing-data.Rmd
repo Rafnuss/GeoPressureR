@@ -50,9 +50,10 @@ pam_data <- pam_sta(pam_data)
 In this step, we need to retrieve the pressure and light data for the same stationary period. There are three sources of data to overlap, the last one (`sta_id_keep`) is where you can choose to include only part of the data. As mentioned above, it is easier to start by filtering only longer stationary periods, and then reduce the threshold on stopover duration.
 
 ```{r}
+thr_sta_dur = 0
 sta_pres <- unlist(lapply(pressure_prob, function(x) raster::metadata(x)$sta_id))
 sta_light <- unlist(lapply(light_prob, function(x) raster::metadata(x)$sta_id))
-sta_thres <- pam_data$sta$sta_id[difftime(pam_data$sta$end, pam_data$sta$start, units = "hours") > 0]
+sta_thres <- pam_data$sta$sta_id[difftime(pam_data$sta$end, pam_data$sta$start, units = "hours") > thr_sta_dur]
 # Get the sta_id present on all three data sources
 sta_id_keep = intersect(intersect(sta_pres,sta_light),sta_thres)
 # Filter pressure and light map
@@ -186,7 +187,7 @@ for (i_r in seq_len(length(static_prob))) {
   if ( i_r > 1 ){
     mtf <- metadata(static_prob[[i_r-1]])
     flight_duration <- as.numeric(sum(difftime(mtf$flight$end,mtf$flight$start,unit="hours")))
-    info_str <- paste0(mt$sta_id, " | ", mt$temporal_extent[1], "->", mt$temporal_extent[2], " | ",flight_duration)
+    info_str <- paste0(mt$sta_id, " | ", format(mt$temporal_extent[1],"%d-%b %H:%M"), "->", format(mt$temporal_extent[2],"%d-%b %H:%M"), " | ", round(flight_duration),"hrs")
     max_dist <- flight_duration*speed_thr*1000
   } else{
     info_str <- paste0(mt$sta_id, " | ", mt$temporal_extent[1], "->", mt$temporal_extent[2])
@@ -252,6 +253,16 @@ dfb %>%
 ```
 
 
+## Vizualize 
+
+```{r}
+data("pressure_timeserie", package = "GeoPressureR")
+save(pressure_prob,
+light_prob,
+static_prob,
+pam_data,
+file = "geopressureviz.RData")
+```
 
 
 ## Export static probability

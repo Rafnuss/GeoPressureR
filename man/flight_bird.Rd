@@ -38,8 +38,8 @@ and body frontal area.
 \details{
 When any of these variables are missing, we query the AVONET database]
 (https://doi.org/10.6084/m9.figshare.16586228.v5)
-using the sciencific name from \link{the Clements Checklist of Birds of the World}
-(https://www.birds.cornell.edu/clementschecklist/).
+using the sciencific name from
+\href{https://www.birds.cornell.edu/clementschecklist/}{the Clements Checklist}.
 }
 \examples{
 # Using AVONET dataset

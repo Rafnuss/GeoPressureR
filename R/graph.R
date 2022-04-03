@@ -331,7 +331,7 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
   )
 
   # Loop through the stationary period kept in the graph
-  for (i1 in seq_len(grl$sz[3]-1)) {
+  for (i1 in seq_len(grl$sz[3] - 1)) {
 
     # Extract the flight information from the current sta to the next one
     # considered in the graph. It can be the next, or if some sta are skipped
@@ -541,13 +541,15 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
 
   # filter edges based on airspeed
   id <- abs(grl$as) <= thr_as
-  sta_pass <- which(!(seq_len(grl$sz[3]-1) %in% unique(s[id,3])))
-  if ( length(sta_pass) > 0 ) {
-    stop(paste0("Using the `thr_as` of ", thr_as, " km/h provided with the
+  sta_pass <- which(!(seq_len(grl$sz[3] - 1) %in% unique(s[id, 3])))
+  if (length(sta_pass) > 0) {
+    stop(paste0(
+      "Using the `thr_as` of ", thr_as, " km/h provided with the
                   exact distance of edges, there are not any nodes left for
-                  the stationay period: ", paste(sta_pass, collapse = ', '),
-                  " with a minimum airspeed of ",
-                min(abs(grl$as[s[,3]==sta_pass])), " km/h"))
+                  the stationay period: ", paste(sta_pass, collapse = ", "),
+      " with a minimum airspeed of ",
+      min(abs(grl$as[s[, 3] == sta_pass])), " km/h"
+    ))
   }
 
   grl$s <- grl$s[id]
