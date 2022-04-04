@@ -40,11 +40,11 @@ ui <- bootstrapPage(
         column(6, htmlOutput("fl_next_info")),
       ),
       tags$hr(),
-      tags$p("Explitory text"),
+      tags$p("Change position by clicking on the map and update the pressure timeserie."),
       fluidPage(
         id = "thr_sta_page",
         fluidRow(
-          column(6, actionButton("edit_pos", "Edit the position")),
+          column(6, actionButton("edit_pos", "Start editing")),
           column(6, actionButton("query_pos", "Query pressure")),
         )
       ),

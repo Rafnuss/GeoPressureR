@@ -6,11 +6,152 @@ server <- function(input, output, session) {
     shinyjs::hidden(map_source)
   }
 
-  # Initiliaze reactive value
+  ## Reactive variable ----
+
   reactVal <- reactiveValues(
     path = path0, # path
-    ts = ts0 # timeserie of pressure
+    ts = ts0, # timeserie of pressurer
+    isEdit = F # if editing position
   )
+
+  flight_duration <- reactive({
+    id <- which(sta$duration >= as.numeric(input$thr_sta))
+    flight_duration <- c()
+    for (i_f in seq_len(length(id) - 1)) {
+      from_sta_id <- id[i_f]
+      to_sta_id <- id[i_f + 1]
+
+      flight_duration[i_f] <- sum(
+        do.call(rbind, lapply(
+          flight[seq(from_sta_id, to_sta_id)],
+          function(x) {
+            sum(x$duration)
+          }
+        ))
+      )
+    }
+    flight_duration
+  }) %>% bindEvent(input$thr_sta)
+
+
+  map_prob <- reactive({
+    if (is.null(input$map_source)) {
+      return(NA)
+    }
+    if (length(input$map_source) == 2) {
+      static_prob
+    } else if (input$map_source == "Pressure") {
+      pressure_prob
+    } else if (input$map_source == "Light") {
+      light_prob
+    } else {
+      return(NA)
+    }
+  }) %>% bindEvent(input$map_source)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ## Render ----
+  output$map <- renderLeaflet({
+    map <- leaflet() %>%
+      addProviderTiles(providers$CartoDB.DarkMatterNoLabels,
+                       options = providerTileOptions(noWrap = TRUE)
+      )
+  })
+
+  output$fl_prev_info <- renderUI({
+    req(input$i_sta)
+    fl_dur <- flight_duration()
+    id <- which(sta$duration >= as.numeric(input$thr_sta))
+    sta_id_thr <- sta$sta_id[id]
+    i_s_thr <- which(as.numeric(input$i_sta) == sta_id_thr)
+    if (i_s_thr!=1){
+      dist <- distGeo(reactVal$path[id[i_s_thr-1],], reactVal$path[id[i_s_thr],])/1000
+      HTML(
+        "<b>Previous flight:</b><br>",
+        sta_id_thr[i_s_thr]-sta_id_thr[i_s_thr-1]," flights -",
+        round(fl_dur[i_s_thr - 1])," hrs<br>",
+        round(dist)," km - ",
+        round(dist/fl_dur[i_s_thr - 1]), "km/h"
+      )
+    } else {
+      HTML("")
+    }
+  })
+
+  output$fl_next_info <- renderUI({
+    req(input$i_sta)
+    fl_dur <- flight_duration()
+    id <- which(sta$duration >= as.numeric(input$thr_sta))
+    sta_id_thr <- sta$sta_id[id]
+    i_s_thr <- which(as.numeric(input$i_sta) == sta_id_thr)
+    if (i_s_thr!= length(sta_id_thr)){
+      dist <- geosphere::distGeo(reactVal$path[id[i_s_thr+1],], reactVal$path[id[i_s_thr],])/1000
+      HTML(
+        "<b>Next flight:</b><br>",
+        sta_id_thr[i_s_thr+1]-sta_id_thr[i_s_thr]," flights -",
+        round(sum(fl_dur[i_s_thr]))," hrs<br>",
+        round(dist)," km - ",
+        round(dist/fl_dur[i_s_thr]), "km/h"
+      )
+    } else {
+      HTML("")
+    }
+  })
+
+  output$pressure_graph <- renderPlotly({
+    p <- ggplot() +
+      geom_line(data = pam_data$pressure, aes(x = date, y = obs), colour = "grey") +
+      geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
+      theme_bw()
+
+    req(input$thr_sta)
+    for (ts in reactVal$ts){
+      sta_th <- sta[ts$sta_id[1]==sta$sta_id,]
+      if (sta_th$duration > as.numeric(input$thr_sta)){
+        p <- p +
+          geom_line(data = ts, aes(x = date, y = pressure0), col = sta_th$col, linetype=ts$lt[1])
+      }
+    }
+
+    ggplotly(p, dynamicTicks = T, height = 300, tooltip=c("date","pressure0","lt")) %>%
+      layout(
+        showlegend = F,
+        yaxis = list(title = "Pressure [hPa]")
+      )
+  })
+
+
+
+
+
+
+
+
+
+  ## ObserveEvents ----
+  # Same order than the ui
+
+  observeEvent(input$allsta, {
+    if (input$allsta) {
+      shinyjs::hide(id = "sta_div")
+      shinyjs::show(id = "thr_sta_page")
+    } else {
+      shinyjs::show(id = "sta_div")
+      shinyjs::hide(id = "thr_sta_page")
+    }
+  })
 
   observeEvent(input$thr_sta, {
     id <- sta$duration >= as.numeric(input$thr_sta)
@@ -35,84 +176,18 @@ server <- function(input, output, session) {
     updateSelectizeInput(session, "i_sta", selected = tmp[i])
   })
 
-  observeEvent(input$allsta, {
-    if (input$allsta) {
-      shinyjs::hide(id = "sta_div")
-      shinyjs::show(id = "thr_sta_page")
+  observeEvent(input$edit_pos, {
+    if (reactVal$isEdit) {
+      reactVal$isEdit <- F
+      updateActionButton(session, "edit_pos", label = "Start editing")
+      removeClass("edit_pos", "primary")
     } else {
-      shinyjs::show(id = "sta_div")
-      shinyjs::hide(id = "thr_sta_page")
+      reactVal$isEdit <- T
+      updateActionButton(session, "edit_pos", label = "Stop editing")
+      addClass("edit_pos", "primary")
     }
   })
 
-
-
-  flight_duration <- reactive({
-    id <- which(sta$duration >= as.numeric(input$thr_sta))
-    flight_duration <- c()
-    for (i_f in seq_len(length(id) - 1)) {
-      from_sta_id <- id[i_f]
-      to_sta_id <- id[i_f + 1]
-
-      flight_duration[i_f] <- sum(
-        do.call(rbind, lapply(
-          flight[seq(from_sta_id, to_sta_id)],
-          function(x) {
-            sum(x$duration)
-          }
-        ))
-      )
-    }
-    flight_duration
-  }) %>% bindEvent(input$thr_sta)
-
-  output$fl_prev_info <- renderUI({
-    req(input$i_sta)
-    fl_dur <- flight_duration()
-    id <- which(sta$duration >= as.numeric(input$thr_sta))
-    sta_id_thr <- sta$sta_id[id]
-    i_s_thr <- which(as.numeric(input$i_sta) == sta_id_thr)
-    if (i_s_thr!=1){
-      dist <- geosphere::distGeo(reactVal$path[id[i_s_thr-1],], reactVal$path[id[i_s_thr],])/1000
-      HTML(
-        sta_id_thr[i_s_thr]-sta_id_thr[i_s_thr-1]," flights -",
-        round(fl_dur[i_s_thr - 1])," hrs<br>",
-        round(dist)," km - ",
-        round(dist/fl_dur[i_s_thr - 1]), "km/h"
-      )
-    } else {
-      HTML("")
-    }
-  })
-
-  output$fl_next_info <- renderUI({
-    req(input$i_sta)
-    fl_dur <- flight_duration()
-    id <- which(sta$duration >= as.numeric(input$thr_sta))
-    sta_id_thr <- sta$sta_id[id]
-    i_s_thr <- which(as.numeric(input$i_sta) == sta_id_thr)
-    if (i_s_thr!= length(sta_id_thr)){
-      dist <- geosphere::distGeo(reactVal$path[id[i_s_thr+1],], reactVal$path[id[i_s_thr],])/1000
-
-      HTML(
-        sta_id_thr[i_s_thr+1]-sta_id_thr[i_s_thr]," flights -",
-        round(sum(fl_dur[i_s_thr]))," hrs<br>",
-        round(dist)," km - ",
-        round(dist/fl_dur[i_s_thr]), "km/h"
-      )
-    } else {
-      HTML("")
-    }
-  })
-
-  output$map <- renderLeaflet({
-    map <- leaflet() %>%
-      addProviderTiles(providers$CartoDB.DarkMatterNoLabels,
-                       options = providerTileOptions(noWrap = TRUE)
-      )
-  })
-
-  reactVal$isEdit <- F
   observeEvent(input$map_click, {
     if (is.null(click)) {
       return()
@@ -127,55 +202,23 @@ server <- function(input, output, session) {
     }
   })
 
-
-  observeEvent(input$edit_pos, {
-    if (reactVal$isEdit) {
-      reactVal$isEdit <- F
-      updateActionButton(session, "edit_pos", label = "Edit position")
-      removeClass("edit_pos", "primary")
-    } else {
-      reactVal$isEdit <- T
-      updateActionButton(session, "edit_pos", label = "Stop editing")
-      addClass("edit_pos", "primary")
-    }
-  })
-
   observeEvent(input$query_pos, {
-    print("test")
-    if (reactVal$isEdit) {
-      return()
-    }
-    print("test2")
-    id <- which(as.numeric(input$i_sta) == sta$sta_id)
+    i_s <- as.numeric(input$i_sta)
+    id <- which(i_s == sta$sta_id)
     pam_pressure_sta <- subset(pam_data$pressure, sta_id == input$i_sta)
-    print("sens")
-    reactVal$ts[[id]] <- geopressure_ts(reactVal$path$lon[id], reactVal$path$lat[id],
+    ts <- geopressure_ts(reactVal$path$lon[id], reactVal$path$lat[id],
                                         pressure = pam_pressure_sta
     )
-    reactVal$ts[[id]]["sta_id"] <- input$i_sta
-    reactVal$ts[[id]]$pressure0 <- reactVal$ts[[id]]$pressure - mean(reactVal$ts[[id]]$pressure) + mean(pam_pressure_sta$obs[!pam_pressure_sta$isoutliar])
+    ts$sta_id <- input$i_sta
+    ts$pressure0 <- ts$pressure - mean(ts$pressure) + mean(pam_pressure_sta$obs[!pam_pressure_sta$isoutliar])
+    ts$lt = sum(input$i_sta==lapply(reactVal$ts,function(x){x$sta_id[1]}))+1
+    print(sum(input$i_sta==lapply(reactVal$ts,function(x){x$sta_id[1]}))+1)
+    reactVal$ts[[length(reactVal$ts)+1]] <- ts
+    updateSelectizeInput(session, "i_sta", selected = 1)
     updateSelectizeInput(session, "i_sta", selected = input$i_sta)
-    print("finished")
   })
 
-
-
-  map_prob <- reactive({
-    if (is.null(input$map_source)) {
-      return(NA)
-    }
-    if (length(input$map_source) == 2) {
-      static_prob
-    } else if (input$map_source == "Pressure") {
-      pressure_prob
-    } else if (input$map_source == "Light") {
-      light_prob
-    } else {
-      return(NA)
-    }
-  })
-
-
+  # Map
   observe({
     proxy <- leafletProxy("map") %>%
       clearShapes() %>%
@@ -226,28 +269,7 @@ server <- function(input, output, session) {
     proxy
   }) # %>% bindEvent(input$i_sta)
 
-
-  output$pressure_graph <- renderPlotly({
-    req(input$thr_sta)
-    id <- which(sta$duration >= as.numeric(input$thr_sta))
-    p <- ggplot() +
-      geom_line(data = pam_data$pressure, aes(x = date, y = obs), colour = "grey") +
-      geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
-      theme_bw()
-
-    for (i in id) {
-      p <- p +
-        geom_line(data = reactVal$ts[[i]], aes(x = date, y = pressure0), col = sta$col[i])
-    }
-
-    ggplotly(p, dynamicTicks = T, height = 300) %>%
-      layout(
-        showlegend = F,
-        yaxis = list(title = "Pressure [hPa]", autorange = F),
-        xaxis = list(autorange = F)
-      )
-  })
-
+  # Pressure Graph
   observe({
     if (!input$allsta) {
       i_s <- as.numeric(input$i_sta)
@@ -273,11 +295,4 @@ server <- function(input, output, session) {
     }
   })
 
-  # leafletProxy("map", data = crime) %>%
-  #   setView(long, lat, zoom = 14) %>%
-  #   clearShapes() %>%
-  #   clearControls() %>%
-  #   addCircles(~long, ~lat, stroke = FALSE, fill = TRUE, fillOpacity = .7,
-  #              color = ~leafPal(top5), label = ~category, radius = 30) %>%
-  #   addLegend("bottomright", pal = leafPal, values = ~top5, title = "Category")
 }

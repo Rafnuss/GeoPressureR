@@ -1,13 +1,13 @@
 
 # Read input static_prob
-load("/Users/raphael/Documents/GitHub/GeoPressureR/inst/geopressureviz/geopressureviz.RData")
+load("geopressureviz.RData")
 
-stopifnot(exists(static_prob))
-if (exists(light_prob)){
-  stopifnot(length(static_prob)==lenght(light_prob))
+stopifnot(exists("static_prob"))
+if (exists("light_prob")){
+  stopifnot(length(static_prob)==length(light_prob))
 }
-if (exists(pressure_prob)){
-  stopifnot(length(static_prob)==lenght(pressure_prob))
+if (exists("pressure_prob")){
+  stopifnot(length(static_prob)==length(pressure_prob))
 }
 
 # Get stationay period information
@@ -24,7 +24,7 @@ sta <- do.call("rbind", lapply(static_prob, function(r) {
 col <- rep(brewer.pal(12, "Set3"), times = 10)
 sta$col <- col[sta$sta_id]
 
-# Get flight information
+# Get flight information and compute flight duration directly
 flight <- lapply(static_prob, function(r) {
   fl <- metadata(r)$flight
   if (length(fl) > 0) {
@@ -37,6 +37,22 @@ flight <- lapply(static_prob, function(r) {
   fl
 })
 
+# Get the timeserie of pressure
+pressure <- pam_data$pressure
+
+# Get the pre
+if (exists("pressure_timeserie")) {
+  stopifnot(length(pressure_timeserie)>=max(sta$sta_id))
+  ts0 <- pressure_timeserie[sta$sta_id]
+  ts0 <- lapply(ts0,function(x){
+    x$lt=1
+  return(x)
+  })
+} else {
+  ts0 <- list()
+}
+
+
 # Set the initial path
 path0 <- do.call("rbind", lapply(static_prob, function(r) {
   idx <- which.max(r)
@@ -47,10 +63,59 @@ path0 <- do.call("rbind", lapply(static_prob, function(r) {
   )
 }))
 
-# Get the timeserie of pressure if they exsit
-if (exists("pressure_timeserie")) {
-  stopifnot(length(pressure_timeseries)>=max(sta$sta_id))
-  ts0 <- pressure_timeserie[sta$sta_id]
-} else {
-  ts0 <- list()
+
+
+
+
+# Windspeed
+grl$sz <- c(nrow(static_prob[[1]]), ncol(static_prob[[1]]), length(static_prob))
+lat <- seq(raster::ymax(static_prob[[1]]), raster::ymin(static_prob[[1]]),
+           length.out = nrow(static_prob[[1]]) + 1
+)
+grl$lat <- utils::head(lat, -1) + diff(lat[1:2]) / 2
+lon <- seq(raster::xmin(static_prob[[1]]), raster::xmax(static_prob[[1]]),
+           length.out = ncol(static_prob[[1]]) + 1
+)
+grl$lon <- utils::head(lon, -1) + diff(lon[1:2]) / 2
+grl$flight <- lapply(static_prob, function(x) {
+  raster::metadata(x)$flight
+})
+flight_duration <- unlist(lapply(static_prob, function(x) {
+  mtf <- raster::metadata(x)
+  as.numeric(sum(difftime(mtf$flight$end, mtf$flight$start, units = "hours")))
+}))
+
+lonlat2path <- function(path, grl) {
+
+  ilat <- sapply(path$lat,function(x){which.min(abs(x-grl$lat))})
+  ilon <- sapply(path$lon,function(x){which.min(abs(x-grl$lon))})
+  ista <- seq(1,grl$sz[3])
+
+  id <- ilat + (ilon-1)*grl$sz[1] + (ista-1)*grl$sz[1]*grl$sz[2]
+
+  return(id)
 }
+
+tmp <- lonlat2path(path0,grl)
+grl$s <- tmp[seq_len(length(tmp)-1)]
+grl$t <- tmp[seq(2,length(tmp))]
+
+gs_abs <- geosphere::distGeo(
+  cbind(path0$lon[seq_len(length(tmp)-1)], path0$lat[seq_len(length(tmp)-1)]),
+  cbind(path0$lon[seq(2,length(tmp))], path0$lat[seq(2,length(tmp))])
+) / 1000 / flight_duration[seq(1,length(flight_duration)-1)]
+
+gs_bearing <- geosphere::bearingRhumb(
+  cbind(path0$lon[seq_len(length(tmp)-1)], path0$lat[seq_len(length(tmp)-1)]),
+  cbind(path0$lon[seq(2,length(tmp))], path0$lat[seq(2,length(tmp))])
+)
+gs_bearing[is.na(gs_bearing)] <- 0
+
+grl$gs <- gs_abs * cos((gs_bearing - 90) * pi / 180) +
+  1i * gs_abs * sin((gs_bearing - 90) * pi / 180)
+
+grl <- graph_add_wind(grl, pam_data$pressure, '~/18IC_')
+
+# path0$gs = grl$gs
+# path0$as = grl$gs
+# path0$ws = grl$ws

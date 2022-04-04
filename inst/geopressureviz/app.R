@@ -1,3 +1,7 @@
+library(BiocManager)
+options(repos = BiocManager::repositories())
+
+
 library(plotly)
 library(shinyjs)
 library(GeoPressureR)
