@@ -1,18 +1,3 @@
-library(BiocManager)
-options(repos = BiocManager::repositories())
-
-
-library(plotly)
-library(shinyjs)
-library(GeoPressureR)
-library(shiny)
-library(leaflet)
-library(plotly)
-library(leaflet.extras)
-library(raster)
-library(shinyWidgets)
-library(geosphere)
-library(RColorBrewer)
 
 
 # appDir <- system.file("shiny-examples", "myapp", package = "GeoPressureR")

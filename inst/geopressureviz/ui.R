@@ -8,9 +8,12 @@ ui <- bootstrapPage(
   ),
   leafletOutput("map", width = "100%", height = "100%"),
   absolutePanel(
-    top = 0, right = 0, draggable = F, width = "200px", style = "z-index:500; min-width: 300px;background-color:white;padding: 5px 10px;",
-    tags$h2("GeoPressureViz", style = "text-align: right;"),
-    tags$a("About GeoPressureR", href = "https://raphaelnussbaumer.com/GeoPressureR/", style = "text-align: right;display: block;padding-bottom:20px;"),
+    top = 0, left = 0, draggable = F, width = "200px", style = "z-index:500; min-width: 300px;padding-left: 50px",
+    tags$h2("GeoPressureViz",style="color:white;"),
+    tags$a("About GeoPressureR", href = "https://raphaelnussbaumer.com/GeoPressureR/", style = "display: block;padding-bottom:20px;"),
+  ),
+  absolutePanel(
+    top = 0, right = 0, draggable = F, width = "200px", style = "z-index:500; min-width: 300px;padding: 5px 10px;background-color:white;",
     div(
       style = "text-align: center;",
       "Full Track",

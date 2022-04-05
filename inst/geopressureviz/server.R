@@ -145,11 +145,11 @@ server <- function(input, output, session) {
 
   observeEvent(input$allsta, {
     if (input$allsta) {
-      shinyjs::hide(id = "sta_div")
-      shinyjs::show(id = "thr_sta_page")
+      shinyjs::hide(id = "sta_div", anim=T)
+      shinyjs::show(id = "thr_sta_page", anim=T)
     } else {
-      shinyjs::show(id = "sta_div")
-      shinyjs::hide(id = "thr_sta_page")
+      shinyjs::show(id = "sta_div", anim=T)
+      shinyjs::hide(id = "thr_sta_page", anim=T)
     }
   })
 
@@ -172,7 +172,7 @@ server <- function(input, output, session) {
     id <- which(sta$duration >= as.numeric(input$thr_sta))
     tmp <- sta$sta_id[id]
     i <- which(input$i_sta == tmp)
-    i <- min(max(i + 1, 1), length(tmp) - 1)
+    i <- min(max(i + 1, 1), length(tmp))
     updateSelectizeInput(session, "i_sta", selected = tmp[i])
   })
 
@@ -235,7 +235,7 @@ server <- function(input, output, session) {
         addCircles(
           lng = path_thr$lon, lat = path_thr$lat, opacity = 1, weight = sta_thr$duration^(0.3) * 10,
           label = paste0("#", sta_thr$sta_id, ", ", round(sta_thr$duration, 1), " days"), color = sta_thr$col
-        )
+        ) %>% fitBounds(min(path_thr$lon),min(path_thr$lat),max(path_thr$lon),max(path_thr$lat), options=list(paddingBottomRight=c(300,300)))
     } else {
       i_s <- which(as.numeric(input$i_sta) == sta$sta_id)
       i_s_thr <- which(as.numeric(input$i_sta) == sta_thr$sta_id)
