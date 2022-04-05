@@ -66,8 +66,8 @@ graph_create <- function(static_prob,
 
   tmp <- unlist(lapply(static_prob_n, sum)) == 0
   if (any(tmp)) {
-    stop(paste0("The `static_prob` provided has a probability map equal to zero
-                for the stationay period: ", which(tmp)))
+    stop(paste0("The `static_prob` provided has a probability map equal to zero"
+                ,"for the stationay period: ", which(tmp)))
   }
 
   # find the pixels above to the percentile
@@ -303,7 +303,7 @@ graph_trim <- function(grl) {
 #' @export
 graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
   stopifnot(is.list(grl))
-  stopifnot(c("s", "t", "sz", "lat", "lon", "flight") %in% names(grl))
+  stopifnot(c("s", "t", "gs", "sz", "lat", "lon", "flight") %in% names(grl))
   stopifnot(length(grl$s) > 0)
   stopifnot(is.data.frame(pressure))
   stopifnot("date" %in% names(pressure))
