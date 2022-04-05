@@ -40,3 +40,10 @@
 #' [Prepare Data](articles/prepare-data.html). `static_prob` is a list of
 #' raster containing the probability map of each stationary period.
 "static_prob"
+
+#' Wind graph for 18LX
+#'
+#' This dataset was generated with the vignette
+#' [Improving the graph with wind](articles/wind-graph.html). `grl` represents
+#' the graph as described in `graph_create()` and `graph_add_wind()`
+"grl"
