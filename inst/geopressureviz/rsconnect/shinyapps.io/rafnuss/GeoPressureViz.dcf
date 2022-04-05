@@ -1,0 +1,13 @@
+name: GeoPressureViz
+title: GeoPressureViz
+username:
+account: rafnuss
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6004377
+bundleId: 5765108
+url: https://rafnuss.shinyapps.io/GeoPressureViz/
+when: 1649130380.68276
+lastSyncTime: 1649130380.68277
+asMultiple: FALSE
+asStatic: FALSE
