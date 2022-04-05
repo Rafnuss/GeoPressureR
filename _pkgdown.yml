@@ -42,6 +42,7 @@ reference:
   - "pressure_timeserie"
   - "light_prob"
   - "static_prob"
+  - "grl"
 
 navbar:
   left:
