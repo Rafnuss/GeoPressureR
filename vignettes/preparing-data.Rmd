@@ -127,19 +127,25 @@ values(static_prob[[length(static_prob)]]) <- tmp
 
 ## Checking model input
 
-In this section, we will look at a few checks to perform before moving to the modelling step.
+In this section, we will look at a few checks to perform before moving to the modelling step. These check are performed when creating the graph `graph_create()`, but for pedagogical reason, I thought it is nice to present them step by step here. 
 
-### Check 1: Presence of at least one position 
+### Check 1: Existance of positionf with static probability
 
 A first and easy check is that there be at least one location with a probability greater than 1 for each stationary period.
 
 ```{r}
-for (i_s in seq_len(length(static_prob))) {
-  if (sum(values(static_prob[[i_s]]), na.rm = T) == 0) {
-    stop(paste("Probability map of stationary period", i_s, "is null. Check part 1 process (light and pressure)", sep = " "))
-  }
+static_prob_n <- lapply(static_prob, function(x) {
+  probt <- raster::as.matrix(x)
+  probt[is.na(probt)] <- 0
+  probt / sum(probt, na.rm = T)
+})
+tmp <- unlist(lapply(static_prob_n, sum)) == 0
+if (any(tmp)) {
+  warning(paste0("The `static_prob` provided has a probability map equal to ",
+                 "zero for the stationay period: ", which(tmp)))
 }
 ```
+
 
 ### Check 2: Presence of at least one transition
 
@@ -255,13 +261,13 @@ dfb %>%
 
 ## Vizualize 
 
-```{r}
+```{r, evel =F}
 data("pressure_timeserie", package = "GeoPressureR")
 save(pressure_prob,
-light_prob,
-static_prob,
-pam_data,
-file = "geopressureviz.RData")
+  light_prob,
+  static_prob,
+  pam_data,
+  file = "geopressureviz.RData")
 ```
 
 

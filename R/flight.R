@@ -55,7 +55,7 @@ flight_bird <- function(species_name,
       stop(
         "Multiple match for '", species_name,
         "'. Please use the exact name. \n",
-        paste(capture.output(print(tmp)), collapse = "\n")
+        paste(utils::capture.output(print(tmp)), collapse = "\n")
       )
     }
     b <- avonet[sp_id, ]

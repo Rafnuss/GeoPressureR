@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, message=F}
 library(GeoPressureR)
 library(ecmwfr)
 library(raster)
