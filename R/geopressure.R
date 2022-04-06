@@ -179,7 +179,9 @@ geopressure_map <-
     progress_bar(0, max = length(uris))
     for (i_u in seq_len(length(uris))) {
       f[[i_u]] <- future::future({
-          raster::brick(uris[i_u])
+          filename <- tempfile()
+          utils::download.file(uris[i_u], filename)
+          return(raster::brick(filename))
         },
         seed = TRUE
       )
