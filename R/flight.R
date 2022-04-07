@@ -36,7 +36,7 @@ flight_bird <- function(species_name,
     is.na(wing_span) > 1)) {
     # Mass, wing length and secondary length are retrived from the AVONET
     avonet <- utils::read.csv(system.file("extdata", "avonet_clements.csv",
-      package = "GeoPressureR"
+      package = "GeoPressureR", fileEncoding="UTF-8-BOM"
     ))
 
     sp_id <- grep(species_name, avonet$species, ignore.case = TRUE)
