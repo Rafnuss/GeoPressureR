@@ -2,8 +2,8 @@
 server <- function(input, output, session) {
 
   # Hide selector if light doesn't exist
-  if (!exists("light_prob")) {
-    shinyjs::hidden(map_source)
+  if (!is.na("light_prob")) {
+    shinyjs::hide(id = "map_source_div")
   }
 
   ## Reactive variable ----
@@ -17,7 +17,7 @@ server <- function(input, output, session) {
   flight_duration <- reactive({
     id <- which(sta$duration >= as.numeric(input$thr_sta))
     flight_duration <- c()
-    for (i_f in seq_len(length(id) - 1)) {
+    for (i_f in seq_len(max(0,length(id) - 1))) {
       from_sta_id <- id[i_f]
       to_sta_id <- id[i_f + 1]
 
@@ -73,9 +73,13 @@ server <- function(input, output, session) {
   output$fl_prev_info <- renderUI({
     req(input$i_sta)
     fl_dur <- flight_duration()
+    if ( is.null(fl_dur) ){
+      return(HTML(""))
+    }
     id <- which(sta$duration >= as.numeric(input$thr_sta))
     sta_id_thr <- sta$sta_id[id]
     i_s_thr <- which(as.numeric(input$i_sta) == sta_id_thr)
+
     if (i_s_thr!=1){
       dist <- distGeo(reactVal$path[id[i_s_thr-1],], reactVal$path[id[i_s_thr],])/1000
       HTML(
@@ -93,10 +97,13 @@ server <- function(input, output, session) {
   output$fl_next_info <- renderUI({
     req(input$i_sta)
     fl_dur <- flight_duration()
+    if (is.null(fl_dur) ){
+      return(HTML(""))
+    }
     id <- which(sta$duration >= as.numeric(input$thr_sta))
     sta_id_thr <- sta$sta_id[id]
     i_s_thr <- which(as.numeric(input$i_sta) == sta_id_thr)
-    if (i_s_thr!= length(sta_id_thr)){
+    if (i_s_thr!= length(sta_id_thr) ){
       dist <- geosphere::distGeo(reactVal$path[id[i_s_thr+1],], reactVal$path[id[i_s_thr],])/1000
       HTML(
         "<b>Next flight:</b><br>",
@@ -112,8 +119,8 @@ server <- function(input, output, session) {
 
   output$pressure_graph <- renderPlotly({
     p <- ggplot() +
-      geom_line(data = pam_data$pressure, aes(x = date, y = obs), colour = "grey") +
-      geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
+      geom_line(data = pressure, aes(x = date, y = obs), colour = "grey") +
+      geom_point(data = subset(pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
       theme_bw()
 
     req(input$thr_sta)
@@ -155,8 +162,12 @@ server <- function(input, output, session) {
 
   observeEvent(input$thr_sta, {
     id <- sta$duration >= as.numeric(input$thr_sta)
-    tmp <- as.list(sta$sta_id[id])
-    names(tmp) <- paste0('#',sta$sta_id[id]," (" , round(sta$duration[id],1), "d.)")
+    if (sum(id)>0){
+      tmp <- as.list(sta$sta_id[id])
+      names(tmp) <- paste0('#',sta$sta_id[id]," (" , round(sta$duration[id],1), "d.)")
+    } else {
+      tmp =list()
+    }
     updateSelectizeInput(session, "i_sta", choices = tmp)
   })
 
@@ -205,14 +216,13 @@ server <- function(input, output, session) {
   observeEvent(input$query_pos, {
     i_s <- as.numeric(input$i_sta)
     id <- which(i_s == sta$sta_id)
-    pam_pressure_sta <- subset(pam_data$pressure, sta_id == input$i_sta)
+    pam_pressure_sta <- subset(pressure, sta_id == input$i_sta)
     ts <- geopressure_ts(reactVal$path$lon[id], reactVal$path$lat[id],
                                         pressure = pam_pressure_sta
     )
     ts$sta_id <- input$i_sta
     ts$pressure0 <- ts$pressure - mean(ts$pressure) + mean(pam_pressure_sta$obs[!pam_pressure_sta$isoutliar])
     ts$lt = sum(input$i_sta==lapply(reactVal$ts,function(x){x$sta_id[1]}))+1
-    print(sum(input$i_sta==lapply(reactVal$ts,function(x){x$sta_id[1]}))+1)
     reactVal$ts[[length(reactVal$ts)+1]] <- ts
     updateSelectizeInput(session, "i_sta", selected = 1)
     updateSelectizeInput(session, "i_sta", selected = input$i_sta)
@@ -228,6 +238,9 @@ server <- function(input, output, session) {
     sta_thr <- sta[id, ]
     path_thr <- reactVal$path[id, ]
     fl_dur <- flight_duration()
+    if (is.null(fl_dur)){
+      return()
+    }
 
     if (input$allsta) {
       proxy <- proxy %>%
@@ -274,12 +287,12 @@ server <- function(input, output, session) {
     if (!input$allsta) {
       i_s <- as.numeric(input$i_sta)
       i_sta <- i_s == sta$sta_id
-      id <- pam_data$pressure$sta_id == i_s
+      id <- pressure$sta_id == i_s
       plotlyProxy("pressure_graph", session) %>%
         plotlyProxyInvoke(
           "relayout",
           list(
-            yaxis = list(range = c(min(pam_data$pressure$obs[id]) - 5, max(pam_data$pressure$obs[id]) + 5)),
+            yaxis = list(range = c(min(pressure$obs[id]) - 5, max(pressure$obs[id]) + 5)),
             xaxis = list(range = c(sta$start[i_sta] - 60 * 60 * 24, sta$end[i_sta] + 60 * 60 * 24))
           )
         )

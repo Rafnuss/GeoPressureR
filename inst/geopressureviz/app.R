@@ -5,5 +5,5 @@
 # source(paste0(appDir,'global'), local = TRUE)
 # source(paste0(appDir,'ui.R'), local = TRUE)
 # source(paste0(appDir,'server.R'), local = TRUE)
-
-shinyApp(ui, server)
+#
+# shinyApp(ui, server)

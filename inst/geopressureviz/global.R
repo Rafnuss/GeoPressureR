@@ -1,6 +1,7 @@
-library(BiocManager)
-options(repos = BiocManager::repositories())
 
+suppressMessages({
+  library(BiocManager)
+  options(repos = BiocManager::repositories())
 library(plotly)
 library(shinyjs)
 library(GeoPressureR)
@@ -14,17 +15,27 @@ library(shinyWidgets)
 library(geosphere)
 library(RColorBrewer)
 library(readr)
+})
 
+# Read input
+stopifnot(file.exists("~/geopressureviz.RData"))
+load("~/geopressureviz.RData")
 
-# Read input static_prob
-load("geopressureviz.RData")
+stopifnot("static_prob" %in% names(geopressureviz))
+static_prob <- geopressureviz$static_prob
 
-stopifnot(exists("static_prob"))
-if (exists("light_prob")){
+if ("light_prob" %in% names(geopressureviz)){
+  light_prob <- geopressureviz$light_prob
   stopifnot(length(static_prob)==length(light_prob))
+} else {
+  light_prob=NA
 }
-if (exists("pressure_prob")){
+
+if ("pressure_prob" %in% names(geopressureviz)){
+  pressure_prob <- geopressureviz$pressure_prob
   stopifnot(length(static_prob)==length(pressure_prob))
+} else {
+  pressure_prob=NA
 }
 
 # Get stationay period information
@@ -55,10 +66,21 @@ flight <- lapply(static_prob, function(r) {
 })
 
 # Get the timeserie of pressure
-pressure <- pam_data$pressure
+stopifnot("pam_data" %in% names(geopressureviz))
+pressure <- geopressureviz$pam_data$pressure
+stopifnot(is.data.frame(pressure))
+stopifnot("date" %in% names(pressure))
+stopifnot(inherits(pressure$date, "POSIXt"))
+stopifnot("obs" %in% names(pressure))
+stopifnot(is.numeric(pressure$obs))
+stopifnot("sta_id" %in% names(pressure))
+if (!("isoutliar" %in% names(pressure))) {
+  pressure$isoutliar <- FALSE
+}
 
 # Get the pre
-if (exists("pressure_timeserie")) {
+if ("pressure_timeserie" %in% names(geopressureviz)) {
+  pressure_timeserie <- geopressureviz$pressure_timeserie
   stopifnot(length(pressure_timeserie)>=max(sta$sta_id))
   ts0 <- pressure_timeserie[sta$sta_id]
   ts0 <- lapply(ts0,function(x){

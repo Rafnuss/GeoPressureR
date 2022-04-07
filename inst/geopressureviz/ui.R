@@ -53,11 +53,14 @@ ui <- bootstrapPage(
       ),
       tags$hr(),
       sliderInput("speed", "Groundspeed limit [km/h]", min = 0, max = 200, value = 40, step = 10),
-      checkboxGroupInput("map_source",
-                         label = "Probability map to display",
-                         choices = c("Pressure", "Light"),
-                         selected = c("Pressure", "Light"), inline = T
-      ),
+      div(
+        id = "map_source_div",
+        checkboxGroupInput("map_source",
+                           label = "Probability map to display",
+                           choices = c("Pressure", "Light"),
+                           selected = c("Pressure", "Light"), inline = T
+        )
+      )
     )
   ),
   fixedPanel(

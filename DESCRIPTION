@@ -41,7 +41,13 @@ Suggests:
     rmarkdown,
     sp,
     testthat (>= 3.0.0),
-    zoo
+    zoo,
+    BiocManager,
+    shinyjs,
+    shiny,
+    leaflet.extras,
+    shinyWidgets,
+    readr
 VignetteBuilder: 
     knitr
 biocViews:

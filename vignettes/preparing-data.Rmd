@@ -14,15 +14,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette covers important checks which should be performed to ensure that modelling with a graph is successful. 
+This vignette covers important pre-processing steps to ensure that modelling the trajectory with a graph is possible and successful. Firstly, we will aligned the maps of pressure and light and create a `static_prob` variable containing all the information necessary for modeling the trajectory (incl. flight info).
 
-In the vignette [Labelling tracks](./articles/labelling-tracks), we checked that the pressure timeseries measured by the geolocator are consistent with a least one location on the map. Make sure that Test #4 outlined in that vignette is carefully carried out before running the steps outlined below.
-
-In the following vignette, we will check that pressure, light and flight duration data allow for a coherent trajectory. It is possible that some manual editing of the pressure data labelling will be required, especially for short stopovers.
-
-We suggest starting by selecting only long stopovers (24-48hours), as this will help to draw out the general trajectory followed by the bird, and only later adding the shorter stopovers which could raise more confusion (the best match can be completely off). This is where the flight duration can help identify a realistic trajectory.
-
-As a general guideline, use your common sense, rather than solely on the model, to draw out the trajectory course. The model needs to give realistic trajectories, otherwise there is a labelling issue. For example, a small vertical movement of the bird during a stopover can completely throw off the estimation. 
+But before moving too quickly, we need to carefully check that pressure, light and flight duration data allow for a coherent trajectory. It is possible (even probable) that some manual editing of the pressure data labeling will be required, especially for short stopovers.
 
 ```{r setup, message=F}
 library(GeoPressureR)
@@ -30,9 +24,9 @@ library(raster)
 library(leaflet)
 ```
 
-## Load data
+## Combine pressure and light probability maps
 
-Start by loading the light and pressure data computed in the respective vignettes [Light map](./articles/light-map.html) and [Pressure map](./articles/pressure-map.html).
+Start by loading the PAM, light and pressure data computed in the respective vignettes [Light map](./articles/light-map.html) and [Pressure map](./articles/pressure-map.html).
 
 ```{r}
 data("pressure_prob", package = "GeoPressureR")
@@ -45,9 +39,7 @@ pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = 
 pam_data <- pam_sta(pam_data)
 ```
 
-## Combine pressure and light probability maps
-
-In this step, we need to retrieve the pressure and light data for the same stationary period. There are three sources of data to overlap, the last one (`sta_id_keep`) is where you can choose to include only part of the data. As mentioned above, it is easier to start by filtering only longer stationary periods, and then reduce the threshold on stopover duration.
+We need to retrieve the pressure and light data for the same stationary period. Using `thr_sta_dur`, you can also specify at this stage which stationary period to include. When running the check for the first time, it is recommended to start by filtering only longer stationary periods (e.g. 5*24 hours), and when all the check below are passing, reduce gradually the threshold on stopover duration.
 
 ```{r}
 thr_sta_dur = 0
@@ -61,7 +53,7 @@ pressure_prob <- pressure_prob[sta_pres %in% sta_id_keep]
 light_prob <- light_prob[sta_light %in% sta_id_keep]
 ```
 
-We then need to keep all the flights between each stationary period separate so that we can estimate the wind support correctly.
+We then need to keep all the flights between consecutive stationary period separate so that we can estimate the wind support correctly.
 
 ```{r}
 flight = list()
@@ -77,7 +69,7 @@ for (i_f in seq_len(length(sta_id_keep)-1)){
 flight[[i_f+1]]=list()
 ```
 
-We compute the static probability with the product of light and pressure probability maps, and add the flight duration in the metadata.
+We compute the static probability with the product of light and pressure probability maps, and add the flight duration in the metadata. `static_prob` is the consolidate variable containing all the information necessary to run the graph functions.
 
 ```{r}
 static_prob <- mapply(function(light, pressure, flight) {
@@ -125,11 +117,47 @@ values(static_prob[[length(static_prob)]]) <- tmp
 
 
 
+
+
+
+
 ## Checking model input
 
-In this section, we will look at a few checks to perform before moving to the modelling step. These check are performed when creating the graph `graph_create()`, but for pedagogical reason, I thought it is nice to present them step by step here. 
+In this second section, we will look at a few checks to perform before moving to the modelling step. These checks (#1 and #2) are performed when creating the graph `graph_create()`, but for pedagogical reason, I thought it would be better to introduce them step by step here as they will also help you to get a better sense of the specific movement/trajectory of the bird you are modeling.
 
-### Check 1: Existance of positionf with static probability
+In the vignette [Labelling tracks](./articles/labelling-tracks), we had already checked that the pressure timeseries measured by the geolocator are consistent with a least one location on the map (see Test #4 outlined in that vignette). But we didn't checked that these position are (1) coherent with light data, and (2) within reach of one other considering the flight duration and realistic bird flight speed. 
+
+To help you troubleshoot the failure of check, we have developed a shiny app `GeoPressureViz` which helps you visualize the overall trajectory of the bird (see sub-section below for details). I would suggest to run `GeoPressureViz` side-by-side with the checks.
+
+We suggest starting by selecting only long stopovers (24-48hours), as this will help to draw out the general trajectory followed by the bird, and only later adding the shorter stopovers which could raise more confusion (the best match of pressure is often completely off). This is where the flight duration can help identify a realistic trajectory.
+
+As a general guideline, use your common sense, rather than solely on the model, to draw out the trajectory course. The model needs to give realistic trajectories, otherwise there is a labeling issue. The most regular issue I faced is a small vertical movement of the bird during a short stopover which completely throw off the estimation of pressure map. 
+
+### GeoPressureViz 
+
+To run the vizualization, you will need to save the data in a `.RData` in your home folder (`~`). I cannot find a good way to pass variable to a shiny app instance (let me know if you have a suggestion). 
+
+The minimum information needed is `static_prob` and `pam_data`, but to see the difference between light and pressure, you will also need to extract `light_prob` and `pressure_prob`. In addition, to visualize pre-computed pressure timeseries at some location, you can use export `pressure_timeserie` computed in the vignette [Labelling tracks](./articles/labelling-tracks)
+
+```{r, evel = F}
+data("pressure_timeserie", package = "GeoPressureR")
+geopressureviz = list(
+  pam_data=pam_data,
+  static_prob=static_prob,
+  pressure_prob=pressure_prob,
+  light_prob=light_prob,
+  pressure_timeserie = pressure_timeserie
+)
+save(geopressureviz,file = "~/geopressureviz.RData")
+```
+
+```{r, eval=F}
+appDir <- system.file("geopressureviz", package = "GeoPressureR")
+shiny::runApp(appDir, launch.browser = getOption("browser"))
+# shiny::runApp('./inst/geopressureviz', launch.browser = getOption("browser"))
+```
+
+### Check #1: Existance of position with static probability (pressure + light)
 
 A first and easy check is that there be at least one location with a probability greater than 1 for each stationary period.
 
@@ -147,7 +175,7 @@ if (any(tmp)) {
 ```
 
 
-### Check 2: Presence of at least one transition
+### Check #2: Presence of at least one transition (pressure+light+flight)
 
 Secondly, we check that there always be at least one possible transition from one stationary period to the next. 
 
@@ -173,7 +201,7 @@ for (i_s in seq_len(length(static_prob) - 1)) {
 ```
 
 
-### Check 3: Visual inspection
+### Check #3: Visual inspection
 
 This third check is the most important yet also the most complex. We check that the probability map is coherent with the flight distance from the previous location. The distance is computed based on an assumed average groundspeed. Birds can fly with a groundspeed up to 120-150 km/h (with wind support) although their usual average is around 40km/h. We iteratively plot the most likely position (black dot) based on the static probability contained within flight distance from the previous most likely position (green dot). 
 
@@ -259,29 +287,18 @@ dfb %>%
 ```
 
 
-## Vizualize 
-
-```{r, evel =F}
-data("pressure_timeserie", package = "GeoPressureR")
-save(pressure_prob,
-  light_prob,
-  static_prob,
-  pam_data,
-  file = "geopressureviz.RData")
-```
 
 
 ## Export static probability
 
-It can be useful to first run the model on a downscale map to improve computational costs. This is not necessary in this example.
+To improve computational costs of creation of graph, it might be helpful to first run the model on a downscale resolution (`fact > 1`) with the code below. We didn't used this in our example.
 
 ```{r, eval=F}
 static_prob <- lapply(static_prob, function(raster) {
   raster_ds <- aggregate(raster, fact = 1, fun = max, na.rm = T, expand = T)
   # keep metadata
   metadata(raster_ds) <- metadata(raster)
-  # return
-  raster_ds
+  return(raster_ds)
 })
 ```
 
