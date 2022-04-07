@@ -261,6 +261,8 @@ for (i_r in seq_len(length(pressure_prob))) {
 
   # Add sta_id
   pressure_timeserie[[i_r]]["sta_id"] <- i_s
+  pressure_timeserie[[i_r]]["lon"] <- lon
+  pressure_timeserie[[i_r]]["lat"] <- lat
 
   # Remove mean
   pressure_timeserie[[i_r]]$pressure0 <- pressure_timeserie[[i_r]]$pressure - mean(pressure_timeserie[[i_r]]$pressure) + mean(pressure_i_s$obs)

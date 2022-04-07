@@ -123,7 +123,7 @@ Ploting this figure with [Plotly](https://plotly.com/r/) allows you to zoom-in a
 
 ### Test 3: Pressure timeseries match
 
-So far, we have checked that the pressure timeseries are correctly labeled with their respective stationary periods and that they look relatively smooth. At this stage, the timeseries are good enough to be matched with the reanalyisis data. The third test consists of finding the location with the best match and comparing the pressure timeseries. This allows to distinguish bird movements from natural variations in pressure. This is by far the most difficult step, and multiple iterations will be necessary to achieve the best results. 
+So far, we have checked that the pressure timeseries are correctly labeled with their respective stationary periods and that they look relatively smooth. At this stage, the timeseries are good enough to be matched with the reanalysis data. The third test consists of finding the location with the best match and comparing the pressure timeseries. This allows to distinguish bird movements from natural variations in pressure. This is by far the most difficult step, and multiple iterations will be necessary to achieve the best results. 
 
 As computation can take time, we recommend starting with a few long stationary periods, and once results are satisfying, moving to the shorter periods.
 
@@ -136,21 +136,16 @@ pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] <- NA
 message("Number of stationay period to query: ", length(sta_id_keep))
 ```
 
-We can estimate the probability map for each stationary period:
-```{r, include=F}
-data("pressure_prob", package = "GeoPressureR")
-```
+We can estimate the probability map for each stationary period with the following code. We will cover these two functions in more details in the vignette [Pressure Map](articles/pressure-map.html).
+
 ```{r, eval = F}
 pressure_maps <- geopressure_map(pam_data$pressure, extent = c(50, -16, 0, 23), scale = 10, max_sample = 100)
 pressure_prob <- geopressure_prob_map(pressure_maps)
 ```
 
-
 For each stationary period, we locate the best match and query the pressure timeseries with `geopressure_ts()` at this location. If you get errors, check the probability map and the best match (see commented line starting with `leaflet()`)
 
-```{r, include=F}
-data("pressure_timeserie", package = "GeoPressureR")
-```
+
 ```{r, eval = F}
 pressure_timeserie <- list()
 for (i_r in seq_len(length(pressure_prob))) {
@@ -176,10 +171,16 @@ for (i_r in seq_len(length(pressure_prob))) {
   )
   # Add sta_id
   pressure_timeserie[[i_r]]["sta_id"] <- i_s
+  pressure_timeserie[[i_r]]["lon"] <- lon
+  pressure_timeserie[[i_r]]["lat"] <- lat
 
   # Remove mean
   pressure_timeserie[[i_r]]$pressure0 <- pressure_timeserie[[i_r]]$pressure - mean(pressure_timeserie[[i_r]]$pressure) + mean(pam_pressure_sta$obs[!pam_pressure_sta$isoutliar])
 }
+```
+
+```{r, include=F}
+data("pressure_timeserie", package = "GeoPressureR")
 ```
 
 We can now look at a similar figure of pressure timeseries, but this time comparing geolocator data with the best match from the reanalysis data. 
