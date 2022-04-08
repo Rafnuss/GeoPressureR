@@ -2,7 +2,7 @@
 server <- function(input, output, session) {
 
   # Hide selector if light doesn't exist
-  if (!is.na("light_prob")) {
+  if (is.na("light_prob")) {
     shinyjs::hide(id = "map_source_div")
   }
 

@@ -38,6 +38,8 @@ if ("pressure_prob" %in% names(geopressureviz)){
   pressure_prob=NA
 }
 
+
+
 # Get stationay period information
 sta <- do.call("rbind", lapply(static_prob, function(r) {
   mt <- raster::metadata(r)
@@ -78,7 +80,7 @@ if (!("isoutliar" %in% names(pressure))) {
   pressure$isoutliar <- FALSE
 }
 
-# Get the pre
+# Get the pressure timeserie
 if ("pressure_timeserie" %in% names(geopressureviz)) {
   pressure_timeserie <- geopressureviz$pressure_timeserie
   stopifnot(length(pressure_timeserie)>=max(sta$sta_id))
@@ -87,20 +89,23 @@ if ("pressure_timeserie" %in% names(geopressureviz)) {
     x$lt=1
   return(x)
   })
+  path0 <- do.call("rbind", lapply(pressure_timeserie, function(x) {
+    data.frame(
+      lon = x$lon[1],
+      lat = x$lat[1]
+    )
+  }))
 } else {
   ts0 <- list()
 }
 
 
-# Set the initial path
-path0 <- do.call("rbind", lapply(static_prob, function(r) {
-  idx <- which.max(r)
-  pos <- xyFromCell(r, idx)
-  data.frame(
-    lon = pos[1],
-    lat = pos[2]
-  )
-}))
+if (!exists('path0')){
+  # Set the initial path to the most likely from static prob
+  path0 <- geopressure_map2path(static_prob)
+}
+
+
 
 
 
