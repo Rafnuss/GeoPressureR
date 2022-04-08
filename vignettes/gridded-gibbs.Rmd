@@ -40,7 +40,6 @@ However, Gibbs samples remains sensitive to local minimun in the case where cons
 library(GeoPressureR)
 library(leaflet)
 library(raster)
-library(zoo)
 ```
 
 ## Stationary probability
@@ -99,10 +98,10 @@ latlon <- expand.grid(lat = lat, lon = lon)
 Extract the flight duration from the metadata of the `static_prob` raster data.
 
 ```{r}
-  flight_duration <- unlist(lapply(static_prob, function(x) {
-    mtf <- metadata(x)
-    as.numeric(sum(difftime(mtf$flight$end, mtf$flight$start, units = "hours")))
-  }))
+flight_duration <- unlist(lapply(static_prob, function(x) {
+  mtf <- metadata(x)
+  as.numeric(sum(difftime(mtf$flight$end, mtf$flight$start, units = "hours")))
+}))
 ```
 
 Create a function which compute the distance from a point `pt` to all other location of the grid `id` and return the probability that the bird flew these distances at a particular stationary period `i_s`. 
@@ -125,47 +124,27 @@ nsta <- length(static_prob) # number of stationary period
 nll <- dim(static_prob[[1]])[1:2] # number of grid cell
 ```
 
-Initialize the first path with the most likely position of each stationary period
+Initialize the first path with the most likely position of each stationary period. Yet the position is unlikely to be reliable for short stationary period. To fix this, we will linearly interpolate the position of short stationary period. We first identify and remove the position of short stationary period (1 day).
 
 ```{r}
 path <- matrix(ncol = nsta, nrow = nj)
-path[1, ] <- unlist(lapply(static_prob, function(x) {
-  which.max(as.matrix(x))
-}))
+path[1, ] <- geopressure_map2path(static_prob, interp = 1, format = "ind")$ind
 ```
 
-Yet the position is unlikely to be reliable for short stationary period. To fix this, we will linearly interpolate the position of short stationary period. We first identify and remove the position of short stationary period (<24hr).
-
-```{r}
-short_sta <- unlist(lapply(static_prob, function(x) {
-  tmp <- metadata(x)$extend_sample
-  abs(as.numeric(difftime(tmp[1], tmp[2], units = "hours"))) < 24
-}))
-path[1, short_sta] <- NA
-```
-
-Then, on a slight tangent which need to be set here, we set the position of the first and last stationary period (equipment and retrieval) to the known site.
+Then, we set the position of the first and last stationary period (equipment and retrieval) for all simulated path.
 
 ```{r}
 path[, 1] <- which(as.matrix(static_prob[[1]]) == 1)
 path[, nsta] <- which(as.matrix(static_prob[[nsta]]) == 1)
 ```
 
-Finally, we can interpolate the position in latitude and longitude separately using the function `na.approx` from the `zoo` packages. A more elegant solution would be to account for the difference in flight duration. (Contact me if you have a better solution to this)
-
-```{r}
-path_ll_1 <- arrayInd(path[1, ], nll)
-path_ll_1_inter <- round(zoo::na.approx(path_ll_1))
-path[1, ] <- (path_ll_1_inter[, 2] - 1) * nll[1] + path_ll_1_inter[, 1]
-path_ll_1 <- arrayInd(path[1, ], nll)
-```
-
 Visualize the initial path
-```{r}
+```{r, asis=T}
+path_ll <- arrayInd(path[1, ], nll)
 leaflet() %>%
   addTiles() %>%
-  addPolylines(lng = lon[path_ll_1[, 2]], lat = lat[path_ll_1[, 1]], opacity = 1, color = "#808080", weight = 3) %>%
-  addCircles(lng = lon[path_ll_1[, 2]], lat = lat[path_ll_1[, 1]], opacity = 1, color = "#000", weight = 10)
+  addPolylines(lng = lon[path_ll[, 2]], lat = lat[path_ll[, 1]], opacity = 1, color = "#808080", weight = 3) %>%
+  addCircles(lng = lon[path_ll[, 2]], lat = lat[path_ll[, 1]], opacity = 1, color = "#000", weight = 10)
 ```
 
 We can set/get the stationary period to simulate

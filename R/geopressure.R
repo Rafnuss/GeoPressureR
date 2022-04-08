@@ -108,7 +108,7 @@ geopressure_map <-
     ))
     n <- 1 / dt + 1
     # make the convolution for each stationary period separately
-    for (i_s in seq(1, max(pressure$sta_id, na.rm = T))) {
+    for (i_s in seq(1, max(pressure$sta_id, na.rm = TRUE))) {
       pres_i_s <- pres
       pres_i_s[pressure$sta_id != i_s] <- NA
       pres_i_s_smoothna <- stats::filter(
@@ -465,7 +465,7 @@ geopressure_ts <-
 #' pressure, altitude (same as `geopressure_ts()`) but also sta_id, lat, lon and
 #' pressure0, pressure normalized to match geolocator pressure measurement.
 #' @examples
-#' \dontrun{
+#' # Create pam_data
 #' pam_data <- pam_read(
 #'   pathname = system.file("extdata", package = "GeoPressureR"),
 #'   crop_start = "2017-06-20", crop_end = "2018-05-02"
@@ -474,20 +474,35 @@ geopressure_ts <-
 #'   pathname = system.file("extdata", package = "GeoPressureR")
 #' )
 #' pam_data <- pam_sta(pam_data)
+#' \dontrun{
+#' # load probability map of pressure
 #' data("pressure_prob", package = "GeoPressureR")
+#' # Find the most likely position
 #' path <- geopressure_map2path(pressure_prob)
+#' # compute the pressure at those location for the period in question
 #' pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 #' }
 #' data("pressure_timeserie", package = "GeoPressureR")
-#' par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
-#' plot(pressure_timeserie[[1]]$date,
-#'   pressure_timeserie[[1]]$pressure,
-#'   ylab = "Pressure [hPa]", xlab = ""
+#' p <- ggplot2::ggplot() +
+#'   ggplot2::geom_line(data = pam_data$pressure, ggplot2::aes(x = date, y = obs), colour = "grey") +
+#'   ggplot2::geom_point(
+#'     data = subset(pam_data$pressure, isoutliar),
+#'     ggplot2::aes(x = date, y = obs), colour = "black"
+#'   ) +
+#'   ggplot2::geom_line(
+#'     data = do.call("rbind", pressure_timeserie),
+#'     ggplot2::aes(x = date, y = pressure0, col = as.factor(sta_id))
+#'   ) +
+#'   ggplot2::theme_bw() +
+#'   ggplot2::scale_colour_manual(values = rep(RColorBrewer::brewer.pal(9, "Set1"), times = 4))
+#'
+#' py <- plotly::ggplotly(p, dynamicTicks = TRUE)
+#' py <- plotly::layout(py,
+#'   showlegend = F,
+#'   legend = list(orientation = "h", x = -0.5),
+#'   yaxis = list(title = "Pressure [hPa]")
 #' )
-#' plot(pressure_timeserie[[1]]$date,
-#'   pressure_timeserie[[1]]$altitude,
-#'   ylab = "Altitude [m asl]", xlab = ""
-#' )
+#' py
 #' @export
 geopressure_ts_path <- function(path, pressure) {
   stopifnot(is.data.frame(pressure))
@@ -504,8 +519,8 @@ geopressure_ts_path <- function(path, pressure) {
 
   future::plan(future::multisession, workers = 10)
   f <- c()
-  for (i_s in seq_len(length(pressure_prob))) {
-    message("query:", i_s, "/", length(pressure_prob))
+  for (i_s in seq_len(nrow(path))) {
+    message("query:", i_s, "/", nrow(path))
     # Subset the pressure of the stationay period
     pressure_i_s <- subset(pressure, pressure$sta_id == path$sta_id[i_s])
 
@@ -564,8 +579,13 @@ geopressure_ts_path <- function(path, pressure) {
 #' end time of the stationary period .
 #' @param interp (in days) The position of the stationary period shorter than
 #' `interp` will be replace by a linear average from other position.
+#' @param format one of `"lonlat"`, `"ind"`, `"arr.ind"`). return the path in
+#' lon-lat or indices
 #' @return a data.frame of the position containing latitude (`lat`), longitude
-#' (`lon`) and the stationay period id (`sta_id`) as column.
+#' (`lon`) and the stationary period id (`sta_id`) as column. Optionally, if
+#' indexes were requested, it will be return. You will need to use
+#' `which.max(as.matrix(raster))` and not `which.max(raster)` to get the correct
+#' location
 #' @examples
 #' data("pressure_prob", package = "GeoPressureR")
 #' path_all <- geopressure_map2path(pressure_prob)
@@ -576,62 +596,99 @@ geopressure_ts_path <- function(path, pressure) {
 #'     units = "days"
 #'   ))
 #' }))
-#' leaflet::leaflet() %>%
-#'   leaflet::addTiles() %>%
-#'   leaflet::addPolylines(
-#'     lng = path_all$lon, lat = path_all$lat, opacity = 1,
-#'     color = "#a6cee3", weight = 3
-#'   ) %>%
-#'   leaflet::addCircles(
-#'     lng = path_all$lon, lat = path_all$lat, opacity = 1,
-#'     color = "#1f78b4", weight = sta_duration^(0.3) * 10
-#'   ) %>%
-#'   leaflet::addPolylines(
-#'     lng = path_interp$lon, lat = path_interp$lat, opacity = 1,
-#'     color = "#b2df8a", weight = 3
-#'   ) %>%
-#'   leaflet::addCircles(
-#'     lng = path_interp$lon, lat = path_interp$lat, opacity = 1,
-#'     color = "#33a02c", weight = sta_duration^(0.3) * 10
-#'   )
+#' m <- leaflet::leaflet()
+#' m <- leaflet::addTiles(m)
+#' m <- leaflet::addPolylines(m,
+#'   lng = path_all$lon, lat = path_all$lat, opacity = 1,
+#'   color = "#a6cee3", weight = 3
+#' )
+#' m <- leaflet::addCircles(m,
+#'   lng = path_all$lon, lat = path_all$lat, opacity = 1,
+#'   color = "#1f78b4", weight = sta_duration^(0.3) * 10
+#' )
+#' m <- leaflet::addPolylines(m,
+#'   lng = path_interp$lon, lat = path_interp$lat, opacity = 1,
+#'   color = "#b2df8a", weight = 3
+#' )
+#' m <- leaflet::addCircles(m,
+#'   lng = path_interp$lon, lat = path_interp$lat, opacity = 1,
+#'   color = "#33a02c", weight = sta_duration^(0.3) * 10
+#' )
+#' m
 #' @export
 geopressure_map2path <- function(map,
-                                 interp = 0) {
+                                 interp = 0,
+                                 format = "lonlat") {
   stopifnot(is.list(map))
   stopifnot(inherits(map[[1]], "RasterLayer"))
   stopifnot("temporal_extent" %in%
     names(raster::metadata(map[[1]])))
   stopifnot(is.numeric(interp))
   stopifnot(interp >= 0)
+  stopifnot(format %in% c("lonlat", "ind", "arr.ind"))
 
   # Set the initial path to the most likely from static prob
+  # There is a difference between which.max(r) andwhich.max(as.matrix(r)) which appeared to be
+  # necessary to get correctly the position. Not really practicle, maybe the way lat lon are
+  # index in a raster.
   path <- do.call("rbind", lapply(map, function(r) {
-    idx <- raster::which.max(r)
-    pos <- raster::xyFromCell(r, idx)
-    data.frame(
-      lon = pos[1],
-      lat = pos[2],
-      sta_id = raster::metadata(r)$sta_id
-    )
+    if (format == "lonlat") {
+      pos <- raster::xyFromCell(r, raster::which.max(r))
+      p <- data.frame(
+        lon = pos[1],
+        lat = pos[2]
+      )
+    } else {
+      pos <- arrayInd(which.max(raster::as.matrix(r)), dim(r))
+      p <- data.frame(
+        lon = pos[2],
+        lat = pos[1]
+      )
+    }
+    p$sta_id <- raster::metadata(r)$sta_id
+    return(p)
   }))
 
   # Interpolation for short stationary period is only performed if interp>0
   if (interp > 0) {
-    dur <- unlist(lapply(map, function(r) {
+    # remove short stationary period
+    duration <- unlist(lapply(map, function(r) {
       mt <- raster::metadata(r)
-      duration <- as.numeric(difftime(mt$temporal_extent[2],
+      as.numeric(difftime(mt$temporal_extent[2],
         mt$temporal_extent[1],
         units = "days"
       ))
     }))
+    id_interp <- duration < interp
+    id_interp[1] <- F
+    id_interp[length(id_interp)] <- F
 
-    # remove short stationary period
-    path[which(dur[2:(nrow(path) - 1)] < interp) + 1, ] <- NA
-
+    # Find the spacing between the position
+    if (is.null(raster::metadata(map[[1]])$flight)) {
+      # Or if flight duration are not available (e.g. `prob_pressure`), assumes homogenous spacing
+      # between consecutive stationary period
+      x <- path$sta_id
+    } else {
+      # If flight are avialabe, sum of the all flights between stationay period
+      flight_duration <- unlist(lapply(map, function(r) {
+        fl <- raster::metadata(r)$flight
+        sum(as.numeric(difftime(fl$end,
+          fl$start,
+          units = "hours"
+        )))
+      }))
+      # Cumultate the flight duration to get a proxy of the over distance covered
+      x <- c(0, cumsum(utils::head(flight_duration, -1)))
+    }
     # interpolate in between
-    path <- as.data.frame(zoo::na.approx(path))
+    path$lon[id_interp] <- stats::approx(x[!id_interp], path$lon[!id_interp], x[id_interp])$y
+    path$lat[id_interp] <- stats::approx(x[!id_interp], path$lat[!id_interp], x[id_interp])$y
 
-    # need to improve to account for flight duration
+    if (format != "lonlat") {
+      path <- round(path)
+    }
+
+    # Account for water position
     #
     # sf::sf_use_s2(FALSE)
     # pts <- st_as_sf(path, coords = c("lon","lat"), crs = st_crs(4326))
@@ -640,6 +697,9 @@ geopressure_map2path <- function(map,
     # a <- st_join(pts, poly, join = st_intersects)
   }
 
+  if (format == "ind") {
+    path$ind <- (path$lon - 1) * dim(map[[1]])[1] + path$lat
+  }
   return(path)
 }
 

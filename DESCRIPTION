@@ -24,8 +24,7 @@ Imports:
     pracma,
     raster,
     stats,
-    utils,
-    zoo
+    utils
 Suggests: 
     ecmwfr,
     ggplot2,

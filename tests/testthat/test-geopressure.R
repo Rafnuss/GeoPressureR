@@ -1,3 +1,4 @@
+
 pressure <- data.frame(
   date = as.POSIXct(c(
     "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
@@ -29,4 +30,22 @@ test_that("Check geopressure_ts() output", {
   test_that("Check geopressure_ts(lon,lat,pressure) output", {
     expect_s3_class(pressure_timeserie, "data.frame")
   })
+})
+
+
+
+test_that("Check geopressure_map2path() output", {
+  data("static_prob", package = "GeoPressureR")
+  expect_error(geopressure_map2path(static_prob), NA)
+  expect_error(geopressure_map2path(static_prob, interp = 100), NA)
+  expect_error(geopressure_map2path(static_prob, format = "ind"), NA)
+  expect_error(geopressure_map2path(static_prob, format = "arr.ind"), NA)
+  expect_error(geopressure_map2path(static_prob, interp = 5, format = "ind"), NA)
+  expect_error(geopressure_map2path(static_prob, interp = 5, format = "arr.ind"), NA)
+
+  data("pressure_prob", package = "GeoPressureR")
+  expect_error(geopressure_map2path(pressure_prob), NA)
+  expect_error(geopressure_map2path(pressure_prob, interp = 2), NA)
+  expect_error(geopressure_map2path(pressure_prob, format = "ind"), NA)
+  expect_error(geopressure_map2path(pressure_prob, format = "arr.ind"), NA)
 })

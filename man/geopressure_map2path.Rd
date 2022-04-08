@@ -4,7 +4,7 @@
 \alias{geopressure_map2path}
 \title{Return the most likely path from a probability map}
 \usage{
-geopressure_map2path(map, interp = 0)
+geopressure_map2path(map, interp = 0, format = "lonlat")
 }
 \arguments{
 \item{map}{list of raster containing probability map of each
@@ -13,10 +13,16 @@ end time of the stationary period .}
 
 \item{interp}{(in days) The position of the stationary period shorter than
 \code{interp} will be replace by a linear average from other position.}
+
+\item{format}{one of \code{"lonlat"}, \code{"ind"}, \code{"arr.ind"}). return the path in
+lon-lat or indices}
 }
 \value{
 a data.frame of the position containing latitude (\code{lat}), longitude
-(\code{lon}) and the stationay period id (\code{sta_id}) as column.
+(\code{lon}) and the stationary period id (\code{sta_id}) as column. Optionally, if
+indexes were requested, it will be return. You will need to use
+\code{which.max(as.matrix(raster))} and not \code{which.max(raster)} to get the correct
+location
 }
 \description{
 Find the location of the highest value in the map and return a path
@@ -35,22 +41,23 @@ sta_duration <- unlist(lapply(pressure_prob, function(x) {
     units = "days"
   ))
 }))
-leaflet::leaflet() \%>\%
-  leaflet::addTiles() \%>\%
-  leaflet::addPolylines(
-    lng = path_all$lon, lat = path_all$lat, opacity = 1,
-    color = "#a6cee3", weight = 3
-  ) \%>\%
-  leaflet::addCircles(
-    lng = path_all$lon, lat = path_all$lat, opacity = 1,
-    color = "#1f78b4", weight = sta_duration^(0.3) * 10
-  ) \%>\%
-  leaflet::addPolylines(
-    lng = path_interp$lon, lat = path_interp$lat, opacity = 1,
-    color = "#b2df8a", weight = 3
-  ) \%>\%
-  leaflet::addCircles(
-    lng = path_interp$lon, lat = path_interp$lat, opacity = 1,
-    color = "#33a02c", weight = sta_duration^(0.3) * 10
-  )
+m <- leaflet::leaflet()
+m <- leaflet::addTiles(m)
+m <- leaflet::addPolylines(m,
+  lng = path_all$lon, lat = path_all$lat, opacity = 1,
+  color = "#a6cee3", weight = 3
+)
+m <- leaflet::addCircles(m,
+  lng = path_all$lon, lat = path_all$lat, opacity = 1,
+  color = "#1f78b4", weight = sta_duration^(0.3) * 10
+)
+m <- leaflet::addPolylines(m,
+  lng = path_interp$lon, lat = path_interp$lat, opacity = 1,
+  color = "#b2df8a", weight = 3
+)
+m <- leaflet::addCircles(m,
+  lng = path_interp$lon, lat = path_interp$lat, opacity = 1,
+  color = "#33a02c", weight = sta_duration^(0.3) * 10
+)
+m
 }
