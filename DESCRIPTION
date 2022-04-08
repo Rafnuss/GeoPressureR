@@ -24,7 +24,8 @@ Imports:
     pracma,
     raster,
     stats,
-    utils
+    utils,
+    zoo
 Suggests: 
     ecmwfr,
     ggplot2,
@@ -40,14 +41,14 @@ Suggests:
     rgdal,
     rmarkdown,
     sp,
+    sf,
     testthat (>= 3.0.0),
-    zoo,
     BiocManager,
     shinyjs,
     shiny,
     leaflet.extras,
     shinyWidgets,
-    readr
+    rnaturalearth
 VignetteBuilder: 
     knitr
 biocViews:

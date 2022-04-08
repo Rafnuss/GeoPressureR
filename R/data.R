@@ -41,6 +41,14 @@
 #' raster containing the probability map of each stationary period.
 "static_prob"
 
+
+#' Static timeseries for 18LX
+#'
+#' This dataset contains the data generated with the GeoPressure API generated
+#' with the vignettes [Prepare Data](articles/prepare-data.html).
+#' `static_timeserie` is a list for each stationary period
+"static_timeserie"
+
 #' Wind graph for 18LX
 #'
 #' This dataset was generated with the vignette

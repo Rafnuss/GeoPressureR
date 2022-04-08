@@ -155,9 +155,12 @@ geopressure_map <-
         body = body_df,
         encode = "form"
       )
-    if (httr::http_error(res)){
+    if (httr::http_error(res)) {
       print(httr::content(res))
-      stop("Error with request son http://glp.mgravey.com:24853/GeoPressure/v1/map/. Please contact us with the error message if the error persists")
+      stop(paste0(
+        "Error with request son http://glp.mgravey.com:24853/GeoPressure/v1/map/. ",
+        "Please contact us with the error message if the error persists"
+      ))
     }
 
     # Get URIS
@@ -178,7 +181,8 @@ geopressure_map <-
     message("Send requests:")
     progress_bar(0, max = length(uris))
     for (i_u in seq_len(length(uris))) {
-      f[[i_u]] <- future::future({
+      f[[i_u]] <- future::future(
+        expr = {
           filename <- tempfile()
           utils::download.file(uris[i_u], filename)
           return(raster::brick(filename))
@@ -407,9 +411,12 @@ geopressure_ts <-
         encode = "form"
       )
 
-    if (httr::http_error(res)){
+    if (httr::http_error(res)) {
       print(httr::content(res))
-      stop("Error with request son http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/. Please contact us with the error message if the error persists")
+      stop(paste0(
+        "Error with request son http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/. ",
+        "Please contact us with the error message if the error persists"
+      ))
     } else {
       message("Request generated successfully.")
     }
@@ -448,7 +455,193 @@ geopressure_ts <-
 
 
 
+#' Query the timeserie of pressure from a path and geolocator pressure
+#' observation
+#'
+#' @param path a data.frame of the position containing latitude (`lat`),
+#' longitude  (`lon`) and the stationay period id (`sta_id`) as column.
+#' @param pressure pressure list from PAM logger dataset list
+#' @return list of data.frame containing for each stationay period, the date,
+#' pressure, altitude (same as `geopressure_ts()`) but also sta_id, lat, lon and
+#' pressure0, pressure normalized to match geolocator pressure measurement.
+#' @examples
+#' \dontrun{
+#' pam_data <- pam_read(
+#'   pathname = system.file("extdata", package = "GeoPressureR"),
+#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#' )
+#' pam_data <- trainset_read(pam_data,
+#'   pathname = system.file("extdata", package = "GeoPressureR")
+#' )
+#' pam_data <- pam_sta(pam_data)
+#' data("pressure_prob", package = "GeoPressureR")
+#' path <- geopressure_map2path(pressure_prob)
+#' pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
+#' }
+#' data("pressure_timeserie", package = "GeoPressureR")
+#' par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
+#' plot(pressure_timeserie[[1]]$date,
+#'   pressure_timeserie[[1]]$pressure,
+#'   ylab = "Pressure [hPa]", xlab = ""
+#' )
+#' plot(pressure_timeserie[[1]]$date,
+#'   pressure_timeserie[[1]]$altitude,
+#'   ylab = "Altitude [m asl]", xlab = ""
+#' )
+#' @export
+geopressure_ts_path <- function(path, pressure) {
+  stopifnot(is.data.frame(pressure))
+  stopifnot("date" %in% names(pressure))
+  stopifnot(inherits(pressure$date, "POSIXt"))
+  stopifnot("obs" %in% names(pressure))
+  stopifnot(is.numeric(pressure$obs))
+  stopifnot("sta_id" %in% names(pressure))
+  if (!("isoutliar" %in% names(pressure))) {
+    pressure$isoutliar <- FALSE
+  }
+  stopifnot(is.data.frame(path))
+  stopifnot(c("lat", "lon", "sta_id") %in% names(path))
 
+  future::plan(future::multisession, workers = 10)
+  f <- c()
+  for (i_s in seq_len(length(pressure_prob))) {
+    message("query:", i_s, "/", length(pressure_prob))
+    # Subset the pressure of the stationay period
+    pressure_i_s <- subset(pressure, pressure$sta_id == path$sta_id[i_s])
+
+    # Send the query
+    f[[i_s]] <- future::future({
+      geopressure_ts(path$lon[i_s],
+        path$lat[i_s],
+        pressure = pressure_i_s
+      )
+    })
+  }
+
+  pressure_timeserie <- list()
+  for (i_s in seq_len(length(f))) {
+    tryCatch(
+      expr = {
+        pressure_timeserie[[i_s]] <- future::value(f[[i_s]])
+
+        # Compute the pressure with mean normalized with the geolocator observation
+        pressure_i_s <- subset(pressure, pressure$sta_id == path$sta_id[i_s])
+        pressure_timeserie[[i_s]]$pressure0 <- pressure_timeserie[[i_s]]$pressure -
+          mean(pressure_timeserie[[i_s]]$pressure) +
+          mean(pressure_i_s$obs[!pressure_i_s$isoutliar])
+
+        # Add sta_id, lat and lon
+        pressure_timeserie[[i_s]]["sta_id"] <- path$sta_id[i_s]
+        pressure_timeserie[[i_s]]["lon"] <- path$lon[i_s]
+        pressure_timeserie[[i_s]]["lat"] <- path$lat[i_s]
+      },
+      error = function(cond) {
+        message(paste0("Error for sta_id = ", i_s))
+        message(cond)
+        # Choose a return value in case of error
+        return(NULL)
+      }
+    )
+  }
+
+
+
+  return(pressure_timeserie)
+}
+
+
+
+#' Return the most likely path from a probability map
+#'
+#' Find the location of the highest value in the map and return a path
+#' data.frame containing the latitude and longitude. `interp` can be used to
+#' interpolate unrealistic position from short stationary period based on the
+#' position of the longer ones. The interpolation assumes that the first and
+#' last stationary period can be safely estimated from the probability map.
+#'
+#' @param map list of raster containing probability map of each
+#' stationary period. The metadata of `map` needs to include the start and
+#' end time of the stationary period .
+#' @param interp (in days) The position of the stationary period shorter than
+#' `interp` will be replace by a linear average from other position.
+#' @return a data.frame of the position containing latitude (`lat`), longitude
+#' (`lon`) and the stationay period id (`sta_id`) as column.
+#' @examples
+#' data("pressure_prob", package = "GeoPressureR")
+#' path_all <- geopressure_map2path(pressure_prob)
+#' path_interp <- geopressure_map2path(pressure_prob, interp = 2)
+#' sta_duration <- unlist(lapply(pressure_prob, function(x) {
+#'   as.numeric(difftime(raster::metadata(x)$temporal_extent[2],
+#'     raster::metadata(x)$temporal_extent[1],
+#'     units = "days"
+#'   ))
+#' }))
+#' leaflet::leaflet() %>%
+#'   leaflet::addTiles() %>%
+#'   leaflet::addPolylines(
+#'     lng = path_all$lon, lat = path_all$lat, opacity = 1,
+#'     color = "#a6cee3", weight = 3
+#'   ) %>%
+#'   leaflet::addCircles(
+#'     lng = path_all$lon, lat = path_all$lat, opacity = 1,
+#'     color = "#1f78b4", weight = sta_duration^(0.3) * 10
+#'   ) %>%
+#'   leaflet::addPolylines(
+#'     lng = path_interp$lon, lat = path_interp$lat, opacity = 1,
+#'     color = "#b2df8a", weight = 3
+#'   ) %>%
+#'   leaflet::addCircles(
+#'     lng = path_interp$lon, lat = path_interp$lat, opacity = 1,
+#'     color = "#33a02c", weight = sta_duration^(0.3) * 10
+#'   )
+#' @export
+geopressure_map2path <- function(map,
+                                 interp = 0) {
+  stopifnot(is.list(map))
+  stopifnot(inherits(map[[1]], "RasterLayer"))
+  stopifnot("temporal_extent" %in%
+    names(raster::metadata(map[[1]])))
+  stopifnot(is.numeric(interp))
+  stopifnot(interp >= 0)
+
+  # Set the initial path to the most likely from static prob
+  path <- do.call("rbind", lapply(map, function(r) {
+    idx <- raster::which.max(r)
+    pos <- raster::xyFromCell(r, idx)
+    data.frame(
+      lon = pos[1],
+      lat = pos[2],
+      sta_id = raster::metadata(r)$sta_id
+    )
+  }))
+
+  # Interpolation for short stationary period is only performed if interp>0
+  if (interp > 0) {
+    dur <- unlist(lapply(map, function(r) {
+      mt <- raster::metadata(r)
+      duration <- as.numeric(difftime(mt$temporal_extent[2],
+        mt$temporal_extent[1],
+        units = "days"
+      ))
+    }))
+
+    # remove short stationary period
+    path[which(dur[2:(nrow(path) - 1)] < interp) + 1, ] <- NA
+
+    # interpolate in between
+    path <- as.data.frame(zoo::na.approx(path))
+
+    # need to improve to account for flight duration
+    #
+    # sf::sf_use_s2(FALSE)
+    # pts <- st_as_sf(path, coords = c("lon","lat"), crs = st_crs(4326))
+    # # poly <- ne_countries(returnclass="sf")
+    # poly <- ne_download(category = "physical", type="land", returnclass="sf")
+    # a <- st_join(pts, poly, join = st_intersects)
+  }
+
+  return(path)
+}
 
 
 # Progress bar function

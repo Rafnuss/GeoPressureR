@@ -116,9 +116,17 @@ values(static_prob[[length(static_prob)]]) <- tmp
 ```
 
 
-
-
-
+```{r, eval = F}
+path <- geopressure_map2path(static_prob)
+path$lat[3] <- path$lat[3] + .25
+path$lat[5] <- path$lat[5] + .25
+path$lat[27] <- path$lat[27] - .5
+static_timeserie <- geopressure_ts_path(path, pam_data$pressure)
+usethis::use_data(static_timeserie, overwrite = T)
+```
+```{r}
+data("static_timeserie", package = "GeoPressureR")
+```
 
 
 ## Checking model input
@@ -133,20 +141,20 @@ We suggest starting by selecting only long stopovers (24-48hours), as this will 
 
 As a general guideline, use your common sense, rather than solely on the model, to draw out the trajectory course. The model needs to give realistic trajectories, otherwise there is a labeling issue. The most regular issue I faced is a small vertical movement of the bird during a short stopover which completely throw off the estimation of pressure map. 
 
+
 ### GeoPressureViz 
 
-To run the vizualization, you will need to save the data in a `.RData` in your home folder (`~`). I cannot find a good way to pass variable to a shiny app instance (let me know if you have a suggestion). 
+To run the visualization, you will need to save the data in a `.RData` in your home folder (`~`). I cannot find a good way to pass variable to a shiny app instance (let me know if you have a suggestion). 
 
 The minimum information needed is `static_prob` and `pam_data`, but to see the difference between light and pressure, you will also need to extract `light_prob` and `pressure_prob`. In addition, to visualize pre-computed pressure timeseries at some location, you can use export `pressure_timeserie` computed in the vignette [Labelling tracks](./articles/labelling-tracks)
 
 ```{r, evel = F}
-data("pressure_timeserie", package = "GeoPressureR")
 geopressureviz = list(
   pam_data=pam_data,
   static_prob=static_prob,
   pressure_prob=pressure_prob,
   light_prob=light_prob,
-  pressure_timeserie = pressure_timeserie
+  static_timeseries = static_timeserie
 )
 save(geopressureviz,file = "~/geopressureviz.RData")
 ```
@@ -156,6 +164,7 @@ appDir <- system.file("geopressureviz", package = "GeoPressureR")
 shiny::runApp(appDir, launch.browser = getOption("browser"))
 # shiny::runApp('./inst/geopressureviz', launch.browser = getOption("browser"))
 ```
+
 
 ### Check #1: Existance of position with static probability (pressure + light)
 
