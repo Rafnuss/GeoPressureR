@@ -136,10 +136,10 @@ pgz <- apply(g, 1, function(x) {
 ```
 
 Aggregating the probability map of each twilight per stationary period requires some assumptions on the independence/correlation of the twilight errors. Read more about this in the vignette [Probability-aggregation](Probability-aggregation.html)).
-Here, we use a log-linear pooling with a weight of $w=0.1$,
+Here, we use a log-linear pooling with a weight of $w=0.05$,
 
 ```{r}
-w <- 0.1
+w <- 0.05
 ```
 
 We loop through each stationary period and create a raster map with the aggregated probabilities.
