@@ -88,7 +88,7 @@ pam_data <- trainset_read(pam_data, system.file("extdata", package = "GeoPressur
 pam_data <- pam_sta(pam_data)
 pam_data$sta$duration <- pam_data$sta$end - pam_data$sta$start
 pam_data$sta$next_flight_duration <- c(0, difftime(tail(pam_data$sta$start, length(pam_data$sta$start) - 1), head(pam_data$sta$end, length(pam_data$sta$end) - 1), units = "hours"))
-knitr::kable(pam_data$sta[difftime(pam_data$sta$end, pam_data$sta$start, units = "mins") < 60 | pam_data$sta$next_flight_duration < 30, ])
+knitr::kable(subset(pam_data$sta,duration<60| next_flight_duration < .5))
 ```
 
 You may want to check the labelling of flights shorter than one hour as well as the labelling before and after stationary periods shorter than a couple of hours. Using the exact times from the table above, you can edit your labelling in TRAINSET and export a new version of the `csv` file. Note that the last row has a `next_flight_duration` of 0 because it is the last stationary period. 
