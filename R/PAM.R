@@ -234,7 +234,7 @@ trainset_edit <- function(pam,
   }
 
   # Read the new file and return the updated pam data
-  return(trainset_read(pam, pathname,filename))
+  return(trainset_read(pam, pathname, filename))
 }
 
 

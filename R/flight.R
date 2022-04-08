@@ -38,7 +38,7 @@ flight_bird <- function(species_name,
     avonet <- utils::read.csv(system.file("extdata", "avonet_clements.csv",
       package = "GeoPressureR"
     ))
-    
+
     sp_id <- grep(species_name, avonet$species, ignore.case = TRUE)
     if (length(sp_id) == 0) {
       tmp <- print(avonet[agrep(species_name,

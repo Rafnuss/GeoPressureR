@@ -66,8 +66,10 @@ graph_create <- function(static_prob,
 
   tmp <- unlist(lapply(static_prob_n, sum)) == 0
   if (any(tmp)) {
-    stop(paste0("The `static_prob` provided has a probability map equal to zero"
-                ,"for the stationay period: ", which(tmp)))
+    stop(paste0(
+      "The `static_prob` provided has a probability map equal to zero",
+      "for the stationay period: ", which(tmp)
+    ))
   }
 
   # find the pixels above to the percentile
