@@ -29,6 +29,7 @@ We will be using the following libraries:
 library(GeoPressureR)
 library(raster)
 library(leaflet)
+library(leaflet.extras)
 library(ggplot2)
 library(plotly)
 library(RColorBrewer)
@@ -151,7 +152,7 @@ We use `leaflet()` to visualize the threshold mask, mismatch map, and overall pr
 ```{r, warning=F}
 i_r <- 2
 leaflet() %>%
-  addTiles() %>%
+  addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl() %>% 
   addRasterImage(pressure_prob[[i_r]], opacity = 0.8, colors = "OrRd", group = "Probability") %>%
   addRasterImage(pressure_maps[[i_r]][[1]], opacity = 0.8, colors = "OrRd", group = "Mismatch") %>%
   addRasterImage(pressure_maps[[i_r]][[2]], opacity = 0.8, colors = "OrRd", group = "Threashold") %>%
@@ -167,7 +168,7 @@ We can also visualize the probability map for all stationary periods:
 
 ```{r}
 li_s <- list()
-l <- leaflet() %>% addTiles()
+l <- leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
 for (i_r in seq_len(length(pressure_prob))) {
   i_s <- metadata(pressure_prob[[i_r]])$sta_id
   info <- pam_data$sta[pam_data$sta$sta_id == i_s, ]

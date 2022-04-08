@@ -20,6 +20,7 @@ library(ecmwfr)
 library(raster)
 library(ncdf4)
 library(leaflet)
+library(leaflet.extras)
 library(igraph)
 ```
 
@@ -164,9 +165,9 @@ grl$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), grl)
 ```{r}
 sta_duration <- unlist(lapply(static_prob,function(x){as.numeric(difftime(metadata(x)$temporal_extent[2],metadata(x)$temporal_extent[1],units="days"))}))
 leaflet() %>%
-  addTiles() %>%
+  addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl() %>%
   addPolylines(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#808080", weight = 3) %>%
-  addCircles(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#000", weight = sta_duration^(0.3)*10)
+  addCircles(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#000", weight = sta_duration^(0.3)*10) 
 ```
 
 
@@ -180,12 +181,13 @@ grl_marginal <- graph_marginal(grl)
 
 ```{r, warning=F}
 li_s <- list()
-l <- leaflet() %>% addTiles()
+l <- leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
 for (i_r in seq_len(length(grl_marginal))) {
   i_s <- metadata(static_prob[[i_r]])$sta_id
   info <- metadata(static_prob[[i_r]])$temporal_extent
   info_str <- paste0(i_s, " | ", info[1], "->", info[2])
   li_s <- append(li_s, info_str)
+  tmp
   l <- l %>%
     addRasterImage(grl_marginal[[i_r]], colors = "OrRd", opacity = 0.8, group = info_str) %>%
     addCircles(lng = grl$shortest_path$lon[i_s], lat = grl$shortest_path$lat[i_s], opacity = 1, color = "#000", weight = 10, group = info_str)
@@ -201,5 +203,23 @@ l %>%
 ## Output 3: Simulate path
 
 ```{r}
-path <- graph_simulation(grl)
+nj=10
+path <- graph_simulation(grl, nj)
+```
+```{r}
+col <- rep(RColorBrewer::brewer.pal(9, "Set1"), times = ceiling(grl$sz[3]/9))
+m <- leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
+for (i in seq_len(nj)) {
+  m <- m %>%
+    addPolylines(lng = path$lon[i,], lat = path$lat[i,], opacity = 0.7, weight = 1, color = "#808080") 
+}
+for (i in seq_len(grl$sz[3])){
+   m <- m %>%
+    addCircles(lng = path$lon[,i], lat = path$lat[,i], opacity = .4, weight = 10, color = col[i])
+}
+m <- m %>% addLegend("bottomright", colors = col[1:grl$sz[3]], labels = seq_len(grl$sz[3]),
+    title = "Stationay period",
+    opacity = 1
+  ) 
+  m
 ```

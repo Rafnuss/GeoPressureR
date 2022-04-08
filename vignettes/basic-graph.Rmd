@@ -21,6 +21,7 @@ We called this a 'basic' graph because it does not integrate windspeed, and make
 ```{r setup, message=F}
 library(GeoPressureR)
 library(leaflet)
+library(leaflet.extras)
 library(raster)
 library(igraph)
 ```
@@ -34,18 +35,21 @@ data("static_prob", package = "GeoPressureR")
 ## Create the graph 
 
 We create the graph with the function `geopressure_graph()`, which perform the following steps: 
+
 1. We only keep the nodes of all locations within the 99% percentile of the static pressure map. (A node is uniquely identify by a latitude, longitude and stationary period).
-2. We only keep the nodes which are within reach of distance of all other nodes based on a average groundspeed of 150km/h. This accounts for the distance of all other possible nodes from the previous stationay period and to the next stationary period. This is computed with the image binary distance function [distmap()](https://rdrr.io/bioc/EBImage/man/distmap.html) from the EBImage package. This step allows to eliminate multiple impossible nodes without having to compute all possible transition.
+2. We only keep the nodes which are within reach of distance of all other nodes based on a average groundspeed of 150km/h. This accounts for the distance of all other possible nodes from the previous stationay period and to the next stationary period. This is computed with the image binary distance function [distmap()](https://rdrr.io/bioc/EBImage/man/distmap.html) from the [EBImage](https://github.com/aoles/EBImage) package. This step allows to eliminate multiple impossible nodes without having to compute all possible transition.
 3. We then build the graph based on the filtered nodes and containing the edges requiring an average groundspeed less than 150km/h.
-4. Finally, we trim the graph based on the flow graph constraint, that is, the nodes must be connected to the equipment node and retrieval node. Indeed, after filtering, some nodes might be connected in a single direction (so called dead branch). We thus ensure that each node is on a path that connects the equipment site to the retrieval site. This operation is performed with the Breadth-first search (BFS) algorithm.
+4. Finally, we trim the graph based on the flow graph constraint, that is, the nodes must be connected to the equipment node and retrieval node. Indeed, after filtering, some nodes might be connected in a single direction (so called dead branch). We thus ensure that each node is on a path that connects the equipment site to the retrieval site. This operation is performed with the [Breadth-first search (BFS) algorithm](https://en.wikipedia.org/wiki/Breadth-first_search).
 
 The duration of this operation is strongly variable depending on the grid (resolution and size), the number of stationary periods and the level of contains from the static probability. 
 
-```{r}
+```{r, include=FALSE}
 grl <- graph_create(static_prob,
   thr_prob_percentile = .99,
   thr_gs = 150 # threshold km/h
 )
+```
+```{r}
 summary(grl)
 ```
 
@@ -71,12 +75,12 @@ The graph returned is a list of the edges of the graph containing:
 We finally need to compute the probability of the transition represented by each edge of the graph. We use here a simple gamma distribution to model the probability of groundspeed. Because bird may flight back and forth over small distance, we give apparent groundspeed smaller than 20km/h the same probability than for 20 km/h.
 
 ```{r}
-speed <- seq(1,120)
-low_speed_fix = 20 # minimum speed allowed
-prob <- flight_prob(speed, method="gamma",shape = 7, scale = 7, low_speed_fix = low_speed_fix)
-plot(speed,prob, type="l", xlab="Groundspeed [km/h]", ylab="Probability")
-abline(v=low_speed_fix)
-grl$p <- grl$ps * flight_prob(grl$gs, method="gamma", shape = 7, scale = 7, low_speed_fix = low_speed_fix)
+speed <- seq(1, 120)
+low_speed_fix <- 20 # minimum speed allowed
+prob <- flight_prob(speed, method = "gamma", shape = 7, scale = 7, low_speed_fix = low_speed_fix)
+plot(speed, prob, type = "l", xlab = "Groundspeed [km/h]", ylab = "Probability")
+abline(v = low_speed_fix)
+grl$p <- grl$ps * flight_prob(grl$gs, method = "gamma", shape = 7, scale = 7, low_speed_fix = low_speed_fix)
 ```
 
 ## Output 1: Shortest path
@@ -96,11 +100,13 @@ grl$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), grl)
 
 
 ```{r}
-sta_duration <- unlist(lapply(static_prob,function(x){as.numeric(difftime(metadata(x)$temporal_extent[2],metadata(x)$temporal_extent[1],units="days"))}))
+sta_duration <- unlist(lapply(static_prob, function(x) {
+  as.numeric(difftime(metadata(x)$temporal_extent[2], metadata(x)$temporal_extent[1], units = "days"))
+}))
 leaflet() %>%
-  addTiles() %>%
+  addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl() %>% 
   addPolylines(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#808080", weight = 3) %>%
-  addCircles(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#000", weight = sta_duration^(0.3)*10)
+  addCircles(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#000", weight = sta_duration^(0.3) * 10)
 ```
 
 
@@ -114,7 +120,7 @@ grl_marginal <- graph_marginal(grl)
 
 ```{r, warning=F}
 li_s <- list()
-l <- leaflet() %>% addTiles()
+l <- leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
 for (i_r in seq_len(length(grl_marginal))) {
   i_s <- metadata(static_prob[[i_r]])$sta_id
   info <- metadata(static_prob[[i_r]])$temporal_extent
@@ -134,6 +140,26 @@ l %>%
 
 ## Output 3: Simulate path
 
-```{r}
-path <- graph_simulation(grl)
+```{r, include=FALSE}
+nj=10
+path <- graph_simulation(grl, nj=20)
 ```
+
+```{r}
+col <- rep(RColorBrewer::brewer.pal(9, "Set1"), times = ceiling(grl$sz[3]/9))
+m <- leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
+for (i in seq_len(nj)) {
+  m <- m %>%
+    addPolylines(lng = path$lon[i,], lat = path$lat[i,], opacity = 0.7, weight = 1, color = "#808080") 
+}
+for (i in seq_len(grl$sz[3])){
+   m <- m %>%
+    addCircles(lng = path$lon[,i], lat = path$lat[,i], opacity = .4, weight = 10, color = col[i])
+}
+m <- m %>% addLegend("bottomright", colors = col[1:grl$sz[3]], labels = seq_len(grl$sz[3]),
+    title = "Stationay period",
+    opacity = 1
+  ) 
+  m
+```
+

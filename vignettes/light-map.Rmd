@@ -22,6 +22,7 @@ In this vignette, we use light data to estimate the position of the Great Reed W
 ```{r setup, message=F}
 library(GeoPressureR)
 library(leaflet)
+library(leaflet.extras)
 library(MASS)
 library(raster)
 ```
@@ -168,7 +169,7 @@ Finally, we can visualize the probability map for each stationary period.
 
 ```{r, warning=F}
 li_s <- list()
-l <- leaflet() %>% addTiles()
+l <- leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
 for (i_r in seq_len(length(light_prob))) {
   i_s <- metadata(light_prob[[i_r]])$sta_id
   info <- pam_data$sta[pam_data$sta$sta_id == i_s, ]

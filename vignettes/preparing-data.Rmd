@@ -22,6 +22,7 @@ But before moving too quickly, we need to carefully check that pressure, light a
 library(GeoPressureR)
 library(raster)
 library(leaflet)
+library(leaflet.extras)
 ```
 
 ## Combine pressure and light probability maps

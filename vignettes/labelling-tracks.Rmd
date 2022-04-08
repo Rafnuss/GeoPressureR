@@ -138,7 +138,7 @@ pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] <- NA
 message("Number of stationay period to query: ", length(sta_id_keep))
 ```
 
-We can estimate the probability map for each stationary period with the following code. We will cover these fours functions in more details in the vignette [Pressure Map](articles/pressure-map.html). For each stationary period, we locate the best match and query the pressure timeseries with `geopressure_ts()` at this location. If you get errors, check the probability map and the best match (see commented line starting with `leaflet()`)
+We can estimate the probability map for each stationary period with the following code. We will cover these fours functions in more details in the vignette [Pressure Map](articles/pressure-map.html). For each stationary period, we locate the best match and query the pressure timeseries with `geopressure_ts()` at this location.
 
 ```{r, eval = F}
 pressure_maps <- geopressure_map(pam_data$pressure, extent = c(50, -16, 0, 23), scale = 10, max_sample = 100)

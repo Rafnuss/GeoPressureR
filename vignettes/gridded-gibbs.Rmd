@@ -39,6 +39,7 @@ However, Gibbs samples remains sensitive to local minimun in the case where cons
 ```{r setup, message=F}
 library(GeoPressureR)
 library(leaflet)
+library(leaflet.extras)
 library(raster)
 ```
 
