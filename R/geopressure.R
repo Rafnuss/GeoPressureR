@@ -431,7 +431,7 @@ geopressure_ts <-
         res2,
         type = "text/csv",
         encoding = "UTF-8",
-        show_col_types = F
+        show_col_types = FALSE
       ))
 
     # check for errors
@@ -498,7 +498,7 @@ geopressure_ts <-
 #'
 #' py <- plotly::ggplotly(p, dynamicTicks = TRUE)
 #' py <- plotly::layout(py,
-#'   showlegend = F,
+#'   showlegend = FALSE,
 #'   legend = list(orientation = "h", x = -0.5),
 #'   yaxis = list(title = "Pressure [hPa]")
 #' )

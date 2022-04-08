@@ -87,7 +87,7 @@ The first test consists in checking the duration of flights and stationary perio
 pam_data <- trainset_read(pam_data, system.file("extdata", package = "GeoPressureR"), filename = "18LX_act_pres-labeled-v1.csv")
 pam_data <- pam_sta(pam_data)
 pam_data$sta$duration <- pam_data$sta$end - pam_data$sta$start
-pam_data$sta$next_flight_duration <- c(0, difftime(tail( pam_data$sta$start, length( pam_data$sta$start)-1), head( pam_data$sta$end, length( pam_data$sta$end)-1),units = "hours"))
+pam_data$sta$next_flight_duration <- c(0, difftime(tail(pam_data$sta$start, length(pam_data$sta$start) - 1), head(pam_data$sta$end, length(pam_data$sta$end) - 1), units = "hours"))
 knitr::kable(pam_data$sta[difftime(pam_data$sta$end, pam_data$sta$start, units = "mins") < 60 | pam_data$sta$next_flight_duration < 30, ])
 ```
 

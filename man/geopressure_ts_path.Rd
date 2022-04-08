@@ -54,9 +54,9 @@ p <- ggplot2::ggplot() +
   ggplot2::theme_bw() +
   ggplot2::scale_colour_manual(values = rep(RColorBrewer::brewer.pal(9, "Set1"), times = 4))
 
-py <- plotly::ggplotly(p, dynamicTicks = T)
+py <- plotly::ggplotly(p, dynamicTicks = TRUE)
 py <- plotly::layout(py,
-  showlegend = F,
+  showlegend = FALSE,
   legend = list(orientation = "h", x = -0.5),
   yaxis = list(title = "Pressure [hPa]")
 )

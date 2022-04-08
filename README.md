@@ -1,28 +1,30 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# GeoPressureR <img src="man/figures/logo.svg" align="right" height="139" />
+# GeoPressureR <img src="man/figures/logo.svg" align="right" height="139"/>
 
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions)
 [![pkgdown](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml)
+
 <!-- badges: end -->
 
 The goal of GeoPressureR is to help researcher to analyse pressure
 measurement from geolocator.
 
--   Part 1: Firstly, it provides a R wrapper around the [GeoPressure
-    API](https://github.com/Rafnuss/GeoPressureServer) to query the
-    probability map using ERA5 pressure.
--   Part 2: Secondly, using a mathematical graph, it allows you to model
-    the trajectory producing the exact probability map at stationary
-    period and simulating paths.
+Firstly, part 1 provides a R wrapper around the [GeoPressure
+API](https://github.com/Rafnuss/GeoPressureServer) to query the
+probability map using ERA5 pressure. Secondly, using a mathematical
+graph, part 2 allows you to model the trajectory producing the exact
+probability map at stationary period and simulating paths.
 
 ## Installation
 
-You can install the development version of GeoPressureR from
-[GitHub](https://github.com/Rafnuss/GeoPressureR) with:
+GeoPressureR is currently still in active development phase. Expect
+breaking changes in the future. The latest version of GeoPressureR can
+be installed from [GitHub](https://github.com/Rafnuss/GeoPressureR) with
+in R
 
 ``` r
 # install.packages("devtools")
@@ -47,6 +49,18 @@ compute three main outputs: (1) the most likely trajectory, (2) the
 (posterior) probability map of each stationary period and (3) simulation
 of possible path.
 
+Finally, [Wind graph](./articles/wind-graph.html) extend the capability
+of the basic graph to include wind data and refine the possible flight
+distance. It also allows to estimate wind support, airspeed, and energy
+expenditure on each flights.
+
+[![](man/figures/geopressureviz-demo.png "GeoPressureViz Demo")](https://rafnuss.shinyapps.io/GeoPressureViz/)
+*Demo of [GeoPressureViz](https://rafnuss.shinyapps.io/GeoPressureViz/)
+showing the estimated position at one stationary period of the Great
+Reed Warbler 18IC, based on (1) the pressure and light match (map
+colorscale and timeserie) and (2) potential flight distances from
+previous and next stationary period (circles).*
+
 ## Related Ressources
 
 > Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti Global positioning
@@ -57,7 +71,7 @@ of possible path.
 > Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti et al. Improving the
 > spatial accuracy of multi-sensor geolocators’ position using
 > atmospheric surface pressure. October 2021. *7th International
-> Bio-logging Science Symposium*.PRESENTATION available on
+> Bio-logging Science Symposium*. PRESENTATION available on
 > [Youtube](https://www.youtube.com/watch?v=0JsYU_xfKN8).
 
 ## Related Code
@@ -80,4 +94,4 @@ of possible path.
 
 The code is still in active development. Feel free to [submit an issue
 on Github](https://github.com/Rafnuss/GeoPressureR/issues) with
-suggetions or bugs
+suggestions or bugs

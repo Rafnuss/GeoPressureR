@@ -42,7 +42,7 @@ pam_data <- pam_sta(pam_data)
 We need to retrieve the pressure and light data for the same stationary period. Using `thr_sta_dur`, you can also specify at this stage which stationary period to include. When running the check for the first time, it is recommended to start by filtering only longer stationary periods (e.g. 5*24 hours), and when all the check below are passing, reduce gradually the threshold on stopover duration.
 
 ```{r}
-thr_sta_dur = 0
+thr_sta_dur = 0 # in hours
 sta_pres <- unlist(lapply(pressure_prob, function(x) raster::metadata(x)$sta_id))
 sta_light <- unlist(lapply(light_prob, function(x) raster::metadata(x)$sta_id))
 sta_thres <- pam_data$sta$sta_id[difftime(pam_data$sta$end, pam_data$sta$start, units = "hours") > thr_sta_dur]
@@ -154,7 +154,7 @@ geopressureviz = list(
   static_prob=static_prob,
   pressure_prob=pressure_prob,
   light_prob=light_prob,
-  static_timeseries = static_timeserie
+  pressure_timeserie = static_timeserie
 )
 save(geopressureviz,file = "~/geopressureviz.RData")
 ```

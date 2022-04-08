@@ -1,6 +1,6 @@
 Package: GeoPressureR
 Title: Location from Reanalysed Pressure
-Version: 2.1
+Version: 2.2
 Authors@R: c(
     person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8185-1020")),
