@@ -55,10 +55,16 @@
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map.html</loc>
   </url>
   <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map2path.html</loc>
+  </url>
+  <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_prob_map.html</loc>
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_ts.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_ts_path.html</loc>
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/graph_add_wind.html</loc>
@@ -116,6 +122,9 @@
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/static_prob.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/static_timeserie.html</loc>
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/trainset_edit.html</loc>
