@@ -26,7 +26,7 @@ the solar declination are calculated for the times specified by
 \url{www.esrl.noaa.gov/gmd/grad/solcalc/}.
 }
 \examples{
-## Current solar time
+# Current solar time
 solar(Sys.time())
 }
 \seealso{

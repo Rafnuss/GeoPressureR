@@ -1,13 +1,11 @@
 #' Construct bird morphology
 #'
-#' This function return a list with the four morphological information
-#' necessary to construct the power curve: mass, wing span, wing aspect ratio
-#' and body frontal area.
+#' This function return a list with the four morphological information necessary to construct the
+#' power curve: mass, wing span, wing aspect ratio and body frontal area.
 #'
 #' When any of these variables are missing, we query the AVONET database]
-#' (https://doi.org/10.6084/m9.figshare.16586228.v5)
-#' using the sciencific name from
-#' [the Clements Checklist](https://www.birds.cornell.edu/clementschecklist/).
+#' (https://doi.org/10.6084/m9.figshare.16586228.v5) using the sciencific name from [the Clements
+#' Checklist](https://www.birds.cornell.edu/clementschecklist/).
 #'
 #' @param species_name scientific name of the species
 #' @param mass in kilogram
@@ -15,8 +13,7 @@
 #' @param wing_aspect wing aspect ratio (no unit)
 #' @param wing_area in meter square
 #' @param body_frontal_area in meter square
-#' @return list containing mass, wing span, wing aspect ratio and body frontal
-#' area.
+#' @return list containing mass, wing span, wing aspect ratio and body frontal area.
 #' @examples
 #' # Using AVONET dataset
 #' flight_bird("Acrocephalus arundinaceus")
@@ -74,8 +71,8 @@ flight_bird <- function(species_name,
     # Assuming that the bird is a passerine, [Hedenström and Rosén (2003)]
     # (https://doi.org/10.1034/j.1600-048X.2003.03145.x) is used with
     body_frontal_area <- 0.0129 * mass^(0.614)
-    # In case of non-passrine, Pennycuick et al. (1988) could be used
-    # body_frontal_area = 0.00813*mass^(0.666)
+    # In case of non-passrine, Pennycuick et al. (1988) could be used body_frontal_area =
+    # 0.00813*mass^(0.666)
   }
 
   # Combinaison of wing area, span and aspect ratio
@@ -126,15 +123,13 @@ flight_bird <- function(species_name,
 
 #' Power curve
 #'
-#' Compute the mechanical power required for a specific bird flying as at a
-#' given airspeed in m/s. `bird` (created with `flight_bird()`)
+#' Compute the mechanical power required for a specific bird flying as at a given airspeed in m/s.
+#' `bird` (created with `flight_bird()`)
 #'
-#' @param bird list of basic morphological trait necessary: mass, wing span,
-#' wing aspect ratio and body frontal area. It is best practice to create bird
-#' with `flight_bird()`.
+#' @param bird list of basic morphological trait necessary: mass, wing span, wing aspect ratio and
+#'   body frontal area. It is best practice to create bird with `flight_bird()`.
 #' @param as airspeed in m/s
-#' @return mechanical power in Watt (or Joule/seconds) corresponding to the
-#' airspeed
+#' @return mechanical power in Watt (or Joule/seconds) corresponding to the airspeed
 #' @examples
 #' bird <- flight_bird("Acrocephalus arundinaceus")
 #' airspeed <- seq(0, 30)
@@ -154,20 +149,18 @@ flight_power <- function(as, bird) {
   # Air density
   rho <- 1.225
 
-  # Induced power factor k=1.1-1.2 for aircraft and helicopter, ad k=1.04 in
-  # Spedding (1987a) (p. 45).
+  # Induced power factor k=1.1-1.2 for aircraft and helicopter, ad k=1.04 in Spedding (1987a) (p.
+  # 45).
   k <- 1.2
   # body drag coefficient (p. 51).[-]
   c_db <- 0.1
   c_pro <- 8.4
 
-  # Induce power (eq 16 of Box 3.1)
-  # Pind is due to the active acceleration of mass flow in order to produce a
-  # force opposing weight and drag
+  # Induce power (eq 16 of Box 3.1) Pind is due to the active acceleration of mass flow in order to
+  # produce a force opposing weight and drag
   p_ind <- 2 * k * (bird$mass * g)^2 / (as * pi * bird$wing_span^2 * rho)
 
-  # Parasitic power (eq 3 of Box 3.2) (also called Body Power) due to drag on
-  # the body
+  # Parasitic power (eq 3 of Box 3.2) (also called Body Power) due to drag on the body
   p_par <- rho * as^3 * bird$body_frontal_area * c_db / 2
 
   # Profile power due to the local drag on the wings
@@ -186,21 +179,18 @@ flight_power <- function(as, bird) {
 
 #' Movement model
 #'
-#' Compute the mechanical power required for a specific bird flying as at a
-#' given airspeed in km/h. `bird` (created with `flight_bird()`)
+#' Compute the mechanical power required for a specific bird flying as at a given airspeed in km/h.
+#' `bird` (created with `flight_bird()`)
 #'
 #' @param speed airspeed or groundspeed in km/h
-#' @param method method used to convert the speed to probability ("gamma" or
-#' "power")
+#' @param method method used to convert the speed to probability ("gamma" or "power")
 #' @param shape parameter of the gamma distribution
 #' @param scale  parameter of the gamma distribution
-#' @param bird list of basic morphological trait necessary: mass, wing span,
-#' wing aspect ratio and body frontal area. It is best practice to create bird
-#' with `flight_bird()`.
-#' @param fun_power function taking power as a single argument and returning a
-#' probability
-#' @param low_speed_fix speed below which the probability remains the same. This
-#' parameter is used to allow short flight covering small distance.
+#' @param bird list of basic morphological trait necessary: mass, wing span, wing aspect ratio and
+#'   body frontal area. It is best practice to create bird with `flight_bird()`.
+#' @param fun_power function taking power as a single argument and returning a probability
+#' @param low_speed_fix speed below which the probability remains the same. This parameter is used
+#'   to allow short flight covering small distance.
 #' @return Probability values corresponding to the speed provided
 #' @examples
 #' speed <- seq(1, 120)
@@ -241,13 +231,12 @@ flight_prob <- function(speed,
   if (method == "gamma") {
     return(stats::dgamma(speed, shape, 1 / scale))
   } else if (method == "power") {
-    # `flight_power` is defined in m/s (SI), but the rest of your code is using
-    # km/h. This is where we need to convert.
+    # `flight_power` is defined in m/s (SI), but the rest of your code is using km/h. This is where
+    # we need to convert.
     as <- speed * 1000 / 60 / 60
 
-    # We normalize the probability computed by `fun_power` so that it is
-    # comparable to the other method. The normalization is computed as the sum
-    # of probability with a 1km/h unit grid
+    # We normalize the probability computed by `fun_power` so that it is comparable to the other
+    # method. The normalization is computed as the sum of probability with a 1km/h unit grid
     norm <- sum(fun_power(flight_power(pmax(seq(0, 150), low_speed_fix) * 1000
       / 60 / 60, bird)))
 

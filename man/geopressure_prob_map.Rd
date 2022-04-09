@@ -11,21 +11,20 @@ geopressure_prob_map(pressure_maps, s = 1, thr = 0.9)
 
 \item{s}{standard deviation of the pressure error}
 
-\item{thr}{threshold of the percentage of data point outside the elevation
-range to be considered not possible}
+\item{thr}{threshold of the percentage of data point outside the elevation range to be considered
+not possible}
 }
 \value{
 List of the probability raster map
 }
 \description{
-This function convert the raster of noramlized MSE and altitude threshold
-\eqn{z_{thr}} computed by \code{geopressure_map()} into a probability map with,
+This function convert the raster of noramlized MSE and altitude threshold \eqn{z_{thr}} computed
+by \code{geopressure_map()} into a probability map with,
 \eqn{p = \exp \left(-w \frac{MSE}{s} \right) \left[z_{thr}>thr \right],}
-where \eqn{s} is the standard deviation of pressure and \eqn{thr} is the
-threashold. Because the auto-correlation of the timeseries is not accounted
-for in this equation, we use a log-linear pooling weight \eqn{w=\log(n) - 1},
-with \eqn{n} is the number of data point in the timeserie. This operation is
-describe in
+where \eqn{s} is the standard deviation of pressure and \eqn{thr} is the threashold. Because the
+auto-correlation of the timeseries is not accounted for in this equation, we use a log-linear
+pooling weight \eqn{w=\log(n) - 1}, with \eqn{n} is the number of data point in the timeserie.
+This operation is describe in ...
 }
 \examples{
 \dontrun{

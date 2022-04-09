@@ -7,29 +7,25 @@
 geopressure_map2path(map, interp = 0, format = "lonlat")
 }
 \arguments{
-\item{map}{list of raster containing probability map of each
-stationary period. The metadata of \code{map} needs to include the start and
-end time of the stationary period .}
+\item{map}{list of raster containing probability map of each stationary period. The metadata of
+\code{map} needs to include the start and end time of the stationary period .}
 
-\item{interp}{(in days) The position of the stationary period shorter than
-\code{interp} will be replace by a linear average from other position.}
+\item{interp}{(in days) The position of the stationary period shorter than \code{interp} will be
+replace by a linear average from other position.}
 
-\item{format}{one of \code{"lonlat"}, \code{"ind"}, \code{"arr.ind"}). return the path in
-lon-lat or indices}
+\item{format}{one of \code{"lonlat"}, \code{"ind"}, \code{"arr.ind"}). return the path in lon-lat or indices}
 }
 \value{
-a data.frame of the position containing latitude (\code{lat}), longitude
-(\code{lon}) and the stationary period id (\code{sta_id}) as column. Optionally, if
-indexes were requested, it will be return. You will need to use
-\code{which.max(as.matrix(raster))} and not \code{which.max(raster)} to get the correct
-location
+a data.frame of the position containing latitude (\code{lat}), longitude (\code{lon}) and the
+stationary period id (\code{sta_id}) as column. Optionally, if indexes were requested, it will be
+return. You will need to use \code{which.max(as.matrix(raster))} and not \code{which.max(raster)} to get
+the correct location
 }
 \description{
-Find the location of the highest value in the map and return a path
-data.frame containing the latitude and longitude. \code{interp} can be used to
-interpolate unrealistic position from short stationary period based on the
-position of the longer ones. The interpolation assumes that the first and
-last stationary period can be safely estimated from the probability map.
+Find the location of the highest value in the map and return a path data.frame containing the
+latitude and longitude. \code{interp} can be used to interpolate unrealistic position from short
+stationary period based on the position of the longer ones. The interpolation assumes that the
+first and last stationary period can be safely estimated from the probability map.
 }
 \examples{
 data("pressure_prob", package = "GeoPressureR")

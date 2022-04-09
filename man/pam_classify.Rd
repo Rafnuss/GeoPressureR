@@ -15,9 +15,8 @@ pam_classify(pam, min_duration = 30)
 pam
 }
 \description{
-This function uses activity data to classify migratory flapping flight. It
-returns the same dats list \code{pam} adding a column \code{ismig} to the data.frame
-\code{acceleration}.
+This function uses activity data to classify migratory flapping flight. It returns the same data
+list \code{pam} adding a column \code{ismig} to the data.frame \code{acceleration}.
 }
 \details{
 This fonction is inspired by the function \code{classify_flap} from the

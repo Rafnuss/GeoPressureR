@@ -14,24 +14,22 @@ find_twilights(
 )
 }
 \arguments{
-\item{light}{a dataframe with columns \code{date} and
-\code{obs} that are the sequence of sample times (as POSIXct)
-and light levels recorded by the tag.}
+\item{light}{a dataframe with columns \code{date} and \code{obs} that are the sequence of sample
+times (as POSIXct) and light levels recorded by the tag.}
 
 \item{threshold}{the light threshold that defines twilight.}
 
-\item{include}{a vector of times as POSIXct. Nights that span these
-times are included in the search.}
+\item{include}{a vector of times as POSIXct. Nights that span these times are included in the
+search.}
 
-\item{exclude}{a vector of POSIXct times. Nights that span these
-times are excluded from the search.}
+\item{exclude}{a vector of POSIXct times. Nights that span these times are excluded from the
+search.}
 
-\item{extend}{a time in minutes. The function seeks periods of
-darkness that differ from one another by 24 hours plus or minus
-this interval.}
+\item{extend}{a time in minutes. The function seeks periods of darkness that differ from one
+another by 24 hours plus or minus this interval.}
 
-\item{dark_min}{a time in minutes. Periods of darkness shorter
-than this interval will be excluded.}
+\item{dark_min}{a time in minutes. Periods of darkness shorter than this interval will be
+excluded.}
 }
 \value{
 A dataframe with columns
@@ -43,19 +41,15 @@ where each row corresponds to a single twilight.
 Search for pairs of twilights spanning night.
 }
 \details{
-Search for sunset, sunrise pairs that correspond to a given light
-threshold.
+Search for sunset, sunrise pairs that correspond to a given light threshold.
 
-Given a set of times (\code{include}) known to fall in the night,
-\code{find_twilights} determines the twilights that span these times, and
-computes the corresponding midnights. It then searches for periods
-of darkness that lie approximately 24 hours from these midnights,
+Given a set of times (\code{include}) known to fall in the night, \code{find_twilights}
+determines the twilights that span these times, and computes the corresponding midnights.
+It then searches for periods of darkness that lie approximately 24 hours from these midnights,
 repeating the process until no new twilight pairs are found.
 
-If \code{interleave=TRUE}, the sunrise and sunset times are
-interleaved andreturned as a single sequence of twilights,
-otherwise sunset and sunrise times are returned separately. The
-function \code{interleave.twilights} takes a dataframe of separate
-sunset and sunrise times and interleaves them to form a sequence
-of twilight times.
+If \code{interleave=TRUE}, the sunrise and sunset times are interleaved andreturned as a single
+sequence of twilights, otherwise sunset and sunrise times are returned separately. The function
+\code{interleave.twilights} takes a dataframe of separate sunset and sunrise times and
+interleaves them to form a sequence of twilight times.
 }

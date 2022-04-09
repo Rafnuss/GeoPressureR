@@ -17,29 +17,26 @@ flight_prob(
 \arguments{
 \item{speed}{airspeed or groundspeed in km/h}
 
-\item{method}{method used to convert the speed to probability ("gamma" or
-"power")}
+\item{method}{method used to convert the speed to probability ("gamma" or "power")}
 
 \item{shape}{parameter of the gamma distribution}
 
 \item{scale}{parameter of the gamma distribution}
 
-\item{bird}{list of basic morphological trait necessary: mass, wing span,
-wing aspect ratio and body frontal area. It is best practice to create bird
-with \code{flight_bird()}.}
+\item{bird}{list of basic morphological trait necessary: mass, wing span, wing aspect ratio and
+body frontal area. It is best practice to create bird with \code{flight_bird()}.}
 
-\item{fun_power}{function taking power as a single argument and returning a
-probability}
+\item{fun_power}{function taking power as a single argument and returning a probability}
 
-\item{low_speed_fix}{speed below which the probability remains the same. This
-parameter is used to allow short flight covering small distance.}
+\item{low_speed_fix}{speed below which the probability remains the same. This parameter is used
+to allow short flight covering small distance.}
 }
 \value{
 Probability values corresponding to the speed provided
 }
 \description{
-Compute the mechanical power required for a specific bird flying as at a
-given airspeed in km/h. \code{bird} (created with \code{flight_bird()})
+Compute the mechanical power required for a specific bird flying as at a given airspeed in km/h.
+\code{bird} (created with \code{flight_bird()})
 }
 \examples{
 speed <- seq(1, 120)

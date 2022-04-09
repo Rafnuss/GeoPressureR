@@ -14,8 +14,8 @@ pam_read(
 \arguments{
 \item{pathname}{path where files are stored}
 
-\item{extension}{list of file extentions to read (e.g., ".pressure",
-".glf", ".gle",".acceleration", ".temperature" and ".magnetic")}
+\item{extension}{list of file extentions to read (e.g., ".pressure", ".glf", ".gle",
+".acceleration", ".temperature" and ".magnetic")}
 
 \item{crop_start}{is the date that pam data should start}
 
@@ -25,9 +25,8 @@ pam_read(
 a list of all measurements
 }
 \description{
-Imports multi-sensor logger data from a folder and optionally crop at
-specific date. Read all available file from the extension list AND which
-exist in the folder.
+Imports multi-sensor logger data from a folder and optionally crop at specific date. Read all
+available file from the extension list AND which exist in the folder.
 }
 \examples{
 pam_data <- pam_read(

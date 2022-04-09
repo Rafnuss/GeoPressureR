@@ -7,36 +7,34 @@
 geopressure_map(pressure, extent, scale = 10, max_sample = 250, margin = 30)
 }
 \arguments{
-\item{pressure}{pressure data from a PAM logger. This data.frame needs to
-contains \code{date} as POSIXt, \code{obs} in hPa, \code{sta_id} grouping observation
-measured during the same stationary period and \code{isoutliar} as logical to
-label observation which need to be ignorede. It is best practice to use
-\code{pam_read()} and \code{pam_sta()} to build this data.frame.}
+\item{pressure}{pressure data from a PAM logger. This data.frame needs to contains \code{date} as
+POSIXt, \code{obs} in hPa, \code{sta_id} grouping observation measured during the same stationary period
+and \code{isoutliar} as logical to label observation which need to be ignorede. It is best practice to
+use \code{pam_read()} and \code{pam_sta()} to build this data.frame.}
 
-\item{extent}{Geographical extent of the map to query as a list ordered by
-North, West, South, East  (e.g. \code{c(50,-16,0,20)}).}
+\item{extent}{Geographical extent of the map to query as a list ordered by North, West, South,
+East  (e.g. \code{c(50,-16,0,20)}).}
 
-\item{scale}{Number of pixel per latitude, longitude. 10 for a resoltion of
-0.1° (~10) and 4 for a resolution of 0.25° (~30km). To avoid interpolating
-the ERA5 data, scale should be smaller than 10. Read more about scale on
-Google earth Engine documentation.}
+\item{scale}{Number of pixel per latitude, longitude. 10 for a resoltion of 0.1° (~10) and 4 for
+a resolution of 0.25° (~30km). To avoid interpolating the ERA5 data, scale should be smaller than
+10. Read more about scale on Google earth Engine documentation.}
 
-\item{max_sample}{The computation of the mismatch is only performed on
-\code{max_sample} datapoints of pressure to reduce computational time. The samples
-are randomly (uniformly) selected on the timeserie.}
+\item{max_sample}{The computation of the mismatch is only performed on \code{max_sample} datapoints of
+pressure to reduce computational time. The samples are randomly (uniformly) selected on the
+timeserie.}
 
-\item{margin}{The margin is used in the threshold map to accept some
-measurement error. unit in meter. (1hPa~10m)}
+\item{margin}{The margin is used in the threshold map to accept some measurement error. unit in
+meter. (1hPa~10m)}
 }
 \value{
 List of raster map
 }
 \description{
-This function return the mismatch map of atmospheric pressure measured by a
-geolocator (\code{PAM_data}). It performs the following actions: (1) Send a query
-to produce the Google Earth Engine (GEE) url of the code producing the maps
-for each stationary periods separately, (2) then read these map (geotiff) in
-a raster and (3) compute the likelihood map from the mismatch. See \href{https://raphaelnussbaumer.com/GeoPressureServer/#description}{the GeoPressure API documentation }.
+This function return the mismatch map of atmospheric pressure measured by a geolocator
+(\code{PAM_data}). It performs the following actions: (1) Send a query to produce the Google Earth
+Engine (GEE) url of the code producing the maps for each stationary periods separately, (2) then
+read these map (geotiff) in a raster and (3) compute the likelihood map from the mismatch. See
+\href{https://raphaelnussbaumer.com/GeoPressureServer/#description}{the GeoPressure API documentation}
 }
 \examples{
 \dontrun{

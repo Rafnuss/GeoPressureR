@@ -11,8 +11,7 @@ An object of class \code{list} of length 29.
 static_prob
 }
 \description{
-This dataset was generated with the vignette
-\href{articles/prepare-data.html}{Prepare Data}. \code{static_prob} is a list of
-raster containing the probability map of each stationary period.
+This dataset was generated with the vignette \href{articles/prepare-data.html}{Prepare Data}.
+\code{static_prob} is a list of raster containing the probability map of each stationary period.
 }
 \keyword{datasets}

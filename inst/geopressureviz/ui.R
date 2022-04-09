@@ -9,7 +9,7 @@ ui <- bootstrapPage(
   leafletOutput("map", width = "100%", height = "100%"),
   absolutePanel(
     top = 0, left = 0, draggable = F, width = "200px", style = "z-index:500; min-width: 300px;padding-left: 50px",
-    tags$h2("GeoPressureViz",style="color:white;"),
+    tags$h2("GeoPressureViz", style = "color:white;"),
     tags$a("About GeoPressureR", href = "https://raphaelnussbaumer.com/GeoPressureR/", style = "display: block;padding-bottom:20px;"),
   ),
   absolutePanel(
@@ -37,7 +37,6 @@ ui <- bootstrapPage(
           column(2, style = "padding:0px;", actionButton("next_pos", ">", width = "100%")),
         )
       ),
-
       fluidRow(
         column(6, htmlOutput("fl_prev_info")),
         column(6, htmlOutput("fl_next_info")),
@@ -56,9 +55,9 @@ ui <- bootstrapPage(
       div(
         id = "map_source_div",
         checkboxGroupInput("map_source",
-                           label = "Probability map to display",
-                           choices = c("Pressure", "Light"),
-                           selected = c("Pressure", "Light"), inline = T
+          label = "Probability map to display",
+          choices = c("Pressure", "Light"),
+          selected = c("Pressure", "Light"), inline = T
         )
       )
     )

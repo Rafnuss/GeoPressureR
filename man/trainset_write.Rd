@@ -9,14 +9,13 @@ trainset_write(pam, pathname, filename = paste0(pam$id, "_act_pres"))
 \arguments{
 \item{pam}{pam logger dataset list}
 
-\item{pathname}{Path to the folder where the labeled files should be
-saved}
+\item{pathname}{Path to the folder where the labeled files should be saved}
 
 \item{filename}{Name for the file.}
 }
 \description{
-This function writes the csv file of the automatically labeled activity and
-pressure which can be read with TRAINSET (https://trainset.geocene.com/).
+This function writes the csv file of the automatically labeled activity and pressure which can
+be read with TRAINSET (https://trainset.geocene.com/).
 }
 \examples{
 \dontrun{
@@ -25,8 +24,6 @@ pam_data <- pam_read(
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
 pam_data <- pam_classify(pam_data)
-trainset_write(pam_data,
-  pathname = system.file("extdata", package = "GeoPressureR")
-)
+trainset_write(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
 }
 }

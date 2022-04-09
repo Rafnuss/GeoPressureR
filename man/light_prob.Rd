@@ -11,9 +11,8 @@ An object of class \code{list} of length 29.
 light_prob
 }
 \description{
-This dataset contains the data generated with the GeoPressure API generated
-with the vignettes \href{articles/light-map.html}{Light Map}.
-\code{light_prob} is a list of raster containing the probability map of each
-stationary period.
+This dataset contains the data generated with the GeoPressure API generated with the vignettes
+\href{articles/light-map.html}{Light Map}. \code{light_prob} is a list of raster containing the probability
+map of each stationary period.
 }
 \keyword{datasets}

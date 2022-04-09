@@ -1,29 +1,25 @@
 #' Request and download mismatch maps of pressure
 #'
-#' This function return the mismatch map of atmospheric pressure measured by a
-#' geolocator (`PAM_data`). It performs the following actions: (1) Send a query
-#' to produce the Google Earth Engine (GEE) url of the code producing the maps
-#' for each stationary periods separately, (2) then read these map (geotiff) in
-#' a raster and (3) compute the likelihood map from the mismatch. See [the
-#' GeoPressure API documentation
-#' ](https://raphaelnussbaumer.com/GeoPressureServer/#description).
+#' This function return the mismatch map of atmospheric pressure measured by a geolocator
+#' (`PAM_data`). It performs the following actions: (1) Send a query to produce the Google Earth
+#' Engine (GEE) url of the code producing the maps for each stationary periods separately, (2) then
+#' read these map (geotiff) in a raster and (3) compute the likelihood map from the mismatch. See
+#' [the GeoPressure API documentation](https://raphaelnussbaumer.com/GeoPressureServer/#description)
 #'
-#' @param pressure pressure data from a PAM logger. This data.frame needs to
-#' contains `date` as POSIXt, `obs` in hPa, `sta_id` grouping observation
-#' measured during the same stationary period and `isoutliar` as logical to
-#' label observation which need to be ignorede. It is best practice to use
-#' `pam_read()` and `pam_sta()` to build this data.frame.
-#' @param extent Geographical extent of the map to query as a list ordered by
-#' North, West, South, East  (e.g. `c(50,-16,0,20)`).
-#' @param scale Number of pixel per latitude, longitude. 10 for a resoltion of
-#' 0.1° (~10) and 4 for a resolution of 0.25° (~30km). To avoid interpolating
-#' the ERA5 data, scale should be smaller than 10. Read more about scale on
-#' Google earth Engine documentation.
-#' @param max_sample The computation of the mismatch is only performed on
-#' `max_sample` datapoints of pressure to reduce computational time. The samples
-#' are randomly (uniformly) selected on the timeserie.
-#' @param margin The margin is used in the threshold map to accept some
-#' measurement error. unit in meter. (1hPa~10m)
+#' @param pressure pressure data from a PAM logger. This data.frame needs to contains `date` as
+#' POSIXt, `obs` in hPa, `sta_id` grouping observation measured during the same stationary period
+#' and `isoutliar` as logical to label observation which need to be ignorede. It is best practice to
+#'  use `pam_read()` and `pam_sta()` to build this data.frame.
+#' @param extent Geographical extent of the map to query as a list ordered by North, West, South,
+#' East  (e.g. `c(50,-16,0,20)`).
+#' @param scale Number of pixel per latitude, longitude. 10 for a resoltion of 0.1° (~10) and 4 for
+#' a resolution of 0.25° (~30km). To avoid interpolating the ERA5 data, scale should be smaller than
+#' 10. Read more about scale on Google earth Engine documentation.
+#' @param max_sample The computation of the mismatch is only performed on `max_sample` datapoints of
+#'  pressure to reduce computational time. The samples are randomly (uniformly) selected on the
+#'  timeserie.
+#' @param margin The margin is used in the threshold map to accept some measurement error. unit in
+#' meter. (1hPa~10m)
 #' @return List of raster map
 #' @examples
 #' \dontrun{
@@ -50,11 +46,7 @@
 #' )
 #' @export
 geopressure_map <-
-  function(pressure,
-           extent,
-           scale = 10,
-           max_sample = 250,
-           margin = 30) {
+  function(pressure, extent, scale = 10, max_sample = 250, margin = 30) {
     # Check input
     stopifnot(is.data.frame(pressure))
     stopifnot("date" %in% names(pressure))
@@ -68,8 +60,8 @@ geopressure_map <-
     if (min(pressure$obs[!pressure$isoutliar]) < 250 | 1100 <
       max(pressure$obs[!pressure$isoutliar])) {
       stop(paste0(
-        "Pressure observation should be between 250 hPa (~10000m) ",
-        "and 1100 hPa (sea level at 1013 hPa)"
+        "Pressure observation should be between 250 hPa (~10000m)  and 1100 hPa (sea ",
+        "level at 1013 hPa)"
       ))
     }
     stopifnot(is.logical(pressure$isoutliar))
@@ -134,9 +126,7 @@ geopressure_map <-
 
     # Format query
     body_df <- list(
-      time = jsonlite::toJSON(
-        as.numeric(as.POSIXct(pressure$date[!is.na(pres)]))
-      ),
+      time = jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date[!is.na(pres)]))),
       label = jsonlite::toJSON(pressure$sta_id[!is.na(pres)]),
       pressure = jsonlite::toJSON(pres[!is.na(pres)]),
       N = extent[1],
@@ -150,11 +140,10 @@ geopressure_map <-
 
     # Request URLS
     message("Generate requests:")
-    res <-
-      httr::POST("http://glp.mgravey.com:24853/GeoPressure/v1/map/",
-        body = body_df,
-        encode = "form"
-      )
+    res <- httr::POST("http://glp.mgravey.com:24853/GeoPressure/v1/map/",
+      body = body_df,
+      encode = "form"
+    )
     if (httr::http_error(res)) {
       print(httr::content(res))
       stop(paste0(
@@ -167,11 +156,8 @@ geopressure_map <-
     uris <- unlist(httr::content(res)$data$urls)
     labels <- unlist(httr::content(res)$data$labels)
     message(
-      "Requests generated successfully for ",
-      length(labels),
-      " stationary periods (",
-      sprintf("%d, ", sort(labels)),
-      ")"
+      "Requests generated successfully for ", length(labels), " stationary periods (",
+      sprintf("%d, ", sort(labels)), ")"
     )
 
     # Perform the call in parallel
@@ -181,14 +167,11 @@ geopressure_map <-
     message("Send requests:")
     progress_bar(0, max = length(uris))
     for (i_u in seq_len(length(uris))) {
-      f[[i_u]] <- future::future(
-        expr = {
-          filename <- tempfile()
-          utils::download.file(uris[i_u], filename)
-          return(raster::brick(filename))
-        },
-        seed = TRUE
-      )
+      f[[i_u]] <- future::future(expr = {
+        filename <- tempfile()
+        utils::download.file(uris[i_u], filename)
+        return(raster::brick(filename))
+      }, seed = TRUE)
       progress_bar(i_u, max = length(uris))
     }
 
@@ -232,19 +215,18 @@ geopressure_map <-
 
 #' Compute probability raster
 #'
-#' This function convert the raster of noramlized MSE and altitude threshold
-#' \eqn{z_{thr}} computed by `geopressure_map()` into a probability map with,
+#' This function convert the raster of noramlized MSE and altitude threshold \eqn{z_{thr}} computed
+#' by `geopressure_map()` into a probability map with,
 #' \eqn{p = \exp \left(-w \frac{MSE}{s} \right) \left[z_{thr}>thr \right],}
-#' where \eqn{s} is the standard deviation of pressure and \eqn{thr} is the
-#' threashold. Because the auto-correlation of the timeseries is not accounted
-#' for in this equation, we use a log-linear pooling weight \eqn{w=\log(n) - 1},
-#' with \eqn{n} is the number of data point in the timeserie. This operation is
-#' describe in
+#' where \eqn{s} is the standard deviation of pressure and \eqn{thr} is the threashold. Because the
+#' auto-correlation of the timeseries is not accounted for in this equation, we use a log-linear
+#' pooling weight \eqn{w=\log(n) - 1}, with \eqn{n} is the number of data point in the timeserie.
+#' This operation is describe in ...
 #'
 #' @param pressure_maps list of raster built with `geopressure_map()`
 #' @param s standard deviation of the pressure error
-#' @param thr threshold of the percentage of data point outside the elevation
-#' range to be considered not possible
+#' @param thr threshold of the percentage of data point outside the elevation range to be considered
+#' not possible
 #' @return List of the probability raster map
 #' @examples
 #' \dontrun{
@@ -287,23 +269,19 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
 
     # compute Log-linear pooling weight
     # Number of datapoint could also be measured with
-    # pres_n <- as.numeric(difftime(mt$temporal_extent[2],
-    # mt$temporal_extent[1], units = "hours"))
+    # pres_n <- as.numeric(difftime(mt$temporal_extent[2], mt$temporal_extent[1], units = "hours"))
     pres_n <- mt$nb_sample
 
     # Weight
     w <- log(pres_n) / pres_n
 
     # compute probability with equation
-    raster_prob_list[[i_s]] <-
-      (1 / (2 * pi * s^2))^(pres_n * w / 2) * exp(-w * pres_n / 2 / (s^2)
-        * raster_prob_list[[i_s]])
+    raster_prob_list[[i_s]] <- (1 / (2 * pi * s^2))^(pres_n * w / 2) * exp(-w * pres_n / 2 / (s^2)
+      * raster_prob_list[[i_s]])
     # mask value of threshold
-    raster_prob_list[[i_s]] <-
-      raster_prob_list[[i_s]] * (pressure_maps[[i_s]][[2]] > thr)
+    raster_prob_list[[i_s]] <- raster_prob_list[[i_s]] * (pressure_maps[[i_s]][[2]] > thr)
 
-    raster::metadata(raster_prob_list[[i_s]]) <-
-      raster::metadata(pressure_maps[[i_s]])
+    raster::metadata(raster_prob_list[[i_s]]) <- raster::metadata(pressure_maps[[i_s]])
   }
   return(raster_prob_list)
 }
@@ -315,24 +293,21 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
 
 #' Request and download surface pressure timeseries at location
 #'
-#' This function return the surfrace atmospheric pressure timeseries from ERA5
-#' at a particualy location specify by lat and lon. I uses SRTM-30 to translate
-#' the pressure for the exact elevation of the ground level, accounting for
-#' both temporal varation of pressure and temperature.
+#' This function return the surfrace atmospheric pressure timeseries from ERA5 at a particualy
+#' location specify by lat and lon. I uses SRTM-30 to translate the pressure for the exact elevation
+#' of the ground level, accounting for both temporal varation of pressure and temperature.
 #'
-#' If you supply the pressure (and time) of the geolocator, it will additionally
-#' return the elevation of the geolocator above sea level considering that the
-#' bird was located at the location specify
+#' If you supply the pressure (and time) of the geolocator, it will additionally return the
+#' elevation of the geolocator above sea level considering that the bird was located at the location
+#' specify.
 #'
-#'  The timeserie of the response will be on the same as time if supply,
-#'  otherwise, it will return on a hourly basis between `start_time` and
-#' `end_time`.
+#'  The timeserie of the response will be on the same as time if supply, otherwise, it will return
+#'  on a hourly basis between `start_time` and `end_time`.
 #'
 #' @param lon longitude to query (-180° to 180°).
 #' @param lat latitude to query (0° to 90°).
 #' @param pressure pressure list from PAM logger dataset list
-#' @param start_time if pressure not provided, then the start_time of the
-#' timeserie return is needed
+#' @param start_time if pressure not provided, then the start_time of the timeserie return is needed
 #' @param end_time same as start_time
 #' @return Timeserie of date, pressure and optionally altitude
 #' @examples
@@ -363,11 +338,7 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
 #' )
 #' @export
 geopressure_ts <-
-  function(lon,
-           lat,
-           pressure = NULL,
-           end_time = NULL,
-           start_time = NULL) {
+  function(lon, lat, pressure = NULL, end_time = NULL, start_time = NULL) {
     # Check input
     stopifnot(is.numeric(lon))
     stopifnot(is.numeric(lat))
@@ -390,13 +361,9 @@ geopressure_ts <-
     }
 
     # Format query
-    body_df <- list(
-      lon = lon,
-      lat = lat
-    )
+    body_df <- list(lon = lon, lat = lat)
     if (!is.null(pressure)) {
-      body_df$time <-
-        jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date)))
+      body_df$time <- jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date)))
       body_df$pressure <- jsonlite::toJSON(pressure$obs * 100)
     } else {
       body_df$startTime <- as.numeric(as.POSIXct(start_time))
@@ -405,11 +372,10 @@ geopressure_ts <-
 
     # Request URLS
     message("Sending request...")
-    res <-
-      httr::POST("http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/",
-        body = body_df,
-        encode = "form"
-      )
+    res <- httr::POST("http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/",
+      body = body_df,
+      encode = "form"
+    )
 
     if (httr::http_error(res)) {
       print(httr::content(res))
@@ -426,20 +392,17 @@ geopressure_ts <-
     res2 <- httr::GET(httr::content(res)$data$url)
 
     # read csv
-    out <-
-      as.data.frame(httr::content(
-        res2,
-        type = "text/csv",
-        encoding = "UTF-8",
-        show_col_types = FALSE
-      ))
+    out <- as.data.frame(httr::content(res2,
+      type = "text/csv",
+      encoding = "UTF-8",
+      show_col_types = FALSE
+    ))
 
     # check for errors
     if (nrow(out) == 0) {
       stop(paste0(
-        "Returned csv file is empty. Check that the time range is ",
-        "none-empty and that the location is not on water: ",
-        "maps.google.com/maps?q=", lat, ",", lon
+        "Returned csv file is empty. Check that the time range is none-empty and that the location",
+        "is not on water: maps.google.com/maps?q=", lat, ",", lon
       ))
     }
 
@@ -458,12 +421,12 @@ geopressure_ts <-
 #' Query the timeserie of pressure from a path and geolocator pressure
 #' observation
 #'
-#' @param path a data.frame of the position containing latitude (`lat`),
-#' longitude  (`lon`) and the stationay period id (`sta_id`) as column.
+#' @param path a data.frame of the position containing latitude (`lat`), longitude  (`lon`) and the
+#' stationay period id (`sta_id`) as column.
 #' @param pressure pressure list from PAM logger dataset list
-#' @return list of data.frame containing for each stationay period, the date,
-#' pressure, altitude (same as `geopressure_ts()`) but also sta_id, lat, lon and
-#' pressure0, pressure normalized to match geolocator pressure measurement.
+#' @return list of data.frame containing for each stationay period, the date, pressure, altitude
+#' (same as `geopressure_ts()`) but also sta_id, lat, lon and pressure0, pressure normalized to
+#' match geolocator pressure measurement.
 #' @examples
 #' # Create pam_data
 #' pam_data <- pam_read(
@@ -484,7 +447,9 @@ geopressure_ts <-
 #' }
 #' data("pressure_timeserie", package = "GeoPressureR")
 #' p <- ggplot2::ggplot() +
-#'   ggplot2::geom_line(data = pam_data$pressure, ggplot2::aes(x = date, y = obs), colour = "grey") +
+#'   ggplot2::geom_line(
+#'      data = pam_data$pressure,
+#'      ggplot2::aes(x = date, y = obs), colour = "grey") +
 #'   ggplot2::geom_point(
 #'     data = subset(pam_data$pressure, isoutliar),
 #'     ggplot2::aes(x = date, y = obs), colour = "black"
@@ -568,24 +533,20 @@ geopressure_ts_path <- function(path, pressure) {
 
 #' Return the most likely path from a probability map
 #'
-#' Find the location of the highest value in the map and return a path
-#' data.frame containing the latitude and longitude. `interp` can be used to
-#' interpolate unrealistic position from short stationary period based on the
-#' position of the longer ones. The interpolation assumes that the first and
-#' last stationary period can be safely estimated from the probability map.
+#' Find the location of the highest value in the map and return a path data.frame containing the
+#' latitude and longitude. `interp` can be used to interpolate unrealistic position from short
+#' stationary period based on the position of the longer ones. The interpolation assumes that the
+#' first and last stationary period can be safely estimated from the probability map.
 #'
-#' @param map list of raster containing probability map of each
-#' stationary period. The metadata of `map` needs to include the start and
-#' end time of the stationary period .
-#' @param interp (in days) The position of the stationary period shorter than
-#' `interp` will be replace by a linear average from other position.
-#' @param format one of `"lonlat"`, `"ind"`, `"arr.ind"`). return the path in
-#' lon-lat or indices
-#' @return a data.frame of the position containing latitude (`lat`), longitude
-#' (`lon`) and the stationary period id (`sta_id`) as column. Optionally, if
-#' indexes were requested, it will be return. You will need to use
-#' `which.max(as.matrix(raster))` and not `which.max(raster)` to get the correct
-#' location
+#' @param map list of raster containing probability map of each stationary period. The metadata of
+#' `map` needs to include the start and end time of the stationary period .
+#' @param interp (in days) The position of the stationary period shorter than `interp` will be
+#' replace by a linear average from other position.
+#' @param format one of `"lonlat"`, `"ind"`, `"arr.ind"`). return the path in lon-lat or indices
+#' @return a data.frame of the position containing latitude (`lat`), longitude (`lon`) and the
+#' stationary period id (`sta_id`) as column. Optionally, if indexes were requested, it will be
+#' return. You will need to use `which.max(as.matrix(raster))` and not `which.max(raster)` to get
+#' the correct location
 #' @examples
 #' data("pressure_prob", package = "GeoPressureR")
 #' path_all <- geopressure_map2path(pressure_prob)
@@ -616,9 +577,7 @@ geopressure_ts_path <- function(path, pressure) {
 #' )
 #' m
 #' @export
-geopressure_map2path <- function(map,
-                                 interp = 0,
-                                 format = "lonlat") {
+geopressure_map2path <- function(map, interp = 0, format = "lonlat") {
   stopifnot(is.list(map))
   stopifnot(inherits(map[[1]], "RasterLayer"))
   stopifnot("temporal_extent" %in%
@@ -707,11 +666,7 @@ geopressure_map2path <- function(map,
 # Progress bar function
 progress_bar <- function(x, max = 100) {
   percent <- x / max * 100
-  cat(sprintf(
-    "\r[%-50s] %d / %d",
-    paste(rep("=", percent / 2), collapse = ""),
-    x, max
-  ))
+  cat(sprintf("\r[%-50s] %d / %d", paste(rep("=", percent / 2), collapse = ""), x, max))
   if (x == max) {
     cat("\n")
   }

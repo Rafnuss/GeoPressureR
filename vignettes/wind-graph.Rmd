@@ -163,14 +163,7 @@ grl$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), grl)
 ```
 
 
-```{r}
-sta_duration <- unlist(lapply(static_prob,function(x){as.numeric(difftime(metadata(x)$temporal_extent[2],metadata(x)$temporal_extent[1],units="days"))}))
-
-m2 <-leaflet() %>%
-  addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl() %>%
-  addPolylines(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#808080", weight = 3) %>%
-  addCircles(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#000", weight = sta_duration^(0.3)*10) 
-
+```{r, class.source = 'fold-hide'}
 fun_marker_color <- function(norm){
     if (norm < 20){
       "darkpurple"
@@ -188,7 +181,6 @@ fun_marker_color <- function(norm){
       "darkred"
     }
 }
-
 fun_NSEW <- function(angle){
   angle <- angle  %% (pi* 2)
   angle <- angle*180/pi
@@ -214,8 +206,14 @@ fun_NSEW <- function(angle){
 }
 ```
 
-```{r}
-m <- m2
+```{r,}
+sta_duration <- unlist(lapply(static_prob,function(x){as.numeric(difftime(metadata(x)$temporal_extent[2],metadata(x)$temporal_extent[1],units="days"))}))
+
+m <-leaflet() %>%
+  addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl() %>%
+  addPolylines(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#808080", weight = 3) %>%
+  addCircles(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#000", weight = sta_duration^(0.3)*10) 
+
 for (i_s in seq_len(grl$sz[3]-1)){
   if (grl$flight_duration[i_s]>5){
     edge <- which(grl$s == grl$shortest_path$id[i_s] & grl$t == grl$shortest_path$id[i_s+1])
@@ -236,14 +234,14 @@ for (i_s in seq_len(grl$sz[3]-1)){
                         icon = iconArrow, popup = label)
   }
 }
- 
 m
-  
 ```
 
 
 
-```{r, evel = F}
+```{r, eval = F}
+path <- as.data.frame(grl$shortest_path)
+path$sta_id <- seq_len(nrow(path))
 static_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 geopressureviz = list(
   pam_data=pam_data,

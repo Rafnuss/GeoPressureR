@@ -8,15 +8,15 @@ observation}
 geopressure_ts_path(path, pressure)
 }
 \arguments{
-\item{path}{a data.frame of the position containing latitude (\code{lat}),
-longitude  (\code{lon}) and the stationay period id (\code{sta_id}) as column.}
+\item{path}{a data.frame of the position containing latitude (\code{lat}), longitude  (\code{lon}) and the
+stationay period id (\code{sta_id}) as column.}
 
 \item{pressure}{pressure list from PAM logger dataset list}
 }
 \value{
-list of data.frame containing for each stationay period, the date,
-pressure, altitude (same as \code{geopressure_ts()}) but also sta_id, lat, lon and
-pressure0, pressure normalized to match geolocator pressure measurement.
+list of data.frame containing for each stationay period, the date, pressure, altitude
+(same as \code{geopressure_ts()}) but also sta_id, lat, lon and pressure0, pressure normalized to
+match geolocator pressure measurement.
 }
 \description{
 Query the timeserie of pressure from a path and geolocator pressure
@@ -42,7 +42,9 @@ pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 }
 data("pressure_timeserie", package = "GeoPressureR")
 p <- ggplot2::ggplot() +
-  ggplot2::geom_line(data = pam_data$pressure, ggplot2::aes(x = date, y = obs), colour = "grey") +
+  ggplot2::geom_line(
+     data = pam_data$pressure,
+     ggplot2::aes(x = date, y = obs), colour = "grey") +
   ggplot2::geom_point(
     data = subset(pam_data$pressure, isoutliar),
     ggplot2::aes(x = date, y = obs), colour = "black"

@@ -11,8 +11,7 @@ An object of class \code{list} of length 16.
 grl
 }
 \description{
-This dataset was generated with the vignette
-\href{articles/wind-graph.html}{Improving the graph with wind}. \code{grl} represents
-the graph as described in \code{graph_create()} and \code{graph_add_wind()}
+This dataset was generated with the vignette \href{articles/wind-graph.html}{Improving the graph with wind}. \code{grl} represents the graph as described in \code{graph_create()} and
+\code{graph_add_wind()}
 }
 \keyword{datasets}

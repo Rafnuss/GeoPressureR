@@ -2,19 +2,19 @@
 suppressMessages({
   library(BiocManager)
   options(repos = BiocManager::repositories())
-library(plotly)
-library(shinyjs)
-library(GeoPressureR)
-library(shiny)
-library(leaflet)
-library(plotly)
-library(rgdal)
-library(leaflet.extras)
-library(raster)
-library(shinyWidgets)
-library(geosphere)
-library(RColorBrewer)
-library(readr)
+  library(plotly)
+  library(shinyjs)
+  library(GeoPressureR)
+  library(shiny)
+  library(leaflet)
+  library(plotly)
+  library(rgdal)
+  library(leaflet.extras)
+  library(raster)
+  library(shinyWidgets)
+  library(geosphere)
+  library(RColorBrewer)
+  library(readr)
 })
 
 # Read input
@@ -24,18 +24,18 @@ load("~/geopressureviz.RData")
 stopifnot("static_prob" %in% names(geopressureviz))
 static_prob <- geopressureviz$static_prob
 
-if ("light_prob" %in% names(geopressureviz)){
+if ("light_prob" %in% names(geopressureviz)) {
   light_prob <- geopressureviz$light_prob
-  stopifnot(length(static_prob)==length(light_prob))
+  stopifnot(length(static_prob) == length(light_prob))
 } else {
-  light_prob=NA
+  light_prob <- NA
 }
 
-if ("pressure_prob" %in% names(geopressureviz)){
+if ("pressure_prob" %in% names(geopressureviz)) {
   pressure_prob <- geopressureviz$pressure_prob
-  stopifnot(length(static_prob)==length(pressure_prob))
+  stopifnot(length(static_prob) == length(pressure_prob))
 } else {
-  pressure_prob=NA
+  pressure_prob <- NA
 }
 
 
@@ -83,11 +83,11 @@ if (!("isoutliar" %in% names(pressure))) {
 # Get the pressure timeserie
 if ("pressure_timeserie" %in% names(geopressureviz)) {
   pressure_timeserie <- geopressureviz$pressure_timeserie
-  stopifnot(length(pressure_timeserie)>=max(sta$sta_id))
+  stopifnot(length(pressure_timeserie) >= max(sta$sta_id))
   ts0 <- pressure_timeserie[sta$sta_id]
-  ts0 <- lapply(ts0,function(x){
-    x$lt=1
-  return(x)
+  ts0 <- lapply(ts0, function(x) {
+    x$lt <- 1
+    return(x)
   })
   path0 <- do.call("rbind", lapply(pressure_timeserie, function(x) {
     data.frame(
@@ -100,7 +100,7 @@ if ("pressure_timeserie" %in% names(geopressureviz)) {
 }
 
 
-if (!exists('path0')){
+if (!exists("path0")) {
   # Set the initial path to the most likely from static prob
   path0 <- geopressure_map2path(static_prob)
 }

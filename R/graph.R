@@ -1,45 +1,34 @@
 #' Create graph
 #'
-#' This function return a graph representing the trajectory of a bird based on
-#' filtering and triming the probability maps provided.
+#' This function return a graph representing the trajectory of a bird based on filtering and triming
+#' the probability maps provided.
 #'
-#' In the final graph, we only keep the most likely node (position in time)
-#' defined as:
-#' 1. those which cumulative probability reach up to `thr_prob_percentile` for
-#' each stationary period.
-#' 2. those which average ground speed is lower than `thr_gs` km/h.
+#' In the final graph, we only keep the most likely node (position in time) defined as: 1. those
+#' which cumulative probability reach up to `thr_prob_percentile` for each stationary period. 2.
+#' those which average ground speed is lower than `thr_gs` km/h.
 #'
-#' The graph returned is a list of the edges of the graph containing:
-#' - `s`: source node (index in the 3d grid lat-lon-sta),
-#' - `t`: target node (index in the 3d grid lat-lon-sta),
-#' - `gs`: average ground speed required to make that transition (km/h)
-#' as complex number representing the E-W as real and S-N as imaginary.
-#' - `ps`: static probability of each target node
-#' - `sz`: size of the 3d grid lat-lon-sta
-#' - `equipement`: node(s) of the first sta (index in the 3d grid lat-lon-sta)
-#' - `retrival`: node(s) of the last sta (index in the 3d grid lat-lon-sta)
-#' - `flight_duration`: list of flight duration to next sta in hours
-#' - `lat`: list of the `static_prob` latitude in cell center
-#' - `lon`: list of the `static_prob` longitude in cell center
-#' - `extent`: raster geographical extent of the `static_prob``
-#' - `resolution`: raster res of the `static_prob`
-#' - `temporal_extent`: start and end date time retrieved from the metadata of
-#' `static_prob`
+#' The graph returned is a list of the edges of the graph containing: - `s`: source node (index in
+#' the 3d grid lat-lon-sta), - `t`: target node (index in the 3d grid lat-lon-sta), - `gs`: average
+#' ground speed required to make that transition (km/h) as complex number representing the E-W as
+#' real and S-N as imaginary. - `ps`: static probability of each target node - `sz`: size of the 3d
+#' grid lat-lon-sta - `equipement`: node(s) of the first sta (index in the 3d grid lat-lon-sta) -
+#' `retrival`: node(s) of the last sta (index in the 3d grid lat-lon-sta) - `flight_duration`: list
+#' of flight duration to next sta in hours - `lat`: list of the `static_prob` latitude in cell
+#' center - `lon`: list of the `static_prob` longitude in cell center - `extent`: raster
+#' geographical extent of the `static_prob`` - `resolution`: raster res of the `static_prob` -
+#' `temporal_extent`: start and end date time retrieved from the metadata of `static_prob`
 #'
+#' The vignette [Basic graph](./articles/basic-graph.html) provided an example how to prepare the
+#' data for the function and the output of this function.
 #'
-#' The vignette [Basic graph](./articles/basic-graph.html) provided an example
-#' how to prepare the data for the function and the output of this function.
-#'
-#' @param static_prob list of raster containing probability map of each
-#' stationary period. The metadata of `static_prob` needs to include the flight
-#' information to the next stationary period in the metadata `flight`.
+#' @param static_prob list of raster containing probability map of each stationary period. The
+#'   metadata of `static_prob` needs to include the flight information to the next stationary period
+#'   in the metadata `flight`.
 #' @param thr_prob_percentile threshold of percentile (see explanation above)
 #' @param thr_gs threshold of groundspeed (km/h)  (see explanation above)
 #' @return graph as a list (see description above)
 #' @export
-graph_create <- function(static_prob,
-                         thr_prob_percentile = .99,
-                         thr_gs = 150) {
+graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
 
   # Check input
   stopifnot(is.list(static_prob))
@@ -67,8 +56,8 @@ graph_create <- function(static_prob,
   tmp <- unlist(lapply(static_prob_n, sum)) == 0
   if (any(tmp)) {
     stop(paste0(
-      "The `static_prob` provided has a probability map equal to zero",
-      "for the stationay period: ", which(tmp)
+      "The `static_prob` provided has a probability map equal to zero for the stationay period: ",
+      which(tmp)
     ))
   }
 
@@ -88,9 +77,8 @@ graph_create <- function(static_prob,
   tmp <- unlist(lapply(nds, sum)) == 0
   if (any(tmp)) {
     stop(paste0(
-      "Using the `thr_prob_percentile` of ", thr_prob_percentile,
-      " provided, there are not any nodes left for the stationay period: ",
-      which(tmp)
+      "Using the `thr_prob_percentile` of ", thr_prob_percentile, " provided, there are not any ",
+      "nodes left for the stationay period: ", which(tmp)
     ))
   }
 
@@ -119,8 +107,8 @@ graph_create <- function(static_prob,
                 period: ", which(tmp)))
   }
 
-  # filter the pixels which are not in reach of any location of the previous
-  # and next stationary period
+  # filter the pixels which are not in reach of any location of the previous and next stationary
+  # period
   cond <- T
   while (cond) {
     n_old <- sum(unlist(lapply(nds, sum)))
@@ -129,9 +117,9 @@ graph_create <- function(static_prob,
         flight_duration[i_s] * thr_gs & nds[[i_s + 1]]
       if (sum(nds[[i_s + 1]]) == 0) {
         stop(paste0(
-          "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary",
-          "distance, there are not any nodes left at stationay period ",
-          i_s + 1, " from stationay period ", i_s
+          "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
+          "there are not any nodes left at stationay period ", i_s + 1, " from stationay period ",
+          i_s
         ))
       }
     }
@@ -141,9 +129,9 @@ graph_create <- function(static_prob,
         flight_duration[i_s - 1] * thr_gs & nds[[i_s - 1]]
       if (sum(nds[[i_s - 1]]) == 0) {
         stop(paste0(
-          "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary",
-          "distance, there are not any nodes left at stationay period ",
-          i_s - 1, " from stationay period ", i_s
+          "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
+          "there are not any nodes left at stationay period ", i_s - 1, " from stationay period ",
+          i_s
         ))
       }
     }
@@ -156,8 +144,8 @@ graph_create <- function(static_prob,
   tmp <- unlist(lapply(nds, sum)) == 0
   if (any(tmp)) {
     stop(paste0(
-      "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary",
-      "distance, there are not any nodes left"
+      "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, there are not ",
+      "any nodes left"
     ))
   }
 
@@ -172,8 +160,7 @@ graph_create <- function(static_prob,
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
   progress_bar(0, max = sum(nds_expend_sum))
   for (i_s in seq_len(sz[3] - 1)) {
-    # find all the possible equipment and target based on nds and expand to
-    # all possible combination
+    # find all the possible equipment and target based on nds and expand to all possible combination
     grt <- expand.grid(
       s = as.integer(which(nds[[i_s]]) + (i_s - 1) * nll),
       t = as.integer(which(nds[[i_s + 1]]) + i_s * nll)
@@ -192,9 +179,10 @@ graph_create <- function(static_prob,
     # filter the transition based on the groundspeed
     id <- gs_abs < thr_gs
     if (sum(id) == 0) {
-      stop(paste0("Using the `thr_gs` of ", thr_gs, " km/h provided with the
-                  exact distance of edges, there are not any nodes left for
-                  the stationay period: ", i_s))
+      stop(paste0(
+        "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
+        "edges, there are not any nodes left for the stationay period: ", i_s
+      ))
     }
     grt <- grt[id, ]
 
@@ -207,7 +195,7 @@ graph_create <- function(static_prob,
     gs_bearing[is.na(gs_bearing)] <- 0
 
     # save groundspeed in complex notation
-    gs_arg <- (450-gs_bearing) %% 360
+    gs_arg <- (450 - gs_bearing) %% 360
     grt$gs <- gs_abs[id] * cos(gs_arg * pi / 180) +
       1i * gs_abs[id] * sin(gs_arg * pi / 180)
 
@@ -218,9 +206,10 @@ graph_create <- function(static_prob,
     gr[[i_s]] <- grt
 
     if (sum(id) == 0) {
-      stop(paste0("Using the `thr_gs` of ", thr_gs, " km/h provided with the
-                  exact distance of edges, there are not any nodes left for
-                  the stationay period: ", i_s))
+      stop(paste0(
+        "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
+        "edges, there are not any nodes left for the stationay period: ", i_s
+      ))
     }
     progress_bar(sum(nds_expend_sum[seq(1, i_s)]),
       max = sum(nds_expend_sum),
@@ -249,15 +238,12 @@ graph_create <- function(static_prob,
   grl$flight <- lapply(static_prob, function(x) {
     raster::metadata(x)$flight
   })
-
   return(grl)
 }
 
 
 
 #' Trim a graph
-#'
-#'
 #'
 #' @param grl graph constructed with `graph_create()`
 #' @return graph trimmed
@@ -288,21 +274,20 @@ graph_trim <- function(grl) {
 
 #' Add windspeed and airspeed
 #'
-#' Read NetCDF file downloaded on your computer and add the average
-#' windspeed experienced by the bird and the corresponding airspeed for each
-#' edge of the graph.
+#' Read NetCDF file downloaded on your computer and add the average windspeed experienced by the
+#' bird and the corresponding airspeed for each edge of the graph.
 #'
-#' See the vignette [Graph with wind](./articles/wind-graph.html) for
-#' explanations and example on how to download the NetCDF file.
+#' See the vignette [Graph with wind](./articles/wind-graph.html) for explanations and example on
+#' how to download the NetCDF file.
 #'
 #' @param grl graph constructed with `graph_create()`
-#' @param pressure pressure data from a PAM logger. This data.frame needs to
-#' contains `date` as POSIXt and `obs` in hPa. It is best practice to use
-#' `pam_read()` and `pam_sta()` to build this data.frame.
+#' @param pressure pressure data from a PAM logger. This data.frame needs to contains `date` as
+#'   POSIXt and `obs` in hPa. It is best practice to use `pam_read()` and `pam_sta()` to build this
+#'   data.frame.
 #' @param filename character of the path where to find the netCDF file.
 #' @param thr_as threshold of airspeed (km/h)
-#' @return graph as a list with windspeed and airspeed as `ws` and `as`
-#' respectively (see `graph_create()` for more detail on the graph returned)
+#' @return graph as a list with windspeed and airspeed as `ws` and `as` respectively (see
+#'   `graph_create()` for more detail on the graph returned)
 #' @export
 graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
   stopifnot(is.list(grl))
@@ -336,27 +321,23 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
   # Loop through the stationary period kept in the graph
   for (i1 in seq_len(grl$sz[3] - 1)) {
 
-    # Extract the flight information from the current sta to the next one
-    # considered in the graph. It can be the next, or if some sta are skipped
-    # at construction, it can contains multiples flights
+    # Extract the flight information from the current sta to the next one considered in the graph.
+    # It can be the next, or if some sta are skipped at construction, it can contains multiples
+    # flights
     fl_s <- grl$flight[[i1]]
 
     # Extract the duration of each flights.
     fl_s_dur <- as.numeric(difftime(fl_s$end, fl_s$start, units = "hours"))
 
-    # Determine the id of edges of the graph corresponding to this/these
-    # flight(s).
+    # Determine the id of edges of the graph corresponding to this/these flight(s).
     st_id <- which(s[, 3] == i1)
 
-    # We are assuming that the bird flight as a straight line between the source
-    # and the target node of each edge.
-    # If multiple flights happen during this transition, we assume that the bird
-    # flew with a cosz[3]nt groundspeed during each flight, thus considering its
-    # stop-over position to be spread according to the flight duration. This
-    # does not account for habitat, so that it would assume a bird can stop over
-    # water.
-    # While we could improve this part of the code to assume cosz[3]nt airspeed
-    # rather than groundspeed, we suggest to create the graph considering all
+    # We are assuming that the bird flight as a straight line between the source and the target node
+    # of each edge. If multiple flights happen during this transition, we assume that the bird flew
+    # with a cosz[3]nt groundspeed during each flight, thus considering its stop-over position to be
+    # spread according to the flight duration. This does not account for habitat, so that it would
+    # assume a bird can stop over water. While we could improve this part of the code to assume
+    # cosz[3]nt airspeed rather than groundspeed, we suggest to create the graph considering all
     # stopovers.
     ratio_sta <- as.matrix(c(0, cumsum(fl_s_dur) / sum(fl_s_dur)))
 
@@ -391,9 +372,8 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
       lon_e <- grl$lon[s[st_id, 2]] +
         ratio_sta[i2 + 1] * (grl$lon[t[st_id, 2]] - grl$lon[s[st_id, 2]])
 
-      # As ERA5 data is available every hour, we build a one hour resolution
-      # timeserie including the start and end time of the flight. Thus, we first
-      # round the start end end time.
+      # As ERA5 data is available every hour, we build a one hour resolution timeserie including the
+      # start and end time of the flight. Thus, we first round the start end end time.
       t_s <- as.POSIXct(format(fl_s$start[i2], "%Y-%m-%d %H:00:00"),
         tz = "UTC"
       )
@@ -402,10 +382,9 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
       )
       t_q <- seq(from = t_s, to = t_e, by = 60 * 60)
 
-      # We assume that the bird is moving with a constant groundspeed between
-      # `flight$start` and `flight$end`. Using a linear interpolation, we
-      # extract the position (lat, lon) at every hour on `t_q`. Extrapolation
-      # outside (before the bird departure or after he arrived) is with a
+      # We assume that the bird is moving with a constant groundspeed between `flight$start` and
+      # `flight$end`. Using a linear interpolation, we extract the position (lat, lon) at every hour
+      # on `t_q`. Extrapolation outside (before the bird departure or after he arrived) is with a
       # nearest neighbor.
 
       dt <- as.numeric(difftime(fl_s$end[i2], fl_s$start[i2], units = "hours"))
@@ -418,11 +397,10 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
       lat_int <- lat_s + w2 * replicate(length(w), dlat)
       lon_int <- lon_s + w2 * replicate(length(w), dlon)
 
-      # As we are interesting in the average windspeed experienced during the
-      # entire flight, we need to find the weights of each 1hr interval
-      # extracted from ERA5. We can estimate these weight assuming a linear
-      # integration of the time (trapezoidal rule) or a step integration
-      # (Riemann sum)
+      # As we are interesting in the average windspeed experienced during the entire flight, we need
+      # to find the weights of each 1hr interval extracted from ERA5. We can estimate these weight
+      # assuming a linear integration of the time (trapezoidal rule) or a step integration (Riemann
+      # sum)
 
       # Linear integration
       w <- numeric(length(t_q))
@@ -462,15 +440,14 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
 
         # find the time step to query in ERA5
         id_time <- which(time == t_q[i3])
-        # find the two pressure level to query (one above, one under) based on
-        # the geolocator pressure at this timestep
+        # find the two pressure level to query (one above, one under) based on the geolocator
+        # pressure at this timestep
         pres_obs <- pressure$obs[pressure$date == t_q[i3]]
         df <- pres_obs - pres
         df[df < 0] <- NA
         id_pres <- which.min(df)
-        # if the pressure is higher than the highest level
-        # (i.e. bird below the ground level pressure), we extract only the last
-        # layer
+        # if the pressure is higher than the highest level (i.e. bird below the ground level
+        # pressure), we extract only the last layer
         n_pres <- ifelse(id_pres == length(df), 1, 2)
 
         dlon <- lon[2] - lon[1]
@@ -500,8 +477,8 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
           v <- w2[1] * v[, , 1] + w2[2] * v[, , 2]
         }
 
-        # Interpolation the u- and v- component at the interpolated position at
-        # the current time step.
+        # Interpolation the u- and v- component at the interpolated position at the current time
+        # step.
         ll_int <- round(cbind(lat_int[, i3], lon_int[, i3]), 1)
         ll_int_uniq <- unique(ll_int)
         id_uniq <- match(
@@ -522,8 +499,7 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
         )
         v_int[i3, ] <- tmp[id_uniq]
       }
-      # Compute the average wind component of the flight accounting for the
-      # weighting scheme
+      # Compute the average wind component of the flight accounting for the weighting scheme
       u_sta[i2, ] <- colSums(u_int * w)
       v_sta[i2, ] <- colSums(v_int * w)
 
@@ -532,8 +508,8 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
         text = paste0("| sta = ", i_s, "/", grl$sz[3] - 1)
       )
     }
-    # Compute the average  over all the flight of the transition accounting for
-    # the duration of the flight.
+    # Compute the average  over all the flight of the transition accounting for the duration of the
+    # flight.
     uv[st_id, 1] <- colSums(u_sta * fl_s_dur / sum(fl_s_dur))
     uv[st_id, 2] <- colSums(v_sta * fl_s_dur / sum(fl_s_dur))
   }
@@ -549,11 +525,10 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
   sta_pass <- which(!(seq_len(grl$sz[3] - 1) %in% unique(s[id, 3])))
   if (length(sta_pass) > 0) {
     stop(paste0(
-      "Using the `thr_as` of ", thr_as, " km/h provided with the
-                  exact distance of edges, there are not any nodes left for
-                  the stationay period: ", paste(sta_pass, collapse = ", "),
-      " with a minimum airspeed of ",
-      min(abs(grl$as[s[, 3] == sta_pass])), " km/h"
+      "Using the `thr_as` of ", thr_as,
+      " km/h provided with the exact distance of edges, there are ",
+      "not any nodes left for the stationay period: ", paste(sta_pass, collapse = ", "),
+      " with a minimum airspeed of ", min(abs(grl$as[s[, 3] == sta_pass])), " km/h"
     ))
   }
 
@@ -593,9 +568,8 @@ graph_marginal <- function(grl) {
   # backward mapping of marginal probability
   map_b <- Matrix::sparseMatrix(1, grl$retrival, x = 1, dims = c(1, n))
 
-  # build iterativelly the marginal probability backward and forward by re-using
-  # the mapping computed for previous stationary period. Set the equipement and
-  # retrival site in each loop
+  # build iterativelly the marginal probability backward and forward by re-using the mapping
+  # computed for previous stationary period. Set the equipement and retrival site in each loop
   for (i_s in seq_len(grl$sz[3] - 1)) {
     map_f[1, grl$equipement] <- 1
     map_f <- map_f %*% trans_f
@@ -645,19 +619,18 @@ graph_simulation <- function(grl, nj = 100) {
   n <- prod(grl$sz)
   nll <- grl$sz[1] * grl$sz[2]
 
-  # Initialize path. As we will simulate the path chronological order, only the
-  # first equipement site needs to be set.
+  # Initialize path. As we will simulate the path chronological order, only the first equipement
+  # site needs to be set.
   path <- matrix(ncol = grl$sz[3], nrow = nj)
   path[, 1] <- grl$equipement
 
-  # Find the stationary index of all the source so that only the edges from a
-  # specific stationay period can be easily query
+  # Find the stationary index of all the source so that only the edges from a specific stationay
+  # period can be easily query
   s_id <- arrayInd(grl$s, grl$sz)
 
-  # As we will simulate in forward chronolofical order, we will be able to
-  # create map_f inside the simulation. However, map_b needs to be computed for
-  # all stationary period in advence, starting by the last stationary period
-  # and moving backward in time as follow
+  # As we will simulate in forward chronolofical order, we will be able to create map_f inside the
+  # simulation. However, map_b needs to be computed for all stationary period in advence, starting
+  # by the last stationary period and moving backward in time as follow
   map_b <- list()
   map_b[[grl$sz[3]]] <- Matrix::sparseMatrix(1, grl$retrival,
     x = 1,
@@ -681,8 +654,8 @@ graph_simulation <- function(grl, nj = 100) {
       dims = c(n, n)
     )
 
-    # build the forward mapping from the simulated nodes of the previous
-    # stationary period to the current one using trans_f
+    # build the forward mapping from the simulated nodes of the previous stationary period to the
+    # current one using trans_f
     map_f <- Matrix::sparseMatrix(seq_len(nj), path[, i_sta - 1],
       x = 1,
       dims = c(nj, n)

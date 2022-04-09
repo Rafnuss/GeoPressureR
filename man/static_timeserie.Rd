@@ -11,8 +11,8 @@ An object of class \code{list} of length 29.
 static_timeserie
 }
 \description{
-This dataset contains the data generated with the GeoPressure API generated
-with the vignettes \href{articles/prepare-data.html}{Prepare Data}.
-\code{static_timeserie} is a list for each stationary period
+This dataset contains the data generated with the GeoPressure API generated with the vignettes
+\href{articles/prepare-data.html}{Prepare Data}. \code{static_timeserie} is a list for each stationary
+period
 }
 \keyword{datasets}

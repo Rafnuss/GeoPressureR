@@ -27,19 +27,15 @@ flight_bird(
 \item{body_frontal_area}{in meter square}
 }
 \value{
-list containing mass, wing span, wing aspect ratio and body frontal
-area.
+list containing mass, wing span, wing aspect ratio and body frontal area.
 }
 \description{
-This function return a list with the four morphological information
-necessary to construct the power curve: mass, wing span, wing aspect ratio
-and body frontal area.
+This function return a list with the four morphological information necessary to construct the
+power curve: mass, wing span, wing aspect ratio and body frontal area.
 }
 \details{
 When any of these variables are missing, we query the AVONET database]
-(https://doi.org/10.6084/m9.figshare.16586228.v5)
-using the sciencific name from
-\href{https://www.birds.cornell.edu/clementschecklist/}{the Clements Checklist}.
+(https://doi.org/10.6084/m9.figshare.16586228.v5) using the sciencific name from \href{https://www.birds.cornell.edu/clementschecklist/}{the Clements Checklist}.
 }
 \examples{
 # Using AVONET dataset

@@ -11,8 +11,8 @@ An object of class \code{list} of length 29.
 pressure_timeserie
 }
 \description{
-This dataset contains the data generated with the GeoPressure API generated
-with the vignettes \href{articles/pressure-map.html}{Pressure Map}.
-\code{pressure_timeserie} is a list for each stationary period
+This dataset contains the data generated with the GeoPressure API generated with the vignettes
+\href{articles/pressure-map.html}{Pressure Map}. \code{pressure_timeserie} is a list for each stationary
+period
 }
 \keyword{datasets}

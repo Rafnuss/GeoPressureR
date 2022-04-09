@@ -17,7 +17,7 @@ server <- function(input, output, session) {
   flight_duration <- reactive({
     id <- which(sta$duration >= as.numeric(input$thr_sta))
     flight_duration <- c()
-    for (i_f in seq_len(max(0,length(id) - 1))) {
+    for (i_f in seq_len(max(0, length(id) - 1))) {
       from_sta_id <- id[i_f]
       to_sta_id <- id[i_f + 1]
 
@@ -66,28 +66,28 @@ server <- function(input, output, session) {
   output$map <- renderLeaflet({
     map <- leaflet() %>%
       addProviderTiles(providers$CartoDB.DarkMatterNoLabels,
-                       options = providerTileOptions(noWrap = TRUE)
+        options = providerTileOptions(noWrap = TRUE)
       )
   })
 
   output$fl_prev_info <- renderUI({
     req(input$i_sta)
     fl_dur <- flight_duration()
-    if ( is.null(fl_dur) ){
+    if (is.null(fl_dur)) {
       return(HTML(""))
     }
     id <- which(sta$duration >= as.numeric(input$thr_sta))
     sta_id_thr <- sta$sta_id[id]
     i_s_thr <- which(as.numeric(input$i_sta) == sta_id_thr)
 
-    if (i_s_thr!=1){
-      dist <- distGeo(reactVal$path[id[i_s_thr-1],], reactVal$path[id[i_s_thr],])/1000
+    if (i_s_thr != 1) {
+      dist <- distGeo(reactVal$path[id[i_s_thr - 1], ], reactVal$path[id[i_s_thr], ]) / 1000
       HTML(
         "<b>Previous flight:</b><br>",
-        sta_id_thr[i_s_thr]-sta_id_thr[i_s_thr-1]," flights -",
-        round(fl_dur[i_s_thr - 1])," hrs<br>",
-        round(dist)," km - ",
-        round(dist/fl_dur[i_s_thr - 1]), "km/h"
+        sta_id_thr[i_s_thr] - sta_id_thr[i_s_thr - 1], " flights -",
+        round(fl_dur[i_s_thr - 1]), " hrs<br>",
+        round(dist), " km - ",
+        round(dist / fl_dur[i_s_thr - 1]), "km/h"
       )
     } else {
       HTML("")
@@ -97,20 +97,20 @@ server <- function(input, output, session) {
   output$fl_next_info <- renderUI({
     req(input$i_sta)
     fl_dur <- flight_duration()
-    if (is.null(fl_dur) ){
+    if (is.null(fl_dur)) {
       return(HTML(""))
     }
     id <- which(sta$duration >= as.numeric(input$thr_sta))
     sta_id_thr <- sta$sta_id[id]
     i_s_thr <- which(as.numeric(input$i_sta) == sta_id_thr)
-    if (i_s_thr!= length(sta_id_thr) ){
-      dist <- geosphere::distGeo(reactVal$path[id[i_s_thr+1],], reactVal$path[id[i_s_thr],])/1000
+    if (i_s_thr != length(sta_id_thr)) {
+      dist <- geosphere::distGeo(reactVal$path[id[i_s_thr + 1], ], reactVal$path[id[i_s_thr], ]) / 1000
       HTML(
         "<b>Next flight:</b><br>",
-        sta_id_thr[i_s_thr+1]-sta_id_thr[i_s_thr]," flights -",
-        round(sum(fl_dur[i_s_thr]))," hrs<br>",
-        round(dist)," km - ",
-        round(dist/fl_dur[i_s_thr]), "km/h"
+        sta_id_thr[i_s_thr + 1] - sta_id_thr[i_s_thr], " flights -",
+        round(sum(fl_dur[i_s_thr])), " hrs<br>",
+        round(dist), " km - ",
+        round(dist / fl_dur[i_s_thr]), "km/h"
       )
     } else {
       HTML("")
@@ -124,15 +124,15 @@ server <- function(input, output, session) {
       theme_bw()
 
     req(input$thr_sta)
-    for (ts in reactVal$ts){
-      sta_th <- sta[ts$sta_id[1]==sta$sta_id,]
-      if (sta_th$duration > as.numeric(input$thr_sta)){
+    for (ts in reactVal$ts) {
+      sta_th <- sta[ts$sta_id[1] == sta$sta_id, ]
+      if (sta_th$duration > as.numeric(input$thr_sta)) {
         p <- p +
-          geom_line(data = ts, aes(x = date, y = pressure0), col = sta_th$col, linetype=ts$lt[1])
+          geom_line(data = ts, aes(x = date, y = pressure0), col = sta_th$col, linetype = ts$lt[1])
       }
     }
 
-    ggplotly(p, dynamicTicks = T, height = 300, tooltip=c("date","pressure0","lt")) %>%
+    ggplotly(p, dynamicTicks = T, height = 300, tooltip = c("date", "pressure0", "lt")) %>%
       layout(
         showlegend = F,
         yaxis = list(title = "Pressure [hPa]")
@@ -152,21 +152,21 @@ server <- function(input, output, session) {
 
   observeEvent(input$allsta, {
     if (input$allsta) {
-      shinyjs::hide(id = "sta_div", anim=T)
-      shinyjs::show(id = "thr_sta_page", anim=T)
+      shinyjs::hide(id = "sta_div", anim = T)
+      shinyjs::show(id = "thr_sta_page", anim = T)
     } else {
-      shinyjs::show(id = "sta_div", anim=T)
-      shinyjs::hide(id = "thr_sta_page", anim=T)
+      shinyjs::show(id = "sta_div", anim = T)
+      shinyjs::hide(id = "thr_sta_page", anim = T)
     }
   })
 
   observeEvent(input$thr_sta, {
     id <- sta$duration >= as.numeric(input$thr_sta)
-    if (sum(id)>0){
+    if (sum(id) > 0) {
       tmp <- as.list(sta$sta_id[id])
-      names(tmp) <- paste0('#',sta$sta_id[id]," (" , round(sta$duration[id],1), "d.)")
+      names(tmp) <- paste0("#", sta$sta_id[id], " (", round(sta$duration[id], 1), "d.)")
     } else {
-      tmp =list()
+      tmp <- list()
     }
     updateSelectizeInput(session, "i_sta", choices = tmp)
   })
@@ -218,12 +218,14 @@ server <- function(input, output, session) {
     id <- which(i_s == sta$sta_id)
     pam_pressure_sta <- subset(pressure, sta_id == input$i_sta)
     ts <- geopressure_ts(reactVal$path$lon[id], reactVal$path$lat[id],
-                                        pressure = pam_pressure_sta
+      pressure = pam_pressure_sta
     )
     ts$sta_id <- input$i_sta
     ts$pressure0 <- ts$pressure - mean(ts$pressure) + mean(pam_pressure_sta$obs[!pam_pressure_sta$isoutliar])
-    ts$lt = sum(input$i_sta==lapply(reactVal$ts,function(x){x$sta_id[1]}))+1
-    reactVal$ts[[length(reactVal$ts)+1]] <- ts
+    ts$lt <- sum(input$i_sta == lapply(reactVal$ts, function(x) {
+      x$sta_id[1]
+    })) + 1
+    reactVal$ts[[length(reactVal$ts) + 1]] <- ts
     updateSelectizeInput(session, "i_sta", selected = 1)
     updateSelectizeInput(session, "i_sta", selected = input$i_sta)
   })
@@ -238,7 +240,7 @@ server <- function(input, output, session) {
     sta_thr <- sta[id, ]
     path_thr <- reactVal$path[id, ]
     fl_dur <- flight_duration()
-    if (is.null(fl_dur)){
+    if (is.null(fl_dur)) {
       return()
     }
 
@@ -248,7 +250,8 @@ server <- function(input, output, session) {
         addCircles(
           lng = path_thr$lon, lat = path_thr$lat, opacity = 1, weight = sta_thr$duration^(0.3) * 10,
           label = paste0("#", sta_thr$sta_id, ", ", round(sta_thr$duration, 1), " days"), color = sta_thr$col
-        ) %>% fitBounds(min(path_thr$lon),min(path_thr$lat),max(path_thr$lon),max(path_thr$lat), options=list(paddingBottomRight=c(300,300)))
+        ) %>%
+        fitBounds(min(path_thr$lon), min(path_thr$lat), max(path_thr$lon), max(path_thr$lat), options = list(paddingBottomRight = c(300, 300)))
     } else {
       i_s <- which(as.numeric(input$i_sta) == sta$sta_id)
       i_s_thr <- which(as.numeric(input$i_sta) == sta_thr$sta_id)
@@ -307,5 +310,4 @@ server <- function(input, output, session) {
         )
     }
   })
-
 }

@@ -9,24 +9,23 @@ graph_add_wind(grl, pressure, filename, thr_as = Inf)
 \arguments{
 \item{grl}{graph constructed with \code{graph_create()}}
 
-\item{pressure}{pressure data from a PAM logger. This data.frame needs to
-contains \code{date} as POSIXt and \code{obs} in hPa. It is best practice to use
-\code{pam_read()} and \code{pam_sta()} to build this data.frame.}
+\item{pressure}{pressure data from a PAM logger. This data.frame needs to contains \code{date} as
+POSIXt and \code{obs} in hPa. It is best practice to use \code{pam_read()} and \code{pam_sta()} to build this
+data.frame.}
 
 \item{filename}{character of the path where to find the netCDF file.}
 
 \item{thr_as}{threshold of airspeed (km/h)}
 }
 \value{
-graph as a list with windspeed and airspeed as \code{ws} and \code{as}
-respectively (see \code{graph_create()} for more detail on the graph returned)
+graph as a list with windspeed and airspeed as \code{ws} and \code{as} respectively (see
+\code{graph_create()} for more detail on the graph returned)
 }
 \description{
-Read NetCDF file downloaded on your computer and add the average
-windspeed experienced by the bird and the corresponding airspeed for each
-edge of the graph.
+Read NetCDF file downloaded on your computer and add the average windspeed experienced by the
+bird and the corresponding airspeed for each edge of the graph.
 }
 \details{
-See the vignette \href{./articles/wind-graph.html}{Graph with wind} for
-explanations and example on how to download the NetCDF file.
+See the vignette \href{./articles/wind-graph.html}{Graph with wind} for explanations and example on
+how to download the NetCDF file.
 }

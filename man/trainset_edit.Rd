@@ -13,20 +13,17 @@ trainset_edit(
 \arguments{
 \item{pam}{pam logger dataset list}
 
-\item{pathname}{Path to the folder where the labeled files should be
-saved}
+\item{pathname}{Path to the folder where the labeled files should be saved}
 
 \item{filename}{Name for the file.}
 }
 \value{
-pam logger dataset list updated with the labels
-(\code{pam$pressure$isoutliar} and \code{pam$acceleration$ismig})
+pam logger dataset list updated with the labels (\code{pam$pressure$isoutliar} and
+\code{pam$acceleration$ismig})
 }
 \description{
-This function perform three steps: (1) write the \code{csv} file of the
-automatically labeled activity and pressure with
-\code{\link{trainset_write}}, (2) open trainset in your broweser
-(\url{https://trainset.geocene.com/}) so that you can edit
-the labels and (3) read the exported \code{csv} file from trainset with
-\code{\link{trainset_read}}.
+This function perform three steps: (1) write the \code{csv} file of the automatically labeled
+activity and pressure with \code{\link{trainset_write}}, (2) open trainset in your broweser
+(\url{https://trainset.geocene.com/}) so that you can edit the labels and (3) read the exported
+\code{csv} file from trainset with \code{\link{trainset_read}}.
 }
