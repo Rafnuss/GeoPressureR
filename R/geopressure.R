@@ -154,56 +154,80 @@ geopressure_map <-
 
     # Get URIS
     uris <- unlist(httr::content(res)$data$urls)
+    # Note that the order of the uris will be different than requested to optimized the
+    # parralelization
     labels <- unlist(httr::content(res)$data$labels)
+    labels_order <- order(labels)
     message(
       "Requests generated successfully for ", length(labels), " stationary periods (",
-      sprintf("%d, ", sort(labels)), ")"
+      sprintf("%d, ", labels), ")"
     )
 
     # Perform the call in parallel
     # GEE allows up to 12 requests at the same time, so we set the worker to 10
     future::plan(future::multisession, workers = 10)
+
     f <- c()
     message("Send requests:")
     progress_bar(0, max = length(uris))
     for (i_u in seq_len(length(uris))) {
       f[[i_u]] <- future::future(expr = {
         filename <- tempfile()
+        options(timeout=60*5)
         utils::download.file(uris[i_u], filename)
-        return(raster::brick(filename))
+        return(filename)
       }, seed = TRUE)
       progress_bar(i_u, max = length(uris))
     }
 
     # Get the raster
     pressure_maps <- c()
+    filename <- c()
     message("Download geotiff:")
     progress_bar(0, max = length(uris))
-    for (i_u in seq_len(length(uris))) {
-      pressure_maps[[i_u]] <- future::value(f[[i_u]])
-      progress_bar(i_u, max = length(uris))
+    tryCatch(
+      exp = {
+        for (i_u in seq_len(length(uris))) {
+          filename[i_u] <- future::value(f[[i_u]])
+          pressure_maps[[i_u]] <- raster::brick(filename[i_u])
+          progress_bar(i_u, max = length(uris))
 
-      # Add datum
-      raster::crs(pressure_maps[[i_u]]) <-
-        "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+          # Add datum
+          raster::crs(pressure_maps[[i_u]]) <-
+            "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
-      # convert MSE from Pa to hPa
-      pressure_maps[[i_u]][[1]] <- pressure_maps[[i_u]][[1]] / 100 / 100
+          # convert MSE from Pa to hPa
+          pressure_maps[[i_u]][[1]] <- pressure_maps[[i_u]][[1]] / 100 / 100
 
-      # Writing some metadata
-      raster::metadata(pressure_maps[[i_u]]) <- list(
-        sta_id = labels[i_u],
-        nb_sample = sum(pressure$sta_id[!is.na(pres)] == labels[i_u]),
-        max_sample = max_sample,
-        temporal_extent = c(
-          min(pressure$date[!is.na(pres) & pressure$sta_id == labels[i_u]]),
-          max(pressure$date[!is.na(pres) & pressure$sta_id == labels[i_u]])
-        ),
-        margin = margin
-      )
-    }
-
-    return(pressure_maps)
+          # Writing some metadata
+          raster::metadata(pressure_maps[[i_u]]) <- list(
+            sta_id = labels[i_u],
+            nb_sample = sum(pressure$sta_id[!is.na(pres)] == labels[i_u]),
+            max_sample = max_sample,
+            temporal_extent = c(
+              min(pressure$date[!is.na(pres) & pressure$sta_id == labels[i_u]]),
+              max(pressure$date[!is.na(pres) & pressure$sta_id == labels[i_u]])
+            ),
+            margin = margin
+          )
+        }
+        # return the pressure_maps in the same order than requested
+        return(pressure_maps[labels_order])
+      },
+      error = function(cond) {
+        message(paste0(
+          "\nError during the reading of the file. We return the uris of the gee request, ",
+          " the filename to the file already downloaded and the pressure_maps already computed. ",
+          "Here is the original error: "))
+        message(cond)
+        return(list(
+          uris = uris,
+          filename = filename,
+          pressure_maps = pressure_maps,
+          future = f
+        ))
+      }
+    )
   }
 
 
@@ -514,18 +538,15 @@ geopressure_ts_path <- function(path, pressure) {
         pressure_timeserie[[i_s]]["sta_id"] <- path$sta_id[i_s]
         pressure_timeserie[[i_s]]["lon"] <- path$lon[i_s]
         pressure_timeserie[[i_s]]["lat"] <- path$lat[i_s]
+
+        message(paste0("Successful computation of sta_id = ", path$sta_id[i_s], ". "))
       },
       error = function(cond) {
-        message(paste0("Error for sta_id = ", i_s))
+        message(paste0("Error for sta_id = ", path$sta_id[i_s], ". "))
         message(cond)
-        # Choose a return value in case of error
-        return(NULL)
       }
     )
   }
-
-
-
   return(pressure_timeserie)
 }
 
