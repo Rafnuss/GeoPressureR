@@ -391,16 +391,20 @@ pam_sta <- function(pam) {
   pam$sta$sta_id <- seq_len(nrow(pam$sta))
 
   # Assign to each pressure the stationary period to which it belong to.
-  pressure_sta_id <- sapply(pam$pressure$date, function(x) {
-    which(pam$sta$start < x & x < pam$sta$end)
-  })
-  pressure_sta_id[sapply(pressure_sta_id, function(x) length(x) == 0)] <- 0
-  pam$pressure$sta_id <- unlist(pressure_sta_id)
+  tmp <- mapply(function(start, end) {
+    start < pam$pressure$date & pam$pressure$date < end
+  }, pam$sta$start, pam$sta$end)
+  tmp <- which(tmp, arr.ind = TRUE)
+  pam$pressure$sta_id <- 0
+  pam$pressure$sta_id[tmp[, 1]] <- tmp[, 2]
 
   # Assign to each light measurement the stationary period
-  light_sta_id <- sapply(pam$light$date, function(x) which(pam$sta$start < x & x < pam$sta$end))
-  light_sta_id[sapply(light_sta_id, function(x) length(x) == 0)] <- 0
-  pam$light$sta_id <- unlist(light_sta_id)
+  tmp <- mapply(function(start, end) {
+    start < pam$light$date & pam$light$date < end
+  }, pam$sta$start, pam$sta$end)
+  tmp <- which(tmp, arr.ind = TRUE)
+  pam$light$sta_id <- 0
+  pam$light$sta_id[tmp[, 1]] <- tmp[, 2]
 
   return(pam)
 }
