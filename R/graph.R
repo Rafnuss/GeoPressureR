@@ -207,8 +207,9 @@ graph_create <- function(static_prob,
     gs_bearing[is.na(gs_bearing)] <- 0
 
     # save groundspeed in complex notation
-    grt$gs <- gs_abs[id] * cos((gs_bearing - 90) * pi / 180) +
-      1i * gs_abs[id] * sin((gs_bearing - 90) * pi / 180)
+    gs_arg <- (450-gs_bearing) %% 360
+    grt$gs <- gs_abs[id] * cos(gs_arg * pi / 180) +
+      1i * gs_abs[id] * sin(gs_arg * pi / 180)
 
     # assign the static probability of the target node (pressure * light)
     grt$ps <- static_prob_n[[i_s + 1]][grt$t - i_s * nll]
@@ -401,7 +402,7 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
       )
       t_q <- seq(from = t_s, to = t_e, by = 60 * 60)
 
-      # We assume that the bird is moving with a cosz[3]nt groundspeed between
+      # We assume that the bird is moving with a constant groundspeed between
       # `flight$start` and `flight$end`. Using a linear interpolation, we
       # extract the position (lat, lon) at every hour on `t_q`. Extrapolation
       # outside (before the bird departure or after he arrived) is with a
@@ -444,6 +445,8 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
       if (length(w) >= 5) {
         w[seq(3, length(w) - 2)] <- w[seq(3, length(w) - 2)] + 1
       }
+      # normalize the weight
+      w <- w / sum(w)
 
       # step integration
       # w <- difftime(pmin(pmax(t_q+60*60/2,fl_s$start[i2]),fl_s$end[i2]),
@@ -535,8 +538,8 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
     uv[st_id, 2] <- colSums(v_sta * fl_s_dur / sum(fl_s_dur))
   }
 
-  # save windspeed in complex notation
-  grl$ws <- uv[, 1] + 1i * uv[, 2]
+  # save windspeed in complex notation and convert from m/s to km/h
+  grl$ws <- (uv[, 1] + 1i * uv[, 2]) / 1000 * 60 * 60
 
   # compute airspeed
   grl$as <- grl$gs - grl$ws
@@ -559,6 +562,7 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
   grl$gs <- grl$gs[id]
   grl$as <- grl$as[id]
   grl$ws <- grl$ws[id]
+  grl$ps <- grl$ps[id]
 
   return(grl)
 }
@@ -705,7 +709,7 @@ graph_simulation <- function(grl, nj = 100) {
 #'
 #' @param path_id list or matrix of node index
 #' @param grl graph constructed with `geopressure_graph_create()`
-#' @return list of the path with latitude and longitude
+#' @return list of the path with latitude and longitude and index fo the the path provided
 #' @export
 graph_path2lonlat <- function(path_id, grl) {
   ind <- arrayInd(path_id, grl$sz)

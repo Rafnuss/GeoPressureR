@@ -12,7 +12,7 @@ graph_path2lonlat(path_id, grl)
 \item{grl}{graph constructed with \code{geopressure_graph_create()}}
 }
 \value{
-list of the path with latitude and longitude
+list of the path with latitude and longitude and index fo the the path provided
 }
 \description{
 Find the lattitude and longitude from a path index

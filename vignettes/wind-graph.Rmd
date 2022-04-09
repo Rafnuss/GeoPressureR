@@ -124,7 +124,7 @@ We can compute the windspeed experienced by the bird if he had flew each possibl
 
 ```{r, eval=F}
 filename = paste0(dir.save,"/","18IC_")
-grl <- graph_add_wind(grl, pressure=pam_data$pressure, filename)#, thr_as = 100)
+grl <- graph_add_wind(grl, pressure=pam_data$pressure, filename, thr_as = 100)
 usethis::use_data(grl, overwrite = T)
 ```
 
@@ -140,7 +140,8 @@ We first search the morphological information of the Great Reed Warbler using th
 ```{r}
 bird <- flight_bird("Acrocephalus arundinaceus")
 speed <- seq(0,80)
-prob <- flight_prob(speed, method = "power", bird = bird, low_speed_fix = 10)
+prob <- flight_prob(speed, method = "power", bird = bird, low_speed_fix = 10, 
+                    fun_power = function(power) { (1 / power)^3 })
 plot(speed, prob, type="l", xlab="Airspeed [km/h]", ylab="Probability")
 grl$p <- grl$ps * flight_prob(grl$gs, method = "power", bird = bird, low_speed_fix = 10)
 ```
@@ -164,12 +165,101 @@ grl$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), grl)
 
 ```{r}
 sta_duration <- unlist(lapply(static_prob,function(x){as.numeric(difftime(metadata(x)$temporal_extent[2],metadata(x)$temporal_extent[1],units="days"))}))
-leaflet() %>%
+
+m2 <-leaflet() %>%
   addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl() %>%
   addPolylines(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#808080", weight = 3) %>%
   addCircles(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#000", weight = sta_duration^(0.3)*10) 
+
+fun_marker_color <- function(norm){
+    if (norm < 20){
+      "darkpurple"
+    } else if (norm < 35){
+      "darkblue"
+    } else if (norm < 50){
+      "lightblue"
+    } else if (norm < 60){
+      "lightgreen"
+    } else if (norm < 80){
+      "yellow"
+    } else if (norm < 100){
+      "lightred"
+    } else {
+      "darkred"
+    }
+}
+
+fun_NSEW <- function(angle){
+  angle <- angle  %% (pi* 2)
+  angle <- angle*180/pi
+  if (angle < 45/2){
+      "E"
+    } else if (angle < 45*3/2){
+      "NE"
+    } else if (angle < 45*5/2){
+      "N"
+    } else if (angle < 45*7/2){
+      "NW"
+    } else if (angle < 45*9/2){
+      "W"
+    } else if (angle < 45*11/2){
+      "SW"
+    } else if (angle < 45*13/2){
+      "S"
+    }else if (angle < 45*15/2){
+      "SE"
+    } else {
+      "E"
+    }
+}
 ```
 
+```{r}
+m <- m2
+for (i_s in seq_len(grl$sz[3]-1)){
+  if (grl$flight_duration[i_s]>5){
+    edge <- which(grl$s == grl$shortest_path$id[i_s] & grl$t == grl$shortest_path$id[i_s+1])
+    
+    label = paste0( i_s,': ', grl$flight[[i_s]]$start, " - ", grl$flight[[i_s]]$end, "<br>",
+                   "F. dur.: ", round(grl$flight_duration[i_s]), ' h <br>',
+                  "GS: ", round(abs(grl$gs[edge])), ' km/h, ',fun_NSEW(Arg(grl$gs[edge])),'<br>',
+                   "WS: ", round(abs(grl$ws[edge])), ' km/h, ',fun_NSEW(Arg(grl$ws[edge])),'<br>',
+                   "AS: ", round(abs(grl$as[edge])), ' km/h, ',fun_NSEW(Arg(grl$as[edge])),'<br>')
+    
+      iconArrow <- makeAwesomeIcon(icon = "arrow-up",
+                            iconRotate = (90 - Arg(grl$ws[edge])/pi*180) %% 360,
+                            squareMarker = TRUE,
+                            markerColor = fun_marker_color(abs(grl$ws[edge])))
+      
+  m <- m %>% addAwesomeMarkers(lng = (grl$shortest_path$lon[i_s] + grl$shortest_path$lon[i_s+1])/2,
+                               lat = (grl$shortest_path$lat[i_s] + grl$shortest_path$lat[i_s+1])/2,
+                        icon = iconArrow, popup = label)
+  }
+}
+ 
+m
+  
+```
+
+
+
+```{r, evel = F}
+static_timeserie <- geopressure_ts_path(path, pam_data$pressure)
+geopressureviz = list(
+  pam_data=pam_data,
+  static_prob=static_prob,
+  pressure_prob=pressure_prob,
+  light_prob=light_prob,
+  pressure_timeserie = static_timeserie
+)
+save(geopressureviz,file = "~/geopressureviz.RData")
+```
+
+```{r, eval=F}
+appDir <- system.file("geopressureviz", package = "GeoPressureR")
+shiny::runApp(appDir, launch.browser = getOption("browser"))
+# shiny::runApp('./inst/geopressureviz', launch.browser = getOption("browser"))
+```
 
 ## Output 2: Proability map of stationary period
 
@@ -187,7 +277,6 @@ for (i_r in seq_len(length(grl_marginal))) {
   info <- metadata(static_prob[[i_r]])$temporal_extent
   info_str <- paste0(i_s, " | ", info[1], "->", info[2])
   li_s <- append(li_s, info_str)
-  tmp
   l <- l %>%
     addRasterImage(grl_marginal[[i_r]], colors = "OrRd", opacity = 0.8, group = info_str) %>%
     addCircles(lng = grl$shortest_path$lon[i_s], lat = grl$shortest_path$lat[i_s], opacity = 1, color = "#000", weight = 10, group = info_str)
