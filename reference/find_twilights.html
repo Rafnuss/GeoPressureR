@@ -79,24 +79,22 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>light</dt>
-<dd><p>a dataframe with columns <code>date</code> and
-<code>obs</code> that are the sequence of sample times (as POSIXct)
-and light levels recorded by the tag.</p></dd>
+<dd><p>a dataframe with columns <code>date</code> and <code>obs</code> that are the sequence of sample
+times (as POSIXct) and light levels recorded by the tag.</p></dd>
 <dt>threshold</dt>
 <dd><p>the light threshold that defines twilight.</p></dd>
 <dt>include</dt>
-<dd><p>a vector of times as POSIXct. Nights that span these
-times are included in the search.</p></dd>
+<dd><p>a vector of times as POSIXct. Nights that span these times are included in the
+search.</p></dd>
 <dt>exclude</dt>
-<dd><p>a vector of POSIXct times. Nights that span these
-times are excluded from the search.</p></dd>
+<dd><p>a vector of POSIXct times. Nights that span these times are excluded from the
+search.</p></dd>
 <dt>extend</dt>
-<dd><p>a time in minutes. The function seeks periods of
-darkness that differ from one another by 24 hours plus or minus
-this interval.</p></dd>
+<dd><p>a time in minutes. The function seeks periods of darkness that differ from one
+another by 24 hours plus or minus this interval.</p></dd>
 <dt>dark_min</dt>
-<dd><p>a time in minutes. Periods of darkness shorter
-than this interval will be excluded.</p></dd>
+<dd><p>a time in minutes. Periods of darkness shorter than this interval will be
+excluded.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -109,19 +107,15 @@ than this interval will be excluded.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Search for sunset, sunrise pairs that correspond to a given light
-threshold.</p>
-<p>Given a set of times (<code>include</code>) known to fall in the night,
-<code>find_twilights</code> determines the twilights that span these times, and
-computes the corresponding midnights. It then searches for periods
-of darkness that lie approximately 24 hours from these midnights,
+    <p>Search for sunset, sunrise pairs that correspond to a given light threshold.</p>
+<p>Given a set of times (<code>include</code>) known to fall in the night, <code>find_twilights</code>
+determines the twilights that span these times, and computes the corresponding midnights.
+It then searches for periods of darkness that lie approximately 24 hours from these midnights,
 repeating the process until no new twilight pairs are found.</p>
-<p>If <code>interleave=TRUE</code>, the sunrise and sunset times are
-interleaved andreturned as a single sequence of twilights,
-otherwise sunset and sunrise times are returned separately. The
-function <code>interleave.twilights</code> takes a dataframe of separate
-sunset and sunrise times and interleaves them to form a sequence
-of twilight times.</p>
+<p>If <code>interleave=TRUE</code>, the sunrise and sunset times are interleaved andreturned as a single
+sequence of twilights, otherwise sunset and sunrise times are returned separately. The function
+<code>interleave.twilights</code> takes a dataframe of separate sunset and sunrise times and
+interleaves them to form a sequence of twilight times.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
