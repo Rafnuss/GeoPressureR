@@ -601,8 +601,6 @@ geopressure_ts_path <- function(path, pressure) {
 geopressure_map2path <- function(map, interp = 0, format = "lonlat") {
   stopifnot(is.list(map))
   stopifnot(inherits(map[[1]], "RasterLayer"))
-  stopifnot("temporal_extent" %in%
-    names(raster::metadata(map[[1]])))
   stopifnot(is.numeric(interp))
   stopifnot(interp >= 0)
   stopifnot(format %in% c("lonlat", "ind", "arr.ind"))
@@ -631,6 +629,11 @@ geopressure_map2path <- function(map, interp = 0, format = "lonlat") {
 
   # Interpolation for short stationary period is only performed if interp>0
   if (interp > 0) {
+    if (!("temporal_extent" %in%
+      names(raster::metadata(map[[1]])))) {
+      stop("`temporal_extent` is required as metadata in map to perform an interpolation")
+    }
+
     # remove short stationary period
     duration <- unlist(lapply(map, function(r) {
       mt <- raster::metadata(r)
