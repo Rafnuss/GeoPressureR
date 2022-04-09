@@ -166,101 +166,69 @@ refracted <- function(zenith) {
 }
 
 
-
-
-#' Search for pairs of twilights spanning night.
+#' Returns twilights for each day based on a threshold of light
 #'
-#' Search for sunset, sunrise pairs that correspond to a given light threshold.
+#' Search for sunset, sunrise pairs that correspond to a given light threshold. Function inspired
+#' from `findTwilights` in package Geolight
 #'
-#' Given a set of times (\code{include}) known to fall in the night, \code{find_twilights}
-#' determines the twilights that span these times, and computes the corresponding midnights.
-#' It then searches for periods of darkness that lie approximately 24 hours from these midnights,
-#' repeating the process until no new twilight pairs are found.
-#'
-#' If \code{interleave=TRUE}, the sunrise and sunset times are interleaved andreturned as a single
-#' sequence of twilights, otherwise sunset and sunrise times are returned separately. The function
-#' \code{interleave.twilights} takes a dataframe of separate sunset and sunrise times and
-#' interleaves them to form a sequence of twilight times.
-#'
-#' @title Search for twilight times
 #' @param light a dataframe with columns \code{date} and \code{obs} that are the sequence of sample
 #' times (as POSIXct) and light levels recorded by the tag.
 #' @param threshold the light threshold that defines twilight.
-#' @param include a vector of times as POSIXct. Nights that span these times are included in the
-#' search.
-#' @param exclude a vector of POSIXct times. Nights that span these times are excluded from the
-#' search.
-#' @param extend a time in minutes. The function seeks periods of darkness that differ from one
-#' another by 24 hours plus or minus this interval.
-#' @param dark_min a time in minutes. Periods of darkness shorter than this interval will be
-#' excluded.
+#' @param shifK shift of the middle of the night compared to 00:00 UTC (in seconds)
 #' @return A dataframe with columns
 #' \item{\code{twilight}}{times of twilight}
 #' \item{\code{rise}}{logical indicating sunrise}
 #' where each row corresponds to a single twilight.
 #' @export
-find_twilights <- function(light, threshold, include, exclude = NULL, extend = 0, dark_min = 0) {
-  # Extract date and light data
-  date <- light$date
-  light <- light$obs
+find_twilights <- function(light, threshold = NA, shifK = 0) {
 
+  stopifnot(is.data.frame(light))
+  stopifnot("date" %in% names(light))
+  stopifnot(inherits(light$date, "POSIXt"))
+  stopifnot("obs" %in% names(light))
+  stopifnot(is.numeric(light$obs))
 
-  # Is any x in each [a,b]
-  contains_any <- function(a, b, x) {
-    f <- logical(length(a))
-    for (k in seq_along(x)) {
-      f <- f | (a <= x[k] & b >= x[k])
-    }
-    f
+  if (is.na(threshold)){
+    threshold <- min(light$obs[light$obs > 0])
   }
+  stopifnot(is.numeric(threshold))
+  stopifnot(is.numeric(shifK))
 
-  # Convert to minutes
-  extend <- 60 * extend
-  dark_min <- 60 * dark_min
+  res <- difftime(utils::tail(light$date,-1), utils::head(light$date,-1), units = "days")
+  stopifnot(length(unique(res))==1)
 
-  # Calculate intervals [a,b] of darkness
-  # a is first points before light drops below threshold
-  # b is first points before light rises to or above threshold
-  l <- (light >= threshold)
-  f <- diff(l)
-  a <- which(f == -1)
-  b <- which(f == 1)
-  # Keep only fall-rise pairs
-  if (b[1] < a[1]) b <- b[-1]
-  a <- a[seq_len(length(b))]
-
-  # Only keep intervals that do not include excluded data and are
-  # less than 24 hours in length
-  keep <- (!contains_any(date[a], date[b + 1], exclude) &
-    (as.numeric(date[b + 1]) - as.numeric(date[a]) < 86400) &
-    (as.numeric(date[b + 1]) - as.numeric(date[a]) > dark_min))
-
-  a <- a[keep]
-  b <- b[keep]
-
-  # Compute bounding dates and midpoint
-  a_date <- date[a]
-  b_date <- date[b + 1]
-  m_date <- a_date + (b_date - a_date) / 2
-
-  # Iteratively expand set of twilights by searching for additional
-  # twilights +/- 24 hrs from midpoints of existing set.
-  keep <- logical(length(a))
-  add <- contains_any(a_date, b_date, include) & !keep
-  while (any(add)) {
-    keep <- keep | add
-    mid <- c(m_date[add] - 86400, m_date[add] + 86400)
-    add <- contains_any(a_date - extend, b_date + extend, mid) & !keep
-  }
-  a <- a[keep]
-  b <- b[keep]
-
-  # Interpolate times to get exact twilights.
-  ss <- date[a] + (threshold - light[a]) / (light[a + 1] - light[a]) * (date[a + 1] - date[a])
-  sr <- date[b] + (threshold - light[b]) / (light[b + 1] - light[b]) * (date[b + 1] - date[b])
-
-  data.frame(
-    twilight = .POSIXct(as.vector(t(cbind(ss, sr))), "GMT"),
-    rise = rep(c(F, T), length(ss))
+  # Pad time to start and finish at 00:00
+  date <- seq(
+    from = as.POSIXct(format(light$date[1], "%Y-%m-%d"), tz="UTC"),
+    to = as.POSIXct(format(light$date[length(light$date)], "%Y-%m-%d"), tz="UTC")+60*60*24-as.numeric(res[1]),
+    by = res[1]
   )
+  # add padding of time to center if night are not at 00:00 UTC
+  date <- date + shifK
+
+  obs <- rep(NA, length(date))
+  obs[date %in% light$date] <- light$obs
+
+  # reshape in matrix format
+  obs_r <- matrix(obs, nrow = 1/as.numeric(res[1]))
+  date_r <- matrix(date, nrow = 1/as.numeric(res[1]))
+
+  # Compute exceed of light
+  l = obs_r >= threshold;
+
+  # Find the first light
+  id_sr <- apply(l,2,which.max)
+  id_sr_r <- id_sr + (seq_len(dim(l)[2])-1)*dim(l)[1]
+  sr <- as.POSIXct(date_r[id_sr_r], origin = "1960-01-01")
+
+  id_ss <- dim(l)[1]-apply(l[nrow(l):1,],2,which.max)
+  id_ss_s <- id_ss + (seq_len(dim(l)[2])-1)*dim(l)[1]
+  ss <-as.POSIXct(date_r[id_ss_s], origin = "1960-01-01")
+
+  out <- data.frame(
+    twilight = c(ss,sr),
+    rise = c(!logical(length(ss)), logical(length(sr)))
+  )
+  # order by time
+  return(out[order(out$twilight),])
 }
