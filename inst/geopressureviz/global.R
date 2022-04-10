@@ -83,7 +83,7 @@ if (!("isoutliar" %in% names(pressure))) {
 # Get the pressure timeserie
 if ("pressure_timeserie" %in% names(geopressureviz)) {
   pressure_timeserie <- geopressureviz$pressure_timeserie
-  stopifnot(length(pressure_timeserie) >= max(sta$sta_id))
+  stopifnot(length(pressure_timeserie) <= max(sta$sta_id))
   ts0 <- pressure_timeserie[sta$sta_id]
   ts0 <- lapply(ts0, function(x) {
     x$lt <- 1

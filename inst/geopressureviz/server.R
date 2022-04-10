@@ -126,10 +126,13 @@ server <- function(input, output, session) {
     req(input$thr_sta)
     for (ts in reactVal$ts) {
       sta_th <- sta[ts$sta_id[1] == sta$sta_id, ]
-      if (sta_th$duration > as.numeric(input$thr_sta)) {
-        p <- p +
-          geom_line(data = ts, aes(x = date, y = pressure0), col = sta_th$col, linetype = ts$lt[1])
+      if(nrow(sta_th)>0){
+        if (sta_th$duration > as.numeric(input$thr_sta)) {
+          p <- p +
+            geom_line(data = ts, aes(x = date, y = pressure0), col = sta_th$col, linetype = ts$lt[1])
+        }
       }
+
     }
 
     ggplotly(p, dynamicTicks = T, height = 300, tooltip = c("date", "pressure0", "lt")) %>%
@@ -217,17 +220,20 @@ server <- function(input, output, session) {
     i_s <- as.numeric(input$i_sta)
     id <- which(i_s == sta$sta_id)
     pam_pressure_sta <- subset(pressure, sta_id == input$i_sta)
-    ts <- geopressure_ts(reactVal$path$lon[id], reactVal$path$lat[id],
-      pressure = pam_pressure_sta
-    )
-    ts$sta_id <- input$i_sta
-    ts$pressure0 <- ts$pressure - mean(ts$pressure) + mean(pam_pressure_sta$obs[!pam_pressure_sta$isoutliar])
-    ts$lt <- sum(input$i_sta == lapply(reactVal$ts, function(x) {
-      x$sta_id[1]
-    })) + 1
-    reactVal$ts[[length(reactVal$ts) + 1]] <- ts
-    updateSelectizeInput(session, "i_sta", selected = 1)
-    updateSelectizeInput(session, "i_sta", selected = input$i_sta)
+    tryCatch(expr={
+      ts <- geopressure_ts(reactVal$path$lon[id], reactVal$path$lat[id],
+                           pressure = pam_pressure_sta
+      )
+      ts$sta_id <- input$i_sta
+      ts$pressure0 <- ts$pressure - mean(ts$pressure) + mean(pam_pressure_sta$obs[!pam_pressure_sta$isoutliar])
+      ts$lt <- sum(input$i_sta == lapply(reactVal$ts, function(x) {
+        x$sta_id[1]
+      })) + 1
+      reactVal$ts[[length(reactVal$ts) + 1]] <- ts
+      updateSelectizeInput(session, "i_sta", selected = 1)
+      updateSelectizeInput(session, "i_sta", selected = input$i_sta)
+    })
+
   })
 
   # Map
