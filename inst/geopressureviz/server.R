@@ -15,15 +15,15 @@ server <- function(input, output, session) {
   )
 
   flight_duration <- reactive({
-    id <- which(sta$duration >= as.numeric(input$thr_sta))
+    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
     flight_duration <- c()
-    for (i_f in seq_len(max(0, length(id) - 1))) {
-      from_sta_id <- id[i_f]
-      to_sta_id <- id[i_f + 1]
+    for (i_f in seq_len(max(0, length(idx_sta_short) - 1))) {
+      from_idx_sta_short <- idx_sta_short[i_f]
+      to_idx_sta_short <- idx_sta_short[i_f + 1]
 
       flight_duration[i_f] <- sum(
         do.call(rbind, lapply(
-          flight[seq(from_sta_id, to_sta_id)],
+          flight[seq(from_idx_sta_short, to_idx_sta_short)],
           function(x) {
             sum(x$duration)
           }
@@ -76,18 +76,17 @@ server <- function(input, output, session) {
     if (is.null(fl_dur)) {
       return(HTML(""))
     }
-    id <- which(sta$duration >= as.numeric(input$thr_sta))
-    sta_id_thr <- sta$sta_id[id]
-    i_s_thr <- which(as.numeric(input$i_sta) == sta_id_thr)
-
-    if (i_s_thr != 1) {
-      dist <- distGeo(reactVal$path[id[i_s_thr - 1], ], reactVal$path[id[i_s_thr], ]) / 1000
+    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    i <- which(idx_sta_short==as.numeric(input$i_sta))
+    if (i != 1) {
+      idx_sta_prev = idx_sta_short[i-1]
+      dist <- distGeo(reactVal$path[idx_sta_prev, ], reactVal$path[as.numeric(input$i_sta), ]) / 1000
       HTML(
         "<b>Previous flight:</b><br>",
-        sta_id_thr[i_s_thr] - sta_id_thr[i_s_thr - 1], " flights -",
-        round(fl_dur[i_s_thr - 1]), " hrs<br>",
+        as.numeric(input$i_sta)-idx_sta_prev, " flights -",
+        round(fl_dur[i-1]), " hrs<br>",
         round(dist), " km - ",
-        round(dist / fl_dur[i_s_thr - 1]), "km/h"
+        round(dist / fl_dur[i-1]), "km/h"
       )
     } else {
       HTML("")
@@ -100,17 +99,17 @@ server <- function(input, output, session) {
     if (is.null(fl_dur)) {
       return(HTML(""))
     }
-    id <- which(sta$duration >= as.numeric(input$thr_sta))
-    sta_id_thr <- sta$sta_id[id]
-    i_s_thr <- which(as.numeric(input$i_sta) == sta_id_thr)
-    if (i_s_thr != length(sta_id_thr)) {
-      dist <- geosphere::distGeo(reactVal$path[id[i_s_thr + 1], ], reactVal$path[id[i_s_thr], ]) / 1000
+    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    i <- which(idx_sta_short==input$i_sta)
+    if (i != length(idx_sta_short)) {
+      idx_sta_next = idx_sta_short[i+1]
+      dist <- geosphere::distGeo(reactVal$path[idx_sta_next, ], reactVal$path[as.numeric(input$i_sta), ]) / 1000
       HTML(
         "<b>Next flight:</b><br>",
-        sta_id_thr[i_s_thr + 1] - sta_id_thr[i_s_thr], " flights -",
-        round(sum(fl_dur[i_s_thr])), " hrs<br>",
+        idx_sta_next-as.numeric(input$i_sta), " flights -",
+        round(sum(fl_dur[i])), " hrs<br>",
         round(dist), " km - ",
-        round(dist / fl_dur[i_s_thr]), "km/h"
+        round(dist / fl_dur[i]), "km/h"
       )
     } else {
       HTML("")
@@ -132,7 +131,6 @@ server <- function(input, output, session) {
             geom_line(data = ts, aes(x = date, y = pressure0), col = sta_th$col, linetype = ts$lt[1])
         }
       }
-
     }
 
     ggplotly(p, dynamicTicks = T, height = 300, tooltip = c("date", "pressure0", "lt")) %>%
@@ -164,10 +162,10 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$thr_sta, {
-    id <- sta$duration >= as.numeric(input$thr_sta)
-    if (sum(id) > 0) {
-      tmp <- as.list(sta$sta_id[id])
-      names(tmp) <- paste0("#", sta$sta_id[id], " (", round(sta$duration[id], 1), "d.)")
+    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    if (length(idx_sta_short) > 0) {
+      tmp <- as.list(idx_sta_short)
+      names(tmp) <- paste0("#", sta$sta_id[idx_sta_short], " (", round(sta$duration[idx_sta_short], 1), "d.)")
     } else {
       tmp <- list()
     }
@@ -175,19 +173,17 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$prev_pos, {
-    id <- which(sta$duration >= as.numeric(input$thr_sta))
-    tmp <- sta$sta_id[id]
-    i <- which(input$i_sta == tmp)
-    i <- min(max(i - 1, 1), length(tmp))
-    updateSelectizeInput(session, "i_sta", selected = tmp[i])
+    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    i <- which(input$i_sta == idx_sta_short)
+    i <- min(max(i - 1, 1), length(idx_sta_short))
+    updateSelectizeInput(session, "i_sta", selected = idx_sta_short[i])
   })
 
   observeEvent(input$next_pos, {
-    id <- which(sta$duration >= as.numeric(input$thr_sta))
-    tmp <- sta$sta_id[id]
-    i <- which(input$i_sta == tmp)
-    i <- min(max(i + 1, 1), length(tmp))
-    updateSelectizeInput(session, "i_sta", selected = tmp[i])
+    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    i <- which(input$i_sta == idx_sta_short)
+    i <- min(max(i + 1, 1), length(idx_sta_short))
+    updateSelectizeInput(session, "i_sta", selected = idx_sta_short[i])
   })
 
   observeEvent(input$edit_pos, {
@@ -211,29 +207,9 @@ server <- function(input, output, session) {
       return()
     }
     if (!input$allsta) {
-      id <- which(as.numeric(input$i_sta) == sta$sta_id)
-      reactVal$path[id, ] <- c(click$lng, click$lat)
+      idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+      reactVal$path[idx_sta_short, ] <- c(click$lng, click$lat)
     }
-  })
-
-  observeEvent(input$query_pos, {
-    i_s <- as.numeric(input$i_sta)
-    id <- which(i_s == sta$sta_id)
-    pam_pressure_sta <- subset(pressure, sta_id == input$i_sta)
-    tryCatch(expr={
-      ts <- geopressure_ts(reactVal$path$lon[id], reactVal$path$lat[id],
-                           pressure = pam_pressure_sta
-      )
-      ts$sta_id <- input$i_sta
-      ts$pressure0 <- ts$pressure - mean(ts$pressure) + mean(pam_pressure_sta$obs[!pam_pressure_sta$isoutliar])
-      ts$lt <- sum(input$i_sta == lapply(reactVal$ts, function(x) {
-        x$sta_id[1]
-      })) + 1
-      reactVal$ts[[length(reactVal$ts) + 1]] <- ts
-      updateSelectizeInput(session, "i_sta", selected = 1)
-      updateSelectizeInput(session, "i_sta", selected = input$i_sta)
-    })
-
   })
 
   # Map
@@ -242,14 +218,13 @@ server <- function(input, output, session) {
       clearShapes() %>%
       clearImages()
     req(input$i_sta)
-    id <- which(sta$duration >= as.numeric(input$thr_sta))
-    sta_thr <- sta[id, ]
-    path_thr <- reactVal$path[id, ]
+    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    sta_thr <- sta[idx_sta_short, ]
+    path_thr <- reactVal$path[idx_sta_short, ]
     fl_dur <- flight_duration()
     if (is.null(fl_dur)) {
       return()
     }
-
     if (input$allsta) {
       proxy <- proxy %>%
         addPolylines(lng = path_thr$lon, lat = path_thr$lat, opacity = 1, color = "#FFF", weight = 3) %>%
@@ -259,50 +234,72 @@ server <- function(input, output, session) {
         ) %>%
         fitBounds(min(path_thr$lon), min(path_thr$lat), max(path_thr$lon), max(path_thr$lat), options = list(paddingBottomRight = c(300, 300)))
     } else {
-      i_s <- which(as.numeric(input$i_sta) == sta$sta_id)
-      i_s_thr <- which(as.numeric(input$i_sta) == sta_thr$sta_id)
+
       tmp <- map_prob()
       if (any(!is.na(tmp))) {
-        proxy <- proxy %>% addRasterImage(tmp[[i_s]], opacity = 0.8, colors = "magma")
+        proxy <- proxy %>% addRasterImage(tmp[[as.numeric(input$i_sta)]], opacity = 0.8, colors = "magma")
       }
+
       proxy <- proxy %>%
         addPolylines(lng = path_thr$lon, lat = path_thr$lat, opacity = .1, color = "#FFF", weight = 3) %>%
-        addPolylines(lng = path_thr$lon[i_s_thr + (-1:1)], lat = path_thr$lat[i_s_thr + (-1:1)], opacity = 1, color = "#FFF", weight = 3) %>%
         addCircles(
           lng = path_thr$lon, lat = path_thr$lat, opacity = .1, color = "#FFF",
           weight = sta_thr$duration^(0.3) * 10
-        ) %>%
-        addCircles(
-          lng = path_thr$lon[i_s_thr], lat = path_thr$lat[i_s_thr], opacity = 1,
-          weight = sta_thr$duration[i_s_thr]^(0.3) * 10, color = sta_thr$col[i_s_thr]
         )
 
-      if (i_s != 1) {
+      # Index in sta_short
+      i <- which(idx_sta_short==input$i_sta)
+
+      if (i != 1) {
         proxy <- proxy %>%
-          addCircles(lng = path_thr$lon[i_s_thr - 1], lat = path_thr$lat[i_s_thr - 1], opacity = 1, color = sta_thr$col[i_s_thr - 1], weight = sta_thr$duration[i_s_thr - 1]^(0.3) * 10) %>%
-          addCircles(lng = path_thr$lon[i_s_thr - 1], lat = path_thr$lat[i_s_thr - 1], opacity = 1, color = sta_thr$col[i_s_thr - 1], radius = as.numeric(input$speed) * sum(fl_dur[i_s_thr - 1]) * 1000, fillOpacity = 0, weight = 2)
+          addPolylines(lng = path_thr$lon[i + (-1:0)], lat = path_thr$lat[i + (-1:0)], opacity = 1, color = "#FFF", weight = 3) %>%
+          addCircles(lng = path_thr$lon[i - 1], lat = path_thr$lat[i - 1], opacity = 1, color = sta_thr$col[i - 1], weight = sta_thr$duration[i - 1]^(0.3) * 10) %>%
+          addCircles(lng = path_thr$lon[i - 1], lat = path_thr$lat[i - 1], opacity = 1, color = sta_thr$col[i - 1], radius = as.numeric(input$speed) * sum(fl_dur[i - 1]) * 1000, fillOpacity = 0, weight = 2)
       }
-      if (i_s != length(static_prob)) {
+      if (i != length(static_prob)) {
         proxy <- proxy %>%
-          addCircles(lng = path_thr$lon[i_s_thr + 1], lat = path_thr$lat[i_s_thr + 1], opacity = 1, color = sta_thr$col[i_s_thr + 1], weight = sta_thr$duration[i_s_thr]^(0.3) * 10) %>%
-          addCircles(lng = path_thr$lon[i_s_thr + 1], lat = path_thr$lat[i_s_thr + 1], opacity = 1, color = sta_thr$col[i_s_thr + 1], radius = as.numeric(input$speed) * sum(fl_dur[i_s_thr]) * 1000, fillOpacity = 0, weight = 2)
+          addPolylines(lng = path_thr$lon[i + (0:1)], lat = path_thr$lat[i + (0:1)], opacity = 1, color = "#FFF", weight = 3) %>%
+          addCircles(lng = path_thr$lon[i + 1], lat = path_thr$lat[i + 1], opacity = 1, color = sta_thr$col[i + 1], weight = sta_thr$duration[i]^(0.3) * 10) %>%
+          addCircles(lng = path_thr$lon[i + 1], lat = path_thr$lat[i + 1], opacity = 1, color = sta_thr$col[i + 1], radius = as.numeric(input$speed) * sum(fl_dur[i]) * 1000, fillOpacity = 0, weight = 2)
       }
+      proxy <- proxy %>%
+        addCircles(
+          lng = reactVal$path$lon[as.numeric(input$i_sta)], lat = reactVal$path$lat[as.numeric(input$i_sta)], opacity = 1,
+          weight = sta$duration[as.numeric(input$i_sta)]^(0.3) * 10, color = sta$col[as.numeric(input$i_sta)]
+        )
     }
     proxy
   }) # %>% bindEvent(input$i_sta)
 
+  observeEvent(input$query_pos, {
+    sta_id = sta$sta_id[as.numeric(input$i_sta)]
+    pam_pressure_sta <- subset(pressure, sta_id == sta_id)
+    tryCatch(expr={
+      ts <- geopressure_ts(reactVal$path$lon[input$i_sta], reactVal$path$lat[input$i_sta],
+                           pressure = pam_pressure_sta
+      )
+      ts$sta_id <- sta_id
+      ts$pressure0 <- ts$pressure - mean(ts$pressure) + mean(pam_pressure_sta$obs[!pam_pressure_sta$isoutliar])
+      ts$lt <- sum(sta_id == lapply(reactVal$ts, function(x) {
+        x$sta_id[1]
+      })) + 1
+      reactVal$ts[[length(reactVal$ts) + 1]] <- ts
+      updateSelectizeInput(session, "i_sta", selected = 1)
+      updateSelectizeInput(session, "i_sta", selected = input$i_sta)
+    })
+  })
+
   # Pressure Graph
   observe({
     if (!input$allsta) {
-      i_s <- as.numeric(input$i_sta)
-      i_sta <- i_s == sta$sta_id
-      id <- pressure$sta_id == i_s
+      sta_id = sta$sta_id[as.numeric(input$i_sta)]
+      pres_sta_id <- pressure$sta_id == sta_id
       plotlyProxy("pressure_graph", session) %>%
         plotlyProxyInvoke(
           "relayout",
           list(
-            yaxis = list(range = c(min(pressure$obs[id]) - 5, max(pressure$obs[id]) + 5)),
-            xaxis = list(range = c(sta$start[i_sta] - 60 * 60 * 24, sta$end[i_sta] + 60 * 60 * 24))
+            yaxis = list(range = c(min(pressure$obs[pres_sta_id]) - 5, max(pressure$obs[pres_sta_id]) + 5)),
+            xaxis = list(range = c(sta$start[as.numeric(input$i_sta)] - 60 * 60 * 24, sta$end[as.numeric(input$i_sta)] + 60 * 60 * 24))
           )
         )
     } else {

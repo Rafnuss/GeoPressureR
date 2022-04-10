@@ -39,19 +39,38 @@ if ("pressure_prob" %in% names(geopressureviz)) {
 }
 
 
+# Get the timeserie of pressure
+stopifnot("pam_data" %in% names(geopressureviz))
+pressure <- geopressureviz$pam_data$pressure
+stopifnot(is.data.frame(pressure))
+stopifnot("date" %in% names(pressure))
+stopifnot(inherits(pressure$date, "POSIXt"))
+stopifnot("obs" %in% names(pressure))
+stopifnot(is.numeric(pressure$obs))
+stopifnot("sta_id" %in% names(pressure))
+if (!("isoutliar" %in% names(pressure))) {
+  pressure$isoutliar <- FALSE
+}
 
 # Get stationay period information
 sta <- do.call("rbind", lapply(static_prob, function(r) {
   mt <- raster::metadata(r)
   mt$start <- mt$temporal_extent[1]
   mt$end <- mt$temporal_extent[2]
-  mt$duration <- as.numeric(difftime(mt$end, mt$start, units = "days"))
+  #mt$duration <- as.numeric(difftime(mt$end, mt$start, units = "days"))
   mt <- within(mt, rm(flight, temporal_extent, max_sample, margin))
   as.data.frame(mt)
 }))
 
+# Correct duration for pressure datapoint available
+pres_isoutliar_sta = aggregate(!pressure$isoutliar, by=list(sta_id = pressure$sta_id),FUN=sum)
+res = as.numeric(difftime(pressure$date[2],pressure$date[1], units = "days"))
+id_match <- match(sta$sta_id, pres_isoutliar_sta$sta_id)
+stopifnot(!is.na(id_match))
+sta$duration = pres_isoutliar_sta$x[id_match] * res
+
 # Set color of each stationay period
-col <- rep(RColorBrewer::brewer.pal(12, "Set3"), times = 10)
+col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = 20)
 sta$col <- col[sta$sta_id]
 
 # Get flight information and compute flight duration directly
@@ -67,33 +86,40 @@ flight <- lapply(static_prob, function(r) {
   fl
 })
 
-# Get the timeserie of pressure
-stopifnot("pam_data" %in% names(geopressureviz))
-pressure <- geopressureviz$pam_data$pressure
-stopifnot(is.data.frame(pressure))
-stopifnot("date" %in% names(pressure))
-stopifnot(inherits(pressure$date, "POSIXt"))
-stopifnot("obs" %in% names(pressure))
-stopifnot(is.numeric(pressure$obs))
-stopifnot("sta_id" %in% names(pressure))
-if (!("isoutliar" %in% names(pressure))) {
-  pressure$isoutliar <- FALSE
-}
+
 
 # Get the pressure timeserie
 if ("pressure_timeserie" %in% names(geopressureviz)) {
   pressure_timeserie <- geopressureviz$pressure_timeserie
-  stopifnot(length(pressure_timeserie) <= max(sta$sta_id))
-  ts0 <- pressure_timeserie[sta$sta_id]
+
+  stopifnot(length(pressure_timeserie)==nrow(sta))
+  p_ts_sta_id <- unlist(lapply(pressure_timeserie, function(x) {
+    if (is.null(x)){
+      NA
+      } else {
+        x$sta_id[1]
+      }}))
+  test <- p_ts_sta_id==sta$sta_id
+  test[is.na(test)]<- T
+  stopifnot(test)
+  ts0 <- pressure_timeserie
   ts0 <- lapply(ts0, function(x) {
-    x$lt <- 1
+    if (is.null(x)){
+       x = data.frame(
+          lon = NA,
+          lat = NA,
+          lt = 1
+        )
+    } else {
+      x$lt = 1
+    }
     return(x)
   })
-  path0 <- do.call("rbind", lapply(pressure_timeserie, function(x) {
-    data.frame(
-      lon = x$lon[1],
-      lat = x$lat[1]
-    )
+  path0 <- do.call("rbind", lapply(ts0, function(x) {
+  data.frame(
+        lon = x$lon[1],
+        lat = x$lat[1]
+      )
   }))
 } else {
   ts0 <- list()
