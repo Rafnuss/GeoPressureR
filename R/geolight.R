@@ -169,12 +169,13 @@ refracted <- function(zenith) {
 #' Returns twilights for each day based on a threshold of light
 #'
 #' Search for sunset, sunrise pairs that correspond to a given light threshold. Function inspired
-#' from `findTwilights` in package Geolight
+#' from `findTwilights` of the package Geolight
 #'
 #' @param light a dataframe with columns \code{date} and \code{obs} that are the sequence of sample
 #' times (as POSIXct) and light levels recorded by the tag.
 #' @param threshold the light threshold that defines twilight.
-#' @param shifK shift of the middle of the night compared to 00:00 UTC (in seconds)
+#' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
+#' provided, will try to figure it out from the data
 #' @return A dataframe with columns
 #' \item{\code{twilight}}{times of twilight}
 #' \item{\code{rise}}{logical indicating sunrise}

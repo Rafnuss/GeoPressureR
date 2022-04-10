@@ -86,9 +86,10 @@ The first test consists in checking the duration of flights and stationary perio
 ```{r}
 pam_data <- trainset_read(pam_data, system.file("extdata", package = "GeoPressureR"), filename = "18LX_act_pres-labeled-v1.csv")
 pam_data <- pam_sta(pam_data)
-pam_data$sta$duration <- pam_data$sta$end - pam_data$sta$start
-pam_data$sta$next_flight_duration <- c(0, difftime(tail(pam_data$sta$start, length(pam_data$sta$start) - 1), head(pam_data$sta$end, length(pam_data$sta$end) - 1), units = "hours"))
-knitr::kable(subset(pam_data$sta,duration<60| next_flight_duration < .5))
+pam_data$sta$duration <- difftime( pam_data$sta$end, pam_data$sta$start, units = "days")
+pam_data$sta$next_flight_duration <- c(difftime(tail(pam_data$sta$start, length(pam_data$sta$start) - 1), 
+                                                   head(pam_data$sta$end, length(pam_data$sta$end) - 1), units = "hours"),0)
+knitr::kable(subset(pam_data$sta,duration<0.25| next_flight_duration < 1))
 ```
 
 You may want to check the labelling of flights shorter than one hour as well as the labelling before and after stationary periods shorter than a couple of hours. Using the exact times from the table above, you can edit your labelling in TRAINSET and export a new version of the `csv` file. Note that the last row has a `next_flight_duration` of 0 because it is the last stationary period. 
@@ -101,22 +102,20 @@ The second check to carry out before computing the map is to visualize the press
 pam_data <- trainset_read(pam_data, system.file("extdata", package = "GeoPressureR"), filename = "18LX_act_pres-labeled-v2.csv")
 pam_data <- pam_sta(pam_data)
 
+# Set colorscale
+col <- rep(RColorBrewer::brewer.pal(9, "Set1"), times = ceiling((nrow(pam_data$sta)+1)/9))
+col <- col[1:(nrow(pam_data$sta)+1)]
+names(col) <- levels(factor(c(0,pam_data$sta$sta_id)))
+
+pressure_na <- pam_data$pressure
+pressure_na$obs[pressure_na$isoutliar | pressure_na$sta_id==0]=NA
 p <- ggplot() +
   geom_line(data = pam_data$pressure, aes(x = date, y = obs), col = "grey") +
-  geom_line(
-    data = subset(pam_data$pressure, sta_id != 0),
-    aes(x = date, y = obs, col = as.factor(sta_id))
-  ) +
-  theme_bw() +
-  scale_colour_manual(values = rep(RColorBrewer::brewer.pal(9, "Set1"), times = 4))
-# scale_colour_brewer(type="qualitative", palette = 'Set1')
-
-ggplotly(p, dynamicTicks = T) %>%
-  layout(
-    showlegend = F,
-    legend = list(orientation = "h", x = -0.5),
-    yaxis = list(title = "Pressure [hPa]")
-  )
+  geom_line(data = pressure_na, aes(x = date, y = obs, col = factor(sta_id))) +
+  geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
+  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure(hPa)")
+  
+ggplotly(p, dynamicTicks = T) %>% layout(showlegend = F)
 ```
 
 Ploting this figure with [Plotly](https://plotly.com/r/) allows you to zoom-in and pan to check all timeseries are correctly grouped. Make sure each stationary period does not include any pressure measurement from flight (e.g. 1-Sep-2017 in the figure above). You might spot some anomalies in the temporal variation of pressure. In some cases, you can already label the pressure timeseries to remove them.
@@ -156,16 +155,10 @@ We can now look at a similar figure of pressure timeseries, but this time compar
 p <- ggplot() +
   geom_line(data = pam_data$pressure, aes(x = date, y = obs), colour = "grey") +
   geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
-  geom_line(data = do.call("rbind", pressure_timeserie), aes(x = date, y = pressure0, col = as.factor(sta_id))) +
-  theme_bw() +
-  scale_colour_manual(values = rep(RColorBrewer::brewer.pal(9, "Set1"), times = 4))
+  geom_line(data = do.call("rbind", pressure_timeserie), aes(x = date, y = pressure0, col = factor(sta_id))) +
+  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure(hPa)")
 
-ggplotly(p, dynamicTicks = T) %>%
-  layout(
-    showlegend = F,
-    legend = list(orientation = "h", x = -0.5),
-    yaxis = list(title = "Pressure [hPa]")
-  )
+ggplotly(p, dynamicTicks = T) %>% layout(showlegend = F)
 ```
 
 You can use this figure to identify periods where the mismatch indicates a problem with the labelling. Often, it will indicate that the bird was changing altitude. This happens regularly during migration, the bird lands in one location and performs one or two short flights in the morning, resulting in a change in altitude. Activity data on TRAINSET can also help understand what the bird is doing.
@@ -179,16 +172,11 @@ pam_data <- pam_sta(pam_data)
 p <- ggplot() +
   geom_line(data = pam_data$pressure, aes(x = date, y = obs), colour = "grey") +
   geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
-  geom_line(data = do.call("rbind", pressure_timeserie), aes(x = date, y = pressure0, col = as.factor(sta_id))) +
+  geom_line(data = do.call("rbind", pressure_timeserie), aes(x = date, y = pressure0, col = factor(sta_id))) +
   theme_bw() +
-  scale_colour_manual(values = rep(RColorBrewer::brewer.pal(9, "Set1"), times = 4))
+  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure(hPa)")
 
-ggplotly(p, dynamicTicks = T) %>%
-  layout(
-    showlegend = F,
-    legend = list(orientation = "h", x = -0.5),
-    yaxis = list(title = "Pressure [hPa]")
-  )
+ggplotly(p, dynamicTicks = T) %>% layout(showlegend = F)
 ```
 
 ### Test 4: Histogram of pressure error

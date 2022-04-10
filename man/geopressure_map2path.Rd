@@ -37,8 +37,9 @@ sta_duration <- unlist(lapply(pressure_prob, function(x) {
     units = "days"
   ))
 }))
-m <- leaflet::leaflet()
-m <- leaflet::addTiles(m)
+m <- leaflet::leaflet(width = "100\%")
+m <- leaflet::addProviderTiles(m, leaflet::providers$Stamen.TerrainBackground)
+m <- leaflet::addFullscreenControl(m)
 m <- leaflet::addPolylines(m,
   lng = path_all$lon, lat = path_all$lat, opacity = 1,
   color = "#a6cee3", weight = 3

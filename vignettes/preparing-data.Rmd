@@ -223,7 +223,7 @@ Secondly, this visualization only accounts for the lag-1 movement, thus it choos
 
 ```{r, warning=F, results = 'asis'}
 li_s <- list()
-l <- leaflet() %>% addTiles()
+l <- leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
 speed_thr = 100
 for (i_r in seq_len(length(static_prob))) {
   mt <- metadata(static_prob[[i_r]])

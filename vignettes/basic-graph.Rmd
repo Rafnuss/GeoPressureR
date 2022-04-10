@@ -85,7 +85,7 @@ grl$p <- grl$ps * flight_prob(grl$gs, method = "gamma", shape = 7, scale = 7, lo
 
 ## Output 1: Shortest path
 
-In graph theroy, [the shortest path](https://en.wikipedia.org/wiki/Shortest_path_problem) correspond to the set of nodes whose sum of the edges weights are as small as possible. By weighting the edges with the minus of the log of the porbability, this corresponds to finding the most likely trajectory of our bird. We solve this problem with the [igraph package](https://igraph.org/r/)
+In graph theory, [the shortest path](https://en.wikipedia.org/wiki/Shortest_path_problem) correspond to the set of nodes whose sum of the edges weights are as small as possible. By weighting the edges with the minus of the log of the probability, this corresponds to finding the most likely trajectory of our bird. We solve this problem with the [igraph package](https://igraph.org/r/)
 
 ```{r}
 g <- graph_from_data_frame(data.frame(
@@ -103,7 +103,7 @@ grl$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), grl)
 sta_duration <- unlist(lapply(static_prob, function(x) {
   as.numeric(difftime(metadata(x)$temporal_extent[2], metadata(x)$temporal_extent[1], units = "days"))
 }))
-leaflet() %>%
+leaflet(width = "100%") %>%
   addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl() %>% 
   addPolylines(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#808080", weight = 3) %>%
   addCircles(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#000", weight = sta_duration^(0.3) * 10)
@@ -120,7 +120,7 @@ grl_marginal <- graph_marginal(grl)
 
 ```{r, warning=F}
 li_s <- list()
-l <- leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
+l <- leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
 for (i_r in seq_len(length(grl_marginal))) {
   i_s <- metadata(static_prob[[i_r]])$sta_id
   info <- metadata(static_prob[[i_r]])$temporal_extent
@@ -147,7 +147,7 @@ path <- graph_simulation(grl, nj=20)
 
 ```{r}
 col <- rep(RColorBrewer::brewer.pal(9, "Set1"), times = ceiling(grl$sz[3]/9))
-m <- leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
+m <- leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
 for (i in seq_len(nj)) {
   m <- m %>%
     addPolylines(lng = path$lon[i,], lat = path$lat[i,], opacity = 0.7, weight = 1, color = "#808080") 

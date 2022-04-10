@@ -209,7 +209,7 @@ fun_NSEW <- function(angle){
 ```{r,}
 sta_duration <- unlist(lapply(static_prob,function(x){as.numeric(difftime(metadata(x)$temporal_extent[2],metadata(x)$temporal_extent[1],units="days"))}))
 
-m <-leaflet() %>%
+m <-leaflet(width = "100%") %>%
   addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl() %>%
   addPolylines(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#808080", weight = 3) %>%
   addCircles(lng = grl$shortest_path$lon, lat = grl$shortest_path$lat, opacity = 1, color = "#000", weight = sta_duration^(0.3)*10) 
@@ -269,7 +269,7 @@ grl_marginal <- graph_marginal(grl)
 
 ```{r, warning=F}
 li_s <- list()
-l <- leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
+l <- leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
 for (i_r in seq_len(length(grl_marginal))) {
   i_s <- metadata(static_prob[[i_r]])$sta_id
   info <- metadata(static_prob[[i_r]])$temporal_extent
@@ -295,7 +295,7 @@ path <- graph_simulation(grl, nj)
 ```
 ```{r}
 col <- rep(RColorBrewer::brewer.pal(9, "Set1"), times = ceiling(grl$sz[3]/9))
-m <- leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
+m <- leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
 for (i in seq_len(nj)) {
   m <- m %>%
     addPolylines(lng = path$lon[i,], lat = path$lat[i,], opacity = 0.7, weight = 1, color = "#808080") 

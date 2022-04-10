@@ -147,7 +147,7 @@ geopressure_map <-
     if (httr::http_error(res)) {
       print(httr::content(res))
       stop(paste0(
-        "Error with request son http://glp.mgravey.com:24853/GeoPressure/v1/map/. ",
+        "Error with request on http://glp.mgravey.com:24853/GeoPressure/v1/map/. ",
         "Please contact us with the error message if the error persists"
       ))
     }
@@ -173,7 +173,7 @@ geopressure_map <-
     for (i_u in seq_len(length(uris))) {
       f[[i_u]] <- future::future(expr = {
         filename <- tempfile()
-        options(timeout=60*5)
+        options(timeout = 60 * 5)
         utils::download.file(uris[i_u], filename)
         return(filename)
       }, seed = TRUE)
@@ -186,7 +186,7 @@ geopressure_map <-
     message("Download geotiff:")
     progress_bar(0, max = length(uris))
     tryCatch(
-      exp = {
+      expr = {
         for (i_u in seq_len(length(uris))) {
           filename[i_u] <- future::value(f[[i_u]])
           pressure_maps[[i_u]] <- raster::brick(filename[i_u])
@@ -218,7 +218,8 @@ geopressure_map <-
         message(paste0(
           "\nError during the reading of the file. We return the uris of the gee request, ",
           " the filename to the file already downloaded and the pressure_maps already computed. ",
-          "Here is the original error: "))
+          "Here is the original error: "
+        ))
         message(cond)
         return(list(
           uris = uris,
@@ -426,7 +427,7 @@ geopressure_ts <-
     if (nrow(out) == 0) {
       stop(paste0(
         "Returned csv file is empty. Check that the time range is none-empty and that the location",
-        "is not on water: maps.google.com/maps?q=", lat, ",", lon
+        "is not on water: maps.google.com/maps?q=", lat, ",", lon, "\n"
       ))
     }
 
@@ -472,8 +473,9 @@ geopressure_ts <-
 #' data("pressure_timeserie", package = "GeoPressureR")
 #' p <- ggplot2::ggplot() +
 #'   ggplot2::geom_line(
-#'      data = pam_data$pressure,
-#'      ggplot2::aes(x = date, y = obs), colour = "grey") +
+#'     data = pam_data$pressure,
+#'     ggplot2::aes(x = date, y = obs), colour = "grey"
+#'   ) +
 #'   ggplot2::geom_point(
 #'     data = subset(pam_data$pressure, isoutliar),
 #'     ggplot2::aes(x = date, y = obs), colour = "black"
@@ -578,8 +580,9 @@ geopressure_ts_path <- function(path, pressure) {
 #'     units = "days"
 #'   ))
 #' }))
-#' m <- leaflet::leaflet()
-#' m <- leaflet::addTiles(m)
+#' m <- leaflet::leaflet(width = "100%")
+#' m <- leaflet::addProviderTiles(m, leaflet::providers$Stamen.TerrainBackground)
+#' m <- leaflet.extras::addFullscreenControl(m)
 #' m <- leaflet::addPolylines(m,
 #'   lng = path_all$lon, lat = path_all$lat, opacity = 1,
 #'   color = "#a6cee3", weight = 3

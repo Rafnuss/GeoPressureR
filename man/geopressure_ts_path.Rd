@@ -43,8 +43,9 @@ pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 data("pressure_timeserie", package = "GeoPressureR")
 p <- ggplot2::ggplot() +
   ggplot2::geom_line(
-     data = pam_data$pressure,
-     ggplot2::aes(x = date, y = obs), colour = "grey") +
+    data = pam_data$pressure,
+    ggplot2::aes(x = date, y = obs), colour = "grey"
+  ) +
   ggplot2::geom_point(
     data = subset(pam_data$pressure, isoutliar),
     ggplot2::aes(x = date, y = obs), colour = "black"

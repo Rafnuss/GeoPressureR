@@ -27,15 +27,6 @@ library(MASS)
 library(raster)
 ```
 
-The first step is to define basic information about the calibration period and location. The second calibration is so short (1 day) that we discard it in this example.
-
-```{r}
-lon_calib <- 17.05
-lat_calib <- 48.9
-tm_calib_1 <- c(as.POSIXct("2017-06-20"), as.POSIXct("2017-07-20"))
-# tm_calib_2 <- c(as.POSIXct("2018-04-29"), as.POSIXct("2018-05-1"))
-```
-
 We then read the pam data retrieved from the geolocator.
 
 ```{r}
@@ -43,7 +34,20 @@ pam_data <- pam_read(
   pathname = system.file("extdata", package = "GeoPressureR"),
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
+pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
+pam_data <- pam_sta(pam_data)
 ```
+
+The first step is to define basic information about the calibration period and location. The second calibration is so short (1 day) that we discard it in this example.
+
+```{r}
+lon_calib <- 17.05
+lat_calib <- 48.9
+tm_calib_1 <- c(pam_data$sta$start[1], pam_data$sta$end[1])
+# tm_calib_2 <- c(pam_data$sta$start[nrow(pam_data$sta)], pam_data$sta$end[nrow(pam_data$sta)])
+```
+
+
 
 ## Twilight Annotation
 
@@ -51,11 +55,7 @@ The twilight annotation closely follows [chapter 4 of the geolocation manual](ht
 
 We find the time of twilight and change the timezone to UTC.
 ```{r}
-twl <- find_twilights(pam_data$light,
-  threshold = min(pam_data$light$obs[pam_data$light$obs > 0]), # first light of the day
-  include = "2017-09-23 00:00:00 UTC" # Not sure why
-)
-attr(twl$twilight, "tzone") <- "UTC"
+twl <- find_twilights(pam_data$light)
 ```
 
 The manual editing is easily performed with TRAINSET. In this case, we must label the datapoints we want to delete with any label name and make sure we do not assign any label to the datapoints we want to keep (left as black dots). Read more about TRAINSET labelling in the dedicated vignette: [How to label tracks](labeling_tracks.html#introduction-to-trainset).
@@ -70,7 +70,7 @@ write.csv(
     value = as.numeric(format(twl$twilight, "%H")) * 60 + as.numeric(format(twl$twilight, "%M")),
     label = ifelse(is.null(twl$delete), "", ifelse(twl$delete, "Delete", ""))
   ),
-  paste0(system.file("extdata", package = "GeoPressureR"), "/18LX_light.csv"),
+  file = "~/18LX_light.csv",
   row.names = FALSE
 )
 browseURL("https://trainset.geocene.com/")
@@ -108,8 +108,6 @@ lines(z_axes, dgamma(z_axes, fit_e$estimate["shape"], fit_e$estimate["rate"]), c
 Before computing the probability map, we group the twilights by stationary period using activity data. Learn more about this step in the vignette [Pressure Map](pressure-map.html#identifying-stationary-periods).
 
 ```{r}
-pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
-pam_data <- pam_sta(pam_data)
 twilight_sta_id <- sapply(twl$twilight, function(x) which(pam_data$sta$start < x & x < pam_data$sta$end))
 twilight_sta_id[sapply(twilight_sta_id, function(x) length(x) == 0)] <- 0
 twl$sta_id <- unlist(twilight_sta_id)
@@ -169,7 +167,7 @@ Finally, we can visualize the probability map for each stationary period.
 
 ```{r, warning=F}
 li_s <- list()
-l <- leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
+l <- leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
 for (i_r in seq_len(length(light_prob))) {
   i_s <- metadata(light_prob[[i_r]])$sta_id
   info <- pam_data$sta[pam_data$sta$sta_id == i_s, ]

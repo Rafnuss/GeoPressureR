@@ -35,6 +35,14 @@ library(plotly)
 library(RColorBrewer)
 ```
 
+For making this vignette faster to compute, we have already run all the code below and we load the result here. (The corresponding R chunk are `eval=F`)
+```{r}
+data("pressure_maps", package = "GeoPressureR")
+data("pressure_prob", package = "GeoPressureR")
+data("pressure_timeserie", package = "GeoPressureR")
+pressure_timeserie_1 <- pressure_timeserie[[1]]
+```
+
 ### Reading geolocator data
 In this example, we use data captured on a Great Reed Warbler *Acrocephalus arundinaceus* (18LX). Below, we read the geolocator data and crop it so that it starts on the equipment date and ends on the retrieval date.
 
@@ -84,18 +92,18 @@ pam_data <- pam_sta(pam_data)
 knitr::kable(head(pam_data$sta))
 ```
 
-We can visualize the pressure measurements for each grouped stationary period (symbolized by a different color).
+We can visualize the pressure measurements for each grouped stationary period (symbolized by a different color). The back dots represents the pressure labeled as outliar and these datapoint will not be matched.
 
 ```{r}
-p <- subset(pam_data$pressure, sta_id != 0) %>%
-  ggplot() +
+pressure_na <- pam_data$pressure
+pressure_na$obs[pressure_na$isoutliar | pressure_na$sta_id==0]=NA
+p <- ggplot() +
   geom_line(data = pam_data$pressure, aes(x = date, y = obs), col = "grey") +
-  geom_line(aes(x = date, y = obs, col = as.factor(sta_id))) +
+  geom_line(data = pressure_na, aes(x = date, y = obs, col = as.factor(sta_id))) +
   geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
   theme_bw() +
   scale_y_continuous(name = "Pressure(hPa)") +
-  scale_colour_manual(values = rep(RColorBrewer::brewer.pal(9, "Set1"), times = 4))
-# scale_colour_brewer(type="qualitative", palette = 'Set1')
+  scale_colour_manual(values = rep(RColorBrewer::brewer.pal(9, "Set1"), times = 8))
 
 ggplotly(p, dynamicTicks = T) %>%
   layout(
@@ -106,24 +114,16 @@ ggplotly(p, dynamicTicks = T) %>%
 ```
 
 ## Computing the map of pressure
-Now that we have clean pressure timeseries for each stationary period, we are ready to match each one with atmospheric pressure data (ERA5). To overcome the challenge of computing mismatch on such a large dataset, this R package uses the [API GeoPressure](https://github.com/Rafnuss/GeoPressureServer) to perform the computation on Google Earth Engine. Read more about the API [here](https://raphaelnussbaumer.com/GeoPressureServer/).
+Now that we have clean pressure timeseries for each stationary period, we are ready to match each one with atmospheric pressure data (ERA5). To overcome the challenge of computing mismatch on such a large dataset, this R package uses the [API GeoPressure](https://github.com/Rafnuss/GeoPressureAPI) to perform the computation on Google Earth Engine.
 
 Initially, it is easier and faster to query only long stationary periods (in the example below, we select only periods longer than 12hrs). You can do so by setting the pressure of the stationary periods you wish to discard to `NA`.
 
-```{r, eval=F}
+```{r}
 sta_id_keep <- pam_data$sta$sta_id[difftime(pam_data$sta$end, pam_data$sta$start, units = "hours") > 0]
 pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] <- NA
 ```
 
-We can now query the data on the API with `geopressure_map()`. A detailed description of the parameters can be found [here](https://raphaelnussbaumer.com/GeoPressureServer/#request). This will take a couple of minutes to run.
-
-```{r}
-# For this vignette, we can load the pre-computed value to save time.
-data("pressure_maps", package = "GeoPressureR")
-data("pressure_prob", package = "GeoPressureR")
-data("pressure_timeserie", package = "GeoPressureR")
-pressure_timeserie_1 <- pressure_timeserie[[1]]
-```
+We can now query the data on the API with `geopressure_map()`. A detailed description of the parameters can be found [here](https://raphaelnussbaumer.com/GeoPressureAPI/#request). This will take a couple of minutes to run.
 
 ```{r, eval=F}
 extent <- c(50, -16, 0, 23) # coordinates of the map to request (N, W, S, E)
@@ -134,7 +134,7 @@ pressure_maps <- geopressure_map(pam_data$pressure, extent = extent, scale = sca
 usethis::use_data(pressure_maps, overwrite = T)
 ```
 
-`geopressure_map()` returns a list of two rasters for each stationary periods. The first is the mean square error ($\textbf{MSE}$) between the pressure timeseries and ERA5 map. The second ($\textbf{z}_{thr}$) is the proportion of datapoints in the pressure timeseries which correspond to an altitude that falls between the min and max altitude of each grid cell. Read more about these values and how they are computed [here](https://raphaelnussbaumer.com/GeoPressureServer/#description).
+`geopressure_map()` returns a list of two rasters for each stationary periods. The first is the mean square error ($\textbf{MSE}$) between the pressure timeseries and ERA5 map. The second ($\textbf{z}_{thr}$) is the proportion of datapoints in the pressure timeseries which correspond to an altitude that falls between the min and max altitude of each grid cell. Read more about these values and how they are computed [here](https://raphaelnussbaumer.com/GeoPressureAPI/#description).
 
 We then combine the two rasters in a single probability map using
 $$\textbf{P} = \exp \left(-w \frac{\textbf{MSE}}{s} \right) [\textbf{z}_{thr}>thr]$$
@@ -151,7 +151,7 @@ We use `leaflet()` to visualize the threshold mask, mismatch map, and overall pr
 
 ```{r, warning=F}
 i_r <- 2
-leaflet() %>%
+leaflet(width = "100%") %>%
   addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl() %>% 
   addRasterImage(pressure_prob[[i_r]], opacity = 0.8, colors = "OrRd", group = "Probability") %>%
   addRasterImage(pressure_maps[[i_r]][[1]], opacity = 0.8, colors = "OrRd", group = "Mismatch") %>%
@@ -168,7 +168,7 @@ We can also visualize the probability map for all stationary periods:
 
 ```{r}
 li_s <- list()
-l <- leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
+l <- leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
 for (i_r in seq_len(length(pressure_prob))) {
   i_s <- metadata(pressure_prob[[i_r]])$sta_id
   info <- pam_data$sta[pam_data$sta$sta_id == i_s, ]
@@ -193,7 +193,7 @@ raster::animate(brick(pressure_prob), n = 1)
 
 The second operation you can perform with GeoPressureR is to compute the exact altitude of the bird $z_{gl}$ from its pressure measurement $P_{gl}$ and assuming its location $x$. This function uses ERA5 to adjust the barometric equation,
 $$ z_{gl}(x)=z_{ERA5}(x) + \frac{T_{ERA5}(x)}{L_b}  \left( \frac{P_{gl}}{P_{ERA5}(x)} \right) ^{\frac{RL_b}{g M}-1},$$
-where $z_{ERA}$, $T_{ERA}$ and $T_{ERA}$  respectively correspond to the ground level elevation, temperature at 2m and ground level pressure of ERA5, $L_b$  is the standard temperature lapse rate, $R$ is the universal gas constant, $g$ is the gravity constant and  $M$ is the molar mass of air. See more information [here](https://raphaelnussbaumer.com/GeoPressureServer/#description-1).
+where $z_{ERA}$, $T_{ERA}$ and $T_{ERA}$  respectively correspond to the ground level elevation, temperature at 2m and ground level pressure of ERA5, $L_b$  is the standard temperature lapse rate, $R$ is the universal gas constant, $g$ is the gravity constant and  $M$ is the molar mass of air. See more information [here](https://raphaelnussbaumer.com/GeoPressureAPI/#description-1).
 
 We can compute the bird's elevation for its first stationary period using the most likely position on the probability map.
 
@@ -252,9 +252,32 @@ path <- geopressure_map2path(pressure_prob)
 path$lat[5] <- path$lat[5] + .25
 ```
 
-Secondly, we can use `geopressure_ts_path()` which basically call `geopressure_ts()` in parrellel for all stationay period.
+Secondly, we can use `geopressure_ts_path()` which basically call `geopressure_ts()` in parallel for all stationary periods.
 
 ```{r, eval=F}
 pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 usethis::use_data(pressure_timeserie, overwrite = T)
+```
+
+```{r}
+col <- rep(RColorBrewer::brewer.pal(9, "Set1"), times = ceiling((nrow(pam_data$sta)+1)/9))
+col <- col[1:(nrow(pam_data$sta)+1)]
+names(col) <- levels(factor(c(0,pam_data$sta$sta_id)))
+
+p <- ggplot() +
+  geom_line(data = pam_data$pressure, aes(x = date, y = obs), colour = "grey") +
+  geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
+  # geom_line(data = pressure_na, aes(x = date, y = obs, color = factor(sta_id))) +
+  geom_line(data = do.call("rbind", pressure_timeserie), aes(x = date, y = pressure0, col = factor(sta_id)), linetype=2) +
+  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure(hPa)")
+
+ggplotly(p, dynamicTicks = T) %>% layout(showlegend = F)
+```
+
+```{r}
+sta_duration <- unlist(lapply(pressure_prob,function(x){as.numeric(difftime(metadata(x)$temporal_extent[2],metadata(x)$temporal_extent[1],units="days"))}))
+pal <- colorFactor(col, as.factor(seq_len(length(col))))
+leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl() %>%
+  addPolylines(lng = path$lon, lat = path$lat, opacity = 0.7, weight = 1, color = "#808080") %>%
+  addCircles(lng = path$lon, lat = path$lat, opacity = 1, color = pal(factor(path$sta_id, levels = pam_data$sta$sta_id)), weight = sta_duration^(0.3)*10)
 ```
