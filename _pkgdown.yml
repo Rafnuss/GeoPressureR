@@ -26,6 +26,7 @@ reference:
   - zenith
   - refracted
   - find_twilights
+  - light2mat
 - title: Graph
   desc: create a graph and compute graph products
   contents:

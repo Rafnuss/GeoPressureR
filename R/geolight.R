@@ -180,55 +180,104 @@ refracted <- function(zenith) {
 #' \item{\code{rise}}{logical indicating sunrise}
 #' where each row corresponds to a single twilight.
 #' @export
-find_twilights <- function(light, threshold = NA, shifK = 0) {
-
+find_twilights <- function(light, threshold = NA, shift_k = NA) {
   stopifnot(is.data.frame(light))
   stopifnot("date" %in% names(light))
   stopifnot(inherits(light$date, "POSIXt"))
   stopifnot("obs" %in% names(light))
   stopifnot(is.numeric(light$obs))
 
-  if (is.na(threshold)){
+  if (is.na(threshold)) {
     threshold <- min(light$obs[light$obs > 0])
   }
   stopifnot(is.numeric(threshold))
-  stopifnot(is.numeric(shifK))
 
-  res <- difftime(utils::tail(light$date,-1), utils::head(light$date,-1), units = "days")
-  stopifnot(length(unique(res))==1)
+  # add padding of time to center if night are not at 00:00 UTC
+  if (is.na(shift_k)) {
+    mat <- light2mat(light, shift_k = 0)
+    res <- as.numeric(difftime(mat$date[2], mat$date[1], units = "secs"))
+    l <- mat$obs >= threshold
+    tmp <- rowMeans(l, na.rm = T)
+    shift_id <- round(sum(tmp * seq_len(dim(mat$obs)[1])) / sum(tmp))
+    shift_k <- -(res * shift_id - 60 * 60 * 12)
+  }
+
+  mat <- light2mat(light, shift_k)
+
+  # Compute exceed of light
+  l <- mat$obs >= threshold
+  # raster::image(l)
+
+  # Find the first light
+  id_sr <- apply(l, 2, which.max)
+  if (any(id_sr == 1)) {
+    warning(
+      "There is likely a problem with the shiftK, ", sum(id_sr == 1),
+      " twighlit set at midnight. shift_k=", shift_k
+    )
+  }
+  id_sr_r <- id_sr + (seq_len(dim(l)[2]) - 1) * dim(l)[1]
+  sr <- as.POSIXct(mat$date[id_sr_r], origin = "1970-01-01", tz = "UTC")
+
+  id_ss <- dim(l)[1] - apply(l[nrow(l):1, ], 2, which.max)
+  if (any(id_ss == 1)) {
+    warning(
+      "There is likely a problem with the shiftK, ", sum(id_ss == 1),
+      " twighlit set at midnight. shift_k=", shift_k
+    )
+  }
+  id_ss_s <- id_ss + (seq_len(dim(l)[2]) - 1) * dim(l)[1]
+  ss <- as.POSIXct(mat$date[id_ss_s], origin = "1970-01-01", tz = "UTC")
+
+  out <- data.frame(
+    twilight = c(ss, sr),
+    rise = c(!logical(length(ss)), logical(length(sr)))
+  )
+  # order by time
+  return(out[order(out$twilight), ])
+}
+
+
+#' Convert light data in matrix format
+#'
+#' @param light a dataframe with columns \code{date} and \code{obs} that are the sequence of sample
+#' times (as POSIXct) and light levels recorded by the tag.
+#' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
+#' provided, will try to figure it out from the data
+#' @return A dataframe with columns obs and date
+#' @export
+light2mat <- function(light, shift_k = 0) {
+  stopifnot(is.data.frame(light))
+  stopifnot("date" %in% names(light))
+  stopifnot(inherits(light$date, "POSIXt"))
+  stopifnot("obs" %in% names(light))
+  stopifnot(is.numeric(light$obs))
+  stopifnot(is.numeric(shift_k))
+
+  res <- difftime(utils::tail(light$date, -1), utils::head(light$date, -1), units = "secs")
+  stopifnot(length(unique(res)) == 1)
+  res <- as.numeric(res[1])
 
   # Pad time to start and finish at 00:00
   date <- seq(
-    from = as.POSIXct(format(light$date[1], "%Y-%m-%d"), tz="UTC"),
-    to = as.POSIXct(format(light$date[length(light$date)], "%Y-%m-%d"), tz="UTC")+60*60*24-as.numeric(res[1]),
-    by = res[1]
+    from = as.POSIXct(format(light$date[1] + shift_k, "%Y-%m-%d"), tz = "UTC"),
+    to = as.POSIXct(format(light$date[length(light$date)] + shift_k, "%Y-%m-%d"),
+      tz = "UTC"
+    ) + 60 * 60 * 24 - res,
+    by = res
   )
-  # add padding of time to center if night are not at 00:00 UTC
-  date <- date + shifK
+  date <- date - shift_k
 
   obs <- rep(NA, length(date))
   obs[date %in% light$date] <- light$obs
 
   # reshape in matrix format
-  obs_r <- matrix(obs, nrow = 1/as.numeric(res[1]))
-  date_r <- matrix(date, nrow = 1/as.numeric(res[1]))
-
-  # Compute exceed of light
-  l = obs_r >= threshold;
-
-  # Find the first light
-  id_sr <- apply(l,2,which.max)
-  id_sr_r <- id_sr + (seq_len(dim(l)[2])-1)*dim(l)[1]
-  sr <- as.POSIXct(date_r[id_sr_r], origin = "1960-01-01")
-
-  id_ss <- dim(l)[1]-apply(l[nrow(l):1,],2,which.max)
-  id_ss_s <- id_ss + (seq_len(dim(l)[2])-1)*dim(l)[1]
-  ss <-as.POSIXct(date_r[id_ss_s], origin = "1960-01-01")
-
-  out <- data.frame(
-    twilight = c(ss,sr),
-    rise = c(!logical(length(ss)), logical(length(sr)))
+  mat <- list(
+    obs = matrix(obs, nrow = 24 * 60 * 60 / res),
+    date = matrix(date, nrow = 24 * 60 * 60 / res)
   )
-  # order by time
-  return(out[order(out$twilight),])
+  # raster::image(obs_r)
+  mat$date <- as.POSIXct(mat$date, origin = "1970-01-01", tz = "UTC")
+
+  return(mat)
 }
