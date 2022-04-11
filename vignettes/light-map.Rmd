@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-In this vignette, we use light data to estimate the position of the Great Reed Warbler (18IC) at each stationary period. A more thorough introduction to geolocation with light data can be found on [https://geolocationmanual.vogelwarte.ch/](https://geolocationmanual.vogelwarte.ch/).
+In this vignette, we use light data to estimate the position of the Great Reed Warbler (18IC) at each stationary period. A more thorough introduction to geolocation with light data can be found on <https://geolocationmanual.vogelwarte.ch/>.
 
 ## Setup
 
@@ -25,9 +25,14 @@ library(leaflet)
 library(leaflet.extras)
 library(MASS)
 library(raster)
+load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
+```
+
+The `GeoLocTools` package will install a bunch of other R package for light analysis. We only use it for making nice figures. The code to compute the light position is included in `GeoPressureR`. I can't make it work with pkgdown, so I am not going to use it in this vignette, but I still provides the code for the figure.
+
+```{r, eval=F}
 library(GeoLocTools)
 setupGeolocation()
-load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
 ```
 
 We can start by read the pam data retrieved from the geolocator.
@@ -50,30 +55,37 @@ tm_calib_1 <- c(pam_data$sta$start[1], pam_data$sta$end[1])
 # tm_calib_2 <- c(pam_data$sta$start[nrow(pam_data$sta)], pam_data$sta$end[nrow(pam_data$sta)])
 ```
 
-
 ## Twilight Annotation
 
-To find the time of twilight, we can use `find_twilights()`, a function performing the same task than `TwGeos::FindTwilight()`, but differently.
+To find the time of twilight, we can use `find_twilights()`, a function performing the same task than `TwGeos::FindTwilight()`, but differently. By default, the threshold is the first and last of light day. The `shift_k` argument is identical to the `offset` in `GeoLight` functions. By default, it will estimate it base on centering the nights. 
 
 ```{r}
-twl <- find_twilights(pam_data$light)
+shift_k <- 0
+twl <- find_twilights(pam_data$light, shift_k = shift_k)
 ```
 
-We can use 
+We can visualize the twilight
 
-```{r}
+```{r, eval=F}
 raw_geolight <- data.frame(
-    Date = pam_data$light$date,
-    Light = pam_data$light$obs
-  )
-lightImage( tagdata = raw_geolight,
-            offset = 0)
-tsimagePoints(twl$twilight, offset=0,pch = 16, cex = 1.2)
-tsimageDeploymentLines(raw_geolight$Date, lon = lon_calib, lat = lat_calib,
-                       offset = 0, lwd = 3, col = adjustcolor("orange", alpha.f = 0.5))
+  Date = pam_data$light$date,
+  Light = pam_data$light$obs
+)
+lightImage(
+  tagdata = raw_geolight,
+  offset = shift_k / 60 / 60
+)
+tsimagePoints(twl$twilight, offset = 0, pch = 16, cex = 1.2)
+tsimageDeploymentLines(raw_geolight$Date,
+  lon = lon_calib, lat = lat_calib,
+  offset = shift_k / 60 / 60, lwd = 3, col = adjustcolor("orange", alpha.f = 0.5)
+)
 
-abline(v = tm_calib_1, lty = c(1,2), col = "firebrick", lwd = 1.5)
+abline(v = tm_calib_1, lty = c(1, 2), col = "firebrick", lwd = 1.5)
 ```
+
+![](light-map-1.png)
+If the centering of the night is not correct, specify manually `shift_k`.
 
 The manual editing is easily performed with TRAINSET. In this case, we must label the datapoints we want to delete with any label name. Read more about TRAINSET labelling in the dedicated vignette: [Labelling tracks](labelling-tracks.html).
 
@@ -100,18 +112,22 @@ csv <- read.csv(paste0(system.file("extdata", package = "GeoPressureR"), "/18LX_
 twl$deleted <- !csv$label == ""
 ```
 
-
-```{r}
-lightImage( tagdata = raw_geolight, offset=0)
-tsimagePoints(twl$twilight, offset=0,pch = 16, cex = 1.2,
-              col = ifelse(twl$deleted, "grey20", ifelse(twl$rise, "firebrick", "cornflowerblue")))
-abline(v = tm_calib_1, lty = c(1,2), col = "firebrick", lwd = 1.5)
+```{r, eval=F}
+lightImage(tagdata = raw_geolight, offset = 0)
+tsimagePoints(twl$twilight,
+  offset = 0, pch = 16, cex = 1.2,
+  col = ifelse(twl$deleted, "grey20", ifelse(twl$rise, "firebrick", "cornflowerblue"))
+)
+abline(v = tm_calib_1, lty = c(1, 2), col = "firebrick", lwd = 1.5)
 ```
+![](light-map-2.png)
+
 ## Calibration
 
 Instead of calibrating the twilight errors in terms of duration, we directly model the zenith angle error.
 
 First, we retrieve the twilight during the calibration period.
+
 ```{r}
 twl_calib <- subset(twl, !deleted & twilight >= tm_calib_1[1] & twilight <= tm_calib_1[2])
 ```
@@ -140,6 +156,7 @@ twl$sta_id <- unlist(twilight_sta_id)
 ## Probability map
 
 We first define a grid on which to compute the probabilities. For ease of comparison with the pressure-derived map, we load the grid size and resolution from `pressure_prob` (computed with the vignette [Pressure Map](pressure-map.html#computing-the-map-of-pressure))
+
 ```{r}
 g <- as.data.frame(pressure_prob[[1]], xy = TRUE)
 g$layer <- NA
@@ -156,8 +173,7 @@ pgz <- apply(g, 1, function(x) {
 })
 ```
 
-Aggregating the probability map of each twilight per stationary period requires some assumptions on the independence/correlation of the twilight errors. Read more about this in the vignette [Probability-aggregation](probability-aggregation.html)).
-Here, we use a log-linear pooling with a weight of $w=0.05$,
+Aggregating the probability map of each twilight per stationary period requires some assumptions on the independence/correlation of the twilight errors. Read more about this in the vignette [Probability-aggregation](probability-aggregation.html)). Here, we use a log-linear pooling with a weight of $w=0.05$,
 
 ```{r}
 w <- 0.05
@@ -190,7 +206,9 @@ Finally, we can visualize the probability map for each stationary period.
 
 ```{r, warning=F}
 li_s <- list()
-l <- leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
+l <- leaflet(width = "100%") %>%
+  addProviderTiles(providers$Stamen.TerrainBackground) %>%
+  addFullscreenControl()
 for (i_r in seq_len(length(light_prob))) {
   i_s <- metadata(light_prob[[i_r]])$sta_id
   info <- pam_data$sta[pam_data$sta$sta_id == i_s, ]

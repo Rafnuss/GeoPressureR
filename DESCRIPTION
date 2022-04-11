@@ -28,7 +28,6 @@ Imports:
     utils
 Suggests: 
     ecmwfr,
-    GeoLocTools (>= 0.1.0),
     ggplot2,
     igraph,
     knitr,
@@ -50,8 +49,6 @@ Suggests:
     leaflet.extras,
     shinyWidgets,
     rnaturalearth
-Remotes:
-    slisovski/GeoLocTools
 VignetteBuilder: 
     knitr
 biocViews:
