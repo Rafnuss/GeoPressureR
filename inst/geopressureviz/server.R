@@ -209,8 +209,7 @@ server <- function(input, output, session) {
       return()
     }
     if (!input$allsta) {
-      idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
-      reactVal$path[idx_sta_short, ] <- c(click$lng, click$lat)
+      reactVal$path[as.numeric(input$i_sta), ] <- c(click$lng, click$lat)
     }
   })
 
