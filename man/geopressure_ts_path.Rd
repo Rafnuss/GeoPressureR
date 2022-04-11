@@ -34,13 +34,13 @@ pam_data <- trainset_read(pam_data,
 pam_data <- pam_sta(pam_data)
 \dontrun{
 # load probability map of pressure
-data("pressure_prob", package = "GeoPressureR")
+load(system.file("extdata", "18LX_pressure_prob.Rda", package = "GeoPressureR"))
 # Find the most likely position
 path <- geopressure_map2path(pressure_prob)
 # compute the pressure at those location for the period in question
 pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 }
-data("pressure_timeserie", package = "GeoPressureR")
+load(system.file("extdata", "18LX_pressure_timeserie.Rda", package = "GeoPressureR"))
 p <- ggplot2::ggplot() +
   ggplot2::geom_line(
     data = pam_data$pressure,

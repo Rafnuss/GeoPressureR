@@ -37,6 +37,6 @@ of flight duration to next sta in hours - \code{lat}: list of the \code{static_p
 center - \code{lon}: list of the \code{static_prob} longitude in cell center - \code{extent}: raster
 geographical extent of the \verb{static_prob`` - }resolution\verb{: raster res of the }static_prob\code{-}temporal_extent\verb{: start and end date time retrieved from the metadata of }static_prob`
 
-The vignette \href{./articles/basic-graph.html}{Basic graph} provided an example how to prepare the
+The vignette \href{articles/basic-graph.html}{Basic graph} provided an example how to prepare the
 data for the function and the output of this function.
 }

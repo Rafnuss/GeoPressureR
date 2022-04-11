@@ -37,9 +37,9 @@ library(RColorBrewer)
 
 For making this vignette faster to compute, we have already run all the code below and we load the result here. (The corresponding R chunk are `eval=F`)
 ```{r}
-data("pressure_maps", package = "GeoPressureR")
-data("pressure_prob", package = "GeoPressureR")
-data("pressure_timeserie", package = "GeoPressureR")
+load(system.file("extdata", "18LX_pressure_maps.Rda", package = "GeoPressureR"))
+load(system.file("extdata", "18LX_pressure_prob.Rda", package = "GeoPressureR"))
+load(system.file("extdata", "18LX_pressure_timeserie.Rda", package = "GeoPressureR"))
 pressure_timeserie_1 <- pressure_timeserie[[1]]
 ```
 
@@ -256,7 +256,6 @@ Secondly, we can use `geopressure_ts_path()` which basically call `geopressure_t
 
 ```{r, eval=F}
 pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
-usethis::use_data(pressure_timeserie, overwrite = T)
 ```
 
 ```{r}

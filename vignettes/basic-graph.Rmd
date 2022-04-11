@@ -29,7 +29,7 @@ library(igraph)
 We already pre-processed the light and pressure data data in the vignette [Preparing data](./articles/preparing-data). Make sure that the data was passing all the check before moving to this vignette.
 
 ```{r}
-data("static_prob", package = "GeoPressureR")
+load(system.file("extdata", "18LX_static_prob.Rda", package = "GeoPressureR"))
 ```
 
 ## Create the graph 

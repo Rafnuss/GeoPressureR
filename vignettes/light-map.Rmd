@@ -25,6 +25,7 @@ library(leaflet)
 library(leaflet.extras)
 library(MASS)
 library(raster)
+load(system.file("extdata", "18LX_pressure_prob.Rda", package = "GeoPressureR"))
 ```
 
 We then read the pam data retrieved from the geolocator.
@@ -116,7 +117,6 @@ twl$sta_id <- unlist(twilight_sta_id)
 
 We first define a grid on which to compute the probabilities. For ease of comparison with the pressure-derived map, we load the grid size and resolution from `pressure_prob` (computed with the vignette [Pressure Map](pressure-map.html#computing-the-map-of-pressure))
 ```{r}
-data("pressure_prob", package = "GeoPressureR")
 g <- as.data.frame(pressure_prob[[1]], xy = TRUE)
 g$layer <- NA
 ```
@@ -181,10 +181,4 @@ l %>%
     options = layersControlOptions(collapsed = FALSE)
   ) %>%
   hideGroup(tail(li_s, length(li_s) - 1))
-```
-
-We can export the data generated.
-
-```{r, eval=F}
-usethis::use_data(light_prob, overwrite = T)
 ```

@@ -26,6 +26,6 @@ Read NetCDF file downloaded on your computer and add the average windspeed exper
 bird and the corresponding airspeed for each edge of the graph.
 }
 \details{
-See the vignette \href{./articles/wind-graph.html}{Graph with wind} for explanations and example on
+See the vignette \href{articles/wind-graph.html}{Graph with wind} for explanations and example on
 how to download the NetCDF file.
 }

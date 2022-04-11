@@ -30,8 +30,9 @@ library(leaflet.extras)
 Start by loading the PAM, light and pressure data computed in the respective vignettes [Light map](./articles/light-map.html) and [Pressure map](./articles/pressure-map.html).
 
 ```{r}
-data("pressure_prob", package = "GeoPressureR")
-data("light_prob", package = "GeoPressureR")
+load(system.file("extdata", "18LX_pressure_prob.Rda", package = "GeoPressureR"))
+load(system.file("extdata", "18LX_light_prob.Rda", package = "GeoPressureR"))
+load(system.file("extdata", "18LX_static_timeserie.Rda", package = "GeoPressureR"))
 pam_data <- pam_read(
   pathname = system.file("extdata", package = "GeoPressureR"),
   crop_start = "2017-06-20", crop_end = "2018-05-02"
@@ -123,11 +124,8 @@ path$lat[3] <- path$lat[3] + .25
 path$lat[5] <- path$lat[5] + .25
 path$lat[13] <- path$lat[13] - .25
 static_timeserie <- geopressure_ts_path(path, pam_data$pressure)
-usethis::use_data(static_timeserie, overwrite = T)
 ```
-```{r}
-data("static_timeserie", package = "GeoPressureR")
-```
+
 
 
 ## Checking model input
@@ -312,8 +310,3 @@ static_prob <- lapply(static_prob, function(raster) {
 })
 ```
 
-Now that all the checks are completed, we can export the data generated and start the modeling, outlined in the vignette [Basic graph](./articles/basic-graph).
-
-```{r, eval=F}
-usethis::use_data(static_prob, overwrite = T)
-```

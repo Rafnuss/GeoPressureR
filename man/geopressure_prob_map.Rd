@@ -47,7 +47,7 @@ pressure_prob <- geopressure_prob_map(
   thr = 0.9
 )
 }
-data("pressure_prob", package = "GeoPressureR")
+load(system.file("extdata", "18LX_pressure_prob.Rda", package = "GeoPressureR"))
 raster::metadata(pressure_prob[[1]])
 raster::plot(pressure_prob[[1]],
   main = "Probability",
