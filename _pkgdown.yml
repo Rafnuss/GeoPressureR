@@ -35,16 +35,6 @@ reference:
   desc: groundspeed or airspeed to probability
   contents:
   - starts_with("flight_")
-- title: Dataset
-  desc: Dataset used for vignettes
-  contents:
-  - "pressure_maps"
-  - "pressure_prob"
-  - "pressure_timeserie"
-  - "light_prob"
-  - "static_prob"
-  - "static_timeserie"
-  - "grl"
 
 navbar:
   left:
