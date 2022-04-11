@@ -65,9 +65,11 @@ server <- function(input, output, session) {
   ## Render ----
   output$map <- renderLeaflet({
     map <- leaflet() %>%
-      addProviderTiles(providers$CartoDB.DarkMatterNoLabels,
-        options = providerTileOptions(noWrap = TRUE)
-      )
+      addProviderTiles(providers$CartoDB.DarkMatterNoLabels, group = "Dark Matter") %>% #options = providerTileOptions(noWrap = TRUE)
+      addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
+      addProviderTiles(providers$Esri.WorldTopoMap, group = "Topography") %>%
+      addLayersControl(baseGroups = c("Dark Matter","Satellite","Topography"),position = c("topleft"))
+
   })
 
   output$fl_prev_info <- renderUI({
@@ -77,16 +79,16 @@ server <- function(input, output, session) {
       return(HTML(""))
     }
     idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
-    i <- which(idx_sta_short==as.numeric(input$i_sta))
+    i <- which(idx_sta_short == as.numeric(input$i_sta))
     if (i != 1) {
-      idx_sta_prev = idx_sta_short[i-1]
+      idx_sta_prev <- idx_sta_short[i - 1]
       dist <- distGeo(reactVal$path[idx_sta_prev, ], reactVal$path[as.numeric(input$i_sta), ]) / 1000
       HTML(
         "<b>Previous flight:</b><br>",
-        as.numeric(input$i_sta)-idx_sta_prev, " flights -",
-        round(fl_dur[i-1]), " hrs<br>",
+        as.numeric(input$i_sta) - idx_sta_prev, " flights -",
+        round(fl_dur[i - 1]), " hrs<br>",
         round(dist), " km - ",
-        round(dist / fl_dur[i-1]), "km/h"
+        round(dist / fl_dur[i - 1]), "km/h"
       )
     } else {
       HTML("")
@@ -100,13 +102,13 @@ server <- function(input, output, session) {
       return(HTML(""))
     }
     idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
-    i <- which(idx_sta_short==input$i_sta)
+    i <- which(idx_sta_short == input$i_sta)
     if (i != length(idx_sta_short)) {
-      idx_sta_next = idx_sta_short[i+1]
+      idx_sta_next <- idx_sta_short[i + 1]
       dist <- geosphere::distGeo(reactVal$path[idx_sta_next, ], reactVal$path[as.numeric(input$i_sta), ]) / 1000
       HTML(
         "<b>Next flight:</b><br>",
-        idx_sta_next-as.numeric(input$i_sta), " flights -",
+        idx_sta_next - as.numeric(input$i_sta), " flights -",
         round(sum(fl_dur[i])), " hrs<br>",
         round(dist), " km - ",
         round(dist / fl_dur[i]), "km/h"
@@ -125,7 +127,7 @@ server <- function(input, output, session) {
     req(input$thr_sta)
     for (ts in reactVal$ts) {
       sta_th <- sta[ts$sta_id[1] == sta$sta_id, ]
-      if(nrow(sta_th)>0){
+      if (nrow(sta_th) > 0) {
         if (sta_th$duration > as.numeric(input$thr_sta)) {
           p <- p +
             geom_line(data = ts, aes(x = date, y = pressure0), col = sta_th$col, linetype = ts$lt[1])
@@ -234,7 +236,6 @@ server <- function(input, output, session) {
         ) %>%
         fitBounds(min(path_thr$lon), min(path_thr$lat), max(path_thr$lon), max(path_thr$lat), options = list(paddingBottomRight = c(300, 300)))
     } else {
-
       tmp <- map_prob()
       if (any(!is.na(tmp))) {
         proxy <- proxy %>% addRasterImage(tmp[[as.numeric(input$i_sta)]], opacity = 0.8, colors = "magma")
@@ -248,7 +249,7 @@ server <- function(input, output, session) {
         )
 
       # Index in sta_short
-      i <- which(idx_sta_short==input$i_sta)
+      i <- which(idx_sta_short == input$i_sta)
 
       if (i != 1) {
         proxy <- proxy %>%
@@ -272,11 +273,11 @@ server <- function(input, output, session) {
   }) # %>% bindEvent(input$i_sta)
 
   observeEvent(input$query_pos, {
-    sta_id = sta$sta_id[as.numeric(input$i_sta)]
+    sta_id <- sta$sta_id[as.numeric(input$i_sta)]
     pam_pressure_sta <- subset(pressure, sta_id == sta_id)
-    tryCatch(expr={
+    tryCatch(expr = {
       ts <- geopressure_ts(reactVal$path$lon[input$i_sta], reactVal$path$lat[input$i_sta],
-                           pressure = pam_pressure_sta
+        pressure = pam_pressure_sta
       )
       ts$sta_id <- sta_id
       ts$pressure0 <- ts$pressure - mean(ts$pressure) + mean(pam_pressure_sta$obs[!pam_pressure_sta$isoutliar])
@@ -292,7 +293,7 @@ server <- function(input, output, session) {
   # Pressure Graph
   observe({
     if (!input$allsta) {
-      sta_id = sta$sta_id[as.numeric(input$i_sta)]
+      sta_id <- sta$sta_id[as.numeric(input$i_sta)]
       pres_sta_id <- pressure$sta_id == sta_id
       plotlyProxy("pressure_graph", session) %>%
         plotlyProxyInvoke(
