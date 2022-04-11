@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-In this vignette, we use light data to estimate the position of the Great Reed Warbler (18IC) at each stationary period, displayed as a probability map. All functions used are a modification from the `GeoLight` package. 
+In this vignette, we use light data to estimate the position of the Great Reed Warbler (18IC) at each stationary period. A more thorough introduction to geolocation with light data can be found on [https://geolocationmanual.vogelwarte.ch/](https://geolocationmanual.vogelwarte.ch/).
 
 ## Setup
 
@@ -51,16 +51,15 @@ tm_calib_1 <- c(pam_data$sta$start[1], pam_data$sta$end[1])
 
 ## Twilight Annotation
 
-The twilight annotation closely follows [chapter 4 of the geolocation manual](https://geolocationmanual.vogelwarte.ch/twilight.html) with the addition of a manual editing with TRAINSET.
+We find the time of twilight and change the timezone to UTC. Here we simply use the first and last light of the day.
 
-We find the time of twilight and change the timezone to UTC.
 ```{r}
 twl <- find_twilights(pam_data$light)
 ```
 
-The manual editing is easily performed with TRAINSET. In this case, we must label the datapoints we want to delete with any label name and make sure we do not assign any label to the datapoints we want to keep (left as black dots). Read more about TRAINSET labelling in the dedicated vignette: [How to label tracks](labeling_tracks.html#introduction-to-trainset).
+The manual editing is easily performed with TRAINSET. In this case, we must label the datapoints we want to delete with any label name. Read more about TRAINSET labelling in the dedicated vignette: [Labelling tracks](labelling-tracks.html).
 
-First, we write the `csv` file, then open and edit it in TRAINSET, and finally we export the new `csv` file.
+We write the twilight data on a `csv` file which can be opened and edited in TRAINSET.
 
 ```{r, eval=F}
 write.csv(
@@ -76,7 +75,7 @@ write.csv(
 browseURL("https://trainset.geocene.com/")
 ```
 
-We read the exported csv file and update the `Deleted` field in `twl`.
+When the labeling is finished, export the file and update the `deleted` field in `twl`.
 
 ```{r}
 csv <- read.csv(paste0(system.file("extdata", package = "GeoPressureR"), "/18LX_light-labeled.csv"))
@@ -92,14 +91,14 @@ First, we retrieve the twilight during the calibration period.
 twl_calib <- subset(twl, !deleted & twilight >= tm_calib_1[1] & twilight <= tm_calib_1[2])
 ```
 
-We then compute the zenith angle (i.e., elevation of the sun) of the twilight time at the calibration site.  We fit a simple gamma distribution.
+We then compute the zenith angle (i.e., elevation of the sun) of the twilight time at the calibration site and fit a simple gamma distribution.
 
 ```{r}
 sun <- solar(twl_calib$twilight)
 z <- refracted(zenith(sun, lon_calib, lat_calib))
 fit_e <- fitdistr(z, "gamma")
 hist(z, freq = F)
-z_axes <- seq(90, 100, 0.1)
+z_axes <- seq(88, 100, 0.1)
 lines(z_axes, dgamma(z_axes, fit_e$estimate["shape"], fit_e$estimate["rate"]), col = "red")
 ```
 
@@ -115,7 +114,7 @@ twl$sta_id <- unlist(twilight_sta_id)
 
 ## Probability map
 
-We first define a grid on which to compute the probabilities. For ease of comparison with the pressure-derived map, we load the grid size and resolution from `pressure_prob` (computed with the vignette [Pressure Map](pressure#computing-the-map-of-pressure))
+We first define a grid on which to compute the probabilities. For ease of comparison with the pressure-derived map, we load the grid size and resolution from `pressure_prob` (computed with the vignette [Pressure Map](pressure-map.html#computing-the-map-of-pressure))
 ```{r}
 data("pressure_prob", package = "GeoPressureR")
 g <- as.data.frame(pressure_prob[[1]], xy = TRUE)
@@ -133,7 +132,7 @@ pgz <- apply(g, 1, function(x) {
 })
 ```
 
-Aggregating the probability map of each twilight per stationary period requires some assumptions on the independence/correlation of the twilight errors. Read more about this in the vignette [Probability-aggregation](Probability-aggregation.html)).
+Aggregating the probability map of each twilight per stationary period requires some assumptions on the independence/correlation of the twilight errors. Read more about this in the vignette [Probability-aggregation](probability-aggregation.html)).
 Here, we use a log-linear pooling with a weight of $w=0.05$,
 
 ```{r}
