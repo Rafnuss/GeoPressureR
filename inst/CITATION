@@ -1,0 +1,12 @@
+citHeader("To cite GeoPressureR in publications use:")
+
+citEntry(
+  entry   = "Unpublished",
+  author  = Nussbaumer, Rapha{\"{e}}l and Gravey, Mathieu and Liechti, Felix,
+  doi     = 10.21203/rs.3.rs-1381915/v1,
+  url     = https://doi.org/10.21203/rs.3.rs-1381915/v1,
+  pages   = 1--18,
+  title   = Global positioning by atmospheric pressure retrieved from multi-sensor geolocators,
+  year    = 2022
+)
+}
