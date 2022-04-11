@@ -33,7 +33,7 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   # Check input
   stopifnot(is.list(static_prob))
   stopifnot(inherits(static_prob[[1]], "RasterLayer"))
-  stopifnot("flight" %in%
+  stopifnot(c("flight", "sta_id") %in%
     names(raster::metadata(static_prob[[1]])))
   stopifnot(is.numeric(thr_prob_percentile))
   stopifnot(length(thr_prob_percentile) == 1)
@@ -101,12 +101,14 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
     as.numeric(sum(difftime(mtf$flight$end, mtf$flight$start, units = "hours")))
   }))
 
-  tmp <- (thr_gs * utils::head(flight_duration, -1) / resolution) < 1
+  tmp <- utils::head(flight_duration, -1) < resolution/thr_gs
   if (any(tmp)) {
-    stop(paste0("The flight duration provided is too small for the stationay
-                period: ", which(tmp)))
+    warning(paste0("The flight duration provided is too small for the stationay period: ",
+                   paste(which(tmp), collapse = ', '), ".\nWe will increase it artficially to ",
+                   resolution*3/thr_gs, " hour. This speed required to travel 3 grid resolution (",
+                   round(resolution*3),"km) with the maximum speed of ",thr_gs, " km/h."))
+    flight_duration <- pmax(flight_duration,resolution*3/thr_gs)
   }
-
   # filter the pixels which are not in reach of any location of the previous and next stationary
   # period
   cond <- T
@@ -238,6 +240,9 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   grl$flight <- lapply(static_prob, function(x) {
     raster::metadata(x)$flight
   })
+  grl$sta_id <- unlist(lapply(static_prob, function(x) {
+    raster::metadata(x)$sta_id
+  }))
   return(grl)
 }
 
@@ -256,7 +261,14 @@ graph_trim <- function(grl) {
     unique_t_new <- unique_t[unique_s %in% unique_t]
 
     id <- grl$s %in% unique_s_new & grl$t %in% unique_t_new
+
+    # Check if all nodes are connected
     if (all(id)) {
+      break
+    }
+    # keep in memory which sta source where
+    empty_sta <- !(seq_len(grl$sz[3]-1) %in% unique(arrayInd(grl$s[id], grl$sz)[,3]))
+    if (any(empty_sta)) {
       break
     }
     grl$s <- grl$s[id]
@@ -266,7 +278,8 @@ graph_trim <- function(grl) {
   }
 
   if (length(grl$s) == 0) {
-    stop(paste0("Triming in the graph resulted in an empty graph"))
+    stop(paste0("Triming in the graph resulted in an empty graph. Last stationary period removed: ",
+                paste(which(empty_sta), collapse = ", ")))
   }
 
   return(grl)
@@ -563,10 +576,10 @@ graph_marginal <- function(grl) {
   trans_b <- Matrix::sparseMatrix(grl$t, grl$s, x = grl$p, dims = c(n, n))
 
   # forward mapping of marginal probability
-  map_f <- Matrix::sparseMatrix(1, grl$equipement, x = 1, dims = c(1, n))
+  map_f <- Matrix::sparseMatrix(rep(1, length(grl$equipement)), grl$equipement, x = 1, dims = c(1, n))
 
   # backward mapping of marginal probability
-  map_b <- Matrix::sparseMatrix(1, grl$retrival, x = 1, dims = c(1, n))
+  map_b <- Matrix::sparseMatrix(rep(1, length(grl$retrival)), grl$retrival, x = 1, dims = c(1, n))
 
   # build iterativelly the marginal probability backward and forward by re-using the mapping
   # computed for previous stationary period. Set the equipement and retrival site in each loop
@@ -597,6 +610,11 @@ graph_marginal <- function(grl) {
     )
     raster::crs(static_prob_marginal[[i_s]]) <-
       "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+    metadata(static_prob_marginal[[i_s]]) <- list(
+      sta_id = grl$sta_id[i_s],
+      temporal_extent = grl$temporal_extent[[i_s]],
+      flight = grl$flight[[i_s]]
+    )
   }
 
   return(static_prob_marginal)
@@ -632,10 +650,9 @@ graph_simulation <- function(grl, nj = 100) {
   # simulation. However, map_b needs to be computed for all stationary period in advence, starting
   # by the last stationary period and moving backward in time as follow
   map_b <- list()
-  map_b[[grl$sz[3]]] <- Matrix::sparseMatrix(1, grl$retrival,
-    x = 1,
-    dims = c(1, n)
-  )
+  map_b[[grl$sz[3]]] <- Matrix::sparseMatrix(rep(1, length(grl$retrival)),
+                                             grl$retrival, x = 1, dims = c(1, n))
+
   for (i_sta in (grl$sz[3] - 1):1) {
     id <- s_id[, 3] == i_sta
     map_b[[i_sta]] <- map_b[[i_sta + 1]] %*%
@@ -692,6 +709,7 @@ graph_path2lonlat <- function(path_id, grl) {
   dim(p$lat) <- dim(p$id)
   p$lon <- grl$lon[ind[, 2]]
   dim(p$lon) <- dim(p$id)
+  p$sta_id <- grl$sta_id
   return(p)
 }
 
