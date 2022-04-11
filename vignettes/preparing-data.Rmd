@@ -41,15 +41,15 @@ pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = 
 pam_data <- pam_sta(pam_data)
 ```
 
-We need to retrieve the pressure and light data for the same stationary period. Using `thr_sta_dur`, you can also specify at this stage which stationary period to include. When running the check for the first time, it is recommended to start by filtering only longer stationary periods (e.g. 5*24 hours), and when all the check below are passing, reduce gradually the threshold on stopover duration.
+We need to retrieve the pressure and light data for the same stationary period. Using `thr_sta_dur`, you can also specify at this stage which stationary period to include. When running the check for the first time, it is recommended to start by filtering only longer stationary periods (e.g. 5\*24 hours), and when all the check below are passing, reduce gradually the threshold on stopover duration.
 
 ```{r}
-thr_sta_dur = 0 # in hours
+thr_sta_dur <- 0 # in hours
 sta_pres <- unlist(lapply(pressure_prob, function(x) raster::metadata(x)$sta_id))
 sta_light <- unlist(lapply(light_prob, function(x) raster::metadata(x)$sta_id))
 sta_thres <- pam_data$sta$sta_id[difftime(pam_data$sta$end, pam_data$sta$start, units = "hours") > thr_sta_dur]
 # Get the sta_id present on all three data sources
-sta_id_keep = intersect(intersect(sta_pres,sta_light),sta_thres)
+sta_id_keep <- intersect(intersect(sta_pres, sta_light), sta_thres)
 # Filter pressure and light map
 pressure_prob <- pressure_prob[sta_pres %in% sta_id_keep]
 light_prob <- light_prob[sta_light %in% sta_id_keep]
@@ -58,17 +58,17 @@ light_prob <- light_prob[sta_light %in% sta_id_keep]
 We then need to keep all the flights between consecutive stationary period separate so that we can estimate the wind support correctly.
 
 ```{r}
-flight = list()
-for (i_f in seq_len(length(sta_id_keep)-1)){
+flight <- list()
+for (i_f in seq_len(length(sta_id_keep) - 1)) {
   from_sta_id <- sta_id_keep[i_f]
-  to_sta_id <- sta_id_keep[i_f+1]
+  to_sta_id <- sta_id_keep[i_f + 1]
   flight[[i_f]] <- list(
-    start = pam_data$sta$end[seq(from_sta_id,to_sta_id-1)],
-    end = pam_data$sta$start[seq(from_sta_id+1,to_sta_id)],
-    sta_id = seq(from_sta_id,to_sta_id-1)
+    start = pam_data$sta$end[seq(from_sta_id, to_sta_id - 1)],
+    end = pam_data$sta$start[seq(from_sta_id + 1, to_sta_id)],
+    sta_id = seq(from_sta_id, to_sta_id - 1)
   )
 }
-flight[[i_f+1]]=list()
+flight[[i_f + 1]] <- list()
 ```
 
 We compute the static probability with the product of light and pressure probability maps, and add the flight duration in the metadata. `static_prob` is the consolidate variable containing all the information necessary to run the graph functions.
@@ -77,16 +77,16 @@ We compute the static probability with the product of light and pressure probabi
 static_prob <- mapply(function(light, pressure, flight) {
   # define static prob as the product of light and pressure prob
   static_prob <- light * pressure
-  
+
   # replace na by zero
   # tmp <- values(static_prob)
   # tmp[is.na(tmp)] <- 0
   # values(static_prob) <- tmp
-  
+
   # define metadata
   metadata(static_prob) <- metadata(pressure)
   metadata(static_prob)$flight <- flight
-  
+
   # return
   static_prob
 }, light_prob, pressure_prob, flight)
@@ -117,7 +117,6 @@ tmp[lat_calib_id, lon_calib_id] <- 1
 values(static_prob[[length(static_prob)]]) <- tmp
 ```
 
-
 ```{r, eval = F}
 path <- geopressure_map2path(static_prob)
 path$lat[3] <- path$lat[3] + .25
@@ -126,37 +125,72 @@ path$lat[13] <- path$lat[13] - .25
 static_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 ```
 
+## Checking model input with GeoPressureViz
+
+Now that we have combine pressure and light, we need to verify that the data is coherent. **These is a really important step, so bear with me here**.
+
+In the vignette [Labelling tracks](./articles/labelling-tracks), we had already checked that the pressure timeseries measured by the geolocator are consistent with a least one location on the map (see Test 4 outlined in that vignette). But we didn't checked that these position are (1) coherent with light data, and (2) within reach of one other considering the flight duration and realistic bird flight speed.
+
+To help you with this task, we have developed a shiny app `GeoPressureViz` (see [the demo for 18LX](https://rafnuss.shinyapps.io/GeoPressureViz/)) which helps you visualize the overall trajectory of the bird as well as each step-by-step move.
+
+[![](../man/figures/geopressureviz-demo.png "GeoPressureViz Demo")](https://rafnuss.shinyapps.io/GeoPressureViz/)*Demo of [GeoPressureViz](https://rafnuss.shinyapps.io/GeoPressureViz/) showing the estimated position at one stationary period of the Great Reed Warbler 18IC, based on (1) the pressure and light match (map colorscale and timeserie) and (2) potential flight distances from previous and next stationary period (circles).*
 
 
-## Checking model input
+### Learn to use GeoPressureViz with the demo
 
-In this second section, we will look at a few checks to perform before moving to the modelling step. These checks (#1 and #2) are performed when creating the graph `graph_create()`, but for pedagogical reason, I thought it would be better to introduce them step by step here as they will also help you to get a better sense of the specific movement/trajectory of the bird you are modeling.
+1.  Open [the demo for 18LX](https://rafnuss.shinyapps.io/GeoPressureViz/)
 
-In the vignette [Labelling tracks](./articles/labelling-tracks), we had already checked that the pressure timeseries measured by the geolocator are consistent with a least one location on the map (see Test #4 outlined in that vignette). But we didn't checked that these position are (1) coherent with light data, and (2) within reach of one other considering the flight duration and realistic bird flight speed. 
+2.  The viewer has three panels:
 
-To help you troubleshoot the failure of check, we have developed a shiny app `GeoPressureViz` which helps you visualize the overall trajectory of the bird (see sub-section below for details). I would suggest to run `GeoPressureViz` side-by-side with the checks.
+    1.  The maps showing your the trajectory of the bird. The size of the circles indicates the duration of the stopover (hover over them to get more info).
 
-We suggest starting by selecting only long stopovers (24-48hours), as this will help to draw out the general trajectory followed by the bird, and only later adding the shorter stopovers which could raise more confusion (the best match of pressure is often completely off). This is where the flight duration can help identify a realistic trajectory.
+    2.  The bottom panel showing the pressure timeserie. The grey line is the raw day (`pam_data$pressure`), the black dots are pressure labeled as outliar, colored lines are the normalized pressure at the best match (i.e., `static_timeserie$pressure0`) and the color match the map dots.
 
-As a general guideline, use your common sense, rather than solely on the model, to draw out the trajectory course. The model needs to give realistic trajectories, otherwise there is a labeling issue. The most regular issue I faced is a small vertical movement of the bird during a short stopover which completely throw off the estimation of pressure map. 
+    3.  The side panel provides key information and helps you navigates the app
+
+3.  A central parameter to play with carefully is the "Minimum duration". This will filter the entire dataset and replot the map and figure to select only stopover of such duration or higher. Try changing this value once and wait a bit for the figure to update. As shorter stationary period are less certain, their position is often wrong. That's ok for now.
+
+4.  Toogle the "Full Track" button to move to the stationary period view. The side panel will change and provides you with more options.
+
+5.  Change the stationary period with the drop down or previous/next button. Exept from the first sta., three dots, two lines and two circle will appears on the map, and the pressure timeserie will update to zoom exactly on this stationary period. The color of the timeserie informs you on which dots on the map is the current stationary period, the two others begin the previous and next one.
+
+6.  The circles indicates the distance from and to the previous and last stationay period location based on the speed slider on the side pannel (default if 40km/h). You can edit the speed to see how this impact the distances.
+
+7.  You can choose to display the probabily map of pressure (`pressure_prob`) , light (`light_prob`) or combines (`static_prob`).
+
+8.  Because some location are completely off, it is helpful to change their location to check the coherence of distance with the next/previous stationary period. Use the button "Start Editing" to do that. Every time you will click on the map, it will update the position. Once you're happy with the position, you can click again the button to disable the editing mode.
+
+9.  Finally, you can update the pressure timeserie with the new position that you've edited with the button "Query pressure". This runs pressure_ts on the background, so it will be slow (especially for long stationary period). This feature is quite unstable, so use carefully, and be aware that you might have to restart the app if it crashes.
+
+### How to check that the data are correct?
+
+I suggest starting by selecting only long stopovers (24-72hours depending on your application), as this will help to draw out the general trajectory followed by the bird, and only later adding the shorter stopovers which could raise more confusion (the best match of pressure is often completely off).
+
+Following the same recommendation than in the vignette [Labelling tracks](./articles/labelling-tracks), you want the non-outliar pressure of each stationary period to match a single elevation timeserie (bottom panel). Use a combinaison of (1)l abeling of activity and split or combine stationary periods and (2) labeling the pressure timeserie to exclude certain datapoints from the match. You can check on the map that the pressure location seem coherent by selecting only "pressure" in the probability map display. Usually, it's pretty obvious when there is an issue on the map. The good match of the timeserie is essential and will require several iteration. The most regular issue I faced is a small vertical movement of the bird during a 2-8 days stopover. Shorter stopover are usually easy as the bird doesn't move much but each species is different. 
+
+As a general guideline, use your common sense to draw out the trajectory course, bird tend to flight directly to their main destination. Most detour are artifact, or you really need a long stationary period with a good match of pressure. 
 
 
-### GeoPressureViz 
+### Run GeoPressureViz with your own data.
 
-To run the visualization, you will need to save the data in a `.RData` in your home folder (`~`). I cannot find a good way to pass variable to a shiny app instance (let me know if you have a suggestion). 
+To run the visualization, you will need to save the data in a `.RData` in your home folder (`~`). I cannot find a good way to pass variable to a shiny app instance ([let me know if you have a suggestion](https://github.com/Rafnuss/GeoPressureR/issues/14)).
 
-The minimum information needed is `static_prob` and `pam_data`, but to see the difference between light and pressure, you will also need to extract `light_prob` and `pressure_prob`. In addition, to visualize pre-computed pressure timeseries at some location, you can use export `pressure_timeserie` computed in the vignette [Labelling tracks](./articles/labelling-tracks)
+The minimum information needed is `static_prob` and `pam_data`, but to see the difference between light and pressure, you can also add `light_prob` and `pressure_prob`. To pre-filled the match of pressure timeserie in the figure, add `pressure_timeserie`.
 
-```{r, evel = F}
-geopressureviz = list(
-  pam_data=pam_data,
-  static_prob=static_prob,
-  pressure_prob=pressure_prob,
-  light_prob=light_prob,
+Here is an example for the Great Reed Warbler 18LX
+
+```{r, eval = F}
+geopressureviz <- list(
+  pam_data = pam_data,
+  static_prob = static_prob,
+  pressure_prob = pressure_prob,
+  light_prob = light_prob,
   pressure_timeserie = static_timeserie
 )
-save(geopressureviz,file = "~/geopressureviz.RData")
+save(geopressureviz, file = "~/geopressureviz.RData")
 ```
+
+Run the app in the browser for best view
 
 ```{r, eval=F}
 appDir <- system.file("geopressureviz", package = "GeoPressureR")
@@ -164,8 +198,11 @@ shiny::runApp(appDir, launch.browser = getOption("browser"))
 # shiny::runApp('./inst/geopressureviz', launch.browser = getOption("browser"))
 ```
 
+## Final check
 
-### Check #1: Existance of position with static probability (pressure + light)
+These checks 1 and 2 are performed when creating the graph `graph_create()`, but for pedagogical reason, I thought it would be better to introduce them step by step here as they will also help you to get a better sense of the specific movement/trajectory of the bird you are modeling.
+
+### Check 1: Existance of position with static probability (pressure + light)
 
 A first and easy check is that there be at least one location with a probability greater than 1 for each stationary period.
 
@@ -177,15 +214,16 @@ static_prob_n <- lapply(static_prob, function(x) {
 })
 tmp <- unlist(lapply(static_prob_n, sum)) == 0
 if (any(tmp)) {
-  warning(paste0("The `static_prob` provided has a probability map equal to ",
-                 "zero for the stationay period: ", which(tmp)))
+  warning(paste0(
+    "The `static_prob` provided has a probability map equal to ",
+    "zero for the stationay period: ", which(tmp)
+  ))
 }
 ```
 
+### Check 2: Presence of at least one transition (pressure+light+flight)
 
-### Check #2: Presence of at least one transition (pressure+light+flight)
-
-Secondly, we check that there always be at least one possible transition from one stationary period to the next. 
+Secondly, we check that there always be at least one possible transition from one stationary period to the next.
 
 ```{r}
 for (i_s in seq_len(length(static_prob) - 1)) {
@@ -193,9 +231,9 @@ for (i_s in seq_len(length(static_prob) - 1)) {
   cur[is.na(cur)] <- F
   nex <- as.matrix(static_prob[[i_s + 1]]) > 0
   nex[is.na(nex)] <- F
-  
+
   mtf <- metadata(static_prob[[i_s]])
-  flight_duration <- as.numeric(sum(difftime(mtf$flight$end,mtf$flight$start,unit="hours"))) # hours
+  flight_duration <- as.numeric(sum(difftime(mtf$flight$end, mtf$flight$start, unit = "hours"))) # hours
   resolution <- mean(res(static_prob[[1]])) * 111 # assuming 1°= 111km
   thr_gs <- 150 # Assuming a max groundspeed of 150km/h
 
@@ -208,54 +246,53 @@ for (i_s in seq_len(length(static_prob) - 1)) {
 }
 ```
 
+### Check 3: Visual inspection
 
-### Check #3: Visual inspection
+This third check is the most important yet also the most complex. We check that the probability map is coherent with the flight distance from the previous location. The distance is computed based on an assumed average groundspeed. Birds can fly with a groundspeed up to 120-150 km/h (with wind support) although their usual average is around 40km/h. We iteratively plot the most likely position (black dot) based on the static probability contained within flight distance from the previous most likely position (green dot).
 
-This third check is the most important yet also the most complex. We check that the probability map is coherent with the flight distance from the previous location. The distance is computed based on an assumed average groundspeed. Birds can fly with a groundspeed up to 120-150 km/h (with wind support) although their usual average is around 40km/h. We iteratively plot the most likely position (black dot) based on the static probability contained within flight distance from the previous most likely position (green dot). 
+Note the following key elements to correctly understand this figure. Firstly, birds can fly in zig-zag patterns, meaning that the total distance possible (green circle) might be greater than the actual distance from the previous stationary period (distance green to black).
 
-Note the following key elements to correctly understand this figure. 
-Firstly, birds can fly in zig-zag patterns, meaning that the total distance possible (green circle) might be greater than the actual distance from the previous stationary period (distance green to black).
-
-Secondly, this visualization only accounts for the lag-1 movement, thus it chooses the most likely position (black dot) independently from its overall coherence with the trajectory. This typically happens for short stationary periods where the pressure match is slightly better in a different place than where the bird went. In thoses cases the visualization is wrong on the location (e.g., sending the bird north while it should be migrating south), but try to see where you can draw a path which seems coherent. In the example we use below, this happens at stationary period 14. The Great Reed Warbler was moving south towards Burkina Faso or Ghana, but a slightly more likely position occurs in Algeria. It is worth checking the pressure timeseries to see whether manual editing could change this. 
-
+Secondly, this visualization only accounts for the lag-1 movement, thus it chooses the most likely position (black dot) independently from its overall coherence with the trajectory. This typically happens for short stationary periods where the pressure match is slightly better in a different place than where the bird went. In thoses cases the visualization is wrong on the location (e.g., sending the bird north while it should be migrating south), but try to see where you can draw a path which seems coherent. In the example we use below, this happens at stationary period 14. The Great Reed Warbler was moving south towards Burkina Faso or Ghana, but a slightly more likely position occurs in Algeria. It is worth checking the pressure timeseries to see whether manual editing could change this.
 
 ```{r, warning=F, results = 'asis'}
 li_s <- list()
-l <- leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
-speed_thr = 100
+l <- leaflet(width = "100%") %>%
+  addProviderTiles(providers$Stamen.TerrainBackground) %>%
+  addFullscreenControl()
+speed_thr <- 100
 for (i_r in seq_len(length(static_prob))) {
   mt <- metadata(static_prob[[i_r]])
-  
-  if ( i_r > 1 ){
-    mtf <- metadata(static_prob[[i_r-1]])
-    flight_duration <- as.numeric(sum(difftime(mtf$flight$end,mtf$flight$start,unit="hours")))
-    info_str <- paste0(mt$sta_id, " | ", format(mt$temporal_extent[1],"%d-%b %H:%M"), "->", format(mt$temporal_extent[2],"%d-%b %H:%M"), " | ", round(flight_duration),"hrs")
-    max_dist <- flight_duration*speed_thr*1000
-  } else{
+
+  if (i_r > 1) {
+    mtf <- metadata(static_prob[[i_r - 1]])
+    flight_duration <- as.numeric(sum(difftime(mtf$flight$end, mtf$flight$start, unit = "hours")))
+    info_str <- paste0(mt$sta_id, " | ", format(mt$temporal_extent[1], "%d-%b %H:%M"), "->", format(mt$temporal_extent[2], "%d-%b %H:%M"), " | ", round(flight_duration), "hrs")
+    max_dist <- flight_duration * speed_thr * 1000
+  } else {
     info_str <- paste0(mt$sta_id, " | ", mt$temporal_extent[1], "->", mt$temporal_extent[2])
   }
-    
-  l <- l %>% 
-    addRasterImage(static_prob[[i_r]], opacity = 0.8, colors = "OrRd", group = info_str) %>% 
+
+  l <- l %>%
+    addRasterImage(static_prob[[i_r]], opacity = 0.8, colors = "OrRd", group = info_str) %>%
     addCircles(lng = lon_calib, lat = lat_calib, opacity = 1, color = "red", weight = 10, group = info_str)
-  
+
   tmp <- as.data.frame(static_prob[[i_r]], xy = T)
 
-  if ( i_r > 1 ){
-    l <- l %>% 
-      addCircles(lng = lon0, lat = lat0, opacity = 1, color = "green", weight = 10, group = info_str) %>% 
-      addCircles(lng = lon0, lat = lat0, opacity = 1, color = "green", radius = max_dist, group = info_str, fillOpacity=0, weight = 2)
-    id <- geosphere::distGeo(c(lon0, lat0), cbind(tmp$x,tmp$y)) > max_dist
+  if (i_r > 1) {
+    l <- l %>%
+      addCircles(lng = lon0, lat = lat0, opacity = 1, color = "green", weight = 10, group = info_str) %>%
+      addCircles(lng = lon0, lat = lat0, opacity = 1, color = "green", radius = max_dist, group = info_str, fillOpacity = 0, weight = 2)
+    id <- geosphere::distGeo(c(lon0, lat0), cbind(tmp$x, tmp$y)) > max_dist
     tmp$layer[id] <- 0
   }
-  
+
   # find the max value of probability
   lon <- tmp$x[which.max(tmp$layer)]
   lat <- tmp$y[which.max(tmp$layer)]
-  
+
   l <- l %>%
     addCircles(lng = lon, lat = lat, opacity = 1, color = "black", weight = 10, group = info_str)
-  
+
   lon0 <- lon
   lat0 <- lat
   li_s <- append(li_s, info_str)
@@ -294,9 +331,6 @@ dfb %>%
   transition_time(sta_id)
 ```
 
-
-
-
 ## Export static probability
 
 To improve computational costs of creation of graph, it might be helpful to first run the model on a downscale resolution (`fact > 1`) with the code below. We didn't used this in our example.
@@ -309,4 +343,3 @@ static_prob <- lapply(static_prob, function(raster) {
   return(raster_ds)
 })
 ```
-
