@@ -25,7 +25,7 @@ library(leaflet)
 library(leaflet.extras)
 library(MASS)
 library(raster)
-load(system.file("extdata", "18LX_pressure_prob.Rda", package = "GeoPressureR"))
+load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
 ```
 
 We then read the pam data retrieved from the geolocator.

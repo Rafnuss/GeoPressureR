@@ -30,9 +30,9 @@ library(leaflet.extras)
 Start by loading the PAM, light and pressure data computed in the respective vignettes [Light map](./articles/light-map.html) and [Pressure map](./articles/pressure-map.html).
 
 ```{r}
-load(system.file("extdata", "18LX_pressure_prob.Rda", package = "GeoPressureR"))
-load(system.file("extdata", "18LX_light_prob.Rda", package = "GeoPressureR"))
-load(system.file("extdata", "18LX_static_timeserie.Rda", package = "GeoPressureR"))
+load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
+load(system.file("extdata", "18LX_light_prob.rda", package = "GeoPressureR"))
+load(system.file("extdata", "18LX_static_timeserie.rda", package = "GeoPressureR"))
 pam_data <- pam_read(
   pathname = system.file("extdata", package = "GeoPressureR"),
   crop_start = "2017-06-20", crop_end = "2018-05-02"

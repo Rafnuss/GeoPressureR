@@ -56,7 +56,7 @@ pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] = NA
 We are using [the GeoPressure API](https://raphaelnussbaumer.com/GeoPressureServer/#description) with the `geopressure_map()` function to measure the mismatch of the pressure series. Because the API can realistically return only a single map per stationary period, it aggregates the error timeseries with the Mean Squared Error (MSE), 
 $$\mathit{MSE} = \frac{1}{n}\sum_{t=1}^{n} \varepsilon[t]^2.$$
 ```{r, include=F}
-load(system.file("extdata", "18LX_pressure_maps.Rda", package = "GeoPressureR"))
+load(system.file("extdata", "18LX_pressure_maps.rda", package = "GeoPressureR"))
 ```
 
 We can post-process the data to get back some basic metadata, such as the number of datapoints of each stationay period used. We also compute the position with the minimum MSE

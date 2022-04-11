@@ -47,7 +47,7 @@ library(raster)
 
 We already pre-processed the light and pressure data data in the vignette [Preparing data](./articles/preparing-data).
 ```{r}
-load(system.file("extdata", "18LX_static_prob.Rda", package = "GeoPressureR"))
+load(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
 ```
 
 We first normalize the static probability (light and pressure combine) to ensure that the sum of all probabilities on the map is 1.

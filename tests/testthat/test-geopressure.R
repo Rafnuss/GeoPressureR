@@ -35,7 +35,7 @@ test_that("Check geopressure_ts() output", {
 
 
 test_that("Check geopressure_map2path() output", {
-  load(system.file("extdata", "18LX_static_prob.Rda", package = "GeoPressureR"))
+  load(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
   expect_error(geopressure_map2path(static_prob), NA)
   expect_error(geopressure_map2path(static_prob, interp = 100), NA)
   expect_error(geopressure_map2path(static_prob, format = "ind"), NA)
@@ -43,7 +43,7 @@ test_that("Check geopressure_map2path() output", {
   expect_error(geopressure_map2path(static_prob, interp = 5, format = "ind"), NA)
   expect_error(geopressure_map2path(static_prob, interp = 5, format = "arr.ind"), NA)
 
-  load(system.file("extdata", "18LX_pressure_prob.Rda", package = "GeoPressureR"))
+  load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
   expect_error(geopressure_map2path(pressure_prob), NA)
   expect_error(geopressure_map2path(pressure_prob, interp = 2), NA)
   expect_error(geopressure_map2path(pressure_prob, format = "ind"), NA)

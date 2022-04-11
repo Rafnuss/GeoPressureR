@@ -28,7 +28,7 @@ stationary period based on the position of the longer ones. The interpolation as
 first and last stationary period can be safely estimated from the probability map.
 }
 \examples{
-load(system.file("extdata", "18LX_pressure_prob.Rda", package = "GeoPressureR"))
+load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
 path_all <- geopressure_map2path(pressure_prob)
 path_interp <- geopressure_map2path(pressure_prob, interp = 2)
 sta_duration <- unlist(lapply(pressure_prob, function(x) {

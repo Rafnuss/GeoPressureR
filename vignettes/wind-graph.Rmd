@@ -22,7 +22,7 @@ library(ncdf4)
 library(leaflet)
 library(leaflet.extras)
 library(igraph)
-load(system.file("extdata", "18LX_grl.Rda", package = "GeoPressureR"))
+load(system.file("extdata", "18LX_grl.rda", package = "GeoPressureR"))
 ```
 
 In this vignette, we will enhance the [basic graph](./articles/basic-graph) by adding the wind speed. This allows to defines the movement model on the airspeed (instead of groundspeed). In addition, we can extract windsupport information on the journey of the bird. 
@@ -34,7 +34,7 @@ pam_data <- pam_read(
 )
 pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
 pam_data <- pam_sta(pam_data)
-load(system.file("extdata", "18LX_static_prob.Rda", package = "GeoPressureR"))
+load(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
 ```
 
 ## Download wind data
