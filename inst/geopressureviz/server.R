@@ -71,6 +71,9 @@ server <- function(input, output, session) {
       addLayersControl(baseGroups = c("Dark Matter","Satellite","Topography"),position = c("topleft"))
 
   })
+  output$gdl_id <- renderUI({
+    return(HTML(paste0("<h3 style='margin=0;'>",gdl_id,"</h3>")))
+  })
 
   output$fl_prev_info <- renderUI({
     req(input$i_sta)

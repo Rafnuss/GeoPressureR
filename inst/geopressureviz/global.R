@@ -51,6 +51,7 @@ stopifnot("sta_id" %in% names(pressure))
 if (!("isoutliar" %in% names(pressure))) {
   pressure$isoutliar <- FALSE
 }
+gdl_id <- geopressureviz$pam_data$id
 
 # Get stationay period information
 sta <- do.call("rbind", lapply(static_prob, function(r) {

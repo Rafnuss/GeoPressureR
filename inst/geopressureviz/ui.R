@@ -14,11 +14,17 @@ ui <- bootstrapPage(
   ),
   absolutePanel(
     top = 0, right = 0, draggable = F, width = "200px", style = "z-index:500; min-width: 300px;padding: 5px 10px;background-color:white;",
-    div(
-      style = "text-align: center;",
-      "Full Track",
-      switchInput("allsta", value = TRUE, inline = T, size = "small")
-    ),
+    fluidPage(
+      id = "thr_sta_page",
+      fluidRow(
+        column(3, htmlOutput("gdl_id")),
+        column(9, div(
+          style = "text-align: center;",
+          "Full Track",
+          switchInput("allsta", value = TRUE, inline = T, size = "small")
+        ))
+      )
+      ),
     fluidPage(
       id = "thr_sta_page",
       fluidRow(
