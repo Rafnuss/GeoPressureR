@@ -18,7 +18,7 @@
 #' geographical extent of the `static_prob`` - `resolution`: raster res of the `static_prob` -
 #' `temporal_extent`: start and end date time retrieved from the metadata of `static_prob`
 #'
-#' The vignette [Basic graph](./articles/basic-graph.html) provided an example how to prepare the
+#' The vignette [Basic graph](articles/basic-graph.html) provided an example how to prepare the
 #' data for the function and the output of this function.
 #'
 #' @param static_prob list of raster containing probability map of each stationary period. The
@@ -277,7 +277,7 @@ graph_trim <- function(grl) {
 #' Read NetCDF file downloaded on your computer and add the average windspeed experienced by the
 #' bird and the corresponding airspeed for each edge of the graph.
 #'
-#' See the vignette [Graph with wind](./articles/wind-graph.html) for explanations and example on
+#' See the vignette [Graph with wind](articles/wind-graph.html) for explanations and example on
 #' how to download the NetCDF file.
 #'
 #' @param grl graph constructed with `graph_create()`
