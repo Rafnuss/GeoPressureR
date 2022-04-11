@@ -15,7 +15,6 @@ ui <- bootstrapPage(
   absolutePanel(
     top = 0, right = 0, draggable = F, width = "200px", style = "z-index:500; min-width: 300px;padding: 5px 10px;background-color:white;",
     fluidPage(
-      id = "thr_sta_page",
       fluidRow(
         column(3, htmlOutput("gdl_id")),
         column(9, div(
@@ -24,7 +23,7 @@ ui <- bootstrapPage(
           switchInput("allsta", value = TRUE, inline = T, size = "small")
         ))
       )
-      ),
+    ),
     fluidPage(
       id = "thr_sta_page",
       fluidRow(
@@ -48,15 +47,6 @@ ui <- bootstrapPage(
         column(6, htmlOutput("fl_next_info")),
       ),
       tags$hr(),
-      tags$p("Change position by clicking on the map and update the pressure timeserie."),
-      fluidPage(
-        id = "thr_sta_page",
-        fluidRow(
-          column(6, actionButton("edit_pos", "Start editing")),
-          column(6, actionButton("query_pos", "Query pressure")),
-        )
-      ),
-      tags$hr(),
       sliderInput("speed", "Groundspeed limit [km/h]", min = 0, max = 200, value = 40, step = 10),
       div(
         id = "map_source_div",
@@ -64,6 +54,15 @@ ui <- bootstrapPage(
           label = "Probability map to display",
           choices = c("Pressure", "Light"),
           selected = c("Pressure", "Light"), inline = T
+        ),
+        tags$hr(),
+        tags$p("Change position by clicking on the map and update the pressure timeserie."),
+        fluidPage(
+          id = "thr_sta_page",
+          fluidRow(
+            column(6, actionButton("edit_pos", "Start editing")),
+            column(6, actionButton("query_pos", "Query pressure")),
+          )
         )
       )
     )

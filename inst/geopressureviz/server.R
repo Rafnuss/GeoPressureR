@@ -1,4 +1,3 @@
-
 server <- function(input, output, session) {
 
   # Hide selector if light doesn't exist
@@ -65,14 +64,13 @@ server <- function(input, output, session) {
   ## Render ----
   output$map <- renderLeaflet({
     map <- leaflet() %>%
-      addProviderTiles(providers$CartoDB.DarkMatterNoLabels, group = "Dark Matter") %>% #options = providerTileOptions(noWrap = TRUE)
+      addProviderTiles(providers$CartoDB.DarkMatterNoLabels, group = "Dark Matter") %>% # options = providerTileOptions(noWrap = TRUE)
       addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
       addProviderTiles(providers$Esri.WorldTopoMap, group = "Topography") %>%
-      addLayersControl(baseGroups = c("Dark Matter","Satellite","Topography"),position = c("topleft"))
-
+      addLayersControl(baseGroups = c("Dark Matter", "Satellite", "Topography"), position = c("topleft"))
   })
   output$gdl_id <- renderUI({
-    return(HTML(paste0("<h3 style='margin=0;'>",gdl_id,"</h3>")))
+    return(HTML(paste0("<h3 style='margin:0;'>", gdl_id, "</h3>")))
   })
 
   output$fl_prev_info <- renderUI({
