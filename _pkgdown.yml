@@ -4,7 +4,7 @@ template:
 
 home:
   sidebar:
-    structure: [citation, authors]
+    structure: [community, citation, authors]
 
 reference:
 - title: PAM data
@@ -58,5 +58,7 @@ navbar:
          href: articles/wind-graph.html
       -  text: "Gridded Gibbs"
          href: articles/gridded-gibbs.html
-    - text: "Functions"
+    - text: "reference"
       href: reference/index.html
+    - text: "Start your own study"
+      href: https://github.com/Rafnuss/GeoPressureTemplate

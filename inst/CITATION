@@ -1,12 +1,28 @@
-citHeader("To cite GeoPressureR in publications use:")
+citHeader("To cite GeoPressureR in publications use the following according to your need (nussbaumer2022a for the method, nussbaumer2022b for the R code")
 
 citEntry(
-  entry   = "Unpublished",
-  author  = Nussbaumer, Raphaël and Gravey, Mathieu and Liechti, Felix,
-  doi     = 10.21203/rs.3.rs-1381915/v1,
-  url     = https://doi.org/10.21203/rs.3.rs-1381915/v1,
-  pages   = 1--18,
-  title   = Global positioning by atmospheric pressure retrieved from multi-sensor geolocators,
-  year    = 2022
+  entry   = "misc",
+  textVersion = "nussbaumer2022a",
+  title   = "Global positioning by atmospheric pressure retrieved from multi-sensor geolocators",
+  author  = personList(
+  person("Raphael", "Nussbaumer", email = "rafnuss@gmail.com", comment = c(ORCID = "0000-0002-8185-1020")),
+    person("Mathieu", "Gravey", email = "mathieu@mgravey.com", comment = c(ORCID = "0000-0002-0871-1507")),
+    person("Felix", "Liechti", email = "felix.liechti@vogelwarte.ch", comment = c(ORCID = "0000-0001-9473-0837"))
+  ),
+  doi     = "10.21203/rs.3.rs-1381915/v1",
+  url     = "https://doi.org/10.21203/rs.3.rs-1381915/v1",
+  pages   = "1--18",
+  year    = "2022"
 )
-}
+
+citEntry(
+  entry   = "manual",
+  textVersion = "nussbaumer2022b",
+  title   = "GeoPressureR: Location from Reanalysed Pressure",
+  author  = personList(
+  person("Raphael", "Nussbaumer", email = "rafnuss@gmail.com", comment = c(ORCID = "0000-0002-8185-1020")),
+    person("Mathieu", "Gravey", email = "mathieu@mgravey.com", comment = c(ORCID = "0000-0002-0871-1507"))
+  ),
+  url     = "https://github.com/Rafnuss/GeoPressureR",
+  year    = "2022"
+)

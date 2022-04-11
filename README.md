@@ -19,19 +19,12 @@ probability map using ERA5 pressure. Secondly, using a mathematical
 graph, part 2 allows you to model the trajectory producing the exact
 probability map at stationary period and simulating paths.
 
-## Installation
-
-GeoPressureR is currently still in active development phase. Expect
-breaking changes in the future. The latest version of GeoPressureR can
-be installed from [GitHub](https://github.com/Rafnuss/GeoPressureR) with
-in R
-
-``` r
-# install.packages("devtools")
-devtools::install_github("Rafnuss/GeoPressureR")
-```
+**GeoPressureR is currently still in active development phase. Expect
+breaking changes in the near future. **
 
 ## Where to start?
+
+### Learn about GeoPressure with 18LX
 
 Using the example of a Great Reed Warbler (18LX), the vignettes were
 designed to guide you through all the steps with great details.
@@ -61,12 +54,32 @@ Reed Warbler 18IC, based on (1) the pressure and light match (map
 colorscale and timeserie) and (2) potential flight distances from
 previous and next stationary period (circles).*
 
+### Start your own analysis
+
+To help you out make a good start with `GeoPressureR` for your own
+study, we suggest you to use the R template
+[GeoPressureTemplate](https://github.com/Rafnuss/GeoPressureTemplate).
+
+### Custom use
+
+You can install the latest version of GeoPressureR from
+[GitHub](https://github.com/Rafnuss/GeoPressureR) with in R
+
+``` r
+# install.packages("devtools")
+devtools::install_github("Rafnuss/GeoPressureR")
+```
+
 ## Related Ressources
+
+### Publication
 
 > Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti Global positioning
 > by atmospheric pressure retrieved from multi-sensor geolocators, 25
 > February 2022, PREPRINT (Version 1) available at Research Square
 > \[<https://doi.org/10.21203/rs.3.rs-1381915/v1>\]
+
+### Presentation
 
 > Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti et al. Improving the
 > spatial accuracy of multi-sensor geolocators’ position using
@@ -74,7 +87,7 @@ previous and next stationary period (circles).*
 > Bio-logging Science Symposium*. PRESENTATION available on
 > [Youtube](https://www.youtube.com/watch?v=0JsYU_xfKN8).
 
-## Related Code
+### Related Code
 
 -   [GeoPressureMAT](https://github.com/Rafnuss/GeoPressureMAT) The
     development of the method was done on MATLAB. Here is the repo with
@@ -90,8 +103,14 @@ previous and next stationary period (circles).*
     are inspired from this package (see
     [`pam.R`](./reference/index.html#pam-data)).
 
+## How to cite?
+
+[How to
+cite?](https://raphaelnussbaumer.com/GeoPressureR/authors.html#citation)
+
 ## Want to contribute?
 
 The code is still in active development. Feel free to [submit an issue
 on Github](https://github.com/Rafnuss/GeoPressureR/issues) with
-suggestions or bugs
+suggestions or bugs. See
+[The](https://github.com/Rafnuss/GeoPressureR/blob/master/.github/CONTRIBUTING.md)
