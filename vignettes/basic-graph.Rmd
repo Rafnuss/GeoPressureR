@@ -43,7 +43,7 @@ We create the graph with the function `geopressure_graph()`, which perform the f
 
 The duration of this operation is strongly variable depending on the grid (resolution and size), the number of stationary periods and the level of contains from the static probability. 
 
-```{r, include=FALSE}
+```{r}
 grl <- graph_create(static_prob,
   thr_prob_percentile = .99,
   thr_gs = 150 # threshold km/h
@@ -115,19 +115,19 @@ leaflet(width = "100%") %>%
 Estimating the position of the bird for each stationary period is generally the most sought-after output of tracking studies. Using the graph built, we can compute this exactly (i.e., without iterative approach such as MCMC). This problem is the same as computing the marginal distribution of a Markov process which can be solved mathematically.
 
 ```{r}
-grl_marginal <- graph_marginal(grl)
+static_prob_marginal <- graph_marginal(grl)
 ```
 
 ```{r, warning=F}
 li_s <- list()
 l <- leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
-for (i_r in seq_len(length(grl_marginal))) {
+for (i_r in seq_len(length(static_prob_marginal))) {
   i_s <- metadata(static_prob[[i_r]])$sta_id
   info <- metadata(static_prob[[i_r]])$temporal_extent
   info_str <- paste0(i_s, " | ", info[1], "->", info[2])
   li_s <- append(li_s, info_str)
   l <- l %>%
-    addRasterImage(grl_marginal[[i_r]], colors = "OrRd", opacity = 0.8, group = info_str) %>%
+    addRasterImage(static_prob_marginal[[i_r]], colors = "OrRd", opacity = 0.8, group = info_str) %>%
     addCircles(lng = grl$shortest_path$lon[i_s], lat = grl$shortest_path$lat[i_s], opacity = 1, color = "#000", weight = 10, group = info_str)
 }
 l %>%
@@ -140,9 +140,9 @@ l %>%
 
 ## Output 3: Simulate path
 
-```{r, include=FALSE}
+```{r}
 nj=10
-path <- graph_simulation(grl, nj=20)
+path <- graph_simulation(grl, nj = nj)
 ```
 
 ```{r}

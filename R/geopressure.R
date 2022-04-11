@@ -160,7 +160,7 @@ geopressure_map <-
     labels_order <- order(labels)
     message(
       "Requests generated successfully for ", length(labels), " stationary periods (",
-      sprintf("%d, ", labels), ")"
+      paste(labels, collapse = ', '), ")"
     )
 
     # Perform the call in parallel

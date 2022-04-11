@@ -28,7 +28,7 @@ library(raster)
 load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
 ```
 
-The `GeoLocTools` package will install a bunch of other R package for light analysis. We only use it for making nice figures. The code to compute the light position is included in `GeoPressureR`. I can't make it work with pkgdown, so I am not going to use it in this vignette, but I still provides the code for the figure.
+The `GeoLocTools` package will install a bunch of other R package for light analysis. We only use it for making nice figures. The code to compute the light position is included in `GeoPressureR`. [I can't make it work with pkgdown](https://github.com/Rafnuss/GeoPressureR/issues/13), so I am not going to use it in this vignette, but I still provides the code for the figure.
 
 ```{r, eval=F}
 library(GeoLocTools)
@@ -148,9 +148,11 @@ lines(z_axes, dgamma(z_axes, fit_e$estimate["shape"], fit_e$estimate["rate"]), c
 Before computing the probability map, we group the twilights by stationary period using activity data. Learn more about this step in the vignette [Pressure Map](pressure-map.html#identifying-stationary-periods).
 
 ```{r}
-twilight_sta_id <- sapply(twl$twilight, function(x) which(pam_data$sta$start < x & x < pam_data$sta$end))
-twilight_sta_id[sapply(twilight_sta_id, function(x) length(x) == 0)] <- 0
-twl$sta_id <- unlist(twilight_sta_id)
+tmp <- which(mapply(function(start, end) {
+  start < twl$twilight & twl$twilight < end
+}, pam_data$sta$start, pam_data$sta$end), arr.ind = TRUE)
+twl$sta_id <- 0
+twl$sta_id[tmp[, 1]] <- tmp[, 2]
 ```
 
 ## Probability map
