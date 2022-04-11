@@ -25,10 +25,12 @@ library(leaflet)
 library(leaflet.extras)
 library(MASS)
 library(raster)
+library(GeoLocTools)
+setupGeolocation()
 load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
 ```
 
-We then read the pam data retrieved from the geolocator.
+We can start by read the pam data retrieved from the geolocator.
 
 ```{r}
 pam_data <- pam_read(
@@ -39,7 +41,7 @@ pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = 
 pam_data <- pam_sta(pam_data)
 ```
 
-The first step is to define basic information about the calibration period and location. The second calibration is so short (1 day) that we discard it in this example.
+And define basic information about the calibration period and location. The second calibration is so short (1 day) that we discard it in this example.
 
 ```{r}
 lon_calib <- 17.05
@@ -49,13 +51,28 @@ tm_calib_1 <- c(pam_data$sta$start[1], pam_data$sta$end[1])
 ```
 
 
-
 ## Twilight Annotation
 
-We find the time of twilight and change the timezone to UTC. Here we simply use the first and last light of the day.
+To find the time of twilight, we can use `find_twilights()`, a function performing the same task than `TwGeos::FindTwilight()`, but differently.
 
 ```{r}
 twl <- find_twilights(pam_data$light)
+```
+
+We can use 
+
+```{r}
+raw_geolight <- data.frame(
+    Date = pam_data$light$date,
+    Light = pam_data$light$obs
+  )
+lightImage( tagdata = raw_geolight,
+            offset = 0)
+tsimagePoints(twl$twilight, offset=0,pch = 16, cex = 1.2)
+tsimageDeploymentLines(raw_geolight$Date, lon = lon_calib, lat = lat_calib,
+                       offset = 0, lwd = 3, col = adjustcolor("orange", alpha.f = 0.5))
+
+abline(v = tm_calib_1, lty = c(1,2), col = "firebrick", lwd = 1.5)
 ```
 
 The manual editing is easily performed with TRAINSET. In this case, we must label the datapoints we want to delete with any label name. Read more about TRAINSET labelling in the dedicated vignette: [Labelling tracks](labelling-tracks.html).
@@ -83,6 +100,13 @@ csv <- read.csv(paste0(system.file("extdata", package = "GeoPressureR"), "/18LX_
 twl$deleted <- !csv$label == ""
 ```
 
+
+```{r}
+lightImage( tagdata = raw_geolight, offset=0)
+tsimagePoints(twl$twilight, offset=0,pch = 16, cex = 1.2,
+              col = ifelse(twl$deleted, "grey20", ifelse(twl$rise, "firebrick", "cornflowerblue")))
+abline(v = tm_calib_1, lty = c(1,2), col = "firebrick", lwd = 1.5)
+```
 ## Calibration
 
 Instead of calibrating the twilight errors in terms of duration, we directly model the zenith angle error.

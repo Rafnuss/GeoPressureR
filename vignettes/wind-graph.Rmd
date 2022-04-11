@@ -300,7 +300,7 @@ for (i in seq_len(grl$sz[3])){
    m <- m %>%
     addCircles(lng = path$lon[,i], lat = path$lat[,i], opacity = .4, weight = 10, color = col[i])
 }
-m <- m %>% addLegend("bottomright", colors = col[1:grl$sz[3]], labels = seq_len(grl$sz[3]),
+m <- m %>% leaflet::addLegend("bottomright", colors = col[1:grl$sz[3]], labels = seq_len(grl$sz[3]),
     title = "Stationay period",
     opacity = 1
   ) 

@@ -28,6 +28,7 @@ Imports:
     utils
 Suggests: 
     ecmwfr,
+    GeoLocTools,
     ggplot2,
     igraph,
     knitr,
