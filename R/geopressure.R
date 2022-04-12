@@ -377,6 +377,9 @@ geopressure_ts <-
       stopifnot(is.numeric(pressure$obs))
       end_time <- NULL
       start_time <- NULL
+      if (!("isoutliar" %in% names(pressure))) {
+        pressure$isoutliar <- FALSE
+      }
     } else {
       stopifnot(!is.na(end_time))
       stopifnot(!is.na(start_time))
@@ -438,6 +441,25 @@ geopressure_ts <-
     out$time <- as.POSIXct(out$time, origin = "1970-01-01")
     names(out)[names(out) == "time"] <- "date"
 
+    # Compute the ERA5 pressure normalized to the pressure level (i.e. altitude) of the bird
+    if (!is.null(pressure)) {
+      # find when the bird was in flight
+      id_0 <- pressure$sta_id == 0
+      # If no ground (ie. no flight) is present, pressure0 has no meaning
+      if (!all(id_0)) {
+        # We compute the mean pressure of the geolocator only when the bird is on the ground
+        # (id_q==0) and when not marked as outliar
+        id_norm <- !id_0 & !pressure$isoutliar
+
+        pressure_obs_m <- mean(pressure$obs[id_norm])
+        pressure_out_m <- mean(out$pressure[id_norm])
+
+        out$pressure0 <- out$pressure - pressure_out_m + pressure_obs_m
+      }
+
+      # Add sta_id, lat and lon
+      out$sta_id <- pressure$sta_id
+    }
     return(out)
   }
 
@@ -449,7 +471,12 @@ geopressure_ts <-
 #' @param path a data.frame of the position containing latitude (`lat`), longitude  (`lon`) and the
 #' stationay period id (`sta_id`) as column.
 #' @param pressure pressure list from PAM logger dataset list
-#' @return list of data.frame containing for each stationay period, the date, pressure, altitude
+#' @param include_flight extend request to also query the pressure and altitude during the previous
+#' and/or next flight. Flights are defined by a `sta_id=0`. Accept Logical or vector of -1 (previous
+#' flight), 0 (stationary) and/or 1 (next flight). (e.g. `include_flight=c(-1, 1)` will only search
+#' for the flight before and after but not the stationary period). Note that next and previous
+#' flights are defined by the +/1 of the `sta_id` value (and not the previous/next `sta_id` value).
+#' @return list of data.frame containing for each stationary period, the date, pressure, altitude
 #' (same as `geopressure_ts()`) but also sta_id, lat, lon and pressure0, pressure normalized to
 #' match geolocator pressure measurement.
 #' @examples
@@ -495,7 +522,7 @@ geopressure_ts <-
 #' )
 #' py
 #' @export
-geopressure_ts_path <- function(path, pressure) {
+geopressure_ts_path <- function(path, pressure, include_flight = F) {
   stopifnot(is.data.frame(pressure))
   stopifnot("date" %in% names(pressure))
   stopifnot(inherits(pressure$date, "POSIXt"))
@@ -507,20 +534,46 @@ geopressure_ts_path <- function(path, pressure) {
   }
   stopifnot(is.data.frame(path))
   stopifnot(c("lat", "lon", "sta_id") %in% names(path))
+  if (nrow(path) == 0) warning("path is empty")
+  if (!all(path$sta_id %in% pressure$sta_id)) {
+    warning("Some path sta_id are not present in pressure")
+  }
+  if (is.logical(include_flight)) {
+    include_flight <- (if (include_flight) c(-1, 0, 1) else 0)
+  }
+  stopifnot(is.numeric(include_flight))
+  stopifnot(all(include_flight %in% c(-1, 0, 1)))
 
+  # Interpolate sta_id for flight period so that, a flight between sta_id 2 and 3 will have a
+  # `sta_id_interp` between 2 and 3.
+  id_0 <- pressure$sta_id == 0
+  sta_id_interp <- pressure$sta_id
+  sta_id_interp[id_0] <- stats::approx(which(!id_0), pressure$sta_id[!id_0], which(id_0), rule = 2)$y
+
+  # Define the parallel with 10 workers (ideal for Google Earth Engine allowance)
   future::plan(future::multisession, workers = 10)
   f <- c()
+
   for (i_s in seq_len(nrow(path))) {
     message("query:", i_s, "/", nrow(path))
-    # Subset the pressure of the stationay period
-    pressure_i_s <- subset(pressure, pressure$sta_id == path$sta_id[i_s])
 
+    # Query pressure for sta_id
+    i_sta <- path$sta_id[i_s]
+
+    # Subset the pressure of the stationary period
+    id_q <- rep(NA, length(sta_id_interp))
+    if (any(0 == include_flight)) {
+      id_q[path$sta_id[i_s] == sta_id_interp] <- 0
+    }
+    if (any(-1 == include_flight)) {
+      id_q[i_sta - 1 < sta_id_interp & sta_id_interp < i_sta] <- -1
+    }
+    if (any(1 == include_flight)) {
+      id_q[i_sta < sta_id_interp & sta_id_interp < i_sta + 1] <- 1
+    }
     # Send the query
     f[[i_s]] <- future::future({
-      geopressure_ts(path$lon[i_s],
-        path$lat[i_s],
-        pressure = pressure_i_s
-      )
+      geopressure_ts(path$lon[i_s], path$lat[i_s], pressure = subset(pressure, !is.na(id_q)))
     })
   }
 
@@ -529,18 +582,8 @@ geopressure_ts_path <- function(path, pressure) {
     tryCatch(
       expr = {
         pressure_timeserie[[i_s]] <- future::value(f[[i_s]])
-
-        # Compute the pressure with mean normalized with the geolocator observation
-        pressure_i_s <- subset(pressure, pressure$sta_id == path$sta_id[i_s])
-        pressure_timeserie[[i_s]]$pressure0 <- pressure_timeserie[[i_s]]$pressure -
-          mean(pressure_timeserie[[i_s]]$pressure) +
-          mean(pressure_i_s$obs[!pressure_i_s$isoutliar])
-
-        # Add sta_id, lat and lon
-        pressure_timeserie[[i_s]]["sta_id"] <- path$sta_id[i_s]
-        pressure_timeserie[[i_s]]["lon"] <- path$lon[i_s]
-        pressure_timeserie[[i_s]]["lat"] <- path$lat[i_s]
-
+        pressure_timeserie[[i_s]]$lon <- path$lon[i_s]
+        pressure_timeserie[[i_s]]$lat <- path$lat[i_s]
         message(paste0("Successful computation of sta_id = ", path$sta_id[i_s], ". "))
       },
       error = function(cond) {
