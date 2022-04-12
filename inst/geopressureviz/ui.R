@@ -50,10 +50,8 @@ ui <- bootstrapPage(
       sliderInput("speed", "Groundspeed limit [km/h]", min = 0, max = 200, value = 40, step = 10),
       div(
         id = "map_source_div",
-        checkboxGroupInput("map_source",
-          label = "Probability map to display",
-          choices = c("Pressure", "Light"),
-          selected = c("Pressure", "Light"), inline = T
+        radioButtons("map_source",
+          label = "Probability map to display", inline = T, choices = map_choices, selected=map_choices[tail(which(!is.na(map_val)),1)]
         ),
         tags$hr(),
         tags$p("Change position by clicking on the map and update the pressure timeserie."),

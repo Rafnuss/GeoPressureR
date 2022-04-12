@@ -1,10 +1,5 @@
 server <- function(input, output, session) {
 
-  # Hide selector if light doesn't exist
-  if (is.na("light_prob")) {
-    shinyjs::hide(id = "map_source_div")
-  }
-
   ## Reactive variable ----
 
   reactVal <- reactiveValues(
@@ -32,20 +27,12 @@ server <- function(input, output, session) {
     flight_duration
   }) %>% bindEvent(input$thr_sta)
 
-
+  # return the map
   map_prob <- reactive({
     if (is.null(input$map_source)) {
       return(NA)
     }
-    if (length(input$map_source) == 2) {
-      static_prob
-    } else if (input$map_source == "Pressure") {
-      pressure_prob
-    } else if (input$map_source == "Light") {
-      light_prob
-    } else {
-      return(NA)
-    }
+    return(map_val[[which(input$map_source==map_choices)]])
   }) %>% bindEvent(input$map_source)
 
 

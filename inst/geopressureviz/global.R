@@ -24,19 +24,35 @@ load("~/geopressureviz.RData")
 stopifnot("static_prob" %in% names(geopressureviz))
 static_prob <- geopressureviz$static_prob
 
+map_choices <- c("Light", "Pressure", "Static", "Marginal")
+map_val <- list(NA, NA, static_prob, NA)
+
 if ("light_prob" %in% names(geopressureviz)) {
-  light_prob <- geopressureviz$light_prob
-  stopifnot(length(static_prob) == length(light_prob))
-} else {
-  light_prob <- NA
+  stopifnot(length(static_prob) == length(geopressureviz$light_prob))
+  map_val[[1]] <- geopressureviz$light_prob
 }
 
 if ("pressure_prob" %in% names(geopressureviz)) {
-  pressure_prob <- geopressureviz$pressure_prob
-  stopifnot(length(static_prob) == length(pressure_prob))
-} else {
-  pressure_prob <- NA
+  stopifnot(length(static_prob) == length(geopressureviz$pressure_prob))
+  map_val[[2]] <- geopressureviz$pressure_prob
 }
+
+if ("static_prob_marginal" %in% names(geopressureviz)) {
+  stopifnot(length(static_prob) == length(geopressureviz$static_prob_marginal))
+  map_val[[4]] <- geopressureviz$static_prob_marginal
+}
+
+print(map_choices[tail(which(!is.na(map_val)), 1)])
+
+# Get stationay period information
+sta <- do.call("rbind", lapply(static_prob, function(r) {
+  mt <- raster::metadata(r)
+  mt$start <- mt$temporal_extent[1]
+  mt$end <- mt$temporal_extent[2]
+  # mt$duration <- as.numeric(difftime(mt$end, mt$start, units = "days"))
+  mt <- within(mt, rm(flight, temporal_extent, max_sample, margin))
+  as.data.frame(mt)
+}))
 
 
 # Get the timeserie of pressure
@@ -53,15 +69,6 @@ if (!("isoutliar" %in% names(pressure))) {
 }
 gdl_id <- geopressureviz$pam_data$id
 
-# Get stationay period information
-sta <- do.call("rbind", lapply(static_prob, function(r) {
-  mt <- raster::metadata(r)
-  mt$start <- mt$temporal_extent[1]
-  mt$end <- mt$temporal_extent[2]
-  # mt$duration <- as.numeric(difftime(mt$end, mt$start, units = "days"))
-  mt <- within(mt, rm(flight, temporal_extent, max_sample, margin))
-  as.data.frame(mt)
-}))
 
 # Correct duration for pressure datapoint available
 pres_isoutliar_sta <- aggregate(!pressure$isoutliar, by = list(sta_id = pressure$sta_id), FUN = sum)
