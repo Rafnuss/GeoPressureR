@@ -37,10 +37,7 @@
   </div>
 </li>
 <li class="active nav-item">
-  <a class="nav-link" href="../reference/index.html">reference</a>
-</li>
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureTemplate">Start your own study</a>
+  <a class="nav-link" href="../reference/index.html">Functions</a>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -79,17 +76,27 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>vector of zenith angles (degrees) adjusted for atmospheric refraction.</p>
+    <p>vector of zenith angles (degrees) adjusted for atmospheric
+refraction.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Given a vector of solar zeniths computed by <code><a href="zenith.html">zenith</a></code>, <code>refracted</code> calculates the
-solar zeniths adjusted for the effect of atmospheric refraction.</p>
-<p><code>unrefracted</code> is the inverse of <code>refracted</code>. Given a (single) solar zenith adjusted
-for the effect of atmospheric refraction, <code>unrefracted</code> calculates the solar zenith as
+    <p>Given a vector of solar zeniths computed by <code><a href="zenith.html">zenith</a></code>,
+<code>refracted</code> calculates the solar zeniths adjusted for the
+effect of atmospheric refraction.</p>
+<p><code>unrefracted</code> is the inverse of <code>refracted</code>. Given a
+(single) solar zenith adjusted for the effect of atmospheric
+refraction, <code>unrefracted</code> calculates the solar zenith as
 computed by <code><a href="zenith.html">zenith</a></code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">## Refraction causes the sun to appears higher on the horizon</span></span>
+<span class="r-in"><span class="fu">refracted</span><span class="op">(</span><span class="fl">85</span><span class="op">:</span><span class="fl">92</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 84.84038 85.81110 86.77132 87.71632 88.63663 89.51806 90.66944 91.83477</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 
