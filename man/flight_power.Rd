@@ -16,8 +16,8 @@ body frontal area. It is best practice to create bird with \code{flight_bird()}.
 mechanical power in Watt (or Joule/seconds) corresponding to the airspeed
 }
 \description{
-Compute the mechanical power required for a specific bird flying as at a given airspeed in m/s.
-\code{bird} (created with \code{flight_bird()})
+Compute the mechanical power (W =J/s) required for a specific bird flying as at a given airspeed
+in m/s. \code{bird} is created with \code{flight_bird()}.
 }
 \examples{
 bird <- flight_bird("Acrocephalus arundinaceus")

@@ -32,7 +32,7 @@ server <- function(input, output, session) {
     if (is.null(input$map_source)) {
       return(NA)
     }
-    return(map_val[[which(input$map_source==map_choices)]])
+    return(map_val[[which(input$map_source == map_choices)]])
   }) %>% bindEvent(input$map_source)
 
 

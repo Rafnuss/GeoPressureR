@@ -229,4 +229,22 @@ grl <- graph_create(static_prob, thr_prob_percentile = .99, thr_gs = 150)
 filename <- paste0(dir.save, "/", "18IC_")
 grl <- graph_add_wind(grl, pressure = pam_data$pressure, filename, thr_as = 100)
 
+# Compute the probability
+bird <- flight_bird("Acrocephalus arundinaceus")
+grl$p <- grl$ps * flight_prob(grl$as, method = "power", bird = bird, low_speed_fix = 10)
+
+# Shortest path
+g <- graph_from_data_frame(data.frame( from = grl$s, to = grl$t, weight = -log(grl$p)))
+sp <- shortest_paths(g, from = paste(grl$equipement), to = paste(grl$retrival))
+grl$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), grl)
+
+# Pressure timeserie at the best math
+shortest_path <- as.data.frame(grl$shortest_path)
+shortest_path_timeserie <- geopressure_ts_path(shortest_path, pam_data$pressure)
+
+# Marginal
+grl_marginal <- graph_marginal(grl)
+
 saveRDS(grl, "inst/extdata/18LX_grl.rda")
+saveRDS(grl_marginal, "inst/extdata/18LX_grl_marginal.rda")
+saveRDS(shortest_path_timeserie, "inst/extdata/18LX_shortest_path_timeserie.rda")

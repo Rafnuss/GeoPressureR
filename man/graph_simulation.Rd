@@ -4,7 +4,7 @@
 \alias{graph_simulation}
 \title{Simulation of trajectory}
 \usage{
-graph_simulation(grl, nj = 100)
+graph_simulation(grl, nj = 10)
 }
 \arguments{
 \item{grl}{graph constructed with \code{geopressure_graph_create()}}

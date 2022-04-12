@@ -123,12 +123,12 @@ flight_bird <- function(species_name,
 
 #' Power curve
 #'
-#' Compute the mechanical power required for a specific bird flying as at a given airspeed in m/s.
-#' `bird` (created with `flight_bird()`)
+#' Compute the mechanical power (W =J/s) required for a specific bird flying as at a given airspeed
+#' in m/s. `bird` is created with `flight_bird()`.
 #'
+#' @param as airspeed in m/s
 #' @param bird list of basic morphological trait necessary: mass, wing span, wing aspect ratio and
 #'   body frontal area. It is best practice to create bird with `flight_bird()`.
-#' @param as airspeed in m/s
 #' @return mechanical power in Watt (or Joule/seconds) corresponding to the airspeed
 #' @examples
 #' bird <- flight_bird("Acrocephalus arundinaceus")
