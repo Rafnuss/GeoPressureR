@@ -23,7 +23,6 @@ In this vignette, we use light data to estimate the position of the Great Reed W
 library(GeoPressureR)
 library(leaflet)
 library(leaflet.extras)
-library(MASS)
 library(raster)
 load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
 ```
@@ -179,10 +178,10 @@ pgz <- apply(g, 1, function(x) {
 })
 ```
 
-Aggregating the probability map of each twilight per stationary period requires some assumptions on the independence/correlation of the twilight errors. Read more about this in the vignette [Probability-aggregation](probability-aggregation.html)). Here, we use a log-linear pooling with a weight of $w=0.05$,
+Aggregating the probability map of each twilight per stationary period requires some assumptions on the independence/correlation of the twilight errors. Read more about this in the vignette [Probability-aggregation](probability-aggregation.html)). Here, we use a log-linear pooling with a weight of $w=0.1$,
 
 ```{r}
-w <- 0.05
+w <- 0.1
 ```
 
 We loop through each stationary period and create a raster map with the aggregated probabilities.

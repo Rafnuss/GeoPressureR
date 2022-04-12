@@ -3,8 +3,6 @@
 
 # Load library
 library(GeoPressureR)
-library(raster)
-library(MASS)
 
 # 1. PAM reading and labeling ----
 # Read pam data
@@ -74,7 +72,7 @@ twl_calib <- subset(twl, !deleted & twilight >= tm_calib_1[1] & twilight <= tm_c
 # Compute zenith angle and fit distribution
 sun <- solar(twl_calib$twilight)
 z <- refracted(zenith(sun, lon_calib, lat_calib))
-fit_e <- fitdistr(z, "gamma")
+fit_z <- density(z, adjust=1.4, from = 60, to = 120)
 
 # Add stationay period information on the twilight
 twilight_sta_id <- sapply(twl$twilight, function(x) which(pam_data$sta$start < x & x < pam_data$sta$end))
@@ -90,11 +88,11 @@ twl_clean <- subset(twl, !deleted)
 sun <- solar(twl_clean$twilight)
 pgz <- apply(g, 1, function(x) {
   z <- refracted(zenith(sun, x[1], x[2]))
-  dgamma(z, fit_e$estimate["shape"], fit_e$estimate["rate"])
+  approx(fit_z$x, fit_z$y, z, yleft=0, yright = 0)$y
 })
 
 # Define Log-linear Pooling
-w <- 0.05
+w <- 0.1
 
 # Produce proabibility map from light data
 light_prob <- c()

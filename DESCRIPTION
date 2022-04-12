@@ -32,7 +32,6 @@ Suggests:
     igraph,
     knitr,
     leaflet,
-    MASS,
     ncdf4,
     plotly,
     RColorBrewer,
