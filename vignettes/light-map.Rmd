@@ -132,12 +132,17 @@ First, we retrieve the twilight during the calibration period.
 twl_calib <- subset(twl, !deleted & twilight >= tm_calib_1[1] & twilight <= tm_calib_1[2])
 ```
 
-We then compute the zenith angle (i.e., elevation of the sun) of the twilight time at the calibration site and fit a kernel distribution.
+We then compute the zenith angle (i.e., elevation of the sun) of the twilight time at the calibration site.
 
 ```{r}
 sun <- solar(twl_calib$twilight)
 z <- refracted(zenith(sun, lon_calib, lat_calib))
-fit_e <- density(z)
+```
+
+Finally, we fit a kernel distribution for a relatively smooth bandwidth to account for possible bias.
+
+```{r}
+fit_z <- density(z, adjust=1.4, from = 60, to = 120)
 hist(z, freq = F)
 lines(fit_z, col = "red")
 ```
@@ -170,7 +175,7 @@ twl_clean <- subset(twl, !deleted)
 sun <- solar(twl_clean$twilight)
 pgz <- apply(g, 1, function(x) {
   z <- refracted(zenith(sun, x[1], x[2]))
-  approx(fit_z$x, fit_z$y, z)
+  approx(fit_z$x, fit_z$y, z, yleft=0, yright = 0)$y
 })
 ```
 
