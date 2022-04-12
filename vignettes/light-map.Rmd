@@ -132,15 +132,14 @@ First, we retrieve the twilight during the calibration period.
 twl_calib <- subset(twl, !deleted & twilight >= tm_calib_1[1] & twilight <= tm_calib_1[2])
 ```
 
-We then compute the zenith angle (i.e., elevation of the sun) of the twilight time at the calibration site and fit a simple gamma distribution.
+We then compute the zenith angle (i.e., elevation of the sun) of the twilight time at the calibration site and fit a kernel distribution.
 
 ```{r}
 sun <- solar(twl_calib$twilight)
 z <- refracted(zenith(sun, lon_calib, lat_calib))
-fit_e <- fitdistr(z, "gamma")
+fit_e <- density(z)
 hist(z, freq = F)
-z_axes <- seq(88, 100, 0.1)
-lines(z_axes, dgamma(z_axes, fit_e$estimate["shape"], fit_e$estimate["rate"]), col = "red")
+lines(fit_z, col = "red")
 ```
 
 ## Stationary period
@@ -171,7 +170,7 @@ twl_clean <- subset(twl, !deleted)
 sun <- solar(twl_clean$twilight)
 pgz <- apply(g, 1, function(x) {
   z <- refracted(zenith(sun, x[1], x[2]))
-  dgamma(z, fit_e$estimate["shape"], fit_e$estimate["rate"])
+  approx(fit_z$x, fit_z$y, z)
 })
 ```
 
