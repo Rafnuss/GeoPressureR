@@ -245,6 +245,7 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   grl$sta_id <- unlist(lapply(static_prob, function(x) {
     raster::metadata(x)$sta_id
   }))
+  grl$mask_water <- is.na(raster::as.matrix(static_prob[[1]]))
   return(grl)
 }
 
@@ -610,9 +611,11 @@ graph_marginal <- function(grl) {
   # convert to raster
   static_prob_marginal <- list()
   for (i_s in seq_len(dim(map)[3])) {
+    tmp <- map[, , i_s]
+    tmp[grl$mask_water] <- NA
     static_prob_marginal[[i_s]] <- raster::raster(grl$extent,
       resolution = grl$resolution,
-      vals = map[, , i_s]
+      vals = tmp
     )
     raster::crs(static_prob_marginal[[i_s]]) <-
       "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
