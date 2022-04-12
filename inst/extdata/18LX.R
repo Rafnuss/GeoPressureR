@@ -14,7 +14,7 @@ pam_data <- pam_read(
 # Add labeling
 pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
 
-# Compute stationay period
+# Compute stationary period
 pam_data <- pam_sta(pam_data)
 
 
@@ -29,22 +29,24 @@ pam_data <- pam_sta(pam_data)
 # 2. Pressure Map ----
 # Compute pressure maps from GeoPressureAPI
 pressure_maps <- geopressure_map(pam_data$pressure,
-                                 extent = c(50, -16, 0, 23),
-                                 scale = 2,
-                                 max_sample = 250,
-                                 margin = 30)
+  extent = c(50, -16, 0, 23),
+  scale = 2,
+  max_sample = 250,
+  margin = 30
+)
 
 # Convert to probability map
 pressure_prob <- geopressure_prob_map(pressure_maps,
-                                      s = 1,
-                                      thr = 0.9)
+  s = 1,
+  thr = 0.9
+)
 
 # Compute the most likely path
 path <- geopressure_map2path(pressure_prob)
 path$lat[5] <- path$lat[5] + .25
 
 # Query the pressure timeserie at each path
-pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
+pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure[3500:4000,], include_flight = c(0, 1))
 
 saveRDS(pressure_maps, "inst/extdata/18LX_pressure_maps.rda")
 saveRDS(pressure_prob, "inst/extdata/18LX_pressure_prob.rda")
@@ -72,7 +74,7 @@ twl_calib <- subset(twl, !deleted & twilight >= tm_calib_1[1] & twilight <= tm_c
 # Compute zenith angle and fit distribution
 sun <- solar(twl_calib$twilight)
 z <- refracted(zenith(sun, lon_calib, lat_calib))
-fit_z <- density(z, adjust=1.4, from = 60, to = 120)
+fit_z <- density(z, adjust = 1.4, from = 60, to = 120)
 
 # Add stationay period information on the twilight
 twilight_sta_id <- sapply(twl$twilight, function(x) which(pam_data$sta$start < x & x < pam_data$sta$end))
@@ -88,7 +90,7 @@ twl_clean <- subset(twl, !deleted)
 sun <- solar(twl_clean$twilight)
 pgz <- apply(g, 1, function(x) {
   z <- refracted(zenith(sun, x[1], x[2]))
-  approx(fit_z$x, fit_z$y, z, yleft=0, yright = 0)$y
+  approx(fit_z$x, fit_z$y, z, yleft = 0, yright = 0)$y
 })
 
 # Define Log-linear Pooling
@@ -131,28 +133,28 @@ saveRDS(light_prob, "inst/extdata/light_prob.rda")
 # 4. Preparing Data  ----
 
 # Combine light and pressure map
-thr_sta_dur = 0 # in hours
+thr_sta_dur <- 0 # in hours
 sta_pres <- unlist(lapply(pressure_prob, function(x) raster::metadata(x)$sta_id))
 sta_light <- unlist(lapply(light_prob, function(x) raster::metadata(x)$sta_id))
 sta_thres <- pam_data$sta$sta_id[difftime(pam_data$sta$end, pam_data$sta$start, units = "hours") > thr_sta_dur]
 # Get the sta_id present on all three data sources
-sta_id_keep = intersect(intersect(sta_pres,sta_light),sta_thres)
+sta_id_keep <- intersect(intersect(sta_pres, sta_light), sta_thres)
 # Filter pressure and light map
 pressure_prob <- pressure_prob[sta_pres %in% sta_id_keep]
 light_prob <- light_prob[sta_light %in% sta_id_keep]
 
 # Compute flight information
-flight = list()
-for (i_f in seq_len(length(sta_id_keep)-1)){
+flight <- list()
+for (i_f in seq_len(length(sta_id_keep) - 1)) {
   from_sta_id <- sta_id_keep[i_f]
-  to_sta_id <- sta_id_keep[i_f+1]
+  to_sta_id <- sta_id_keep[i_f + 1]
   flight[[i_f]] <- list(
-    start = pam_data$sta$end[seq(from_sta_id,to_sta_id-1)],
-    end = pam_data$sta$start[seq(from_sta_id+1,to_sta_id)],
-    sta_id = seq(from_sta_id,to_sta_id-1)
+    start = pam_data$sta$end[seq(from_sta_id, to_sta_id - 1)],
+    end = pam_data$sta$start[seq(from_sta_id + 1, to_sta_id)],
+    sta_id = seq(from_sta_id, to_sta_id - 1)
   )
 }
-flight[[i_f+1]]=list()
+flight[[i_f + 1]] <- list()
 
 # Compute static prob
 static_prob <- mapply(function(light, pressure, flight) {
@@ -205,8 +207,8 @@ static_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 #   return(raster_ds)
 # })
 
-saveRDS(static_prob, "inst/extdata/static_prob.rda")
-saveRDS(static_timeserie, "inst/extdata/static_timeserie.rda")
+saveRDS(static_prob, "inst/18LX_extdata/static_prob.rda")
+saveRDS(static_timeserie, "inst/extdata/18LX_static_timeserie.rda")
 
 
 
@@ -218,13 +220,13 @@ saveRDS(static_timeserie, "inst/extdata/static_timeserie.rda")
 # 4-5. Basic and wind Graph ----
 
 # Location of wind data
-dir.save <- '~'
+dir.save <- "~"
 
 # create graph
 grl <- graph_create(static_prob, thr_prob_percentile = .99, thr_gs = 150)
 
 # Add wind data
-filename = paste0(dir.save,"/","18IC_")
-grl <- graph_add_wind(grl, pressure=pam_data$pressure, filename, thr_as = 100)
+filename <- paste0(dir.save, "/", "18IC_")
+grl <- graph_add_wind(grl, pressure = pam_data$pressure, filename, thr_as = 100)
 
-saveRDS(grl, "inst/extdata/grl.rda")
+saveRDS(grl, "inst/extdata/18LX_grl.rda")

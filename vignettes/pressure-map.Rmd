@@ -37,9 +37,9 @@ library(RColorBrewer)
 
 For making this vignette faster to compute, we have already run all the code below and we load the result here. (The corresponding R chunk are `eval=F`)
 ```{r}
-load(system.file("extdata", "18LX_pressure_maps.rda", package = "GeoPressureR"))
-load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
-load(system.file("extdata", "18LX_pressure_timeserie.rda", package = "GeoPressureR"))
+pressure_maps <- readRDS(system.file("extdata", "18LX_pressure_maps.rda", package = "GeoPressureR"))
+pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
+pressure_timeserie <- readRDS(system.file("extdata", "18LX_pressure_timeserie.rda", package = "GeoPressureR"))
 pressure_timeserie_1 <- pressure_timeserie[[1]]
 ```
 
@@ -102,7 +102,7 @@ p <- ggplot() +
   geom_line(data = pressure_na, aes(x = date, y = obs, col = as.factor(sta_id))) +
   geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
   theme_bw() +
-  scale_y_continuous(name = "Pressure(hPa)") +
+  scale_y_continuous(name = "Pressure (hPa)") +
   scale_colour_manual(values = rep(RColorBrewer::brewer.pal(9, "Set1"), times = 8))
 
 ggplotly(p, dynamicTicks = T) %>%
@@ -198,17 +198,13 @@ where $z_{ERA}$, $T_{ERA}$ and $T_{ERA}$  respectively correspond to the ground 
 We can compute the bird's elevation for its first stationary period using the most likely position on the probability map.
 
 ```{r}
-i_r <- 1
-i_s <- metadata(pressure_prob[[i_r]])$sta_id
-tmp <- as.data.frame(pressure_prob[[i_r]], xy = T)
-lon <- tmp$x[which.max(tmp[, 3])]
-lat <- tmp$y[which.max(tmp[, 3])]
+pt <- geopressure_map2path(pressure_prob[1])
 ```
 
 And then call the function `geopressure_ts()` with the subset of pressure containing `sta_id==1`
 
 ```{r, eval=F}
-pressure_timeserie_1 <- geopressure_ts(lon, lat, pressure = subset(pam_data$pressure, sta_id == 1))
+pressure_timeserie_1 <- geopressure_ts(pt$lon, pt$lat, pressure = subset(pam_data$pressure, sta_id == 1))
 ```
 
 We can compare the altitude produced to the one computed without the correction for temperature and pressure:
@@ -246,17 +242,26 @@ We can repeat the computation of the pressure timeserie for all stationary perio
 path <- geopressure_map2path(pressure_prob)
 ```
  
- We need a dirty fix for `i_s=5` where the center of grid cell falls into water. This is caused by `geopressure_map()` which accept any location of the map if there are some land in its pixel. We retrieve the center of the grid cell which might fall on the water.
+We need a dirty fix for `i_s=5` where the center of grid cell falls into water. This is caused by `geopressure_map()` which accept any location of the map if there are some land in its pixel. We retrieve the center of the grid cell which might fall on the water.
  
 ```{r}
 path$lat[5] <- path$lat[5] + .25
 ```
 
-Secondly, we can use `geopressure_ts_path()` which basically call `geopressure_ts()` in parallel for all stationary periods.
+Secondly, we can use `geopressure_ts_path()` which basically call `geopressure_ts()` in parallel for all stationary periods. We can additionally request to compute the altitude during the next flight flight with `include_flight = c(0,1)`.
 
 ```{r, eval=F}
-pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
+pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure, include_flight = c(0,1))
 ```
+
+```{r}
+p <- ggplot() +
+ geom_line(data = do.call("rbind", pressure_timeserie), aes(x = date, y = altitude)) +
+  theme_bw() + scale_y_continuous(name = "Altitude (m)")
+ggplotly(p, dynamicTicks = T) %>% layout(showlegend = F)
+```
+
+`pressure_timeserie` is also used to check the correct labeling of the track (see [Labelling tracks](labelling-tracks.html)).
 
 ```{r}
 col <- rep(RColorBrewer::brewer.pal(9, "Set1"), times = ceiling((nrow(pam_data$sta)+1)/9))
@@ -267,16 +272,8 @@ p <- ggplot() +
   geom_line(data = pam_data$pressure, aes(x = date, y = obs), colour = "grey") +
   geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
   # geom_line(data = pressure_na, aes(x = date, y = obs, color = factor(sta_id))) +
-  geom_line(data = do.call("rbind", pressure_timeserie), aes(x = date, y = pressure0, col = factor(sta_id)), linetype=2) +
-  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure(hPa)")
+  geom_line(data = subset(do.call("rbind", pressure_timeserie), sta_id != 0), aes(x = date, y = pressure0, col = factor(sta_id))) +
+  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure (hPa)")
 
 ggplotly(p, dynamicTicks = T) %>% layout(showlegend = F)
-```
-
-```{r}
-sta_duration <- unlist(lapply(pressure_prob,function(x){as.numeric(difftime(metadata(x)$temporal_extent[2],metadata(x)$temporal_extent[1],units="days"))}))
-pal <- colorFactor(col, as.factor(seq_len(length(col))))
-leaflet() %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl() %>%
-  addPolylines(lng = path$lon, lat = path$lat, opacity = 0.7, weight = 1, color = "#808080") %>%
-  addCircles(lng = path$lon, lat = path$lat, opacity = 1, color = pal(factor(path$sta_id, levels = pam_data$sta$sta_id)), weight = sta_duration^(0.3)*10)
 ```

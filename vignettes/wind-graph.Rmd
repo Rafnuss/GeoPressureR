@@ -22,7 +22,7 @@ library(ncdf4)
 library(leaflet)
 library(leaflet.extras)
 library(igraph)
-load(system.file("extdata", "18LX_grl.rda", package = "GeoPressureR"))
+grl <- readRDS(system.file("extdata", "18LX_grl.rda", package = "GeoPressureR"))
 ```
 
 In this vignette, we will enhance the [basic graph](./articles/basic-graph) by adding the wind speed. This allows to defines the movement model on the airspeed (instead of groundspeed). In addition, we can extract windsupport information on the journey of the bird. 
@@ -34,7 +34,7 @@ pam_data <- pam_read(
 )
 pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
 pam_data <- pam_sta(pam_data)
-load(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
+static_prob <- readRDS(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
 ```
 
 ## Download wind data
@@ -220,7 +220,7 @@ for (i_s in seq_len(grl$sz[3]-1)){
                    "WS: ", round(abs(grl$ws[edge])), ' km/h, ',fun_NSEW(Arg(grl$ws[edge])),'<br>',
                    "AS: ", round(abs(grl$as[edge])), ' km/h, ',fun_NSEW(Arg(grl$as[edge])),'<br>')
     
-      iconArrow <- makeAwesomeIcon(icon = "arrow-up",
+      iconArrow <- makeAwesomeIcon(icon = "fa-arrow-up",
                             iconRotate = (90 - Arg(grl$ws[edge])/pi*180) %% 360,
                             squareMarker = TRUE,
                             markerColor = fun_marker_color(abs(grl$ws[edge])))
@@ -246,7 +246,6 @@ geopressureviz = list(
   light_prob=light_prob,
   pressure_timeserie = static_timeserie
 )
-save(geopressureviz,file = "~/geopressureviz.RData")
 ```
 
 ```{r, eval=F}
@@ -285,7 +284,7 @@ l %>%
 
 ## Output 3: Simulate path
 
-```{r}
+```{r, results='hide'}
 nj=10
 path <- graph_simulation(grl, nj)
 ```

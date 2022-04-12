@@ -24,7 +24,7 @@ library(GeoPressureR)
 library(leaflet)
 library(leaflet.extras)
 library(raster)
-load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
+pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
 ```
 
 The `GeoLocTools` package will install a bunch of other R package for light analysis. We only use it for making nice figures. The code to compute the light position is included in `GeoPressureR`. [I can't make it work with pkgdown](https://github.com/Rafnuss/GeoPressureR/issues/13), so I am not going to use it in this vignette, but I still provides the code for the figure.

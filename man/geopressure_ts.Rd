@@ -49,7 +49,8 @@ pressure_timeserie[[1]] <- geopressure_ts(
   pressure = subset(pam_data$pressure, sta_id == 1)
 )
 }
-load(system.file("extdata", "18LX_pressure_timeserie.rda", package = "GeoPressureR"))
+pressure_timeserie <- readRDS(system.file("extdata", "18LX_pressure_timeserie.rda",
+package = "GeoPressureR"))
 par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
 plot(pressure_timeserie[[1]]$date,
   pressure_timeserie[[1]]$pressure,

@@ -29,7 +29,7 @@ library(igraph)
 We already pre-processed the light and pressure data data in the vignette [Preparing data](./articles/preparing-data). Make sure that the data was passing all the check before moving to this vignette.
 
 ```{r}
-load(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
+static_prob <- readRDS(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
 ```
 
 ## Create the graph 
@@ -43,11 +43,10 @@ We create the graph with the function `geopressure_graph()`, which perform the f
 
 The duration of this operation is strongly variable depending on the grid (resolution and size), the number of stationary periods and the level of contains from the static probability. 
 
-```{r}
+```{r, results='hide'}
 grl <- graph_create(static_prob,
-  thr_prob_percentile = .99,
-  thr_gs = 150 # threshold km/h
-)
+                    thr_prob_percentile = .99,
+                    thr_gs = 150)
 ```
 ```{r}
 summary(grl)
@@ -118,7 +117,7 @@ Estimating the position of the bird for each stationary period is generally the 
 static_prob_marginal <- graph_marginal(grl)
 ```
 
-```{r, warning=F}
+```{r}
 li_s <- list()
 l <- leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
 for (i_r in seq_len(length(static_prob_marginal))) {
@@ -140,7 +139,7 @@ l %>%
 
 ## Output 3: Simulate path
 
-```{r}
+```{r, results='hide'}
 nj=10
 path <- graph_simulation(grl, nj = nj)
 ```

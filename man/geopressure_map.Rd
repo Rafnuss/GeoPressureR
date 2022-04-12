@@ -54,7 +54,8 @@ pressure_maps <- geopressure_map(
   margin = 30
 )
 }
-load(system.file("extdata", "18LX_pressure_maps.rda", package = "GeoPressureR"))
+pressure_maps <- readRDS(system.file("extdata", "18LX_pressure_maps.rda",
+package = "GeoPressureR"))
 raster::metadata(pressure_maps[[1]])
 raster::plot(pressure_maps[[1]],
   main = c("Mean Square Error", "Mask of pressure")

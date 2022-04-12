@@ -5,16 +5,22 @@
 \title{Query the timeserie of pressure from a path and geolocator pressure
 observation}
 \usage{
-geopressure_ts_path(path, pressure)
+geopressure_ts_path(path, pressure, include_flight = F)
 }
 \arguments{
 \item{path}{a data.frame of the position containing latitude (\code{lat}), longitude  (\code{lon}) and the
 stationay period id (\code{sta_id}) as column.}
 
 \item{pressure}{pressure list from PAM logger dataset list}
+
+\item{include_flight}{extend request to also query the pressure and altitude during the previous
+and/or next flight. Flights are defined by a \code{sta_id=0}. Accept Logical or vector of -1 (previous
+flight), 0 (stationary) and/or 1 (next flight). (e.g. \code{include_flight=c(-1, 1)} will only search
+for the flight before and after but not the stationary period). Note that next and previous
+flights are defined by the +/1 of the \code{sta_id} value (and not the previous/next \code{sta_id} value).}
 }
 \value{
-list of data.frame containing for each stationay period, the date, pressure, altitude
+list of data.frame containing for each stationary period, the date, pressure, altitude
 (same as \code{geopressure_ts()}) but also sta_id, lat, lon and pressure0, pressure normalized to
 match geolocator pressure measurement.
 }
@@ -34,13 +40,15 @@ pam_data <- trainset_read(pam_data,
 pam_data <- pam_sta(pam_data)
 \dontrun{
 # load probability map of pressure
-load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
+pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda",
+package = "GeoPressureR"))
 # Find the most likely position
 path <- geopressure_map2path(pressure_prob)
 # compute the pressure at those location for the period in question
 pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 }
-load(system.file("extdata", "18LX_pressure_timeserie.rda", package = "GeoPressureR"))
+pressure_timeserie <- readRDS(system.file("extdata", "18LX_pressure_timeserie.rda",
+package = "GeoPressureR"))
 p <- ggplot2::ggplot() +
   ggplot2::geom_line(
     data = pam_data$pressure,

@@ -39,7 +39,8 @@
 #'   margin = 30
 #' )
 #' }
-#' load(system.file("extdata", "18LX_pressure_maps.rda", package = "GeoPressureR"))
+#' pressure_maps <- readRDS(system.file("extdata", "18LX_pressure_maps.rda",
+#' package = "GeoPressureR"))
 #' raster::metadata(pressure_maps[[1]])
 #' raster::plot(pressure_maps[[1]],
 #'   main = c("Mean Square Error", "Mask of pressure")
@@ -160,7 +161,7 @@ geopressure_map <-
     labels_order <- order(labels)
     message(
       "Requests generated successfully for ", length(labels), " stationary periods (",
-      paste(labels, collapse = ', '), ")"
+      paste(labels, collapse = ", "), ")"
     )
 
     # Perform the call in parallel
@@ -274,7 +275,8 @@ geopressure_map <-
 #'   thr = 0.9
 #' )
 #' }
-#' load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
+#' pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda",
+#' package = "GeoPressureR"))
 #' raster::metadata(pressure_prob[[1]])
 #' raster::plot(pressure_prob[[1]],
 #'   main = "Probability",
@@ -351,7 +353,8 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
 #'   pressure = subset(pam_data$pressure, sta_id == 1)
 #' )
 #' }
-#' load(system.file("extdata", "18LX_pressure_timeserie.rda", package = "GeoPressureR"))
+#' pressure_timeserie <- readRDS(system.file("extdata", "18LX_pressure_timeserie.rda",
+#' package = "GeoPressureR"))
 #' par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
 #' plot(pressure_timeserie[[1]]$date,
 #'   pressure_timeserie[[1]]$pressure,
@@ -491,13 +494,15 @@ geopressure_ts <-
 #' pam_data <- pam_sta(pam_data)
 #' \dontrun{
 #' # load probability map of pressure
-#' load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
+#' pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda",
+#' package = "GeoPressureR"))
 #' # Find the most likely position
 #' path <- geopressure_map2path(pressure_prob)
 #' # compute the pressure at those location for the period in question
 #' pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 #' }
-#' load(system.file("extdata", "18LX_pressure_timeserie.rda", package = "GeoPressureR"))
+#' pressure_timeserie <- readRDS(system.file("extdata", "18LX_pressure_timeserie.rda",
+#' package = "GeoPressureR"))
 #' p <- ggplot2::ggplot() +
 #'   ggplot2::geom_line(
 #'     data = pam_data$pressure,
@@ -548,7 +553,10 @@ geopressure_ts_path <- function(path, pressure, include_flight = F) {
   # `sta_id_interp` between 2 and 3.
   id_0 <- pressure$sta_id == 0
   sta_id_interp <- pressure$sta_id
-  sta_id_interp[id_0] <- stats::approx(which(!id_0), pressure$sta_id[!id_0], which(id_0), rule = 2)$y
+  sta_id_interp[id_0] <- stats::approx(which(!id_0),
+    pressure$sta_id[!id_0], which(id_0),
+    rule = 2
+  )$y
 
   # Define the parallel with 10 workers (ideal for Google Earth Engine allowance)
   future::plan(future::multisession, workers = 10)
@@ -614,7 +622,9 @@ geopressure_ts_path <- function(path, pressure, include_flight = F) {
 #' return. You will need to use `which.max(as.matrix(raster))` and not `which.max(raster)` to get
 #' the correct location
 #' @examples
-#' load(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
+#' pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda",
+#'   package = "GeoPressureR"
+#' ))
 #' path_all <- geopressure_map2path(pressure_prob)
 #' path_interp <- geopressure_map2path(pressure_prob, interp = 2)
 #' sta_duration <- unlist(lapply(pressure_prob, function(x) {

@@ -113,7 +113,7 @@ p <- ggplot() +
   geom_line(data = pam_data$pressure, aes(x = date, y = obs), col = "grey") +
   geom_line(data = pressure_na, aes(x = date, y = obs, col = factor(sta_id))) +
   geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
-  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure(hPa)")
+  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure (hPa)")
   
 ggplotly(p, dynamicTicks = T) %>% layout(showlegend = F)
 ```
@@ -146,7 +146,7 @@ path <- geopressure_map2path(pressure_prob)
 pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 ```
 ```{r, include=F}
-load(system.file("extdata", "18LX_pressure_timeserie.rda", package = "GeoPressureR"))
+pressure_timeserie <- readRDS(system.file("extdata", "18LX_pressure_timeserie.rda", package = "GeoPressureR"))
 ```
 
 We can now look at a similar figure of pressure timeseries, but this time comparing geolocator data with the best match from the reanalysis data. 
@@ -156,7 +156,7 @@ p <- ggplot() +
   geom_line(data = pam_data$pressure, aes(x = date, y = obs), colour = "grey") +
   geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
   geom_line(data = do.call("rbind", pressure_timeserie), aes(x = date, y = pressure0, col = factor(sta_id))) +
-  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure(hPa)")
+  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure (hPa)")
 
 ggplotly(p, dynamicTicks = T) %>% layout(showlegend = F)
 ```
@@ -174,7 +174,7 @@ p <- ggplot() +
   geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
   geom_line(data = do.call("rbind", pressure_timeserie), aes(x = date, y = pressure0, col = factor(sta_id))) +
   theme_bw() +
-  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure(hPa)")
+  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure (hPa)")
 
 ggplotly(p, dynamicTicks = T) %>% layout(showlegend = F)
 ```

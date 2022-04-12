@@ -89,7 +89,8 @@ test_that("Check geopressure_ts() output", {
   # Test Include flight
   pressure <- subset(pam_data$pressure, sta_id == i_s)
   pressure_timeserie <- geopressure_ts(path$lon, path$lat, pressure)
-  expect_true(all(c("date", "pressure", "altitude", "pressure0", "sta_id") %in% names(pressure_timeserie)))
+  expect_true(all(c("date", "pressure", "altitude", "pressure0", "sta_id")
+                  %in% names(pressure_timeserie)))
   expect_equal(nrow(pressure_timeserie), n[2])
 
   pressure <- subset(pam_data$pressure, sta_id == i_s | sta_id == 0)
