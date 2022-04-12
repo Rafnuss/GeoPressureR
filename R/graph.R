@@ -570,6 +570,10 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
 #' @return list of raster of the marginal probability at each stationary period
 #' @export
 graph_marginal <- function(grl) {
+  stopifnot(is.list(grl))
+  stopifnot(c("s", "t", "p", "sz", "lat", "lon",  "mask_water", "equipement", "retrival",
+              "resolution", "extent", "temporal_extent", "flight", "sta_id") %in% names(grl))
+  stopifnot(length(grl$s) > 0)
 
   # number of nodes in the 3d grid
   n <- prod(grl$sz)
@@ -640,7 +644,13 @@ graph_marginal <- function(grl) {
 #' @param nj number of simulation
 #' @return list of the simulated path
 #' @export
-graph_simulation <- function(grl, nj = 100) {
+graph_simulation <- function(grl, nj = 10) {
+  stopifnot(is.list(grl))
+  stopifnot(c("s", "t", "p", "sz", "lat", "lon",   "equipement", "retrival",
+              "resolution", "extent", "temporal_extent", "sta_id") %in% names(grl))
+  stopifnot(length(grl$s) > 0)
+  stopifnot(is.numeric(nj))
+  stopifnot(nj>0)
 
   # number of nodes in the 3d grid
   n <- prod(grl$sz)
@@ -713,6 +723,12 @@ graph_simulation <- function(grl, nj = 100) {
 #' @return list of the path with latitude and longitude and index fo the the path provided
 #' @export
 graph_path2lonlat <- function(path_id, grl) {
+  stopifnot(is.list(grl))
+  stopifnot(c("s", "t", "sz", "lat", "lon", "sta_id") %in% names(grl))
+  stopifnot(length(grl$s) > 0)
+  stopifnot(is.numeric(path_id))
+  stopifnot(all(path_id>0 & path_id <= prod(grl$sz)))
+
   ind <- arrayInd(path_id, grl$sz)
   p <- list()
   p$id <- path_id
@@ -724,7 +740,56 @@ graph_path2lonlat <- function(path_id, grl) {
   return(p)
 }
 
+#' Find the edge index from a path index
+#'
+#' Very inefficient way to find the edges...
+#'
+#' @param path_id list or matrix of node index nj x nsta
+#' @param grl graph constructed with `geopressure_graph_create()`
+#' @return list or matrix of the edge nj x (nsta-1)
+#' @export
+graph_path2edge <- function(path_id, grl){
+  stopifnot(is.list(grl))
+  stopifnot(c("s", "t") %in% names(grl))
+  stopifnot(length(grl$s) > 0)
+  stopifnot(is.numeric(path_id))
+  stopifnot(all(path_id>0 & path_id <= prod(grl$sz)))
 
+  if (is.matrix(path_id)){
+    # Number of paths
+    nj <- dim(path_id)[1]
+    # number of stationay period
+    nsta <- dim(path_id)[2]
+    stopifnot(nsta==grl$sz[3])
+
+    # Get the source and target
+    path_s <- path_id[,1:(nsta-1)]
+    path_t <- path_id[,2:nsta]
+
+    # put as vector
+    dim(path_s) <- (nsta-1)*nj
+    dim(path_t) <- (nsta-1)*nj
+
+  } else {
+    nsta <- length(path_id)
+    nj <- 1
+    stopifnot(nsta==grl$sz[3])
+
+    path_s <- path_id[1:(nsta-1)]
+    path_t <- path_id[2:nsta]
+  }
+
+
+  # Use mapply to loop through each edge. THE WORST!
+  edge <- mapply(function(s,t){
+    which(grl$s == s & grl$t == t)
+  }, path_s, path_t)
+
+  # reshape in original shapre
+  dim(edge) <- c(nj,(nsta-1))
+
+  return(edge)
+}
 
 # Progress bar function
 progress_bar <- function(x, max = 100, text = "") {

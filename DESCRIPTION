@@ -48,7 +48,8 @@ Suggests:
     leaflet.extras,
     shinyWidgets,
     rnaturalearth,
-    covr
+    covr,
+    gridExtra
 VignetteBuilder: 
     knitr
 biocViews:
