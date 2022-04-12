@@ -145,7 +145,7 @@ grl$p <- grl$ps * flight_prob(grl$gs, method = "power", bird = bird, low_speed_f
 
 ## Output 1: Shortest path
 
-In graph theroy, [the shortest path](https://en.wikipedia.org/wiki/Shortest_path_problem) correspond to the set of nodes whose sum of the edges weights are as small as possible. By weighting the edges with the minus of the log of the porbability, this corresponds to finding the most likely trajectory of our bird. We solve this problem with the [igraph package](https://igraph.org/r/)
+In graph theory, [the shortest path](https://en.wikipedia.org/wiki/Shortest_path_problem) correspond to the set of nodes whose sum of the edges weights are as small as possible. By weighting the edges with the minus of the log of the probability, this corresponds to finding the most likely trajectory of our bird. We use the [igraph package](https://igraph.org/r/) to compute the shortestpath
 
 ```{r}
 g <- graph_from_data_frame(data.frame(
@@ -158,8 +158,9 @@ sp <- shortest_paths(g, from = paste(grl$equipement), to = paste(grl$retrival))
 grl$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), grl)
 ```
 
+We can visualize the shortest path with the windpseed direction (arrow) and magnitude (color) experienced during this particular flight
 
-```{r, class.source = 'fold-hide'}
+```{r}
 fun_marker_color <- function(norm){
     if (norm < 20){
       "darkpurple"
@@ -220,7 +221,9 @@ for (i_s in seq_len(grl$sz[3]-1)){
                    "WS: ", round(abs(grl$ws[edge])), ' km/h, ',fun_NSEW(Arg(grl$ws[edge])),'<br>',
                    "AS: ", round(abs(grl$as[edge])), ' km/h, ',fun_NSEW(Arg(grl$as[edge])),'<br>')
     
-      iconArrow <- makeAwesomeIcon(icon = "fa-arrow-up",
+      iconArrow <- makeAwesomeIcon(icon = "arrow-up",
+                                   library = "fa",
+                                   iconColor = "#FFF",
                             iconRotate = (90 - Arg(grl$ws[edge])/pi*180) %% 360,
                             squareMarker = TRUE,
                             markerColor = fun_marker_color(abs(grl$ws[edge])))
