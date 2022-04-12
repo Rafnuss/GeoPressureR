@@ -1,3 +1,6 @@
+library(testthat)
+library(GeoPressureR)
+
 test_that("check build from avonet only", {
   expect_error(flight_bird())
   expect_error(flight_bird("no_bird"))
