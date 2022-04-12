@@ -42,7 +42,6 @@ if ("static_prob_marginal" %in% names(geopressureviz)) {
   map_val[[4]] <- geopressureviz$static_prob_marginal
 }
 
-print(map_choices[tail(which(!is.na(map_val)), 1)])
 
 # Get stationay period information
 sta <- do.call("rbind", lapply(static_prob, function(r) {
@@ -105,7 +104,7 @@ if ("pressure_timeserie" %in% names(geopressureviz)) {
     if (is.null(x)) {
       NA
     } else {
-      x$sta_id[1]
+      median(x$sta_id[!(x$sta_id == 0)])
     }
   }))
   test <- p_ts_sta_id == sta$sta_id
