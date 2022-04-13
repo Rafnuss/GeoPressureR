@@ -573,7 +573,7 @@ geopressure_ts_path <- function(path, pressure, include_flight = F) {
 
   # Interpolate sta_id for flight period so that, a flight between sta_id 2 and 3 will have a
   # `sta_id_interp` between 2 and 3.
-  id_0 <- pressure$sta_id == 0
+  id_0 <- pressure$sta_id == 0 | is.na(pressure$sta_id)
   sta_id_interp <- pressure$sta_id
   sta_id_interp[id_0] <- stats::approx(which(!id_0),
     pressure$sta_id[!id_0], which(id_0),
