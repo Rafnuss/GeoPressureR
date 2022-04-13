@@ -320,23 +320,23 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
 
 #' Request and download surface pressure timeseries at location
 #'
-#' This function return the surfrace atmospheric pressure timeseries from ERA5 at a particualy
-#' location specify by lat and lon. I uses SRTM-30 to translate the pressure for the exact elevation
-#' of the ground level, accounting for both temporal varation of pressure and temperature.
+#' This function return the surface atmospheric pressure timeseries from ERA5 at a queried location.
 #'
 #' If you supply the pressure (and time) of the geolocator, it will additionally return the
-#' elevation of the geolocator above sea level considering that the bird was located at the location
-#' specify.
+#' elevation of the geolocator above sea level.
 #'
 #'  The timeserie of the response will be on the same as time if supply, otherwise, it will return
 #'  on a hourly basis between `start_time` and `end_time`.
+#'
+#'  If the location query is over water, the location will be moved to the closest onshore location.
 #'
 #' @param lon longitude to query (-180° to 180°).
 #' @param lat latitude to query (0° to 90°).
 #' @param pressure pressure list from PAM logger dataset list
 #' @param start_time if pressure not provided, then the start_time of the timeserie return is needed
 #' @param end_time same as start_time
-#' @return Timeserie of date, pressure and optionally altitude
+#' @return Timeserie of date, pressure, latitude, longitude and optionally altitude. Latitude and
+#' longitude differs from the requested coordinates if over water.
 #' @examples
 #' \dontrun{
 #' pam_data <- pam_read(
@@ -401,26 +401,39 @@ geopressure_ts <-
       body_df$endTime <- as.numeric(as.POSIXct(end_time))
     }
 
-    # Request URLS
-    message("Sending request...")
-    res <- httr::POST("http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/",
+    message("Generate request.")
+    res <- httr::POST("http:///glp.mgravey.com:24853/GeoPressure/v1/timeseries/",
       body = body_df,
       encode = "form"
     )
 
     if (httr::http_error(res)) {
-      print(httr::content(res))
+      message(httr::http_status(res)$message)
+      message(httr::content(res))
       stop(paste0(
         "Error with request son http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/. ",
         "Please contact us with the error message if the error persists"
       ))
+    }
+
+    # Retrieve response data
+    res_data <- httr::content(res)$data
+
+    # Check for change in position
+    if (res_data$distInter > 0) {
+      message(paste0(
+        "Requested position is on water We will proceeed the request with the closet ",
+        "point to the shore (https://www.google.com/maps/dir/", lat, ",", lon, "/",
+        res_data$lat, ",", res_data$lon, ") located ", round(res_data$distInter / 1000),
+        " km away). Sending request."
+      ))
     } else {
-      message("Request generated successfully.")
+      message("Request generated successfully. Sending request.")
     }
 
     # Download the csv file
-    message("Downloading csv data...")
-    res2 <- httr::GET(httr::content(res)$data$url)
+    message("")
+    res2 <- httr::GET(res_data$url)
 
     # read csv
     out <- as.data.frame(httr::content(res2,
@@ -431,18 +444,19 @@ geopressure_ts <-
 
     # check for errors
     if (nrow(out) == 0) {
-      stop(paste0(
-        "Returned csv file is empty. Check that the time range is none-empty and that the location",
-        "is not on water: maps.google.com/maps?q=", lat, ",", lon, "\n"
-      ))
+      stop(paste0("Returned csv file is empty. Check that the time range is none-empty"))
     }
 
     # convert Pa to hPa
     out$pressure <- out$pressure / 100
 
     # convert time into date
-    out$time <- as.POSIXct(out$time, origin = "1970-01-01")
+    out$time <- as.POSIXct(out$time, origin = "1970-01-01", tz = "UTC")
     names(out)[names(out) == "time"] <- "date"
+
+    # Add exact location
+    out$lat <- res_data$lat
+    out$lon <- res_data$lon
 
     # Compute the ERA5 pressure normalized to the pressure level (i.e. altitude) of the bird
     if (!is.null(pressure)) {
@@ -469,7 +483,15 @@ geopressure_ts <-
 
 
 #' Query the timeserie of pressure from a path and geolocator pressure
-#' observation
+#'
+#' This function runs in parallel `geopressure_ts()` based on a path and pressure timeserie. It
+#' uses the `sta_id` to match the pressure timeserie to request for each position of the path.
+#'
+#' You can include previous and/or next flight period in each query. This is typically useful to
+#' estimate flight altitude with greater precision.
+#'
+#' If a position of the path is over water, it will be moved to the closest point onshore as
+#' explained in `geopressure_ts()`.
 #'
 #' @param path a data.frame of the position containing latitude (`lat`), longitude  (`lon`) and the
 #' stationay period id (`sta_id`) as column.
@@ -563,10 +585,9 @@ geopressure_ts_path <- function(path, pressure, include_flight = F) {
   f <- c()
 
   for (i_s in seq_len(nrow(path))) {
-    message("query:", i_s, "/", nrow(path))
-
-    # Query pressure for sta_id
     i_sta <- path$sta_id[i_s]
+
+    message("Query sta_id=", i_sta, " (", i_s, "/", nrow(path), ")")
 
     # Subset the pressure of the stationary period
     id_q <- rep(NA, length(sta_id_interp))
@@ -590,8 +611,6 @@ geopressure_ts_path <- function(path, pressure, include_flight = F) {
     tryCatch(
       expr = {
         pressure_timeserie[[i_s]] <- future::value(f[[i_s]])
-        pressure_timeserie[[i_s]]$lon <- path$lon[i_s]
-        pressure_timeserie[[i_s]]$lat <- path$lat[i_s]
         message(paste0("Successful computation of sta_id = ", path$sta_id[i_s], ". "))
       },
       error = function(cond) {
