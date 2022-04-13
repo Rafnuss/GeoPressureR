@@ -61,17 +61,27 @@ test_that("Check geopressure_map2path() output", {
 test_that("Check geopressure_ts() output", {
   pressure_timeserie <- geopressure_ts(
     lon = 6, lat = 46,
-    start_time = as.POSIXct("2017-06-20 00:00:00 UTC"),
-    end_time = as.POSIXct("2017-06-20 02:00:00 UTC")
+    start_time = as.POSIXct("2017-06-20 00:00:00", tz = "UTC"),
+    end_time = as.POSIXct("2017-06-20 02:00:00", tz = "UTC")
   )
   expect_s3_class(pressure_timeserie, "data.frame")
-  expect_true(all(c("date", "pressure") %in% names(pressure_timeserie)))
+  expect_true(all(c("date", "pressure", "lat", "lon") %in% names(pressure_timeserie)))
+
+  # On water
+  expect_message(geopressure_ts(
+    lon = 0, lat = 0,
+    start_time = as.POSIXct("2017-06-20 00:00:00", tz = "UTC"),
+    end_time = as.POSIXct("2017-06-20 02:00:00", tz = "UTC")
+  ), "*water*")
+  expect_s3_class(pressure_timeserie, "data.frame")
+  expect_true(all(c("date", "pressure", "lat", "lon") %in% names(pressure_timeserie)))
+
 
   pressure <- data.frame(
     date = as.POSIXct(c(
-      "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
-      "2017-06-20 02:00:00 UTC"
-    )),
+      "2017-06-20 00:00:00", "2017-06-20 01:00:00",
+      "2017-06-20 02:00:00"
+    ), tz = "UTC"),
     obs = c(1000, 1000, 1000),
     sta_id = c(1, 1, 1)
   )
@@ -90,7 +100,7 @@ test_that("Check geopressure_ts() output", {
   pressure <- subset(pam_data$pressure, sta_id == i_s)
   pressure_timeserie <- geopressure_ts(path$lon, path$lat, pressure)
   expect_true(all(c("date", "pressure", "altitude", "pressure0", "sta_id")
-                  %in% names(pressure_timeserie)))
+  %in% names(pressure_timeserie)))
   expect_equal(nrow(pressure_timeserie), n[2])
 
   pressure <- subset(pam_data$pressure, sta_id == i_s | sta_id == 0)
@@ -133,4 +143,9 @@ test_that("Check geopressure_ts_path() output", {
   expect_equal(nrow(pressure_timeserie[[1]]), n[2])
   pressure_timeserie <- geopressure_ts_path(path, pressure, include_flight = c(-1, 0))
   expect_equal(nrow(pressure_timeserie[[1]]), sum(n[c(1, 2)]))
+
+  # test on water
+  path[1, ] <- c(0, 0, 8)
+  pressure_timeserie <- geopressure_ts_path(path, pressure)
+  expect_true(pressure_timeserie[[1]]$lat[1] != 0)
 })
