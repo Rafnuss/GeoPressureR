@@ -2,10 +2,9 @@
 % Please edit documentation in R/geopressure.R
 \name{geopressure_ts_path}
 \alias{geopressure_ts_path}
-\title{Query the timeserie of pressure from a path and geolocator pressure
-observation}
+\title{Query the timeserie of pressure from a path and geolocator pressure}
 \usage{
-geopressure_ts_path(path, pressure, include_flight = F)
+geopressure_ts_path(path, pressure, include_flight = F, verbose = T)
 }
 \arguments{
 \item{path}{a data.frame of the position containing latitude (\code{lat}), longitude  (\code{lon}) and the
@@ -18,6 +17,8 @@ and/or next flight. Flights are defined by a \code{sta_id=0}. Accept Logical or 
 flight), 0 (stationary) and/or 1 (next flight). (e.g. \code{include_flight=c(-1, 1)} will only search
 for the flight before and after but not the stationary period). Note that next and previous
 flights are defined by the +/1 of the \code{sta_id} value (and not the previous/next \code{sta_id} value).}
+
+\item{verbose}{logical display progress of the queries}
 }
 \value{
 list of data.frame containing for each stationary period, the date, pressure, altitude
@@ -25,8 +26,15 @@ list of data.frame containing for each stationary period, the date, pressure, al
 match geolocator pressure measurement.
 }
 \description{
-Query the timeserie of pressure from a path and geolocator pressure
-observation
+This function runs in parallel \code{geopressure_ts()} based on a path and pressure timeserie. It
+uses the \code{sta_id} to match the pressure timeserie to request for each position of the path.
+}
+\details{
+You can include previous and/or next flight period in each query. This is typically useful to
+estimate flight altitude with greater precision.
+
+If a position of the path is over water, it will be moved to the closest point onshore as
+explained in \code{geopressure_ts()}.
 }
 \examples{
 # Create pam_data

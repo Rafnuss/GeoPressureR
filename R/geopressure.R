@@ -40,7 +40,8 @@
 #' )
 #' }
 #' pressure_maps <- readRDS(system.file("extdata", "18LX_pressure_maps.rda",
-#' package = "GeoPressureR"))
+#'   package = "GeoPressureR"
+#' ))
 #' raster::metadata(pressure_maps[[1]])
 #' raster::plot(pressure_maps[[1]],
 #'   main = c("Mean Square Error", "Mask of pressure")
@@ -217,8 +218,8 @@ geopressure_map <-
       },
       error = function(cond) {
         message(paste0(
-          "\nError during the reading of the file. We return the uris of the gee request, ",
-          " the filename to the file already downloaded and the pressure_maps already computed. ",
+          "Error during the reading of the file. We return the uris of the gee request, ",
+          "the filename to the file already downloaded and the pressure_maps already computed. ",
           "Here is the original error: "
         ))
         message(cond)
@@ -276,7 +277,8 @@ geopressure_map <-
 #' )
 #' }
 #' pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda",
-#' package = "GeoPressureR"))
+#'   package = "GeoPressureR"
+#' ))
 #' raster::metadata(pressure_prob[[1]])
 #' raster::plot(pressure_prob[[1]],
 #'   main = "Probability",
@@ -335,6 +337,7 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
 #' @param pressure pressure list from PAM logger dataset list
 #' @param start_time if pressure not provided, then the start_time of the timeserie return is needed
 #' @param end_time same as start_time
+#' @param verbose logical display progress of the query
 #' @return Timeserie of date, pressure, latitude, longitude and optionally altitude. Latitude and
 #' longitude differs from the requested coordinates if over water.
 #' @examples
@@ -354,7 +357,8 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
 #' )
 #' }
 #' pressure_timeserie <- readRDS(system.file("extdata", "18LX_pressure_timeserie.rda",
-#' package = "GeoPressureR"))
+#'   package = "GeoPressureR"
+#' ))
 #' par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
 #' plot(pressure_timeserie[[1]]$date,
 #'   pressure_timeserie[[1]]$pressure,
@@ -366,7 +370,7 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
 #' )
 #' @export
 geopressure_ts <-
-  function(lon, lat, pressure = NULL, end_time = NULL, start_time = NULL) {
+  function(lon, lat, pressure = NULL, end_time = NULL, start_time = NULL, verbose = T) {
     # Check input
     stopifnot(is.numeric(lon))
     stopifnot(is.numeric(lat))
@@ -390,6 +394,7 @@ geopressure_ts <-
       stopifnot(inherits(start_time, "POSIXt"))
       stopifnot(start_time <= end_time)
     }
+    stopifnot(is.logical(verbose))
 
     # Format query
     body_df <- list(lon = lon, lat = lat)
@@ -401,7 +406,7 @@ geopressure_ts <-
       body_df$endTime <- as.numeric(as.POSIXct(end_time))
     }
 
-    message("Generate request.")
+    if (verbose) message("Generate request.")
     res <- httr::POST("http:///glp.mgravey.com:24853/GeoPressure/v1/timeseries/",
       body = body_df,
       encode = "form"
@@ -421,14 +426,14 @@ geopressure_ts <-
 
     # Check for change in position
     if (res_data$distInter > 0) {
-      message(paste0(
+      warning(
         "Requested position is on water We will proceeed the request with the closet ",
         "point to the shore (https://www.google.com/maps/dir/", lat, ",", lon, "/",
         res_data$lat, ",", res_data$lon, ") located ", round(res_data$distInter / 1000),
-        " km away). Sending request."
-      ))
+        " km away). Sending request.", immediate.=T
+      )
     } else {
-      message("Request generated successfully. Sending request.")
+      if (verbose) message("Request generated successfully. Sending request.")
     }
 
     # Download the csv file
@@ -501,6 +506,7 @@ geopressure_ts <-
 #' flight), 0 (stationary) and/or 1 (next flight). (e.g. `include_flight=c(-1, 1)` will only search
 #' for the flight before and after but not the stationary period). Note that next and previous
 #' flights are defined by the +/1 of the `sta_id` value (and not the previous/next `sta_id` value).
+#' @param verbose logical display progress of the queries
 #' @return list of data.frame containing for each stationary period, the date, pressure, altitude
 #' (same as `geopressure_ts()`) but also sta_id, lat, lon and pressure0, pressure normalized to
 #' match geolocator pressure measurement.
@@ -517,14 +523,16 @@ geopressure_ts <-
 #' \dontrun{
 #' # load probability map of pressure
 #' pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda",
-#' package = "GeoPressureR"))
+#'   package = "GeoPressureR"
+#' ))
 #' # Find the most likely position
 #' path <- geopressure_map2path(pressure_prob)
 #' # compute the pressure at those location for the period in question
 #' pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 #' }
 #' pressure_timeserie <- readRDS(system.file("extdata", "18LX_pressure_timeserie.rda",
-#' package = "GeoPressureR"))
+#'   package = "GeoPressureR"
+#' ))
 #' p <- ggplot2::ggplot() +
 #'   ggplot2::geom_line(
 #'     data = pam_data$pressure,
@@ -549,7 +557,7 @@ geopressure_ts <-
 #' )
 #' py
 #' @export
-geopressure_ts_path <- function(path, pressure, include_flight = F) {
+geopressure_ts_path <- function(path, pressure, include_flight = F, verbose = T) {
   stopifnot(is.data.frame(pressure))
   stopifnot("date" %in% names(pressure))
   stopifnot(inherits(pressure$date, "POSIXt"))
@@ -570,6 +578,7 @@ geopressure_ts_path <- function(path, pressure, include_flight = F) {
   }
   stopifnot(is.numeric(include_flight))
   stopifnot(all(include_flight %in% c(-1, 0, 1)))
+  stopifnot(is.logical(verbose))
 
   # Interpolate sta_id for flight period so that, a flight between sta_id 2 and 3 will have a
   # `sta_id_interp` between 2 and 3.
@@ -584,11 +593,14 @@ geopressure_ts_path <- function(path, pressure, include_flight = F) {
   future::plan(future::multisession, workers = 10)
   f <- c()
 
+  if (verbose) {
+    message("Sending requests for ", nrow(path), " stationary periods:")
+    progress_bar(0, max = nrow(path))
+  }
+
   for (i_s in seq_len(nrow(path))) {
     i_sta <- path$sta_id[i_s]
-
-    message("Query sta_id=", i_sta, " (", i_s, "/", nrow(path), ")")
-
+    if (verbose) progress_bar(i_s, max = nrow(path), text = paste0("| sta = ", i_sta))
     # Subset the pressure of the stationary period
     id_q <- rep(NA, length(sta_id_interp))
     if (any(0 == include_flight)) {
@@ -602,20 +614,24 @@ geopressure_ts_path <- function(path, pressure, include_flight = F) {
     }
     # Send the query
     f[[i_s]] <- future::future({
-      geopressure_ts(path$lon[i_s], path$lat[i_s], pressure = subset(pressure, !is.na(id_q)))
+      geopressure_ts(path$lon[i_s], path$lat[i_s],
+        pressure = subset(pressure, !is.na(id_q)),
+        verbose = F
+      )
     })
   }
 
   pressure_timeserie <- list()
+  message("Downloading the data:")
+  progress_bar(0, max = nrow(path))
   for (i_s in seq_len(length(f))) {
+    progress_bar(i_s, max = nrow(path), text = paste0("| sta = ", i_sta))
     tryCatch(
       expr = {
         pressure_timeserie[[i_s]] <- future::value(f[[i_s]])
-        message(paste0("Successful computation of sta_id = ", path$sta_id[i_s], ". "))
       },
       error = function(cond) {
-        message(paste0("Error for sta_id = ", path$sta_id[i_s], ". "))
-        message(cond)
+        warning(paste0("Error for sta_id = ", path$sta_id[i_s], ".\n", cond))
       }
     )
   }
@@ -763,9 +779,13 @@ geopressure_map2path <- function(map, interp = 0, format = "lonlat") {
 
 
 # Progress bar function
-progress_bar <- function(x, max = 100) {
+progress_bar <- function(x, max = 100, text = "") {
   percent <- x / max * 100
-  cat(sprintf("\r[%-50s] %d / %d", paste(rep("=", percent / 2), collapse = ""), x, max))
+  cat(sprintf(
+    "\r[%-50s] %d / %d %s",
+    paste(rep("=", percent / 2), collapse = ""),
+    x, max, text
+  ))
   if (x == max) {
     cat("\n")
   }

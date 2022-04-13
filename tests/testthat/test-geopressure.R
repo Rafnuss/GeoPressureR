@@ -68,7 +68,7 @@ test_that("Check geopressure_ts() output", {
   expect_true(all(c("date", "pressure", "lat", "lon") %in% names(pressure_timeserie)))
 
   # On water
-  expect_message(geopressure_ts(
+  expect_warning(geopressure_ts(
     lon = 0, lat = 0,
     start_time = as.POSIXct("2017-06-20 00:00:00", tz = "UTC"),
     end_time = as.POSIXct("2017-06-20 02:00:00", tz = "UTC")

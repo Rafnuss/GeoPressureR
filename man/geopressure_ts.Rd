@@ -4,7 +4,14 @@
 \alias{geopressure_ts}
 \title{Request and download surface pressure timeseries at location}
 \usage{
-geopressure_ts(lon, lat, pressure = NULL, end_time = NULL, start_time = NULL)
+geopressure_ts(
+  lon,
+  lat,
+  pressure = NULL,
+  end_time = NULL,
+  start_time = NULL,
+  verbose = T
+)
 }
 \arguments{
 \item{lon}{longitude to query (-180° to 180°).}
@@ -16,22 +23,24 @@ geopressure_ts(lon, lat, pressure = NULL, end_time = NULL, start_time = NULL)
 \item{end_time}{same as start_time}
 
 \item{start_time}{if pressure not provided, then the start_time of the timeserie return is needed}
+
+\item{verbose}{logical display progress of the query}
 }
 \value{
-Timeserie of date, pressure and optionally altitude
+Timeserie of date, pressure, latitude, longitude and optionally altitude. Latitude and
+longitude differs from the requested coordinates if over water.
 }
 \description{
-This function return the surfrace atmospheric pressure timeseries from ERA5 at a particualy
-location specify by lat and lon. I uses SRTM-30 to translate the pressure for the exact elevation
-of the ground level, accounting for both temporal varation of pressure and temperature.
+This function return the surface atmospheric pressure timeseries from ERA5 at a queried location.
 }
 \details{
 If you supply the pressure (and time) of the geolocator, it will additionally return the
-elevation of the geolocator above sea level considering that the bird was located at the location
-specify.
+elevation of the geolocator above sea level.
 
 The timeserie of the response will be on the same as time if supply, otherwise, it will return
 on a hourly basis between \code{start_time} and \code{end_time}.
+
+If the location query is over water, the location will be moved to the closest onshore location.
 }
 \examples{
 \dontrun{
