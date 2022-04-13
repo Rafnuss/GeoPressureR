@@ -320,23 +320,23 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
 
 #' Request and download surface pressure timeseries at location
 #'
-#' This function return the surfrace atmospheric pressure timeseries from ERA5 at a particualy
-#' location specify by lat and lon. I uses SRTM-30 to translate the pressure for the exact elevation
-#' of the ground level, accounting for both temporal varation of pressure and temperature.
+#' This function return the surface atmospheric pressure timeseries from ERA5 at a queried location.
 #'
 #' If you supply the pressure (and time) of the geolocator, it will additionally return the
-#' elevation of the geolocator above sea level considering that the bird was located at the location
-#' specify.
+#' elevation of the geolocator above sea level.
 #'
 #'  The timeserie of the response will be on the same as time if supply, otherwise, it will return
 #'  on a hourly basis between `start_time` and `end_time`.
+#'
+#'  If the location query is over water, the location will be moved to the closest onshore location.
 #'
 #' @param lon longitude to query (-180° to 180°).
 #' @param lat latitude to query (0° to 90°).
 #' @param pressure pressure list from PAM logger dataset list
 #' @param start_time if pressure not provided, then the start_time of the timeserie return is needed
 #' @param end_time same as start_time
-#' @return Timeserie of date, pressure and optionally altitude
+#' @return Timeserie of date, pressure, latitude, longitude and optionally altitude. Latitude and
+#' longitude differs from the requested coordinates if over water.
 #' @examples
 #' \dontrun{
 #' pam_data <- pam_read(
@@ -483,7 +483,15 @@ geopressure_ts <-
 
 
 #' Query the timeserie of pressure from a path and geolocator pressure
-#' observation
+#'
+#' This function runs in parallel `geopressure_ts()` based on a path and pressure timeserie. It
+#' uses the `sta_id` to match the pressure timeserie to request for each position of the path.
+#'
+#' You can include previous and/or next flight period in each query. This is typically useful to
+#' estimate flight altitude with greater precision.
+#'
+#' If a position of the path is over water, it will be moved to the closest point onshore as
+#' explained in `geopressure_ts()`.
 #'
 #' @param path a data.frame of the position containing latitude (`lat`), longitude  (`lon`) and the
 #' stationay period id (`sta_id`) as column.

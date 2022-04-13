@@ -242,13 +242,8 @@ We can repeat the computation of the pressure timeserie for all stationary perio
 path <- geopressure_map2path(pressure_prob)
 ```
  
-We need a dirty fix for `i_s=5` where the center of grid cell falls into water. This is caused by `geopressure_map()` which accept any location of the map if there are some land in its pixel. We retrieve the center of the grid cell which might fall on the water.
- 
-```{r}
-path$lat[5] <- path$lat[5] + .25
-```
 
-Secondly, we can use `geopressure_ts_path()` which basically call `geopressure_ts()` in parallel for all stationary periods. We can additionally request to compute the altitude during the next flight flight with `include_flight = c(0,1)`.
+Secondly, we can use `geopressure_ts_path()` which basically call `geopressure_ts()` in parallel for all stationary periods. We can additionally request to compute the altitude during the next flight flight with `include_flight = c(0,1)`. Note that if a position of the path is over water, it will be moved to the closest point onshore.
 
 ```{r, eval=F}
 pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure, include_flight = c(0,1))
