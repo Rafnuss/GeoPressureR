@@ -4,6 +4,9 @@
     <loc>https://raphaelnussbaumer.com/GeoPressureR/404.html</loc>
   </url>
   <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/CONTRIBUTING.html</loc>
+  </url>
+  <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/LICENSE.html</loc>
   </url>
   <url>
@@ -76,6 +79,9 @@
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/graph_marginal.html</loc>
   </url>
   <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/graph_path2edge.html</loc>
+  </url>
+  <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/graph_path2lonlat.html</loc>
   </url>
   <url>
@@ -85,13 +91,10 @@
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/graph_trim.html</loc>
   </url>
   <url>
-    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/grl.html</loc>
-  </url>
-  <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/light_prob.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/light2mat.html</loc>
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pam_classify.html</loc>
@@ -106,25 +109,10 @@
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pam_sta.html</loc>
   </url>
   <url>
-    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pressure_maps.html</loc>
-  </url>
-  <url>
-    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pressure_prob.html</loc>
-  </url>
-  <url>
-    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pressure_timeserie.html</loc>
-  </url>
-  <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/refracted.html</loc>
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/solar.html</loc>
-  </url>
-  <url>
-    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/static_prob.html</loc>
-  </url>
-  <url>
-    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/static_timeserie.html</loc>
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/trainset_edit.html</loc>
