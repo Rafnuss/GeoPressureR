@@ -465,8 +465,8 @@ geopressure_ts <-
 
     # Compute the ERA5 pressure normalized to the pressure level (i.e. altitude) of the bird
     if (!is.null(pressure)) {
-      # find when the bird was in flight
-      id_0 <- pressure$sta_id == 0
+      # find when the bird was in flight or not to be considered
+      id_0 <- pressure$sta_id == 0 | is.na(pressure$sta_id)
       # If no ground (ie. no flight) is present, pressure0 has no meaning
       if (!all(id_0)) {
         # We compute the mean pressure of the geolocator only when the bird is on the ground
