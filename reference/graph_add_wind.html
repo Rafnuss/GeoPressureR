@@ -81,22 +81,26 @@ bird and the corresponding airspeed for each edge of the graph.</p>
 <dd><p>graph constructed with <code><a href="graph_create.html">graph_create()</a></code></p></dd>
 <dt>pressure</dt>
 <dd><p>pressure data from a PAM logger. This data.frame needs to contains <code>date</code> as
-POSIXt and <code>obs</code> in hPa. It is best practice to use <code><a href="pam_read.html">pam_read()</a></code> and <code><a href="pam_sta.html">pam_sta()</a></code> to build this
-data.frame.</p></dd>
+POSIXt and <code>obs</code> in hPa. It is best practice to use <code><a href="pam_read.html">pam_read()</a></code> and <code><a href="pam_sta.html">pam_sta()</a></code> to build
+this data.frame.</p></dd>
 <dt>filename</dt>
-<dd><p>character of the path where to find the netCDF file.</p></dd>
+<dd><p>Character of the path where to find the netCDF file.</p></dd>
 <dt>thr_as</dt>
-<dd><p>threshold of airspeed (km/h)</p></dd>
+<dd><p>Threshold of airspeed (km/h).</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>graph as a list with windspeed and airspeed as <code>ws</code> and <code>as</code> respectively (see
-<code><a href="graph_create.html">graph_create()</a></code> for more detail on the graph returned)</p>
+    <p>Graph as a list with windspeed and airspeed as <code>ws</code> and <code>as</code> respectively (see
+<code><a href="graph_create.html">graph_create()</a></code> for more detail on the graph returned).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>See the vignette <a href="articles/wind-graph.html">Graph with wind</a> for explanations and example on
-how to download the NetCDF file.</p>
+    <p>See the vignette <a href="https://raphaelnussbaumer.com/GeoPressureR/articles/wind-graph.html">Graph with wind </a> for explanations and
+example on how to download the <code>NetCDF</code> files from ERA-5.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="graph_create.html">graph_create()</a></code>, <a href="https://raphaelnussbaumer.com/GeoPressureR/articles/wind-graph.html">Vignette Wind Graph </a></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

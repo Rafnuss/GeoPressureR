@@ -82,17 +82,18 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>lon</dt>
-<dd><p>longitude to query (-180° to 180°).</p></dd>
+<dd><p>Longitude to query (-180° to 180°).</p></dd>
 <dt>lat</dt>
-<dd><p>latitude to query (0° to 90°).</p></dd>
+<dd><p>Latitude to query (0° to 90°).</p></dd>
 <dt>pressure</dt>
-<dd><p>pressure list from PAM logger dataset list</p></dd>
+<dd><p>Pressure list from PAM logger dataset list.</p></dd>
 <dt>end_time</dt>
-<dd><p>same as start_time</p></dd>
+<dd><p>Same as <code>start_time</code></p></dd>
 <dt>start_time</dt>
-<dd><p>if pressure not provided, then the start_time of the timeserie return is needed</p></dd>
+<dd><p>If <code>pressure</code> is not provided, then <code>start_time</code> define the starting time of
+the timeserie as POSIXlt.</p></dd>
 <dt>verbose</dt>
-<dd><p>logical display progress of the query</p></dd>
+<dd><p>Display (or not) the progress of the query (logical).</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -106,6 +107,10 @@ elevation of the geolocator above sea level.</p>
 <p>The timeserie of the response will be on the same as time if supply, otherwise, it will return
 on a hourly basis between <code>start_time</code> and <code>end_time</code>.</p>
 <p>If the location query is over water, the location will be moved to the closest onshore location.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="geopressure_ts_path.html">geopressure_ts_path()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -126,15 +131,15 @@ on a hourly basis between <code>start_time</code> and <code>end_time</code>.</p>
 <span class="r-in"><span class="op">)</span></span>
 <span class="r-in"><span class="op">}</span></span>
 <span class="r-in"><span class="va">pressure_timeserie</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"18LX_pressure_timeserie.rda"</span>,</span>
-<span class="r-in">package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in">  package <span class="op">=</span> <span class="st">"GeoPressureR"</span></span>
+<span class="r-in"><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pressure_timeserie</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">date</span>,</span>
-<span class="r-in">  <span class="va">pressure_timeserie</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">pressure</span>,</span>
-<span class="r-in">  ylab <span class="op">=</span> <span class="st">"Pressure [hPa]"</span>, xlab <span class="op">=</span> <span class="st">""</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pressure_timeserie</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">date</span>, <span class="va">pressure_timeserie</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">pressure</span>,</span>
+<span class="r-in">  ylab <span class="op">=</span> <span class="st">"Pressure [hPa]"</span>, xlab <span class="op">=</span> <span class="st">""</span>, type <span class="op">=</span> <span class="st">"l"</span></span>
 <span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pressure_timeserie</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">date</span>,</span>
-<span class="r-in">  <span class="va">pressure_timeserie</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">altitude</span>,</span>
-<span class="r-in">  ylab <span class="op">=</span> <span class="st">"Altitude [m asl]"</span>, xlab <span class="op">=</span> <span class="st">""</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pressure_timeserie</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">date</span>, <span class="va">pressure_timeserie</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">altitude</span>,</span>
+<span class="r-in">  ylab <span class="op">=</span> <span class="st">"Altitude [m asl]"</span>, xlab <span class="op">=</span> <span class="st">""</span>, type <span class="op">=</span> <span class="st">"l"</span></span>
 <span class="r-in"><span class="op">)</span></span>
 <span class="r-plt img"><img src="geopressure_ts-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>

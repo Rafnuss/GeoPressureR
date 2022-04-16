@@ -87,17 +87,17 @@ read these map (geotiff) in a raster and (3) compute the likelihood map from the
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>pressure</dt>
-<dd><p>pressure data from a PAM logger. This data.frame needs to contains <code>date</code> as
-POSIXt, <code>obs</code> in hPa, <code>sta_id</code> grouping observation measured during the same stationary period
+<dd><p>Pressure data.frame from a PAM logger. This data.frame needs to contains <code>date</code>
+as POSIXt, <code>obs</code> in hPa, <code>sta_id</code> grouping observation measured during the same stationary period
 and <code>isoutliar</code> as logical to label observation which need to be ignorede. It is best practice to
 use <code><a href="pam_read.html">pam_read()</a></code> and <code><a href="pam_sta.html">pam_sta()</a></code> to build this data.frame.</p></dd>
 <dt>extent</dt>
 <dd><p>Geographical extent of the map to query as a list ordered by North, West, South,
 East  (e.g. <code>c(50,-16,0,20)</code>).</p></dd>
 <dt>scale</dt>
-<dd><p>Number of pixel per latitude, longitude. 10 for a resoltion of 0.1° (~10) and 4 for
-a resolution of 0.25° (~30km). To avoid interpolating the ERA5 data, scale should be smaller than
-10. Read more about scale on Google earth Engine documentation.</p></dd>
+<dd><p>Number of pixel per 1° latitude-longitude. For instance, <code>scale = 10</code> for a
+resolution of 0.1° (~10km) and 4 for a resolution of 0.25° (~30km). To avoid interpolating the
+ERA5 data, scale should be smaller than 10. Read more about <a href="https://developers.google.com/earth-engine/guides/scale" class="external-link">scale on Google earth Engine documentation</a>.</p></dd>
 <dt>max_sample</dt>
 <dd><p>The computation of the mismatch is only performed on <code>max_sample</code> datapoints of
 pressure to reduce computational time. The samples are randomly (uniformly) selected on the
@@ -109,6 +109,10 @@ meter. (1hPa~10m)</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>List of raster map</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="geopressure_prob_map.html">geopressure_prob_map()</a></code>, <a href="https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html">Vignette Pressure Map </a></p></div>
     </div>
 
     <div class="section level2">
@@ -131,7 +135,8 @@ meter. (1hPa~10m)</p></dd>
 <span class="r-in"><span class="op">)</span></span>
 <span class="r-in"><span class="op">}</span></span>
 <span class="r-in"><span class="va">pressure_maps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"18LX_pressure_maps.rda"</span>,</span>
-<span class="r-in">package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in">  package <span class="op">=</span> <span class="st">"GeoPressureR"</span></span>
+<span class="r-in"><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/metadata.html" class="external-link">metadata</a></span><span class="op">(</span><span class="va">pressure_maps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $sta_id</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>

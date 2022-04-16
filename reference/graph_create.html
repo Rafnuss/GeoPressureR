@@ -78,34 +78,43 @@ the probability maps provided.</p>
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>static_prob</dt>
-<dd><p>list of raster containing probability map of each stationary period. The
+<dd><p>List of raster containing probability map of each stationary period. The
 metadata of <code>static_prob</code> needs to include the flight information to the next stationary period
 in the metadata <code>flight</code>.</p></dd>
 <dt>thr_prob_percentile</dt>
-<dd><p>threshold of percentile (see explanation above)</p></dd>
+<dd><p>Threshold of percentile (see details).</p></dd>
 <dt>thr_gs</dt>
-<dd><p>threshold of groundspeed (km/h)  (see explanation above)</p></dd>
+<dd><p>Threshold of groundspeed (km/h)  (see details).</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>graph as a list (see description above)</p>
+    <p>Graph as a list (see details).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>In the final graph, we only keep the most likely node (position in time) defined as: 1. those
 which cumulative probability reach up to <code>thr_prob_percentile</code> for each stationary period. 2.
 those which average ground speed is lower than <code>thr_gs</code> km/h.</p>
-<p>The graph returned is a list of the edges of the graph containing: - <code>s</code>: source node (index in
-the 3d grid lat-lon-sta), - <code>t</code>: target node (index in the 3d grid lat-lon-sta), - <code>gs</code>: average
-ground speed required to make that transition (km/h) as complex number representing the E-W as
-real and S-N as imaginary. - <code>ps</code>: static probability of each target node - <code>sz</code>: size of the 3d
-grid lat-lon-sta - <code>equipement</code>: node(s) of the first sta (index in the 3d grid lat-lon-sta) -
-<code>retrival</code>: node(s) of the last sta (index in the 3d grid lat-lon-sta) - <code>flight_duration</code>: list
-of flight duration to next sta in hours - <code>lat</code>: list of the <code>static_prob</code> latitude in cell
-center - <code>lon</code>: list of the <code>static_prob</code> longitude in cell center - <code>extent</code>: raster
-geographical extent of the <code>static_prob`` - </code>resolution<code>: raster res of the </code>static_prob<code>-</code>temporal_extent<code>: start and end date time retrieved from the metadata of </code>static_prob`</p>
-<p>The vignette <a href="articles/basic-graph.html">Basic graph</a> provided an example how to prepare the
+<p>The graph returned is a list of the edges of the graph containing:</p><ul><li><p><code>s</code>: source node (index in the 3d grid lat-lon-sta),</p></li>
+<li><p><code>t</code>: target node (index in the 3d grid lat-lon-sta),</p></li>
+<li><p><code>gs</code>: average ground speed required to make that transition (km/h) as complex number
+representing the E-W as real and S-N as imaginary.</p></li>
+<li><p><code>ps</code>: static probability of each target node,</p></li>
+<li><p><code>sz</code>: size of the 3d grid lat-lon-sta,</p></li>
+<li><p><code>equipement</code>: node(s) of the first sta (index in the 3d grid lat-lon-sta),</p></li>
+<li><p><code>retrival</code>: node(s) of the last sta (index in the 3d grid lat-lon-sta),</p></li>
+<li><p><code>flight_duration</code>: list of flight duration to next sta in hours,</p></li>
+<li><p><code>lat</code>: list of the <code>static_prob</code> latitude in cell center,</p></li>
+<li><p><code>lon</code>: list of the <code>static_prob</code> longitude in cell center,</p></li>
+<li><p><code>extent</code>: raster geographical extent of the <code>static_prob</code>,</p></li>
+<li><p><code>resolution</code>: raster res of the <code>static_prob</code>,</p></li>
+<li><p><code>temporal_extent</code>: start and end date time retrieved from the metadata of <code>static_prob</code>.</p></li>
+</ul><p>The vignette <a href="/articles/basic-graph.html">Basic graph</a> provided an example how to prepare the
 data for the function and the output of this function.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><a href="https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html">Vignette Basic Graph </a></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

@@ -87,13 +87,17 @@ body frontal area. It is best practice to create bird with <code><a href="flight
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>mechanical power in Watt (or Joule/seconds) corresponding to the airspeed</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="flight_bird.html">flight_bird()</a></code>, <code><a href="flight_prob.html">flight_prob()</a></code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">bird</span> <span class="op">&lt;-</span> <span class="fu"><a href="flight_bird.html">flight_bird</a></span><span class="op">(</span><span class="st">"Acrocephalus arundinaceus"</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">airspeed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">30</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">power</span> <span class="op">&lt;-</span> <span class="fu">flight_power</span><span class="op">(</span><span class="va">airspeed</span>, <span class="va">bird</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">airspeed</span>, <span class="va">power</span>, xlab <span class="op">=</span> <span class="st">"Airspeed [m/s]"</span>, ylab <span class="op">=</span> <span class="st">"Mechanical Power [W]"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">airspeed</span>, <span class="va">power</span>, xlab <span class="op">=</span> <span class="st">"Airspeed [m/s]"</span>, ylab <span class="op">=</span> <span class="st">"Mechanical Power [W]"</span>, type <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="flight_power-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
