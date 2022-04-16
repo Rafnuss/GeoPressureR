@@ -261,25 +261,18 @@ server <- function(input, output, session) {
 
   observeEvent(input$query_pos, {
     sta_id <- sta$sta_id[as.numeric(input$i_sta)]
-    pam_pressure_sta <- subset(pressure, sta_id == sta_id)
-    tryCatch({
-      ts <- geopressure_ts(reactVal$path$lon[as.numeric(input$i_sta)], reactVal$path$lat[as.numeric(input$i_sta)],
-        pressure = pam_pressure_sta
-      )
-      ts$sta_id <- sta_id
-      ts$pressure0 <- ts$pressure - mean(ts$pressure) + mean(pam_pressure_sta$obs[!pam_pressure_sta$isoutliar])
-      ts$lt <- sum(sta_id == lapply(reactVal$ts, function(x) {
-        x$sta_id[1]
-      })) + 1
-      reactVal$ts[[length(reactVal$ts) + 1]] <- ts
-      updateSelectizeInput(session, "i_sta", selected = 1)
-      updateSelectizeInput(session, "i_sta", selected = input$i_sta)
-    },
-    error=function(cond) {
-      message(cond)
-      # Choose a return value in case of error
-      return(NA)
-    })
+    pam_pressure_sta <- pressure[pressure$sta_id==sta_id,]
+    ts <- geopressure_ts(reactVal$path$lon[as.numeric(input$i_sta)], reactVal$path$lat[as.numeric(input$i_sta)],
+      pressure = pam_pressure_sta
+    )
+    ts$lt <- sum(sta_id == unlist(lapply(reactVal$ts, function(x) {
+      x$sta_id[1]
+    }))) + 1
+    reactVal$path$lon[as.numeric(input$i_sta)] <- ts$lon[1]
+    reactVal$path$lat[as.numeric(input$i_sta)] <- ts$lat[1]
+    reactVal$ts[[length(reactVal$ts) + 1]] <- ts
+    updateSelectizeInput(session, "i_sta", selected = 1)
+    updateSelectizeInput(session, "i_sta", selected = input$i_sta)
   })
 
   # Pressure Graph
