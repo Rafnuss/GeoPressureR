@@ -262,8 +262,8 @@ server <- function(input, output, session) {
   observeEvent(input$query_pos, {
     sta_id <- sta$sta_id[as.numeric(input$i_sta)]
     pam_pressure_sta <- subset(pressure, sta_id == sta_id)
-    tryCatch(expr = {
-      ts <- geopressure_ts(reactVal$path$lon[input$i_sta], reactVal$path$lat[input$i_sta],
+    tryCatch({
+      ts <- geopressure_ts(reactVal$path$lon[as.numeric(input$i_sta)], reactVal$path$lat[as.numeric(input$i_sta)],
         pressure = pam_pressure_sta
       )
       ts$sta_id <- sta_id
@@ -274,6 +274,11 @@ server <- function(input, output, session) {
       reactVal$ts[[length(reactVal$ts) + 1]] <- ts
       updateSelectizeInput(session, "i_sta", selected = 1)
       updateSelectizeInput(session, "i_sta", selected = input$i_sta)
+    },
+    error=function(cond) {
+      message(cond)
+      # Choose a return value in case of error
+      return(NA)
     })
   })
 
