@@ -147,11 +147,14 @@ geopressure_map <-
       encode = "form"
     )
     if (httr::http_error(res)) {
-      print(httr::content(res))
+      message(httr::content(res))
+      temp_file <- tempfile("log_geopressure_map_",fileext=".json")
+      write(jsonlite::toJSON(body_df), temp_file)
       stop(paste0(
-        "Error with request on http://glp.mgravey.com:24853/GeoPressure/v1/map/. ",
-        "Please contact us with the error message if the error persists"
-      ))
+        "Error with youre request on http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/.",
+        "Please try again, and if the problem persists, file an issue on Github:
+        https://github.com/Rafnuss/GeoPressureServer/issues/new?body=geopressure_ts&labels=crash
+        with this log file located on your computer: ", temp_file))
     }
 
     # Get URIS
@@ -415,10 +418,14 @@ geopressure_ts <-
     if (httr::http_error(res)) {
       message(httr::http_status(res)$message)
       message(httr::content(res))
+      temp_file <- tempfile("log_geopressure_ts_",fileext=".json")
+      write(jsonlite::toJSON(body_df), temp_file)
       stop(paste0(
-        "Error with request son http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/. ",
-        "Please contact us with the error message if the error persists"
-      ))
+        "Error with youre request on http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/.",
+        "Please try again, and if the problem persists, file an issue on Github:
+        https://github.com/Rafnuss/GeoPressureServer/issues/new?body=geopressure_ts&labels=crash
+        with this log file located on your computer: ", temp_file))
+
     }
 
     # Retrieve response data
@@ -449,7 +456,10 @@ geopressure_ts <-
 
     # check for errors
     if (nrow(out) == 0) {
-      stop(paste0("Returned csv file is empty. Check that the time range is none-empty"))
+      temp_file <- tempfile("log_geopressure_ts_",fileext=".json")
+      write(jsonlite::toJSON(body_df), temp_file)
+      stop(paste0("Returned csv file is empty. Check that the time range is none-empty.",
+                  "You can fin your request JSON: ", temp_file))
     }
 
     # convert Pa to hPa
