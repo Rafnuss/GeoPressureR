@@ -49,6 +49,9 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   # convert raster into normalized matrix
   static_prob_n <- lapply(static_prob, function(x) {
     probt <- raster::as.matrix(x)
+    if (sum(probt, na.rm = T)==0){
+      probt[probt==0] <- 1
+    }
     probt[is.na(probt)] <- 0
     probt / sum(probt, na.rm = T)
   })
