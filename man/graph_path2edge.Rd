@@ -7,13 +7,16 @@
 graph_path2edge(path_id, grl)
 }
 \arguments{
-\item{path_id}{list or matrix of node index nj x nsta}
+\item{path_id}{List or matrix of node index (\verb{nj x nsta}).}
 
-\item{grl}{graph constructed with \code{geopressure_graph_create()}}
+\item{grl}{Graph constructed with \code{\link[=graph_create]{graph_create()}}.}
 }
 \value{
-list or matrix of the edge nj x (nsta-1)
+List or matrix of the edge \verb{nj x (nsta-1)}.
 }
 \description{
 Very inefficient way to find the edges...
+}
+\seealso{
+\code{\link[=graph_create]{graph_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html}{Vignette Basic Graph }
 }

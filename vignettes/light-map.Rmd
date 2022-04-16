@@ -95,7 +95,7 @@ write.csv(
   data.frame(
     series = ifelse(twl$rise, "Rise", "Set"),
     timestamp = strftime(twl$twilight, "%Y-%m-%dT00:00:00Z", tz = "UTC"),
-    value = as.numeric(format(twl$twilight, "%H")) * 60 + as.numeric(format(twl$twilight, "%M")),
+    value =       value = (as.numeric(format(twl$twilight, "%H")) * 60 + as.numeric(format(twl$twilight, "%M")) - shift_k/60 + 60 * 12) %% (60*24),
     label = ifelse(is.null(twl$delete), "", ifelse(twl$delete, "Delete", ""))
   ),
   file = "~/18LX_light.csv",

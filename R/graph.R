@@ -7,26 +7,33 @@
 #' which cumulative probability reach up to `thr_prob_percentile` for each stationary period. 2.
 #' those which average ground speed is lower than `thr_gs` km/h.
 #'
-#' The graph returned is a list of the edges of the graph containing: - `s`: source node (index in
-#' the 3d grid lat-lon-sta), - `t`: target node (index in the 3d grid lat-lon-sta), - `gs`: average
-#' ground speed required to make that transition (km/h) as complex number representing the E-W as
-#' real and S-N as imaginary. - `ps`: static probability of each target node - `sz`: size of the 3d
-#' grid lat-lon-sta - `equipement`: node(s) of the first sta (index in the 3d grid lat-lon-sta) -
-#' `retrival`: node(s) of the last sta (index in the 3d grid lat-lon-sta) - `flight_duration`: list
-#' of flight duration to next sta in hours - `lat`: list of the `static_prob` latitude in cell
-#' center - `lon`: list of the `static_prob` longitude in cell center - `extent`: raster
-#' geographical extent of the `static_prob`` - `resolution`: raster res of the `static_prob` -
-#' `temporal_extent`: start and end date time retrieved from the metadata of `static_prob`
+#' The graph returned is a list of the edges of the graph containing:
+#' * `s`: source node (index in the 3d grid lat-lon-sta),
+#' * `t`: target node (index in the 3d grid lat-lon-sta),
+#' * `gs`: average ground speed required to make that transition (km/h) as complex number
+#' representing the E-W as real and S-N as imaginary.
+#' * `ps`: static probability of each target node,
+#' * `sz`: size of the 3d grid lat-lon-sta,
+#' * `equipement`: node(s) of the first sta (index in the 3d grid lat-lon-sta),
+#' * `retrival`: node(s) of the last sta (index in the 3d grid lat-lon-sta),
+#' * `flight_duration`: list of flight duration to next sta in hours,
+#' * `lat`: list of the `static_prob` latitude in cell center,
+#' * `lon`: list of the `static_prob` longitude in cell center,
+#' * `extent`: raster geographical extent of the `static_prob`,
+#' * `resolution`: raster res of the `static_prob`,
+#' * `temporal_extent`: start and end date time retrieved from the metadata of `static_prob`.
 #'
-#' The vignette [Basic graph](articles/basic-graph.html) provided an example how to prepare the
+#' The vignette [Basic graph](/articles/basic-graph.html) provided an example how to prepare the
 #' data for the function and the output of this function.
 #'
-#' @param static_prob list of raster containing probability map of each stationary period. The
+#' @param static_prob List of raster containing probability map of each stationary period. The
 #'   metadata of `static_prob` needs to include the flight information to the next stationary period
 #'   in the metadata `flight`.
-#' @param thr_prob_percentile threshold of percentile (see explanation above)
-#' @param thr_gs threshold of groundspeed (km/h)  (see explanation above)
-#' @return graph as a list (see description above)
+#' @param thr_prob_percentile Threshold of percentile (see details).
+#' @param thr_gs Threshold of groundspeed (km/h)  (see details).
+#' @return Graph as a list (see details).
+#' @seealso [Vignette Basic Graph
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html)
 #' @export
 graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
 
@@ -256,8 +263,12 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
 
 #' Trim a graph
 #'
-#' @param grl graph constructed with `graph_create()`
-#' @return graph trimmed
+#' Trimming consists in removing "dead branch" of a graph, that is removing the edges which are not
+#' connected to both the source (i.e, equipment) or sink (i.e. retrieval site).
+#'
+#' @param grl Graph constructed with [`graph_create()`].
+#' @return Graph trimmed
+#' @seealso [`graph_create()`]
 graph_trim <- function(grl) {
   for (i in seq_len(grl$sz[3])) {
     unique_s <- c(grl$retrival, unique(grl$s))
@@ -298,17 +309,20 @@ graph_trim <- function(grl) {
 #' Read NetCDF file downloaded on your computer and add the average windspeed experienced by the
 #' bird and the corresponding airspeed for each edge of the graph.
 #'
-#' See the vignette [Graph with wind](articles/wind-graph.html) for explanations and example on
-#' how to download the NetCDF file.
+#' See the vignette [Graph with wind
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/wind-graph.html) for explanations and
+#' example on how to download the `NetCDF` files from ERA-5.
 #'
-#' @param grl graph constructed with `graph_create()`
+#' @param grl graph constructed with [`graph_create()`]
 #' @param pressure pressure data from a PAM logger. This data.frame needs to contains `date` as
-#'   POSIXt and `obs` in hPa. It is best practice to use `pam_read()` and `pam_sta()` to build this
-#'   data.frame.
-#' @param filename character of the path where to find the netCDF file.
-#' @param thr_as threshold of airspeed (km/h)
-#' @return graph as a list with windspeed and airspeed as `ws` and `as` respectively (see
-#'   `graph_create()` for more detail on the graph returned)
+#' POSIXt and `obs` in hPa. It is best practice to use [`pam_read()`] and [`pam_sta()`] to build
+#' this data.frame.
+#' @param filename Character of the path where to find the netCDF file.
+#' @param thr_as Threshold of airspeed (km/h).
+#' @return Graph as a list with windspeed and airspeed as `ws` and `as` respectively (see
+#' [`graph_create()`] for more detail on the graph returned).
+#' @seealso [`graph_create()`], [Vignette Wind Graph
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/wind-graph.html)
 #' @export
 graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
   stopifnot(is.list(grl))
@@ -569,13 +583,17 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
 #'
 #' This function return the marginal probability map as raster from a graph.
 #'
-#' @param grl graph constructed with `geopressure_graph_create()`
+#' @param grl graph constructed with [`graph_create()`]
 #' @return list of raster of the marginal probability at each stationary period
+#' @seealso [`graph_create()`], [Vignette Basic Graph
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html)
 #' @export
 graph_marginal <- function(grl) {
   stopifnot(is.list(grl))
-  stopifnot(c("s", "t", "p", "sz", "lat", "lon",  "mask_water", "equipement", "retrival",
-              "resolution", "extent", "temporal_extent", "flight", "sta_id") %in% names(grl))
+  stopifnot(c(
+    "s", "t", "p", "sz", "lat", "lon", "mask_water", "equipement", "retrival",
+    "resolution", "extent", "temporal_extent", "flight", "sta_id"
+  ) %in% names(grl))
   stopifnot(length(grl$s) > 0)
 
   # number of nodes in the 3d grid
@@ -589,14 +607,18 @@ graph_marginal <- function(grl) {
 
   # forward mapping of marginal probability
   map_f <- Matrix::sparseMatrix(rep(1, length(grl$equipement)),
-                                grl$equipement, x = 1, dims = c(1, n))
+    grl$equipement,
+    x = 1, dims = c(1, n)
+  )
 
   # backward mapping of marginal probability
   map_b <- Matrix::sparseMatrix(rep(1, length(grl$retrival)),
-                                grl$retrival, x = 1, dims = c(1, n))
+    grl$retrival,
+    x = 1, dims = c(1, n)
+  )
 
-  # build iterativelly the marginal probability backward and forward by re-using the mapping
-  # computed for previous stationary period. Set the equipement and retrival site in each loop
+  # build iteratively the marginal probability backward and forward by re-using the mapping
+  # computed for previous stationary period. Set the equipment and retrieval site in each loop
   for (i_s in seq_len(grl$sz[3] - 1)) {
     map_f[1, grl$equipement] <- 1
     map_f <- map_f %*% trans_f
@@ -604,7 +626,7 @@ graph_marginal <- function(grl) {
     map_b[1, grl$retrival] <- 1
     map_b <- map_b %*% trans_b
   }
-  # add the retrival and equipement at the end to finish it
+  # add the retrieval and equipment at the end to finish it
   map_f[1, grl$equipement] <- 1
   map_b[1, grl$retrival] <- 1
 
@@ -647,19 +669,24 @@ graph_marginal <- function(grl) {
 
 #' Simulation of trajectory
 #'
-#' This function generate simulated path from a graph
+#' This function simulates multiple trajectory fomr a graph. The trajectories consist of the
+#' positions at each stationary periods.
 #'
-#' @param grl graph constructed with `geopressure_graph_create()`
-#' @param nj number of simulation
-#' @return list of the simulated path
+#' @param grl Graph constructed with [`graph_create()`].
+#' @param nj Number of simulation.
+#' @return List of simulated paths.
+#' @seealso [`graph_create()`], [Vignette Basic Graph
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html)
 #' @export
 graph_simulation <- function(grl, nj = 10) {
   stopifnot(is.list(grl))
-  stopifnot(c("s", "t", "p", "sz", "lat", "lon",   "equipement", "retrival",
-              "resolution", "extent", "temporal_extent", "sta_id") %in% names(grl))
+  stopifnot(c(
+    "s", "t", "p", "sz", "lat", "lon", "equipement", "retrival",
+    "resolution", "extent", "temporal_extent", "sta_id"
+  ) %in% names(grl))
   stopifnot(length(grl$s) > 0)
   stopifnot(is.numeric(nj))
-  stopifnot(nj>0)
+  stopifnot(nj > 0)
 
   # number of nodes in the 3d grid
   n <- prod(grl$sz)
@@ -725,18 +752,20 @@ graph_simulation <- function(grl, nj = 10) {
 }
 
 
-#' Find the lattitude and longitude from a path index
+#' Find the latitude and longitude from a path index
 #'
-#' @param path_id list or matrix of node index
-#' @param grl graph constructed with `geopressure_graph_create()`
-#' @return list of the path with latitude and longitude and index fo the the path provided
+#' @param path_id List or matrix of node index.
+#' @param grl Graph constructed with [`graph_create()`].
+#' @return List of the path with latitude and longitude and index fo the the path provided.
+#' @seealso [`graph_create()`], [Vignette Basic Graph
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html)
 #' @export
 graph_path2lonlat <- function(path_id, grl) {
   stopifnot(is.list(grl))
   stopifnot(c("s", "t", "sz", "lat", "lon", "sta_id") %in% names(grl))
   stopifnot(length(grl$s) > 0)
   stopifnot(is.numeric(path_id))
-  stopifnot(all(path_id>0 & path_id <= prod(grl$sz)))
+  stopifnot(all(path_id > 0 & path_id <= prod(grl$sz)))
 
   ind <- arrayInd(path_id, grl$sz)
   p <- list()
@@ -753,49 +782,50 @@ graph_path2lonlat <- function(path_id, grl) {
 #'
 #' Very inefficient way to find the edges...
 #'
-#' @param path_id list or matrix of node index nj x nsta
-#' @param grl graph constructed with `geopressure_graph_create()`
-#' @return list or matrix of the edge nj x (nsta-1)
+#' @param path_id List or matrix of node index (`nj x nsta`).
+#' @param grl Graph constructed with [`graph_create()`].
+#' @return List or matrix of the edge `nj x (nsta-1)`.
+#' @seealso [`graph_create()`], [Vignette Basic Graph
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html)
 #' @export
-graph_path2edge <- function(path_id, grl){
+graph_path2edge <- function(path_id, grl) {
   stopifnot(is.list(grl))
   stopifnot(c("s", "t") %in% names(grl))
   stopifnot(length(grl$s) > 0)
   stopifnot(is.numeric(path_id))
-  stopifnot(all(path_id>0 & path_id <= prod(grl$sz)))
+  stopifnot(all(path_id > 0 & path_id <= prod(grl$sz)))
 
-  if (is.matrix(path_id)){
+  if (is.matrix(path_id)) {
     # Number of paths
     nj <- dim(path_id)[1]
     # number of stationay period
     nsta <- dim(path_id)[2]
-    stopifnot(nsta==grl$sz[3])
+    stopifnot(nsta == grl$sz[3])
 
     # Get the source and target
-    path_s <- path_id[,1:(nsta-1)]
-    path_t <- path_id[,2:nsta]
+    path_s <- path_id[, 1:(nsta - 1)]
+    path_t <- path_id[, 2:nsta]
 
     # put as vector
-    dim(path_s) <- (nsta-1)*nj
-    dim(path_t) <- (nsta-1)*nj
-
+    dim(path_s) <- (nsta - 1) * nj
+    dim(path_t) <- (nsta - 1) * nj
   } else {
     nsta <- length(path_id)
     nj <- 1
-    stopifnot(nsta==grl$sz[3])
+    stopifnot(nsta == grl$sz[3])
 
-    path_s <- path_id[1:(nsta-1)]
+    path_s <- path_id[1:(nsta - 1)]
     path_t <- path_id[2:nsta]
   }
 
 
   # Use mapply to loop through each edge. THE WORST!
-  edge <- mapply(function(s,t){
+  edge <- mapply(function(s, t) {
     which(grl$s == s & grl$t == t)
   }, path_s, path_t)
 
   # reshape in original shapre
-  dim(edge) <- c(nj,(nsta-1))
+  dim(edge) <- c(nj, (nsta - 1))
 
   return(edge)
 }

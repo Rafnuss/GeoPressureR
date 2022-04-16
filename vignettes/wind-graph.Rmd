@@ -27,7 +27,7 @@ library(gridExtra)
 grl <- readRDS(system.file("extdata", "18LX_grl.rda", package = "GeoPressureR"))
 ```
 
-In this vignette, we will enhance the [basic graph](./articles/basic-graph) by adding the wind speed. This allows to defines the movement model on the airspeed (instead of groundspeed). In addition, we can extract windsupport information on the journey of the bird.
+In this vignette, we will enhance the [basic graph](/articles/basic-graph) by adding the wind speed. This allows to defines the movement model on the airspeed (instead of groundspeed). In addition, we can extract windsupport information on the journey of the bird.
 
 ```{r}
 pam_data <- pam_read(
@@ -113,7 +113,7 @@ for (i_s in seq_len(nrow(pam_data$sta)-1)){
 
 ## Create graph
 
-We first create the graph identically to in [basic graph](./articles/basic-graph)
+We first create the graph identically to in [basic graph](/articles/basic-graph)
 
 ```{r, eval=F}
 grl <- graph_create(static_prob, thr_prob_percentile = .99, thr_gs = 150)  
@@ -214,7 +214,7 @@ fun_NSEW <- function(angle){
 
 </details>
 
-```{r,}
+```{r, warning=T}
 sta_duration <- unlist(lapply(static_prob,function(x){as.numeric(difftime(metadata(x)$temporal_extent[2],metadata(x)$temporal_extent[1],units="days"))}))
 
 m <-leaflet(width = "100%") %>%

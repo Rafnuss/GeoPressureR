@@ -27,7 +27,7 @@ library(leaflet.extras)
 
 ## Combine pressure and light probability maps
 
-Start by loading the PAM, light and pressure data computed in the respective vignettes [Light map](./articles/light-map.html) and [Pressure map](./articles/pressure-map.html).
+Start by loading the PAM, light and pressure data computed in the respective vignettes [Light map](/articles/light-map.html) and [Pressure map](/articles/pressure-map.html).
 
 ```{r}
 pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
@@ -129,7 +129,7 @@ static_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 
 Now that we have combine pressure and light, we need to verify that the data is coherent. **These is a really important step, so bear with me here**.
 
-In the vignette [Labelling tracks](./articles/labelling-tracks), we had already checked that the pressure timeseries measured by the geolocator are consistent with a least one location on the map (see Test 4 outlined in that vignette). But we didn't checked that these position are (1) coherent with light data, and (2) within reach of one other considering the flight duration and realistic bird flight speed.
+In the vignette [Labelling tracks](/articles/labelling-tracks), we had already checked that the pressure timeseries measured by the geolocator are consistent with a least one location on the map (see Test 4 outlined in that vignette). But we didn't checked that these position are (1) coherent with light data, and (2) within reach of one other considering the flight duration and realistic bird flight speed.
 
 To help you with this task, we have developed a shiny app `GeoPressureViz` (see [the demo for 18LX](https://rafnuss.shinyapps.io/GeoPressureViz/)) which helps you visualize the overall trajectory of the bird as well as each step-by-step move.
 
@@ -166,7 +166,7 @@ To help you with this task, we have developed a shiny app `GeoPressureViz` (see 
 
 I suggest starting by selecting only long stopovers (24-72hours depending on your application), as this will help to draw out the general trajectory followed by the bird, and only later adding the shorter stopovers which could raise more confusion (the best match of pressure is often completely off).
 
-Following the same recommendation than in the vignette [Labelling tracks](./articles/labelling-tracks), you want the non-outliar pressure of each stationary period to match a single elevation timeserie (bottom panel). Use a combinaison of (1)l abeling of activity and split or combine stationary periods and (2) labeling the pressure timeserie to exclude certain datapoints from the match. You can check on the map that the pressure location seem coherent by selecting only "pressure" in the probability map display. Usually, it's pretty obvious when there is an issue on the map. The good match of the timeserie is essential and will require several iteration. The most regular issue I faced is a small vertical movement of the bird during a 2-8 days stopover. Shorter stopover are usually easy as the bird doesn't move much but each species is different. 
+Following the same recommendation than in the vignette [Labelling tracks](/articles/labelling-tracks), you want the non-outliar pressure of each stationary period to match a single elevation timeserie (bottom panel). Use a combinaison of (1)l abeling of activity and split or combine stationary periods and (2) labeling the pressure timeserie to exclude certain datapoints from the match. You can check on the map that the pressure location seem coherent by selecting only "pressure" in the probability map display. Usually, it's pretty obvious when there is an issue on the map. The good match of the timeserie is essential and will require several iteration. The most regular issue I faced is a small vertical movement of the bird during a 2-8 days stopover. Shorter stopover are usually easy as the bird doesn't move much but each species is different. 
 
 As a general guideline, use your common sense to draw out the trajectory course, bird tend to flight directly to their main destination. Most detour are artifact, or you really need a long stationary period with a good match of pressure. 
 

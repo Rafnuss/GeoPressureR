@@ -168,18 +168,25 @@ refracted <- function(zenith) {
 
 #' Returns twilights for each day based on a threshold of light
 #'
-#' Search for sunset, sunrise pairs that correspond to a given light threshold. Function inspired
-#' from `findTwilights` of the package Geolight
+#' Search for pairs of sunset, sunrise that correspond to a given light threshold. Function inspired
+#' from [`findTwilights`](https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html) of the
+#' package `TwGeos`.
 #'
 #' @param light a dataframe with columns \code{date} and \code{obs} that are the sequence of sample
 #' times (as POSIXct) and light levels recorded by the tag.
 #' @param threshold the light threshold that defines twilight.
 #' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
 #' provided, will try to figure it out from the data
-#' @return A dataframe with columns
-#' \item{\code{twilight}}{times of twilight}
-#' \item{\code{rise}}{logical indicating sunrise}
-#' where each row corresponds to a single twilight.
+#' @return A data.frame with columns `twilight` (date-time of twilights) and `rise` (logical)
+#' @seealso [Vignette Light Map
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/light-map.html)
+#' @examples
+#' pam_data <- pam_read(
+#'   pathname = system.file("extdata", package = "GeoPressureR"),
+#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#' )
+#' twl <- find_twilights(pam_data$light)
+#' head(twl)
 #' @export
 find_twilights <- function(light, threshold = NA, shift_k = NA) {
   stopifnot(is.data.frame(light))

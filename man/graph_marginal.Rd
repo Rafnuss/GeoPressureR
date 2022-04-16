@@ -7,11 +7,14 @@
 graph_marginal(grl)
 }
 \arguments{
-\item{grl}{graph constructed with \code{geopressure_graph_create()}}
+\item{grl}{graph constructed with \code{\link[=graph_create]{graph_create()}}}
 }
 \value{
 list of raster of the marginal probability at each stationary period
 }
 \description{
 This function return the marginal probability map as raster from a graph.
+}
+\seealso{
+\code{\link[=graph_create]{graph_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html}{Vignette Basic Graph }
 }

@@ -143,8 +143,6 @@ if (!exists("path0")) {
 
 
 
-#
-#
 # # Windspeed
 # grl$sz <- c(nrow(static_prob[[1]]), ncol(static_prob[[1]]), length(static_prob))
 # lat <- seq(raster::ymax(static_prob[[1]]), raster::ymin(static_prob[[1]]),

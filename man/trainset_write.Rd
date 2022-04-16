@@ -27,3 +27,6 @@ pam_data <- pam_classify(pam_data)
 trainset_write(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
 }
 }
+\seealso{
+\code{\link{pam_read}}, \code{\link[=trainset_edit]{trainset_edit()}}, \code{\link[=trainset_read]{trainset_read()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
+}

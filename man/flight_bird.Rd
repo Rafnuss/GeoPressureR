@@ -14,28 +14,29 @@ flight_bird(
 )
 }
 \arguments{
-\item{species_name}{scientific name of the species}
+\item{species_name}{Scientific name of the species}
 
-\item{mass}{in kilogram}
+\item{mass}{Mass of the bird in kilogram.}
 
-\item{wing_span}{denoted B in meter}
+\item{wing_span}{Wing span in meter.}
 
-\item{wing_aspect}{wing aspect ratio (no unit)}
+\item{wing_aspect}{Wing aspect ratio (no unit).}
 
-\item{wing_area}{in meter square}
+\item{wing_area}{Wing area in meter square.}
 
-\item{body_frontal_area}{in meter square}
+\item{body_frontal_area}{Body frontal area in meter square.}
 }
 \value{
-list containing mass, wing span, wing aspect ratio and body frontal area.
+List containing mass, wing span, wing aspect ratio and body frontal area.
 }
 \description{
 This function return a list with the four morphological information necessary to construct the
 power curve: mass, wing span, wing aspect ratio and body frontal area.
 }
 \details{
-When any of these variables are missing, we query the AVONET database]
-(https://doi.org/10.6084/m9.figshare.16586228.v5) using the sciencific name from \href{https://www.birds.cornell.edu/clementschecklist/}{the Clements Checklist}.
+When any of these variables are missing, we query the
+\href{https://doi.org/10.6084/m9.figshare.16586228.v5/}{AVONET database} using the scientific
+name from \href{https://www.birds.cornell.edu/clementschecklist/}{the Clements Checklist}.
 }
 \examples{
 # Using AVONET dataset

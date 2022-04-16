@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-In this vignette, we present an alternative approach to the graph (see vignette [Basic graph](./articles/basic-graph)) using a [Gibb’s sampler](https://en.wikipedia.org/wiki/Gibbs_sampling). Compared to the graph approach, (1) it is simpler to implement, (2) can be faster in some situation and (3) can solve potential memory issue but (1) is an approximation (MCMC sampler), (2) cannot account for wind data (at least, not easily).
+In this vignette, we present an alternative approach to the graph (see vignette [Basic graph](/articles/basic-graph)) using a [Gibb’s sampler](https://en.wikipedia.org/wiki/Gibbs_sampling). Compared to the graph approach, (1) it is simpler to implement, (2) can be faster in some situation and (3) can solve potential memory issue but (1) is an approximation (MCMC sampler), (2) cannot account for wind data (at least, not easily).
 
 The aim is to produce possible migration trajectory of the bird considering the information of (1) light, (2) pressure and (3) flight distance.
 
@@ -45,7 +45,7 @@ library(raster)
 
 ## Stationary probability
 
-We already pre-processed the light and pressure data data in the vignette [Preparing data](./articles/preparing-data).
+We already pre-processed the light and pressure data data in the vignette [Preparing data](/articles/preparing-data).
 ```{r}
 static_prob <- readRDS(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
 ```

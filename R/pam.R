@@ -1,25 +1,28 @@
 #' Read pam data
 #'
 #' Imports multi-sensor logger data from a folder and optionally crop at specific date. Read all
-#' available file from the extension list AND which exist in the folder.
+#' available file from the extension list provided.
 #'
-#' @param pathname path where files are stored
-#' @param extension list of file extentions to read (e.g., ".pressure", ".glf", ".gle",
+#' @param pathname path of the directory where the files are stored
+#' @param extension list of file extensions to read (e.g., ".pressure", ".glf", ".gle",
 #' ".acceleration", ".temperature" and ".magnetic")
-#' @param crop_start is the date that pam data should start
-#' @param crop_end is the date that pam data should end
+#' @param crop_start Remove all date before this date
+#' @param crop_end Remove all date after this date
 #'
-#' @return a list of all measurements
-#'
+#' @return a list of data.frames of all measurements type from the extension list (see example)
+#' @seealso [Vignette Pressure Map
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
 #' @examples
 #' pam_data <- pam_read(
 #'   pathname = system.file("extdata", package = "GeoPressureR"),
 #'   crop_start = "2017-06-20", crop_end = "2018-05-02"
 #' )
 #' summary(pam_data)
-#' for (i in 1:length(pam_data)) {
-#'   head(pam_data[[i]])
-#' }
+#' head(pam_data$id)
+#' head(pam_data$acceleration)
+#' head(pam_data$light)
+#' head(pam_data$pressure)
+#' head(pam_data$temperature)
 #' @export
 pam_read <- function(pathname,
                      extension = c("pressure", "glf", "acceleration", "temperature", "magnetic"),
@@ -57,14 +60,14 @@ pam_read <- function(pathname,
 
 #' Read pam file
 #'
-#' Read any pam file and return the corresponding data.frame.
+#' Read a specific pam file and return the corresponding data.frame.
 #'
 #' @param filename is the path where files are stored
 #' @param crop_start posicxt object for date that pam data should start
 #' @param crop_end posicxt object for date that pam data should end
 #'
+#' @seealso [`pam_read`]
 #' @return a data.frame of the measurement
-#'
 pam_read_file <- function(filename, crop_start, crop_end) {
   # read data as delimiter
   data_raw <- utils::read.delim(filename, skip = 6, sep = "", header = F)
@@ -110,16 +113,16 @@ pam_read_file <- function(filename, crop_start, crop_end) {
 #' Automatic classification of pam
 #'
 #' This function uses activity data to classify migratory flapping flight. It returns the same data
-#' list `pam` adding a column `ismig` to the data.frame `acceleration`.
-#'
-#' This fonction is inspired by the function `classify_flap` from the
-#' [pamLr package](https://github.com/KiranLDA/pamLr).
+#' list `pam` adding a column `ismig` to the data.frame `acceleration`. This fonction is inspired by
+#' the function `classify_flap` from the [PAMLr package](https://github.com/KiranLDA/pamlr).
 #'
 #' @param pam data list
 #' @param min_duration duration in minutes
 #'
 #' @return pam
-#'
+#' @seealso [`pam_read()`], [flapping chapter of the PAMLr
+#' manual](https://kiranlda.github.io/PAMLrManual/flapping.html), [Vignette Pressure Map
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
 #' @examples
 #' pam_data <- pam_read(
 #'   pathname = system.file("extdata", package = "GeoPressureR"),
@@ -165,18 +168,103 @@ pam_classify <- function(pam,
 
 
 
+
+#' Compute stationary periods
+#'
+#' This function computes the stationary periods from classified acceleration data
+#' (`pam$acceleration$ismig`).
+#'
+#' @param pam pam logger dataset list (see [`pam_read()`])
+#' @return Same as input `pam` but with (1) a new data.frame of stationary periods `pam$sta` and (2)
+#' a new column `sta_id` for pressure and light data.
+#'
+#' @examples
+#' pam_data <- pam_read(
+#'   pathname = system.file("extdata", package = "GeoPressureR"),
+#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#' )
+#' pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
+#' pam_data <- pam_sta(pam_data)
+#' head(pam_data$pressure)
+#' head(pam_data$light)
+#' @seealso [`pam_read`], [`pam_classify`], [Vignette Pressure Map
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
+#' @export
+pam_sta <- function(pam) {
+
+  # Perform test
+  stopifnot(is.list(pam))
+  stopifnot("pressure" %in% names(pam))
+  stopifnot(is.data.frame(pam$pressure))
+  stopifnot("date" %in% names(pam$pressure))
+  stopifnot("obs" %in% names(pam$pressure))
+  stopifnot("acceleration" %in% names(pam))
+  stopifnot(is.data.frame(pam$acceleration))
+  stopifnot("date" %in% names(pam$acceleration))
+  stopifnot("act" %in% names(pam$acceleration))
+  stopifnot("ismig" %in% names(pam$acceleration))
+  stopifnot(is.data.frame(pam$light))
+  stopifnot("date" %in% names(pam$light))
+  stopifnot("obs" %in% names(pam$light))
+
+  # Create a table of activities (migration or stationary)
+  act_id <- c(1, cumsum(diff(as.numeric(pam$acceleration$ismig)) != 0) + 1)
+
+  act <- data.frame(
+    id = unique(act_id),
+    start = do.call("c", lapply(split(pam$acceleration$date, act_id), min)),
+    end = do.call("c", lapply(split(pam$acceleration$date, act_id), max)),
+    mig = sapply(split(pam$acceleration$ismig, act_id), unique)
+  )
+
+  # filter to keep only migration activities
+  act_mig <- act[act$mig, ]
+  act_mig$duration <- act_mig$end - act_mig$start
+
+  # construct stationary period table based on migration activity and pressure
+  pam$sta <- data.frame(
+    start = c(pam$pressure$date[1], act_mig$end),
+    end = c(act_mig$start, utils::tail(pam$pressure$date, n = 1))
+  )
+
+  # Define ID for stationary period
+  pam$sta$sta_id <- seq_len(nrow(pam$sta))
+
+  # Assign to each pressure the stationary period to which it belong to.
+  tmp <- mapply(function(start, end) {
+    start < pam$pressure$date & pam$pressure$date < end
+  }, pam$sta$start, pam$sta$end)
+  tmp <- which(tmp, arr.ind = TRUE)
+  pam$pressure$sta_id <- 0
+  pam$pressure$sta_id[tmp[, 1]] <- tmp[, 2]
+
+  # Assign to each light measurement the stationary period
+  tmp <- mapply(function(start, end) {
+    start < pam$light$date & pam$light$date < end
+  }, pam$sta$start, pam$sta$end)
+  tmp <- which(tmp, arr.ind = TRUE)
+  pam$light$sta_id <- 0
+  pam$light$sta_id[tmp[, 1]] <- tmp[, 2]
+
+  return(pam)
+}
+
+
+
 #' Edit classification of activity and pressure
 #'
-#' This function perform three steps: (1) write the \code{csv} file of the automatically labeled
-#' activity and pressure with \code{\link{trainset_write}}, (2) open trainset in your broweser
-#' (\url{https://trainset.geocene.com/}) so that you can edit the labels and (3) read the exported
-#' \code{csv} file from trainset with \code{\link{trainset_read}}.
+#' This function perform three steps: (1) write the `csv` file of the automatically labeled
+#' activity and pressure with [`trainset_write()`], (2) open trainset in your browser
+#' \url{https://trainset.geocene.com/} so that you can edit the labels and (3) read the exported
+#' `csv` file from trainset with [`trainset_read()`].
 #'
-#' @param pam pam logger dataset list
+#' @param pam pam logger dataset list (see `pam_read()`)
 #' @param pathname Path to the folder where the labeled files should be saved
 #' @param filename Name for the file.
-#' @return pam logger dataset list updated with the labels (\code{pam$pressure$isoutliar} and
-#' \code{pam$acceleration$ismig})
+#' @return pam logger dataset list updated with the labels `pam$pressure$isoutliar` and
+#' `pam$acceleration$ismig`
+#' @seealso [`pam_read`], [`trainset_write()`], [`trainset_read()`], [Vignette Pressure Map
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
 #' @export
 trainset_edit <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-labeled.csv")) {
 
@@ -228,6 +316,8 @@ trainset_edit <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-la
 #' pam_data <- pam_classify(pam_data)
 #' trainset_write(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
 #' }
+#' @seealso [`pam_read`], [`trainset_edit()`], [`trainset_read()`], [Vignette Pressure Map
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
 #' @export
 trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")) {
 
@@ -296,6 +386,8 @@ trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")
 #' pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
 #' head(pam_data$pressure)
 #' head(pam_data$acceleration)
+#' @seealso [`pam_read`], [`trainset_write()`], [`trainset_edit()`], [Vignette Pressure Map
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
 #' @export
 trainset_read <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-labeled.csv")) {
 
@@ -325,86 +417,6 @@ trainset_read <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-la
   # assign label value to class
   pam$acceleration$ismig <- !is.na(csv$label[csv$series == "acceleration"])
   pam$pressure$isoutliar <- !is.na(csv$label[csv$series == "pressure"])
-
-  return(pam)
-}
-
-
-
-#' Compute stationary periods
-#'
-#' This function computes the table of stationary periods from the class of acceleration
-#' `pam$acceleration$ismig` and add it to the pam data as `sta_id`
-#'
-#' @param pam pam logger dataset list
-#' @return pam logger dataset list with a the dataframe of stationary periods `pam$sta` as well as
-#' the new label named `sta_id` (`pam$pressure$sta_id` and `pam$acceleration$sta_id`)
-#'
-#' @examples
-#' pam_data <- pam_read(
-#'   pathname = system.file("extdata", package = "GeoPressureR"),
-#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
-#' )
-#' pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
-#' pam_data <- pam_sta(pam_data)
-#' head(pam_data$pressure)
-#' head(pam_data$acceleration)
-#' @export
-pam_sta <- function(pam) {
-
-  # Perform test
-  stopifnot(is.list(pam))
-  stopifnot("pressure" %in% names(pam))
-  stopifnot(is.data.frame(pam$pressure))
-  stopifnot("date" %in% names(pam$pressure))
-  stopifnot("obs" %in% names(pam$pressure))
-  stopifnot("acceleration" %in% names(pam))
-  stopifnot(is.data.frame(pam$acceleration))
-  stopifnot("date" %in% names(pam$acceleration))
-  stopifnot("act" %in% names(pam$acceleration))
-  stopifnot("ismig" %in% names(pam$acceleration))
-  stopifnot(is.data.frame(pam$light))
-  stopifnot("date" %in% names(pam$light))
-  stopifnot("obs" %in% names(pam$light))
-
-  # Create a table of activities (migration or stationary)
-  act_id <- c(1, cumsum(diff(as.numeric(pam$acceleration$ismig)) != 0) + 1)
-
-  act <- data.frame(
-    id = unique(act_id),
-    start = do.call("c", lapply(split(pam$acceleration$date, act_id), min)),
-    end = do.call("c", lapply(split(pam$acceleration$date, act_id), max)),
-    mig = sapply(split(pam$acceleration$ismig, act_id), unique)
-  )
-
-  # filter to keep only migration activities
-  act_mig <- act[act$mig, ]
-  act_mig$duration <- act_mig$end - act_mig$start
-
-  # construct stationary period table based on migration activity and pressure
-  pam$sta <- data.frame(
-    start = c(pam$pressure$date[1], act_mig$end),
-    end = c(act_mig$start, utils::tail(pam$pressure$date, n = 1))
-  )
-
-  # Define ID for stationary period
-  pam$sta$sta_id <- seq_len(nrow(pam$sta))
-
-  # Assign to each pressure the stationary period to which it belong to.
-  tmp <- mapply(function(start, end) {
-    start < pam$pressure$date & pam$pressure$date < end
-  }, pam$sta$start, pam$sta$end)
-  tmp <- which(tmp, arr.ind = TRUE)
-  pam$pressure$sta_id <- 0
-  pam$pressure$sta_id[tmp[, 1]] <- tmp[, 2]
-
-  # Assign to each light measurement the stationary period
-  tmp <- mapply(function(start, end) {
-    start < pam$light$date & pam$light$date < end
-  }, pam$sta$start, pam$sta$end)
-  tmp <- which(tmp, arr.ind = TRUE)
-  pam$light$sta_id <- 0
-  pam$light$sta_id[tmp[, 1]] <- tmp[, 2]
 
   return(pam)
 }

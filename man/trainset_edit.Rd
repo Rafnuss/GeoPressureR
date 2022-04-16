@@ -11,19 +11,22 @@ trainset_edit(
 )
 }
 \arguments{
-\item{pam}{pam logger dataset list}
+\item{pam}{pam logger dataset list (see \code{pam_read()})}
 
 \item{pathname}{Path to the folder where the labeled files should be saved}
 
 \item{filename}{Name for the file.}
 }
 \value{
-pam logger dataset list updated with the labels (\code{pam$pressure$isoutliar} and
-\code{pam$acceleration$ismig})
+pam logger dataset list updated with the labels \code{pam$pressure$isoutliar} and
+\code{pam$acceleration$ismig}
 }
 \description{
 This function perform three steps: (1) write the \code{csv} file of the automatically labeled
-activity and pressure with \code{\link{trainset_write}}, (2) open trainset in your broweser
-(\url{https://trainset.geocene.com/}) so that you can edit the labels and (3) read the exported
-\code{csv} file from trainset with \code{\link{trainset_read}}.
+activity and pressure with \code{\link[=trainset_write]{trainset_write()}}, (2) open trainset in your browser
+\url{https://trainset.geocene.com/} so that you can edit the labels and (3) read the exported
+\code{csv} file from trainset with \code{\link[=trainset_read]{trainset_read()}}.
+}
+\seealso{
+\code{\link{pam_read}}, \code{\link[=trainset_write]{trainset_write()}}, \code{\link[=trainset_read]{trainset_read()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
 }

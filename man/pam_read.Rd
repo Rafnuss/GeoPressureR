@@ -12,21 +12,21 @@ pam_read(
 )
 }
 \arguments{
-\item{pathname}{path where files are stored}
+\item{pathname}{path of the directory where the files are stored}
 
-\item{extension}{list of file extentions to read (e.g., ".pressure", ".glf", ".gle",
+\item{extension}{list of file extensions to read (e.g., ".pressure", ".glf", ".gle",
 ".acceleration", ".temperature" and ".magnetic")}
 
-\item{crop_start}{is the date that pam data should start}
+\item{crop_start}{Remove all date before this date}
 
-\item{crop_end}{is the date that pam data should end}
+\item{crop_end}{Remove all date after this date}
 }
 \value{
-a list of all measurements
+a list of data.frames of all measurements type from the extension list (see example)
 }
 \description{
 Imports multi-sensor logger data from a folder and optionally crop at specific date. Read all
-available file from the extension list AND which exist in the folder.
+available file from the extension list provided.
 }
 \examples{
 pam_data <- pam_read(
@@ -34,7 +34,12 @@ pam_data <- pam_read(
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
 summary(pam_data)
-for (i in 1:length(pam_data)) {
-  head(pam_data[[i]])
+head(pam_data$id)
+head(pam_data$acceleration)
+head(pam_data$light)
+head(pam_data$pressure)
+head(pam_data$temperature)
 }
+\seealso{
+\href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
 }

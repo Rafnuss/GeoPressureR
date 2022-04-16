@@ -43,10 +43,9 @@ pressure_prob <- geopressure_prob_map(pressure_maps,
 
 # Compute the most likely path
 path <- geopressure_map2path(pressure_prob)
-path$lat[5] <- path$lat[5] + .25
 
 # Query the pressure timeserie at each path
-pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure[3500:4000,], include_flight = c(0, 1))
+pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure, include_flight = c(0, 1))
 
 saveRDS(pressure_maps, "inst/extdata/18LX_pressure_maps.rda")
 saveRDS(pressure_prob, "inst/extdata/18LX_pressure_prob.rda")
@@ -161,11 +160,6 @@ static_prob <- mapply(function(light, pressure, flight) {
   # define static prob as the product of light and pressure prob
   static_prob <- light * pressure
 
-  # replace na by zero
-  # tmp <- values(static_prob)
-  # tmp[is.na(tmp)] <- 0
-  # values(static_prob) <- tmp
-
   # define metadata
   metadata(static_prob) <- metadata(pressure)
   metadata(static_prob)$flight <- flight
@@ -194,9 +188,6 @@ values(static_prob[[length(static_prob)]]) <- tmp
 
 # Compute the most likely path
 path <- geopressure_map2path(static_prob)
-path$lat[3] <- path$lat[3] + .25
-path$lat[5] <- path$lat[5] + .25
-path$lat[13] <- path$lat[13] - .25
 static_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 
 # Downscale map
@@ -209,8 +200,6 @@ static_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 
 saveRDS(static_prob, "inst/18LX_extdata/static_prob.rda")
 saveRDS(static_timeserie, "inst/extdata/18LX_static_timeserie.rda")
-
-
 
 
 
@@ -234,7 +223,7 @@ bird <- flight_bird("Acrocephalus arundinaceus")
 grl$p <- grl$ps * flight_prob(grl$as, method = "power", bird = bird, low_speed_fix = 10)
 
 # Shortest path
-g <- graph_from_data_frame(data.frame( from = grl$s, to = grl$t, weight = -log(grl$p)))
+g <- graph_from_data_frame(data.frame(from = grl$s, to = grl$t, weight = -log(grl$p)))
 sp <- shortest_paths(g, from = paste(grl$equipement), to = paste(grl$retrival))
 grl$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), grl)
 

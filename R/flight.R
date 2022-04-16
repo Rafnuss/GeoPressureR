@@ -3,17 +3,17 @@
 #' This function return a list with the four morphological information necessary to construct the
 #' power curve: mass, wing span, wing aspect ratio and body frontal area.
 #'
-#' When any of these variables are missing, we query the AVONET database]
-#' (https://doi.org/10.6084/m9.figshare.16586228.v5) using the sciencific name from [the Clements
-#' Checklist](https://www.birds.cornell.edu/clementschecklist/).
+#' When any of these variables are missing, we query the
+#' \href{https://doi.org/10.6084/m9.figshare.16586228.v5/}{AVONET database} using the scientific
+#' name from \href{https://www.birds.cornell.edu/clementschecklist/}{the Clements Checklist}.
 #'
-#' @param species_name scientific name of the species
-#' @param mass in kilogram
-#' @param wing_span denoted B in meter
-#' @param wing_aspect wing aspect ratio (no unit)
-#' @param wing_area in meter square
-#' @param body_frontal_area in meter square
-#' @return list containing mass, wing span, wing aspect ratio and body frontal area.
+#' @param species_name Scientific name of the species
+#' @param mass Mass of the bird in kilogram.
+#' @param wing_span Wing span in meter.
+#' @param wing_aspect Wing aspect ratio (no unit).
+#' @param wing_area Wing area in meter square.
+#' @param body_frontal_area Body frontal area in meter square.
+#' @return List containing mass, wing span, wing aspect ratio and body frontal area.
 #' @examples
 #' # Using AVONET dataset
 #' flight_bird("Acrocephalus arundinaceus")
@@ -124,18 +124,19 @@ flight_bird <- function(species_name,
 #' Power curve
 #'
 #' Compute the mechanical power (W =J/s) required for a specific bird flying as at a given airspeed
-#' in m/s. `bird` is created with `flight_bird()`.
+#' in m/s. `bird` is created with [`flight_bird()`].
 #'
 #' @param as airspeed in m/s
 #' @param bird list of basic morphological trait necessary: mass, wing span, wing aspect ratio and
-#'   body frontal area. It is best practice to create bird with `flight_bird()`.
+#'   body frontal area. It is best practice to create bird with [`flight_bird()`].
 #' @return mechanical power in Watt (or Joule/seconds) corresponding to the airspeed
 #' @examples
 #' bird <- flight_bird("Acrocephalus arundinaceus")
 #' airspeed <- seq(0, 30)
 #' power <- flight_power(airspeed, bird)
-#' plot(airspeed, power, xlab = "Airspeed [m/s]", ylab = "Mechanical Power [W]")
+#' plot(airspeed, power, xlab = "Airspeed [m/s]", ylab = "Mechanical Power [W]", type = "l")
 #' @export
+#' @seealso [`flight_bird()`], [`flight_prob()`]
 flight_power <- function(as, bird) {
   stopifnot(is.numeric(as))
   stopifnot(as >= 0)
@@ -180,18 +181,19 @@ flight_power <- function(as, bird) {
 #' Movement model
 #'
 #' Compute the mechanical power required for a specific bird flying as at a given airspeed in km/h.
-#' `bird` (created with `flight_bird()`)
+#' `bird` (created with [`flight_bird()`])
 #'
 #' @param speed airspeed or groundspeed in km/h
 #' @param method method used to convert the speed to probability ("gamma" or "power")
 #' @param shape parameter of the gamma distribution
 #' @param scale  parameter of the gamma distribution
 #' @param bird list of basic morphological trait necessary: mass, wing span, wing aspect ratio and
-#'   body frontal area. It is best practice to create bird with `flight_bird()`.
+#'   body frontal area. It is best practice to create bird with [`flight_bird()`].
 #' @param fun_power function taking power as a single argument and returning a probability
 #' @param low_speed_fix speed below which the probability remains the same. This parameter is used
 #'   to allow short flight covering small distance.
 #' @return Probability values corresponding to the speed provided
+#' @seealso [`flight_bird()`]
 #' @examples
 #' speed <- seq(1, 120)
 #' low_speed_fix <- 20 # minimum speed allowed

@@ -2,18 +2,21 @@
 % Please edit documentation in R/graph.R
 \name{graph_path2lonlat}
 \alias{graph_path2lonlat}
-\title{Find the lattitude and longitude from a path index}
+\title{Find the latitude and longitude from a path index}
 \usage{
 graph_path2lonlat(path_id, grl)
 }
 \arguments{
-\item{path_id}{list or matrix of node index}
+\item{path_id}{List or matrix of node index.}
 
-\item{grl}{graph constructed with \code{geopressure_graph_create()}}
+\item{grl}{Graph constructed with \code{\link[=graph_create]{graph_create()}}.}
 }
 \value{
-list of the path with latitude and longitude and index fo the the path provided
+List of the path with latitude and longitude and index fo the the path provided.
 }
 \description{
-Find the lattitude and longitude from a path index
+Find the latitude and longitude from a path index
+}
+\seealso{
+\code{\link[=graph_create]{graph_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html}{Vignette Basic Graph }
 }

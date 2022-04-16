@@ -7,13 +7,17 @@
 graph_simulation(grl, nj = 10)
 }
 \arguments{
-\item{grl}{graph constructed with \code{geopressure_graph_create()}}
+\item{grl}{Graph constructed with \code{\link[=graph_create]{graph_create()}}.}
 
-\item{nj}{number of simulation}
+\item{nj}{Number of simulation.}
 }
 \value{
-list of the simulated path
+List of simulated paths.
 }
 \description{
-This function generate simulated path from a graph
+This function simulates multiple trajectory fomr a graph. The trajectories consist of the
+positions at each stationary periods.
+}
+\seealso{
+\code{\link[=graph_create]{graph_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html}{Vignette Basic Graph }
 }

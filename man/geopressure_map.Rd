@@ -7,17 +7,17 @@
 geopressure_map(pressure, extent, scale = 10, max_sample = 250, margin = 30)
 }
 \arguments{
-\item{pressure}{pressure data from a PAM logger. This data.frame needs to contains \code{date} as
-POSIXt, \code{obs} in hPa, \code{sta_id} grouping observation measured during the same stationary period
+\item{pressure}{Pressure data.frame from a PAM logger. This data.frame needs to contains \code{date}
+as POSIXt, \code{obs} in hPa, \code{sta_id} grouping observation measured during the same stationary period
 and \code{isoutliar} as logical to label observation which need to be ignorede. It is best practice to
 use \code{pam_read()} and \code{pam_sta()} to build this data.frame.}
 
 \item{extent}{Geographical extent of the map to query as a list ordered by North, West, South,
 East  (e.g. \code{c(50,-16,0,20)}).}
 
-\item{scale}{Number of pixel per latitude, longitude. 10 for a resoltion of 0.1° (~10) and 4 for
-a resolution of 0.25° (~30km). To avoid interpolating the ERA5 data, scale should be smaller than
-10. Read more about scale on Google earth Engine documentation.}
+\item{scale}{Number of pixel per 1° latitude-longitude. For instance, \code{scale = 10} for a
+resolution of 0.1° (~10km) and 4 for a resolution of 0.25° (~30km). To avoid interpolating the
+ERA5 data, scale should be smaller than 10. Read more about \href{https://developers.google.com/earth-engine/guides/scale}{scale on Google earth Engine documentation}.}
 
 \item{max_sample}{The computation of the mismatch is only performed on \code{max_sample} datapoints of
 pressure to reduce computational time. The samples are randomly (uniformly) selected on the
@@ -55,9 +55,13 @@ pressure_maps <- geopressure_map(
 )
 }
 pressure_maps <- readRDS(system.file("extdata", "18LX_pressure_maps.rda",
-package = "GeoPressureR"))
+  package = "GeoPressureR"
+))
 raster::metadata(pressure_maps[[1]])
 raster::plot(pressure_maps[[1]],
   main = c("Mean Square Error", "Mask of pressure")
 )
+}
+\seealso{
+\code{\link[=geopressure_prob_map]{geopressure_prob_map()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
 }

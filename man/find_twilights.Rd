@@ -16,12 +16,21 @@ times (as POSIXct) and light levels recorded by the tag.}
 provided, will try to figure it out from the data}
 }
 \value{
-A dataframe with columns
-\item{\code{twilight}}{times of twilight}
-\item{\code{rise}}{logical indicating sunrise}
-where each row corresponds to a single twilight.
+A data.frame with columns \code{twilight} (date-time of twilights) and \code{rise} (logical)
 }
 \description{
-Search for sunset, sunrise pairs that correspond to a given light threshold. Function inspired
-from \code{findTwilights} of the package Geolight
+Search for pairs of sunset, sunrise that correspond to a given light threshold. Function inspired
+from \href{https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html}{\code{findTwilights}} of the
+package \code{TwGeos}.
+}
+\examples{
+pam_data <- pam_read(
+  pathname = system.file("extdata", package = "GeoPressureR"),
+  crop_start = "2017-06-20", crop_end = "2018-05-02"
+)
+twl <- find_twilights(pam_data$light)
+head(twl)
+}
+\seealso{
+\href{https://raphaelnussbaumer.com/GeoPressureR/articles/light-map.html}{Vignette Light Map }
 }

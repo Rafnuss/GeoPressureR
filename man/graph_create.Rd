@@ -7,16 +7,16 @@
 graph_create(static_prob, thr_prob_percentile = 0.99, thr_gs = 150)
 }
 \arguments{
-\item{static_prob}{list of raster containing probability map of each stationary period. The
+\item{static_prob}{List of raster containing probability map of each stationary period. The
 metadata of \code{static_prob} needs to include the flight information to the next stationary period
 in the metadata \code{flight}.}
 
-\item{thr_prob_percentile}{threshold of percentile (see explanation above)}
+\item{thr_prob_percentile}{Threshold of percentile (see details).}
 
-\item{thr_gs}{threshold of groundspeed (km/h)  (see explanation above)}
+\item{thr_gs}{Threshold of groundspeed (km/h)  (see details).}
 }
 \value{
-graph as a list (see description above)
+Graph as a list (see details).
 }
 \description{
 This function return a graph representing the trajectory of a bird based on filtering and triming
@@ -27,16 +27,27 @@ In the final graph, we only keep the most likely node (position in time) defined
 which cumulative probability reach up to \code{thr_prob_percentile} for each stationary period. 2.
 those which average ground speed is lower than \code{thr_gs} km/h.
 
-The graph returned is a list of the edges of the graph containing: - \code{s}: source node (index in
-the 3d grid lat-lon-sta), - \code{t}: target node (index in the 3d grid lat-lon-sta), - \code{gs}: average
-ground speed required to make that transition (km/h) as complex number representing the E-W as
-real and S-N as imaginary. - \code{ps}: static probability of each target node - \code{sz}: size of the 3d
-grid lat-lon-sta - \code{equipement}: node(s) of the first sta (index in the 3d grid lat-lon-sta) -
-\code{retrival}: node(s) of the last sta (index in the 3d grid lat-lon-sta) - \code{flight_duration}: list
-of flight duration to next sta in hours - \code{lat}: list of the \code{static_prob} latitude in cell
-center - \code{lon}: list of the \code{static_prob} longitude in cell center - \code{extent}: raster
-geographical extent of the \verb{static_prob`` - }resolution\verb{: raster res of the }static_prob\code{-}temporal_extent\verb{: start and end date time retrieved from the metadata of }static_prob`
+The graph returned is a list of the edges of the graph containing:
+\itemize{
+\item \code{s}: source node (index in the 3d grid lat-lon-sta),
+\item \code{t}: target node (index in the 3d grid lat-lon-sta),
+\item \code{gs}: average ground speed required to make that transition (km/h) as complex number
+representing the E-W as real and S-N as imaginary.
+\item \code{ps}: static probability of each target node,
+\item \code{sz}: size of the 3d grid lat-lon-sta,
+\item \code{equipement}: node(s) of the first sta (index in the 3d grid lat-lon-sta),
+\item \code{retrival}: node(s) of the last sta (index in the 3d grid lat-lon-sta),
+\item \code{flight_duration}: list of flight duration to next sta in hours,
+\item \code{lat}: list of the \code{static_prob} latitude in cell center,
+\item \code{lon}: list of the \code{static_prob} longitude in cell center,
+\item \code{extent}: raster geographical extent of the \code{static_prob},
+\item \code{resolution}: raster res of the \code{static_prob},
+\item \code{temporal_extent}: start and end date time retrieved from the metadata of \code{static_prob}.
+}
 
-The vignette \href{articles/basic-graph.html}{Basic graph} provided an example how to prepare the
+The vignette \href{/articles/basic-graph.html}{Basic graph} provided an example how to prepare the
 data for the function and the output of this function.
+}
+\seealso{
+\href{https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html}{Vignette Basic Graph }
 }

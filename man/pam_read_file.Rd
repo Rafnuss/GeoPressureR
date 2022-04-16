@@ -17,5 +17,8 @@ pam_read_file(filename, crop_start, crop_end)
 a data.frame of the measurement
 }
 \description{
-Read any pam file and return the corresponding data.frame.
+Read a specific pam file and return the corresponding data.frame.
+}
+\seealso{
+\code{\link{pam_read}}
 }

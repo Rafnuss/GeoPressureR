@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 In this vignette, we will see how to create a 'basic' graph to model the trajectory of the bird. We will then use this graph to compute three main output: (1) the shortest path (i.e., the most likely trajectory, (2) the probability maps at each stationary period and (3) simulated paths sampled according to their likelihood. 
 
-We called this a 'basic' graph because it does not integrate windspeed, and make assumption of the groundspeed distribution of the bird. The vignette [Wind graph](./articles/wind-graph.html) will explain how we can retrieve wind data and improve the graph model. 
+We called this a 'basic' graph because it does not integrate windspeed, and make assumption of the groundspeed distribution of the bird. The vignette [Wind graph](/articles/wind-graph.html) will explain how we can retrieve wind data and improve the graph model. 
 
 ```{r setup, message=F}
 library(GeoPressureR)
@@ -26,7 +26,7 @@ library(raster)
 library(igraph)
 ```
 
-We already pre-processed the light and pressure data data in the vignette [Preparing data](./articles/preparing-data). Make sure that the data was passing all the check before moving to this vignette.
+We already pre-processed the light and pressure data data in the vignette [Preparing data](/articles/preparing-data). Make sure that the data was passing all the check before moving to this vignette.
 
 ```{r}
 static_prob <- readRDS(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
@@ -117,7 +117,7 @@ Estimating the position of the bird for each stationary period is generally the 
 static_prob_marginal <- graph_marginal(grl)
 ```
 
-```{r}
+```{r, warning=FALSE}
 li_s <- list()
 l <- leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
 for (i_r in seq_len(length(static_prob_marginal))) {

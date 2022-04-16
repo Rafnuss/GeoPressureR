@@ -30,20 +30,20 @@ breaking changes in the near future. **
 Using the example of a Great Reed Warbler (18LX), the vignettes were
 designed to guide you through all the steps with great details.
 
-The vignette [Pressure map](./articles/pressure-map.html) is a good
-place to understand the basic workflow used to compute a probability map
-from pressure measurement (part 1). It will guide you (or redirect you)
+The vignette [Pressure map](/articles/pressure-map.html) is a good place
+to understand the basic workflow used to compute a probability map from
+pressure measurement (part 1). It will guide you (or redirect you)
 through all the steps from the loading the data, labeling of the
 timeseries, querying the ERA5 pressure map and finally computing the
 likelihood map.
 
 Once the probability maps are computed, the vignette [Basic
-graph](./articles/basic-graph.html) will help you create the graph and
+graph](/articles/basic-graph.html) will help you create the graph and
 compute three main outputs: (1) the most likely trajectory, (2) the
 (posterior) probability map of each stationary period and (3) simulation
 of possible path.
 
-Finally, [Wind graph](./articles/wind-graph.html) extend the capability
+Finally, [Wind graph](/articles/wind-graph.html) extend the capability
 of the basic graph to include wind data and refine the possible flight
 distance. It also allows to estimate wind support, airspeed, and energy
 expenditure on each flights.

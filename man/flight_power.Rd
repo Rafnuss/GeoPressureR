@@ -10,18 +10,21 @@ flight_power(as, bird)
 \item{as}{airspeed in m/s}
 
 \item{bird}{list of basic morphological trait necessary: mass, wing span, wing aspect ratio and
-body frontal area. It is best practice to create bird with \code{flight_bird()}.}
+body frontal area. It is best practice to create bird with \code{\link[=flight_bird]{flight_bird()}}.}
 }
 \value{
 mechanical power in Watt (or Joule/seconds) corresponding to the airspeed
 }
 \description{
 Compute the mechanical power (W =J/s) required for a specific bird flying as at a given airspeed
-in m/s. \code{bird} is created with \code{flight_bird()}.
+in m/s. \code{bird} is created with \code{\link[=flight_bird]{flight_bird()}}.
 }
 \examples{
 bird <- flight_bird("Acrocephalus arundinaceus")
 airspeed <- seq(0, 30)
 power <- flight_power(airspeed, bird)
-plot(airspeed, power, xlab = "Airspeed [m/s]", ylab = "Mechanical Power [W]")
+plot(airspeed, power, xlab = "Airspeed [m/s]", ylab = "Mechanical Power [W]", type = "l")
+}
+\seealso{
+\code{\link[=flight_bird]{flight_bird()}}, \code{\link[=flight_prob]{flight_prob()}}
 }

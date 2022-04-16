@@ -24,7 +24,7 @@ flight_prob(
 \item{scale}{parameter of the gamma distribution}
 
 \item{bird}{list of basic morphological trait necessary: mass, wing span, wing aspect ratio and
-body frontal area. It is best practice to create bird with \code{flight_bird()}.}
+body frontal area. It is best practice to create bird with \code{\link[=flight_bird]{flight_bird()}}.}
 
 \item{fun_power}{function taking power as a single argument and returning a probability}
 
@@ -36,7 +36,7 @@ Probability values corresponding to the speed provided
 }
 \description{
 Compute the mechanical power required for a specific bird flying as at a given airspeed in km/h.
-\code{bird} (created with \code{flight_bird()})
+\code{bird} (created with \code{\link[=flight_bird]{flight_bird()}})
 }
 \examples{
 speed <- seq(1, 120)
@@ -53,4 +53,7 @@ abline(v = low_speed_fix)
 bird <- flight_bird("Acrocephalus arundinaceus")
 prob <- flight_prob(speed, method = "power", bird = bird)
 plot(speed, prob, type = "l", xlab = "Airspeed [km/h]", ylab = "Probability")
+}
+\seealso{
+\code{\link[=flight_bird]{flight_bird()}}
 }

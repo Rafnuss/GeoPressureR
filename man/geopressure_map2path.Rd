@@ -7,19 +7,19 @@
 geopressure_map2path(map, interp = 0, format = "lonlat")
 }
 \arguments{
-\item{map}{list of raster containing probability map of each stationary period. The metadata of
+\item{map}{List of raster containing probability map of each stationary period. The metadata of
 \code{map} needs to include the start and end time of the stationary period .}
 
-\item{interp}{(in days) The position of the stationary period shorter than \code{interp} will be
-replace by a linear average from other position.}
+\item{interp}{The position of the stationary period shorter than \code{interp} will be
+replace by a linear average from other position (in days) .}
 
-\item{format}{one of \code{"lonlat"}, \code{"ind"}, \code{"arr.ind"}). return the path in lon-lat or indices}
+\item{format}{One of \code{"lonlat"}, \code{"ind"}, \code{"arr.ind"}. return the path in lon-lat or indices}
 }
 \value{
 a data.frame of the position containing latitude (\code{lat}), longitude (\code{lon}) and the
 stationary period id (\code{sta_id}) as column. Optionally, if indexes were requested, it will be
 return. You will need to use \code{which.max(as.matrix(raster))} and not \code{which.max(raster)} to get
-the correct location
+the correct location.
 }
 \description{
 Find the location of the highest value in the map and return a path data.frame containing the
@@ -39,7 +39,7 @@ sta_duration <- unlist(lapply(pressure_prob, function(x) {
     units = "days"
   ))
 }))
-m <- leaflet::leaflet(width = "100\%")
+m <- leaflet::leaflet()
 m <- leaflet::addProviderTiles(m, leaflet::providers$Stamen.TerrainBackground)
 m <- leaflet.extras::addFullscreenControl(m)
 m <- leaflet::addPolylines(m,
@@ -59,4 +59,7 @@ m <- leaflet::addCircles(m,
   color = "#33a02c", weight = sta_duration^(0.3) * 10
 )
 m
+}
+\seealso{
+\code{\link[=geopressure_prob_map]{geopressure_prob_map()}}, \code{\link[=geopressure_ts_path]{geopressure_ts_path()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
 }

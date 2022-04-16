@@ -3,7 +3,7 @@ ui <- bootstrapPage(
   useShinyjs(),
   tags$head(
     tags$link(href = "https://fonts.googleapis.com/css?family=Oswald", rel = "stylesheet"),
-    tags$style(type = "text/css", "html, body {width:100%;height:100%; font-family: Oswald, sans-serif;}.primary{background-color:#007bff; color: #fff;}"),
+    tags$style(type = "text/css", "html, body {width:100%;height:100%; font-family: Oswald, sans-serif;}.primary{background-color:#007bff; color: #fff;}.js-plotly-plot .plotly .modebar{left: 0}"),
     # includeHTML("meta.html"),
   ),
   leafletOutput("map", width = "100%", height = "100%"),
@@ -51,7 +51,7 @@ ui <- bootstrapPage(
       div(
         id = "map_source_div",
         radioButtons("map_source",
-          label = "Probability map to display", inline = T, choices = map_choices, selected=map_choices[tail(which(!is.na(map_val)),1)]
+          label = "Probability map to display", inline = T, choices = map_choices, selected = map_choices[tail(which(!is.na(map_val)), 1)]
         ),
         tags$hr(),
         tags$p("Change position by clicking on the map and update the pressure timeserie."),

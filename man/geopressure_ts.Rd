@@ -14,17 +14,18 @@ geopressure_ts(
 )
 }
 \arguments{
-\item{lon}{longitude to query (-180° to 180°).}
+\item{lon}{Longitude to query (-180° to 180°).}
 
-\item{lat}{latitude to query (0° to 90°).}
+\item{lat}{Latitude to query (0° to 90°).}
 
-\item{pressure}{pressure list from PAM logger dataset list}
+\item{pressure}{Pressure list from PAM logger dataset list.}
 
-\item{end_time}{same as start_time}
+\item{end_time}{Same as \code{start_time}}
 
-\item{start_time}{if pressure not provided, then the start_time of the timeserie return is needed}
+\item{start_time}{If \code{pressure} is not provided, then \code{start_time} define the starting time of
+the timeserie as POSIXlt.}
 
-\item{verbose}{logical display progress of the query}
+\item{verbose}{Display (or not) the progress of the query (logical).}
 }
 \value{
 Timeserie of date, pressure, latitude, longitude and optionally altitude. Latitude and
@@ -59,14 +60,17 @@ pressure_timeserie[[1]] <- geopressure_ts(
 )
 }
 pressure_timeserie <- readRDS(system.file("extdata", "18LX_pressure_timeserie.rda",
-package = "GeoPressureR"))
+  package = "GeoPressureR"
+))
 par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
-plot(pressure_timeserie[[1]]$date,
-  pressure_timeserie[[1]]$pressure,
-  ylab = "Pressure [hPa]", xlab = ""
+plot(pressure_timeserie[[1]]$date, pressure_timeserie[[1]]$pressure,
+  ylab = "Pressure [hPa]", xlab = "", type = "l"
 )
-plot(pressure_timeserie[[1]]$date,
-  pressure_timeserie[[1]]$altitude,
-  ylab = "Altitude [m asl]", xlab = ""
+
+plot(pressure_timeserie[[1]]$date, pressure_timeserie[[1]]$altitude,
+  ylab = "Altitude [m asl]", xlab = "", type = "l"
 )
+}
+\seealso{
+\code{\link[=geopressure_ts_path]{geopressure_ts_path()}}
 }

@@ -16,11 +16,8 @@ pam
 }
 \description{
 This function uses activity data to classify migratory flapping flight. It returns the same data
-list \code{pam} adding a column \code{ismig} to the data.frame \code{acceleration}.
-}
-\details{
-This fonction is inspired by the function \code{classify_flap} from the
-\href{https://github.com/KiranLDA/pamLr}{pamLr package}.
+list \code{pam} adding a column \code{ismig} to the data.frame \code{acceleration}. This fonction is inspired by
+the function \code{classify_flap} from the \href{https://github.com/KiranLDA/pamlr}{PAMLr package}.
 }
 \examples{
 pam_data <- pam_read(
@@ -29,4 +26,7 @@ pam_data <- pam_read(
 )
 pam_data <- pam_classify(pam_data, min_duration = 30)
 head(pam_data$acceleration)
+}
+\seealso{
+\code{\link[=pam_read]{pam_read()}}, \href{https://kiranlda.github.io/PAMLrManual/flapping.html}{flapping chapter of the PAMLr manual}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
 }

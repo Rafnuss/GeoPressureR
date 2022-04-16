@@ -7,11 +7,15 @@
 graph_trim(grl)
 }
 \arguments{
-\item{grl}{graph constructed with \code{graph_create()}}
+\item{grl}{Graph constructed with \code{\link[=graph_create]{graph_create()}}.}
 }
 \value{
-graph trimmed
+Graph trimmed
 }
 \description{
-Trim a graph
+Trimming consists in removing "dead branch" of a graph, that is removing the edges which are not
+connected to both the source (i.e, equipment) or sink (i.e. retrieval site).
+}
+\seealso{
+\code{\link[=graph_create]{graph_create()}}
 }
