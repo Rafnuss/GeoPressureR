@@ -617,6 +617,12 @@ graph_marginal <- function(grl) {
   for (i_s in seq_len(dim(map)[3])) {
     tmp <- map[, , i_s]
     tmp[grl$mask_water] <- NA
+    if (sum(tmp, na.rm = T) == 0) {
+      stop(
+        "The probability of some transition are too small to find numerical solution. ",
+        "Please check the data used to create the graph."
+      )
+    }
     static_prob_marginal[[i_s]] <- raster::raster(grl$extent,
       resolution = grl$resolution,
       vals = tmp
