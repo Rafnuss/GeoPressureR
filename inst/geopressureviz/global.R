@@ -1,3 +1,5 @@
+# remove.packages("GeoPressureR")
+# devtools::install_github("rafnuss/GeoPressureR")
 
 suppressMessages({
   library(BiocManager)
@@ -77,7 +79,7 @@ stopifnot(!is.na(id_match))
 sta$duration <- pres_isoutliar_sta$x[id_match] * res
 
 # Set color of each stationay period
-col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = 20)
+col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(max(sta$sta_id)/8))
 sta$col <- col[sta$sta_id]
 
 # Get flight information and compute flight duration directly

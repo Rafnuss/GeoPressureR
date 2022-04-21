@@ -5,9 +5,9 @@ account: rafnuss
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 6004377
-bundleId: 5765108
+bundleId: 5815886
 url: https://rafnuss.shinyapps.io/GeoPressureViz/
-when: 1649130380.68276
-lastSyncTime: 1649130380.68277
+when: 1650419408.43147
+lastSyncTime: 1650419408.43149
 asMultiple: FALSE
 asStatic: FALSE
