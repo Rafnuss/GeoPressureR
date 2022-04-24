@@ -112,7 +112,6 @@ test_that("Check geopressure_ts() output", {
 
 
 test_that("Check geopressure_ts_path() output", {
-  skip_if(TRUE, "Heavy tests, run only manually")
 
   # Check for incorrect input
   expect_error(geopressure_ts_path(path_static, "no_a_pressure"))
@@ -148,4 +147,10 @@ test_that("Check geopressure_ts_path() output", {
   path[1, ] <- c(0, 0, 8)
   pressure_timeserie <- geopressure_ts_path(path, pressure)
   expect_true(pressure_timeserie[[1]]$lat[1] != 0)
+})
+
+
+pressure_maps <- readRDS(system.file("extdata", "18LX_pressure_maps.rda", package = "GeoPressureR"))
+test_that("Check geopressure_prob_map() output", {
+  expect_error(geopressure_prob_map(pressure_maps[[1]]), NA)
 })
