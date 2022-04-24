@@ -35,5 +35,5 @@ head(pam_data$pressure)
 head(pam_data$acceleration)
 }
 \seealso{
-\code{\link{pam_read}}, \code{\link[=trainset_write]{trainset_write()}}, \code{\link[=trainset_edit]{trainset_edit()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
+\code{\link{pam_read}}, \code{\link[=trainset_edit]{trainset_edit()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
 }

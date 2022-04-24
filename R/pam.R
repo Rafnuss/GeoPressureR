@@ -251,53 +251,6 @@ pam_sta <- function(pam) {
 
 
 
-#' Edit classification of activity and pressure
-#'
-#' This function perform three steps: (1) write the `csv` file of the automatically labeled
-#' activity and pressure with [`trainset_write()`], (2) open trainset in your browser
-#' \url{https://trainset.geocene.com/} so that you can edit the labels and (3) read the exported
-#' `csv` file from trainset with [`trainset_read()`].
-#'
-#' @param pam pam logger dataset list (see `pam_read()`)
-#' @param pathname Path to the folder where the labeled files should be saved
-#' @param filename Name for the file.
-#' @return pam logger dataset list updated with the labels `pam$pressure$isoutliar` and
-#' `pam$acceleration$ismig`
-#' @seealso [`pam_read`], [`trainset_write()`], [`trainset_read()`], [Vignette Pressure Map
-#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
-#' @export
-trainset_edit <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-labeled.csv")) {
-
-  # Create file from pam if no labeled file for this bird exist
-  if (!file.exists(paste0(pathname, filename))) {
-    trainset_write(pam, pathname, filename)
-
-    # Edit the file in browser
-    utils::browseURL("https://trainset.geocene.com/")
-
-    # When labilization finished and new file saved, press enter
-    cond <- T
-    while (cond) {
-      readline(prompt = "Press [enter] to continue")
-      if (!file.exists(paste0(pathname, filename, "-labeled.csv"))) {
-        cond <- F
-      } else {
-        warning(
-          paste0(
-            "No labelized file found. Make sure you exported the file from trainset as ",
-            paste0(pathname, filename, "-labeled.csv")
-          )
-        )
-      }
-    }
-  }
-
-  # Read the new file and return the updated pam data
-  return(trainset_read(pam, pathname, filename))
-}
-
-
-
 #' Write classification of activity and pressure
 #'
 #' This function writes the csv file of the automatically labeled activity and pressure which can
@@ -316,7 +269,7 @@ trainset_edit <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-la
 #' pam_data <- pam_classify(pam_data)
 #' trainset_write(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
 #' }
-#' @seealso [`pam_read`], [`trainset_edit()`], [`trainset_read()`], [Vignette Pressure Map
+#' @seealso [`pam_read`], [`trainset_read()`], [Vignette Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
 #' @export
 trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")) {
@@ -331,7 +284,12 @@ trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")
   stopifnot(is.data.frame(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
   stopifnot("act" %in% names(pam$acceleration))
-  stopifnot("ismig" %in% names(pam$acceleration))
+  if (!("ismig" %in% names(pam$acceleration))) {
+    pam$acceleration$ismig <- FALSE
+  }
+  if (!("isoutliar" %in% names(pam$pressure))) {
+    pam$pressure$isoutliar <- FALSE
+  }
   stopifnot(is.character(pathname))
   stopifnot(is.character(filename))
   # create path if does not exit
@@ -339,6 +297,8 @@ trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")
     dir.create(pathname)
   }
   stopifnot(dir.exists(pathname))
+
+  print(paste0(pathname, "/", filename, ".csv"))
 
   # write a combined data.frame of pressure and acceleration in csv.
   utils::write.csv(
@@ -357,10 +317,10 @@ trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")
           tz = "UTC"
         ),
         value = pam$pressure$obs,
-        label = ""
+        label = ifelse(pam$pressure$isoutliar, "1", "")
       )
     ),
-    paste0(pathname, filename, ".csv"),
+    paste0(pathname, "/", filename, ".csv"),
     row.names = FALSE
   )
 }
@@ -386,7 +346,7 @@ trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")
 #' pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
 #' head(pam_data$pressure)
 #' head(pam_data$acceleration)
-#' @seealso [`pam_read`], [`trainset_write()`], [`trainset_edit()`], [Vignette Pressure Map
+#' @seealso [`pam_read`], [`trainset_edit()`], [Vignette Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
 #' @export
 trainset_read <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-labeled.csv")) {
@@ -410,13 +370,33 @@ trainset_read <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-la
   # read the file
   csv <- utils::read.csv(fullpath)
 
-  # check that the file is in the right format and same size as pam data
-  stopifnot("series" %in% names(csv))
-  stopifnot(length(csv$label) == length(pam$acceleration$date) + length(pam$pressure$date))
+  # check that the file is in the right format
+  stopifnot(c("series", "timestamp", "label") %in% names(csv))
 
-  # assign label value to class
-  pam$acceleration$ismig <- !is.na(csv$label[csv$series == "acceleration"])
-  pam$pressure$isoutliar <- !is.na(csv$label[csv$series == "pressure"])
+  csv$date <- strptime(csv$timestamp, "%FT%T", tz = "UTC")
+  csv_acc <- subset(csv, series == "acceleration")
+  csv_pres <- subset(csv, series == "pressure")
+
+  id_acc_match <- match(as.numeric(pam$acceleration$date), as.numeric(csv_acc$date))
+  pam$acceleration$ismig <- !is.na(csv_acc$label[id_acc_match])
+
+  id_pres_match <- match(as.numeric(pam$pressure$date), as.numeric((csv_pres$date)))
+  pam$pressure$isoutliar <- !is.na(csv_pres$label[id_pres_match])
+
+  missing_acc <- sum(is.na(id_acc_match))
+  missing_pres <- sum(is.na(id_pres_match))
+  if (missing_acc > 0 | missing_pres > 0) {
+    trainset_write(pam, pathname = tempdir(), filename = paste0(pam$id, "_act_pres-labeled"))
+    warning(paste0(
+      "The labelization file is missing ", missing_pres, " timesteps of pressure and ",
+      missing_acc, " timesteps of acceleration and includes ",
+      nrow(csv_pres) - nrow(pam$pressure) + missing_pres, " timestep of pressure and ",
+      nrow(csv_acc) - nrow(pam$acceleration) + missing_acc, " timestep of acceleration",
+      " which are not nedded. We assumed no migration and no outliar during the ",
+      "timestep missing. You can find the updated labelization file at ", tempdir(), "/",
+      pam$id, "_act_pres-labeled.csv"
+    ))
+  }
 
   return(pam)
 }

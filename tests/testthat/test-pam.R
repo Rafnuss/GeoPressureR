@@ -31,6 +31,15 @@ test_that("Check pam_classify()", {
 })
 
 
+test_that("Check trainset_write()", {
+  expect_error(trainset_write("not a pam", pathname = tempdir()))
+  # Work under normal condition
+  expect_error(trainset_write(pam_data_classified, pathname = tempdir()), NA)
+  # Work even if not auto-classified
+  expect_error(trainset_write(pam_data, pathname = tempdir()), NA)
+})
+
+
 pam_data_labeled <- trainset_read(pam_data, pathname = pathname)
 test_that("Check trainset_read()", {
   # Returned value is correct
@@ -43,6 +52,16 @@ test_that("Check trainset_read()", {
   # Return error for incorrect input
   expect_error(trainset_read(pam_data, pathname = "not a path"))
   expect_error(trainset_read("not a pam", pathname = pathname))
+
+  # Test with different labeled file size
+  pam_data <- trainset_read(pam_data,
+    pathname = pathname,
+    filename = "18LX_act_pres-labeled-diffsize.csv"
+  )
+  expect_true(c("isoutliar") %in% names(pam_data$pressure))
+  expect_true(c("ismig") %in% names(pam_data$acceleration))
+  # Test new file
+  # trainset_read(pam_data, pathname = "/var/folders/1x/jf29x3qj68g847vs42xhmcxm0000gq/T//Rtmp5CY7R0", filename = "18LX_act_pres-labeled.csv")
 })
 
 
