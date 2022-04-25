@@ -223,8 +223,8 @@ pam_sta <- function(pam) {
 
   # construct stationary period table based on migration activity and pressure
   pam$sta <- data.frame(
-    start = c(pam$pressure$date[1], act_mig$end),
-    end = c(act_mig$start, utils::tail(pam$pressure$date, n = 1))
+    start = append(pam$acceleration$date[1], act_mig$end),
+    end = append(act_mig$start, pam$acceleration$date[length(pam$acceleration$date)])
   )
 
   # Define ID for stationary period
