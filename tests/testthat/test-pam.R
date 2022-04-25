@@ -54,10 +54,10 @@ test_that("Check trainset_read()", {
   expect_error(trainset_read("not a pam", pathname = pathname))
 
   # Test with different labeled file size
-  pam_data <- trainset_read(pam_data,
+  expect_warning(pam_data <- trainset_read(pam_data,
     pathname = pathname,
     filename = "18LX_act_pres-labeled-diffsize.csv"
-  )
+  ))
   expect_true(c("isoutliar") %in% names(pam_data$pressure))
   expect_true(c("ismig") %in% names(pam_data$acceleration))
   # Test new file
