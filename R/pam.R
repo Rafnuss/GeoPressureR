@@ -346,7 +346,7 @@ trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")
 #' pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
 #' head(pam_data$pressure)
 #' head(pam_data$acceleration)
-#' @seealso [`pam_read`], [`trainset_edit()`], [Vignette Pressure Map
+#' @seealso [`pam_read`], [Vignette Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
 #' @export
 trainset_read <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-labeled.csv")) {
