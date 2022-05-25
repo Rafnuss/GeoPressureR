@@ -182,7 +182,7 @@ geopressure_map <- function(pressure, extent, scale = 10, max_sample = 250, marg
     f[[i_u]] <- future::future(expr = {
       filename <- tempfile()
       options(timeout = 60 * 5)
-      utils::download.file(uris[i_u], filename)
+      httr::GET(uris[i_u], httr:: write_disk(filename))
       return(filename)
     }, seed = TRUE)
     progress_bar(i_u, max = length(uris))
