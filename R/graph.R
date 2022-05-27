@@ -132,8 +132,9 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
       if (sum(nds[[i_s + 1]]) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
-          "there are not any nodes left at stationay period ", i_s + 1, " from stationay period ",
-          i_s
+          "there are not any nodes left at stationay period ",
+          metadata(static_prob[[i_s + 1]])$sta_id, " from stationay period ",
+          metadata(static_prob[[i_s]])$sta_id
         ))
       }
     }
@@ -144,8 +145,9 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
       if (sum(nds[[i_s - 1]]) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
-          "there are not any nodes left at stationay period ", i_s - 1, " from stationay period ",
-          i_s
+          "there are not any nodes left at stationay period ",
+          metadata(static_prob[[i_s - 1]])$sta_id, " from stationay period ",
+          metadata(static_prob[[i_s]])$sta_id
         ))
       }
     }
