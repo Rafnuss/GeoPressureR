@@ -29,7 +29,7 @@ Firstly, part 1 provides a R wrapper around the [GeoPressure API](https://github
 
 ## Where to start?
 
-### Learn about GeoPressure with 18LX
+### Learn about GeoPressureR with 18LX
 Using the example of a Great Reed Warbler (18LX), the vignettes were designed to guide you through all the steps with great details.
 
 The vignette [Pressure map](/articles/pressure-map.html) is a good place to understand the basic workflow used to compute a probability map from pressure measurement (part 1). It will guide you (or redirect you) through all the steps from the loading the data, labeling of the timeseries, querying the ERA5 pressure map and finally computing the likelihood map.
@@ -61,10 +61,11 @@ devtools::install_github("Rafnuss/GeoPressureR")
 
 > Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti Global positioning by atmospheric pressure retrieved from multi-sensor geolocators, 25 February 2022, PREPRINT (Version 1) available at Research Square [<https://doi.org/10.21203/rs.3.rs-1381915/v1>]
 
+> Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis et al. Inferring bird’s trajectory from multi-sensor geolocators and remote sensing with a graphical model, 25 May 2022, PREPRINT (Version 1) available at Research Square [<https://doi.org/10.21203/rs.3.rs-1693751/v1>]
 
 ### Presentation
 
-> Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti et al. Improving the spatial accuracy of multi-sensor geolocators' position using atmospheric surface pressure. October 2021. *7th International Bio-logging Science Symposium*. PRESENTATION available on [Youtube](https://www.youtube.com/watch?v=0JsYU_xfKN8).
+> Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti et al. Improving the spatial accuracy of multi-sensor geolocators' position using atmospheric surface pressure. October 2021. *7th International Bio-logging Science Symposium*. PRESENTATION available at [Youtube](https://www.youtube.com/watch?v=0JsYU_xfKN8).
 
 ### Related Code
 

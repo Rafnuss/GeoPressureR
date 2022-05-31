@@ -25,7 +25,7 @@ breaking changes in the near future. **
 
 ## Where to start?
 
-### Learn about GeoPressure with 18LX
+### Learn about GeoPressureR with 18LX
 
 Using the example of a Great Reed Warbler (18LX), the vignettes were
 designed to guide you through all the steps with great details.
@@ -80,12 +80,17 @@ devtools::install_github("Rafnuss/GeoPressureR")
 > February 2022, PREPRINT (Version 1) available at Research Square
 > \[<https://doi.org/10.21203/rs.3.rs-1381915/v1>\]
 
+> Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis et al. Inferring
+> bird’s trajectory from multi-sensor geolocators and remote sensing
+> with a graphical model, 25 May 2022, PREPRINT (Version 1) available at
+> Research Square \[<https://doi.org/10.21203/rs.3.rs-1693751/v1>\]
+
 ### Presentation
 
 > Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti et al. Improving the
 > spatial accuracy of multi-sensor geolocators’ position using
 > atmospheric surface pressure. October 2021. *7th International
-> Bio-logging Science Symposium*. PRESENTATION available on
+> Bio-logging Science Symposium*. PRESENTATION available at
 > [Youtube](https://www.youtube.com/watch?v=0JsYU_xfKN8).
 
 ### Related Code
