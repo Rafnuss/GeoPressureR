@@ -99,9 +99,12 @@ geopressure_map <- function(pressure, extent, scale = 10, max_sample = 250, marg
 
   # smooth the data with a moving average of 1hr
   # find the size of the windows for 1 hour
-  dt <- as.numeric(difftime(pressure$date[2], pressure$date[1],
-    units = "hours"
-  ))
+  dtall <- diff(pressure$date)
+  units(dtall) <- "hours"
+  if (length(unique(dtall)) > 1) {
+    warning("Date of pressure are not on a regular interval. This might cause issue later.")
+  }
+  dt <- as.numeric(median(dtall))
   n <- 1 / dt + 1
   # make the convolution for each stationary period separately
   for (i_s in seq(1, max(pressure$sta_id, na.rm = TRUE))) {
@@ -121,7 +124,7 @@ geopressure_map <- function(pressure, extent, scale = 10, max_sample = 250, marg
       tmp[!is.na(pressure$sta_id) & pressure$sta_id == i_s]
   }
 
-  # downscale to 1hour
+  # downscale to 1 hour
   pres[format(pressure$date, "%M") != "00"] <- NA
 
   if (sum(!is.na(pres)) == 0) {
@@ -153,7 +156,7 @@ geopressure_map <- function(pressure, extent, scale = 10, max_sample = 250, marg
     temp_file <- tempfile("log_geopressure_map_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
     stop(paste0(
-      "Error with youre request on http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/. ",
+      "Error with youre request on http://glp.mgravey.com:24853/GeoPressure/v1/map/. ",
       "Please try again, and if the problem persists, file an issue on Github:",
       "https://github.com/Rafnuss/GeoPressureServer/issues/new?body=geopressure_ts&labels=crash
         with this log file located on your computer: ", temp_file
@@ -182,7 +185,7 @@ geopressure_map <- function(pressure, extent, scale = 10, max_sample = 250, marg
     f[[i_u]] <- future::future(expr = {
       filename <- tempfile()
       options(timeout = 60 * 5)
-      httr::GET(uris[i_u], httr:: write_disk(filename))
+      httr::GET(uris[i_u], httr::write_disk(filename))
       return(filename)
     }, seed = TRUE)
     progress_bar(i_u, max = length(uris))
