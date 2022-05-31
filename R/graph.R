@@ -441,7 +441,7 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
 
       # Linear integration
       w <- numeric(length(t_q))
-      stopifnot(length(w) > 2)
+      stopifnot(length(w) > 1)
       alpha <- 1 - as.numeric(difftime(fl_s$start[i2], t_q[1],
         units = "hours"
       ))
