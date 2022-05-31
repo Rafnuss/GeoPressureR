@@ -738,10 +738,15 @@ graph_simulation <- function(grl, nj = 10) {
     ) %*% trans_f
 
     # Combine forward and backward and samples
-    ids <- apply(map_f[, nll * (i_sta - 1) + (1:nll)], 1, function(x) {
-      map <- x * map_b[[i_sta]][nll * (i_sta - 1) + (1:nll)]
-      sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
-    })
+    if (nj > 1){
+      ids <- apply(map_f[, nll * (i_sta - 1) + (1:nll)], 1, function(x) {
+        map <- x * map_b[[i_sta]][nll * (i_sta - 1) + (1:nll)]
+        sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
+      })
+    } else {
+      map <- map_f[, nll * (i_sta - 1) + (1:nll)] * map_b[[i_sta]][nll * (i_sta - 1) + (1:nll)]
+      ids <- sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
+    }
 
     #
     path[, i_sta] <- ids + nll * (i_sta - 1)
