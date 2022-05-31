@@ -38,7 +38,7 @@ jobs:
           use-public-rspm: true
           
       - name: Install macOS dependencies
-        if : contains( matrix.os, 'macOS' )
+        if : contains( matrix.config.os, 'macOS' )
         run: |
           brew install gdal
 
