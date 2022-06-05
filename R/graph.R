@@ -171,77 +171,92 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   retrival <- which(nds[[sz[3]]] == T) + (sz[3] - 1) * nll
 
 
-  # Create the graph list from nds together with the exact groundspeed
-  gr <- list()
+  # Create the graph from nds with the exact groundspeed
+
+  # Run each transition in parallel with decreasing order of edges
   nds_sum <- unlist(lapply(nds, sum))
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
+  nds_sorted_idx <- order(nds_expend_sum, decreasing = T)
+  nds_expend_sum <- sort(nds_expend_sum)
+  future::plan(future::multisession, workers = future::availableCores())
+  f <- list()
+
+  message(
+    "Computing the groundspeed for ", sum(nds_expend_sum), " edges for ",
+    length(nds_expend_sum), " stationary periods in parallel on ", availableCores(), " cores."
+  )
   progress_bar(0, max = sum(nds_expend_sum))
-  for (i_s in seq_len(sz[3] - 1)) {
-    # find all the possible equipment and target based on nds and expand to all possible combination
-    grt <- expand.grid(
-      s = as.integer(which(nds[[i_s]]) + (i_s - 1) * nll),
-      t = as.integer(which(nds[[i_s + 1]]) + i_s * nll)
-    )
+  for (i in seq_len(length(nds_sorted_idx))) {
+    i_s <- nds_sorted_idx[i]
+    f[[i_s]] <- future::future(expr = {
+      # find all the possible equipment and target based on nds and expand to all possible
+      # combination
+      grt <- expand.grid(
+        s = as.integer(which(nds[[i_s]]) + (i_s - 1) * nll),
+        t = as.integer(which(nds[[i_s + 1]]) + i_s * nll)
+      )
 
-    # Find the index in lat, lon, sta of those equipment and target
-    s_id <- arrayInd(grt$s, sz)
-    t_id <- arrayInd(grt$t, sz)
+      # Find the index in lat, lon, sta of those equipment and target
+      s_id <- arrayInd(grt$s, sz)
+      t_id <- arrayInd(grt$t, sz)
 
-    # compute the groundspeed for all transition
-    gs_abs <- geosphere::distGeo(
-      cbind(lon[s_id[, 2]], lat[s_id[, 1]]),
-      cbind(lon[t_id[, 2]], lat[t_id[, 1]])
-    ) / 1000 / flight_duration[i_s]
+      # compute the groundspeed for all transition
+      gs_abs <- geosphere::distGeo(
+        cbind(lon[s_id[, 2]], lat[s_id[, 1]]),
+        cbind(lon[t_id[, 2]], lat[t_id[, 1]])
+      ) / 1000 / flight_duration[i_s]
 
-    # filter the transition based on the groundspeed
-    id <- gs_abs < thr_gs
-    if (sum(id) == 0) {
-      stop(paste0(
-        "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
-        "edges, there are not any nodes left for the stationay period: ", i_s
-      ))
-    }
-    grt <- grt[id, ]
+      # filter the transition based on the groundspeed
+      id <- gs_abs < thr_gs
+      if (sum(id) == 0) {
+        stop(paste0(
+          "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
+          "edges, there are not any nodes left for the stationay period: ", i_s
+        ))
+      }
+      grt <- grt[id, ]
 
-    # Compute the bearing of the trajectory
-    gs_bearing <- geosphere::bearingRhumb(
-      cbind(lon[s_id[id, 2]], lat[s_id[id, 1]]),
-      cbind(lon[t_id[id, 2]], lat[t_id[id, 1]])
-    )
-    # bearing is NA if gs==0, fix for computing the complex representation
-    gs_bearing[is.na(gs_bearing)] <- 0
+      # Compute the bearing of the trajectory
+      gs_bearing <- geosphere::bearingRhumb(
+        cbind(lon[s_id[id, 2]], lat[s_id[id, 1]]),
+        cbind(lon[t_id[id, 2]], lat[t_id[id, 1]])
+      )
+      # bearing is NA if gs==0, fix for computing the complex representation
+      gs_bearing[is.na(gs_bearing)] <- 0
 
-    # save groundspeed in complex notation
-    gs_arg <- (450 - gs_bearing) %% 360
-    grt$gs <- gs_abs[id] * cos(gs_arg * pi / 180) +
-      1i * gs_abs[id] * sin(gs_arg * pi / 180)
+      # save groundspeed in complex notation
+      gs_arg <- (450 - gs_bearing) %% 360
+      grt$gs <- gs_abs[id] * cos(gs_arg * pi / 180) +
+        1i * gs_abs[id] * sin(gs_arg * pi / 180)
 
-    # assign the static probability of the target node (pressure * light)
-    grt$ps <- static_prob_n[[i_s + 1]][grt$t - i_s * nll]
+      # assign the static probability of the target node (pressure * light)
+      grt$ps <- static_prob_n[[i_s + 1]][grt$t - i_s * nll]
 
-    # add the edges from this stationary period to all others
-    gr[[i_s]] <- grt
-
-    if (sum(id) == 0) {
-      stop(paste0(
-        "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
-        "edges, there are not any nodes left for the stationay period: ", i_s
-      ))
-    }
-    progress_bar(sum(nds_expend_sum[seq(1, i_s)]),
+      if (sum(id) == 0) {
+        stop(paste0(
+          "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
+          "edges, there are not any nodes left for the stationay period: ", i_s
+        ))
+      }
+      return(grt)
+    }, seed = TRUE)
+    progress_bar(sum(nds_expend_sum[seq(1, i)]),
       max = sum(nds_expend_sum),
-      text = paste0("| sta = ", i_s, "/", sz[3] - 1)
+      text = paste0("| sta = ", i, "/", sz[3] - 1)
     )
   }
 
-  # convert gr to a list to a graph list with basic information
+  # Retrieve the graph
+  gr <- future::value(f)
+
+  # Trim
+  gr <- graph_trim(gr)
+
+  # Convert gr to a graph list
   grl <- as.list(do.call("rbind", gr))
   grl$sz <- sz
   grl$equipement <- equipement
   grl$retrival <- retrival
-
-  # Trim
-  grl <- graph_trim(grl)
 
   # Add metadata information
   grl$flight_duration <- flight_duration
@@ -272,39 +287,48 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
 #' @param grl Graph constructed with [`graph_create()`].
 #' @return Graph trimmed
 #' @seealso [`graph_create()`]
-graph_trim <- function(grl) {
-  for (i in seq_len(grl$sz[3])) {
-    unique_s <- c(grl$retrival, unique(grl$s))
-    unique_t <- c(grl$equipement, unique(grl$t))
+graph_trim <- function(gr) {
 
-    unique_s_new <- unique_s[unique_t %in% unique_s]
-    unique_t_new <- unique_t[unique_s %in% unique_t]
+  message("Trimming the graph:")
 
-    id <- grl$s %in% unique_s_new & grl$t %in% unique_t_new
+  progress_bar(1, max = (length(gr) - 1) * 2)
 
-    # Check if all nodes are connected
-    if (all(id)) {
-      break
+  # First, trim the graph from equipment to retrieval
+  for (i_s in seq(2, length(gr))) {
+
+    # Select the source id which exist in the target of the previous stationary period.
+    s <- unique(gr[[i_s]]$s)
+    t_b <- unique(gr[[i_s - 1]]$t)
+    unique_s_new <- s[s %in% t_b]
+
+    # Keep the edge from which the source id was found in the previous step
+    id <- gr[[i_s]]$s %in% unique_s_new
+    gr[[i_s]] <- gr[[i_s]][id, ]
+
+    if (nrow(gr[[i_s]]) == 0) {
+      stop(paste0(
+        "Triming the graph killed it at stationary period ", i_s, " moving forward."
+      ))
     }
-    # keep in memory which sta source where
-    empty_sta <- !(seq_len(grl$sz[3] - 1) %in% unique(arrayInd(grl$s[id], grl$sz)[, 3]))
-    if (any(empty_sta)) {
-      break
+    progress_bar(i_s - 1, max = (length(gr) - 1) * 2)
+  }
+  # Then, trim the graph from retrieval to equipment
+  for (i_s in seq(length(gr) - 1, 1)) {
+    t <- unique(gr[[i_s]]$t)
+    s_a <- unique(gr[[i_s + 1]]$s)
+    unique_t_new <- t[t %in% s_a]
+
+    id <- gr[[i_s]]$t %in% unique_t_new
+    gr[[i_s]] <- gr[[i_s]][id, ]
+
+    if (nrow(gr[[i_s]]) == 0) {
+      stop(paste0(
+        "Triming the graph killed it at stationary period ", i_s, " moving backward."
+      ))
     }
-    grl$s <- grl$s[id]
-    grl$t <- grl$t[id]
-    grl$gs <- grl$gs[id]
-    grl$ps <- grl$ps[id]
+    progress_bar(length(gr) * 2 - 1 - i_s, max = (length(gr) - 1) * 2)
   }
-
-  if (length(grl$s) == 0) {
-    stop(paste0(
-      "Triming in the graph resulted in an empty graph. Last stationary period removed: ",
-      paste(which(empty_sta), collapse = ", ")
-    ))
-  }
-
-  return(grl)
+  return(gr)
 }
 
 #' Add windspeed and airspeed
