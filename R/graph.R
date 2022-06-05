@@ -56,18 +56,18 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   # convert raster into normalized matrix
   static_prob_n <- lapply(static_prob, function(x) {
     probt <- raster::as.matrix(x)
-    if (sum(probt, na.rm = T)==0){
-      probt[probt==0] <- 1
+    if (sum(probt, na.rm = T) == 0) {
+      probt[probt == 0] <- 1
     }
     probt[is.na(probt)] <- 0
     probt / sum(probt, na.rm = T)
   })
 
-  tmp <- unlist(lapply(static_prob_n, sum)) == 0
-  if (any(tmp)) {
+  sta_id_0 <- unlist(lapply(static_prob_n, sum)) == 0
+  if (any(sta_id_0)) {
     stop(paste0(
-      "The `static_prob` provided has a probability map equal to zero for the stationay period: ",
-      which(tmp)
+      "The `static_prob` provided has an invalid probability map for the stationay period: ",
+      which(sta_id_0)
     ))
   }
 
@@ -84,11 +84,11 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
     nds
   })
 
-  tmp <- unlist(lapply(nds, sum)) == 0
-  if (any(tmp)) {
+  nds_0 <- unlist(lapply(nds, sum)) == 0
+  if (any(nds_0)) {
     stop(paste0(
       "Using the `thr_prob_percentile` of ", thr_prob_percentile, " provided, there are not any ",
-      "nodes left for the stationay period: ", which(tmp)
+      "nodes left for the stationay period: ", which(nds_0)
     ))
   }
 
@@ -111,12 +111,13 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
     as.numeric(sum(difftime(mtf$flight$end, mtf$flight$start, units = "hours")))
   }))
 
-  tmp <- utils::head(flight_duration, -1) < resolution / thr_gs
-  if (any(tmp)) {
+  flight_duration_thr_gs <- utils::head(flight_duration, -1) < resolution / thr_gs
+  if (any(flight_duration_thr_gs)) {
     warning(paste0(
       "The flight duration provided is too small for the stationay period: ",
-      paste(which(tmp), collapse = ", "), ".\nWe will increase it artficially to ",
-      resolution * 3 / thr_gs, " hour. This speed required to travel 3 grid resolution (",
+      paste(which(flight_duration_thr_gs), collapse = ", "),
+      ".\nWe will increase it artficially to ",
+      resolution * 3 / thr_gs, " hour. This speed allows to travel 3 grid resolution (",
       round(resolution * 3), "km) with the maximum speed of ", thr_gs, " km/h."
     ))
     flight_duration <- pmax(flight_duration, resolution * 3 / thr_gs)
@@ -738,7 +739,7 @@ graph_simulation <- function(grl, nj = 10) {
     ) %*% trans_f
 
     # Combine forward and backward and samples
-    if (nj > 1){
+    if (nj > 1) {
       ids <- apply(map_f[, nll * (i_sta - 1) + (1:nll)], 1, function(x) {
         map <- x * map_b[[i_sta]][nll * (i_sta - 1) + (1:nll)]
         sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
