@@ -178,22 +178,25 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
   nds_sorted_idx <- order(nds_expend_sum, decreasing = T)
   nds_expend_sum <- sort(nds_expend_sum)
-  future::plan(future::multisession, workers = future::availableCores())
+  future::plan(future::multisession, workers = future::availableCores()/2)
   f <- list()
 
   message(
     "Computing the groundspeed for ", sum(nds_expend_sum), " edges for ",
-    length(nds_expend_sum), " stationary periods in parallel on ", availableCores(), " cores."
+    length(nds_expend_sum), " stationary periods in parallel."
   )
   progress_bar(0, max = sum(nds_expend_sum))
   for (i in seq_len(length(nds_sorted_idx))) {
     i_s <- nds_sorted_idx[i]
+    nds_i_s <- nds[[i_s]]
+    nds_i_s_1 <- nds[[i_s + 1]]
+    static_prob_n_i_s_1 <- static_prob_n[[i_s + 1]]
     f[[i_s]] <- future::future(expr = {
       # find all the possible equipment and target based on nds and expand to all possible
       # combination
       grt <- expand.grid(
-        s = as.integer(which(nds[[i_s]]) + (i_s - 1) * nll),
-        t = as.integer(which(nds[[i_s + 1]]) + i_s * nll)
+        s = as.integer(which(nds_i_s) + (i_s - 1) * nll),
+        t = as.integer(which(nds_i_s_1) + i_s * nll)
       )
 
       # Find the index in lat, lon, sta of those equipment and target
@@ -230,7 +233,7 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
         1i * gs_abs[id] * sin(gs_arg * pi / 180)
 
       # assign the static probability of the target node (pressure * light)
-      grt$ps <- static_prob_n[[i_s + 1]][grt$t - i_s * nll]
+      grt$ps <- static_prob_n_i_s_1[grt$t - i_s * nll]
 
       if (sum(id) == 0) {
         stop(paste0(
