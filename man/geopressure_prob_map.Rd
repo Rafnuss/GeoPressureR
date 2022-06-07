@@ -4,7 +4,14 @@
 \alias{geopressure_prob_map}
 \title{Compute probability raster}
 \usage{
-geopressure_prob_map(pressure_maps, s = 1, thr = 0.9)
+geopressure_prob_map(
+  pressure_maps,
+  s = 1,
+  thr = 0.9,
+  fun_w = function(n) {
+     log(1)/n
+ }
+)
 }
 \arguments{
 \item{pressure_maps}{List of raster built with \code{\link[=geopressure_map]{geopressure_map()}}.}
@@ -13,6 +20,9 @@ geopressure_prob_map(pressure_maps, s = 1, thr = 0.9)
 
 \item{thr}{Threshold of the percentage of data point outside the elevation range to be considered
 not possible.}
+
+\item{fun_w}{function taking the number of sample of the timeseries used to compute the
+probability map and return the log-linear pooling weight (see the \href{https://raphaelnussbaumer.com/GeoPressureR/articles/probability-aggregation.html}{vignette probability aggregation })}
 }
 \value{
 List of the probability raster map

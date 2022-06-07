@@ -263,6 +263,9 @@ geopressure_map <- function(pressure, extent, scale = 10, max_sample = 250, marg
 #' @param s Standard deviation of the pressure error.
 #' @param thr Threshold of the percentage of data point outside the elevation range to be considered
 #' not possible.
+#' @param fun_w function taking the number of sample of the timeseries used to compute the
+#' probability map and return the log-linear pooling weight (see the [vignette probability aggregation
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/probability-aggregation.html))
 #' @return List of the probability raster map
 #' @seealso [`geopressure_map()`], [Vignette Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
@@ -296,7 +299,16 @@ geopressure_map <- function(pressure, extent, scale = 10, max_sample = 250, marg
 #'   xlim = c(5, 20), ylim = c(42, 50)
 #' )
 #' @export
-geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
+geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9,
+                                 fun_w = function(n) {
+                                   log(1) / n
+                                 }) {
+  stopifnot(is.numeric(s))
+  stopifnot(s>=0)
+  stopifnot(is.numeric(thr))
+  stopifnot(thr>=0 & thr<=1)
+  stopifnot(is.function(fun_w))
+
   raster_prob_list <- c()
   for (i_s in seq_len(length(pressure_maps))) {
     # get metadata
@@ -313,7 +325,7 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9) {
     pres_n <- mt$nb_sample
 
     # Weight
-    w <- log(pres_n) / pres_n
+    w <- fun_w(pres_n)
 
     # compute probability with equation
     raster_prob_list[[i_s]] <- (1 / (2 * pi * s^2))^(pres_n * w / 2) * exp(-w * pres_n / 2 / (s^2)
