@@ -4,7 +4,7 @@
 \alias{graph_trim}
 \title{Trim a graph}
 \usage{
-graph_trim(grl)
+graph_trim(gr)
 }
 \arguments{
 \item{grl}{Graph constructed with \code{\link[=graph_create]{graph_create()}}.}
