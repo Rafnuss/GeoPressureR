@@ -87,7 +87,14 @@ This operation is describe in <a href="https://doi.org/10.21203/rs.3.rs-1381915/
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">geopressure_prob_map</span><span class="op">(</span><span class="va">pressure_maps</span>, s <span class="op">=</span> <span class="fl">1</span>, thr <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">geopressure_prob_map</span><span class="op">(</span>
+  <span class="va">pressure_maps</span>,
+  s <span class="op">=</span> <span class="fl">1</span>,
+  thr <span class="op">=</span> <span class="fl">0.9</span>,
+  fun_w <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span>
+     <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">/</span><span class="va">n</span>
+ <span class="op">}</span>
+<span class="op">)</span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -99,6 +106,9 @@ This operation is describe in <a href="https://doi.org/10.21203/rs.3.rs-1381915/
 <dt>thr</dt>
 <dd><p>Threshold of the percentage of data point outside the elevation range to be considered
 not possible.</p></dd>
+<dt>fun_w</dt>
+<dd><p>function taking the number of sample of the timeseries used to compute the
+probability map and return the log-linear pooling weight (see the <a href="https://raphaelnussbaumer.com/GeoPressureR/articles/probability-aggregation.html">vignette probability aggregation </a>)</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
