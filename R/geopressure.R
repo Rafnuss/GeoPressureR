@@ -104,7 +104,7 @@ geopressure_map <- function(pressure, extent, scale = 10, max_sample = 250, marg
   if (length(unique(dtall)) > 1) {
     warning("Date of pressure are not on a regular interval. This might cause issue later.")
   }
-  dt <- as.numeric(median(dtall))
+  dt <- as.numeric(stats::median(dtall))
   n <- 1 / dt + 1
   # make the convolution for each stationary period separately
   for (i_s in seq(1, max(pressure$sta_id, na.rm = TRUE))) {

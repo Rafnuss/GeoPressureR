@@ -134,8 +134,8 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
           "there are not any nodes left at stationay period ",
-          metadata(static_prob[[i_s + 1]])$sta_id, " from stationay period ",
-          metadata(static_prob[[i_s]])$sta_id
+          raster::metadata(static_prob[[i_s + 1]])$sta_id, " from stationay period ",
+          raster::metadata(static_prob[[i_s]])$sta_id
         ))
       }
     }
@@ -147,8 +147,8 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
           "there are not any nodes left at stationay period ",
-          metadata(static_prob[[i_s - 1]])$sta_id, " from stationay period ",
-          metadata(static_prob[[i_s]])$sta_id
+          raster::metadata(static_prob[[i_s - 1]])$sta_id, " from stationay period ",
+          raster::metadata(static_prob[[i_s]])$sta_id
         ))
       }
     }
@@ -287,7 +287,7 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
 #' Trimming consists in removing "dead branch" of a graph, that is removing the edges which are not
 #' connected to both the source (i.e, equipment) or sink (i.e. retrieval site).
 #'
-#' @param grl Graph constructed with [`graph_create()`].
+#' @param gr Graph constructed with [`graph_create()`].
 #' @return Graph trimmed
 #' @seealso [`graph_create()`]
 graph_trim <- function(gr) {

@@ -7,7 +7,7 @@
 graph_trim(gr)
 }
 \arguments{
-\item{grl}{Graph constructed with \code{\link[=graph_create]{graph_create()}}.}
+\item{gr}{Graph constructed with \code{\link[=graph_create]{graph_create()}}.}
 }
 \value{
 Graph trimmed
