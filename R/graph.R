@@ -177,7 +177,7 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   nds_sum <- unlist(lapply(nds, sum))
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
   nds_sorted_idx <- order(nds_expend_sum, decreasing = T)
-  nds_expend_sum <- sort(nds_expend_sum)
+  nds_expend_sum <- sort(nds_expend_sum, decreasing = T)
   future::plan(future::multisession, workers = future::availableCores()/2)
   f <- list()
 
