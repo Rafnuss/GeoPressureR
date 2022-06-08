@@ -9,7 +9,7 @@ geopressure_prob_map(
   s = 1,
   thr = 0.9,
   fun_w = function(n) {
-     log(1)/n
+     log(n)/n
  }
 )
 }

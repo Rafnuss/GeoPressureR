@@ -301,7 +301,7 @@ geopressure_map <- function(pressure, extent, scale = 10, max_sample = 250, marg
 #' @export
 geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9,
                                  fun_w = function(n) {
-                                   log(1) / n
+                                   log(n) / n
                                  }) {
   stopifnot(is.numeric(s))
   stopifnot(s>=0)
