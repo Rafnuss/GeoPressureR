@@ -111,17 +111,6 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
     as.numeric(sum(difftime(mtf$flight$end, mtf$flight$start, units = "hours")))
   }))
 
-  flight_duration_thr_gs <- utils::head(flight_duration, -1) < resolution / thr_gs
-  if (any(flight_duration_thr_gs)) {
-    warning(paste0(
-      "The flight duration provided is too small for the stationay period: ",
-      paste(which(flight_duration_thr_gs), collapse = ", "),
-      ".\nWe will increase it artficially to ",
-      resolution * 3 / thr_gs, " hour. This speed allows to travel 3 grid resolution (",
-      round(resolution * 3), "km) with the maximum speed of ", thr_gs, " km/h."
-    ))
-    flight_duration <- pmax(flight_duration, resolution * 3 / thr_gs)
-  }
   # filter the pixels which are not in reach of any location of the previous and next stationary
   # period
   cond <- T
@@ -233,6 +222,10 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
         1i * gs_abs[id] * sin(gs_arg * pi / 180)
 
       # assign the static probability of the target node (pressure * light)
+      # We use here the normalized probability assuming that the bird needs to be somewhere at each
+      # stationary period. The log-linear pooling (`geopressure_prob_map`) is supposed to account
+      # for the variation in staionary period duration.
+      # For un-normalized use raster::as.matrix(static_prob[[i_s + 1]]))
       grt$ps <- static_prob_n_i_s_1[grt$t - i_s * nll]
 
       if (sum(id) == 0) {
