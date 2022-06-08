@@ -9,69 +9,75 @@
 [![pkgdown](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master)
+
 <!-- badges: end -->
 
-The goal of GeoPressureR is to help researcher to analyse pressure
-measurement from geolocator.
+`GeoPressureR` seeks to help researchers analyse data retrieved from
+multi-sensor geolocators to accurately geoposition birds along their
+migratory journey. We focus in particular on geopositiong using
+atomspheric pressure measurements.
 
-Firstly, part 1 provides a R wrapper around the [GeoPressure
-API](https://github.com/Rafnuss/GeoPressureServer) to query the
-probability map using ERA5 pressure. Secondly, using a mathematical
-graph, part 2 allows you to model the trajectory producing the exact
-probability map at stationary period and simulating paths.
+Part 1 provides an R wrapper around the
+[GeoPressureAPI](https://github.com/Rafnuss/GeoPressureAPI) to generate
+probability maps of the bird’s position based on a match between the
+pressure timeseries measured by the geolocator and the reanalysed
+pressure data from
+[ERA5](https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era5).
+See the publication
+[10.21203/rs.3.rs-1381915/v2](https://doi.org/10.21203/rs.3.rs-1381915/v2)
+for more details.
 
-**GeoPressureR is currently still in active development phase. Expect
-breaking changes in the near future. **
+Part 2 uses a graphical model to compute the full trajectory of the bird
+building on light data, pressure measurements, flight duration and wind
+data (optional). See the publication
+[10.21203/rs.3.rs-1693751/v1](https://doi.org/10.21203/rs.3.rs-1693751/v1)
+for more details.
+
+**`GeoPressureR` is currently still in active development phase.**
 
 ## Where to start?
 
-### Learn about GeoPressureR with 18LX
+### Learn about `GeoPressureR` with 18LX
 
-Using the example of a Great Reed Warbler (18LX), the vignettes were
-designed to guide you through all the steps with great details.
+Using the example of a Great Reed Warbler (18LX), we developed a series
+of [vignettes](https://r-pkgs.org/vignettes.html) to guide you through
+each step in detail.
 
-The vignette [Pressure map](/articles/pressure-map.html) is a good place
-to understand the basic workflow used to compute a probability map from
-pressure measurement (part 1). It will guide you (or redirect you)
-through all the steps from the loading the data, labeling of the
-timeseries, querying the ERA5 pressure map and finally computing the
-likelihood map.
+The [Pressure map](/articles/pressure-map.html) vignette is a good place
+to start to understand the basic workflow used to compute a probability
+map from pressure measurements (Part 1). It guides you through each
+step, from loading the data, to labeling the timeseries, querying the
+ERA5 pressure map and finally computing the probability map.
 
-Once the probability maps are computed, the vignette [Basic
-graph](/articles/basic-graph.html) will help you create the graph and
-compute three main outputs: (1) the most likely trajectory, (2) the
-(posterior) probability map of each stationary period and (3) simulation
-of possible path.
+Once the probability maps are computed, the [Basic
+graph](/articles/basic-graph.html) vignette helps you create the graph
+and compute three main outputs: (1) the most likely trajectory, (2) the
+(posterior) probability map of each stationary period and (3) a
+simulation of possible paths (Part 2).
 
-Finally, [Wind graph](/articles/wind-graph.html) extend the capability
-of the basic graph to include wind data and refine the possible flight
-distance. It also allows to estimate wind support, airspeed, and energy
-expenditure on each flights.
+Finally, the [Wind graph](/articles/wind-graph.html) vignette extends
+the capability of the basic graph to include wind data and refine
+possible flight distances. It also allows to estimate wind support,
+airspeed, and energy expenditure for each flight.
 
 [![](man/figures/geopressureviz-demo.png "GeoPressureViz Demo")](https://rafnuss.shinyapps.io/GeoPressureViz/)
-*Demo of [GeoPressureViz](https://rafnuss.shinyapps.io/GeoPressureViz/)
-showing the estimated position at one stationary period of the Great
-Reed Warbler 18IC, based on (1) the pressure and light match (map
-colorscale and timeserie) and (2) potential flight distances from
-previous and next stationary period (circles).*
+*Screenshot of
+[GeoPressureViz](https://rafnuss.shinyapps.io/GeoPressureViz/) showing
+the estimated position of the Great Reed Warbler 18LX at one stationary
+period , based on (1) the pressure and light match (map colorscale and
+timeseries) and (2) potential flight distances from previous and next
+stationary periods (circles).*
 
 ### Start your own analysis
 
-To help you out make a good start with `GeoPressureR` for your own
-study, we suggest you to use the R template
+To help you start using `GeoPressureR` for your own study, we suggest
+you use the R template
 [GeoPressureTemplate](https://github.com/Rafnuss/GeoPressureTemplate).
+Using this standardized code structure and output will allow for code
+sharing and troubleshooting, data archiving, work reproducibility, and
+ease for reviewer to check the setting.
 
-### Custom use
-
-You can install the latest version of GeoPressureR from
-[GitHub](https://github.com/Rafnuss/GeoPressureR) with in R
-
-``` r
-# install.packages("devtools")
-devtools::install_github("Rafnuss/GeoPressureR")
-```
-
-## Related Ressources
+## Related resources
 
 ### Publication
 
@@ -80,20 +86,21 @@ devtools::install_github("Rafnuss/GeoPressureR")
 > February 2022, PREPRINT (Version 1) available at Research Square
 > \[<https://doi.org/10.21203/rs.3.rs-1381915/v1>\]
 
-> Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis et al. Inferring
-> bird’s trajectory from multi-sensor geolocators and remote sensing
-> with a graphical model, 25 May 2022, PREPRINT (Version 1) available at
-> Research Square \[<https://doi.org/10.21203/rs.3.rs-1693751/v1>\]
+> Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis, Felix Liechti.
+> Inferring bird’s trajectory from multi-sensor geolocators and remote
+> sensing with a graphical model, 25 May 2022, PREPRINT (Version 1)
+> available at Research Square
+> \[<https://doi.org/10.21203/rs.3.rs-1693751/v1>\]
 
 ### Presentation
 
-> Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti et al. Improving the
+> Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti. Improving the
 > spatial accuracy of multi-sensor geolocators’ position using
 > atmospheric surface pressure. October 2021. *7th International
 > Bio-logging Science Symposium*. PRESENTATION available at
 > [Youtube](https://www.youtube.com/watch?v=0JsYU_xfKN8).
 
-### Related Code
+### Other resources
 
 -   [GeoPressureMAT](https://github.com/Rafnuss/GeoPressureMAT) The
     development of the method was done on MATLAB. Here is the repo with
@@ -109,14 +116,16 @@ devtools::install_github("Rafnuss/GeoPressureR")
     are inspired from this package (see
     [`pam.R`](./reference/index.html#pam-data)).
 
-## How to cite?
+## Projects using `GeoPressureR`
 
-[How to
-cite?](https://raphaelnussbaumer.com/GeoPressureR/authors.html#citation)
+List of all research projects using `GeoPressureR` with links to the
+code used to analyse and create figures. This might be helpful to get
+idea of what and how to analyse your data and borrow some code sections
+for your own project. Feel free to contact me if you’ll like to appear
+on this list.
 
-## Want to contribute?
-
-The code is still in active development. Feel free to [submit an issue
-on Github](https://github.com/Rafnuss/GeoPressureR/issues) with
-suggestions or bugs. See
-[The](https://github.com/Rafnuss/GeoPressureR/blob/master/.github/CONTRIBUTING.md)
+| Species             | GeoPressureTemplate/code                                                    | Publication/status            |
+|---------------------|-----------------------------------------------------------------------------|-------------------------------|
+| Mongolian Nightjar  | [Rafnuss/MongolianNightjar](https://github.com/Rafnuss/MongolianNightjar)   | Lathouwers et al. (submitted) |
+| Woodland Kingfisher | [Rafnuss/WoodlandKingfisher](https://github.com/Rafnuss/WoodlandKingfisher) | Osinubi et al. (in prep.)     |
+| Northern Wheatear   | [Rafnuss/Val-Piora-Wheatear](https://github.com/Rafnuss/Val-Piora-Wheatear) | Rime et al. (in prep.)        |
