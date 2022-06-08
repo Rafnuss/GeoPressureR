@@ -3,6 +3,8 @@
 
 # Load library
 library(GeoPressureR)
+library(raster)
+library(igraph)
 
 # 1. PAM reading and labeling ----
 # Read pam data
@@ -115,7 +117,7 @@ for (i_s in seq_len(nrow(pam_data$sta))) {
   light_prob[[i_s]] <- gr
 }
 
-saveRDS(light_prob, "inst/extdata/light_prob.rda")
+saveRDS(light_prob, "inst/extdata/18LX_light_prob.rda")
 
 
 
@@ -198,7 +200,7 @@ static_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 #   return(raster_ds)
 # })
 
-saveRDS(static_prob, "inst/18LX_extdata/static_prob.rda")
+saveRDS(static_prob, "inst/extdata/18LX_static_prob.rda")
 saveRDS(static_timeserie, "inst/extdata/18LX_static_timeserie.rda")
 
 
@@ -237,3 +239,30 @@ grl_marginal <- graph_marginal(grl)
 saveRDS(grl, "inst/extdata/18LX_grl.rda")
 saveRDS(grl_marginal, "inst/extdata/18LX_grl_marginal.rda")
 saveRDS(shortest_path_timeserie, "inst/extdata/18LX_shortest_path_timeserie.rda")
+
+
+# Export for GeoPressureViz
+grl <- readRDS(system.file("extdata", "18LX_grl.rda", package = "GeoPressureR"))
+static_prob <- readRDS(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
+static_prob_marginal <- readRDS(system.file("extdata", "18LX_grl_marginal.rda", package = "GeoPressureR"))
+shortest_path_timeserie <- readRDS(system.file("extdata", "18LX_shortest_path_timeserie.rda", package = "GeoPressureR"))
+light_prob <- readRDS(system.file("extdata", "18LX_light_prob.rda", package = "GeoPressureR"))
+pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
+
+sta_marginal <- unlist(lapply(static_prob_marginal, function(x) raster::metadata(x)$sta_id))
+sta_pres <- unlist(lapply(pressure_prob, function(x) raster::metadata(x)$sta_id))
+sta_light <- unlist(lapply(light_prob, function(x) raster::metadata(x)$sta_id))
+pressure_prob <- pressure_prob[sta_pres %in% sta_marginal]
+light_prob <- light_prob[sta_light %in% sta_marginal]
+
+
+geopressureviz <- list(
+  pam_data = pam_data,
+  static_prob = static_prob,
+  static_prob_marginal = static_prob_marginal,
+  pressure_prob = pressure_prob,
+  light_prob = light_prob,
+  pressure_timeserie = shortest_path_timeserie
+)
+save(geopressureviz, file = "inst/geopressureviz/geopressureviz.RData")
+
