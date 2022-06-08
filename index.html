@@ -35,7 +35,7 @@
     
     <a class="navbar-brand me-2" href="index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,52 +92,45 @@
 <img src="logo.svg" class="logo" alt=""><h1 id="geopressurer-">GeoPressureR <a class="anchor" aria-label="anchor" href="#geopressurer-"></a>
 </h1>
 </div>
-<!-- badges: start --><p><a href="https://github.com/Rafnuss/GeoPressureR/actions" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a> <a href="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown"></a> <a href="https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master" class="external-link"><img src="https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg" alt="Codecov test coverage"></a> <!-- badges: end --></p>
-<p>The goal of GeoPressureR is to help researcher to analyse pressure measurement from geolocator.</p>
-<p>Firstly, part 1 provides a R wrapper around the <a href="https://github.com/Rafnuss/GeoPressureServer" class="external-link">GeoPressure API</a> to query the probability map using ERA5 pressure. Secondly, using a mathematical graph, part 2 allows you to model the trajectory producing the exact probability map at stationary period and simulating paths.</p>
-<p><strong>GeoPressureR is currently still in active development phase. Expect breaking changes in the near future. </strong></p>
+<!-- badges: start --><p><a href="https://github.com/Rafnuss/GeoPressureR/actions" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a> <a href="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown"></a> <a href="https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master" class="external-link"><img src="https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></p>
+<!-- badges: end --><p><code>GeoPressureR</code> seeks to help researchers analyse data retrieved from multi-sensor geolocators to accurately geoposition birds along their migratory journey. We focus in particular on geopositiong using atomspheric pressure measurements.</p>
+<p>Part 1 provides an R wrapper around the <a href="https://github.com/Rafnuss/GeoPressureAPI" class="external-link">GeoPressureAPI</a> to generate probability maps of the bird’s position based on a match between the pressure timeseries measured by the geolocator and the reanalysed pressure data from <a href="https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era5" class="external-link">ERA5</a>. See the publication <a href="https://doi.org/10.21203/rs.3.rs-1381915/v2" class="external-link">10.21203/rs.3.rs-1381915/v2</a> for more details.</p>
+<p>Part 2 uses a graphical model to compute the full trajectory of the bird building on light data, pressure measurements, flight duration and wind data (optional). See the publication <a href="https://doi.org/10.21203/rs.3.rs-1693751/v1" class="external-link">10.21203/rs.3.rs-1693751/v1</a> for more details.</p>
+<p><strong><code>GeoPressureR</code> is currently still in active development phase.</strong></p>
 <div class="section level2">
 <h2 id="where-to-start">Where to start?<a class="anchor" aria-label="anchor" href="#where-to-start"></a>
 </h2>
 <div class="section level3">
-<h3 id="learn-about-geopressurer-with-18lx">Learn about GeoPressureR with 18LX<a class="anchor" aria-label="anchor" href="#learn-about-geopressurer-with-18lx"></a>
+<h3 id="learn-about-geopressurer-with-18lx">Learn about <code>GeoPressureR</code> with 18LX<a class="anchor" aria-label="anchor" href="#learn-about-geopressurer-with-18lx"></a>
 </h3>
-<p>Using the example of a Great Reed Warbler (18LX), the vignettes were designed to guide you through all the steps with great details.</p>
-<p>The vignette <a href="/articles/pressure-map.html">Pressure map</a> is a good place to understand the basic workflow used to compute a probability map from pressure measurement (part 1). It will guide you (or redirect you) through all the steps from the loading the data, labeling of the timeseries, querying the ERA5 pressure map and finally computing the likelihood map.</p>
-<p>Once the probability maps are computed, the vignette <a href="/articles/basic-graph.html">Basic graph</a> will help you create the graph and compute three main outputs: (1) the most likely trajectory, (2) the (posterior) probability map of each stationary period and (3) simulation of possible path.</p>
-<p>Finally, <a href="/articles/wind-graph.html">Wind graph</a> extend the capability of the basic graph to include wind data and refine the possible flight distance. It also allows to estimate wind support, airspeed, and energy expenditure on each flights.</p>
-<p><a href="https://rafnuss.shinyapps.io/GeoPressureViz/" class="external-link"><img src="reference/figures/geopressureviz-demo.png" title="GeoPressureViz Demo"></a> <em>Demo of <a href="https://rafnuss.shinyapps.io/GeoPressureViz/" class="external-link">GeoPressureViz</a> showing the estimated position at one stationary period of the Great Reed Warbler 18IC, based on (1) the pressure and light match (map colorscale and timeserie) and (2) potential flight distances from previous and next stationary period (circles).</em></p>
+<p>Using the example of a Great Reed Warbler (18LX), we developed a series of <a href="https://r-pkgs.org/vignettes.html" class="external-link">vignettes</a> to guide you through each step in detail.</p>
+<p>The <a href="/articles/pressure-map.html">Pressure map</a> vignette is a good place to start to understand the basic workflow used to compute a probability map from pressure measurements (Part 1). It guides you through each step, from loading the data, to labeling the timeseries, querying the ERA5 pressure map and finally computing the probability map.</p>
+<p>Once the probability maps are computed, the <a href="/articles/basic-graph.html">Basic graph</a> vignette helps you create the graph and compute three main outputs: (1) the most likely trajectory, (2) the (posterior) probability map of each stationary period and (3) a simulation of possible paths (Part 2).</p>
+<p>Finally, the <a href="/articles/wind-graph.html">Wind graph</a> vignette extends the capability of the basic graph to include wind data and refine possible flight distances. It also allows to estimate wind support, airspeed, and energy expenditure for each flight.</p>
+<p><a href="https://rafnuss.shinyapps.io/GeoPressureViz/" class="external-link"><img src="reference/figures/geopressureviz-demo.png" title="GeoPressureViz Demo"></a> <em>Screenshot of <a href="https://rafnuss.shinyapps.io/GeoPressureViz/" class="external-link">GeoPressureViz</a> showing the estimated position of the Great Reed Warbler 18LX at one stationary period , based on (1) the pressure and light match (map colorscale and timeseries) and (2) potential flight distances from previous and next stationary periods (circles).</em></p>
 </div>
 <div class="section level3">
 <h3 id="start-your-own-analysis">Start your own analysis<a class="anchor" aria-label="anchor" href="#start-your-own-analysis"></a>
 </h3>
-<p>To help you out make a good start with <code>GeoPressureR</code> for your own study, we suggest you to use the R template <a href="https://github.com/Rafnuss/GeoPressureTemplate" class="external-link">GeoPressureTemplate</a>.</p>
-</div>
-<div class="section level3">
-<h3 id="custom-use">Custom use<a class="anchor" aria-label="anchor" href="#custom-use"></a>
-</h3>
-<p>You can install the latest version of GeoPressureR from <a href="https://github.com/Rafnuss/GeoPressureR" class="external-link">GitHub</a> with in R</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># install.packages("devtools")</span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"Rafnuss/GeoPressureR"</span><span class="op">)</span></code></pre></div>
+<p>To help you start using <code>GeoPressureR</code> for your own study, we suggest you use the R template <a href="https://github.com/Rafnuss/GeoPressureTemplate" class="external-link">GeoPressureTemplate</a>. Using this standardized code structure and output will allow for code sharing and troubleshooting, data archiving, work reproducibility, and ease for reviewer to check the setting.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="related-ressources">Related Ressources<a class="anchor" aria-label="anchor" href="#related-ressources"></a>
+<h2 id="related-resources">Related resources<a class="anchor" aria-label="anchor" href="#related-resources"></a>
 </h2>
 <div class="section level3">
 <h3 id="publication">Publication<a class="anchor" aria-label="anchor" href="#publication"></a>
 </h3>
 <blockquote><p>Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti Global positioning by atmospheric pressure retrieved from multi-sensor geolocators, 25 February 2022, PREPRINT (Version 1) available at Research Square [<a href="https://doi.org/10.21203/rs.3.rs-1381915/v1" class="external-link uri">https://doi.org/10.21203/rs.3.rs-1381915/v1</a>]</p></blockquote>
-<blockquote><p>Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis et al. Inferring bird’s trajectory from multi-sensor geolocators and remote sensing with a graphical model, 25 May 2022, PREPRINT (Version 1) available at Research Square [<a href="https://doi.org/10.21203/rs.3.rs-1693751/v1" class="external-link uri">https://doi.org/10.21203/rs.3.rs-1693751/v1</a>]</p></blockquote>
+<blockquote><p>Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis, Felix Liechti. Inferring bird’s trajectory from multi-sensor geolocators and remote sensing with a graphical model, 25 May 2022, PREPRINT (Version 1) available at Research Square [<a href="https://doi.org/10.21203/rs.3.rs-1693751/v1" class="external-link uri">https://doi.org/10.21203/rs.3.rs-1693751/v1</a>]</p></blockquote>
 </div>
 <div class="section level3">
 <h3 id="presentation">Presentation<a class="anchor" aria-label="anchor" href="#presentation"></a>
 </h3>
-<blockquote><p>Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti et al. Improving the spatial accuracy of multi-sensor geolocators’ position using atmospheric surface pressure. October 2021. <em>7th International Bio-logging Science Symposium</em>. PRESENTATION available at <a href="https://www.youtube.com/watch?v=0JsYU_xfKN8" class="external-link">Youtube</a>.</p></blockquote>
+<blockquote><p>Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti. Improving the spatial accuracy of multi-sensor geolocators’ position using atmospheric surface pressure. October 2021. <em>7th International Bio-logging Science Symposium</em>. PRESENTATION available at <a href="https://www.youtube.com/watch?v=0JsYU_xfKN8" class="external-link">Youtube</a>.</p></blockquote>
 </div>
 <div class="section level3">
-<h3 id="related-code">Related Code<a class="anchor" aria-label="anchor" href="#related-code"></a>
+<h3 id="other-resources">Other resources<a class="anchor" aria-label="anchor" href="#other-resources"></a>
 </h3>
 <ul>
 <li>
@@ -152,14 +145,34 @@
 </div>
 </div>
 <div class="section level2">
-<h2 id="how-to-cite">How to cite?<a class="anchor" aria-label="anchor" href="#how-to-cite"></a>
+<h2 id="projects-using-geopressurer">Projects using <code>GeoPressureR</code>
+<a class="anchor" aria-label="anchor" href="#projects-using-geopressurer"></a>
 </h2>
-<p><a href="https://raphaelnussbaumer.com/GeoPressureR/authors.html#citation">How to cite?</a></p>
-</div>
-<div class="section level2">
-<h2 id="want-to-contribute">Want to contribute?<a class="anchor" aria-label="anchor" href="#want-to-contribute"></a>
-</h2>
-<p>The code is still in active development. Feel free to <a href="https://github.com/Rafnuss/GeoPressureR/issues" class="external-link">submit an issue on Github</a> with suggestions or bugs. See <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/.github/CONTRIBUTING.md" class="external-link">The</a></p>
+<p>List of all research projects using <code>GeoPressureR</code> with links to the code used to analyse and create figures. This might be helpful to get idea of what and how to analyse your data and borrow some code sections for your own project. Feel free to contact me if you’ll like to appear on this list.</p>
+<table class="table">
+<thead><tr class="header">
+<th>Species</th>
+<th>GeoPressureTemplate/code</th>
+<th>Publication/status</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Mongolian Nightjar</td>
+<td><a href="https://github.com/Rafnuss/MongolianNightjar" class="external-link">Rafnuss/MongolianNightjar</a></td>
+<td>Lathouwers et al. (submitted)</td>
+</tr>
+<tr class="even">
+<td>Woodland Kingfisher</td>
+<td><a href="https://github.com/Rafnuss/WoodlandKingfisher" class="external-link">Rafnuss/WoodlandKingfisher</a></td>
+<td>Osinubi et al. (in prep.)</td>
+</tr>
+<tr class="odd">
+<td>Northern Wheatear</td>
+<td><a href="https://github.com/Rafnuss/Val-Piora-Wheatear" class="external-link">Rafnuss/Val-Piora-Wheatear</a></td>
+<td>Rime et al. (in prep.)</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="community">
