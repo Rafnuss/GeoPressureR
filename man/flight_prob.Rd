@@ -10,7 +10,9 @@ flight_prob(
   shape = 7,
   scale = 7,
   bird = NA,
-  fun_power = function(power) {     (1/power)^3 },
+  fun_power = function(power) {
+     (1/power)^3
+ },
   low_speed_fix = 15
 )
 }
