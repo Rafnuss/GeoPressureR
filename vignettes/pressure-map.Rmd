@@ -21,6 +21,7 @@ Using a basic example, we walk through the main steps of the methodology to show
 
 To start, install the GeoPressureR package from Github using the following line: 
 ```{r, eval = FALSE}
+install.packages("devtools")
 devtools::install_github("Rafnuss/GeoPressureR")
 ```
 
