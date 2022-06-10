@@ -2,6 +2,7 @@
 ui <- bootstrapPage(
   useShinyjs(),
   tags$head(
+    tags$link(rel="shortcut icon", href="https://raphaelnussbaumer.com/GeoPressureR/favicon-16x16.png"),
     tags$link(href = "https://fonts.googleapis.com/css?family=Oswald", rel = "stylesheet"),
     tags$style(type = "text/css", "html, body {width:100%;height:100%; font-family: Oswald, sans-serif;}.primary{background-color:#007bff; color: #fff;}.js-plotly-plot .plotly .modebar{left: 0}"),
     # includeHTML("meta.html"),

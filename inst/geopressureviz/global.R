@@ -26,22 +26,35 @@ load("~/geopressureviz.RData")
 stopifnot("static_prob" %in% names(geopressureviz))
 static_prob <- geopressureviz$static_prob
 
-map_choices <- c("Light", "Pressure", "Static", "Marginal")
-map_val <- list(NA, NA, static_prob, NA)
+map_choices <- c()
+map_val <- list()
 
 if ("light_prob" %in% names(geopressureviz)) {
+  map_choices = c(map_choices,"Light")
   stopifnot(length(static_prob) == length(geopressureviz$light_prob))
-  map_val[[1]] <- geopressureviz$light_prob
+  map_val[[length(map_val)+1]] <- geopressureviz$light_prob
 }
-
+if ("pressure_prob_mismatch" %in% names(geopressureviz)) {
+  map_choices = c(map_choices,"Pressure mis.")
+  stopifnot(length(static_prob) == length(geopressureviz$pressure_prob_mismatch))
+  map_val[[length(map_val)+1]] <- geopressureviz$pressure_prob_mismatch
+}
+if ("pressure_prob_thr" %in% names(geopressureviz)) {
+  map_choices = c(map_choices,"Pressure thres.")
+  stopifnot(length(static_prob) == length(geopressureviz$pressure_prob_thr))
+  map_val[[length(map_val)+1]] <- geopressureviz$pressure_prob_thr
+}
 if ("pressure_prob" %in% names(geopressureviz)) {
+  map_choices = c(map_choices,"Pressure")
   stopifnot(length(static_prob) == length(geopressureviz$pressure_prob))
-  map_val[[2]] <- geopressureviz$pressure_prob
+  map_val[[length(map_val)+1]] <- geopressureviz$pressure_prob
 }
-
+map_choices = c(map_choices,"Static")
+map_val[[length(map_val)+1]] <- static_prob
 if ("static_prob_marginal" %in% names(geopressureviz)) {
   stopifnot(length(static_prob) == length(geopressureviz$static_prob_marginal))
-  map_val[[4]] <- geopressureviz$static_prob_marginal
+  map_choices = c(map_choices,"Marginal")
+  map_val[[length(map_val)+1]] <- static_prob_marginal
 }
 
 

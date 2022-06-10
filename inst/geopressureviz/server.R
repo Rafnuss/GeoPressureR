@@ -114,7 +114,7 @@ server <- function(input, output, session) {
 
     req(input$thr_sta)
     for (ts in reactVal$ts) {
-      sta_th <- sta[ts$sta_id[1] == sta$sta_id, ]
+      sta_th <- sta[median(ts$sta_id) == sta$sta_id, ]
       if (nrow(sta_th) > 0) {
         if (sta_th$duration > as.numeric(input$thr_sta)) {
           p <- p +
@@ -247,7 +247,7 @@ server <- function(input, output, session) {
       if (i != length(static_prob)) {
         proxy <- proxy %>%
           addPolylines(lng = path_thr$lon[i + (0:1)], lat = path_thr$lat[i + (0:1)], opacity = 1, color = "#FFF", weight = 3) %>%
-          addCircles(lng = path_thr$lon[i + 1], lat = path_thr$lat[i + 1], opacity = 1, color = sta_thr$col[i + 1], weight = sta_thr$duration[i]^(0.3) * 10) %>%
+          addCircles(lng = path_thr$lon[i + 1], lat = path_thr$lat[i + 1], opacity = 1, color = sta_thr$col[i + 1], weight = sta_thr$duration[i + 1]^(0.3) * 10) %>%
           addCircles(lng = path_thr$lon[i + 1], lat = path_thr$lat[i + 1], opacity = 1, color = sta_thr$col[i + 1], radius = as.numeric(input$speed) * sum(fl_dur[i]) * 1000, fillOpacity = 0, weight = 2)
       }
       proxy <- proxy %>%
