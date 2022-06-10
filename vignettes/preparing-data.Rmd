@@ -119,9 +119,6 @@ values(static_prob[[length(static_prob)]]) <- tmp
 
 ```{r, eval = F}
 path <- geopressure_map2path(static_prob)
-path$lat[3] <- path$lat[3] + .25
-path$lat[5] <- path$lat[5] + .25
-path$lat[13] <- path$lat[13] - .25
 static_timeserie <- geopressure_ts_path(path, pam_data$pressure)
 ```
 
