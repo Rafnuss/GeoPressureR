@@ -374,6 +374,7 @@ trainset_read <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-la
   stopifnot(c("series", "timestamp", "label") %in% names(csv))
 
   csv$date <- strptime(csv$timestamp, "%FT%T", tz = "UTC")
+  series <- NULL
   csv_acc <- subset(csv, series == "acceleration")
   csv_pres <- subset(csv, series == "pressure")
 
