@@ -91,24 +91,35 @@ read these map (geotiff) in a raster and (3) compute the likelihood map from the
 as POSIXt, <code>obs</code> in hPa, <code>sta_id</code> grouping observation measured during the same stationary period
 and <code>isoutliar</code> as logical to label observation which need to be ignorede. It is best practice to
 use <code><a href="pam_read.html">pam_read()</a></code> and <code><a href="pam_sta.html">pam_sta()</a></code> to build this data.frame.</p></dd>
+
+
 <dt>extent</dt>
 <dd><p>Geographical extent of the map to query as a list ordered by North, West, South,
 East  (e.g. <code>c(50,-16,0,20)</code>).</p></dd>
+
+
 <dt>scale</dt>
 <dd><p>Number of pixel per 1° latitude-longitude. For instance, <code>scale = 10</code> for a
 resolution of 0.1° (~10km) and 4 for a resolution of 0.25° (~30km). To avoid interpolating the
 ERA5 data, scale should be smaller than 10. Read more about <a href="https://developers.google.com/earth-engine/guides/scale" class="external-link">scale on Google earth Engine documentation</a>.</p></dd>
+
+
 <dt>max_sample</dt>
 <dd><p>The computation of the mismatch is only performed on <code>max_sample</code> datapoints of
 pressure to reduce computational time. The samples are randomly (uniformly) selected on the
 timeserie.</p></dd>
+
+
 <dt>margin</dt>
 <dd><p>The margin is used in the threshold map to accept some measurement error. unit in
 meter. (1hPa~10m)</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>List of raster map</p>
+    
+
+<p>List of raster map</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -168,7 +179,7 @@ meter. (1hPa~10m)</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
     </footer></div>
