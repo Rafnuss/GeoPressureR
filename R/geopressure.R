@@ -331,7 +331,7 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9,
     raster_prob_list[[i_s]] <- (1 / (2 * pi * s^2))^(pres_n * w / 2) * exp(-w * pres_n / 2 / (s^2)
       * raster_prob_list[[i_s]])
     # mask value of threshold
-    raster_prob_list[[i_s]] <- raster_prob_list[[i_s]] * (pressure_maps[[i_s]][[2]] > thr)
+    raster_prob_list[[i_s]] <- raster_prob_list[[i_s]] * (pressure_maps[[i_s]][[2]] >= thr)
 
     raster::metadata(raster_prob_list[[i_s]]) <- raster::metadata(pressure_maps[[i_s]])
   }
