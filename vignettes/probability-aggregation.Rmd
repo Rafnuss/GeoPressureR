@@ -33,7 +33,7 @@ This formulation of the problem helps us to split our problem in two: first defi
 In most cases, we would expect to measure the error term with a simple difference $P_{ERA5}(\textbf{x})[t]-P_{gl}[t].$ However, within a ERA5 grid cell of 9-30km, we can expect a wide range of altitude at which the bird can be located. As such any offset between the two timeseries might be due to nothing more than a difference of altitude.
 
 To solve this issue, we remove the mean pressure difference, essentially ignoring the absolute value of pressure (and altitude) such that the error term only quantify the mismatch of the temporal variation, 
-$$\varepsilon[t] =\right( P_{ERA5}(\textbf{x})[t]-P_{gl}[t]\right) - \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\textbf{x})[i]-P_{gl}[i] \right).$$
+$$\varepsilon[t] = \left( P_{ERA5}(\textbf{x})[t]-P_{gl}[t]\right) - \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\textbf{x})[i]-P_{gl}[i] \right) .$$
 
 This way of building the error term has some important consequences. A timeseries of only one datapoint will always yield zero error at all locations, resulting in an equally probable map. As the number of datapoints increases, the error term will become more and more able to distinguish between "good" and "bad" locations.
 
