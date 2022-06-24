@@ -1,5 +1,5 @@
 pandoc: 2.7.3
-pkgdown: 2.0.4
+pkgdown: 2.0.5
 pkgdown_sha: ~
 articles:
   basic-graph: basic-graph.html
@@ -10,7 +10,7 @@ articles:
   pressure-map: pressure-map.html
   probability-aggregation: probability-aggregation.html
   wind-graph: wind-graph.html
-last_built: 2022-06-10T21:55Z
+last_built: 2022-06-24T09:21Z
 urls:
   reference: https://raphaelnussbaumer.com/GeoPressureR/reference
   article: https://raphaelnussbaumer.com/GeoPressureR/articles
