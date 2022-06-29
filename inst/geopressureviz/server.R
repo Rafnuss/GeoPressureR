@@ -13,7 +13,7 @@ server <- function(input, output, session) {
     flight_duration <- c()
     for (i_f in seq_len(max(0, length(idx_sta_short) - 1))) {
       from_idx_sta_short <- idx_sta_short[i_f]
-      to_idx_sta_short <- idx_sta_short[i_f + 1]
+      to_idx_sta_short <- idx_sta_short[i_f + 1] - 1
 
       flight_duration[i_f] <- sum(
         do.call(rbind, lapply(
@@ -74,7 +74,7 @@ server <- function(input, output, session) {
       HTML(
         "<b>Previous flight:</b><br>",
         as.numeric(input$i_sta) - idx_sta_prev, " flights -",
-        round(fl_dur[i - 1]), " hrs<br>",
+        round(fl_dur[i - 1], 1), " hrs<br>",
         round(dist), " km - ",
         round(dist / fl_dur[i - 1]), "km/h"
       )
@@ -97,7 +97,7 @@ server <- function(input, output, session) {
       HTML(
         "<b>Next flight:</b><br>",
         idx_sta_next - as.numeric(input$i_sta), " flights -",
-        round(sum(fl_dur[i])), " hrs<br>",
+        round(sum(fl_dur[i]), 1), " hrs<br>",
         round(dist), " km - ",
         round(dist / fl_dur[i]), "km/h"
       )
