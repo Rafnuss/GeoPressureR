@@ -9,6 +9,7 @@ flight_prob(
   method = "gamma",
   shape = 7,
   scale = 7,
+  location = 40,
   bird = NA,
   fun_power = function(power) {
      (1/power)^3
@@ -19,11 +20,13 @@ flight_prob(
 \arguments{
 \item{speed}{airspeed or groundspeed in km/h}
 
-\item{method}{method used to convert the speed to probability ("gamma" or "power")}
+\item{method}{method used to convert the speed to probability ("gamma", "logis" or "power")}
 
 \item{shape}{parameter of the gamma distribution}
 
-\item{scale}{parameter of the gamma distribution}
+\item{scale}{parameter of the gamma and logistic distribution}
+
+\item{location}{parameter for the logistic distribution}
 
 \item{bird}{list of basic morphological trait necessary: mass, wing span, wing aspect ratio and
 body frontal area. It is best practice to create bird with \code{\link[=flight_bird]{flight_bird()}}.}
