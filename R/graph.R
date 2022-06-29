@@ -64,6 +64,11 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   })
 
   sta_id_0 <- unlist(lapply(static_prob_n, sum)) == 0
+  if (any(!is.na(sta_id_0))){
+    stop(paste0("static_prob is invalid for index ",
+                paste(which(is.na(sta_id_0)), collapse=", "),
+                " (check that the probability map is non-zero)"))
+  }
   if (any(sta_id_0)) {
     stop(paste0(
       "The `static_prob` provided has an invalid probability map for the stationay period: ",
