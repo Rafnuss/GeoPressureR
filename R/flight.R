@@ -184,9 +184,10 @@ flight_power <- function(as, bird) {
 #' `bird` (created with [`flight_bird()`])
 #'
 #' @param speed airspeed or groundspeed in km/h
-#' @param method method used to convert the speed to probability ("gamma" or "power")
+#' @param method method used to convert the speed to probability ("gamma", "logis" or "power")
 #' @param shape parameter of the gamma distribution
-#' @param scale  parameter of the gamma distribution
+#' @param scale  parameter of the gamma and logistic distribution
+#' @param location parameter for the logistic distribution
 #' @param bird list of basic morphological trait necessary: mass, wing span, wing aspect ratio and
 #'   body frontal area. It is best practice to create bird with [`flight_bird()`].
 #' @param fun_power function taking power as a single argument and returning a probability
@@ -214,6 +215,7 @@ flight_prob <- function(speed,
                         method = "gamma",
                         shape = 7,
                         scale = 7,
+                        location = 40,
                         bird = NA,
                         fun_power = function(power) {
                           (1 / power)^3
@@ -225,13 +227,17 @@ flight_prob <- function(speed,
   stopifnot(is.numeric(speed))
   stopifnot(speed >= 0)
   stopifnot(is.character(method))
-  stopifnot(any(c("gamma", "power") == method))
+  stopifnot(any(c("gamma", "power", "logis") == method))
   stopifnot(is.function(fun_power))
 
   speed <- pmax(speed, low_speed_fix)
 
   if (method == "gamma") {
-    return(stats::dgamma(speed, shape, 1 / scale))
+    norm <- sum(stats::dgamma(seq(0, 150), shape, 1 / scale))
+    return(stats::dgamma(speed, shape, 1 / scale) / norm)
+  } else if (method == "logis") {
+    norm <- sum(stats::plogis(seq(0, 150), location, scale, lower.tail = FALSE))
+    return(stats::plogis(speed, location, scale, lower.tail = FALSE) / norm)
   } else if (method == "power") {
     # `flight_power` is defined in m/s (SI), but the rest of your code is using km/h. This is where
     # we need to convert.
