@@ -64,10 +64,12 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   })
 
   sta_id_0 <- unlist(lapply(static_prob_n, sum)) == 0
-  if (any(is.na(sta_id_0))){
-    stop(paste0("static_prob is invalid for index ",
-                paste(which(is.na(sta_id_0)), collapse=", "),
-                " (check that the probability map is non-zero)"))
+  if (any(is.na(sta_id_0))) {
+    stop(paste0(
+      "static_prob is invalid for index ",
+      paste(which(is.na(sta_id_0)), collapse = ", "),
+      " (check that the probability map is non-zero)"
+    ))
   }
   if (any(sta_id_0)) {
     stop(paste0(
@@ -380,6 +382,33 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
     max = sum(nds_expend_sum),
     text = paste0("| sta = ", 0, "/", grl$sz[3] - 1)
   )
+
+  # Check that all the files of wind_speed exist and match the data request
+  for (i1 in seq_len(grl$sz[3] - 1)) {
+    fl_s <- grl$flight[[i1]]
+    for (i2 in seq_len(length(fl_s$sta_id))) {
+      i_s <- fl_s$sta_id[i2]
+
+      if (!file.exists(paste0(filename, i_s, ".nc"))){
+        stop(paste0("No file for sta=", i_s))
+      }
+      nc <- ncdf4::nc_open(paste0(filename, i_s, ".nc"))
+
+      time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60, origin = "1900-01-01", tz = "UTC")
+      t_s <- as.POSIXct(format(fl_s$start[i2], "%Y-%m-%d %H:00:00"), tz = "UTC")
+      t_e <- as.POSIXct(format(fl_s$end[i2] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
+      if (!(min(time) <= t_e & max(time) >= t_s)){
+        stop(paste0("Time not matching for for sta=", i_s))
+      }
+
+      pres <- ncdf4::ncvar_get(nc, "level")
+      t_q <- seq(from = t_s, to = t_e, by = 60 * 60)
+      pres_obs <- pressure$obs[pressure$date %in% t_q]
+      if (!(min(pres) <= min(pres_obs) & max(pres) >= min(1000,max(pres_obs)))){
+        stop(paste0("Pressure not matching for for sta=", i_s))
+      }
+    }
+  }
 
   # Loop through the stationary period kept in the graph
   for (i1 in seq_len(grl$sz[3] - 1)) {
