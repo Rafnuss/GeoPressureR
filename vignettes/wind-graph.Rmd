@@ -24,6 +24,7 @@ library(leaflet.extras)
 library(igraph)
 library(ggplot2)
 library(gridExtra)
+library(plotly)
 grl <- readRDS(system.file("extdata", "18LX_grl.rda", package = "GeoPressureR"))
 ```
 
@@ -333,7 +334,7 @@ path <- graph_simulation(grl, nj)
 We can compute the energy [Joules] expense of each flight for the bird
 
 ```{r}
-edge <- graph_path2edge(path$id, grl)
+edge <- t(graph_path2edge(path$id, grl))
 
 # Convert airpseed from km/hr to m/s and use the bird constructure earlier to compute the mechanical power [W=J/s]
 p_mech <- flight_power(abs(grl$as[edge]) * 1000 / 60 / 60, bird = bird)
@@ -355,12 +356,14 @@ energy_df <- data.frame(
   sta_id_t = rep(tail(grl$sta_id,-1), nj),
   flight_duration = rep(head(grl$flight_duration,-1), nj)
 )
-energy_df$name = paste(energy_df$sta_id_s,energy_df$sta_id_t, sep=" ->")
+energy_df$name = paste(energy_df$sta_id_s,energy_df$sta_id_t, sep="-")
 
-plot1 <- ggplot(energy_df, aes(reorder(name, sta_id_s), gs)) + geom_boxplot()
-plot2 <- ggplot(energy_df, aes(reorder(name, sta_id_s), ws)) + geom_boxplot() 
-plot3 <- ggplot(energy_df, aes(reorder(name, sta_id_s), as)) + geom_boxplot() 
-plot4 <- ggplot(energy_df, aes(reorder(name, sta_id_s), flight_duration)) + geom_point()
-plot5 <- ggplot(energy_df, aes(reorder(name, sta_id_s), energy)) + geom_boxplot() 
-grid.arrange(plot1, plot2, plot3, plot4, plot5, nrow=5)
+plot1 <- ggplot(energy_df, aes(reorder(name, sta_id_s), gs)) + theme_bw() + geom_boxplot()
+plot2 <- ggplot(energy_df, aes(reorder(name, sta_id_s), ws)) + theme_bw() + geom_boxplot() 
+plot3 <- ggplot(energy_df, aes(reorder(name, sta_id_s), as)) + theme_bw() + geom_boxplot() 
+plot4 <- ggplot(energy_df, aes(reorder(name, sta_id_s), flight_duration)) + theme_bw() +geom_point()
+plot5 <- ggplot(energy_df, aes(reorder(name, sta_id_s), energy)) + theme_bw() + geom_boxplot() 
+# grid.arrange(plot1, plot2, plot3, plot4, plot5, nrow=5)
+
+subplot(ggplotly(plot1), ggplotly(plot2), ggplotly(plot3), ggplotly(plot4), ggplotly(plot5), nrows=5, titleY=T)
 ```
