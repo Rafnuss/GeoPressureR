@@ -174,7 +174,7 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
   nds_sorted_idx <- order(nds_expend_sum, decreasing = T)
   nds_expend_sum <- sort(nds_expend_sum, decreasing = T)
-  future::plan(future::multisession, workers = future::availableCores()/2)
+  future::plan(future::multisession, workers = future::availableCores() / 2)
   f <- list()
 
   message(
@@ -291,7 +291,6 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
 #' @return Graph trimmed
 #' @seealso [`graph_create()`]
 graph_trim <- function(gr) {
-
   message("Trimming the graph:")
 
   progress_bar(1, max = (length(gr) - 1) * 2)
@@ -405,7 +404,7 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
       t_q <- seq(from = t_s, to = t_e, by = 60 * 60)
       pres_obs <- pressure$obs[pressure$date %in% t_q]
       if (!(min(pres) <= min(pres_obs) & max(pres) >= min(1000,max(pres_obs)))){
-        stop(paste0("Pressure not matching for for sta=", i_s))
+        stop(paste0("Pressure not matching for sta=", i_s))
       }
     }
   }
@@ -595,9 +594,9 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
       u_sta[i2, ] <- colSums(u_int * w)
       v_sta[i2, ] <- colSums(v_int * w)
 
-      progress_bar(sum(nds_expend_sum[seq(1, i_s)]),
+      progress_bar(sum(nds_expend_sum[seq(1, i1)]),
         max = sum(nds_expend_sum),
-        text = paste0("| sta = ", i_s, "/", grl$sz[3] - 1)
+        text = paste0("| sta = ", i1, "/", grl$sz[3] - 1)
       )
     }
     # Compute the average  over all the flight of the transition accounting for the duration of the
