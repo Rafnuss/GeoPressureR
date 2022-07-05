@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# GeoPressureR <img src="man/figures/logo.svg" align="right" height="139"/>
+# GeoPressureR <img src="man/figures/logo.png" align="right" height="139"/>
 
 <!-- badges: start -->
 
@@ -124,8 +124,8 @@ idea of what and how to analyse your data and borrow some code sections
 for your own project. Feel free to contact me if you’ll like to appear
 on this list.
 
-| Species             | GeoPressureTemplate/code                                                    | Publication/status            |
-|---------------------|-----------------------------------------------------------------------------|-------------------------------|
-| Mongolian Nightjar  | [Rafnuss/MongolianNightjar](https://github.com/Rafnuss/MongolianNightjar)   | Lathouwers et al. (submitted) |
-| Woodland Kingfisher | [Rafnuss/WoodlandKingfisher](https://github.com/Rafnuss/WoodlandKingfisher) | Osinubi et al. (in prep.)     |
-| Northern Wheatear   | [Rafnuss/Val-Piora-Wheatear](https://github.com/Rafnuss/Val-Piora-Wheatear) | Rime et al. (in prep.)        |
+| Species             | GeoPressureTemplate/code                                                    | Publication/status                                                     |
+|---------------------|-----------------------------------------------------------------------------|------------------------------------------------------------------------|
+| Mongolian Nightjar  | [Rafnuss/MongolianNightjar](https://github.com/Rafnuss/MongolianNightjar)   | [Lathouwers et al. (2022)](https://doi.org/10.1007/s10336-022-02000-4) |
+| Woodland Kingfisher | [Rafnuss/WoodlandKingfisher](https://github.com/Rafnuss/WoodlandKingfisher) | Osinubi et al. (in prep.)                                              |
+| Northern Wheatear   | [Rafnuss/Val-Piora-Wheatear](https://github.com/Rafnuss/Val-Piora-Wheatear) | Rime et al. (in prep.)                                                 |
