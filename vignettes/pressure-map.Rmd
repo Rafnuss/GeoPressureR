@@ -194,7 +194,7 @@ raster::animate(brick(pressure_prob), n = 1)
 
 The second operation you can perform with GeoPressureR is to compute the exact altitude of the bird $z_{gl}$ from its pressure measurement $P_{gl}$ and assuming its location $x$. This function uses ERA5 to adjust the barometric equation,
 $$ z_{gl}(x)=z_{ERA5}(x) + \frac{T_{ERA5}(x)}{L_b}  \left( \frac{P_{gl}}{P_{ERA5}(x)} \right) ^{\frac{RL_b}{g M}-1},$$
-where $z_{ERA}$, $T_{ERA}$ and $T_{ERA}$  respectively correspond to the ground level elevation, temperature at 2m and ground level pressure of ERA5, $L_b$  is the standard temperature lapse rate, $R$ is the universal gas constant, $g$ is the gravity constant and  $M$ is the molar mass of air. See more information [here](https://raphaelnussbaumer.com/GeoPressureAPI/#description-1).
+where $z_{ERA}$, $T_{ERA}$ and $P_{ERA}$  respectively correspond to the ground level elevation, temperature at 2m and ground level pressure of ERA5, $L_b$  is the standard temperature lapse rate, $R$ is the universal gas constant, $g$ is the gravity constant and  $M$ is the molar mass of air. See more information [here](https://raphaelnussbaumer.com/GeoPressureAPI/#description-1).
 
 We can compute the bird's elevation for its first stationary period using the most likely position on the probability map.
 

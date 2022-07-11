@@ -304,9 +304,9 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9,
                                    log(n) / n
                                  }) {
   stopifnot(is.numeric(s))
-  stopifnot(s>=0)
+  stopifnot(s >= 0)
   stopifnot(is.numeric(thr))
-  stopifnot(thr>=0 & thr<=1)
+  stopifnot(thr >= 0 & thr <= 1)
   stopifnot(is.function(fun_w))
 
   raster_prob_list <- c()
@@ -347,24 +347,42 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9,
 #'
 #' This function return the surface atmospheric pressure timeseries from ERA5 at a queried location.
 #'
-#' If you supply the pressure (and time) of the geolocator, it will additionally return the
-#' elevation of the geolocator above sea level.
+#' If you supply the pressure (and time) of the geolocator \eqn{P_{gl}}, the function will
+#' additionally return the altitude of the geolocator above sea level \eqn{z_{gl}} using the
+#' barometric equation,
+#' \deqn{ z_{{gl}}(x)=z_{ERA5}(x) + \frac{T_{ERA5}(x)}{L_b}  \left( \frac{P_{gl}}{P_{ERA5}(x)}
+#' \right)^{\frac{RL_b}{g M}-1},}
+#' where \eqn{z_{ERA}}, \eqn{T_{ERA}} and \eqn{P_{ERA}} respectively correspond to the ground level
+#' elevation, temperature at 2m and ground level pressure of ERA5, \eqn{L_b}  is the standard
+#' temperature lapse rate, \eqn{R} is the universal gas constant, \eqn{g} is the gravity constant
+#' and  \eqn{M} is the molar mass of air. See more information on
+#' [the GeoPressureAPI documentation](https://raphaelnussbaumer.com/GeoPressureAPI/#description-1).
 #'
-#'  The timeserie of the response will be on the same as time if supply, otherwise, it will return
-#'  on a hourly basis between `start_time` and `end_time`.
+#' The timeserie of the response will be on the same as time if supply, otherwise, it will return
+#' on a hourly basis between `start_time` and `end_time`.
 #'
-#'  If the location query is over water, the location will be moved to the closest onshore location.
+#' If the location query is over water, the location will be moved to the closest onshore location.
 #'
+#' To be able to compare the temporal variation of the retrieved pressure of ERA5 \eqn{P_{ERA}} to
+#' the geolocator pressure \eqn{P_{gl}}, the function also return the ERA pressure normalized with
+#' the geolocator mean pressure measurement as `pressure0`.
+#' \deqn{ P_{0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\right) -
+#' \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\boldsymbol{x})[i]-P_{gl}[i] \right).}
+#'
+#' See the [article on probability aggregation](/articles/probability-aggregation.html#error-term)
+#' for more information on the meaning of this value.
 #' @param lon Longitude to query (-180° to 180°).
 #' @param lat Latitude to query (0° to 90°).
-#' @param pressure Pressure list from PAM logger dataset list.
+#' @param pressure Pressure list from PAM logger dataset list (optional).
 #' @param start_time If `pressure` is not provided, then `start_time` define the starting time of
 #' the timeserie as POSIXlt.
-#' @param end_time Same as `start_time`
+#' @param end_time If `pressure` is not provided, then `end_time` define the ending time of
+#' the timeserie as POSIXlt.
 #' @param verbose Display (or not) the progress of the query (logical).
-#' @return Timeserie of date, pressure, latitude, longitude and optionally altitude. Latitude and
-#' longitude differs from the requested coordinates if over water.
-#' @seealso [`geopressure_ts_path()`]
+#' @return A data.frame containing the timeserie of pressure and optionally altitude if `pressure`
+#' is provided.
+#' @seealso [`geopressure_ts_path()`], [Vignette Pressure Map
+#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html),
 #' @examples
 #' \dontrun{
 #' pam_data <- pam_read(
@@ -384,6 +402,7 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9,
 #' pressure_timeserie <- readRDS(system.file("extdata", "18LX_pressure_timeserie.rda",
 #'   package = "GeoPressureR"
 #' ))
+#' head(pressure_timeserie[[1]])
 #' par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
 #' plot(pressure_timeserie[[1]]$date, pressure_timeserie[[1]]$pressure,
 #'   ylab = "Pressure [hPa]", xlab = "", type = "l"
@@ -540,8 +559,7 @@ geopressure_ts <-
 #' flights are defined by the +/1 of the `sta_id` value (and not the previous/next `sta_id` value).
 #' @param verbose Display (or not) the progress of the queries (logical).
 #' @return List of data.frame containing for each stationary period, the date, pressure, altitude
-#' (same as [`geopressure_ts()`]) but also `sta_id`, `lat`, `lon` and `pressure0` (the pressure
-#' normalized to the geolocator mean pressure measurement).
+#' (same as [`geopressure_ts()`]).
 #' @seealso [`geopressure_ts()`], [`geopressure_map2path()`], [Vignette Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
 #' @examples

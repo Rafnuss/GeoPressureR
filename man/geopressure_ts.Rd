@@ -18,9 +18,10 @@ geopressure_ts(
 
 \item{lat}{Latitude to query (0° to 90°).}
 
-\item{pressure}{Pressure list from PAM logger dataset list.}
+\item{pressure}{Pressure list from PAM logger dataset list (optional).}
 
-\item{end_time}{Same as \code{start_time}}
+\item{end_time}{If \code{pressure} is not provided, then \code{end_time} define the ending time of
+the timeserie as POSIXlt.}
 
 \item{start_time}{If \code{pressure} is not provided, then \code{start_time} define the starting time of
 the timeserie as POSIXlt.}
@@ -28,20 +29,37 @@ the timeserie as POSIXlt.}
 \item{verbose}{Display (or not) the progress of the query (logical).}
 }
 \value{
-Timeserie of date, pressure, latitude, longitude and optionally altitude. Latitude and
-longitude differs from the requested coordinates if over water.
+A data.frame containing the timeserie of pressure and optionally altitude if \code{pressure}
+is provided.
 }
 \description{
 This function return the surface atmospheric pressure timeseries from ERA5 at a queried location.
 }
 \details{
-If you supply the pressure (and time) of the geolocator, it will additionally return the
-elevation of the geolocator above sea level.
+If you supply the pressure (and time) of the geolocator \eqn{P_{gl}}, the function will
+additionally return the altitude of the geolocator above sea level \eqn{z_{gl}} using the
+barometric equation,
+\deqn{ z_{{gl}}(x)=z_{ERA5}(x) + \frac{T_{ERA5}(x)}{L_b}  \left( \frac{P_{gl}}{P_{ERA5}(x)}
+\right)^{\frac{RL_b}{g M}-1},}
+where \eqn{z_{ERA}}, \eqn{T_{ERA}} and \eqn{P_{ERA}} respectively correspond to the ground level
+elevation, temperature at 2m and ground level pressure of ERA5, \eqn{L_b}  is the standard
+temperature lapse rate, \eqn{R} is the universal gas constant, \eqn{g} is the gravity constant
+and  \eqn{M} is the molar mass of air. See more information on
+\href{https://raphaelnussbaumer.com/GeoPressureAPI/#description-1}{the GeoPressureAPI documentation}.
 
 The timeserie of the response will be on the same as time if supply, otherwise, it will return
 on a hourly basis between \code{start_time} and \code{end_time}.
 
 If the location query is over water, the location will be moved to the closest onshore location.
+
+To be able to compare the temporal variation of the retrieved pressure of ERA5 \eqn{P_{ERA}} to
+the geolocator pressure \eqn{P_{gl}}, the function also return the ERA pressure normalized with
+the geolocator mean pressure measurement as \code{pressure0}.
+\deqn{ P_{0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\right) -
+\left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\boldsymbol{x})[i]-P_{gl}[i] \right).}
+
+See the \href{/articles/probability-aggregation.html#error-term}{article on probability aggregation}
+for more information on the meaning of this value.
 }
 \examples{
 \dontrun{
@@ -62,6 +80,7 @@ pressure_timeserie[[1]] <- geopressure_ts(
 pressure_timeserie <- readRDS(system.file("extdata", "18LX_pressure_timeserie.rda",
   package = "GeoPressureR"
 ))
+head(pressure_timeserie[[1]])
 par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
 plot(pressure_timeserie[[1]]$date, pressure_timeserie[[1]]$pressure,
   ylab = "Pressure [hPa]", xlab = "", type = "l"
@@ -72,5 +91,5 @@ plot(pressure_timeserie[[1]]$date, pressure_timeserie[[1]]$altitude,
 )
 }
 \seealso{
-\code{\link[=geopressure_ts_path]{geopressure_ts_path()}}
+\code{\link[=geopressure_ts_path]{geopressure_ts_path()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map },
 }

@@ -22,8 +22,7 @@ flights are defined by the +/1 of the \code{sta_id} value (and not the previous/
 }
 \value{
 List of data.frame containing for each stationary period, the date, pressure, altitude
-(same as \code{\link[=geopressure_ts]{geopressure_ts()}}) but also \code{sta_id}, \code{lat}, \code{lon} and \code{pressure0} (the pressure
-normalized to the geolocator mean pressure measurement).
+(same as \code{\link[=geopressure_ts]{geopressure_ts()}}).
 }
 \description{
 This function runs in parallel \code{geopressure_ts()} based on a path and pressure timeserie. It
