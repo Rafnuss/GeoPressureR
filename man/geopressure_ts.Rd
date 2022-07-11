@@ -10,7 +10,7 @@ geopressure_ts(
   pressure = NULL,
   end_time = NULL,
   start_time = NULL,
-  verbose = T
+  verbose = TRUE
 )
 }
 \arguments{

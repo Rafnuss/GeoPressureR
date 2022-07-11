@@ -29,7 +29,7 @@ flight_bird <- function(species_name,
                         wing_aspect = NA,
                         wing_area = NA,
                         body_frontal_area = NA) {
-  if (is.na(mass) | (is.na(wing_aspect) + is.na(wing_area) +
+  if (is.na(mass) || (is.na(wing_aspect) + is.na(wing_area) +
     is.na(wing_span) > 1)) {
     # Mass, wing length and secondary length are retrived from the AVONET
     avonet <- utils::read.csv(system.file("extdata", "avonet_clements.csv",
@@ -76,9 +76,9 @@ flight_bird <- function(species_name,
   }
 
   # Combinaison of wing area, span and aspect ratio
-  if (!is.na(wing_area) & is.na(wing_span) & !is.na(wing_aspect)) {
+  if (!is.na(wing_area) && is.na(wing_span) && !is.na(wing_aspect)) {
     wing_span <- sqrt(wing_aspect * wing_area)
-  } else if (!is.na(wing_area) & !is.na(wing_span) & is.na(wing_aspect)) {
+  } else if (!is.na(wing_area) && !is.na(wing_span) && is.na(wing_aspect)) {
     wing_aspect <- wing_span^2 / wing_area
   }
 

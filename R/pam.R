@@ -70,7 +70,7 @@ pam_read <- function(pathname,
 #' @return a data.frame of the measurement
 pam_read_file <- function(filename, crop_start, crop_end) {
   # read data as delimiter
-  data_raw <- utils::read.delim(filename, skip = 6, sep = "", header = F)
+  data_raw <- utils::read.delim(filename, skip = 6, sep = "", header = FALSE)
 
   # get and convert the date
   date <- as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),
@@ -386,7 +386,7 @@ trainset_read <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-la
 
   missing_acc <- sum(is.na(id_acc_match))
   missing_pres <- sum(is.na(id_pres_match))
-  if (missing_acc > 0 | missing_pres > 0) {
+  if (missing_acc > 0 || missing_pres > 0) {
     trainset_write(pam, pathname = tempdir(), filename = paste0(pam$id, "_act_pres-labeled"))
     warning(paste0(
       "The labelization file is missing ", missing_pres, " timesteps of pressure and ",

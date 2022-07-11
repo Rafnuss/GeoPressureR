@@ -205,7 +205,7 @@ find_twilights <- function(light, threshold = NA, shift_k = NA) {
     mat <- light2mat(light, shift_k = 0)
     res <- as.numeric(difftime(mat$date[2], mat$date[1], units = "secs"))
     l <- mat$obs >= threshold
-    tmp <- rowMeans(l, na.rm = T)
+    tmp <- rowMeans(l, na.rm = TRUE)
     shift_id <- round(sum(tmp * seq_len(dim(mat$obs)[1])) / sum(tmp))
     shift_k <- -(res * shift_id - 60 * 60 * 12)
   }

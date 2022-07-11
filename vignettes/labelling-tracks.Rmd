@@ -86,10 +86,12 @@ The first test consists in checking the duration of flights and stationary perio
 ```{r}
 pam_data <- trainset_read(pam_data, system.file("extdata", package = "GeoPressureR"), filename = "18LX_act_pres-labeled-v1.csv")
 pam_data <- pam_sta(pam_data)
-pam_data$sta$duration <- difftime( pam_data$sta$end, pam_data$sta$start, units = "days")
-pam_data$sta$next_flight_duration <- c(difftime(tail(pam_data$sta$start, length(pam_data$sta$start) - 1), 
-                                                   head(pam_data$sta$end, length(pam_data$sta$end) - 1), units = "hours"),0)
-knitr::kable(subset(pam_data$sta,duration<0.25| next_flight_duration < 1))
+pam_data$sta$duration <- difftime(pam_data$sta$end, pam_data$sta$start, units = "days")
+pam_data$sta$next_flight_duration <- c(difftime(tail(pam_data$sta$start, length(pam_data$sta$start) - 1),
+  head(pam_data$sta$end, length(pam_data$sta$end) - 1),
+  units = "hours"
+), 0)
+knitr::kable(subset(pam_data$sta, duration < 0.25 | next_flight_duration < 1))
 ```
 
 You may want to check the labelling of flights shorter than one hour as well as the labelling before and after stationary periods shorter than a couple of hours. Using the exact times from the table above, you can edit your labelling in TRAINSET and export a new version of the `csv` file. Note that the last row has a `next_flight_duration` of 0 because it is the last stationary period. 
@@ -103,18 +105,20 @@ pam_data <- trainset_read(pam_data, system.file("extdata", package = "GeoPressur
 pam_data <- pam_sta(pam_data)
 
 # Set colorscale
-col <- rep(RColorBrewer::brewer.pal(9, "Set1"), times = ceiling((nrow(pam_data$sta)+1)/9))
-col <- col[1:(nrow(pam_data$sta)+1)]
-names(col) <- levels(factor(c(0,pam_data$sta$sta_id)))
+col <- rep(RColorBrewer::brewer.pal(9, "Set1"), times = ceiling((nrow(pam_data$sta) + 1) / 9))
+col <- col[1:(nrow(pam_data$sta) + 1)]
+names(col) <- levels(factor(c(0, pam_data$sta$sta_id)))
 
 pressure_na <- pam_data$pressure
-pressure_na$obs[pressure_na$isoutliar | pressure_na$sta_id==0]=NA
+pressure_na$obs[pressure_na$isoutliar | pressure_na$sta_id == 0] <- NA
 p <- ggplot() +
   geom_line(data = pam_data$pressure, aes(x = date, y = obs), col = "grey") +
   geom_line(data = pressure_na, aes(x = date, y = obs, col = factor(sta_id))) +
   geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
-  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure (hPa)")
-  
+  theme_bw() +
+  scale_colour_manual(values = col) +
+  scale_y_continuous(name = "Pressure (hPa)")
+
 ggplotly(p, dynamicTicks = T) %>% layout(showlegend = F)
 ```
 
@@ -156,7 +160,9 @@ p <- ggplot() +
   geom_line(data = pam_data$pressure, aes(x = date, y = obs), colour = "grey") +
   geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
   geom_line(data = do.call("rbind", pressure_timeserie), aes(x = date, y = pressure0, col = factor(sta_id))) +
-  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure (hPa)")
+  theme_bw() +
+  scale_colour_manual(values = col) +
+  scale_y_continuous(name = "Pressure (hPa)")
 
 ggplotly(p, dynamicTicks = T) %>% layout(showlegend = F)
 ```
@@ -174,7 +180,9 @@ p <- ggplot() +
   geom_point(data = subset(pam_data$pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
   geom_line(data = do.call("rbind", pressure_timeserie), aes(x = date, y = pressure0, col = factor(sta_id))) +
   theme_bw() +
-  theme_bw() + scale_colour_manual(values = col) + scale_y_continuous(name = "Pressure (hPa)")
+  theme_bw() +
+  scale_colour_manual(values = col) +
+  scale_y_continuous(name = "Pressure (hPa)")
 
 ggplotly(p, dynamicTicks = T) %>% layout(showlegend = F)
 ```
@@ -188,7 +196,7 @@ You might also want to check the spread of the distribution. This value can guid
 ```{r}
 par(mfrow = c(5, 6), mar = c(1, 1, 3, 1))
 for (i_r in seq_along(pressure_timeserie)) {
-  if(!is.null(pressure_timeserie[[i_r]])){
+  if (!is.null(pressure_timeserie[[i_r]])) {
     i_s <- unique(pressure_timeserie[[i_r]]$sta_id)
     df3 <- merge(pressure_timeserie[[i_r]], subset(pam_data$pressure, !isoutliar & sta_id == i_s), by = "date")
     df3$error <- df3$pressure0 - df3$obs

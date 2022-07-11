@@ -44,13 +44,14 @@ Let's load the data and compute basic operation (see [How to use GeoPressureR](u
 ```{r setup}
 library(raster)
 library(GeoPressureR)
-pam_data = pam_read(system.file("extdata", package = "GeoPressureR"),
-                    crop_start = "2017-06-20", crop_end = "2018-05-02")
-pam_data = trainset_read(pam_data, system.file("extdata", package = "GeoPressureR"))
-pam_data = pam_sta(pam_data)
+pam_data <- pam_read(system.file("extdata", package = "GeoPressureR"),
+  crop_start = "2017-06-20", crop_end = "2018-05-02"
+)
+pam_data <- trainset_read(pam_data, system.file("extdata", package = "GeoPressureR"))
+pam_data <- pam_sta(pam_data)
 
-sta_id_keep = pam_data$sta$sta_id[difftime(pam_data$sta$end,pam_data$sta$start, units = "hours")>12]
-pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] = NA
+sta_id_keep <- pam_data$sta$sta_id[difftime(pam_data$sta$end, pam_data$sta$start, units = "hours") > 12]
+pam_data$pressure$sta_id[!(pam_data$pressure$sta_id %in% sta_id_keep)] <- NA
 ```
 
 We are using [the GeoPressure API](https://raphaelnussbaumer.com/GeoPressureServer/#description) with the `geopressure_map()` function to measure the mismatch of the pressure series. Because the API can realistically return only a single map per stationary period, it aggregates the error timeseries with the Mean Squared Error (MSE), 
@@ -69,17 +70,17 @@ for (i_s in 1:length(pressure_maps)) {
   raster_mse_list[[i_s]] <- pressure_maps[[i_s]][[1]]
   # change 0 (water) in NA
   raster_mse_list[[i_s]][raster_mse_list[[i_s]] == 0] <- NA
-  
+
   # Acess geotiff metadata
   mt <- raster::metadata(pressure_maps[[i_s]])
-  
-  mt$start=mt$extend_sample[1]
-  mt$end=mt$extend_sample[2]
-  tmp = as.data.frame(raster_mse_list[[i_s]][[1]],xy=T)
-  mt$lon = tmp$x[which.min(tmp[,3])]
-  mt$lat = tmp$y[which.min(tmp[,3])]
-  
-  sta = rbind(sta,as.data.frame(mt[-4]))
+
+  mt$start <- mt$extend_sample[1]
+  mt$end <- mt$extend_sample[2]
+  tmp <- as.data.frame(raster_mse_list[[i_s]][[1]], xy = T)
+  mt$lon <- tmp$x[which.min(tmp[, 3])]
+  mt$lat <- tmp$y[which.min(tmp[, 3])]
+
+  sta <- rbind(sta, as.data.frame(mt[-4]))
 }
 knitr::kable(head(sta))
 ```
@@ -94,7 +95,7 @@ The figure below shows the error distribution at the known location of equipment
  They all look close enough to a Gaussian distribution. In the case of the Great Reed Warbler, the standard deviation is around 0.5.
  
 ```{r}
-s=0.5
+s <- 0.5
 ```
 
 Therefore, assuming a gaussian distribution of our error, the [Gaussian likelkhood](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation#Non-independent_variables)  of a multivariate normal distribution is given by 
@@ -111,46 +112,47 @@ $$ f_{ind}(\boldsymbol{\varepsilon})=\left({\frac {1}{2\pi \sigma ^{2}}}\right)^
 
 Using this equation, we can compute the probability for each stationary periods. In the code below, we define a likelihood function `f_prob` as a function of $n$, $\sigma$ and the MSE.
 ```{r}
-f_prob = function(n,s,MSE){
-  (1/(2*pi*s^2))^(n/2)*exp(-n*MSE/2/s^2)
+f_prob <- function(n, s, MSE) {
+  (1 / (2 * pi * s^2))^(n / 2) * exp(-n * MSE / 2 / s^2)
 }
 ```
 
 We define a function below to display the MSE and probability for 8 stationary periods based on a likelihood function. This function will be used later to compare with other likelihood function.
 
 ```{r}
-fun_plot_prob <- function(f_prob,sta,pressure_maps){
+fun_plot_prob <- function(f_prob, sta, pressure_maps) {
   raster_prob_list <- c()
   for (i_s in 1:length(pressure_maps)) {
-    n = sta$nb_sample[i_s]
-    raster_prob_list[[i_s]] <- f_prob(n,s,raster_mse_list[[i_s]])
+    n <- sta$nb_sample[i_s]
+    raster_prob_list[[i_s]] <- f_prob(n, s, raster_mse_list[[i_s]])
   }
-  iis = c(1, 2, 5, 17, 24, 26)
-  sta[iis,]
-  dl=5
-  par(mfcol=c(2, length(iis)), mar=c(0,0,7,0), mai=c(0, 0, .1, 0))
-  for (i_s in iis){
-    plot(raster_mse_list[[i_s]], 
-         main=paste0("MSE|i_s=",i_s,"|n=",sta$nb_sample[i_s]), 
-         horizontal = TRUE, 
-         axes = FALSE, 
-         legend.shrink=.8,
-         xlim=c(sta$lon[i_s]-dl,sta$lon[i_s]+dl), ylim=c(sta$lat[i_s]-dl,sta$lat[i_s]+dl)
-         )
-    points(sta$lon[i_s],sta$lat[i_s] )
+  iis <- c(1, 2, 5, 17, 24, 26)
+  sta[iis, ]
+  dl <- 5
+  par(mfcol = c(2, length(iis)), mar = c(0, 0, 7, 0), mai = c(0, 0, .1, 0))
+  for (i_s in iis) {
+    plot(raster_mse_list[[i_s]],
+      main = paste0("MSE|i_s=", i_s, "|n=", sta$nb_sample[i_s]),
+      horizontal = TRUE,
+      axes = FALSE,
+      legend.shrink = .8,
+      xlim = c(sta$lon[i_s] - dl, sta$lon[i_s] + dl), ylim = c(sta$lat[i_s] - dl, sta$lat[i_s] + dl)
+    )
+    points(sta$lon[i_s], sta$lat[i_s])
   }
-  for (i_s in iis){
-    plot(raster_prob_list[[i_s]], main="Prob", 
-         horizontal = TRUE, axes = FALSE, legend.shrink=.8,
-         xlim=c(sta$lon[i_s]-dl,sta$lon[i_s]+dl), ylim=c(sta$lat[i_s]-dl,sta$lat[i_s]+dl)
-         )
-    points(sta$lon[i_s],sta$lat[i_s] )
+  for (i_s in iis) {
+    plot(raster_prob_list[[i_s]],
+      main = "Prob",
+      horizontal = TRUE, axes = FALSE, legend.shrink = .8,
+      xlim = c(sta$lon[i_s] - dl, sta$lon[i_s] + dl), ylim = c(sta$lat[i_s] - dl, sta$lat[i_s] + dl)
+    )
+    points(sta$lon[i_s], sta$lat[i_s])
   }
 }
 ```
 
 ```{r}
-fun_plot_prob(f_prob,sta,pressure_maps)
+fun_plot_prob(f_prob, sta, pressure_maps)
 ```
 
 Assuming independance, the gaussian likelihood transforms the MSE into probability with narrow ranges of uncertaintie. So narrow that for long stationary period (i_s=1 and 17), the enterie map is 0.
@@ -208,11 +210,11 @@ which can be interpreted as the Gaussian probability distributions of the MSE. T
 We can try this and see the influence on the probability map.
 
 ```{r}
-f_prob = function(n,s,x){
-  w = 1/n
-  (1/(2*pi*s^2))^(n*w/2)*exp(-w*n/2/(s^2)*x)
+f_prob <- function(n, s, x) {
+  w <- 1 / n
+  (1 / (2 * pi * s^2))^(n * w / 2) * exp(-w * n / 2 / (s^2) * x)
 }
-fun_plot_prob(f_prob,sta,pressure_maps)
+fun_plot_prob(f_prob, sta, pressure_maps)
 ```
 
 As expected from the disappearance of n, the uncertainty is now completely independent from the duration of the stationary period.
@@ -228,11 +230,11 @@ $$F(\boldsymbol{\varepsilon}) \propto \left({\frac {1}{2\pi \sigma ^{2}}}\right)
 This scheme was designed to minimize the strength of $1/n$
 
 ```{r}
-f_prob = function(n,s,x){
-  w = log(n)/n
-  (1/(2*pi*s^2))^(n*w/2)*exp(-w*n/2/(s^2)*x)
+f_prob <- function(n, s, x) {
+  w <- log(n) / n
+  (1 / (2 * pi * s^2))^(n * w / 2) * exp(-w * n / 2 / (s^2) * x)
 }
-fun_plot_prob(f_prob,sta,pressure_maps)
+fun_plot_prob(f_prob, sta, pressure_maps)
 ```
 
 ## Validation

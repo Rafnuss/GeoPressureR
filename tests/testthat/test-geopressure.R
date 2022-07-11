@@ -130,7 +130,7 @@ test_that("Check geopressure_ts_path() output", {
   pressure <- pam_data$pressure
   pressure_timeserie <- geopressure_ts_path(path, pressure)
   expect_equal(nrow(pressure_timeserie[[1]]), n[2])
-  pressure_timeserie <- geopressure_ts_path(path, pressure, include_flight = T)
+  pressure_timeserie <- geopressure_ts_path(path, pressure, include_flight = TRUE)
   expect_equal(nrow(pressure_timeserie[[1]]), sum(n))
   expect_equal(sum(pressure_timeserie[[1]]$sta_id == i_s), n[2])
   pressure_timeserie <- geopressure_ts_path(path, pressure, include_flight = c(-1, 1))

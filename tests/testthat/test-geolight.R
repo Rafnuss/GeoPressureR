@@ -14,6 +14,6 @@ test_that("Check find_twilights()", {
 
 test_that("Check solar()", {
   sun <- solar(twl$twilight)
-  z <- zenith(sun, lon=0, lat=0)
+  z <- zenith(sun, lon = 0, lat = 0)
   z <- refracted(z)
 })

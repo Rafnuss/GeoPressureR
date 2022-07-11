@@ -56,11 +56,11 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   # convert raster into normalized matrix
   static_prob_n <- lapply(static_prob, function(x) {
     probt <- raster::as.matrix(x)
-    if (sum(probt, na.rm = T) == 0) {
+    if (sum(probt, na.rm = TRUE) == 0) {
       probt[probt == 0] <- 1
     }
     probt[is.na(probt)] <- 0
-    probt / sum(probt, na.rm = T)
+    probt / sum(probt, na.rm = TRUE)
   })
 
   sta_id_0 <- unlist(lapply(static_prob_n, sum)) == 0
@@ -120,7 +120,7 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
 
   # filter the pixels which are not in reach of any location of the previous and next stationary
   # period
-  cond <- T
+  cond <- TRUE
   while (cond) {
     n_old <- sum(unlist(lapply(nds, sum)))
     for (i_s in seq_len(sz[3] - 1)) {
@@ -150,7 +150,7 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
     }
     n_new <- sum(unlist(lapply(nds, sum)))
     if (n_new == n_old) {
-      cond <- F
+      cond <- FALSE
     }
   }
 
@@ -163,8 +163,8 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   }
 
   # Identify equipement and retrival
-  equipement <- which(nds[[1]] == T)
-  retrival <- which(nds[[sz[3]]] == T) + (sz[3] - 1) * nll
+  equipement <- which(nds[[1]] == TRUE)
+  retrival <- which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll
 
 
   # Create the graph from nds with the exact groundspeed
@@ -172,8 +172,8 @@ graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
   # Run each transition in parallel with decreasing order of edges
   nds_sum <- unlist(lapply(nds, sum))
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
-  nds_sorted_idx <- order(nds_expend_sum, decreasing = T)
-  nds_expend_sum <- sort(nds_expend_sum, decreasing = T)
+  nds_sorted_idx <- order(nds_expend_sum, decreasing = TRUE)
+  nds_expend_sum <- sort(nds_expend_sum, decreasing = TRUE)
   future::plan(future::multisession, workers = future::availableCores() / 2)
   f <- list()
 
@@ -388,7 +388,7 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
     for (i2 in seq_len(length(fl_s$sta_id))) {
       i_s <- fl_s$sta_id[i2]
 
-      if (!file.exists(paste0(filename, i_s, ".nc"))){
+      if (!file.exists(paste0(filename, i_s, ".nc"))) {
         stop(paste0("No file for sta=", i_s))
       }
       nc <- ncdf4::nc_open(paste0(filename, i_s, ".nc"))
@@ -396,14 +396,14 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
       time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60, origin = "1900-01-01", tz = "UTC")
       t_s <- as.POSIXct(format(fl_s$start[i2], "%Y-%m-%d %H:00:00"), tz = "UTC")
       t_e <- as.POSIXct(format(fl_s$end[i2] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
-      if (!(min(time) <= t_e & max(time) >= t_s)){
+      if (!(min(time) <= t_e && max(time) >= t_s)) {
         stop(paste0("Time not matching for for sta=", i_s))
       }
 
       pres <- ncdf4::ncvar_get(nc, "level")
       t_q <- seq(from = t_s, to = t_e, by = 60 * 60)
       pres_obs <- pressure$obs[pressure$date %in% t_q]
-      if (!(min(pres) <= min(pres_obs) & max(pres) >= min(1000,max(pres_obs)))){
+      if (!(min(pres) <= min(pres_obs) && max(pres) >= min(1000, max(pres_obs)))) {
         stop(paste0("Pressure not matching for sta=", i_s))
       }
     }
@@ -698,7 +698,7 @@ graph_marginal <- function(grl) {
   for (i_s in seq_len(dim(map)[3])) {
     tmp <- map[, , i_s]
     tmp[grl$mask_water] <- NA
-    if (sum(tmp, na.rm = T) == 0) {
+    if (sum(tmp, na.rm = TRUE) == 0) {
       stop(
         "The probability of some transition are too small to find numerical solution. ",
         "Please check the data used to create the graph."

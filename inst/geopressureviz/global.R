@@ -30,31 +30,31 @@ map_choices <- c()
 map_val <- list()
 
 if ("light_prob" %in% names(geopressureviz)) {
-  map_choices = c(map_choices,"Light")
+  map_choices <- c(map_choices, "Light")
   stopifnot(length(static_prob) == length(geopressureviz$light_prob))
-  map_val[[length(map_val)+1]] <- geopressureviz$light_prob
+  map_val[[length(map_val) + 1]] <- geopressureviz$light_prob
 }
 if ("pressure_prob_mismatch" %in% names(geopressureviz)) {
-  map_choices = c(map_choices,"Pressure mis.")
+  map_choices <- c(map_choices, "Pressure mis.")
   stopifnot(length(static_prob) == length(geopressureviz$pressure_prob_mismatch))
-  map_val[[length(map_val)+1]] <- geopressureviz$pressure_prob_mismatch
+  map_val[[length(map_val) + 1]] <- geopressureviz$pressure_prob_mismatch
 }
 if ("pressure_prob_thr" %in% names(geopressureviz)) {
-  map_choices = c(map_choices,"Pressure thres.")
+  map_choices <- c(map_choices, "Pressure thres.")
   stopifnot(length(static_prob) == length(geopressureviz$pressure_prob_thr))
-  map_val[[length(map_val)+1]] <- geopressureviz$pressure_prob_thr
+  map_val[[length(map_val) + 1]] <- geopressureviz$pressure_prob_thr
 }
 if ("pressure_prob" %in% names(geopressureviz)) {
-  map_choices = c(map_choices,"Pressure")
+  map_choices <- c(map_choices, "Pressure")
   stopifnot(length(static_prob) == length(geopressureviz$pressure_prob))
-  map_val[[length(map_val)+1]] <- geopressureviz$pressure_prob
+  map_val[[length(map_val) + 1]] <- geopressureviz$pressure_prob
 }
-map_choices = c(map_choices,"Static")
-map_val[[length(map_val)+1]] <- static_prob
+map_choices <- c(map_choices, "Static")
+map_val[[length(map_val) + 1]] <- static_prob
 if ("static_prob_marginal" %in% names(geopressureviz)) {
   stopifnot(length(static_prob) == length(geopressureviz$static_prob_marginal))
-  map_choices = c(map_choices,"Marginal")
-  map_val[[length(map_val)+1]] <- static_prob_marginal
+  map_choices <- c(map_choices, "Marginal")
+  map_val[[length(map_val) + 1]] <- static_prob_marginal
 }
 
 
@@ -92,7 +92,7 @@ stopifnot(!is.na(id_match))
 sta$duration <- pres_isoutliar_sta$x[id_match] * res
 
 # Set color of each stationay period
-col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(max(sta$sta_id)/8))
+col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(max(sta$sta_id) / 8))
 sta$col <- col[sta$sta_id]
 
 # Get flight information and compute flight duration directly
@@ -123,7 +123,7 @@ if ("pressure_timeserie" %in% names(geopressureviz)) {
     }
   }))
   test <- p_ts_sta_id == sta$sta_id
-  test[is.na(test)] <- T
+  test[is.na(test)] <- TRUE
   stopifnot(test)
   ts0 <- pressure_timeserie
   ts0 <- lapply(ts0, function(x) {

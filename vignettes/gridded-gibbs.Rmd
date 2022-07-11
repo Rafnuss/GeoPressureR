@@ -142,7 +142,9 @@ path[, nsta] <- which(as.matrix(static_prob[[nsta]]) == 1)
 Visualize the initial path
 ```{r, asis=T}
 path_ll <- arrayInd(path[1, ], nll)
-leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl() %>% 
+leaflet(width = "100%") %>%
+  addProviderTiles(providers$Stamen.TerrainBackground) %>%
+  addFullscreenControl() %>%
   addPolylines(lng = lon[path_ll[, 2]], lat = lat[path_ll[, 1]], opacity = 1, color = "#808080", weight = 3) %>%
   addCircles(lng = lon[path_ll[, 2]], lat = lat[path_ll[, 1]], opacity = 1, color = "#000", weight = 10)
 ```
@@ -181,7 +183,10 @@ for (j in seq(from = 2, to = nj)) {
 Illustration of the simulation with 10 paths
 
 ```{r}
-m <- leaflet(width = "100%") %>% leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
+m <- leaflet(width = "100%") %>%
+  leaflet(width = "100%") %>%
+  addProviderTiles(providers$Stamen.TerrainBackground) %>%
+  addFullscreenControl()
 for (i in seq(from = 50, to = nj, length.out = 10)) {
   path_ll <- arrayInd(path[i, ], nll)
   m <- m %>%
@@ -195,7 +200,9 @@ Compare the simulated position of each stationary period with the corresponding 
 
 ```{r, warning=F}
 li_s <- list()
-l <- leaflet(width = "100%") %>% addProviderTiles(providers$Stamen.TerrainBackground) %>%  addFullscreenControl()
+l <- leaflet(width = "100%") %>%
+  addProviderTiles(providers$Stamen.TerrainBackground) %>%
+  addFullscreenControl()
 for (i_r in seq_len(length(static_prob))) {
   i_s <- metadata(static_prob[[i_r]])$sta_id
   info <- metadata(static_prob[[i_r]])$extend_sample

@@ -4,7 +4,7 @@
 \alias{geopressure_ts_path}
 \title{Query the timeserie of pressure from a path and geolocator pressure}
 \usage{
-geopressure_ts_path(path, pressure, include_flight = F, verbose = T)
+geopressure_ts_path(path, pressure, include_flight = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{path}{A data.frame of the position containing latitude (\code{lat}), longitude  (\code{lon}) and the

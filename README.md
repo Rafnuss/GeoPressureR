@@ -9,6 +9,7 @@
 [![pkgdown](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master)
+[![lint](https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml)
 
 <!-- badges: end -->
 
@@ -81,10 +82,10 @@ ease for reviewer to check the setting.
 
 ### Publication
 
-> Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti Global positioning
-> by atmospheric pressure retrieved from multi-sensor geolocators, 25
-> February 2022, PREPRINT (Version 1) available at Research Square
-> \[<https://doi.org/10.21203/rs.3.rs-1381915/v1>\]
+> Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis, Felix Liechti.
+> Global positioning with animal-borne pressure sensors, 14 June 2022,
+> PREPRINT (Version 2) available at Research Square
+> \[<https://doi.org/10.21203/rs.3.rs-1381915/v2>\]
 
 > Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis, Felix Liechti.
 > Inferring bird’s trajectory from multi-sensor geolocators and remote

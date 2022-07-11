@@ -22,7 +22,8 @@ geopressure_prob_map(
 not possible.}
 
 \item{fun_w}{function taking the number of sample of the timeseries used to compute the
-probability map and return the log-linear pooling weight (see the \href{https://raphaelnussbaumer.com/GeoPressureR/articles/probability-aggregation.html}{vignette probability aggregation })}
+probability map and return the log-linear pooling weight (see the
+\href{https://raphaelnussbaumer.com/GeoPressureR/articles/probability-aggregation.html}{vignette probability aggregation })}
 }
 \value{
 List of the probability raster map

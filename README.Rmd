@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions) [![pkgdown](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml) [![Codecov test coverage](https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master)
+[![R-CMD-check](https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions) [![pkgdown](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml) [![Codecov test coverage](https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master) [![lint](https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml)
 
 <!-- badges: end -->
 
@@ -51,7 +51,7 @@ To help you start using `GeoPressureR` for your own study, we suggest you use th
 
 ### Publication
 
-> Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti Global positioning by atmospheric pressure retrieved from multi-sensor geolocators, 25 February 2022, PREPRINT (Version 1) available at Research Square [<https://doi.org/10.21203/rs.3.rs-1381915/v1>]
+> Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis, Felix Liechti. Global positioning with animal-borne pressure sensors, 14 June 2022, PREPRINT (Version 2) available at Research Square [<https://doi.org/10.21203/rs.3.rs-1381915/v2>]
 
 > Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis, Felix Liechti. Inferring bird’s trajectory from multi-sensor geolocators and remote sensing with a graphical model, 25 May 2022, PREPRINT (Version 1) available at Research Square [<https://doi.org/10.21203/rs.3.rs-1693751/v1>]
 
@@ -71,7 +71,7 @@ To help you start using `GeoPressureR` for your own study, we suggest you use th
 List of all research projects using `GeoPressureR` with links to the code used to analyse and create figures. This might be helpful to get idea of what and how to analyse your data and borrow some code sections for your own project. Feel free to contact me if you'll like to appear on this list.
 
 | Species             | GeoPressureTemplate/code                                                    | Publication/status                                                     |
-|---------------------|-----------------------------------------------------------------------------|------------------------------------------------------------------------|
+|----------------|-----------------------------|---------------------------|
 | Mongolian Nightjar  | [Rafnuss/MongolianNightjar](https://github.com/Rafnuss/MongolianNightjar)   | [Lathouwers et al. (2022)](https://doi.org/10.1007/s10336-022-02000-4) |
 | Woodland Kingfisher | [Rafnuss/WoodlandKingfisher](https://github.com/Rafnuss/WoodlandKingfisher) | Osinubi et al. (in prep.)                                              |
 | Northern Wheatear   | [Rafnuss/Val-Piora-Wheatear](https://github.com/Rafnuss/Val-Piora-Wheatear) | Rime et al. (in prep.)                                                 |

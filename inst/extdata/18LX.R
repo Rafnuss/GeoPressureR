@@ -78,7 +78,9 @@ z <- refracted(zenith(sun, lon_calib, lat_calib))
 fit_z <- density(z, adjust = 1.4, from = 60, to = 120)
 
 # Add stationay period information on the twilight
-twilight_sta_id <- sapply(twl$twilight, function(x) which(pam_data$sta$start < x & x < pam_data$sta$end))
+twilight_sta_id <- sapply(twl$twilight, function(x) {
+  which(pam_data$sta$start < x & x < pam_data$sta$end)
+})
 twilight_sta_id[sapply(twilight_sta_id, function(x) length(x) == 0)] <- 0
 twl$sta_id <- unlist(twilight_sta_id)
 
@@ -137,7 +139,8 @@ saveRDS(light_prob, "inst/extdata/18LX_light_prob.rda")
 thr_sta_dur <- 0 # in hours
 sta_pres <- unlist(lapply(pressure_prob, function(x) raster::metadata(x)$sta_id))
 sta_light <- unlist(lapply(light_prob, function(x) raster::metadata(x)$sta_id))
-sta_thres <- pam_data$sta$sta_id[difftime(pam_data$sta$end, pam_data$sta$start, units = "hours") > thr_sta_dur]
+sta_thres <- pam_data$sta$sta_id[difftime(pam_data$sta$end, pam_data$sta$start, units = "hours")
+                                 > thr_sta_dur]
 # Get the sta_id present on all three data sources
 sta_id_keep <- intersect(intersect(sta_pres, sta_light), sta_thres)
 # Filter pressure and light map
@@ -171,9 +174,11 @@ static_prob <- mapply(function(light, pressure, flight) {
 }, light_prob, pressure_prob, flight)
 
 # Add known position
-lat <- seq(raster::ymax(static_prob[[1]]), raster::ymin(static_prob[[1]]), length.out = nrow(static_prob[[1]]) + 1)
+lat <- seq(raster::ymax(static_prob[[1]]), raster::ymin(static_prob[[1]]),
+           length.out = nrow(static_prob[[1]]) + 1)
 lat <- lat[seq_len(length(lat) - 1)] + diff(lat[1:2]) / 2
-lon <- seq(raster::xmin(static_prob[[1]]), raster::xmax(static_prob[[1]]), length.out = ncol(static_prob[[1]]) + 1)
+lon <- seq(raster::xmin(static_prob[[1]]), raster::xmax(static_prob[[1]]),
+           length.out = ncol(static_prob[[1]]) + 1)
 lon <- lon[seq_len(length(lon) - 1)] + diff(lon[1:2]) / 2
 
 lon_calib_id <- which.min(abs(lon_calib - lon))
@@ -211,13 +216,13 @@ saveRDS(static_timeserie, "inst/extdata/18LX_static_timeserie.rda")
 # 4-5. Basic and wind Graph ----
 
 # Location of wind data
-dir.save <- "~"
+dir_save <- "~"
 
 # create graph
 grl <- graph_create(static_prob, thr_prob_percentile = .99, thr_gs = 150)
 
 # Add wind data
-filename <- paste0(dir.save, "/", "18IC_")
+filename <- paste0(dir_save, "/", "18IC_")
 grl <- graph_add_wind(grl, pressure = pam_data$pressure, filename, thr_as = 100)
 
 # Compute the probability
@@ -244,8 +249,10 @@ saveRDS(shortest_path_timeserie, "inst/extdata/18LX_shortest_path_timeserie.rda"
 # Export for GeoPressureViz
 grl <- readRDS(system.file("extdata", "18LX_grl.rda", package = "GeoPressureR"))
 static_prob <- readRDS(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
-static_prob_marginal <- readRDS(system.file("extdata", "18LX_grl_marginal.rda", package = "GeoPressureR"))
-shortest_path_timeserie <- readRDS(system.file("extdata", "18LX_shortest_path_timeserie.rda", package = "GeoPressureR"))
+static_prob_marginal <- readRDS(system.file("extdata", "18LX_grl_marginal.rda",
+                                            package = "GeoPressureR"))
+shortest_path_timeserie <- readRDS(system.file("extdata", "18LX_shortest_path_timeserie.rda",
+                                               package = "GeoPressureR"))
 light_prob <- readRDS(system.file("extdata", "18LX_light_prob.rda", package = "GeoPressureR"))
 pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
 
@@ -265,4 +272,3 @@ geopressureviz <- list(
   pressure_timeserie = shortest_path_timeserie
 )
 save(geopressureviz, file = "inst/geopressureviz/geopressureviz.RData")
-

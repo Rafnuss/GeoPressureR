@@ -61,7 +61,7 @@ geopressure_map <- function(pressure, extent, scale = 10, max_sample = 250, marg
   if (!("isoutliar" %in% names(pressure))) {
     pressure$isoutliar <- FALSE
   }
-  if (min(pressure$obs[!pressure$isoutliar]) < 250 | 1100 <
+  if (min(pressure$obs[!pressure$isoutliar]) < 250 || 1100 <
     max(pressure$obs[!pressure$isoutliar])) {
     stop(paste0(
       "Pressure observation should be between 250 hPa (~10000m)  and 1100 hPa (sea level at 1013",
@@ -111,7 +111,7 @@ geopressure_map <- function(pressure, extent, scale = 10, max_sample = 250, marg
     pres_i_s <- pres
     pres_i_s[pressure$sta_id != i_s] <- NA
     pres_i_s_smoothna <- stats::filter(
-      c(F, !is.na(pres_i_s), F),
+      c(FALSE, !is.na(pres_i_s), FALSE),
       rep(1 / n, n)
     )
     pres_i_s[is.na(pres_i_s)] <- 0
@@ -264,7 +264,8 @@ geopressure_map <- function(pressure, extent, scale = 10, max_sample = 250, marg
 #' @param thr Threshold of the percentage of data point outside the elevation range to be considered
 #' not possible.
 #' @param fun_w function taking the number of sample of the timeseries used to compute the
-#' probability map and return the log-linear pooling weight (see the [vignette probability aggregation
+#' probability map and return the log-linear pooling weight (see the
+#' [vignette probability aggregation
 #' ](https://raphaelnussbaumer.com/GeoPressureR/articles/probability-aggregation.html))
 #' @return List of the probability raster map
 #' @seealso [`geopressure_map()`], [Vignette Pressure Map
@@ -413,7 +414,7 @@ geopressure_prob_map <- function(pressure_maps, s = 1, thr = 0.9,
 #' )
 #' @export
 geopressure_ts <-
-  function(lon, lat, pressure = NULL, end_time = NULL, start_time = NULL, verbose = T) {
+  function(lon, lat, pressure = NULL, end_time = NULL, start_time = NULL, verbose = TRUE) {
     # Check input
     stopifnot(is.numeric(lon))
     stopifnot(is.numeric(lat))
@@ -609,7 +610,7 @@ geopressure_ts <-
 #' )
 #' py
 #' @export
-geopressure_ts_path <- function(path, pressure, include_flight = F, verbose = T) {
+geopressure_ts_path <- function(path, pressure, include_flight = FALSE, verbose = TRUE) {
   stopifnot(is.data.frame(pressure))
   stopifnot("date" %in% names(pressure))
   stopifnot(inherits(pressure$date, "POSIXt"))
@@ -668,7 +669,7 @@ geopressure_ts_path <- function(path, pressure, include_flight = F, verbose = T)
     f[[i_s]] <- future::future({
       geopressure_ts(path$lon[i_s], path$lat[i_s],
         pressure = subset(pressure, !is.na(id_q)),
-        verbose = F
+        verbose = FALSE
       )
     })
   }
@@ -788,8 +789,8 @@ geopressure_map2path <- function(map, interp = 0, format = "lonlat") {
       ))
     }))
     id_interp <- duration < interp
-    id_interp[1] <- F
-    id_interp[length(id_interp)] <- F
+    id_interp[1] <- FALSE
+    id_interp[length(id_interp)] <- FALSE
 
     # Find the spacing between the position
     if (is.null(raster::metadata(map[[1]])$flight)) {
