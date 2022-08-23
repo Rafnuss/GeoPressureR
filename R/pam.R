@@ -86,8 +86,7 @@ pam_read_file <- function(filename, crop_start, crop_end) {
 
   # Add other values
   if (grepl("acceleration", filename)) {
-    data$pit <- data_raw[id_date, 3]
-    data$act <- data_raw[id_date, 4]
+    data$obs <- data_raw[id_date, 4]
   } else if (grepl("magnetic", filename)) {
     data$gx <- data_raw[id_date, 4]
     data$gy <- data_raw[id_date, 5]
@@ -137,15 +136,15 @@ pam_classify <- function(pam,
   stopifnot("acceleration" %in% names(pam))
   stopifnot(is.data.frame(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
-  stopifnot("act" %in% names(pam$acceleration))
+  stopifnot("obs" %in% names(pam$acceleration))
   stopifnot(is.numeric(min_duration))
   stopifnot(min_duration > 0)
 
   # Run a 2 class k mean clustering
-  km <- stats::kmeans(pam$acceleration$act[pam$acceleration$act > 0], centers = 2)
+  km <- stats::kmeans(pam$acceleration$obs[pam$acceleration$obs > 0], centers = 2)
 
   # classify all datapoints belonging to the high value cluster
-  act_mig <- pam$acceleration$act > mean(km$centers)
+  act_mig <- pam$acceleration$obs > mean(km$centers)
 
   # group continous activites (low or high) with and ID
   act_id <- c(1, cumsum(diff(as.numeric(act_mig)) != 0) + 1)
@@ -161,7 +160,7 @@ pam_classify <- function(pam,
   pam$acceleration$ismig <- tmp[act_id]
 
   # plot(pam$acceleration$date[pam$acceleration$ismig],
-  # pam$acceleration$act[pam$acceleration$ismig])
+  # pam$acceleration$obs[pam$acceleration$ismig])
 
   return(pam)
 }
@@ -201,7 +200,7 @@ pam_sta <- function(pam) {
   stopifnot("acceleration" %in% names(pam))
   stopifnot(is.data.frame(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
-  stopifnot("act" %in% names(pam$acceleration))
+  stopifnot("obs" %in% names(pam$acceleration))
   stopifnot("ismig" %in% names(pam$acceleration))
   stopifnot(is.data.frame(pam$light))
   stopifnot("date" %in% names(pam$light))
@@ -283,7 +282,7 @@ trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")
   stopifnot("acceleration" %in% names(pam))
   stopifnot(is.data.frame(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
-  stopifnot("act" %in% names(pam$acceleration))
+  stopifnot("obs" %in% names(pam$acceleration))
   if (!("ismig" %in% names(pam$acceleration))) {
     pam$acceleration$ismig <- FALSE
   }
@@ -308,7 +307,7 @@ trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")
         timestamp = strftime(pam$acceleration$date, "%Y-%m-%dT%H:%M:%SZ",
           tz = "UTC"
         ),
-        value = pam$acceleration$act,
+        value = pam$acceleration$obs,
         label = ifelse(pam$acceleration$ismig, "1", "")
       ),
       data.frame(
@@ -360,7 +359,7 @@ trainset_read <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-la
   stopifnot("acceleration" %in% names(pam))
   stopifnot(is.list(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
-  stopifnot("act" %in% names(pam$acceleration))
+  stopifnot("obs" %in% names(pam$acceleration))
   stopifnot(is.character(pathname))
   stopifnot(is.character(filename))
   stopifnot(dir.exists(pathname))
