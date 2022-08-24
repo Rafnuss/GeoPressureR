@@ -3,24 +3,44 @@ library(GeoPressureR)
 
 pathname <- system.file("extdata", package = "GeoPressureR")
 
-
 pam_data <- pam_read(
   pathname = pathname,
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
+
 test_that("Check pam_read()", {
+  # Check for error with incorrect input
   expect_error(pam_read("not a path"))
   expect_type(pam_read(pathname = pathname), "list")
+  expect_error(pam_read("not a path"))
+
+
+  # Check that the return pam is correct
   expect_type(pam_data, "list")
   expect_true(all(c("pressure", "light", "acceleration") %in% names(pam_data)))
   expect_gt(nrow(pam_data$pressure), 0)
   expect_gt(nrow(pam_data$light), 0)
   expect_gt(nrow(pam_data$acceleration), 0)
+
+  expect_warning(pam_read(pathname = "~"))
+
+  # Check crop
   expect_true(nrow(pam_read(
     pathname = pathname,
     crop_start = "2019-06-20", crop_end = "2018-05-02"
   )$light) == 0)
-  # Test extension
+})
+
+test_that("Check pam_read() for Migrate Technology", {
+  pam_data <- pam_read(
+    pathname = system.file("extdata/CB621", package = "GeoPressureR"),
+    pressure_file = ".deg",
+    light_file = ".lux",
+    acceleration_file = NA
+    # crop_start = "2017-06-20", crop_end = "2018-05-02"
+  )
+  expect_gt(nrow(pam_data$pressure), 0)
+  expect_gt(nrow(pam_data$light), 0)
 })
 
 pam_data_classified <- pam_classify(pam_data)
@@ -60,8 +80,6 @@ test_that("Check trainset_read()", {
   ))
   expect_true(c("isoutliar") %in% names(pam_data$pressure))
   expect_true(c("ismig") %in% names(pam_data$acceleration))
-  # Test new file
-  # trainset_read(pam_data, pathname = "/var/folders/1x/jf29x3qj68g847vs42xhmcxm0000gq/T//Rtmp5CY7R0", filename = "18LX_act_pres-labeled.csv")
 })
 
 

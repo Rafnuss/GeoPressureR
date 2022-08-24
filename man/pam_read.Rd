@@ -6,20 +6,29 @@
 \usage{
 pam_read(
   pathname,
-  extension = c("pressure", "glf", "acceleration", "temperature", "magnetic"),
+  pressure_file = "*.pressure",
+  light_file = "*.glf",
+  acceleration_file = "*.acceleration",
   crop_start = "1900-01-01",
-  crop_end = "2100-01-01"
+  crop_end = "2100-01-01",
+  id = NA
 )
 }
 \arguments{
 \item{pathname}{path of the directory where the files are stored}
 
-\item{extension}{list of file extensions to read (e.g., ".pressure", ".glf", ".gle",
-".acceleration", ".temperature" and ".magnetic")}
+\item{pressure_file}{file with pressure data. Extension must be \code{.pressure} or \code{.deg}.}
+
+\item{light_file}{file with light data. Extension must be \code{.glf} or \code{.lux}.}
+
+\item{acceleration_file}{file with acceleration data. Extension must be \code{.acceleration}.}
 
 \item{crop_start}{Remove all date before this date}
 
 \item{crop_end}{Remove all date after this date}
+
+\item{id}{Unique identifier of the track. Default (\code{NA}) is to take the part of
+\code{pressure_file} up to a character \verb{_} (e.g. \verb{18LX} for \verb{18LX_20180725.pressure}).}
 }
 \value{
 a list of data.frames of all measurements type from the extension list (see example)
@@ -28,6 +37,10 @@ a list of data.frames of all measurements type from the extension list (see exam
 Imports multi-sensor logger data from a folder and optionally crop at specific date. Read all
 available file from the extension list provided.
 }
+\details{
+The file provided can be exact (e.g., \code{"18LX_20180725.pressure"}) or using regex expression
+(e.g., \code{"*.pressure"}).
+}
 \examples{
 pam_data <- pam_read(
   pathname = system.file("extdata", package = "GeoPressureR"),
@@ -35,10 +48,9 @@ pam_data <- pam_read(
 )
 summary(pam_data)
 head(pam_data$id)
-head(pam_data$acceleration)
-head(pam_data$light)
 head(pam_data$pressure)
-head(pam_data$temperature)
+head(pam_data$light)
+head(pam_data$acceleration)
 }
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
