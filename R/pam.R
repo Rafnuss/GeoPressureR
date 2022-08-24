@@ -1,15 +1,24 @@
 #' Read pam data
 #'
-#' Imports multi-sensor logger data from a folder and optionally crop at specific date. Read all
-#' available file from the extension list provided.
+#' Imports multi-sensor logger data from a folder (`pathname`) and optionally crop at specific date.
+#' The file provided can be exact (e.g., `"18LX_20180725.pressure"`) or using regex expression
+#' (e.g., `"*.pressure"`).
+#'
+#' Create [an issue on github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you have data
+#' in a format not supported yet.
 #'
 #' @param pathname path of the directory where the files are stored
-#' @param extension list of file extensions to read (e.g., ".pressure", ".glf", ".gle",
-#' ".acceleration", ".temperature" and ".magnetic")
+#' @param pressure_file file with pressure data. Extension must be `.pressure`, `.deg` or `NA` if
+#' absent.
+#' @param light_file file with light data. Extension must be `.glf`, `.lux` or `NA` if absent.
+#' @param acceleration_file file with acceleration data. Extension must be `.acceleration`  or `NA`
+#' if absent.
 #' @param crop_start Remove all date before this date
 #' @param crop_end Remove all date after this date
+#' @param id Unique identifier of the track. Default (`NA`) is to take the part of
+#' `pressure_file` up to a character `_` (e.g. `18LX` for `18LX_20180725.pressure`).
 #'
-#' @return a list of data.frames of all measurements type from the extension list (see example)
+#' @return a list of data.frames of pressure, light and acceleration.
 #' @seealso [Vignette Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
 #' @examples
@@ -19,87 +28,114 @@
 #' )
 #' summary(pam_data)
 #' head(pam_data$id)
-#' head(pam_data$acceleration)
-#' head(pam_data$light)
 #' head(pam_data$pressure)
-#' head(pam_data$temperature)
+#' head(pam_data$light)
+#' head(pam_data$acceleration)
 #' @export
 pam_read <- function(pathname,
-                     extension = c("pressure", "glf", "acceleration", "temperature", "magnetic"),
+                     pressure_file = "*.pressure",
+                     light_file = "*.glf",
+                     acceleration_file = "*.acceleration",
                      crop_start = "1900-01-01",
-                     crop_end = "2100-01-01") {
+                     crop_end = "2100-01-01",
+                     id = NA) {
   stopifnot(dir.exists(pathname))
-  stopifnot(is.character(extension))
-  stopifnot(all(extension %in% c("pressure", "glf", "acceleration", "temperature", "magnetic")))
 
-  # convert date to POSIXct date
+  # convert date to POSIXct date and check format
   crop_start <- as.POSIXct(crop_start, tz = "UTC")
   crop_end <- as.POSIXct(crop_end, tz = "UTC")
 
-  # find all files in the folder containing the extension
-  files <- list.files(pathname, pattern = paste0(".*\\.(", paste(extension, collapse = "|"), ")$"))
+  # Check existence of the file
+  pressure_path <- ifelse(is.na(pressure_file), "", pam_read_check(pathname, pressure_file))
+  light_path <- ifelse(is.na(light_file), "", pam_read_check(pathname, light_file))
+  acceleration_path <- ifelse(is.na(acceleration_file), "",
+    pam_read_check(pathname, acceleration_file)
+  )
 
-  # Initialize the pam list
-  pam <- list()
-
-  # add identifier from the filename
-  pam$id <- substr(files[1], 1, 4)
-
-  # read each file
-  for (f in files) {
-    if (grepl("glf", f)) {
-      fname <- "light"
-    } else {
-      fname <- strsplit(f, "\\.")[[1]][2]
-    }
-    pam[[fname]] <- pam_read_file(paste0(pathname, "/", f), crop_start, crop_end)
+  if (is.na(id)) {
+    id <- strsplit(basename(pressure_path), "_")[[1]][1]
+  } else if (id == "basename") {
+    id <- basename(pathname)
   }
+
+  # Initialize the PAM list
+  pam <- list(
+    pressure = switch(tools::file_ext(pressure_path),
+      "pressure" = {
+        subset(pam_read_delim_dto(pressure_path), date >= crop_start & date < crop_end)
+      },
+      "deg" = {
+        subset(
+          pam_read_delim_dto(pressure_path, skip = 20, col = 4, date_format = "%d/%m/%Y %H:%M:%S"),
+          date >= crop_start & date < crop_end
+        )
+      },
+      {
+        data.frame()
+      }
+    ),
+    light = switch(tools::file_ext(light_path),
+      "glf" = {
+        subset(pam_read_delim_dto(light_path), date >= crop_start & date < crop_end)
+      },
+      "lux" = {
+        subset(
+          pam_read_delim_dto(pressure_path, skip = 20, col = 3, date_format = "%d/%m/%Y %H:%M:%S"),
+          date >= crop_start & date < crop_end
+        )
+      },
+      {
+        data.frame()
+      }
+    ),
+    acceleration = switch(tools::file_ext(acceleration_path),
+      "acceleration" = {
+        subset(pam_read_delim_dto(acceleration_path), date >= crop_start & date < crop_end)
+      },
+      {
+        data.frame()
+      }
+    ),
+    id = id
+  )
 
   return(pam)
 }
 
-#' Read pam file
+#' Check that file exists and is unique
 #'
-#' Read a specific pam file and return the corresponding data.frame.
-#'
-#' @param filename is the path where files are stored
-#' @param crop_start posicxt object for date that pam data should start
-#' @param crop_end posicxt object for date that pam data should end
-#'
-#' @seealso [`pam_read`]
-#' @return a data.frame of the measurement
-pam_read_file <- function(filename, crop_start, crop_end) {
-  # read data as delimiter
-  data_raw <- utils::read.delim(filename, skip = 6, sep = "", header = FALSE)
-
-  # get and convert the date
-  date <- as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),
-    tz = "UTC",
-    format = "%d.%m.%Y %H:%M"
-  ))
-
-  # Filter date
-  id_date <- date >= crop_start & date < crop_end
-
-  # Create data.frame
-  data <- data.frame(date = date[id_date])
-
-  # Add other values
-  if (grepl("acceleration", filename)) {
-    data$pit <- data_raw[id_date, 3]
-    data$act <- data_raw[id_date, 4]
-  } else if (grepl("magnetic", filename)) {
-    data$gx <- data_raw[id_date, 4]
-    data$gy <- data_raw[id_date, 5]
-    data$gz <- data_raw[id_date, 6]
-    data$mx <- data_raw[id_date, 7]
-    data$my <- data_raw[id_date, 8]
-    data$mz <- data_raw[id_date, 9]
-  } else {
-    data$obs <- data_raw[id_date, 3]
+#' @param pathname is the path where file is
+#' @param file is the name of he file
+pam_read_check <- function(pathname, file) {
+  path <- list.files(pathname, pattern = paste0(file, "$"), full.names = TRUE)
+  if (length(path) == 0) {
+    warning(paste0("No file is matching '", file, "'. This file will be ignored."))
+    path <- ""
+  } else if (length(path) > 1) {
+    warning(paste0(
+      "Multiple files matching '", file, "': \n", paste(path, collapse = "\n"),
+      ". \nThe function will continue with the first one."
+    ))
+    path <- path[1]
   }
+  return(path)
+}
 
-  return(data)
+#' Read data file with DTO format (Date Time Observation)
+#'
+#' @param path is the full path of the file (pathname + filename)
+#' @param skip is the number of lines of the data file to skip before beginning to read data.
+#' @param col is the the index of the column of the data to take as observation
+#' @param date_format format of the date
+pam_read_delim_dto <- function(path, skip = 6, col = 3, date_format = "%d.%m.%Y %H:%M") {
+  data_raw <- utils::read.delim(path, skip = skip, sep = "", header = FALSE)
+  data.frame(
+    date = as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),
+      tz = "UTC",
+      format = date_format
+    )),
+    obs = data_raw[, col]
+  )
 }
 
 
@@ -137,15 +173,15 @@ pam_classify <- function(pam,
   stopifnot("acceleration" %in% names(pam))
   stopifnot(is.data.frame(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
-  stopifnot("act" %in% names(pam$acceleration))
+  stopifnot("obs" %in% names(pam$acceleration))
   stopifnot(is.numeric(min_duration))
   stopifnot(min_duration > 0)
 
   # Run a 2 class k mean clustering
-  km <- stats::kmeans(pam$acceleration$act[pam$acceleration$act > 0], centers = 2)
+  km <- stats::kmeans(pam$acceleration$obs[pam$acceleration$obs > 0], centers = 2)
 
   # classify all datapoints belonging to the high value cluster
-  act_mig <- pam$acceleration$act > mean(km$centers)
+  act_mig <- pam$acceleration$obs > mean(km$centers)
 
   # group continous activites (low or high) with and ID
   act_id <- c(1, cumsum(diff(as.numeric(act_mig)) != 0) + 1)
@@ -161,7 +197,7 @@ pam_classify <- function(pam,
   pam$acceleration$ismig <- tmp[act_id]
 
   # plot(pam$acceleration$date[pam$acceleration$ismig],
-  # pam$acceleration$act[pam$acceleration$ismig])
+  # pam$acceleration$obs[pam$acceleration$ismig])
 
   return(pam)
 }
@@ -201,7 +237,7 @@ pam_sta <- function(pam) {
   stopifnot("acceleration" %in% names(pam))
   stopifnot(is.data.frame(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
-  stopifnot("act" %in% names(pam$acceleration))
+  stopifnot("obs" %in% names(pam$acceleration))
   stopifnot("ismig" %in% names(pam$acceleration))
   stopifnot(is.data.frame(pam$light))
   stopifnot("date" %in% names(pam$light))
@@ -283,7 +319,7 @@ trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")
   stopifnot("acceleration" %in% names(pam))
   stopifnot(is.data.frame(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
-  stopifnot("act" %in% names(pam$acceleration))
+  stopifnot("obs" %in% names(pam$acceleration))
   if (!("ismig" %in% names(pam$acceleration))) {
     pam$acceleration$ismig <- FALSE
   }
@@ -308,7 +344,7 @@ trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")
         timestamp = strftime(pam$acceleration$date, "%Y-%m-%dT%H:%M:%SZ",
           tz = "UTC"
         ),
-        value = pam$acceleration$act,
+        value = pam$acceleration$obs,
         label = ifelse(pam$acceleration$ismig, "1", "")
       ),
       data.frame(
@@ -360,7 +396,7 @@ trainset_read <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-la
   stopifnot("acceleration" %in% names(pam))
   stopifnot(is.list(pam$acceleration))
   stopifnot("date" %in% names(pam$acceleration))
-  stopifnot("act" %in% names(pam$acceleration))
+  stopifnot("obs" %in% names(pam$acceleration))
   stopifnot(is.character(pathname))
   stopifnot(is.character(filename))
   stopifnot(dir.exists(pathname))
