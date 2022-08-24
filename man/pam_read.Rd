@@ -17,11 +17,13 @@ pam_read(
 \arguments{
 \item{pathname}{path of the directory where the files are stored}
 
-\item{pressure_file}{file with pressure data. Extension must be \code{.pressure} or \code{.deg}.}
+\item{pressure_file}{file with pressure data. Extension must be \code{.pressure}, \code{.deg} or \code{NA} if
+absent.}
 
-\item{light_file}{file with light data. Extension must be \code{.glf} or \code{.lux}.}
+\item{light_file}{file with light data. Extension must be \code{.glf}, \code{.lux} or \code{NA} if absent.}
 
-\item{acceleration_file}{file with acceleration data. Extension must be \code{.acceleration}.}
+\item{acceleration_file}{file with acceleration data. Extension must be \code{.acceleration}  or \code{NA}
+if absent.}
 
 \item{crop_start}{Remove all date before this date}
 
@@ -31,15 +33,16 @@ pam_read(
 \code{pressure_file} up to a character \verb{_} (e.g. \verb{18LX} for \verb{18LX_20180725.pressure}).}
 }
 \value{
-a list of data.frames of all measurements type from the extension list (see example)
+a list of data.frames of pressure, light and acceleration.
 }
 \description{
-Imports multi-sensor logger data from a folder and optionally crop at specific date. Read all
-available file from the extension list provided.
-}
-\details{
+Imports multi-sensor logger data from a folder (\code{pathname}) and optionally crop at specific date.
 The file provided can be exact (e.g., \code{"18LX_20180725.pressure"}) or using regex expression
 (e.g., \code{"*.pressure"}).
+}
+\details{
+Create \href{https://github.com/Rafnuss/GeoPressureR/issues/new}{an issue on github} if you have data
+in a format not supported yet.
 }
 \examples{
 pam_data <- pam_read(

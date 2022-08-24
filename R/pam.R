@@ -1,21 +1,24 @@
 #' Read pam data
 #'
-#' Imports multi-sensor logger data from a folder and optionally crop at specific date. Read all
-#' available file from the extension list provided.
-#'
+#' Imports multi-sensor logger data from a folder (`pathname`) and optionally crop at specific date.
 #' The file provided can be exact (e.g., `"18LX_20180725.pressure"`) or using regex expression
 #' (e.g., `"*.pressure"`).
 #'
+#' Create [an issue on github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you have data
+#' in a format not supported yet.
+#'
 #' @param pathname path of the directory where the files are stored
-#' @param pressure_file file with pressure data. Extension must be `.pressure` or `.deg`.
-#' @param light_file file with light data. Extension must be `.glf` or `.lux`.
-#' @param acceleration_file file with acceleration data. Extension must be `.acceleration`.
+#' @param pressure_file file with pressure data. Extension must be `.pressure`, `.deg` or `NA` if
+#' absent.
+#' @param light_file file with light data. Extension must be `.glf`, `.lux` or `NA` if absent.
+#' @param acceleration_file file with acceleration data. Extension must be `.acceleration`  or `NA`
+#' if absent.
 #' @param crop_start Remove all date before this date
 #' @param crop_end Remove all date after this date
 #' @param id Unique identifier of the track. Default (`NA`) is to take the part of
 #' `pressure_file` up to a character `_` (e.g. `18LX` for `18LX_20180725.pressure`).
 #'
-#' @return a list of data.frames of all measurements type from the extension list (see example)
+#' @return a list of data.frames of pressure, light and acceleration.
 #' @seealso [Vignette Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
 #' @examples
