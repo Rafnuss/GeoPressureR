@@ -103,7 +103,10 @@
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pam_read.html</loc>
   </url>
   <url>
-    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pam_read_file.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pam_read_check.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pam_read_delim_dto.html</loc>
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pam_sta.html</loc>
