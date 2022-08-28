@@ -95,6 +95,12 @@ ease for reviewer to check the setting.
 
 ### Presentation
 
+> Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis, Felix Liechti.
+> Leveraging light, pressure, activity, and wind data to improve
+> geolocator positioning. August 2022. *28th International
+> Ornithological Congress*. PRESENTATION available at
+> [Youtube](https://youtu.be/U7jAK9nZNQU).
+
 > Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti. Improving the
 > spatial accuracy of multi-sensor geolocators’ position using
 > atmospheric surface pressure. October 2021. *7th International
@@ -125,10 +131,10 @@ idea of what and how to analyse your data and borrow some code sections
 for your own project. Feel free to contact me if you’ll like to appear
 on this list.
 
-| Species             | GeoPressureTemplate/code                                                    | Publication/status                                                     |
-|---------------------|-----------------------------------------------------------------------------|------------------------------------------------------------------------|
-| Mongolian Nightjar  | [Rafnuss/MongolianNightjar](https://github.com/Rafnuss/MongolianNightjar)   | [Lathouwers et al. (2022)](https://doi.org/10.1007/s10336-022-02000-4) |
-| Woodland Kingfisher | [Rafnuss/WoodlandKingfisher](https://github.com/Rafnuss/WoodlandKingfisher) | Osinubi et al. (in prep.)                                              |
-| Northern Wheatear   | [Rafnuss/Val-Piora-Wheatear](https://github.com/Rafnuss/Val-Piora-Wheatear) | Rime et al. (in prep.)                                                 |
-| Red-capped Robin-chat and Mangrove Kingfisher   | [Rafnuss/MK-RCRC](https://github.com/Rafnuss/MK-RCRC/) | collecting data                                                 |
-| Swainson's Warbler   | [grhyne/SWWA_Pressure](https://github.com/grhyne/SWWA_Pressure) |                                                 |
+| Species                                       | GeoPressureTemplate/code                                                    | Publication/status                                                     |
+|-----------------------------------------------|-----------------------------------------------------------------------------|------------------------------------------------------------------------|
+| Mongolian Nightjar                            | [Rafnuss/MongolianNightjar](https://github.com/Rafnuss/MongolianNightjar)   | [Lathouwers et al. (2022)](https://doi.org/10.1007/s10336-022-02000-4) |
+| Woodland Kingfisher                           | [Rafnuss/WoodlandKingfisher](https://github.com/Rafnuss/WoodlandKingfisher) | Osinubi et al. (in prep.)                                              |
+| Northern Wheatear                             | [Rafnuss/Val-Piora-Wheatear](https://github.com/Rafnuss/Val-Piora-Wheatear) | Rime et al. (in prep.)                                                 |
+| Red-capped Robin-chat and Mangrove Kingfisher | [Rafnuss/MK-RCRC](https://github.com/Rafnuss/MK-RCRC/)                      | collecting data                                                        |
+| Swainson’s Warbler                            | [grhyne/SWWA_Pressure](https://github.com/grhyne/SWWA_Pressure)             |                                                                        |
