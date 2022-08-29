@@ -86,12 +86,13 @@ times (as POSIXct) and light levels recorded by the tag.</p></dd>
 
 
 <dt>threshold</dt>
-<dd><p>the light threshold that defines twilight.</p></dd>
+<dd><p>the light threshold that defines twilight. If not provided, it uses the first
+light (i.e, <code>obs&gt;0</code>).</p></dd>
 
 
 <dt>shift_k</dt>
 <dd><p>shift of the middle of the night compared to 00:00 UTC (in seconds). If not
-provided, will try to figure it out from the data</p></dd>
+provided, it will take the middle of all nights.</p></dd>
 
 </dl></div>
     <div class="section level2">
