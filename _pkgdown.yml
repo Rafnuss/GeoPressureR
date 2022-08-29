@@ -28,13 +28,16 @@ reference:
   - find_twilights
   - light2mat
 - title: Graph
-  desc: create a graph and compute graph products
+  desc: Create a graph and compute graph products
   contents:
   - starts_with("graph_")
 - title: Flight
-  desc: groundspeed or airspeed to probability
+  desc: Convert groundspeed or airspeed to probability
   contents:
   - starts_with("flight_")
+- title: Data
+  contents:
+  - "avonet"
 
 navbar:
   left:
