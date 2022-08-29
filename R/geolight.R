@@ -174,9 +174,10 @@ refracted <- function(zenith) {
 #'
 #' @param light a dataframe with columns \code{date} and \code{obs} that are the sequence of sample
 #' times (as POSIXct) and light levels recorded by the tag.
-#' @param threshold the light threshold that defines twilight.
+#' @param threshold the light threshold that defines twilight. If not provided, it uses the first
+#' light (i.e, `obs>0`).
 #' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
-#' provided, will try to figure it out from the data
+#' provided, it will take the middle of all nights.
 #' @return A data.frame with columns `twilight` (date-time of twilights) and `rise` (logical)
 #' @seealso [Vignette Light Map
 #' ](https://raphaelnussbaumer.com/GeoPressureR/articles/light-map.html)

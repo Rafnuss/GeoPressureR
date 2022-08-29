@@ -10,10 +10,11 @@ find_twilights(light, threshold = NA, shift_k = NA)
 \item{light}{a dataframe with columns \code{date} and \code{obs} that are the sequence of sample
 times (as POSIXct) and light levels recorded by the tag.}
 
-\item{threshold}{the light threshold that defines twilight.}
+\item{threshold}{the light threshold that defines twilight. If not provided, it uses the first
+light (i.e, \code{obs>0}).}
 
 \item{shift_k}{shift of the middle of the night compared to 00:00 UTC (in seconds). If not
-provided, will try to figure it out from the data}
+provided, it will take the middle of all nights.}
 }
 \value{
 A data.frame with columns \code{twilight} (date-time of twilights) and \code{rise} (logical)

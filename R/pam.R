@@ -259,12 +259,10 @@ pam_sta <- function(pam) {
 
   # construct stationary period table based on migration activity and pressure
   pam$sta <- data.frame(
+    sta_id = seq_len(nrow(act_mig)+1),
     start = append(pam$acceleration$date[1], act_mig$end),
     end = append(act_mig$start, pam$acceleration$date[length(pam$acceleration$date)])
   )
-
-  # Define ID for stationary period
-  pam$sta$sta_id <- seq_len(nrow(pam$sta))
 
   # Assign to each pressure the stationary period to which it belong to.
   tmp <- mapply(function(start, end) {
@@ -308,7 +306,7 @@ pam_sta <- function(pam) {
 #' @seealso [`pam_read`], [`trainset_read()`], [Vignette Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
 #' @export
-trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")) {
+trainset_write <- function(pam, pathname = "data/1_pressure/labels/", filename = paste0(pam$id, "_act_pres")) {
 
   # Perform test
   stopifnot(is.list(pam))
@@ -333,8 +331,6 @@ trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")
     dir.create(pathname)
   }
   stopifnot(dir.exists(pathname))
-
-  print(paste0(pathname, "/", filename, ".csv"))
 
   # write a combined data.frame of pressure and acceleration in csv.
   utils::write.csv(
@@ -385,7 +381,7 @@ trainset_write <- function(pam, pathname, filename = paste0(pam$id, "_act_pres")
 #' @seealso [`pam_read`], [Vignette Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html)
 #' @export
-trainset_read <- function(pam, pathname, filename = paste0(pam$id, "_act_pres-labeled.csv")) {
+trainset_read <- function(pam, pathname = "data/1_pressure/labels/", filename = paste0(pam$id, "_act_pres-labeled.csv")) {
 
   # Perform test
   stopifnot(is.list(pam))
