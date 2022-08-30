@@ -65,7 +65,7 @@ geopressure_map <- function(pressure,
     max(pressure$obs[!pressure$isoutliar])) {
     stop(paste0(
       "Pressure observation should be between 250 hPa (~10000m)  and 1100 hPa (sea level at 1013",
-      "hPa)"
+      "hPa). Check unit return by `pam_read()`"
     ))
   }
   stopifnot(is.logical(pressure$isoutliar))
