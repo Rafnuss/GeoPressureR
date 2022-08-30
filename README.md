@@ -10,32 +10,50 @@
 [![Codecov test
 coverage](https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master)
 [![lint](https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml)
-
 <!-- badges: end -->
 
-`GeoPressureR` seeks to help researchers analyse data retrieved from
-multi-sensor geolocators to accurately geoposition birds along their
-migratory journey. We focus in particular on geopositiong using
-atmospheric pressure measurements.
+GeoPressureR is a R package which help researchers determine the
+position of a bird based on the data retrieved from multi-sensor
+geolocators.
 
-## [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual): Learn how to use `GeoPressureR`
+The main novelty of this package is to match atmospheric pressure
+measurements to weather reanalysis database (ERA-5) and produce
+probabily maps of position.
 
-The entire process to analyse pressure data can be relatively lengthy.
-This is why we created a user guide, which breaks it down into smaller
-steps.
+In addition, we use a graphical model to combine pressure, light,
+acceleration and windspeed data into a trajectory model of the bird.
+
+## Learn how to use GeoPressureR
+
+The [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual)
+is a great place to start learning about how you can determine the
+trajectory of your bird.
 
 Using the example of a Great Reed Warbler *Acrocephalus arundinaceus*
 (18LX), this user guide takes you through each step of the analysis in
 detail.
 
+<p align="center">
 <a href="https://raphaelnussbaumer.com/GeoPressureManual"><img src="https://github.com/Rafnuss/GeoPressureManual/raw/main/assets/cover.png" style="margin: 0 1rem 0 1rem;box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);" align="center" width="250" height="328"></a>
+</p>
 
-## [GeoPressureTemplate](https://github.com/Rafnuss/GeoPressureTemplate): Start your own analysis
+## Start your own analysis
 
-To help you use `GeoPressureR` for your own study, we suggest you use
-the [github template
+Once you are familiar with the method and want to start your own study,
+we suggest you use
+[GeoPressureTemplate](https://github.com/Rafnuss/GeoPressureTemplate), a
+[github template
 repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository)
-[GeoPressureTemplate](https://github.com/Rafnuss/GeoPressureTemplate).
+which provides a standard code structure for your analysis.
+
 Using this standardized code structure and output will allow for code
 sharing and troubleshooting, data archiving, work reproducibility, and
 easy check by reviewers.
+
+## Getting help
+
+The best way to get help is to use the [github
+discussions](https://github.com/Rafnuss/GeoPressureR/discussions).
+
+Contributions to the code should follow the [Contributor Code of
+Conduct](https://raphaelnussbaumer.com/GeoPressureR/CONTRIBUTING.html).

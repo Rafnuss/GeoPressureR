@@ -38,10 +38,6 @@ reference:
 
 navbar:
   left:
-    - text: "GeoPressureManual: A User Guide"
-      href: https://github.com/Rafnuss/GeoPressureTemplate#readme
-    - text: "GeoPressureTemplate: Start your Study"
-      href: https://github.com/Rafnuss/GeoPressureTemplate#readme
     - text: "Reference"
       href: reference/index.html
 
