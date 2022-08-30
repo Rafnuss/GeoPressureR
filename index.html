@@ -43,12 +43,6 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureTemplate#readme">GeoPressureManual: A User Guide</a>
-</li>
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureTemplate#readme">GeoPressureTemplate: Start your Study</a>
-</li>
-<li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
       </ul>
@@ -75,22 +69,28 @@
 <img src="logo.svg" class="logo" alt=""><h1 id="geopressurer-">GeoPressureR <a class="anchor" aria-label="anchor" href="#geopressurer-"></a>
 </h1>
 </div>
-<!-- badges: start --><p><a href="https://github.com/Rafnuss/GeoPressureR/actions" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a> <a href="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown"></a> <a href="https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master" class="external-link"><img src="https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg" alt="Codecov test coverage"></a> <a href="https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml/badge.svg" alt="lint"></a></p>
-<!-- badges: end --><p><code>GeoPressureR</code> seeks to help researchers analyse data retrieved from multi-sensor geolocators to accurately geoposition birds along their migratory journey. We focus in particular on geopositiong using atmospheric pressure measurements.</p>
+<!-- badges: start --><p><a href="https://github.com/Rafnuss/GeoPressureR/actions" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a> <a href="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown"></a> <a href="https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master" class="external-link"><img src="https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg" alt="Codecov test coverage"></a> <a href="https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml/badge.svg" alt="lint"></a> <!-- badges: end --></p>
+<p>GeoPressureR is a R package which help researchers determine the position of a bird based on the data retrieved from multi-sensor geolocators.</p>
+<p>The main novelty of this package is to match atmospheric pressure measurements to weather reanalysis database (ERA-5) and produce probabily maps of position.</p>
+<p>In addition, we use a graphical model to combine pressure, light, acceleration and windspeed data into a trajectory model of the bird.</p>
 <div class="section level2">
-<h2 id="geopressuremanual-learn-how-to-use-geopressurer">
-<a href="https://raphaelnussbaumer.com/GeoPressureManual" class="external-link">GeoPressureManual</a>: Learn how to use <code>GeoPressureR</code>
-<a class="anchor" aria-label="anchor" href="#geopressuremanual-learn-how-to-use-geopressurer"></a>
+<h2 id="learn-how-to-use-geopressurer">Learn how to use GeoPressureR<a class="anchor" aria-label="anchor" href="#learn-how-to-use-geopressurer"></a>
 </h2>
-<p>The entire process to analyse pressure data can be relatively lengthy. This is why we created a user guide, which breaks it down into smaller steps.</p>
+<p>The <a href="https://raphaelnussbaumer.com/GeoPressureManual" class="external-link">GeoPressureManual</a> is a great place to start learning about how you can determine the trajectory of your bird.</p>
 <p>Using the example of a Great Reed Warbler <em>Acrocephalus arundinaceus</em> (18LX), this user guide takes you through each step of the analysis in detail.</p>
-<p><a href="https://raphaelnussbaumer.com/GeoPressureManual" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureManual/raw/main/assets/cover.png" style="margin: 0 1rem 0 1rem;box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);" align="center" width="250" height="328"></a></p>
+<p align="center"><a href="https://raphaelnussbaumer.com/GeoPressureManual" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureManual/raw/main/assets/cover.png" style="margin: 0 1rem 0 1rem;box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);" align="center" width="250" height="328"></a></p>
 </div>
 <div class="section level2">
-<h2 id="geopressuretemplate-start-your-own-analysis">
-<a href="https://github.com/Rafnuss/GeoPressureTemplate" class="external-link">GeoPressureTemplate</a>: Start your own analysis<a class="anchor" aria-label="anchor" href="#geopressuretemplate-start-your-own-analysis"></a>
+<h2 id="start-your-own-analysis">Start your own analysis<a class="anchor" aria-label="anchor" href="#start-your-own-analysis"></a>
 </h2>
-<p>To help you use <code>GeoPressureR</code> for your own study, we suggest you use the <a href="https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository" class="external-link">github template repository</a> <a href="https://github.com/Rafnuss/GeoPressureTemplate" class="external-link">GeoPressureTemplate</a>. Using this standardized code structure and output will allow for code sharing and troubleshooting, data archiving, work reproducibility, and easy check by reviewers.</p>
+<p>Once you are familiar with the method and want to start your own study, we suggest you use <a href="https://github.com/Rafnuss/GeoPressureTemplate" class="external-link">GeoPressureTemplate</a>, a <a href="https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository" class="external-link">github template repository</a> which provides a standard code structure for your analysis.</p>
+<p>Using this standardized code structure and output will allow for code sharing and troubleshooting, data archiving, work reproducibility, and easy check by reviewers.</p>
+</div>
+<div class="section level2">
+<h2 id="getting-help">Getting help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
+</h2>
+<p>The best way to get help is to use the <a href="https://github.com/Rafnuss/GeoPressureR/discussions" class="external-link">github discussions</a>.</p>
+<p>Contributions to the code should follow the <a href="https://raphaelnussbaumer.com/GeoPressureR/CONTRIBUTING.html">Contributor Code of Conduct</a>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="community">
