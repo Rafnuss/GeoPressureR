@@ -1,22 +1,22 @@
-# v3.0.0
+# GeoPressureR v3.0.0
 ## Major
-- Migration of all the vignette and data used for the vignette in GeoPressureManual bda0f7898dd9e6b8d9d786ce56ae3e5ec422c935
+- Migration of all the vignette and data used for the vignette in GeoPressureManual https://github.com/Rafnuss/GeoPressureR/commit/bda0f7898dd9e6b8d9d786ce56ae3e5ec422c935
 - Read Migrate Technology data (should not be breaking change, but some significant changes) #23
-- Add `logis`function in `flight_prob()` 6e1a8f0e93d82ec2a9bccce404cdb59fcc218277
+- Add `logis`function in `flight_prob()` https://github.com/Rafnuss/GeoPressureR/commit/6e1a8f0e93d82ec2a9bccce404cdb59fcc218277
 
 ## Minor
-- Read Avonet data as package data c5c8d807f9a7e13a49e3d1565a7b3beffb58022f
-- Update of `r-lib/actions` to v2 3382fb9b7b9970f1c102cf9aabf3a6b06b5d505e
-- 8720b6e6032f910f0c702e649a907dcf10bc2258
-- Improvement of GeoPressureViz 97be49de4ed6c309b16e23fbedde1d618ae0a04c 964b558913de7f7b6ef9915fc9cc41fc0b3dd0d3
+- Read Avonet data as package data https://github.com/Rafnuss/GeoPressureR/commit/c5c8d807f9a7e13a49e3d1565a7b3beffb58022f
+- Update of `r-lib/actions` to v2 https://github.com/Rafnuss/GeoPressureR/commit/3382fb9b7b9970f1c102cf9aabf3a6b06b5d505e
+- https://github.com/Rafnuss/GeoPressureR/commit/8720b6e6032f910f0c702e649a907dcf10bc2258
+- Improvement of GeoPressureViz https://github.com/Rafnuss/GeoPressureR/commit/97be49de4ed6c309b16e23fbedde1d618ae0a04c https://github.com/Rafnuss/GeoPressureR/commit/964b558913de7f7b6ef9915fc9cc41fc0b3dd0d3
 - Add checks and warning in functions
 - Preparation of the code for CRAN
 
-#Full Changelog
+## Full Changelog
 https://github.com/Rafnuss/GeoPressureR/compare/v2.4-beta...v3.0.0
 
 
-# v2.4-beta
+# GeoPressureR v2.4-beta
 ## Major
 - Accept request over water and display warning message. See https://github.com/Rafnuss/GeoPressureR/pull/15
 - Add logging of error and return JSON file of the request in case of error for troubleshooting 
@@ -35,7 +35,7 @@ https://github.com/Rafnuss/GeoPressureR/compare/v2.4-beta...v3.0.0
 https://github.com/Rafnuss/GeoPressureR/compare/v2.3-beta...v2.4-beta
 
 
-# v2.3-beta
+# GeoPressureR v2.3-beta
 ## Major
 - [Major fix of wind computation bearing to angle and m/s -> km/h](https://github.com/Rafnuss/GeoPressureR/commit/0eee443944e0b7ecf86c64901b45cd0f659d3d19)
 - Major fix of twilight uncertainty using kernel density. The gamma fitting was very wrong https://github.com/Rafnuss/GeoPressureR/commit/5acfb136b8cac49d3cfd9633ce9a0a81ccc9b252
@@ -58,7 +58,7 @@ https://github.com/Rafnuss/GeoPressureR/compare/v2.3-beta...v2.4-beta
 https://github.com/Rafnuss/GeoPressureR/compare/v2.2-beta...v2.3-beta
 
 
-# v2.2-beta
+# GeoPressureR v2.2-beta
 ## Major
 - New function `geopressure_map2path` with return of index of lat-lon option
 - New function `geopressure_ts_path` to compute mulitple `geopressure_ts` function on a full path
@@ -72,7 +72,7 @@ https://github.com/Rafnuss/GeoPressureR/compare/v2.2-beta...v2.3-beta
 https://github.com/Rafnuss/GeoPressureR/compare/v2.1-beta...v2.2-beta
  
  
-# v2.1-beta
+# GeoPressureR v2.1-beta
 ## Major
 - Graph Addition of wind: https://raphaelnussbaumer.com/GeoPressureR/articles/wind-graph.html
 - Movement model function: converting airspeed/groundspeed to probability.
@@ -86,7 +86,7 @@ https://github.com/Rafnuss/GeoPressureR/compare/v2.1-beta...v2.2-beta
 https://github.com/Rafnuss/GeoPressureR/compare/v2.0-beta...v2.1-beta
 
 
-# v2.0-beta
+# GeoPressureR v2.0-beta
 ## What's Changed
 * Add vignette and code for light geopositioning by @Rafnuss in https://github.com/Rafnuss/GeoPressureR/pull/4
 * minor language changes by @jsocolar in https://github.com/Rafnuss/GeoPressureR/pull/7
@@ -98,6 +98,6 @@ https://github.com/Rafnuss/GeoPressureR/compare/v2.0-beta...v2.1-beta
 https://github.com/Rafnuss/GeoPressureR/compare/v1.1-beta...v2.0-beta
 
 
-# v1.1-beta
+# GeoPressureR v1.1-beta
 ## Full Changelog 
 https://github.com/Rafnuss/GeoPressureR/commits/v1.1-beta

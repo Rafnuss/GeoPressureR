@@ -25,15 +25,16 @@ acceleration and windspeed data into a trajectory model of the bird.
 
 ## Learn how to use GeoPressureR
 
-The [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual)
-is a great place to start learning about how you can determine the
+The
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/) is
+a great place to start learning about how you can determine the
 trajectory of your bird.
 
 Using the example of a Great Reed Warbler (18LX), this user guide takes
 you through each step of the analysis in detail.
 
 <p align="center">
-<a href="https://raphaelnussbaumer.com/GeoPressureManual"><img src="https://github.com/Rafnuss/GeoPressureManual/raw/main/assets/cover.png" style="margin: 0 1rem 0 1rem;box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);" align="center" width="250" height="328"></a>
+<a href="https://raphaelnussbaumer.com/GeoPressureManual/"><img src="https://github.com/Rafnuss/GeoPressureManual/raw/main/assets/cover.png" style="margin: 0 1rem 0 1rem;box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);" align="center" width="250" height="328"></a>
 </p>
 
 ## Start your own analysis

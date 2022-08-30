@@ -58,7 +58,7 @@ the geolocator mean pressure measurement as \code{pressure0}.
 \deqn{ P_{0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\right) -
 \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\boldsymbol{x})[i]-P_{gl}[i] \right).}
 
-See the \href{/articles/probability-aggregation.html#error-term}{article on probability aggregation}
+See \href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation }
 for more information on the meaning of this value.
 }
 \seealso{

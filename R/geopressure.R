@@ -361,7 +361,8 @@ geopressure_prob_map <- function(pressure_maps,
 #' \deqn{ P_{0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\right) -
 #' \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\boldsymbol{x})[i]-P_{gl}[i] \right).}
 #'
-#' See the [article on probability aggregation](/articles/probability-aggregation.html#error-term)
+#' See [GeoPressureManual | Probability aggregation
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html)
 #' for more information on the meaning of this value.
 #' @param lon Longitude to query (-180° to 180°).
 #' @param lat Latitude to query (0° to 90°).
