@@ -224,7 +224,7 @@ find_twilights <- function(light,
   if (any(id_sr == 1)) {
     warning(
       "There is likely a problem with the shiftK, ", sum(id_sr == 1),
-      " twighlit set at midnight. shift_k=", shift_k
+      " twilight set at midnight. shift_k=", shift_k
     )
   }
   id_sr_r <- id_sr + (seq_len(dim(l)[2]) - 1) * dim(l)[1]
@@ -234,7 +234,7 @@ find_twilights <- function(light,
   if (any(id_ss == 1)) {
     warning(
       "There is likely a problem with the shiftK, ", sum(id_ss == 1),
-      " twighlit set at midnight. shift_k=", shift_k
+      " twilight set at midnight. shift_k=", shift_k
     )
   }
   id_ss_s <- id_ss + (seq_len(dim(l)[2]) - 1) * dim(l)[1]
