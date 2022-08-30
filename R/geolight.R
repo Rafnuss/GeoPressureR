@@ -179,17 +179,19 @@ refracted <- function(zenith) {
 #' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
 #' provided, it will take the middle of all nights.
 #' @return A data.frame with columns `twilight` (date-time of twilights) and `rise` (logical)
-#' @seealso [Vignette Light Map
-#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/light-map.html)
+#' @seealso [GeoPressureManual | Light Map
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#twilight-annotation)
 #' @examples
-#' pam_data <- pam_read(
-#'   pathname = system.file("extdata", package = "GeoPressureR"),
+#' pam <- pam_read(
+#'   pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
 #'   crop_start = "2017-06-20", crop_end = "2018-05-02"
 #' )
-#' twl <- find_twilights(pam_data$light)
+#' twl <- find_twilights(pam$light)
 #' head(twl)
 #' @export
-find_twilights <- function(light, threshold = NA, shift_k = NA) {
+find_twilights <- function(light,
+                           threshold = NA,
+                           shift_k = NA) {
   stopifnot(is.data.frame(light))
   stopifnot("date" %in% names(light))
   stopifnot(inherits(light$date, "POSIXt"))

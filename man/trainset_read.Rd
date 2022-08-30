@@ -6,7 +6,7 @@
 \usage{
 trainset_read(
   pam,
-  pathname,
+  pathname = "data/1_pressure/labels/",
   filename = paste0(pam$id, "_act_pres-labeled.csv")
 )
 }
@@ -26,14 +26,13 @@ This function read an exported csv file from trainset (https://trainset.geocene.
 the pam logger dataset
 }
 \examples{
-pam_data <- pam_read(
-  pathname = system.file("extdata", package = "GeoPressureR"),
-  crop_start = "2017-06-20", crop_end = "2018-05-02"
-)
-pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
-head(pam_data$pressure)
-head(pam_data$acceleration)
+pam <- pam_read(pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"))
+pam <- pam_classify(pam)
+pam <- trainset_read(pam, pathname = system.file("extdata/1_pressure/labels/",
+package = "GeoPressureR"))
+head(pam$pressure)
+head(pam$acceleration)
 }
 \seealso{
-\code{\link{pam_read}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
+\code{\link{pam_read}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset}{GeoPressureManual | Pressure Map }
 }

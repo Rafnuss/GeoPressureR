@@ -35,53 +35,6 @@ estimate flight altitude with greater precision.
 If a position of the path is over water, it will be moved to the closest point onshore as
 explained in \code{geopressure_ts()}.
 }
-\examples{
-# Create pam_data
-pam_data <- pam_read(
-  pathname = system.file("extdata", package = "GeoPressureR"),
-  crop_start = "2017-06-20", crop_end = "2018-05-02"
-)
-pam_data <- trainset_read(pam_data,
-  pathname = system.file("extdata", package = "GeoPressureR")
-)
-pam_data <- pam_sta(pam_data)
-\dontrun{
-# load probability map of pressure
-pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda",
-  package = "GeoPressureR"
-))
-# Find the most likely position
-path <- geopressure_map2path(pressure_prob)
-# compute the pressure at those location for the period in question
-pressure_timeserie <- geopressure_ts_path(path, pam_data$pressure)
-}
-pressure_timeserie <- readRDS(system.file("extdata", "18LX_pressure_timeserie.rda",
-  package = "GeoPressureR"
-))
-p <- ggplot2::ggplot() +
-  ggplot2::geom_line(
-    data = pam_data$pressure,
-    ggplot2::aes(x = date, y = obs), colour = "grey"
-  ) +
-  ggplot2::geom_point(
-    data = subset(pam_data$pressure, isoutliar),
-    ggplot2::aes(x = date, y = obs), colour = "black"
-  ) +
-  ggplot2::geom_line(
-    data = subset(do.call("rbind", pressure_timeserie), sta_id != 0),
-    ggplot2::aes(x = date, y = pressure0, col = as.factor(sta_id))
-  ) +
-  ggplot2::theme_bw() +
-  ggplot2::scale_colour_manual(values = rep(RColorBrewer::brewer.pal(9, "Set1"), times = 4))
-
-py <- plotly::ggplotly(p, dynamicTicks = TRUE)
-py <- plotly::layout(py,
-  showlegend = FALSE,
-  legend = list(orientation = "h", x = -0.5),
-  yaxis = list(title = "Pressure [hPa]")
-)
-py
-}
 \seealso{
-\code{\link[=geopressure_ts]{geopressure_ts()}}, \code{\link[=geopressure_map2path]{geopressure_map2path()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
+\code{\link[=geopressure_ts]{geopressure_ts()}}, \code{\link[=geopressure_map2path]{geopressure_map2path()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map }
 }

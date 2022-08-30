@@ -18,5 +18,5 @@ List of the path with latitude and longitude and index fo the the path provided.
 Find the latitude and longitude from a path index
 }
 \seealso{
-\code{\link[=graph_create]{graph_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html}{Vignette Basic Graph }
+\code{\link[=graph_create]{graph_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-1-shortest-path}{GeoPressureManual | Basic graph}
 }

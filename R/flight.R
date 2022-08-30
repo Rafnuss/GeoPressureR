@@ -133,7 +133,8 @@ flight_bird <- function(species_name,
 #' plot(airspeed, power, xlab = "Airspeed [m/s]", ylab = "Mechanical Power [W]", type = "l")
 #' @export
 #' @seealso [`flight_bird()`], [`flight_prob()`]
-flight_power <- function(as, bird) {
+flight_power <- function(as,
+                         bird) {
   stopifnot(is.numeric(as))
   stopifnot(as >= 0)
   stopifnot(is.list(bird))

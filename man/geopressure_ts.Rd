@@ -61,35 +61,6 @@ the geolocator mean pressure measurement as \code{pressure0}.
 See the \href{/articles/probability-aggregation.html#error-term}{article on probability aggregation}
 for more information on the meaning of this value.
 }
-\examples{
-\dontrun{
-pam_data <- pam_read(
-  pathname = system.file("extdata", package = "GeoPressureR"),
-  crop_start = "2017-06-20", crop_end = "2018-05-02"
-)
-pam_data <- trainset_read(pam_data,
-  pathname = system.file("extdata", package = "GeoPressureR")
-)
-pam_data <- pam_sta(pam_data)
-pressure_timeserie[[1]] <- geopressure_ts(
-  lon = 16.85,
-  lat = 48.75,
-  pressure = subset(pam_data$pressure, sta_id == 1)
-)
-}
-pressure_timeserie <- readRDS(system.file("extdata", "18LX_pressure_timeserie.rda",
-  package = "GeoPressureR"
-))
-head(pressure_timeserie[[1]])
-par(mfrow = c(2, 1), mar = c(2, 5, 1, 1))
-plot(pressure_timeserie[[1]]$date, pressure_timeserie[[1]]$pressure,
-  ylab = "Pressure [hPa]", xlab = "", type = "l"
-)
-
-plot(pressure_timeserie[[1]]$date, pressure_timeserie[[1]]$altitude,
-  ylab = "Altitude [m asl]", xlab = "", type = "l"
-)
-}
 \seealso{
-\code{\link[=geopressure_ts_path]{geopressure_ts_path()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map },
+\code{\link[=geopressure_ts_path]{geopressure_ts_path()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map },
 }

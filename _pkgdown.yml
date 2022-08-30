@@ -35,33 +35,13 @@ reference:
   desc: Convert groundspeed or airspeed to probability
   contents:
   - starts_with("flight_")
-- title: Data
-  contents:
-  - "avonet"
 
 navbar:
   left:
-    - text: "Part 1: Pressure"
-      menu:
-      -  text: "1. Labelling Tracks"
-         href: articles/labelling-tracks.html
-      -  text: "2. Pressure Map"
-         href: articles/pressure-map.html
-      -  text: "3. Light Map"
-         href: articles/light-map.html
-      -  text: "Probability Aggregation"
-         href: articles/probability-aggregation.html
-    - text: "Part 2: Trajectory"
-      menu:
-      -  text: "1. Preparing Data"
-         href: articles/preparing-data.html
-      -  text: "2. Basic Graph"
-         href: articles/basic-graph.html
-      -  text: "3. Wind Graph"
-         href: articles/wind-graph.html
-      -  text: "Gridded Gibbs"
-         href: articles/gridded-gibbs.html
+    - text: "GeoPressureManual: A User Guide"
+      href: https://github.com/Rafnuss/GeoPressureTemplate#readme
+    - text: "GeoPressureTemplate: Start your Study"
+      href: https://github.com/Rafnuss/GeoPressureTemplate#readme
     - text: "Reference"
       href: reference/index.html
-    - text: "Start your Study"
-      href: https://github.com/Rafnuss/GeoPressureTemplate#readme
+

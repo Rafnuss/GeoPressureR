@@ -23,7 +23,7 @@ not possible.}
 
 \item{fun_w}{function taking the number of sample of the timeseries used to compute the
 probability map and return the log-linear pooling weight (see the
-\href{https://raphaelnussbaumer.com/GeoPressureR/articles/probability-aggregation.html}{vignette probability aggregation })}
+\href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation })}
 }
 \value{
 List of the probability raster map
@@ -38,35 +38,24 @@ pooling weight \eqn{w=\log(n) - 1}, with \eqn{n} is the number of data point in 
 This operation is describe in \url{https://doi.org/10.21203/rs.3.rs-1381915/v1}.
 }
 \examples{
+# See geopressure_map() for generating pressure_maps
 \dontrun{
-pam_data <- pam_read(
-  pathname = system.file("extdata", package = "GeoPressureR"),
-  crop_start = "2017-06-20", crop_end = "2018-05-02"
-)
-pam_data <- trainset_read(pam_data,
-  pathname = system.file("extdata", package = "GeoPressureR")
-)
-pam_data <- pam_sta(pam_data)
-pressure_maps <- geopressure_map(
-  pam_data$pressure,
-  extent = c(50, -16, 0, 20),
-  scale = 10
-)
 pressure_prob <- geopressure_prob_map(
   pressure_maps,
   s = 0.4,
   thr = 0.9
 )
+pressure_prob_1 <- pressure_prob[[1]]
 }
-pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda",
+pressure_prob_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_prob_1.rda",
   package = "GeoPressureR"
 ))
-raster::metadata(pressure_prob[[1]])
-raster::plot(pressure_prob[[1]],
+raster::metadata(pressure_prob_1)
+raster::plot(pressure_prob_1,
   main = "Probability",
   xlim = c(5, 20), ylim = c(42, 50)
 )
 }
 \seealso{
-\code{\link[=geopressure_map]{geopressure_map()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
+\code{\link[=geopressure_map]{geopressure_map()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map }
 }

@@ -1,17 +1,14 @@
 library(testthat)
 library(GeoPressureR)
 
-# Load data needed for the test
-pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
-static_prob <- readRDS(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
-pathname <- system.file("extdata", package = "GeoPressureR")
-pam_data <- pam_read(
-  pathname = pathname,
-  crop_start = "2017-06-20", crop_end = "2018-05-02"
+pam <- pam_read(
+  pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
+  crop_start = "2017-08-01", crop_end = "2017-10-01"
 )
-pam_data <- trainset_read(pam_data, pathname = pathname)
-pam_data <- pam_sta(pam_data)
-
+pam <- trainset_read(
+  pam,
+  pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR"))
+pam <- pam_sta(pam)
 
 
 test_that("Check geopressure_map() output", {
@@ -29,29 +26,33 @@ test_that("Check geopressure_map() output", {
   expect_s4_class(raster_list[[1]], "RasterBrick")
 })
 
+pressure_maps <- geopressure_map(pam$pressure,
+                                 extent = c(50, -16, 0, 23),
+                                 scale = 10,
+                                 max_sample = 100,
+                                 margin = 30)
 
+
+test_that("Check geopressure_prob_map() output", {
+  expect_error(geopressure_prob_map(pressure_maps), NA)
+  expect_error(geopressure_prob_map(pressure_maps, s="not_a_number"))
+  expect_error(geopressure_prob_map(pressure_maps, thr="not_a_number"))
+  expect_error(geopressure_prob_map(pressure_maps, fun_w="not_a_function"))
+})
+pressure_prob <- geopressure_prob_map(pressure_maps)
 
 path_pressure <- geopressure_map2path(pressure_prob)
-path_static <- geopressure_map2path(static_prob)
+
 test_that("Check geopressure_map2path() output", {
   # Error on incorrect parameter
   expect_error(geopressure_map2path(pressure_prob, interp = 2), NA)
   expect_error(geopressure_map2path(pressure_prob, format = "ind"), NA)
   expect_error(geopressure_map2path(pressure_prob, format = "arr.ind"), NA)
-  expect_error(geopressure_map2path(static_prob, interp = 100), NA)
-  expect_error(geopressure_map2path(static_prob, format = "ind"), NA)
-  expect_error(geopressure_map2path(static_prob, format = "arr.ind"), NA)
-  expect_error(geopressure_map2path(static_prob, interp = 5, format = "ind"), NA)
-  expect_error(geopressure_map2path(static_prob, interp = 5, format = "arr.ind"), NA)
 
   # Check correct returned
   expect_s3_class(path_pressure, "data.frame")
   expect_true(all(c("lon", "lat", "sta_id") %in% names(path_pressure)))
   expect_gt(nrow(path_pressure), 0)
-
-  expect_s3_class(path_static, "data.frame")
-  expect_true(all(c("lon", "lat", "sta_id") %in% names(path_static)))
-  expect_gt(nrow(path_static), 0)
 })
 
 
@@ -89,23 +90,20 @@ test_that("Check geopressure_ts() output", {
   expect_s3_class(pressure_timeserie, "data.frame")
   expect_true(all(c("date", "pressure") %in% names(pressure_timeserie)))
 
-
-  skip_if(TRUE, "Heavy tests, run only manually")
-
-  i_s <- 8
-  n <- c(29, 19, 29)
-  path <- subset(path_static, sta_id == i_s)
-
-  # Test Include flight
-  pressure <- subset(pam_data$pressure, sta_id == i_s)
-  pressure_timeserie <- geopressure_ts(path$lon, path$lat, pressure)
-  expect_true(all(c("date", "pressure", "altitude", "pressure0", "sta_id")
-  %in% names(pressure_timeserie)))
-  expect_equal(nrow(pressure_timeserie), n[2])
-
-  pressure <- subset(pam_data$pressure, sta_id == i_s | sta_id == 0)
-  pressure_timeserie <- geopressure_ts(path$lon, path$lat, pressure)
-  expect_gt(nrow(pressure_timeserie), n[2])
+  # i_s <- 4
+  # n <- c(32, 32, 29)
+  # path <- subset(path_pressure, sta_id == i_s)
+  #
+  # # Test Include flight
+  # pressure <- subset(pam$pressure, sta_id == i_s)
+  # pressure_timeserie <- geopressure_ts(path$lon, path$lat, pressure)
+  # expect_true(all(c("date", "pressure", "altitude", "pressure0", "sta_id")
+  # %in% names(pressure_timeserie)))
+  # expect_equal(nrow(pressure_timeserie), n[2])
+  #
+  # pressure <- subset(pam$pressure, sta_id == i_s | sta_id == 0)
+  # pressure_timeserie <- geopressure_ts(path$lon, path$lat, pressure)
+  # expect_gt(nrow(pressure_timeserie), n[2])
 })
 
 
@@ -114,20 +112,20 @@ test_that("Check geopressure_ts() output", {
 test_that("Check geopressure_ts_path() output", {
 
   # Check for incorrect input
-  expect_error(geopressure_ts_path(path_static, "no_a_pressure"))
-  expect_error(geopressure_ts_path("not_a_path", pam_data$pressure))
-  expect_error(geopressure_ts_path(path_static, pam_data$pressure, include_flight = 2))
-  expect_error(geopressure_ts_path(path_static, pam_data$pressure, include_flight = NA))
-  expect_error(geopressure_ts_path(path_static, pam_data$pressure, include_flight = c(0, 10)))
+  expect_error(geopressure_ts_path(path_pressure, "no_a_pressure"))
+  expect_error(geopressure_ts_path("not_a_path", pam$pressure))
+  expect_error(geopressure_ts_path(path_pressure, pam$pressure, include_flight = 2))
+  expect_error(geopressure_ts_path(path_pressure, pam$pressure, include_flight = NA))
+  expect_error(geopressure_ts_path(path_pressure, pam$pressure, include_flight = c(0, 10)))
 
-  i_s <- 8
-  n <- c(29, 19, 29)
-  pressure <- subset(pam_data$pressure, sta_id == i_s)
-  path <- subset(path_static, sta_id == i_s)
+  i_s <- 4
+  n <- c(16, 32, 10)
+  pressure <- subset(pam$pressure, sta_id == i_s)
+  path <- subset(path_pressure, sta_id == i_s)
   pressure_timeserie <- geopressure_ts_path(path, pressure)
 
   # Test Include flight
-  pressure <- pam_data$pressure
+  pressure <- pam$pressure
   pressure_timeserie <- geopressure_ts_path(path, pressure)
   expect_equal(nrow(pressure_timeserie[[1]]), n[2])
   pressure_timeserie <- geopressure_ts_path(path, pressure, include_flight = TRUE)
@@ -137,20 +135,17 @@ test_that("Check geopressure_ts_path() output", {
   expect_equal(nrow(pressure_timeserie[[1]]), sum(n[c(1, 3)]))
 
   # test with multiple sta
-  path <- path_static[c(8, 9), ]
+  path <- path_pressure[c(3,4), ]
   pressure_timeserie <- geopressure_ts_path(path, pressure)
-  expect_equal(nrow(pressure_timeserie[[1]]), n[2])
+  expect_equal(nrow(pressure_timeserie[[2]]), n[2])
   pressure_timeserie <- geopressure_ts_path(path, pressure, include_flight = c(-1, 0))
-  expect_equal(nrow(pressure_timeserie[[1]]), sum(n[c(1, 2)]))
+  expect_equal(nrow(pressure_timeserie[[2]]), sum(n[c(1, 2)]))
 
   # test on water
-  path[1, ] <- c(0, 0, 8)
+  path[1, ] <- c(0, 0, 4)
   expect_warning(pressure_timeserie <- geopressure_ts_path(path, pressure))
   expect_true(pressure_timeserie[[1]]$lat[1] != 0)
 })
 
 
-pressure_maps <- readRDS(system.file("extdata", "18LX_pressure_maps.rda", package = "GeoPressureR"))
-test_that("Check geopressure_prob_map() output", {
-  expect_error(geopressure_prob_map(pressure_maps[1]), NA)
-})
+

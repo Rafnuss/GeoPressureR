@@ -19,5 +19,5 @@ This function simulates multiple trajectory fomr a graph. The trajectories consi
 positions at each stationary periods.
 }
 \seealso{
-\code{\link[=graph_create]{graph_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html}{Vignette Basic Graph }
+\code{\link[=graph_create]{graph_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-3-simulate-path}{GeoPressureManual | Basic graph}
 }

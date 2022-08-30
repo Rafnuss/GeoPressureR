@@ -7,7 +7,7 @@
 pam_sta(pam)
 }
 \arguments{
-\item{pam}{pam logger dataset list (see \code{\link[=pam_read]{pam_read()}})}
+\item{pam}{PAM logger dataset list. See \code{\link[=pam_read]{pam_read()}}.}
 }
 \value{
 Same as input \code{pam} but with (1) a new data.frame of stationary periods \code{pam$sta} and (2)
@@ -18,15 +18,16 @@ This function computes the stationary periods from classified acceleration data
 (\code{pam$acceleration$ismig}).
 }
 \examples{
-pam_data <- pam_read(
-  pathname = system.file("extdata", package = "GeoPressureR"),
+pam <- pam_read(
+  pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
-pam_data <- trainset_read(pam_data, pathname = system.file("extdata", package = "GeoPressureR"))
-pam_data <- pam_sta(pam_data)
-head(pam_data$pressure)
-head(pam_data$light)
+pam <- trainset_read(pam, pathname = system.file("extdata/1_pressure/labels",
+package = "GeoPressureR"))
+pam <- pam_sta(pam)
+head(pam$pressure)
+head(pam$light)
 }
 \seealso{
-\code{\link{pam_read}}, \code{\link{pam_classify}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
+\code{\link{pam_read}}, \code{\link{pam_classify}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods}{GeoPressureManual | Pressure Map }
 }

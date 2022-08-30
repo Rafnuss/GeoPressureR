@@ -7,7 +7,7 @@
 pam_classify(pam, min_duration = 30)
 }
 \arguments{
-\item{pam}{data list}
+\item{pam}{logger dataset list. See \code{\link[=pam_read]{pam_read()}}.}
 
 \item{min_duration}{duration in minutes}
 }
@@ -20,13 +20,13 @@ list \code{pam} adding a column \code{ismig} to the data.frame \code{acceleratio
 the function \code{classify_flap} from the \href{https://github.com/KiranLDA/pamlr}{PAMLr package}.
 }
 \examples{
-pam_data <- pam_read(
-  pathname = system.file("extdata", package = "GeoPressureR"),
+pam <- pam_read(
+  pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
-pam_data <- pam_classify(pam_data, min_duration = 30)
-head(pam_data$acceleration)
+pam <- pam_classify(pam, min_duration = 30)
+head(pam$acceleration)
 }
 \seealso{
-\code{\link[=pam_read]{pam_read()}}, \href{https://kiranlda.github.io/PAMLrManual/flapping.html}{flapping chapter of the PAMLr manual}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
+\code{\link[=pam_read]{pam_read()}}, \href{https://kiranlda.github.io/PAMLrManual/flapping.html}{flapping chapter of the PAMLr manual}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#automatic-classification-of-activity}{GeoPressureManual | Pressure Map }
 }
