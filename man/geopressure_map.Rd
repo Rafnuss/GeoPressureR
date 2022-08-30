@@ -41,7 +41,7 @@ each stationary periods separately
 }
 }
 \examples{
-# See pam_sta() for generating pam
+# See `pam_sta()` for generating pam
 \dontrun{
 pressure_maps <- geopressure_map(
   pam$pressure,

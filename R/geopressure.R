@@ -27,7 +27,7 @@
 #' @seealso [`geopressure_prob_map()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
-#' # See pam_sta() for generating pam
+#' # See `pam_sta()` for generating pam
 #' \dontrun{
 #' pressure_maps <- geopressure_map(
 #'   pam$pressure,
@@ -271,7 +271,7 @@ geopressure_map <- function(pressure,
 #' @seealso [`geopressure_map()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
-#' # See geopressure_map() for generating pressure_maps
+#' # See `geopressure_map()` for generating pressure_maps
 #' \dontrun{
 #' pressure_prob <- geopressure_prob_map(
 #'   pressure_maps,

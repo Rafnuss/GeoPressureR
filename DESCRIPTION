@@ -7,7 +7,8 @@ Authors@R: c(
     person("Mathieu", "Gravey", , "mathieu@mgravey.com", role = "aut",
            comment = c(ORCID = "0000-0002-0871-1507"))
   )
-Description: R package to determine the position of a bird based on the data retrieved from multi-sensor geolocators.
+Description: R package to determine the position of a bird based on the data retrieved from 
+  multi-sensor geolocators.
 License: GPL (>= 3)
 URL: https://github.com/Rafnuss/GeoPressureR,
     https://raphaelnussbaumer.com/GeoPressureR/

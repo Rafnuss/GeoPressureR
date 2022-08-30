@@ -22,18 +22,14 @@ This function writes the csv file of the automatically labeled activity and pres
 be read with TRAINSET (https://trainset.geocene.com/).
 }
 \examples{
-\dontrun{
 pam <- pam_read(
   pathname = system.file(
     "extdata/0_PAM/18LX",
     package = "GeoPressureR"
-  ),
-  crop_start = "2017-06-20", crop_end = "2018-05-02"
+  )
 )
-pam <- pam_classify(pam)
 trainset_write(pam, pathname = system.file("extdata/1_pressure/labels/",
 package = "GeoPressureR"))
-}
 }
 \seealso{
 \code{\link{pam_read}}, \code{\link[=trainset_read]{trainset_read()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset}{GeoPressureManual | Pressure Map }

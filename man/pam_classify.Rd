@@ -21,10 +21,9 @@ the function \code{classify_flap} from the \href{https://github.com/KiranLDA/pam
 }
 \examples{
 pam <- pam_read(
-  pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
-  crop_start = "2017-06-20", crop_end = "2018-05-02"
+  pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR")
 )
-pam <- pam_classify(pam, min_duration = 30)
+pam <- pam_classify(pam, min_duration = 15)
 head(pam$acceleration)
 }
 \seealso{

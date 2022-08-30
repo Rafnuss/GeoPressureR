@@ -22,8 +22,7 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#read-geolocator-data)
 #' @examples
 #' pam <- pam_read(
-#'   pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
-#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#'   pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR")
 #' )
 #' summary(pam)
 #' head(pam$id)
@@ -162,10 +161,9 @@ pam_read_delim_dto <- function(path, skip = 6, col = 3, date_format = "%d.%m.%Y 
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#automatic-classification-of-activity)
 #' @examples
 #' pam <- pam_read(
-#'   pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
-#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#'   pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR")
 #' )
-#' pam <- pam_classify(pam, min_duration = 30)
+#' pam <- pam_classify(pam, min_duration = 15)
 #' head(pam$acceleration)
 #' @export
 pam_classify <- function(pam,
@@ -217,11 +215,11 @@ pam_classify <- function(pam,
 #'
 #' @examples
 #' pam <- pam_read(
-#'   pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
-#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#'   pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR")
 #' )
-#' pam <- trainset_read(pam, pathname = system.file("extdata/1_pressure/labels",
-#' package = "GeoPressureR"))
+#' pam <- trainset_read(pam,
+#'   pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
+#' )
 #' pam <- pam_sta(pam)
 #' head(pam$pressure)
 #' head(pam$light)
@@ -297,18 +295,14 @@ pam_sta <- function(pam) {
 #' @param filename Name for the file.
 #'
 #' @examples
-#' \dontrun{
 #' pam <- pam_read(
 #'   pathname = system.file(
 #'     "extdata/0_PAM/18LX",
 #'     package = "GeoPressureR"
-#'   ),
-#'   crop_start = "2017-06-20", crop_end = "2018-05-02"
+#'   )
 #' )
-#' pam <- pam_classify(pam)
 #' trainset_write(pam, pathname = system.file("extdata/1_pressure/labels/",
 #' package = "GeoPressureR"))
-#' }
 #' @seealso [`pam_read`], [`trainset_read()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset)
 #' @export

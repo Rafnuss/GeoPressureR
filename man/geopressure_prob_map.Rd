@@ -38,7 +38,7 @@ pooling weight \eqn{w=\log(n) - 1}, with \eqn{n} is the number of data point in 
 This operation is describe in \doi{10.21203/rs.3.rs-1381915/v1}.
 }
 \examples{
-# See geopressure_map() for generating pressure_maps
+# See `geopressure_map()` for generating pressure_maps
 \dontrun{
 pressure_prob <- geopressure_prob_map(
   pressure_maps,

@@ -19,11 +19,11 @@ This function computes the stationary periods from classified acceleration data
 }
 \examples{
 pam <- pam_read(
-  pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
-  crop_start = "2017-06-20", crop_end = "2018-05-02"
+  pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR")
 )
-pam <- trainset_read(pam, pathname = system.file("extdata/1_pressure/labels",
-package = "GeoPressureR"))
+pam <- trainset_read(pam,
+  pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
+)
 pam <- pam_sta(pam)
 head(pam$pressure)
 head(pam$light)
