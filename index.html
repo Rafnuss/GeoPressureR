@@ -5,9 +5,8 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="Determine the position of a geolocator from atmospheric
-    pressure measurements.">
-<title>Location from Reanalysed Pressure • GeoPressureR</title>
+<meta name="description" content="GeoPressureR seeks to help researchers analyse data retrieved from multi-sensor geolocators to accurately geoposition birds along their migratory journey. We focus in particular on geopositiong using atomspheric pressure measurements.">
+<title>Global positioning by atmospheric pressure • GeoPressureR</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
@@ -18,9 +17,8 @@
 <link href="deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Location from Reanalysed Pressure">
-<meta property="og:description" content="Determine the position of a geolocator from atmospheric
-    pressure measurements.">
+<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Global positioning by atmospheric pressure">
+<meta property="og:description" content="GeoPressureR seeks to help researchers analyse data retrieved from multi-sensor geolocators to accurately geoposition birds along their migratory journey. We focus in particular on geopositiong using atomspheric pressure measurements.">
 <meta property="og:image" content="https://raphaelnussbaumer.com/GeoPressureR/logo.svg">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -35,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,29 +42,14 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-pressure">Part 1: Pressure</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-part-pressure">
-    <a class="dropdown-item" href="articles/labelling-tracks.html">1. Labelling Tracks</a>
-    <a class="dropdown-item" href="articles/pressure-map.html">2. Pressure Map</a>
-    <a class="dropdown-item" href="articles/light-map.html">3. Light Map</a>
-    <a class="dropdown-item" href="articles/probability-aggregation.html">Probability Aggregation</a>
-  </div>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureTemplate#readme">GeoPressureManual: A User Guide</a>
 </li>
-<li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-trajectory">Part 2: Trajectory</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-part-trajectory">
-    <a class="dropdown-item" href="articles/preparing-data.html">1. Preparing Data</a>
-    <a class="dropdown-item" href="articles/basic-graph.html">2. Basic Graph</a>
-    <a class="dropdown-item" href="articles/wind-graph.html">3. Wind Graph</a>
-    <a class="dropdown-item" href="articles/gridded-gibbs.html">Gridded Gibbs</a>
-  </div>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureTemplate#readme">GeoPressureTemplate: Start your Study</a>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
-</li>
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureTemplate#readme">Start your Study</a>
 </li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
@@ -93,102 +76,21 @@
 </h1>
 </div>
 <!-- badges: start --><p><a href="https://github.com/Rafnuss/GeoPressureR/actions" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a> <a href="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown"></a> <a href="https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master" class="external-link"><img src="https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg" alt="Codecov test coverage"></a> <a href="https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml/badge.svg" alt="lint"></a></p>
-<!-- badges: end --><p><code>GeoPressureR</code> seeks to help researchers analyse data retrieved from multi-sensor geolocators to accurately geoposition birds along their migratory journey. We focus in particular on geopositiong using atomspheric pressure measurements.</p>
-<p>Part 1 provides an R wrapper around the <a href="https://github.com/Rafnuss/GeoPressureAPI" class="external-link">GeoPressureAPI</a> to generate probability maps of the bird’s position based on a match between the pressure timeseries measured by the geolocator and the reanalysed pressure data from <a href="https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era5" class="external-link">ERA5</a>. See the publication <a href="https://doi.org/10.21203/rs.3.rs-1381915/v2" class="external-link">10.21203/rs.3.rs-1381915/v2</a> for more details.</p>
-<p>Part 2 uses a graphical model to compute the full trajectory of the bird building on light data, pressure measurements, flight duration and wind data (optional). See the publication <a href="https://doi.org/10.21203/rs.3.rs-1693751/v1" class="external-link">10.21203/rs.3.rs-1693751/v1</a> for more details.</p>
-<p><strong><code>GeoPressureR</code> is currently still in active development phase.</strong></p>
+<!-- badges: end --><p><code>GeoPressureR</code> seeks to help researchers analyse data retrieved from multi-sensor geolocators to accurately geoposition birds along their migratory journey. We focus in particular on geopositiong using atmospheric pressure measurements.</p>
 <div class="section level2">
-<h2 id="where-to-start">Where to start?<a class="anchor" aria-label="anchor" href="#where-to-start"></a>
+<h2 id="geopressuremanual-learn-how-to-use-geopressurer">
+<a href="https://raphaelnussbaumer.com/GeoPressureManual" class="external-link">GeoPressureManual</a>: Learn how to use <code>GeoPressureR</code>
+<a class="anchor" aria-label="anchor" href="#geopressuremanual-learn-how-to-use-geopressurer"></a>
 </h2>
-<div class="section level3">
-<h3 id="learn-about-geopressurer-with-18lx">Learn about <code>GeoPressureR</code> with 18LX<a class="anchor" aria-label="anchor" href="#learn-about-geopressurer-with-18lx"></a>
-</h3>
-<p>Using the example of a Great Reed Warbler (18LX), we developed a series of <a href="https://r-pkgs.org/vignettes.html" class="external-link">vignettes</a> to guide you through each step in detail.</p>
-<p>The <a href="/articles/pressure-map.html">Pressure map</a> vignette is a good place to start to understand the basic workflow used to compute a probability map from pressure measurements (Part 1). It guides you through each step, from loading the data, to labeling the timeseries, querying the ERA5 pressure map and finally computing the probability map.</p>
-<p>Once the probability maps are computed, the <a href="/articles/basic-graph.html">Basic graph</a> vignette helps you create the graph and compute three main outputs: (1) the most likely trajectory, (2) the (posterior) probability map of each stationary period and (3) a simulation of possible paths (Part 2).</p>
-<p>Finally, the <a href="/articles/wind-graph.html">Wind graph</a> vignette extends the capability of the basic graph to include wind data and refine possible flight distances. It also allows to estimate wind support, airspeed, and energy expenditure for each flight.</p>
-<p><a href="https://rafnuss.shinyapps.io/GeoPressureViz/" class="external-link"><img src="reference/figures/geopressureviz-demo.png" title="GeoPressureViz Demo"></a> <em>Screenshot of <a href="https://rafnuss.shinyapps.io/GeoPressureViz/" class="external-link">GeoPressureViz</a> showing the estimated position of the Great Reed Warbler 18LX at one stationary period , based on (1) the pressure and light match (map colorscale and timeseries) and (2) potential flight distances from previous and next stationary periods (circles).</em></p>
-</div>
-<div class="section level3">
-<h3 id="start-your-own-analysis">Start your own analysis<a class="anchor" aria-label="anchor" href="#start-your-own-analysis"></a>
-</h3>
-<p>To help you start using <code>GeoPressureR</code> for your own study, we suggest you use the R template <a href="https://github.com/Rafnuss/GeoPressureTemplate" class="external-link">GeoPressureTemplate</a>. Using this standardized code structure and output will allow for code sharing and troubleshooting, data archiving, work reproducibility, and ease for reviewer to check the setting.</p>
-</div>
+<p>The entire process to analyse pressure data can be relatively lengthy. This is why we created a user guide, which breaks it down into smaller steps.</p>
+<p>Using the example of a Great Reed Warbler <em>Acrocephalus arundinaceus</em> (18LX), this user guide takes you through each step of the analysis in detail.</p>
+<p><a href="https://raphaelnussbaumer.com/GeoPressureManual" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureManual/raw/main/assets/cover.png" style="margin: 0 1rem 0 1rem;box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);" align="center" width="250" height="328"></a></p>
 </div>
 <div class="section level2">
-<h2 id="related-resources">Related resources<a class="anchor" aria-label="anchor" href="#related-resources"></a>
+<h2 id="geopressuretemplate-start-your-own-analysis">
+<a href="https://github.com/Rafnuss/GeoPressureTemplate" class="external-link">GeoPressureTemplate</a>: Start your own analysis<a class="anchor" aria-label="anchor" href="#geopressuretemplate-start-your-own-analysis"></a>
 </h2>
-<div class="section level3">
-<h3 id="publication">Publication<a class="anchor" aria-label="anchor" href="#publication"></a>
-</h3>
-<blockquote><p>Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis, Felix Liechti. Global positioning with animal-borne pressure sensors, 14 June 2022, PREPRINT (Version 2) available at Research Square [<a href="https://doi.org/10.21203/rs.3.rs-1381915/v2" class="external-link uri">https://doi.org/10.21203/rs.3.rs-1381915/v2</a>]</p></blockquote>
-<blockquote><p>Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis, Felix Liechti. Inferring bird’s trajectory from multi-sensor geolocators and remote sensing with a graphical model, 25 May 2022, PREPRINT (Version 1) available at Research Square [<a href="https://doi.org/10.21203/rs.3.rs-1693751/v1" class="external-link uri">https://doi.org/10.21203/rs.3.rs-1693751/v1</a>]</p></blockquote>
-</div>
-<div class="section level3">
-<h3 id="presentation">Presentation<a class="anchor" aria-label="anchor" href="#presentation"></a>
-</h3>
-<blockquote><p>Raphaël Nussbaumer, Mathieu Gravey, Martins Briedis, Felix Liechti. Leveraging light, pressure, activity, and wind data to improve geolocator positioning. August 2022. <em>28th International Ornithological Congress</em>. PRESENTATION available at <a href="https://youtu.be/U7jAK9nZNQU" class="external-link">Youtube</a>.</p></blockquote>
-<blockquote><p>Raphaël Nussbaumer, Mathieu Gravey, Felix Liechti. Improving the spatial accuracy of multi-sensor geolocators’ position using atmospheric surface pressure. October 2021. <em>7th International Bio-logging Science Symposium</em>. PRESENTATION available at <a href="https://www.youtube.com/watch?v=0JsYU_xfKN8" class="external-link">Youtube</a>.</p></blockquote>
-</div>
-<div class="section level3">
-<h3 id="other-resources">Other resources<a class="anchor" aria-label="anchor" href="#other-resources"></a>
-</h3>
-<ul>
-<li>
-<a href="https://github.com/Rafnuss/GeoPressureMAT" class="external-link">GeoPressureMAT</a> The development of the method was done on MATLAB. Here is the repo with all the codes.</li>
-<li>
-<a href="https://github.com/Rafnuss/GeoPressureServer" class="external-link">GeoPressure API</a> This is where the core computation with Google Earth Engine is done. You can have a look here to see how this is done.</li>
-<li>
-<a href="https://github.com/slisovski/GeoLight/tree/Update_2.01" class="external-link">GeoLight</a> R package to analyse light data. We are borrowing some of their function (see <a href="./reference/index.html#geolight"><code>geolight.R</code></a>)</li>
-<li>
-<a href="https://github.com/KiranLDA/PAMLr" class="external-link">PAMLr</a>: Extensive toolbox to analyse multi-sensor geolocator. Several function from this package are inspired from this package (see <a href="./reference/index.html#pam-data"><code>pam.R</code></a>).</li>
-</ul>
-</div>
-</div>
-<div class="section level2">
-<h2 id="projects-using-geopressurer">Projects using <code>GeoPressureR</code>
-<a class="anchor" aria-label="anchor" href="#projects-using-geopressurer"></a>
-</h2>
-<p>List of all research projects using <code>GeoPressureR</code> with links to the code used to analyse and create figures. This might be helpful to get idea of what and how to analyse your data and borrow some code sections for your own project. Feel free to contact me if you’ll like to appear on this list.</p>
-<table class="table">
-<colgroup>
-<col width="23%">
-<col width="39%">
-<col width="36%">
-</colgroup>
-<thead><tr class="header">
-<th>Species</th>
-<th>GeoPressureTemplate/code</th>
-<th>Publication/status</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>Mongolian Nightjar</td>
-<td><a href="https://github.com/Rafnuss/MongolianNightjar" class="external-link">Rafnuss/MongolianNightjar</a></td>
-<td><a href="https://doi.org/10.1007/s10336-022-02000-4" class="external-link">Lathouwers et al. (2022)</a></td>
-</tr>
-<tr class="even">
-<td>Woodland Kingfisher</td>
-<td><a href="https://github.com/Rafnuss/WoodlandKingfisher" class="external-link">Rafnuss/WoodlandKingfisher</a></td>
-<td>Osinubi et al. (in prep.)</td>
-</tr>
-<tr class="odd">
-<td>Northern Wheatear</td>
-<td><a href="https://github.com/Rafnuss/Val-Piora-Wheatear" class="external-link">Rafnuss/Val-Piora-Wheatear</a></td>
-<td>Rime et al. (in prep.)</td>
-</tr>
-<tr class="even">
-<td>Red-capped Robin-chat and Mangrove Kingfisher</td>
-<td><a href="https://github.com/Rafnuss/MK-RCRC/" class="external-link">Rafnuss/MK-RCRC</a></td>
-<td>collecting data</td>
-</tr>
-<tr class="odd">
-<td>Swainson’s Warbler</td>
-<td><a href="https://github.com/grhyne/SWWA_Pressure" class="external-link">grhyne/SWWA_Pressure</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
+<p>To help you use <code>GeoPressureR</code> for your own study, we suggest you use the <a href="https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository" class="external-link">github template repository</a> <a href="https://github.com/Rafnuss/GeoPressureTemplate" class="external-link">GeoPressureTemplate</a>. Using this standardized code structure and output will allow for code sharing and troubleshooting, data archiving, work reproducibility, and easy check by reviewers.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="community">

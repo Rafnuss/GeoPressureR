@@ -14,7 +14,7 @@ package TwGeos."><meta property="og:image" content="https://raphaelnussbaumer.co
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,29 +22,14 @@ package TwGeos."><meta property="og:image" content="https://raphaelnussbaumer.co
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-pressure">Part 1: Pressure</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-part-pressure">
-    <a class="dropdown-item" href="../articles/labelling-tracks.html">1. Labelling Tracks</a>
-    <a class="dropdown-item" href="../articles/pressure-map.html">2. Pressure Map</a>
-    <a class="dropdown-item" href="../articles/light-map.html">3. Light Map</a>
-    <a class="dropdown-item" href="../articles/probability-aggregation.html">Probability Aggregation</a>
-  </div>
+      <ul class="navbar-nav me-auto"><li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureTemplate#readme">GeoPressureManual: A User Guide</a>
 </li>
-<li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-trajectory">Part 2: Trajectory</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-part-trajectory">
-    <a class="dropdown-item" href="../articles/preparing-data.html">1. Preparing Data</a>
-    <a class="dropdown-item" href="../articles/basic-graph.html">2. Basic Graph</a>
-    <a class="dropdown-item" href="../articles/wind-graph.html">3. Wind Graph</a>
-    <a class="dropdown-item" href="../articles/gridded-gibbs.html">Gridded Gibbs</a>
-  </div>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureTemplate#readme">GeoPressureTemplate: Start your Study</a>
 </li>
 <li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
-</li>
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureTemplate#readme">Start your Study</a>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -103,24 +88,25 @@ provided, it will take the middle of all nights.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><a href="https://raphaelnussbaumer.com/GeoPressureR/articles/light-map.html">Vignette Light Map </a></p></div>
+    <div class="dont-index"><p><a href="https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#twilight-annotation" class="external-link">GeoPressureManual | Light Map </a></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">pam_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="pam_read.html">pam_read</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  pathname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span>,</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">pam</span> <span class="op">&lt;-</span> <span class="fu"><a href="pam_read.html">pam_read</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  pathname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/0_PAM/18LX"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  crop_start <span class="op">=</span> <span class="st">"2017-06-20"</span>, crop_end <span class="op">=</span> <span class="st">"2018-05-02"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">twl</span> <span class="op">&lt;-</span> <span class="fu">find_twilights</span><span class="op">(</span><span class="va">pam_data</span><span class="op">$</span><span class="va">light</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">twl</span> <span class="op">&lt;-</span> <span class="fu">find_twilights</span><span class="op">(</span><span class="va">pam</span><span class="op">$</span><span class="va">light</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>There is likely a problem with the shiftK, 1 twighlit set at midnight. shift_k=3300</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">twl</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                twilight  rise</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 317 2017-06-20 02:25:00 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   2017-06-20 19:10:00  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 318 2017-06-21 02:35:00 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   2017-06-21 19:30:00  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 319 2017-06-22 02:25:00 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   2017-06-22 19:20:00  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               twilight  rise</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 2017-07-27 03:05:00 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  2017-07-27 18:25:00  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 2017-07-28 03:20:00 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2017-07-28 18:40:00  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 2017-07-29 03:00:00 FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  2017-07-29 18:50:00  TRUE</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

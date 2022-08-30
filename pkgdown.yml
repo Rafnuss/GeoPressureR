@@ -1,16 +1,8 @@
 pandoc: 2.7.3
 pkgdown: 2.0.6
 pkgdown_sha: ~
-articles:
-  basic-graph: basic-graph.html
-  gridded-gibbs: gridded-gibbs.html
-  labelling-tracks: labelling-tracks.html
-  light-map: light-map.html
-  preparing-data: preparing-data.html
-  pressure-map: pressure-map.html
-  probability-aggregation: probability-aggregation.html
-  wind-graph: wind-graph.html
-last_built: 2022-08-29T20:01Z
+articles: {}
+last_built: 2022-08-30T00:11Z
 urls:
   reference: https://raphaelnussbaumer.com/GeoPressureR/reference
   article: https://raphaelnussbaumer.com/GeoPressureR/articles

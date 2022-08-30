@@ -12,7 +12,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,29 +20,14 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-pressure">Part 1: Pressure</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-part-pressure">
-    <a class="dropdown-item" href="../articles/labelling-tracks.html">1. Labelling Tracks</a>
-    <a class="dropdown-item" href="../articles/pressure-map.html">2. Pressure Map</a>
-    <a class="dropdown-item" href="../articles/light-map.html">3. Light Map</a>
-    <a class="dropdown-item" href="../articles/probability-aggregation.html">Probability Aggregation</a>
-  </div>
+      <ul class="navbar-nav me-auto"><li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureTemplate#readme">GeoPressureManual: A User Guide</a>
 </li>
-<li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-part-trajectory">Part 2: Trajectory</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-part-trajectory">
-    <a class="dropdown-item" href="../articles/preparing-data.html">1. Preparing Data</a>
-    <a class="dropdown-item" href="../articles/basic-graph.html">2. Basic Graph</a>
-    <a class="dropdown-item" href="../articles/wind-graph.html">3. Wind Graph</a>
-    <a class="dropdown-item" href="../articles/gridded-gibbs.html">Gridded Gibbs</a>
-  </div>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureTemplate#readme">GeoPressureTemplate: Start your Study</a>
 </li>
 <li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
-</li>
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureTemplate#readme">Start your Study</a>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -78,7 +63,7 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>pam</dt>
-<dd><p>pam logger dataset list (see <code><a href="pam_read.html">pam_read()</a></code>)</p></dd>
+<dd><p>PAM logger dataset list. See <code><a href="pam_read.html">pam_read()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -90,33 +75,34 @@ a new column <code>sta_id</code> for pressure and light data.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="pam_read.html">pam_read</a></code>, <code><a href="pam_classify.html">pam_classify</a></code>, <a href="https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html">Vignette Pressure Map </a></p></div>
+    <div class="dont-index"><p><code><a href="pam_read.html">pam_read</a></code>, <code><a href="pam_classify.html">pam_classify</a></code>, <a href="https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods" class="external-link">GeoPressureManual | Pressure Map </a></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">pam_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="pam_read.html">pam_read</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  pathname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span>,</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">pam</span> <span class="op">&lt;-</span> <span class="fu"><a href="pam_read.html">pam_read</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  pathname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/0_PAM/18LX"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  crop_start <span class="op">=</span> <span class="st">"2017-06-20"</span>, crop_end <span class="op">=</span> <span class="st">"2018-05-02"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pam_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="trainset_read.html">trainset_read</a></span><span class="op">(</span><span class="va">pam_data</span>, pathname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pam_data</span> <span class="op">&lt;-</span> <span class="fu">pam_sta</span><span class="op">(</span><span class="va">pam_data</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pam_data</span><span class="op">$</span><span class="va">pressure</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  date  obs isoutliar sta_id</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2017-06-20 00:00:00 1001     FALSE      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2017-06-20 00:30:00 1001     FALSE      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2017-06-20 01:00:00 1001     FALSE      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 2017-06-20 01:30:00 1001     FALSE      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 2017-06-20 02:00:00 1001     FALSE      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 2017-06-20 02:30:00 1001     FALSE      1</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pam_data</span><span class="op">$</span><span class="va">light</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pam</span> <span class="op">&lt;-</span> <span class="fu"><a href="trainset_read.html">trainset_read</a></span><span class="op">(</span><span class="va">pam</span>, pathname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/1_pressure/labels"</span>,</span></span>
+<span class="r-in"><span>package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pam</span> <span class="op">&lt;-</span> <span class="fu">pam_sta</span><span class="op">(</span><span class="va">pam</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pam</span><span class="op">$</span><span class="va">pressure</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  date obs isoutliar sta_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2017-07-27 00:00:00 989     FALSE      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2017-07-27 00:30:00 989     FALSE      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2017-07-27 01:00:00 990     FALSE      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 2017-07-27 01:30:00 990     FALSE      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 2017-07-27 02:00:00 989     FALSE      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 2017-07-27 02:30:00 989     FALSE      1</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pam</span><span class="op">$</span><span class="va">light</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  date obs sta_id</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2017-06-20 00:00:00   0      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2017-06-20 00:05:00   0      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2017-06-20 00:10:00   0      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 2017-06-20 00:15:00   0      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 2017-06-20 00:20:00   0      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 2017-06-20 00:25:00   0      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2017-07-27 00:00:00   0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2017-07-27 00:05:00   0      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2017-07-27 00:10:00   0      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 2017-07-27 00:15:00   0      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 2017-07-27 00:20:00   0      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 2017-07-27 00:25:00   0      1</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
