@@ -64,7 +64,7 @@ performs the following actions:</p><ol><li><p>Send a query to produce the Google
 each stationary periods separately</p></li>
 <li><p>Read these map (geotiff) in a raster
 3 compute the likelihood map from the mismatch. See
-<a href="https://raphaelnussbaumer.com/GeoPressureServer/#description" class="external-link">the GeoPressure API documentation</a></p></li>
+<a href="https://raphaelnussbaumer.com/GeoPressureAPI/#description" class="external-link">the GeoPressure API documentation</a></p></li>
 </ol></div>
 
     <div class="section level2">
@@ -77,7 +77,7 @@ each stationary periods separately</p></li>
     <dl><dt>pressure</dt>
 <dd><p>Pressure data.frame from a PAM logger. This data.frame needs to contains <code>date</code>
 as POSIXt, <code>obs</code> in hPa, <code>sta_id</code> grouping observation measured during the same stationary period
-and <code>isoutliar</code> as logical to label observation which need to be ignorede. It is best practice to
+and <code>isoutliar</code> as logical to label observation which need to be ignored. It is best practice to
 use <code><a href="pam_read.html">pam_read()</a></code> and <code><a href="pam_sta.html">pam_sta()</a></code> to build this data.frame.</p></dd>
 
 
