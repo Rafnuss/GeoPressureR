@@ -21,6 +21,9 @@
       <ul class="navbar-nav me-auto"><li class="nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="active nav-item">
+  <a class="nav-link" href="../news/index.html">News</a>
+</li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
@@ -41,7 +44,158 @@
       <small>Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
-  </main></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="3.0.0" id="geopressurer-v300">GeoPressureR v3.0.0<a class="anchor" aria-label="anchor" href="#geopressurer-v300"></a></h2>
+<div class="section level3">
+<h3 id="major-3-0-0">Major<a class="anchor" aria-label="anchor" href="#major-3-0-0"></a></h3>
+<ul><li>Migration of all the vignette and data used for the vignette in GeoPressureManual <a href="https://github.com/Rafnuss/GeoPressureR/commit/bda0f7898dd9e6b8d9d786ce56ae3e5ec422c935" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/bda0f7898dd9e6b8d9d786ce56ae3e5ec422c935</a>
+</li>
+<li>Read Migrate Technology data (should not be breaking change, but some significant changes) <a href="https://github.com/Rafnuss/GeoPressureR/issues/23" class="external-link">#23</a></li>
+<li>Add <code>logis</code>function in <code><a href="../reference/flight_prob.html">flight_prob()</a></code> <a href="https://github.com/Rafnuss/GeoPressureR/commit/6e1a8f0e93d82ec2a9bccce404cdb59fcc218277" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/6e1a8f0e93d82ec2a9bccce404cdb59fcc218277</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-3-0-0">Minor<a class="anchor" aria-label="anchor" href="#minor-3-0-0"></a></h3>
+<ul><li>Read Avonet data as package data <a href="https://github.com/Rafnuss/GeoPressureR/commit/c5c8d807f9a7e13a49e3d1565a7b3beffb58022f" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/c5c8d807f9a7e13a49e3d1565a7b3beffb58022f</a>
+</li>
+<li>Update of <code>r-lib/actions</code> to v2 <a href="https://github.com/Rafnuss/GeoPressureR/commit/3382fb9b7b9970f1c102cf9aabf3a6b06b5d505e" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/3382fb9b7b9970f1c102cf9aabf3a6b06b5d505e</a>
+</li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/commit/8720b6e6032f910f0c702e649a907dcf10bc2258" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/8720b6e6032f910f0c702e649a907dcf10bc2258</a></li>
+<li>Improvement of GeoPressureViz <a href="https://github.com/Rafnuss/GeoPressureR/commit/97be49de4ed6c309b16e23fbedde1d618ae0a04c" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/97be49de4ed6c309b16e23fbedde1d618ae0a04c</a> <a href="https://github.com/Rafnuss/GeoPressureR/commit/964b558913de7f7b6ef9915fc9cc41fc0b3dd0d3" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/964b558913de7f7b6ef9915fc9cc41fc0b3dd0d3</a>
+</li>
+<li>Add checks and warning in functions</li>
+<li>Preparation of the code for CRAN</li>
+</ul></div>
+<div class="section level3">
+<h3 id="full-changelog-3-0-0">Full Changelog<a class="anchor" aria-label="anchor" href="#full-changelog-3-0-0"></a></h3>
+<p><a href="https://github.com/Rafnuss/GeoPressureR/compare/v2.4-beta" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/compare/v2.4-beta</a>…v3.0.0</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.4" id="geopressurer-v24-beta">GeoPressureR v2.4-beta<a class="anchor" aria-label="anchor" href="#geopressurer-v24-beta"></a></h2>
+<div class="section level3">
+<h3 id="major-2-4">Major<a class="anchor" aria-label="anchor" href="#major-2-4"></a></h3>
+<ul><li>Accept request over water and display warning message. See <a href="https://github.com/Rafnuss/GeoPressureR/pull/15" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/pull/15</a>
+</li>
+<li>Add logging of error and return JSON file of the request in case of error for troubleshooting</li>
+<li>Change downloading and reading of geotiff file to work on windows. See <a href="https://github.com/Rafnuss/GeoPressureR/issues/16" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/issues/16</a>
+</li>
+<li>Remove the artificial increase of flight duration at the creation of graph <a href="https://github.com/Rafnuss/GeoPressureR/commit/696566e8041e90d04e3e01d7d84ef299660bab6e" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/696566e8041e90d04e3e01d7d84ef299660bab6e</a>
+</li>
+<li>Compute groundspeed in parallel in graph creation <a href="https://github.com/Rafnuss/GeoPressureR/commit/b1466c737a66c740e2f6a35bcdbc19d9f5aebfd1" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/b1466c737a66c740e2f6a35bcdbc19d9f5aebfd1</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-2-4">Minor<a class="anchor" aria-label="anchor" href="#minor-2-4"></a></h3>
+<ul><li>minor fixes for <code>sta_id=0</code> or <code>NA</code>
+</li>
+<li>minor fixes in geopressureviz</li>
+<li>add dummy graph test to improve coverage.</li>
+<li>compute windspeed for short flight happening during the same hour</li>
+<li>typos, code readability and stlyer</li>
+</ul></div>
+<div class="section level3">
+<h3 id="full-changelog-2-4">Full Changelog<a class="anchor" aria-label="anchor" href="#full-changelog-2-4"></a></h3>
+<p><a href="https://github.com/Rafnuss/GeoPressureR/compare/v2.3-beta" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/compare/v2.3-beta</a>…v2.4-beta</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.3" id="geopressurer-v23-beta">GeoPressureR v2.3-beta<a class="anchor" aria-label="anchor" href="#geopressurer-v23-beta"></a></h2>
+<div class="section level3">
+<h3 id="major-2-3">Major<a class="anchor" aria-label="anchor" href="#major-2-3"></a></h3>
+<ul><li><a href="https://github.com/Rafnuss/GeoPressureR/commit/0eee443944e0b7ecf86c64901b45cd0f659d3d19" class="external-link">Major fix of wind computation bearing to angle and m/s -&gt; km/h</a></li>
+<li>Major fix of twilight uncertainty using kernel density. The gamma fitting was very wrong <a href="https://github.com/Rafnuss/GeoPressureR/commit/5acfb136b8cac49d3cfd9633ce9a0a81ccc9b252" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/5acfb136b8cac49d3cfd9633ce9a0a81ccc9b252</a>
+</li>
+<li>Major update in the data location to avoid being loaded when using the package. Move all data to <code>inst/extdata</code> to avoid having them loaded with <a href="https://github.com/Rafnuss/GeoPressureR/commit/65c8f8062cf07fb1471c9f15f6f08757d00951df" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/65c8f8062cf07fb1471c9f15f6f08757d00951df</a>
+</li>
+<li>Add more information on various dataset to be able to load in GeoPressureViz</li>
+<li>Change to the graph <a href="https://github.com/Rafnuss/GeoPressureR/commit/4aeed9ab77c8efe15b2da591247700d0ebb0cb5f" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/4aeed9ab77c8efe15b2da591247700d0ebb0cb5f</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-2-3">Minor<a class="anchor" aria-label="anchor" href="#minor-2-3"></a></h3>
+<ul><li>Multiple test file and add <code>covr</code>
+</li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/commit/eb398697ce600d229f14c50141808ab671c1309d" class="external-link">Optimize <code>sta_pam()</code></a></li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/commit/d52e14e62c4b212a54f31ca78baa5342d372b4c7" class="external-link">Re-write <code>find_twilights</code></a></li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/commit/db73fcfea317f0db795d6a629bec9d42b9f073fd" class="external-link">Create function graph_path2edge</a></li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/commit/8b4c4efbce7c029e1a0f0628985bf53616c829a0" class="external-link">Add energy figure</a></li>
+<li>Multiple improvement on GeoPressureViz</li>
+<li>Add citation and contribution file</li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/commit/ae97874788658b8684bb3e3fa539c063cc0046ab" class="external-link">use 100 character width</a></li>
+<li>Add link to <a href="https://github.com/Rafnuss/GeoPressureTemplate" class="external-link">GeoPressureTemplate</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="full-changelog-2-3">Full Changelog<a class="anchor" aria-label="anchor" href="#full-changelog-2-3"></a></h3>
+<p><a href="https://github.com/Rafnuss/GeoPressureR/compare/v2.2-beta" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/compare/v2.2-beta</a>…v2.3-beta</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.2" id="geopressurer-v22-beta">GeoPressureR v2.2-beta<a class="anchor" aria-label="anchor" href="#geopressurer-v22-beta"></a></h2>
+<div class="section level3">
+<h3 id="major-2-2">Major<a class="anchor" aria-label="anchor" href="#major-2-2"></a></h3>
+<ul><li>New function <code>geopressure_map2path</code> with return of index of lat-lon option</li>
+<li>New function <code>geopressure_ts_path</code> to compute mulitple <code>geopressure_ts</code> function on a full path</li>
+<li>Update GeoPressureViz (<a href="https://rafnuss.shinyapps.io/GeoPressureViz/" class="external-link uri">https://rafnuss.shinyapps.io/GeoPressureViz/</a>) to accept <code>geopressure_ts_path</code> output</li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-2-2">Minor<a class="anchor" aria-label="anchor" href="#minor-2-2"></a></h3>
+<ul><li>fix flight and avonet databse (<a href="https://github.com/Rafnuss/GeoPressureR/issues/10" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/issues/10</a>)</li>
+<li>fix <a href="https://github.com/Rafnuss/GeoPressureR/issues/9" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/issues/9</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="full-changelog-2-2">Full Changelog<a class="anchor" aria-label="anchor" href="#full-changelog-2-2"></a></h3>
+<p><a href="https://github.com/Rafnuss/GeoPressureR/compare/v2.1-beta" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/compare/v2.1-beta</a>…v2.2-beta</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.1" id="geopressurer-v21-beta">GeoPressureR v2.1-beta<a class="anchor" aria-label="anchor" href="#geopressurer-v21-beta"></a></h2>
+<div class="section level3">
+<h3 id="major-2-1">Major<a class="anchor" aria-label="anchor" href="#major-2-1"></a></h3>
+<ul><li>Graph Addition of wind: <a href="https://raphaelnussbaumer.com/GeoPressureR/articles/wind-graph.html" class="uri">https://raphaelnussbaumer.com/GeoPressureR/articles/wind-graph.html</a>
+</li>
+<li>Movement model function: converting airspeed/groundspeed to probability.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-2-1">Minor<a class="anchor" aria-label="anchor" href="#minor-2-1"></a></h3>
+<ul><li>Minor correction of existing code</li>
+<li>cleaning of name, variable and file saved for more consistency</li>
+<li>Update to GeoPresureAPI v2.1</li>
+</ul></div>
+<div class="section level3">
+<h3 id="full-changelog-2-1">Full Changelog<a class="anchor" aria-label="anchor" href="#full-changelog-2-1"></a></h3>
+<p><a href="https://github.com/Rafnuss/GeoPressureR/compare/v2.0-beta" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/compare/v2.0-beta</a>…v2.1-beta</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.0" id="geopressurer-v20-beta">GeoPressureR v2.0-beta<a class="anchor" aria-label="anchor" href="#geopressurer-v20-beta"></a></h2>
+<div class="section level3">
+<h3 id="whats-changed-2-0">What’s Changed<a class="anchor" aria-label="anchor" href="#whats-changed-2-0"></a></h3>
+<ul><li>Add vignette and code for light geopositioning by <a href="https://github.com/Rafnuss" class="external-link">@Rafnuss</a> in <a href="https://github.com/Rafnuss/GeoPressureR/pull/4" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/pull/4</a>
+</li>
+<li>minor language changes by <a href="https://github.com/jsocolar" class="external-link">@jsocolar</a> in <a href="https://github.com/Rafnuss/GeoPressureR/pull/7" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/pull/7</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-contributors-2-0">New Contributors<a class="anchor" aria-label="anchor" href="#new-contributors-2-0"></a></h3>
+<ul><li>@jsocolar made their first contribution in <a href="https://github.com/Rafnuss/GeoPressureR/pull/7" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/pull/7</a>
+</li></ul></div>
+<div class="section level3">
+<h3 id="full-changelog-2-0">Full Changelog<a class="anchor" aria-label="anchor" href="#full-changelog-2-0"></a></h3>
+<p><a href="https://github.com/Rafnuss/GeoPressureR/compare/v1.1-beta" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/compare/v1.1-beta</a>…v2.0-beta</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1" id="geopressurer-v11-beta">GeoPressureR v1.1-beta<a class="anchor" aria-label="anchor" href="#geopressurer-v11-beta"></a></h2>
+<div class="section level3">
+<h3 id="full-changelog-1-1">Full Changelog<a class="anchor" aria-label="anchor" href="#full-changelog-1-1"></a></h3>
+<p><a href="https://github.com/Rafnuss/GeoPressureR/commits/v1.1-beta" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commits/v1.1-beta</a></p>
+</div>
+</div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
