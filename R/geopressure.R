@@ -125,7 +125,13 @@ geopressure_map <- function(pressure,
   }
 
   # downscale to 1 hour
-  pres[format(pressure$date, "%M") != "00"] <- NA
+  # Find the start time closer to the hour
+  idt_s <- which.min(abs(round.POSIXt(pressure$date[seq_len(1 / dt)], units = "hours") -
+    pressure$date[seq_len(1 / dt)]))
+  # Define the index of time to keep
+  idt <- seq(idt_s, length(pressure$date), by = 1 / dt)
+  # Remove the other ones
+  pres[!(seq(1, length(pres)) %in% idt)] <- NA
 
   if (sum(!is.na(pres)) == 0) {
     stop("No pressure to query. Check outliar and staID==0 (for flight).")
