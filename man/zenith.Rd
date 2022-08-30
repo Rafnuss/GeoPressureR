@@ -22,7 +22,7 @@ Calculate the solar zenith angle for given times and locations
 \details{
 \code{zenith} uses the solar time and declination calculated by \code{solar} to compute the solar
 zenith angle for given times and locations, using the same methods as
-\url{www.esrl.noaa.gov/gmd/grad/solcalc/}.  This function does not adjust for atmospheric
+\url{http://www.esrl.noaa.gov/gmd/grad/solcalc/}.  This function does not adjust for atmospheric
 refraction see \code{\link{refracted}}.
 }
 \examples{
