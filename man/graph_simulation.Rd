@@ -15,7 +15,7 @@ graph_simulation(grl, nj = 10)
 List of simulated paths.
 }
 \description{
-This function simulates multiple trajectory fomr a graph. The trajectories consist of the
+This function simulates multiple trajectory from a graph. The trajectories consist of the
 positions at each stationary periods.
 }
 \seealso{

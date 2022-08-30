@@ -731,7 +731,7 @@ graph_marginal <- function(grl) {
 
 #' Simulation of trajectory
 #'
-#' This function simulates multiple trajectory fomr a graph. The trajectories consist of the
+#' This function simulates multiple trajectory from a graph. The trajectories consist of the
 #' positions at each stationary periods.
 #'
 #' @param grl Graph constructed with [`graph_create()`].
@@ -824,7 +824,7 @@ graph_simulation <- function(grl,
 #'
 #' @param path_id List or matrix of node index.
 #' @param grl Graph constructed with [`graph_create()`].
-#' @return List of the path with latitude and longitude and index fo the the path provided.
+#' @return List of the path with latitude and longitude and index of the the path provided.
 #' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-1-shortest-path)
 #' @export

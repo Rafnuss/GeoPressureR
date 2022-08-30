@@ -1,13 +1,13 @@
 Package: GeoPressureR
-Title: Global positioning by atmospheric pressure
 Version: 3.0
+Title: Global Positioning by Atmospheric Pressure
 Authors@R: c(
     person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8185-1020")),
     person("Mathieu", "Gravey", , "mathieu@mgravey.com", role = "aut",
            comment = c(ORCID = "0000-0002-0871-1507"))
   )
-Description: GeoPressureR seeks to help researchers analyse data retrieved from multi-sensor geolocators to accurately geoposition birds along their migratory journey. We focus in particular on geopositiong using atomspheric pressure measurements.
+Description: R package to determine the position of a bird based on the data retrieved from multi-sensor geolocators.
 License: GPL (>= 3)
 URL: https://github.com/Rafnuss/GeoPressureR,
     https://raphaelnussbaumer.com/GeoPressureR/

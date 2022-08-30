@@ -6,11 +6,11 @@
 #' each stationary periods separately
 #' 2. Read these map (geotiff) in a raster
 #' 3 compute the likelihood map from the mismatch. See
-#' [the GeoPressure API documentation](https://raphaelnussbaumer.com/GeoPressureServer/#description)
+#' [the GeoPressure API documentation](https://raphaelnussbaumer.com/GeoPressureAPI/#description)
 #'
 #' @param pressure Pressure data.frame from a PAM logger. This data.frame needs to contains `date`
 #' as POSIXt, `obs` in hPa, `sta_id` grouping observation measured during the same stationary period
-#' and `isoutliar` as logical to label observation which need to be ignorede. It is best practice to
+#' and `isoutliar` as logical to label observation which need to be ignored. It is best practice to
 #' use `pam_read()` and `pam_sta()` to build this data.frame.
 #' @param extent Geographical extent of the map to query as a list ordered by North, West, South,
 #'   East  (e.g. `c(50,-16,0,20)`).
@@ -158,7 +158,7 @@ geopressure_map <- function(pressure,
     stop(paste0(
       "Error with youre request on http://glp.mgravey.com:24853/GeoPressure/v1/map/. ",
       "Please try again, and if the problem persists, file an issue on Github:",
-      "https://github.com/Rafnuss/GeoPressureServer/issues/new?body=geopressure_ts&labels=crash
+      "https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_ts&labels=crash
         with this log file located on your computer: ", temp_file
     ))
   }
@@ -251,13 +251,13 @@ geopressure_map <- function(pressure,
 
 #' Compute probability raster
 #'
-#' This function convert the raster of noramlized MSE and altitude threshold \eqn{z_{thr}} computed
+#' This function convert the raster of normalized MSE and altitude threshold \eqn{z_{thr}} computed
 #' by [`geopressure_map()`] into a probability map with,
 #' \eqn{p = \exp \left(-w \frac{MSE}{s} \right) \left[z_{thr}>thr \right],}
-#' where \eqn{s} is the standard deviation of pressure and \eqn{thr} is the threashold. Because the
+#' where \eqn{s} is the standard deviation of pressure and \eqn{thr} is the threshold. Because the
 #' auto-correlation of the timeseries is not accounted for in this equation, we use a log-linear
 #' pooling weight \eqn{w=\log(n) - 1}, with \eqn{n} is the number of data point in the timeserie.
-#' This operation is describe in \url{https://doi.org/10.21203/rs.3.rs-1381915/v1}.
+#' This operation is describe in \doi{10.21203/rs.3.rs-1381915/v1}.
 #'
 #' @param pressure_maps List of raster built with [`geopressure_map()`].
 #' @param s Standard deviation of the pressure error.
@@ -350,7 +350,7 @@ geopressure_prob_map <- function(pressure_maps,
 #' and  \eqn{M} is the molar mass of air. See more information on
 #' [the GeoPressureAPI documentation](https://raphaelnussbaumer.com/GeoPressureAPI/#description-1).
 #'
-#' The timeserie of the response will be on the same as time if supply, otherwise, it will return
+#' The timeseries of the response will be on the same as time if supply, otherwise, it will return
 #' on a hourly basis between `start_time` and `end_time`.
 #'
 #' If the location query is over water, the location will be moved to the closest onshore location.
@@ -431,7 +431,7 @@ geopressure_ts <- function(lon,
     stop(paste0(
       "Error with youre request on http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/.",
       "Please try again, and if the problem persists, file an issue on Github:
-        https://github.com/Rafnuss/GeoPressureServer/issues/new?body=geopressure_ts&labels=crash
+        https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_ts&labels=crash
         with this log file located on your computer: ", temp_file
     ))
   }
@@ -518,7 +518,7 @@ geopressure_ts <- function(lon,
 #' explained in `geopressure_ts()`.
 #'
 #' @param path A data.frame of the position containing latitude (`lat`), longitude  (`lon`) and the
-#' stationay period id (`sta_id`) as column.
+#' stationary period id (`sta_id`) as column.
 #' @param pressure Pressure list from PAM logger dataset list.
 #' @param include_flight Extend request to also query the pressure and altitude during the previous
 #' and/or next flight. Flights are defined by a `sta_id=0`. Accept Logical or vector of -1 (previous
@@ -692,7 +692,7 @@ geopressure_map2path <- function(map,
       # between consecutive stationary period
       x <- path$sta_id
     } else {
-      # If flight are avialabe, sum of the all flights between stationay period
+      # If flight are avialabe, sum of the all flights between stationary period
       flight_duration <- unlist(lapply(map, function(r) {
         fl <- raster::metadata(r)$flight
         sum(as.numeric(difftime(fl$end,

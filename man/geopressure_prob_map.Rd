@@ -29,13 +29,13 @@ probability map and return the log-linear pooling weight (see the
 List of the probability raster map
 }
 \description{
-This function convert the raster of noramlized MSE and altitude threshold \eqn{z_{thr}} computed
+This function convert the raster of normalized MSE and altitude threshold \eqn{z_{thr}} computed
 by \code{\link[=geopressure_map]{geopressure_map()}} into a probability map with,
 \eqn{p = \exp \left(-w \frac{MSE}{s} \right) \left[z_{thr}>thr \right],}
-where \eqn{s} is the standard deviation of pressure and \eqn{thr} is the threashold. Because the
+where \eqn{s} is the standard deviation of pressure and \eqn{thr} is the threshold. Because the
 auto-correlation of the timeseries is not accounted for in this equation, we use a log-linear
 pooling weight \eqn{w=\log(n) - 1}, with \eqn{n} is the number of data point in the timeserie.
-This operation is describe in \url{https://doi.org/10.21203/rs.3.rs-1381915/v1}.
+This operation is describe in \doi{10.21203/rs.3.rs-1381915/v1}.
 }
 \examples{
 # See geopressure_map() for generating pressure_maps

@@ -47,7 +47,7 @@ temperature lapse rate, \eqn{R} is the universal gas constant, \eqn{g} is the gr
 and  \eqn{M} is the molar mass of air. See more information on
 \href{https://raphaelnussbaumer.com/GeoPressureAPI/#description-1}{the GeoPressureAPI documentation}.
 
-The timeserie of the response will be on the same as time if supply, otherwise, it will return
+The timeseries of the response will be on the same as time if supply, otherwise, it will return
 on a hourly basis between \code{start_time} and \code{end_time}.
 
 If the location query is over water, the location will be moved to the closest onshore location.

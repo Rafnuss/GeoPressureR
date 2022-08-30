@@ -150,7 +150,7 @@ pam_read_delim_dto <- function(path, skip = 6, col = 3, date_format = "%d.%m.%Y 
 #' Automatic classification of pam
 #'
 #' This function uses activity data to classify migratory flapping flight. It returns the same data
-#' list `pam` adding a column `ismig` to the data.frame `acceleration`. This fonction is inspired by
+#' list `pam` adding a column `ismig` to the data.frame `acceleration`. This function is inspired by
 #' the function `classify_flap` from the [PAMLr package](https://github.com/KiranLDA/pamlr).
 #'
 #' @param pam logger dataset list. See [`pam_read()`].
