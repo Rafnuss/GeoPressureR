@@ -14,3 +14,7 @@
 ^Meta$
 ^\.lintr$
 ^CITATION\.cff$
+^cran-comments.md$
+^data-raw$
+^inst/geopressureviz/geopressureviz\.RData$
+^\.DS_Store$

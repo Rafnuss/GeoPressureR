@@ -3,14 +3,15 @@ citHeader("To cite GeoPressureR in publications use the following according to y
 citEntry(
   entry   = "misc",
   textVersion = "nussbaumer2022a",
-  title   = "Global positioning by atmospheric pressure retrieved from multi-sensor geolocators",
+  title   = "Global positioning with animal-borne pressure sensors",
   author  = personList(
   person("Raphael", "Nussbaumer", email = "rafnuss@gmail.com", comment = c(ORCID = "0000-0002-8185-1020")),
     person("Mathieu", "Gravey", email = "mathieu@mgravey.com", comment = c(ORCID = "0000-0002-0871-1507")),
+    person("Martins", "Briedis"),
     person("Felix", "Liechti", email = "felix.liechti@vogelwarte.ch", comment = c(ORCID = "0000-0001-9473-0837"))
   ),
-  doi     = "10.21203/rs.3.rs-1381915/v1",
-  url     = "https://doi.org/10.21203/rs.3.rs-1381915/v1",
+  doi     = "10.21203/rs.3.rs-1381915/v2",
+  url     = "https://doi.org/10.21203/rs.3.rs-1381915/v2",
   pages   = "1--18",
   year    = "2022"
 )
@@ -25,8 +26,8 @@ citEntry(
     person("Martins", "Briedis"),
     person("Felix", "Liechti", email = "felix.liechti@vogelwarte.ch", comment = c(ORCID = "0000-0001-9473-0837"))
   ),
-  doi     = "10.21203/rs-1693751/v1",
-  url     = "https://doi.org/10.21203/rs-1693751/v1",
+  doi     = "10.21203/rs.3.rs-1693751/v1",
+  url     = "https://doi.org/10.21203/rs.3.rs-1693751/v1",
   pages   = "1--32",
   year    = "2022"
 )

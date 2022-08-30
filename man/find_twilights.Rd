@@ -10,10 +10,11 @@ find_twilights(light, threshold = NA, shift_k = NA)
 \item{light}{a dataframe with columns \code{date} and \code{obs} that are the sequence of sample
 times (as POSIXct) and light levels recorded by the tag.}
 
-\item{threshold}{the light threshold that defines twilight.}
+\item{threshold}{the light threshold that defines twilight. If not provided, it uses the first
+light (i.e, \code{obs>0}).}
 
 \item{shift_k}{shift of the middle of the night compared to 00:00 UTC (in seconds). If not
-provided, will try to figure it out from the data}
+provided, it will take the middle of all nights.}
 }
 \value{
 A data.frame with columns \code{twilight} (date-time of twilights) and \code{rise} (logical)
@@ -24,13 +25,13 @@ from \href{https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html}{\code
 package \code{TwGeos}.
 }
 \examples{
-pam_data <- pam_read(
-  pathname = system.file("extdata", package = "GeoPressureR"),
+pam <- pam_read(
+  pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
-twl <- find_twilights(pam_data$light)
+twl <- find_twilights(pam$light)
 head(twl)
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureR/articles/light-map.html}{Vignette Light Map }
+\href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#twilight-annotation}{GeoPressureManual | Light Map }
 }

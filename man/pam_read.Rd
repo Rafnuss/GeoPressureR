@@ -17,8 +17,7 @@ pam_read(
 \arguments{
 \item{pathname}{path of the directory where the files are stored}
 
-\item{pressure_file}{file with pressure data. Extension must be \code{.pressure}, \code{.deg} or \code{NA} if
-absent.}
+\item{pressure_file}{file with pressure data. Extension must be \code{.pressure}, \code{.deg}.}
 
 \item{light_file}{file with light data. Extension must be \code{.glf}, \code{.lux} or \code{NA} if absent.}
 
@@ -37,24 +36,23 @@ a list of data.frames of pressure, light and acceleration.
 }
 \description{
 Imports multi-sensor logger data from a folder (\code{pathname}) and optionally crop at specific date.
-The file provided can be exact (e.g., \code{"18LX_20180725.pressure"}) or using regex expression
-(e.g., \code{"*.pressure"}).
+The \verb{*_file} arguments are matched using a regex expression (e.g., \code{"*.pressure"} matches any
+files with the extension \code{pressure}).
 }
 \details{
 Create \href{https://github.com/Rafnuss/GeoPressureR/issues/new}{an issue on github} if you have data
 in a format not supported yet.
 }
 \examples{
-pam_data <- pam_read(
-  pathname = system.file("extdata", package = "GeoPressureR"),
-  crop_start = "2017-06-20", crop_end = "2018-05-02"
+pam <- pam_read(
+  pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR")
 )
-summary(pam_data)
-head(pam_data$id)
-head(pam_data$pressure)
-head(pam_data$light)
-head(pam_data$acceleration)
+summary(pam)
+head(pam$id)
+head(pam$pressure)
+head(pam$light)
+head(pam$acceleration)
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
+\href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#read-geolocator-data}{GeoPressureManual | Pressure Map }
 }

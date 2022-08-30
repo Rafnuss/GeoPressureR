@@ -27,39 +27,6 @@ latitude and longitude. \code{interp} can be used to interpolate unrealistic pos
 stationary period based on the position of the longer ones. The interpolation assumes that the
 first and last stationary period can be safely estimated from the probability map.
 }
-\examples{
-pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda",
-  package = "GeoPressureR"
-))
-path_all <- geopressure_map2path(pressure_prob)
-path_interp <- geopressure_map2path(pressure_prob, interp = 2)
-sta_duration <- unlist(lapply(pressure_prob, function(x) {
-  as.numeric(difftime(raster::metadata(x)$temporal_extent[2],
-    raster::metadata(x)$temporal_extent[1],
-    units = "days"
-  ))
-}))
-m <- leaflet::leaflet()
-m <- leaflet::addProviderTiles(m, leaflet::providers$Stamen.TerrainBackground)
-m <- leaflet.extras::addFullscreenControl(m)
-m <- leaflet::addPolylines(m,
-  lng = path_all$lon, lat = path_all$lat, opacity = 1,
-  color = "#a6cee3", weight = 3
-)
-m <- leaflet::addCircles(m,
-  lng = path_all$lon, lat = path_all$lat, opacity = 1,
-  color = "#1f78b4", weight = sta_duration^(0.3) * 10
-)
-m <- leaflet::addPolylines(m,
-  lng = path_interp$lon, lat = path_interp$lat, opacity = 1,
-  color = "#b2df8a", weight = 3
-)
-m <- leaflet::addCircles(m,
-  lng = path_interp$lon, lat = path_interp$lat, opacity = 1,
-  color = "#33a02c", weight = sta_duration^(0.3) * 10
-)
-m
-}
 \seealso{
-\code{\link[=geopressure_prob_map]{geopressure_prob_map()}}, \code{\link[=geopressure_ts_path]{geopressure_ts_path()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/pressure-map.html}{Vignette Pressure Map }
+\code{\link[=geopressure_prob_map]{geopressure_prob_map()}}, \code{\link[=geopressure_ts_path]{geopressure_ts_path()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude}{GeoPressureManual | Pressure Map }
 }

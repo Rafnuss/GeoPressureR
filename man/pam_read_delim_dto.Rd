@@ -2,7 +2,7 @@
 % Please edit documentation in R/pam.R
 \name{pam_read_delim_dto}
 \alias{pam_read_delim_dto}
-\title{Read data file with DTO format (Date Time Observation)}
+\title{Read data file with a DTO format (Date Time Observation)}
 \usage{
 pam_read_delim_dto(
   path,
@@ -21,5 +21,8 @@ pam_read_delim_dto(
 \item{date_format}{format of the date}
 }
 \description{
-Read data file with DTO format (Date Time Observation)
+Read data file with a DTO format (Date Time Observation)
+}
+\seealso{
+\code{\link[=pam_read]{pam_read()}}
 }

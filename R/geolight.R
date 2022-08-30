@@ -4,7 +4,7 @@
 # The functions presented here are based on code and the excel
 # spreadsheet from the NOAA site
 #
-#       http://www.esrl.noaa.gov/gmd/grad/solcalc/
+#       https://gml.noaa.gov/grad/solcalc/
 #
 
 
@@ -13,7 +13,7 @@
 #' The solar time, the equation of time and the sine and cosine of
 #' the solar declination are calculated for the times specified by
 #' \code{tm} using the same methods as
-#' \url{www.esrl.noaa.gov/gmd/grad/solcalc/}.
+#' \url{https://gml.noaa.gov/grad/solcalc/}.
 #' @title Solar Time and Declination
 #' @param tm a vector of POSIXct times.
 #' @return A list containing the following vectors.
@@ -97,7 +97,7 @@ solar <- function(tm) {
 #'
 #' \code{zenith} uses the solar time and declination calculated by \code{solar} to compute the solar
 #' zenith angle for given times and locations, using the same methods as
-#' \url{www.esrl.noaa.gov/gmd/grad/solcalc/}.  This function does not adjust for atmospheric
+#' \url{https://gml.noaa.gov/grad/solcalc/}.  This function does not adjust for atmospheric
 #' refraction see \code{\link{refracted}}.
 #' @title Solar Zenith Angle
 #' @param sun list of solar time and declination computed by \code{solar}.
@@ -174,21 +174,24 @@ refracted <- function(zenith) {
 #'
 #' @param light a dataframe with columns \code{date} and \code{obs} that are the sequence of sample
 #' times (as POSIXct) and light levels recorded by the tag.
-#' @param threshold the light threshold that defines twilight.
+#' @param threshold the light threshold that defines twilight. If not provided, it uses the first
+#' light (i.e, `obs>0`).
 #' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
-#' provided, will try to figure it out from the data
+#' provided, it will take the middle of all nights.
 #' @return A data.frame with columns `twilight` (date-time of twilights) and `rise` (logical)
-#' @seealso [Vignette Light Map
-#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/light-map.html)
+#' @seealso [GeoPressureManual | Light Map
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#twilight-annotation)
 #' @examples
-#' pam_data <- pam_read(
-#'   pathname = system.file("extdata", package = "GeoPressureR"),
+#' pam <- pam_read(
+#'   pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
 #'   crop_start = "2017-06-20", crop_end = "2018-05-02"
 #' )
-#' twl <- find_twilights(pam_data$light)
+#' twl <- find_twilights(pam$light)
 #' head(twl)
 #' @export
-find_twilights <- function(light, threshold = NA, shift_k = NA) {
+find_twilights <- function(light,
+                           threshold = NA,
+                           shift_k = NA) {
   stopifnot(is.data.frame(light))
   stopifnot("date" %in% names(light))
   stopifnot(inherits(light$date, "POSIXt"))

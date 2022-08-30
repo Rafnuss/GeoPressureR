@@ -45,9 +45,10 @@ representing the E-W as real and S-N as imaginary.
 \item \code{temporal_extent}: start and end date time retrieved from the metadata of \code{static_prob}.
 }
 
-The vignette \href{/articles/basic-graph.html}{Basic graph} provided an example how to prepare the
+The \href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph}{GeoPressureManual | Basic graph} provided an
+example how to prepare the
 data for the function and the output of this function.
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html}{Vignette Basic Graph }
+\href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph}{GeoPressureManual | Basic graph}
 }

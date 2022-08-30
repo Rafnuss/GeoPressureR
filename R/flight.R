@@ -4,7 +4,7 @@
 #' power curve: mass, wing span, wing aspect ratio and body frontal area.
 #'
 #' When any of these variables are missing, we query the
-#' \href{https://doi.org/10.6084/m9.figshare.16586228.v5/}{AVONET database} using the scientific
+#' \doi{10.6084/m9.figshare.16586228.v5}{AVONET database} using the scientific
 #' name from \href{https://www.birds.cornell.edu/clementschecklist/}{the Clements Checklist}.
 #'
 #' @param species_name Scientific name of the species
@@ -32,10 +32,6 @@ flight_bird <- function(species_name,
   if (is.na(mass) || (is.na(wing_aspect) + is.na(wing_area) +
     is.na(wing_span) > 1)) {
     # Mass, wing length and secondary length are retrived from the AVONET
-    avonet <- utils::read.csv(system.file("extdata", "avonet_clements.csv",
-      package = "GeoPressureR"
-    ))
-
     sp_id <- grep(species_name, avonet$species, ignore.case = TRUE)
     if (length(sp_id) == 0) {
       tmp <- print(avonet[agrep(species_name,
@@ -137,7 +133,8 @@ flight_bird <- function(species_name,
 #' plot(airspeed, power, xlab = "Airspeed [m/s]", ylab = "Mechanical Power [W]", type = "l")
 #' @export
 #' @seealso [`flight_bird()`], [`flight_prob()`]
-flight_power <- function(as, bird) {
+flight_power <- function(as,
+                         bird) {
   stopifnot(is.numeric(as))
   stopifnot(as >= 0)
   stopifnot(is.list(bird))

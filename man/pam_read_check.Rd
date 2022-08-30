@@ -2,7 +2,7 @@
 % Please edit documentation in R/pam.R
 \name{pam_read_check}
 \alias{pam_read_check}
-\title{Check that file exists and is unique}
+\title{Check that a given \code{pathname} and \code{file} exists and is unique.}
 \usage{
 pam_read_check(pathname, file)
 }
@@ -12,5 +12,8 @@ pam_read_check(pathname, file)
 \item{file}{is the name of he file}
 }
 \description{
-Check that file exists and is unique
+Check that a given \code{pathname} and \code{file} exists and is unique.
+}
+\seealso{
+\code{\link[=pam_read]{pam_read()}}
 }

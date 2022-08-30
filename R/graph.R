@@ -23,7 +23,9 @@
 #' * `resolution`: raster res of the `static_prob`,
 #' * `temporal_extent`: start and end date time retrieved from the metadata of `static_prob`.
 #'
-#' The vignette [Basic graph](/articles/basic-graph.html) provided an example how to prepare the
+#' The [GeoPressureManual | Basic graph](
+#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph) provided an
+#' example how to prepare the
 #' data for the function and the output of this function.
 #'
 #' @param static_prob List of raster containing probability map of each stationary period. The
@@ -32,10 +34,12 @@
 #' @param thr_prob_percentile Threshold of percentile (see details).
 #' @param thr_gs Threshold of groundspeed (km/h)  (see details).
 #' @return Graph as a list (see details).
-#' @seealso [Vignette Basic Graph
-#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html)
+#' @seealso [GeoPressureManual | Basic graph](
+#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph)
 #' @export
-graph_create <- function(static_prob, thr_prob_percentile = .99, thr_gs = 150) {
+graph_create <- function(static_prob,
+                         thr_prob_percentile = .99,
+                         thr_gs = 150) {
 
   # Check input
   stopifnot(is.list(static_prob))
@@ -338,8 +342,7 @@ graph_trim <- function(gr) {
 #' Read NetCDF file downloaded on your computer and add the average windspeed experienced by the
 #' bird and the corresponding airspeed for each edge of the graph.
 #'
-#' See the vignette [Graph with wind
-#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/wind-graph.html) for explanations and
+#' See the [GeoPressureManual | Wind graph](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data) for explanations and
 #' example on how to download the `NetCDF` files from ERA-5.
 #'
 #' @param grl graph constructed with [`graph_create()`]
@@ -350,10 +353,13 @@ graph_trim <- function(gr) {
 #' @param thr_as Threshold of airspeed (km/h).
 #' @return Graph as a list with windspeed and airspeed as `ws` and `as` respectively (see
 #' [`graph_create()`] for more detail on the graph returned).
-#' @seealso [`graph_create()`], [Vignette Wind Graph
-#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/wind-graph.html)
+#' @seealso [`graph_create()`], [GeoPressureManual | Wind graph](
+#' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph)
 #' @export
-graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
+graph_add_wind <- function(grl,
+                           pressure,
+                           filename,
+                           thr_as = Inf) {
   stopifnot(is.list(grl))
   stopifnot(c("s", "t", "gs", "sz", "lat", "lon", "flight") %in% names(grl))
   stopifnot(length(grl$s) > 0)
@@ -641,8 +647,8 @@ graph_add_wind <- function(grl, pressure, filename, thr_as = Inf) {
 #'
 #' @param grl graph constructed with [`graph_create()`]
 #' @return list of raster of the marginal probability at each stationary period
-#' @seealso [`graph_create()`], [Vignette Basic Graph
-#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html)
+#' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
+#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-proability-map-of-stationary-period)
 #' @export
 graph_marginal <- function(grl) {
   stopifnot(is.list(grl))
@@ -725,16 +731,17 @@ graph_marginal <- function(grl) {
 
 #' Simulation of trajectory
 #'
-#' This function simulates multiple trajectory fomr a graph. The trajectories consist of the
+#' This function simulates multiple trajectory from a graph. The trajectories consist of the
 #' positions at each stationary periods.
 #'
 #' @param grl Graph constructed with [`graph_create()`].
 #' @param nj Number of simulation.
 #' @return List of simulated paths.
-#' @seealso [`graph_create()`], [Vignette Basic Graph
-#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html)
+#' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
+#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-3-simulate-path)
 #' @export
-graph_simulation <- function(grl, nj = 10) {
+graph_simulation <- function(grl,
+                             nj = 10) {
   stopifnot(is.list(grl))
   stopifnot(c(
     "s", "t", "p", "sz", "lat", "lon", "equipement", "retrival",
@@ -817,11 +824,12 @@ graph_simulation <- function(grl, nj = 10) {
 #'
 #' @param path_id List or matrix of node index.
 #' @param grl Graph constructed with [`graph_create()`].
-#' @return List of the path with latitude and longitude and index fo the the path provided.
-#' @seealso [`graph_create()`], [Vignette Basic Graph
-#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html)
+#' @return List of the path with latitude and longitude and index of the the path provided.
+#' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
+#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-1-shortest-path)
 #' @export
-graph_path2lonlat <- function(path_id, grl) {
+graph_path2lonlat <- function(path_id,
+                              grl) {
   stopifnot(is.list(grl))
   stopifnot(c("s", "t", "sz", "lat", "lon", "sta_id") %in% names(grl))
   stopifnot(length(grl$s) > 0)
@@ -846,10 +854,11 @@ graph_path2lonlat <- function(path_id, grl) {
 #' @param path_id List or matrix of node index (`nj x nsta`).
 #' @param grl Graph constructed with [`graph_create()`].
 #' @return List or matrix of the edge `nj x (nsta-1)`.
-#' @seealso [`graph_create()`], [Vignette Basic Graph
-#' ](https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html)
+#' @seealso [`graph_create()`], [GeoPressureManual | Wind graph](
+#' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#energy)
 #' @export
-graph_path2edge <- function(path_id, grl) {
+graph_path2edge <- function(path_id,
+                            grl) {
   stopifnot(is.list(grl))
   stopifnot(c("s", "t") %in% names(grl))
   stopifnot(length(grl$s) > 0)

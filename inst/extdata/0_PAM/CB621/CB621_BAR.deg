@@ -1,0 +1,36 @@
+Migrate Technology Ltd logger
+Type: 13.2061.8, current settings: Approx 1'C resolution. Altimeter fitted. Light range 5, clipped OFF, max light regime, floor 0.08lux.
+Logger number: CB621
+
+MODE: 15 (light, temperature, pressure recorded)
+LIGHT: Sampled every minute with max light recorded every 5mins.
+TEMPERATURE and PRESSURE: Sampled and recorded every 30mins.
+WET/DRY and CONDUCTIVITY: NOT RECORDED
+Max record length = 16 months. Total battery life approx 13 months. Logger is currently 14 months old.
+
+Programmed: 15/05/2021 21:08:35. Start of logging (DD/MM/YYYY HH:MM:SS): 15/06/2021 21:08:35
+Age at start of logging (secs): 7808378, approx 3 months
+End of logging (DD/MM/YYYY HH:MM:SS): 01/05/2022 19:00:40
+Age at end of logging (secs): 35448642, approx 14 months
+Timer (DDDDD:HH:MM:SS): 00319:21:51:04
+Drift (secs): 61. Memory not full. 
+Pointers: 49613,198240,6316128,6316128,0,0,53,50% light mem used,61% wet/dry/temp mem used
+Tcals (Ax^3+Bx^2+Cx+D): NaN,NaN,NaN,NaN
+Approx 1'C resolution. Altimeter fitted. Light range 5, clipped OFF, max light regime, floor 0.08lux.
+DD/MM/YYYY HH:MM:SS	T('C)	P(Pa)
+15/06/2021 21:38:35	40.427	101088.835
+15/06/2021 22:08:35	40.628	101094.699
+15/06/2021 22:38:35	39.976	101097.655
+15/06/2021 23:08:35	40.812	101120.818
+15/06/2021 23:38:35	32.887	101124.494
+16/06/2021 00:08:35	37.827	101176.488
+16/06/2021 00:38:35	37.502	101176.264
+16/06/2021 01:08:35	37.086	101214.229
+16/06/2021 01:38:35	36.629	101205.989
+16/06/2021 02:08:35	36.395	101230.582
+16/06/2021 02:38:35	35.992	101264.815
+16/06/2021 03:08:35	35.920	101286.390
+16/06/2021 03:38:35	35.755	101284.547
+16/06/2021 04:08:35	35.477	101307.159
+16/06/2021 04:38:35	35.529	101300.606
+16/06/2021 05:08:35	35.442	101308.835

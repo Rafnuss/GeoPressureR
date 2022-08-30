@@ -28,37 +28,18 @@ reference:
   - find_twilights
   - light2mat
 - title: Graph
-  desc: create a graph and compute graph products
+  desc: Create a graph and compute graph products
   contents:
   - starts_with("graph_")
 - title: Flight
-  desc: groundspeed or airspeed to probability
+  desc: Convert groundspeed or airspeed to probability
   contents:
   - starts_with("flight_")
 
 navbar:
   left:
-    - text: "Part 1: Pressure"
-      menu:
-      -  text: "1. Labelling Tracks"
-         href: articles/labelling-tracks.html
-      -  text: "2. Pressure Map"
-         href: articles/pressure-map.html
-      -  text: "3. Light Map"
-         href: articles/light-map.html
-      -  text: "Probability Aggregation"
-         href: articles/probability-aggregation.html
-    - text: "Part 2: Trajectory"
-      menu:
-      -  text: "1. Preparing Data"
-         href: articles/preparing-data.html
-      -  text: "2. Basic Graph"
-         href: articles/basic-graph.html
-      -  text: "3. Wind Graph"
-         href: articles/wind-graph.html
-      -  text: "Gridded Gibbs"
-         href: articles/gridded-gibbs.html
     - text: "Reference"
       href: reference/index.html
-    - text: "Start your Study"
-      href: https://github.com/Rafnuss/GeoPressureTemplate#readme
+    - text: "News"
+      href: news/index.html
+

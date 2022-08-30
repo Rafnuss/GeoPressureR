@@ -18,5 +18,5 @@ List or matrix of the edge \verb{nj x (nsta-1)}.
 Very inefficient way to find the edges...
 }
 \seealso{
-\code{\link[=graph_create]{graph_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureR/articles/basic-graph.html}{Vignette Basic Graph }
+\code{\link[=graph_create]{graph_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#energy}{GeoPressureManual | Wind graph}
 }
