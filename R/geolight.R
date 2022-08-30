@@ -266,28 +266,37 @@ light2mat <- function(light, shift_k = 0) {
   stopifnot(is.numeric(shift_k))
 
   res <- difftime(utils::tail(light$date, -1), utils::head(light$date, -1), units = "secs")
-  stopifnot(length(unique(res)) == 1)
+  if (length(unique(res)) != 1){
+    stop("Temporal resolution of the light data is not the same. The code currently cannot work.")
+  }
   res <- as.numeric(res[1])
 
   # Pad time to start and finish at 00:00
   date <- seq(
     from = as.POSIXct(format(light$date[1] + shift_k, "%Y-%m-%d"), tz = "UTC"),
     to = as.POSIXct(format(light$date[length(light$date)] + shift_k, "%Y-%m-%d"),
-      tz = "UTC"
+                    tz = "UTC"
     ) + 60 * 60 * 24 - res,
     by = res
   )
   date <- date - shift_k
 
+  # if light$date is not measuring at 00:00 exacly, we need to move date
+  closest <- which.min(abs(date - light$date[1]))
+  date <- date - (date[closest] - light$date[1])
+
+  # Match the observation on the new grid
   obs <- rep(NA, length(date))
-  obs[date %in% light$date] <- light$obs
+  id <- date %in% light$date
+  stopifnot(any(id))
+  obs[id] <- light$obs
 
   # reshape in matrix format
   mat <- list(
     obs = matrix(obs, nrow = 24 * 60 * 60 / res),
     date = matrix(date, nrow = 24 * 60 * 60 / res)
   )
-  # raster::image(obs_r)
+  # raster::image(mat$obs)
   mat$date <- as.POSIXct(mat$date, origin = "1970-01-01", tz = "UTC")
 
   return(mat)
