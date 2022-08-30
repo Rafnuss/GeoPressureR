@@ -1,6 +1,6 @@
 Package: GeoPressureR
-Version: 3.0
 Title: Global Positioning by Atmospheric Pressure
+Version: 3.0.0
 Authors@R: c(
     person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8185-1020")),
@@ -50,8 +50,6 @@ Suggests:
     rnaturalearth,
     covr,
     gridExtra
-VignetteBuilder: 
-    knitr
 biocViews:
 Config/testthat/edition: 3
 Encoding: UTF-8
