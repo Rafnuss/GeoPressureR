@@ -378,8 +378,9 @@ geopressure_prob_map <- function(pressure_maps,
 #' @param end_time If `pressure` is not provided, then `end_time` define the ending time of
 #' the timeserie as POSIXlt.
 #' @param verbose Display (or not) the progress of the query (logical).
-#' @return A data.frame containing the timeserie of pressure and optionally altitude if `pressure`
-#' is provided.
+#' @return A data.frame containing the timeserie of ERA5 pressure (date, pressure) as well as
+#' longitude  and latitude (different if over water). If `pressure` is provided, the return
+#' data.frame is the same as `pressure` with altitude and pressure0.
 #' @seealso [`geopressure_ts_path()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html),
 #' @export
@@ -449,7 +450,7 @@ geopressure_ts <- function(lon,
   # Check for change in position
   if (res_data$distInter > 0) {
     warning(
-      "Requested position is on water We will proceeed the request with the closet point to the ",
+      "Requested position is on water. We will proceeed the request with the closet point to the ",
       "shore (https://www.google.com/maps/dir/", lat, ",", lon, "/", res_data$lat, ",",
       res_data$lon, ") located ", round(res_data$distInter / 1000), " km away). Sending request."
     )
@@ -458,7 +459,6 @@ geopressure_ts <- function(lon,
   }
 
   # Download the csv file
-  message("")
   res2 <- httr::GET(res_data$url)
 
   # read csv
@@ -491,9 +491,19 @@ geopressure_ts <- function(lon,
 
   # Compute the ERA5 pressure normalized to the pressure level (i.e. altitude) of the bird
   if (!is.null(pressure)) {
+    if (nrow(out) != nrow(pressure)) {
+      warning(
+        "The returned data.frame is had a different number of element than the requested ",
+        "pressure."
+      )
+    }
+
+    # Use a merge to combine all information possible from out into pressure.
+    out <- merge(pressure, out, all.x = TRUE)
+
     # find when the bird was in flight or not to be considered
     id_0 <- pressure$sta_id == 0 | is.na(pressure$sta_id)
-    # If no ground (ie. no flight) is present, pressure0 has no meaning
+    # If no ground (ie. only flight) is present, pressure0 has no meaning
     if (!all(id_0)) {
       # We compute the mean pressure of the geolocator only when the bird is on the ground
       # (id_q==0) and when not marked as outliar
@@ -504,9 +514,6 @@ geopressure_ts <- function(lon,
 
       out$pressure0 <- out$pressure - pressure_out_m + pressure_obs_m
     }
-
-    # Add sta_id, lat and lon
-    out$sta_id <- pressure$sta_id
   }
   return(out)
 }
