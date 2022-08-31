@@ -381,13 +381,6 @@ graph_add_wind <- function(grl,
   # Prepare the matrix of speed to return
   uv <- matrix(NA, nrow = length(grl$s), ncol = 2)
 
-  # Start progress bar
-  nds_expend_sum <- table(s[, 3])
-  progress_bar(0,
-    max = sum(nds_expend_sum),
-    text = paste0("| sta = ", 0, "/", grl$sz[3] - 1)
-  )
-
   # Check that all the files of wind_speed exist and match the data request
   for (i1 in seq_len(grl$sz[3] - 1)) {
     fl_s <- grl$flight[[i1]]
@@ -408,12 +401,19 @@ graph_add_wind <- function(grl,
 
       pres <- ncdf4::ncvar_get(nc, "level")
       t_q <- seq(from = t_s, to = t_e, by = 60 * 60)
-      pres_obs <- pressure$obs[pressure$date %in% t_q]
-      if (!(min(pres) <= min(pres_obs) && max(pres) >= min(1000, max(pres_obs)))) {
+      pres_obs <- pressure$obs[pressure$date>t_s & pressure$date<t_e]
+      if (length(pres_obs)==0 | !(min(pres) <= min(pres_obs) && max(pres) >= min(1000, max(pres_obs)))) {
         stop(paste0("Pressure not matching for sta=", i_s))
       }
     }
   }
+
+  # Start progress bar
+  nds_expend_sum <- table(s[, 3])
+  progress_bar(0,
+               max = sum(nds_expend_sum),
+               text = paste0("| sta = ", 0, "/", grl$sz[3] - 1)
+  )
 
   # Loop through the stationary period kept in the graph
   for (i1 in seq_len(grl$sz[3] - 1)) {
@@ -539,7 +539,7 @@ graph_add_wind <- function(grl,
         id_time <- which(time == t_q[i3])
         # find the two pressure level to query (one above, one under) based on the geolocator
         # pressure at this timestep
-        pres_obs <- pressure$obs[pressure$date == t_q[i3]]
+        pres_obs <- approx(pressure$date, pressure$obs, t_q[i3])$y
         df <- pres_obs - pres
         df[df < 0] <- NA
         id_pres <- which.min(df)
