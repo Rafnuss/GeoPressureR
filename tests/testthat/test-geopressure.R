@@ -7,7 +7,8 @@ pam <- pam_read(
 )
 pam <- trainset_read(
   pam,
-  pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR"))
+  pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
+)
 pam <- pam_sta(pam)
 
 
@@ -27,17 +28,18 @@ test_that("Check geopressure_map() output", {
 })
 
 pressure_maps <- geopressure_map(pam$pressure,
-                                 extent = c(50, -16, 0, 23),
-                                 scale = 10,
-                                 max_sample = 100,
-                                 margin = 30)
+  extent = c(50, -16, 0, 23),
+  scale = 10,
+  max_sample = 100,
+  margin = 30
+)
 
 
 test_that("Check geopressure_prob_map() output", {
   expect_error(geopressure_prob_map(pressure_maps), NA)
-  expect_error(geopressure_prob_map(pressure_maps, s="not_a_number"))
-  expect_error(geopressure_prob_map(pressure_maps, thr="not_a_number"))
-  expect_error(geopressure_prob_map(pressure_maps, fun_w="not_a_function"))
+  expect_error(geopressure_prob_map(pressure_maps, s = "not_a_number"))
+  expect_error(geopressure_prob_map(pressure_maps, thr = "not_a_number"))
+  expect_error(geopressure_prob_map(pressure_maps, fun_w = "not_a_function"))
 })
 pressure_prob <- geopressure_prob_map(pressure_maps)
 
@@ -135,7 +137,7 @@ test_that("Check geopressure_ts_path() output", {
   expect_equal(nrow(pressure_timeserie[[1]]), sum(n[c(1, 3)]))
 
   # test with multiple sta
-  path <- path_pressure[c(3,4), ]
+  path <- path_pressure[c(3, 4), ]
   pressure_timeserie <- geopressure_ts_path(path, pressure)
   expect_equal(nrow(pressure_timeserie[[2]]), n[2])
   pressure_timeserie <- geopressure_ts_path(path, pressure, include_flight = c(-1, 0))
@@ -146,6 +148,3 @@ test_that("Check geopressure_ts_path() output", {
   expect_warning(pressure_timeserie <- geopressure_ts_path(path, pressure))
   expect_true(pressure_timeserie[[1]]$lat[1] != 0)
 })
-
-
-

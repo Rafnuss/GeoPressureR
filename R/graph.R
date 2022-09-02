@@ -450,8 +450,8 @@ graph_download_wind <- function(pam,
 #' Read NetCDF file downloaded on your computer and add the average windspeed experienced by the
 #' bird and the corresponding airspeed for each edge of the graph.
 #'
-#' See the [GeoPressureManual | Wind graph](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data) for explanations and
-#' example on how to download the `NetCDF` files from ERA-5.
+#' See the [GeoPressureManual | Wind graph](
+#' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data) for
 #' explanations and example on how to download the `NetCDF` files from ERA-5.
 #'
 #' @param grl graph constructed with [`graph_create()`]
@@ -510,8 +510,9 @@ graph_add_wind <- function(grl,
 
       pres <- ncdf4::ncvar_get(nc, "level")
       t_q <- seq(from = t_s, to = t_e, by = 60 * 60)
-      pres_obs <- pressure$obs[pressure$date>t_s & pressure$date<t_e]
-      if (length(pres_obs)==0 | !(min(pres) <= min(pres_obs) && max(pres) >= min(1000, max(pres_obs)))) {
+      pres_obs <- pressure$obs[pressure$date > t_s & pressure$date < t_e]
+      if (length(pres_obs) == 0 |
+          !(min(pres) <= min(pres_obs) &&
             max(pres) >= min(1000, max(pres_obs)))) {
         stop(paste0("Pressure not matching for sta=", i_s))
       }
@@ -521,8 +522,7 @@ graph_add_wind <- function(grl,
   # Start progress bar
   nds_expend_sum <- table(s[, 3])
   progress_bar(0,
-               max = sum(nds_expend_sum),
-               text = paste0("| sta = ", 0, "/", grl$sz[3] - 1)
+    max = sum(nds_expend_sum),
     text = paste0("| sta = ", 0, "/", grl$sz[3] - 1)
   )
 
@@ -650,7 +650,6 @@ graph_add_wind <- function(grl,
         id_time <- which(time == t_q[i3])
         # find the two pressure level to query (one above, one under) based on the geolocator
         # pressure at this timestep
-        pres_obs <- approx(pressure$date, pressure$obs, t_q[i3])$y
         pres_obs <- stats::approx(pressure$date, pressure$obs, t_q[i3])$y
         df <- pres_obs - pres
         df[df < 0] <- NA
@@ -760,7 +759,6 @@ graph_add_wind <- function(grl,
 #' @param grl graph constructed with [`graph_create()`]
 #' @return list of raster of the marginal probability at each stationary period
 #' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
-#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-proability-map-of-stationary-period)
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map)
 #' @export
 graph_marginal <- function(grl) {

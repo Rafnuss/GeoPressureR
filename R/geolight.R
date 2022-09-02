@@ -266,7 +266,7 @@ light2mat <- function(light, shift_k = 0) {
   stopifnot(is.numeric(shift_k))
 
   res <- difftime(utils::tail(light$date, -1), utils::head(light$date, -1), units = "secs")
-  if (length(unique(res)) != 1){
+  if (length(unique(res)) != 1) {
     stop("Temporal resolution of the light data is not the same. The code currently cannot work.")
   }
   res <- as.numeric(res[1])
@@ -275,7 +275,7 @@ light2mat <- function(light, shift_k = 0) {
   date <- seq(
     from = as.POSIXct(format(light$date[1] + shift_k, "%Y-%m-%d"), tz = "UTC"),
     to = as.POSIXct(format(light$date[length(light$date)] + shift_k, "%Y-%m-%d"),
-                    tz = "UTC"
+      tz = "UTC"
     ) + 60 * 60 * 24 - res,
     by = res
   )

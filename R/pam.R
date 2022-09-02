@@ -63,8 +63,10 @@ pam_read <- function(pathname,
         subset(pam_read_delim_dto(pressure_path), date >= crop_start & date < crop_end)
       },
       "deg" = {
-        pres <- pam_read_delim_dto(pressure_path, skip = 20, col = 4,
-                                   date_format = "%d/%m/%Y %H:%M:%S")
+        pres <- pam_read_delim_dto(pressure_path,
+          skip = 20, col = 4,
+          date_format = "%d/%m/%Y %H:%M:%S"
+        )
         pres$obs <- pres$obs / 100 # return in hPa
         subset(pres, date >= crop_start & date < crop_end)
       },
@@ -302,7 +304,8 @@ pam_sta <- function(pam) {
 #'   )
 #' )
 #' trainset_write(pam, pathname = system.file("extdata/1_pressure/labels/",
-#' package = "GeoPressureR"))
+#'   package = "GeoPressureR"
+#' ))
 #' @seealso [`pam_read`], [`trainset_read()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset)
 #' @export
@@ -376,7 +379,8 @@ trainset_write <- function(pam,
 #' pam <- pam_read(pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"))
 #' pam <- pam_classify(pam)
 #' pam <- trainset_read(pam, pathname = system.file("extdata/1_pressure/labels/",
-#' package = "GeoPressureR"))
+#'   package = "GeoPressureR"
+#' ))
 #' head(pam$pressure)
 #' head(pam$acceleration)
 #' @seealso [`pam_read`], [GeoPressureManual | Pressure Map
