@@ -17,6 +17,7 @@ Depends:
     R (>= 3.5.0)
 Imports: 
     EBImage,
+    ecmwfr,
     future,
     geosphere,
     httr,
@@ -28,7 +29,6 @@ Imports:
     tools,
     utils
 Suggests: 
-    ecmwfr,
     ggplot2,
     igraph,
     knitr,

@@ -337,6 +337,114 @@ graph_trim <- function(gr) {
   return(gr)
 }
 
+
+#' Download wind data
+#'
+#' This function download the wind data from ERA5 for all flights. The flight are determined from
+#' the stationary periods classified `pam$sta` (see `pam_classify()`). It request a single file for
+#' each flight using the exact time (hourly basis) and pressure (altitude). We use
+#' `wf_request_batch()` from `ecmwfr` to query multiple wind data at the same time.
+#'
+#' To be able to download data from the Climate Data Store (CDS), you will need to create an account
+#'  on  [https://cds.climate.copernicus.eu]. You can then save your credential (`cds_key` and
+#'  `cds_user`) in your `.Rprofile` (see [GeoPressureManual | Wind graph](
+#'  https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)).
+#'
+#' @param pam PAM logger dataset list with `pam$sta` computed. See [`pam_read()`] and [`pam_sta()`].
+#' @param area Geographical extent of the map to query. Either a raster (e.g. `static_prob`) or a
+#' list ordered by North, West, South, East  (e.g. `c(50,-16,0,20)`).
+#' @param sta_id Stationary period identifier of the start of the flight to query as defined in
+#' `pam$sta`. Be default, download for all the flight.
+#' @param cds_key User (email address) used to sign up for the ECMWF data service. See
+#' [`wf_set_key()`].
+#' @param cds_user Token provided by ECMWF. See [`wf_set_key()`].
+#' @param path Path were to store the downloaded data.
+#' @return The path of the downloaded (requested file).
+#' @seealso [`wf_request()`], [GeoPressureManual | Wind graph
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)
+#' @export
+graph_download_wind <- function(pam,
+                                area, # area is specified as N, W, S, E
+                                sta_id = seq_len(nrow(pam$sta) - 1),
+                                cds_key = Sys.getenv("cds_key"),
+                                cds_user = Sys.getenv("cds_user"),
+                                path = paste0("data/5_wind_graph/", pam$id, "/")) {
+  stopifnot(is.list(pam))
+  stopifnot("pressure" %in% names(pam))
+  stopifnot(is.data.frame(pam$pressure))
+  stopifnot("date" %in% names(pam$pressure))
+  stopifnot("obs" %in% names(pam$pressure))
+  stopifnot("sta" %in% names(pam))
+  stopifnot(is.data.frame(pam$sta))
+  stopifnot("end" %in% names(pam$sta))
+  stopifnot("start" %in% names(pam$sta))
+
+  if (is.list(area)) {
+    area <- area[[1]]
+  }
+  area <- raster::extent(area)
+  area <- c(area@ymax, area@xmin, area@ymin, area@xmax)
+
+  stopifnot(is.numeric(sta_id))
+  stopifnot(all(sta_id %in% pam$sta$sta_id))
+
+  ecmwfr::wf_set_key(user = cds_user, key = cds_key, service = "cds")
+
+  if (!file.exists(path)) {
+    stop(paste0("The path ", path, " does not exist. You can create it with: `dir.create(path)`."))
+  }
+
+  # see https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Levellistings
+  possible_pressure <- c(
+    1, 2, 3, 5, 7, 10, 20, 30, 50, 70,
+    seq(100, 250, 25), seq(300, 750, 50), seq(775, 1000, 25)
+  )
+
+  request_list <- list()
+  for (i_id in sta_id) {
+    # Find the index of sta_id
+    i_s <- which(pam$sta$sta_id == i_id)
+
+    # Get the timeserie of the flight on a 1 hour resolution
+    flight_time <- seq(round.POSIXt(pam$sta$end[i_s] - 30 * 60, units = "hours"),
+      round.POSIXt(pam$sta$start[i_s + 1] + 30 * 60, units = "hours"),
+      by = 60 * 60
+    )
+
+    # Find the pressure level needed during this flight
+    flight_id <- flight_time[1] <= pam$pressure$date &
+      pam$pressure$date <= utils::tail(flight_time, 1)
+    pres_id_min <- sum(!(min(pam$pressure$obs[flight_id]) < possible_pressure))
+    pres_id_max <- sum(max(pam$pressure$obs[flight_id]) > possible_pressure) + 1
+    flight_pres_id <- seq(pres_id_min, min(pres_id_max, length(possible_pressure)))
+
+    # Prepare the query
+    request_list[[i_s]] <- list(
+      dataset_short_name = "reanalysis-era5-pressure-levels",
+      product_type = "reanalysis",
+      format = "netcdf",
+      variable = c("u_component_of_wind", "v_component_of_wind"),
+      pressure_level = possible_pressure[flight_pres_id],
+      year = sort(unique(format(flight_time, "%Y"))),
+      month = sort(unique(format(flight_time, "%m"))),
+      day = sort(unique(format(flight_time, "%d"))),
+      time = sort(unique(format(flight_time, "%H:%M"))),
+      area = area,
+      target = paste0(pam$id, "_", i_s, ".nc")
+    )
+  }
+
+  ecmwfr::wf_request_batch(
+    request_list,
+    workers = 20,
+    # user = ,
+    path = path,
+    # time_out = 3600,
+    # total_timeout = length(request_list) * time_out/workers
+  )
+}
+
+
 #' Add windspeed and airspeed
 #'
 #' Read NetCDF file downloaded on your computer and add the average windspeed experienced by the
@@ -344,6 +452,7 @@ graph_trim <- function(gr) {
 #'
 #' See the [GeoPressureManual | Wind graph](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data) for explanations and
 #' example on how to download the `NetCDF` files from ERA-5.
+#' explanations and example on how to download the `NetCDF` files from ERA-5.
 #'
 #' @param grl graph constructed with [`graph_create()`]
 #' @param pressure pressure data from a PAM logger. This data.frame needs to contains `date` as
@@ -403,6 +512,7 @@ graph_add_wind <- function(grl,
       t_q <- seq(from = t_s, to = t_e, by = 60 * 60)
       pres_obs <- pressure$obs[pressure$date>t_s & pressure$date<t_e]
       if (length(pres_obs)==0 | !(min(pres) <= min(pres_obs) && max(pres) >= min(1000, max(pres_obs)))) {
+            max(pres) >= min(1000, max(pres_obs)))) {
         stop(paste0("Pressure not matching for sta=", i_s))
       }
     }
@@ -413,6 +523,7 @@ graph_add_wind <- function(grl,
   progress_bar(0,
                max = sum(nds_expend_sum),
                text = paste0("| sta = ", 0, "/", grl$sz[3] - 1)
+    text = paste0("| sta = ", 0, "/", grl$sz[3] - 1)
   )
 
   # Loop through the stationary period kept in the graph
@@ -540,6 +651,7 @@ graph_add_wind <- function(grl,
         # find the two pressure level to query (one above, one under) based on the geolocator
         # pressure at this timestep
         pres_obs <- approx(pressure$date, pressure$obs, t_q[i3])$y
+        pres_obs <- stats::approx(pressure$date, pressure$obs, t_q[i3])$y
         df <- pres_obs - pres
         df[df < 0] <- NA
         id_pres <- which.min(df)
@@ -649,6 +761,7 @@ graph_add_wind <- function(grl,
 #' @return list of raster of the marginal probability at each stationary period
 #' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-proability-map-of-stationary-period)
+#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map)
 #' @export
 graph_marginal <- function(grl) {
   stopifnot(is.list(grl))
