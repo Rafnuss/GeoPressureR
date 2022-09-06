@@ -53,6 +53,7 @@ geopressure_map <- function(pressure,
                             margin = 30) {
   # Check input
   stopifnot(is.data.frame(pressure))
+  stopifnot(nrow(pressure)>1)
   stopifnot("date" %in% names(pressure))
   stopifnot(inherits(pressure$date, "POSIXt"))
   stopifnot("obs" %in% names(pressure))
@@ -105,23 +106,25 @@ geopressure_map <- function(pressure,
     warning("Date of pressure are not on a regular interval. This might cause issue later.")
   }
   dt <- as.numeric(stats::median(dtall))
-  n <- 1 / dt + 1
+  n <- round(1 / dt + 1)
   # make the convolution for each stationary period separately
   for (i_s in seq(1, max(pressure$sta_id, na.rm = TRUE))) {
-    pres_i_s <- pres
-    pres_i_s[pressure$sta_id != i_s] <- NA
-    pres_i_s_smoothna <- stats::filter(
-      c(FALSE, !is.na(pres_i_s), FALSE),
-      rep(1 / n, n)
-    )
-    pres_i_s[is.na(pres_i_s)] <- 0
-    pres_i_s_smooth <- stats::filter(c(0, pres_i_s, 0), rep(1 / n, n))
+    if (length(pres) > n){
+      pres_i_s <- pres
+      pres_i_s[pressure$sta_id != i_s] <- NA
+      pres_i_s_smoothna <- stats::filter(
+        c(FALSE, !is.na(pres_i_s), FALSE),
+        rep(1 / n, n)
+      )
+      pres_i_s[is.na(pres_i_s)] <- 0
+      pres_i_s_smooth <- stats::filter(c(0, pres_i_s, 0), rep(1 / n, n))
 
-    tmp <- pres_i_s_smooth / pres_i_s_smoothna
-    tmp <- tmp[seq(2, length(tmp) - 1)]
+      tmp <- pres_i_s_smooth / pres_i_s_smoothna
+      tmp <- tmp[seq(2, length(tmp) - 1)]
 
-    pres[!is.na(pressure$sta_id) & pressure$sta_id == i_s] <-
-      tmp[!is.na(pressure$sta_id) & pressure$sta_id == i_s]
+      pres[!is.na(pressure$sta_id) & pressure$sta_id == i_s] <-
+        tmp[!is.na(pressure$sta_id) & pressure$sta_id == i_s]
+    }
   }
 
   # downscale to 1 hour
@@ -162,7 +165,7 @@ geopressure_map <- function(pressure,
     temp_file <- tempfile("log_geopressure_map_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
     stop(paste0(
-      "Error with youre request on http://glp.mgravey.com:24853/GeoPressure/v1/map/. ",
+      "Error with your request on http://glp.mgravey.com:24853/GeoPressure/v1/map/. ",
       "Please try again, and if the problem persists, file an issue on Github:",
       "https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_ts&labels=crash
         with this log file located on your computer: ", temp_file
