@@ -410,7 +410,7 @@ geopressure_ts <- function(lon,
   stopifnot(is.numeric(lat))
   stopifnot(lon >= -180 & lon <= 180)
   stopifnot(lat >= -90 & lat <= 90)
-  if (!is.na(pressure)) {
+  if (!is.null(pressure)) {
     stopifnot(is.data.frame(pressure))
     stopifnot("date" %in% names(pressure))
     stopifnot(inherits(pressure$date, "POSIXt"))
@@ -432,7 +432,7 @@ geopressure_ts <- function(lon,
 
   # Format query
   body_df <- list(lon = lon, lat = lat)
-  if (!is.na(pressure)) {
+  if (!is.null(pressure)) {
     body_df$time <- jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date)))
     body_df$pressure <- jsonlite::toJSON(pressure$obs * 100)
   } else {
@@ -505,7 +505,7 @@ geopressure_ts <- function(lon,
   out$lon <- res_data$lon
 
   # Compute the ERA5 pressure normalized to the pressure level (i.e. altitude) of the bird
-  if (!is.na(pressure)) {
+  if (!is.null(pressure)) {
     if (nrow(out) != nrow(pressure)) {
       warning(
         "The returned data.frame is had a different number of element than the requested ",
@@ -716,7 +716,7 @@ geopressure_map2path <- function(map,
     id_interp[length(id_interp)] <- FALSE
 
     # Find the spacing between the position
-    if (is.na(raster::metadata(map[[1]])$flight)) {
+    if (is.null(raster::metadata(map[[1]])$flight)) {
       # Or if flight duration are not available (e.g. `prob_pressure`), assumes homogenous spacing
       # between consecutive stationary period
       x <- path$sta_id
