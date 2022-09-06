@@ -90,7 +90,7 @@ pam_read <- function(pathname,
     ),
     acceleration = switch(tools::file_ext(acceleration_path),
       "acceleration" = {
-        subset(pam_read_delim_dto(acceleration_path), date >= crop_start & date < crop_end)
+        subset(pam_read_delim_dto(acceleration_path, col = 4), date >= crop_start & date < crop_end)
       },
       {
         data.frame()
