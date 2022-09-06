@@ -169,15 +169,27 @@ geopressure_map <- function(pressure,
     ))
   }
 
-  # Get URIS
-  uris <- unlist(httr::content(res)$data$urls)
-  # Note that the order of the uris will be different than requested to optimized the
+  # Get urls
+  urls <- httr::content(res)$data$urls
+  urls[sapply(urls, is.null)] <- NA
+  urls <- unlist(urls)
+  # Note that the order of the urls will be different than requested to optimized the
   # parralelization
   labels <- unlist(httr::content(res)$data$labels)
   labels_order <- order(labels)
+  # Check that the uri exist
+  if (any(is.na(urls))){
+    warning("Not urls returned for stationary periods: ",
+            paste(labels[is.na(urls)], collapse = ", "), ". It is probably due to request(s) made ",
+            "for periods where no data are available. Note that ERA5 data is usually only ",
+            "available on GEE ~3-5 months after.")
+    labels <- labels[is.na(urls)]
+    labels_order <- labels_order[is.na(urls)]
+    urls <- urls[is.na(urls)]
+  }
   message(
-    "Requests generated successfully for ", length(labels), " stationary periods (",
-    paste(labels, collapse = ", "), ")"
+    "Requests generated successfully for ", sum(!is.na(urls)), " stationary periods (",
+    paste(labels[!is.na(urls)], collapse = ", "), ")"
   )
 
   # Perform the call in parallel
@@ -186,28 +198,28 @@ geopressure_map <- function(pressure,
 
   f <- c()
   message("Send requests:")
-  progress_bar(0, max = length(uris))
-  for (i_u in seq_len(length(uris))) {
+  progress_bar(0, max = length(urls))
+  for (i_u in seq_len(length(urls))) {
     f[[i_u]] <- future::future(expr = {
       filename <- tempfile()
       options(timeout = 60 * 5)
-      httr::GET(uris[i_u], httr::write_disk(filename))
+      httr::GET(urls[i_u], httr::write_disk(filename))
       return(filename)
     }, seed = TRUE)
-    progress_bar(i_u, max = length(uris))
+    progress_bar(i_u, max = length(urls))
   }
 
   # Get the raster
   pressure_maps <- c()
   filename <- c()
   message("Download geotiff:")
-  progress_bar(0, max = length(uris))
+  progress_bar(0, max = length(urls))
   tryCatch(
     expr = {
-      for (i_u in seq_len(length(uris))) {
+      for (i_u in seq_len(length(urls))) {
         filename[i_u] <- future::value(f[[i_u]])
         pressure_maps[[i_u]] <- raster::brick(filename[i_u])
-        progress_bar(i_u, max = length(uris))
+        progress_bar(i_u, max = length(urls))
 
         # Add datum
         raster::crs(pressure_maps[[i_u]]) <-
@@ -233,13 +245,13 @@ geopressure_map <- function(pressure,
     },
     error = function(cond) {
       message(paste0(
-        "Error during the reading of the file. We return the uris of the gee request, ",
+        "Error during the reading of the file. We return the urls of the gee request, ",
         "the filename to the file already downloaded and the pressure_maps already computed. ",
         "Here is the original error: "
       ))
       message(cond)
       return(list(
-        uris = uris,
+        urls = urls,
         filename = filename,
         pressure_maps = pressure_maps,
         future = f
@@ -395,7 +407,7 @@ geopressure_ts <- function(lon,
   stopifnot(is.numeric(lat))
   stopifnot(lon >= -180 & lon <= 180)
   stopifnot(lat >= -90 & lat <= 90)
-  if (!is.null(pressure)) {
+  if (!is.na(pressure)) {
     stopifnot(is.data.frame(pressure))
     stopifnot("date" %in% names(pressure))
     stopifnot(inherits(pressure$date, "POSIXt"))
@@ -417,7 +429,7 @@ geopressure_ts <- function(lon,
 
   # Format query
   body_df <- list(lon = lon, lat = lat)
-  if (!is.null(pressure)) {
+  if (!is.na(pressure)) {
     body_df$time <- jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date)))
     body_df$pressure <- jsonlite::toJSON(pressure$obs * 100)
   } else {
@@ -490,7 +502,7 @@ geopressure_ts <- function(lon,
   out$lon <- res_data$lon
 
   # Compute the ERA5 pressure normalized to the pressure level (i.e. altitude) of the bird
-  if (!is.null(pressure)) {
+  if (!is.na(pressure)) {
     if (nrow(out) != nrow(pressure)) {
       warning(
         "The returned data.frame is had a different number of element than the requested ",
@@ -701,7 +713,7 @@ geopressure_map2path <- function(map,
     id_interp[length(id_interp)] <- FALSE
 
     # Find the spacing between the position
-    if (is.null(raster::metadata(map[[1]])$flight)) {
+    if (is.na(raster::metadata(map[[1]])$flight)) {
       # Or if flight duration are not available (e.g. `prob_pressure`), assumes homogenous spacing
       # between consecutive stationary period
       x <- path$sta_id

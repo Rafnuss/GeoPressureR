@@ -11,6 +11,14 @@ pam <- trainset_read(
 )
 pam <- pam_sta(pam)
 
+test_that("Check geopressure_map() for date too recent", {
+  pressure <- data.frame(
+    date = c(Sys.time(),Sys.time()+1),
+    obs = c(1000,1000),
+    sta_id = c(1,1)
+  )
+  expect_error(raster_list <- geopressure_map(pressure, extent = c(1, 0, 0, 1), scale = 1))
+})
 
 test_that("Check geopressure_map() output", {
   pressure <- data.frame(
