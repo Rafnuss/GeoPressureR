@@ -18,3 +18,4 @@
 ^data-raw$
 ^inst/geopressureviz/geopressureviz\.RData$
 ^\.DS_Store$
+^CRAN-SUBMISSION$

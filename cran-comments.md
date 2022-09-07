@@ -20,7 +20,7 @@ There are 2 NOTEs on win-builder
   raster and sp package are taking all this time. 
 
 
-There is1 ERROR on R-hub
+There is 1 ERROR on R-hub
 
 * checking package dependencies ... ERROR
   Package required but not available: 'EBImage'
