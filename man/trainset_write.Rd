@@ -29,7 +29,8 @@ pam <- pam_read(
   )
 )
 trainset_write(pam, pathname = system.file("extdata/1_pressure/labels/",
-package = "GeoPressureR"))
+  package = "GeoPressureR"
+))
 }
 \seealso{
 \code{\link{pam_read}}, \code{\link[=trainset_read]{trainset_read()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset}{GeoPressureManual | Pressure Map }

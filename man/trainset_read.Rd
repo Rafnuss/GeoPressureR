@@ -29,7 +29,8 @@ the pam logger dataset
 pam <- pam_read(pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"))
 pam <- pam_classify(pam)
 pam <- trainset_read(pam, pathname = system.file("extdata/1_pressure/labels/",
-package = "GeoPressureR"))
+  package = "GeoPressureR"
+))
 head(pam$pressure)
 head(pam$acceleration)
 }

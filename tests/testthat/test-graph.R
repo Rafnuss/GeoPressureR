@@ -2,7 +2,8 @@ library(testthat)
 library(GeoPressureR)
 
 # Load data needed for the test
-static_prob_1_4 <- readRDS(system.file("extdata/3_static/", "18LX_static_prob_1_4.rda", package = "GeoPressureR"))
+static_prob_1_4 <- readRDS(
+  system.file("extdata/3_static/", "18LX_static_prob_1_4.rda", package = "GeoPressureR"))
 
 
 test_that("Check graph", {
