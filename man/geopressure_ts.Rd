@@ -29,8 +29,9 @@ the timeserie as POSIXlt.}
 \item{verbose}{Display (or not) the progress of the query (logical).}
 }
 \value{
-A data.frame containing the timeserie of pressure and optionally altitude if \code{pressure}
-is provided.
+A data.frame containing the timeserie of ERA5 pressure (date, pressure) as well as
+longitude  and latitude (different if over water). If \code{pressure} is provided, the return
+data.frame is the same as \code{pressure} with altitude and pressure0.
 }
 \description{
 This function return the surface atmospheric pressure timeseries from ERA5 at a queried location.

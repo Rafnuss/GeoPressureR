@@ -1,6 +1,6 @@
 Package: GeoPressureR
 Title: Global Positioning by Atmospheric Pressure
-Version: 2.5
+Version: 2.6
 Authors@R: c(
     person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8185-1020")),
@@ -17,6 +17,7 @@ Depends:
     R (>= 3.5.0)
 Imports: 
     EBImage,
+    ecmwfr,
     future,
     geosphere,
     httr,
@@ -28,7 +29,6 @@ Imports:
     tools,
     utils
 Suggests: 
-    ecmwfr,
     ggplot2,
     igraph,
     knitr,

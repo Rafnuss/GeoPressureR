@@ -114,7 +114,7 @@ server <- function(input, output, session) {
 
     req(input$thr_sta)
     for (ts in reactVal$ts) {
-      sta_th <- sta[median(ts$sta_id) == sta$sta_id, ]
+      sta_th <- sta[median(ts$sta_id, na.rm=TRUE) == sta$sta_id, ]
       if (nrow(sta_th) > 0) {
         if (sta_th$duration > as.numeric(input$thr_sta)) {
           p <- p +

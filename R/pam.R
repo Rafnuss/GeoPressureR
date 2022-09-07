@@ -63,10 +63,12 @@ pam_read <- function(pathname,
         subset(pam_read_delim_dto(pressure_path), date >= crop_start & date < crop_end)
       },
       "deg" = {
-        subset(
-          pam_read_delim_dto(pressure_path, skip = 20, col = 4, date_format = "%d/%m/%Y %H:%M:%S"),
-          date >= crop_start & date < crop_end
+        pres <- pam_read_delim_dto(pressure_path,
+          skip = 20, col = 4,
+          date_format = "%d/%m/%Y %H:%M:%S"
         )
+        pres$obs <- pres$obs / 100 # return in hPa
+        subset(pres, date >= crop_start & date < crop_end)
       },
       {
         data.frame()
@@ -88,7 +90,7 @@ pam_read <- function(pathname,
     ),
     acceleration = switch(tools::file_ext(acceleration_path),
       "acceleration" = {
-        subset(pam_read_delim_dto(acceleration_path), date >= crop_start & date < crop_end)
+        subset(pam_read_delim_dto(acceleration_path, col = 4), date >= crop_start & date < crop_end)
       },
       {
         data.frame()

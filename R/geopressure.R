@@ -53,6 +53,7 @@ geopressure_map <- function(pressure,
                             margin = 30) {
   # Check input
   stopifnot(is.data.frame(pressure))
+  stopifnot(nrow(pressure)>1)
   stopifnot("date" %in% names(pressure))
   stopifnot(inherits(pressure$date, "POSIXt"))
   stopifnot("obs" %in% names(pressure))
@@ -65,7 +66,7 @@ geopressure_map <- function(pressure,
     max(pressure$obs[!pressure$isoutliar])) {
     stop(paste0(
       "Pressure observation should be between 250 hPa (~10000m)  and 1100 hPa (sea level at 1013",
-      "hPa)"
+      "hPa). Check unit return by `pam_read()`"
     ))
   }
   stopifnot(is.logical(pressure$isoutliar))
@@ -105,27 +106,35 @@ geopressure_map <- function(pressure,
     warning("Date of pressure are not on a regular interval. This might cause issue later.")
   }
   dt <- as.numeric(stats::median(dtall))
-  n <- 1 / dt + 1
+  n <- round(1 / dt + 1)
   # make the convolution for each stationary period separately
   for (i_s in seq(1, max(pressure$sta_id, na.rm = TRUE))) {
-    pres_i_s <- pres
-    pres_i_s[pressure$sta_id != i_s] <- NA
-    pres_i_s_smoothna <- stats::filter(
-      c(FALSE, !is.na(pres_i_s), FALSE),
-      rep(1 / n, n)
-    )
-    pres_i_s[is.na(pres_i_s)] <- 0
-    pres_i_s_smooth <- stats::filter(c(0, pres_i_s, 0), rep(1 / n, n))
+    if (length(pres) > n){
+      pres_i_s <- pres
+      pres_i_s[pressure$sta_id != i_s] <- NA
+      pres_i_s_smoothna <- stats::filter(
+        c(FALSE, !is.na(pres_i_s), FALSE),
+        rep(1 / n, n)
+      )
+      pres_i_s[is.na(pres_i_s)] <- 0
+      pres_i_s_smooth <- stats::filter(c(0, pres_i_s, 0), rep(1 / n, n))
 
-    tmp <- pres_i_s_smooth / pres_i_s_smoothna
-    tmp <- tmp[seq(2, length(tmp) - 1)]
+      tmp <- pres_i_s_smooth / pres_i_s_smoothna
+      tmp <- tmp[seq(2, length(tmp) - 1)]
 
-    pres[!is.na(pressure$sta_id) & pressure$sta_id == i_s] <-
-      tmp[!is.na(pressure$sta_id) & pressure$sta_id == i_s]
+      pres[!is.na(pressure$sta_id) & pressure$sta_id == i_s] <-
+        tmp[!is.na(pressure$sta_id) & pressure$sta_id == i_s]
+    }
   }
 
   # downscale to 1 hour
-  pres[format(pressure$date, "%M") != "00"] <- NA
+  # Find the start time closer to the hour
+  idt_s <- which.min(abs(round.POSIXt(pressure$date[seq_len(1 / dt)], units = "hours") -
+    pressure$date[seq_len(1 / dt)]))
+  # Define the index of time to keep
+  idt <- seq(idt_s, length(pressure$date), by = 1 / dt)
+  # Remove the other ones
+  pres[!(seq(1, length(pres)) %in% idt)] <- NA
 
   if (sum(!is.na(pres)) == 0) {
     stop("No pressure to query. Check outliar and staID==0 (for flight).")
@@ -156,22 +165,34 @@ geopressure_map <- function(pressure,
     temp_file <- tempfile("log_geopressure_map_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
     stop(paste0(
-      "Error with youre request on http://glp.mgravey.com:24853/GeoPressure/v1/map/. ",
+      "Error with your request on http://glp.mgravey.com:24853/GeoPressure/v1/map/. ",
       "Please try again, and if the problem persists, file an issue on Github:",
       "https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_ts&labels=crash
         with this log file located on your computer: ", temp_file
     ))
   }
 
-  # Get URIS
-  uris <- unlist(httr::content(res)$data$urls)
-  # Note that the order of the uris will be different than requested to optimized the
+  # Get urls
+  urls <- httr::content(res)$data$urls
+  urls[sapply(urls, is.null)] <- NA
+  urls <- unlist(urls)
+  # Note that the order of the urls will be different than requested to optimized the
   # parralelization
   labels <- unlist(httr::content(res)$data$labels)
   labels_order <- order(labels)
+  # Check that the uri exist
+  if (any(is.na(urls))){
+    warning("Not urls returned for stationary periods: ",
+            paste(labels[is.na(urls)], collapse = ", "), ". It is probably due to request(s) made ",
+            "for periods where no data are available. Note that ERA5 data is usually only ",
+            "available on GEE ~3-5 months after.")
+    labels <- labels[is.na(urls)]
+    labels_order <- labels_order[is.na(urls)]
+    urls <- urls[is.na(urls)]
+  }
   message(
-    "Requests generated successfully for ", length(labels), " stationary periods (",
-    paste(labels, collapse = ", "), ")"
+    "Requests generated successfully for ", sum(!is.na(urls)), " stationary periods (",
+    paste(labels[!is.na(urls)], collapse = ", "), ")"
   )
 
   # Perform the call in parallel
@@ -180,28 +201,28 @@ geopressure_map <- function(pressure,
 
   f <- c()
   message("Send requests:")
-  progress_bar(0, max = length(uris))
-  for (i_u in seq_len(length(uris))) {
+  progress_bar(0, max = length(urls))
+  for (i_u in seq_len(length(urls))) {
     f[[i_u]] <- future::future(expr = {
       filename <- tempfile()
       options(timeout = 60 * 5)
-      httr::GET(uris[i_u], httr::write_disk(filename))
+      httr::GET(urls[i_u], httr::write_disk(filename))
       return(filename)
     }, seed = TRUE)
-    progress_bar(i_u, max = length(uris))
+    progress_bar(i_u, max = length(urls))
   }
 
   # Get the raster
   pressure_maps <- c()
   filename <- c()
   message("Download geotiff:")
-  progress_bar(0, max = length(uris))
+  progress_bar(0, max = length(urls))
   tryCatch(
     expr = {
-      for (i_u in seq_len(length(uris))) {
+      for (i_u in seq_len(length(urls))) {
         filename[i_u] <- future::value(f[[i_u]])
         pressure_maps[[i_u]] <- raster::brick(filename[i_u])
-        progress_bar(i_u, max = length(uris))
+        progress_bar(i_u, max = length(urls))
 
         # Add datum
         raster::crs(pressure_maps[[i_u]]) <-
@@ -227,13 +248,13 @@ geopressure_map <- function(pressure,
     },
     error = function(cond) {
       message(paste0(
-        "Error during the reading of the file. We return the uris of the gee request, ",
+        "Error during the reading of the file. We return the urls of the gee request, ",
         "the filename to the file already downloaded and the pressure_maps already computed. ",
         "Here is the original error: "
       ))
       message(cond)
       return(list(
-        uris = uris,
+        urls = urls,
         filename = filename,
         pressure_maps = pressure_maps,
         future = f
@@ -372,8 +393,9 @@ geopressure_prob_map <- function(pressure_maps,
 #' @param end_time If `pressure` is not provided, then `end_time` define the ending time of
 #' the timeserie as POSIXlt.
 #' @param verbose Display (or not) the progress of the query (logical).
-#' @return A data.frame containing the timeserie of pressure and optionally altitude if `pressure`
-#' is provided.
+#' @return A data.frame containing the timeserie of ERA5 pressure (date, pressure) as well as
+#' longitude  and latitude (different if over water). If `pressure` is provided, the return
+#' data.frame is the same as `pressure` with altitude and pressure0.
 #' @seealso [`geopressure_ts_path()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html),
 #' @export
@@ -443,7 +465,7 @@ geopressure_ts <- function(lon,
   # Check for change in position
   if (res_data$distInter > 0) {
     warning(
-      "Requested position is on water We will proceeed the request with the closet point to the ",
+      "Requested position is on water. We will proceeed the request with the closet point to the ",
       "shore (https://www.google.com/maps/dir/", lat, ",", lon, "/", res_data$lat, ",",
       res_data$lon, ") located ", round(res_data$distInter / 1000), " km away). Sending request."
     )
@@ -452,7 +474,6 @@ geopressure_ts <- function(lon,
   }
 
   # Download the csv file
-  message("")
   res2 <- httr::GET(res_data$url)
 
   # read csv
@@ -485,9 +506,19 @@ geopressure_ts <- function(lon,
 
   # Compute the ERA5 pressure normalized to the pressure level (i.e. altitude) of the bird
   if (!is.null(pressure)) {
+    if (nrow(out) != nrow(pressure)) {
+      warning(
+        "The returned data.frame is had a different number of element than the requested ",
+        "pressure."
+      )
+    }
+
+    # Use a merge to combine all information possible from out into pressure.
+    out <- merge(pressure, out, all.x = TRUE)
+
     # find when the bird was in flight or not to be considered
     id_0 <- pressure$sta_id == 0 | is.na(pressure$sta_id)
-    # If no ground (ie. no flight) is present, pressure0 has no meaning
+    # If no ground (ie. only flight) is present, pressure0 has no meaning
     if (!all(id_0)) {
       # We compute the mean pressure of the geolocator only when the bird is on the ground
       # (id_q==0) and when not marked as outliar
@@ -498,9 +529,6 @@ geopressure_ts <- function(lon,
 
       out$pressure0 <- out$pressure - pressure_out_m + pressure_obs_m
     }
-
-    # Add sta_id, lat and lon
-    out$sta_id <- pressure$sta_id
   }
   return(out)
 }
