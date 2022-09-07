@@ -512,9 +512,17 @@ graph_add_wind <- function(grl,
       t_q <- seq(from = t_s, to = t_e, by = 60 * 60)
       pres_obs <- pressure$obs[pressure$date > t_s & pressure$date < t_e]
       if (length(pres_obs) == 0 |
-          !(min(pres) <= min(pres_obs) &&
-            max(pres) >= min(1000, max(pres_obs)))) {
+        !(min(pres) <= min(pres_obs) &&
+          max(pres) >= min(1000, max(pres_obs)))) {
         stop(paste0("Pressure not matching for sta=", i_s))
+      }
+
+      # Check if flight duration is
+      if (fl_s$start[i2] >= fl_s$end[i2]) {
+        stop(paste0(
+          "Flight starting on sta_id=", fl_s$sta_id[i2], " has a start time equal or greater than ",
+          "the end time. Please review your labeling file."
+        ))
       }
     }
   }
