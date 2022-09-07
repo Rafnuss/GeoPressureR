@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,10 +93,9 @@ the timeserie as POSIXlt.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A data.frame containing the timeserie of pressure and optionally altitude if <code>pressure</code></p>
-
-
-<p>is provided.</p>
+<p>A data.frame containing the timeserie of ERA5 pressure (date, pressure) as well as
+longitude  and latitude (different if over water). If <code>pressure</code> is provided, the return
+data.frame is the same as <code>pressure</code> with altitude and pressure0.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
