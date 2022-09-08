@@ -9,7 +9,7 @@ geopressure_map(pressure, extent, scale = 10, max_sample = 250, margin = 30)
 \arguments{
 \item{pressure}{Pressure data.frame from a PAM logger. This data.frame needs to contains \code{date}
 as POSIXt, \code{obs} in hPa, \code{sta_id} grouping observation measured during the same stationary period
-and \code{isoutliar} as logical to label observation which need to be ignored. It is best practice to
+and \code{isoutlier} as logical to label observation which need to be ignored. It is best practice to
 use \code{pam_read()} and \code{pam_sta()} to build this data.frame.}
 
 \item{extent}{Geographical extent of the map to query as a list ordered by North, West, South,
