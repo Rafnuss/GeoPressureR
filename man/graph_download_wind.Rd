@@ -40,8 +40,9 @@ each flight using the exact time (hourly basis) and pressure (altitude). We use
 }
 \details{
 To be able to download data from the Climate Data Store (CDS), you will need to create an account
-on  \link{https://cds.climate.copernicus.eu}. You can then save your credential (\code{cds_key} and
-\code{cds_user}) in your \code{.Rprofile} (see \href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data}{GeoPressureManual | Wind graph}).
+on  \url{https://cds.climate.copernicus.eu}. You can then save
+your credential (\code{cds_key} and \code{cds_user}) in your \code{.Rprofile} (see
+\href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data}{GeoPressureManual | Wind graph}).
 }
 \seealso{
 \code{\link[=wf_request]{wf_request()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data}{GeoPressureManual | Wind graph }

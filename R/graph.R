@@ -346,8 +346,9 @@ graph_trim <- function(gr) {
 #' `wf_request_batch()` from `ecmwfr` to query multiple wind data at the same time.
 #'
 #' To be able to download data from the Climate Data Store (CDS), you will need to create an account
-#'  on  [https://cds.climate.copernicus.eu]. You can then save your credential (`cds_key` and
-#'  `cds_user`) in your `.Rprofile` (see [GeoPressureManual | Wind graph](
+#'  on  [https://cds.climate.copernicus.eu](https://cds.climate.copernicus.eu). You can then save
+#'  your credential (`cds_key` and `cds_user`) in your `.Rprofile` (see
+#'  [GeoPressureManual | Wind graph](
 #'  https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)).
 #'
 #' @param pam PAM logger dataset list with `pam$sta` computed. See [`pam_read()`] and [`pam_sta()`].
