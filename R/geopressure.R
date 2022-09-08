@@ -182,17 +182,17 @@ geopressure_map <- function(pressure,
   labels_order <- order(labels)
   # Check that the uri exist
   if (any(is.na(urls))){
-    warning("Not urls returned for stationary periods: ",
+    warning("There was no urls returned for stationary periods: ",
             paste(labels[is.na(urls)], collapse = ", "), ". It is probably due to request(s) made ",
             "for periods where no data are available. Note that ERA5 data is usually only ",
             "available on GEE ~3-5 months after.")
-    labels <- labels[is.na(urls)]
-    labels_order <- labels_order[is.na(urls)]
-    urls <- urls[is.na(urls)]
+    labels <- labels[!is.na(urls)]
+    labels_order <- labels_order[!is.na(urls)]
+    urls <- urls[!is.na(urls)]
   }
   message(
-    "Requests generated successfully for ", sum(!is.na(urls)), " stationary periods (",
-    paste(labels[!is.na(urls)], collapse = ", "), ")"
+    "Requests generated successfully for ", length(urls), " stationary periods (",
+    paste(labels, collapse = ", "), ")"
   )
 
   # Perform the call in parallel
@@ -248,8 +248,7 @@ geopressure_map <- function(pressure,
     },
     error = function(cond) {
       message(paste0(
-        "Error during the reading of the file. We return the urls of the gee request, ",
-        "the filename to the file already downloaded and the pressure_maps already computed. ",
+        "\nThere was an error during the downloading and reading of the file. ",
         "Here is the original error: "
       ))
       message(cond)
