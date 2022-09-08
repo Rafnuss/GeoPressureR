@@ -19,28 +19,29 @@ graph_download_wind(
 \item{area}{Geographical extent of the map to query. Either a raster (e.g. \code{static_prob}) or a
 list ordered by North, West, South, East  (e.g. \code{c(50,-16,0,20)}).}
 
-\item{sta_id}{stationary period identifier of the \emph{start} of the flight to query as defined in
-\code{pam$sta}.}
+\item{sta_id}{Stationary period identifier of the start of the flight to query as defined in
+\code{pam$sta}. Be default, download for all the flight.}
 
-\item{cds_key}{user (email address) used to sign up for the ECMWF data service. See
+\item{cds_key}{User (email address) used to sign up for the ECMWF data service. See
 \code{\link[=wf_set_key]{wf_set_key()}}.}
 
-\item{cds_user}{token provided by ECMWF. See \code{\link[=wf_set_key]{wf_set_key()}}.}
+\item{cds_user}{Token provided by ECMWF. See \code{\link[=wf_set_key]{wf_set_key()}}.}
 
-\item{path}{path were to store the downloaded data.}
+\item{path}{Path were to store the downloaded data.}
 }
 \value{
-the path of the downloaded (requested file)
+The path of the downloaded (requested file).
 }
 \description{
-This function wrap the function Wind data is available at high resolution (1hr, 0.25°, 37 pressure level) on ERA5 hourly data on pressure levels. And this data is easily accessible through the ecmwfr package. As the flight are of short duration, we suggest to download a file for each flight.
+This function download the wind data from ERA5 for all flights. The flight are determined from
+the stationary periods classified \code{pam$sta} (see \code{pam_classify()}). It request a single file for
+each flight using the exact time (hourly basis) and pressure (altitude). We use
+\code{wf_request_batch()} from \code{ecmwfr} to query multiple wind data at the same time.
 }
 \details{
-area
-
-Be default download data for all the flight, thus sta_id is all exetpt the last one (no flight starting from the last stationary period)
-
-cds_key and cds_user
+To be able to download data from the Climate Data Store (CDS), you will need to create an account
+on  \link{https://cds.climate.copernicus.eu}. You can then save your credential (\code{cds_key} and
+\code{cds_user}) in your \code{.Rprofile} (see \href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data}{GeoPressureManual | Wind graph}).
 }
 \seealso{
 \code{\link[=wf_request]{wf_request()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data}{GeoPressureManual | Wind graph }

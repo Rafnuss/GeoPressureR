@@ -26,8 +26,8 @@ Read NetCDF file downloaded on your computer and add the average windspeed exper
 bird and the corresponding airspeed for each edge of the graph.
 }
 \details{
-See the \href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data}{GeoPressureManual | Wind graph} for explanations and
-example on how to download the \code{NetCDF} files from ERA-5.
+See the \href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data}{GeoPressureManual | Wind graph} for
+explanations and example on how to download the \code{NetCDF} files from ERA-5.
 }
 \seealso{
 \code{\link[=graph_create]{graph_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph}{GeoPressureManual | Wind graph}
