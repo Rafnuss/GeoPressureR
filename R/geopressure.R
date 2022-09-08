@@ -10,7 +10,7 @@
 #'
 #' @param pressure Pressure data.frame from a PAM logger. This data.frame needs to contains `date`
 #' as POSIXt, `obs` in hPa, `sta_id` grouping observation measured during the same stationary period
-#' and `isoutliar` as logical to label observation which need to be ignored. It is best practice to
+#' and `isoutlier` as logical to label observation which need to be ignored. It is best practice to
 #' use `pam_read()` and `pam_sta()` to build this data.frame.
 #' @param extent Geographical extent of the map to query as a list ordered by North, West, South,
 #'   East  (e.g. `c(50,-16,0,20)`).
@@ -59,17 +59,23 @@ geopressure_map <- function(pressure,
   stopifnot("obs" %in% names(pressure))
   stopifnot(is.numeric(pressure$obs))
   stopifnot("sta_id" %in% names(pressure))
-  if (!("isoutliar" %in% names(pressure))) {
-    pressure$isoutliar <- FALSE
+  if (!("isoutlier" %in% names(pressure))) {
+    if ("isoutliar" %in% names(pressure)) {
+      warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
+              " to be back compatible with futur version.")
+      pressure$isoutlier <- pressure$isoutliar
+    } else{
+      pressure$isoutlier <- FALSE
+    }
   }
-  if (min(pressure$obs[!pressure$isoutliar]) < 250 || 1100 <
-    max(pressure$obs[!pressure$isoutliar])) {
+  if (min(pressure$obs[!pressure$isoutlier]) < 250 || 1100 <
+    max(pressure$obs[!pressure$isoutlier])) {
     stop(paste0(
       "Pressure observation should be between 250 hPa (~10000m)  and 1100 hPa (sea level at 1013",
       "hPa). Check unit return by `pam_read()`"
     ))
   }
-  stopifnot(is.logical(pressure$isoutliar))
+  stopifnot(is.logical(pressure$isoutlier))
   stopifnot(is.numeric(extent))
   stopifnot(length(extent) == 4)
   stopifnot(extent[1] >= -90 & extent[1] <= 90)
@@ -90,7 +96,7 @@ geopressure_map <- function(pressure,
   pres <- pressure$obs * 100
 
   # remove outliar as labeled in TRAINSET
-  pres[pressure$isoutliar] <- NA
+  pres[pressure$isoutlier] <- NA
 
   # remove flight period
   pres[pressure$sta_id == 0] <- NA
@@ -417,8 +423,14 @@ geopressure_ts <- function(lon,
     stopifnot(is.numeric(pressure$obs))
     end_time <- NULL
     start_time <- NULL
-    if (!("isoutliar" %in% names(pressure))) {
-      pressure$isoutliar <- FALSE
+    if (!("isoutlier" %in% names(pressure))) {
+      if ("isoutliar" %in% names(pressure)) {
+        warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
+                " to be back compatible with futur version.")
+        pressure$isoutlier <- pressure$isoutliar
+      } else{
+        pressure$isoutlier <- FALSE
+      }
     }
   } else {
     stopifnot(!is.na(end_time))
@@ -521,7 +533,7 @@ geopressure_ts <- function(lon,
     if (!all(id_0)) {
       # We compute the mean pressure of the geolocator only when the bird is on the ground
       # (id_q==0) and when not marked as outliar
-      id_norm <- !id_0 & !pressure$isoutliar
+      id_norm <- !id_0 & !pressure$isoutlier
 
       pressure_obs_m <- mean(pressure$obs[id_norm])
       pressure_out_m <- mean(out$pressure[id_norm])
@@ -569,8 +581,14 @@ geopressure_ts_path <- function(path,
   stopifnot("obs" %in% names(pressure))
   stopifnot(is.numeric(pressure$obs))
   stopifnot("sta_id" %in% names(pressure))
-  if (!("isoutliar" %in% names(pressure))) {
-    pressure$isoutliar <- FALSE
+  if (!("isoutlier" %in% names(pressure))) {
+    if ("isoutliar" %in% names(pressure)) {
+      warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
+              " to be back compatible with futur version.")
+      pressure$isoutlier <- pressure$isoutliar
+    } else{
+      pressure$isoutlier <- FALSE
+    }
   }
   stopifnot(is.data.frame(path))
   stopifnot(c("lat", "lon", "sta_id") %in% names(path))

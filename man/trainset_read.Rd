@@ -18,7 +18,7 @@ trainset_read(
 \item{filename}{Name of the file.}
 }
 \value{
-pam logger dataset list updated with the labels (\code{pam$pressure$isoutliar} and
+pam logger dataset list updated with the labels (\code{pam$pressure$isoutlier} and
 \code{pam$acceleration$ismig})
 }
 \description{

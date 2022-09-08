@@ -326,8 +326,14 @@ trainset_write <- function(pam,
   if (!("ismig" %in% names(pam$acceleration))) {
     pam$acceleration$ismig <- FALSE
   }
-  if (!("isoutliar" %in% names(pam$pressure))) {
-    pam$pressure$isoutliar <- FALSE
+  if (!("isoutlier" %in% names(pam$pressure))) {
+    if ("isoutliar" %in% names(pam$pressure)) {
+      warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
+              " to be back compatible with futur version.")
+      pam$pressure$isoutlier <- pam$pressure$isoutliar
+    } else{
+      pam$pressure$isoutlier <- FALSE
+    }
   }
   stopifnot(is.character(pathname))
   stopifnot(is.character(filename))
@@ -354,7 +360,7 @@ trainset_write <- function(pam,
           tz = "UTC"
         ),
         value = pam$pressure$obs,
-        label = ifelse(pam$pressure$isoutliar, "1", "")
+        label = ifelse(pam$pressure$isoutlier, "1", "")
       )
     ),
     paste0(pathname, "/", filename, ".csv"),
@@ -372,7 +378,7 @@ trainset_write <- function(pam,
 #' @param pam pam logger dataset list
 #' @param pathname Path to the folder where the labeled file is.
 #' @param filename Name of the file.
-#' @return pam logger dataset list updated with the labels (`pam$pressure$isoutliar` and
+#' @return pam logger dataset list updated with the labels (`pam$pressure$isoutlier` and
 #' `pam$acceleration$ismig`)
 #'
 #' @examples
@@ -421,7 +427,7 @@ trainset_read <- function(pam,
   pam$acceleration$ismig <- !is.na(csv_acc$label[id_acc_match])
 
   id_pres_match <- match(as.numeric(pam$pressure$date), as.numeric((csv_pres$date)))
-  pam$pressure$isoutliar <- !is.na(csv_pres$label[id_pres_match])
+  pam$pressure$isoutlier <- !is.na(csv_pres$label[id_pres_match])
 
   missing_acc <- sum(is.na(id_acc_match))
   missing_pres <- sum(is.na(id_pres_match))

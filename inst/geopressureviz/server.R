@@ -109,7 +109,7 @@ server <- function(input, output, session) {
   output$pressure_graph <- renderPlotly({
     p <- ggplot() +
       geom_line(data = pressure, aes(x = date, y = obs), colour = "grey") +
-      geom_point(data = subset(pressure, isoutliar), aes(x = date, y = obs), colour = "black") +
+      geom_point(data = subset(pressure, isoutlier), aes(x = date, y = obs), colour = "black") +
       theme_bw()
 
     req(input$thr_sta)

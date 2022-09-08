@@ -82,18 +82,24 @@ stopifnot(inherits(pressure$date, "POSIXt"))
 stopifnot("obs" %in% names(pressure))
 stopifnot(is.numeric(pressure$obs))
 stopifnot("sta_id" %in% names(pressure))
-if (!("isoutliar" %in% names(pressure))) {
-  pressure$isoutliar <- FALSE
+if (!("outlier" %in% names(pressure))) {
+  if ("isoutliar" %in% names(pressure)) {
+    warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
+            " to be back compatible with futur version.")
+    pressure$isoutlier <- pressure$isoutliar
+  } else{
+    pressure$isoutlier <- FALSE
+  }
 }
 gdl_id <- geopressureviz$pam$id
 
 
 # Correct duration for pressure datapoint available
-pres_isoutliar_sta <- aggregate(!pressure$isoutliar, by = list(sta_id = pressure$sta_id), FUN = sum)
+pres_outlier_sta <- aggregate(!pressure$outlier, by = list(sta_id = pressure$sta_id), FUN = sum)
 res <- as.numeric(difftime(pressure$date[2], pressure$date[1], units = "days"))
-id_match <- match(sta$sta_id, pres_isoutliar_sta$sta_id)
+id_match <- match(sta$sta_id, pres_outlier_sta$sta_id)
 stopifnot(!is.na(id_match))
-sta$duration <- pres_isoutliar_sta$x[id_match] * res
+sta$duration <- pres_outlier_sta$x[id_match] * res
 
 # Set color of each stationay period
 col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(max(sta$sta_id) / 8))

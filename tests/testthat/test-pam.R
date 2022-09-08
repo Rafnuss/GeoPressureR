@@ -70,8 +70,8 @@ pam_labeled <- trainset_read(pam, pathname = pathname)
 test_that("Check trainset_read()", {
   # Returned value is correct
   expect_type(pam_labeled, "list")
-  expect_true(c("isoutliar") %in% names(pam_labeled$pressure))
-  expect_type(pam_labeled$pressure$isoutliar, "logical")
+  expect_true(c("isoutlier") %in% names(pam_labeled$pressure))
+  expect_type(pam_labeled$pressure$isoutlier, "logical")
   expect_true(c("ismig") %in% names(pam_labeled$acceleration))
   expect_type(pam_labeled$acceleration$ismig, "logical")
 
@@ -84,7 +84,7 @@ test_that("Check trainset_read()", {
     pathname = pathname,
     filename = "18LX_act_pres-labeled-diffsize.csv"
   ))
-  expect_true(c("isoutliar") %in% names(pam$pressure))
+  expect_true(c("isoutlier") %in% names(pam$pressure))
   expect_true(c("ismig") %in% names(pam$acceleration))
 })
 
@@ -94,6 +94,6 @@ test_that("Check pam_sta()", {
   # Returned value is correct
   expect_type(pam_sta, "list")
   expect_true(c("sta") %in% names(pam_sta))
-  expect_type(pam_labeled$pressure$isoutliar, "logical")
+  expect_type(pam_labeled$pressure$isoutlier, "logical")
   expect_gt(nrow(pam_sta$sta), 0)
 })
