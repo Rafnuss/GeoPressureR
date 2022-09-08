@@ -70,8 +70,12 @@ sta <- do.call("rbind", lapply(static_prob, function(r) {
 
 
 # Get the timeserie of pressure
-stopifnot("pam_data" %in% names(geopressureviz))
-pressure <- geopressureviz$pam_data$pressure
+if ("pam_data" %in% names(geopressureviz) & !("pam" %in% names(geopressureviz))){
+  warning("pam_data has been deprecated in favor of pam. Please make the change in your code.")
+  geopressureviz$pam = pam_data
+}
+stopifnot("pam" %in% names(geopressureviz))
+pressure <- geopressureviz$pam$pressure
 stopifnot(is.data.frame(pressure))
 stopifnot("date" %in% names(pressure))
 stopifnot(inherits(pressure$date, "POSIXt"))
@@ -81,7 +85,7 @@ stopifnot("sta_id" %in% names(pressure))
 if (!("isoutliar" %in% names(pressure))) {
   pressure$isoutliar <- FALSE
 }
-gdl_id <- geopressureviz$pam_data$id
+gdl_id <- geopressureviz$pam$id
 
 
 # Correct duration for pressure datapoint available
@@ -205,7 +209,7 @@ if (!exists("path0")) {
 # grl$gs <- gs_abs * cos((gs_bearing - 90) * pi / 180) +
 #   1i * gs_abs * sin((gs_bearing - 90) * pi / 180)
 #
-# grl <- graph_add_wind(grl, pam_data$pressure, '~/18IC_')
+# grl <- graph_add_wind(grl, pam$pressure, '~/18IC_')
 #
 # # path0$gs = grl$gs
 # # path0$as = grl$gs
