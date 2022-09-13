@@ -82,7 +82,7 @@ stopifnot(inherits(pressure$date, "POSIXt"))
 stopifnot("obs" %in% names(pressure))
 stopifnot(is.numeric(pressure$obs))
 stopifnot("sta_id" %in% names(pressure))
-if (!("outlier" %in% names(pressure))) {
+if (!("isoutliar" %in% names(pressure))) {
   if ("isoutliar" %in% names(pressure)) {
     warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
             " to be back compatible with futur version.")
@@ -95,7 +95,7 @@ gdl_id <- geopressureviz$pam$id
 
 
 # Correct duration for pressure datapoint available
-pres_outlier_sta <- aggregate(!pressure$outlier, by = list(sta_id = pressure$sta_id), FUN = sum)
+pres_outlier_sta <- aggregate(!pressure$isoutlier, by = list(sta_id = pressure$sta_id), FUN = sum)
 res <- as.numeric(difftime(pressure$date[2], pressure$date[1], units = "days"))
 id_match <- match(sta$sta_id, pres_outlier_sta$sta_id)
 stopifnot(!is.na(id_match))
