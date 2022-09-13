@@ -1,20 +1,30 @@
-# GeoPressureR v3.0.0
+# GeoPressureR v2.6-beta
 ## Major
-- Migration of all the vignette and data used for the vignette in GeoPressureManual https://github.com/Rafnuss/GeoPressureR/commit/bda0f7898dd9e6b8d9d786ce56ae3e5ec422c935
-- Read Migrate Technology data (should not be breaking change, but some significant changes) #23
-- Add `logis`function in `flight_prob()` https://github.com/Rafnuss/GeoPressureR/commit/6e1a8f0e93d82ec2a9bccce404cdb59fcc218277
+- add windspeed download function `graph_download_wind()`
 
 ## Minor
-- Read Avonet data as package data https://github.com/Rafnuss/GeoPressureR/commit/c5c8d807f9a7e13a49e3d1565a7b3beffb58022f
-- Update of `r-lib/actions` to v2 https://github.com/Rafnuss/GeoPressureR/commit/3382fb9b7b9970f1c102cf9aabf3a6b06b5d505e
-- https://github.com/Rafnuss/GeoPressureR/commit/8720b6e6032f910f0c702e649a907dcf10bc2258
-- Improvement of GeoPressureViz https://github.com/Rafnuss/GeoPressureR/commit/97be49de4ed6c309b16e23fbedde1d618ae0a04c https://github.com/Rafnuss/GeoPressureR/commit/964b558913de7f7b6ef9915fc9cc41fc0b3dd0d3
+- fixes for reading pam data
+- various fixes (see https://github.com/Rafnuss/GeoPressureR/pull/42)
+
+## Full Changelog 
+https://github.com/Rafnuss/GeoPressureR/compare/v2.5-beta...v2.6-beta
+
+# GeoPressureR v2.5-beta
+## Major
+- Migration of all the vignette and data used for the vignette in GeoPressureManual bda0f7898dd9e6b8d9d786ce56ae3e5ec422c935
+- Read Migrate Technology data (should not be breaking change, but some significant changes) #23
+- Add `logis` function in `flight_prob()` 6e1a8f0e93d82ec2a9bccce404cdb59fcc218277
+
+## Minor
+- Read Avonet data as package data c5c8d807f9a7e13a49e3d1565a7b3beffb58022f
+- Update of `r-lib/actions` to v2 3382fb9b7b9970f1c102cf9aabf3a6b06b5d505e
+- 8720b6e6032f910f0c702e649a907dcf10bc2258
+- Improvement of GeoPressureViz 97be49de4ed6c309b16e23fbedde1d618ae0a04c 964b558913de7f7b6ef9915fc9cc41fc0b3dd0d3
 - Add checks and warning in functions
 - Preparation of the code for CRAN
 
 ## Full Changelog
-https://github.com/Rafnuss/GeoPressureR/compare/v2.4-beta...v3.0.0
-
+https://github.com/Rafnuss/GeoPressureR/compare/v2.4-beta...v2.5-beta
 
 # GeoPressureR v2.4-beta
 ## Major
