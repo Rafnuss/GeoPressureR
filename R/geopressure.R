@@ -436,8 +436,9 @@ geopressure_ts <- function(lon,
     if (!assertthat::has_name(pressure, "isoutlier")) {
       if (assertthat::has_name(pressure, "isoutliar")) {
         warning(
-          "pressure$isoutliar is deprecated in favor of pressure$isoutlier. This code will continue",
-          " but update your code and data to be compatible with futur version of GeoPressureR."
+          "pressure$isoutliar is deprecated in favor of pressure$isoutlier. This code will ",
+          "continue but update your code and data to be compatible with futur version of ",
+          "GeoPressureR."
         )
         pressure$isoutlier <- pressure$isoutliar
       } else {
