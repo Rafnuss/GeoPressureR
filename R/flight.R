@@ -96,15 +96,15 @@ flight_bird <- function(species_name,
   }
 
   # Final check of the input and return the list
-  stopifnot(is.character(species_name))
-  stopifnot(is.numeric(mass))
-  stopifnot(mass > 0 & mass < 10)
-  stopifnot(is.numeric(body_frontal_area))
-  stopifnot(body_frontal_area > 0 & body_frontal_area < 1)
-  stopifnot(is.numeric(wing_span))
-  stopifnot(wing_span > 0 & wing_span < 10)
-  stopifnot(is.numeric(wing_aspect))
-  stopifnot(wing_aspect > 1 & wing_aspect < 100)
+  assertthat::assert_that(is.character(species_name))
+  assertthat::assert_that(is.numeric(mass))
+  assertthat::assert_that(mass > 0 & mass < 10)
+  assertthat::assert_that(is.numeric(body_frontal_area))
+  assertthat::assert_that(body_frontal_area > 0 & body_frontal_area < 1)
+  assertthat::assert_that(is.numeric(wing_span))
+  assertthat::assert_that(wing_span > 0 & wing_span < 10)
+  assertthat::assert_that(is.numeric(wing_aspect))
+  assertthat::assert_that(wing_aspect > 1 & wing_aspect < 100)
   return(list(
     species_name = species_name,
     mass = mass,
@@ -135,12 +135,13 @@ flight_bird <- function(species_name,
 #' @seealso [`flight_bird()`], [`flight_prob()`]
 flight_power <- function(as,
                          bird) {
-  stopifnot(is.numeric(as))
-  stopifnot(as >= 0)
-  stopifnot(is.list(bird))
-  stopifnot(c("mass", "wing_span", "body_frontal_area", "wing_aspect")
-  %in% names(bird))
-
+  assertthat::assert_that(is.numeric(as))
+  assertthat::assert_that(all(as >= 0))
+  assertthat::assert_that(is.list(bird))
+  assertthat::assert_that(assertthat::has_name(bird, "mass"))
+  assertthat::assert_that(assertthat::has_name(bird, "wing_span"))
+  assertthat::assert_that(assertthat::has_name(bird, "body_frontal_area"))
+  assertthat::assert_that(assertthat::has_name(bird, "wing_aspect"))
 
   # Constant of gravity [ms-2]
   g <- 9.80665
@@ -221,11 +222,11 @@ flight_prob <- function(speed,
   if (is.complex(speed)) {
     speed <- abs(speed)
   }
-  stopifnot(is.numeric(speed))
-  stopifnot(speed >= 0)
-  stopifnot(is.character(method))
-  stopifnot(any(c("gamma", "power", "logis") == method))
-  stopifnot(is.function(fun_power))
+  assertthat::assert_that(is.numeric(speed))
+  assertthat::assert_that(all(speed >= 0))
+  assertthat::assert_that(is.character(method))
+  assertthat::assert_that(any(c("gamma", "power", "logis") == method))
+  assertthat::assert_that(is.function(fun_power))
 
   speed <- pmax(speed, low_speed_fix)
 

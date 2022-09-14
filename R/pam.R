@@ -37,7 +37,7 @@ pam_read <- function(pathname,
                      crop_start = "1900-01-01",
                      crop_end = "2100-01-01",
                      id = NA) {
-  stopifnot(dir.exists(pathname))
+  assertthat::assert_that(dir.exists(pathname))
 
   # convert date to POSIXct date and check format
   crop_start <- as.POSIXct(crop_start, tz = "UTC")
@@ -170,13 +170,13 @@ pam_read_delim_dto <- function(path, skip = 6, col = 3, date_format = "%d.%m.%Y 
 #' @export
 pam_classify <- function(pam,
                          min_duration = 30) {
-  stopifnot(is.list(pam))
-  stopifnot("acceleration" %in% names(pam))
-  stopifnot(is.data.frame(pam$acceleration))
-  stopifnot("date" %in% names(pam$acceleration))
-  stopifnot("obs" %in% names(pam$acceleration))
-  stopifnot(is.numeric(min_duration))
-  stopifnot(min_duration > 0)
+  assertthat::assert_that(is.list(pam))
+  assertthat::assert_that(assertthat::has_name(pam, "acceleration"))
+  assertthat::assert_that(is.data.frame(pam$acceleration))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, "obs"))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, "date"))
+  assertthat::assert_that(is.numeric(min_duration))
+  assertthat::assert_that(min_duration > 0)
 
   # Run a 2 class k mean clustering
   km <- stats::kmeans(pam$acceleration$obs[pam$acceleration$obs > 0], centers = 2)
@@ -231,19 +231,20 @@ pam_classify <- function(pam,
 pam_sta <- function(pam) {
 
   # Perform test
-  stopifnot(is.list(pam))
-  stopifnot("pressure" %in% names(pam))
-  stopifnot(is.data.frame(pam$pressure))
-  stopifnot("date" %in% names(pam$pressure))
-  stopifnot("obs" %in% names(pam$pressure))
-  stopifnot("acceleration" %in% names(pam))
-  stopifnot(is.data.frame(pam$acceleration))
-  stopifnot("date" %in% names(pam$acceleration))
-  stopifnot("obs" %in% names(pam$acceleration))
-  stopifnot("ismig" %in% names(pam$acceleration))
-  stopifnot(is.data.frame(pam$light))
-  stopifnot("date" %in% names(pam$light))
-  stopifnot("obs" %in% names(pam$light))
+  assertthat::assert_that(is.list(pam))
+  assertthat::assert_that(assertthat::has_name(pam, "pressure"))
+  assertthat::assert_that(is.data.frame(pam$pressure))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, "date"))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, "obs"))
+  assertthat::assert_that(assertthat::has_name(pam, "acceleration"))
+  assertthat::assert_that(is.data.frame(pam$acceleration))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, "obs"))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, "date"))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, "ismig"))
+  assertthat::assert_that(assertthat::has_name(pam, "light"))
+  assertthat::assert_that(is.data.frame(pam$light))
+  assertthat::assert_that(assertthat::has_name(pam$light, "obs"))
+  assertthat::assert_that(assertthat::has_name(pam$light, "date"))
 
   # Create a table of activities (migration or stationary)
   act_id <- c(1, cumsum(diff(as.numeric(pam$acceleration$ismig)) != 0) + 1)
@@ -314,34 +315,36 @@ trainset_write <- function(pam,
                            filename = paste0(pam$id, "_act_pres")) {
 
   # Perform test
-  stopifnot(is.list(pam))
-  stopifnot("pressure" %in% names(pam))
-  stopifnot(is.data.frame(pam$pressure))
-  stopifnot("date" %in% names(pam$pressure))
-  stopifnot("obs" %in% names(pam$pressure))
-  stopifnot("acceleration" %in% names(pam))
-  stopifnot(is.data.frame(pam$acceleration))
-  stopifnot("date" %in% names(pam$acceleration))
-  stopifnot("obs" %in% names(pam$acceleration))
+  assertthat::assert_that(is.list(pam))
+  assertthat::assert_that(assertthat::has_name(pam, "pressure"))
+  assertthat::assert_that(is.data.frame(pam$pressure))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, "date"))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, "obs"))
+  assertthat::assert_that(assertthat::has_name(pam, "acceleration"))
+  assertthat::assert_that(is.data.frame(pam$acceleration))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, "obs"))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, "date"))
   if (!("ismig" %in% names(pam$acceleration))) {
     pam$acceleration$ismig <- FALSE
   }
   if (!("isoutlier" %in% names(pam$pressure))) {
     if ("isoutliar" %in% names(pam$pressure)) {
-      warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
-              " to be back compatible with futur version.")
+      warning(
+        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
+        " to be back compatible with futur version."
+      )
       pam$pressure$isoutlier <- pam$pressure$isoutliar
     } else{
       pam$pressure$isoutlier <- FALSE
     }
   }
-  stopifnot(is.character(pathname))
-  stopifnot(is.character(filename))
+  assertthat::assert_that(is.character(pathname))
+  assertthat::assert_that(is.character(filename))
   # create path if does not exit
   if (!dir.exists(pathname)) {
     dir.create(pathname)
   }
-  stopifnot(dir.exists(pathname))
+  assertthat::assert_that(dir.exists(pathname))
 
   # write a combined data.frame of pressure and acceleration in csv.
   utils::write.csv(
@@ -397,26 +400,28 @@ trainset_read <- function(pam,
                           filename = paste0(pam$id, "_act_pres-labeled.csv")) {
 
   # Perform test
-  stopifnot(is.list(pam))
-  stopifnot("pressure" %in% names(pam))
-  stopifnot(is.data.frame(pam$pressure))
-  stopifnot("date" %in% names(pam$pressure))
-  stopifnot("obs" %in% names(pam$pressure))
-  stopifnot("acceleration" %in% names(pam))
-  stopifnot(is.list(pam$acceleration))
-  stopifnot("date" %in% names(pam$acceleration))
-  stopifnot("obs" %in% names(pam$acceleration))
-  stopifnot(is.character(pathname))
-  stopifnot(is.character(filename))
-  stopifnot(dir.exists(pathname))
+  assertthat::assert_that(is.list(pam))
+  assertthat::assert_that(assertthat::has_name(pam, "pressure"))
+  assertthat::assert_that(is.data.frame(pam$pressure))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, "date"))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, "obs"))
+  assertthat::assert_that(assertthat::has_name(pam, "acceleration"))
+  assertthat::assert_that(is.list(pam$acceleration))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, "obs"))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, "date"))
+  assertthat::assert_that(is.character(pathname))
+  assertthat::assert_that(is.character(filename))
+  assertthat::assert_that(dir.exists(pathname))
   fullpath <- paste0(pathname, "/", filename)
-  stopifnot(file.exists(fullpath))
+  assertthat::assert_that(file.exists(fullpath))
 
   # read the file
   csv <- utils::read.csv(fullpath)
 
   # check that the file is in the right format
-  stopifnot(c("series", "timestamp", "label") %in% names(csv))
+  assertthat::assert_that(assertthat::has_name(csv, "series"))
+  assertthat::assert_that(assertthat::has_name(csv, "timestamp"))
+  assertthat::assert_that(assertthat::has_name(csv, "label"))
 
   csv$date <- strptime(csv$timestamp, "%FT%T", tz = "UTC")
   series <- NULL
