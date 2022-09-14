@@ -42,16 +42,16 @@ graph_create <- function(static_prob,
                          thr_gs = 150) {
 
   # Check input
-  stopifnot(is.list(static_prob))
-  stopifnot(inherits(static_prob[[1]], "RasterLayer"))
-  stopifnot(c("flight", "sta_id") %in%
-    names(raster::metadata(static_prob[[1]])))
-  stopifnot(is.numeric(thr_prob_percentile))
-  stopifnot(length(thr_prob_percentile) == 1)
-  stopifnot(thr_prob_percentile >= 0 & thr_prob_percentile <= 1)
-  stopifnot(is.numeric(thr_gs))
-  stopifnot(length(thr_gs) == 1)
-  stopifnot(thr_gs >= 0)
+  assertthat::assert_that(is.list(static_prob))
+  assertthat::assert_that(inherits(static_prob[[1]], "RasterLayer"))
+  assertthat::assert_that(assertthat::has_name(raster::metadata(static_prob[[1]]), "flight"))
+  assertthat::assert_that(assertthat::has_name(raster::metadata(static_prob[[1]]), "sta_id"))
+  assertthat::assert_that(is.numeric(thr_prob_percentile))
+  assertthat::assert_that(length(thr_prob_percentile) == 1)
+  assertthat::assert_that(thr_prob_percentile >= 0 & thr_prob_percentile <= 1)
+  assertthat::assert_that(is.numeric(thr_gs))
+  assertthat::assert_that(length(thr_gs) == 1)
+  assertthat::assert_that(thr_gs >= 0)
 
   # compute size
   sz <- c(nrow(static_prob[[1]]), ncol(static_prob[[1]]), length(static_prob))
@@ -72,12 +72,12 @@ graph_create <- function(static_prob,
     stop(paste0(
       "static_prob is invalid for index ",
       paste(which(is.na(sta_id_0)), collapse = ", "),
-      " (check that the probability map is non-zero)"
+      " (check that the probability map is not null/na)."
     ))
   }
   if (any(sta_id_0)) {
     stop(paste0(
-      "The `static_prob` provided has an invalid probability map for the stationay period: ",
+      "The `static_prob` provided has an invalid probability map for the stationary period: ",
       which(sta_id_0)
     ))
   }
@@ -99,7 +99,7 @@ graph_create <- function(static_prob,
   if (any(nds_0)) {
     stop(paste0(
       "Using the `thr_prob_percentile` of ", thr_prob_percentile, " provided, there are not any ",
-      "nodes left for the stationay period: ", which(nds_0)
+      "nodes left for the stationary period: ", which(nds_0)
     ))
   }
 
@@ -133,8 +133,8 @@ graph_create <- function(static_prob,
       if (sum(nds[[i_s + 1]]) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
-          "there are not any nodes left at stationay period ",
-          raster::metadata(static_prob[[i_s + 1]])$sta_id, " from stationay period ",
+          "there are not any nodes left at stationary period ",
+          raster::metadata(static_prob[[i_s + 1]])$sta_id, " from stationary period ",
           raster::metadata(static_prob[[i_s]])$sta_id
         ))
       }
@@ -146,8 +146,8 @@ graph_create <- function(static_prob,
       if (sum(nds[[i_s - 1]]) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
-          "there are not any nodes left at stationay period ",
-          raster::metadata(static_prob[[i_s - 1]])$sta_id, " from stationay period ",
+          "there are not any nodes left at stationary period ",
+          raster::metadata(static_prob[[i_s - 1]])$sta_id, " from stationary period ",
           raster::metadata(static_prob[[i_s]])$sta_id
         ))
       }
@@ -166,7 +166,7 @@ graph_create <- function(static_prob,
     ))
   }
 
-  # Identify equipement and retrival
+  # Identify equipment and retrieval
   equipement <- which(nds[[1]] == TRUE)
   retrival <- which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll
 
@@ -214,7 +214,7 @@ graph_create <- function(static_prob,
       if (sum(id) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
-          "edges, there are not any nodes left for the stationay period: ", i_s
+          "edges, there are not any nodes left for the stationary period: ", i_s
         ))
       }
       grt <- grt[id, ]
@@ -242,7 +242,7 @@ graph_create <- function(static_prob,
       if (sum(id) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
-          "edges, there are not any nodes left for the stationay period: ", i_s
+          "edges, there are not any nodes left for the stationary period: ", i_s
         ))
       }
       return(grt)
@@ -370,15 +370,15 @@ graph_download_wind <- function(pam,
                                 cds_key = Sys.getenv("cds_key"),
                                 cds_user = Sys.getenv("cds_user"),
                                 path = paste0("data/5_wind_graph/", pam$id, "/")) {
-  stopifnot(is.list(pam))
-  stopifnot("pressure" %in% names(pam))
-  stopifnot(is.data.frame(pam$pressure))
-  stopifnot("date" %in% names(pam$pressure))
-  stopifnot("obs" %in% names(pam$pressure))
-  stopifnot("sta" %in% names(pam))
-  stopifnot(is.data.frame(pam$sta))
-  stopifnot("end" %in% names(pam$sta))
-  stopifnot("start" %in% names(pam$sta))
+  assertthat::assert_that(is.list(pam))
+  assertthat::assert_that(assertthat::has_name(pam, "pressure"))
+  assertthat::assert_that(is.data.frame(pam$pressure))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, "date"))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, "obs"))
+  assertthat::assert_that(assertthat::has_name(pam, "sta"))
+  assertthat::assert_that(is.data.frame(pam$sta))
+  assertthat::assert_that(assertthat::has_name(pam$sta, "end"))
+  assertthat::assert_that(assertthat::has_name(pam$sta, "start"))
 
   if (is.list(area)) {
     area <- area[[1]]
@@ -386,8 +386,8 @@ graph_download_wind <- function(pam,
   area <- raster::extent(area)
   area <- c(area@ymax, area@xmin, area@ymin, area@xmax)
 
-  stopifnot(is.numeric(sta_id))
-  stopifnot(all(sta_id %in% pam$sta$sta_id))
+  assertthat::assert_that(is.numeric(sta_id))
+  assertthat::assert_that(all(sta_id %in% pam$sta$sta_id))
 
   ecmwfr::wf_set_key(user = cds_user, key = cds_key, service = "cds")
 
@@ -470,19 +470,25 @@ graph_add_wind <- function(grl,
                            pressure,
                            filename,
                            thr_as = Inf) {
-  stopifnot(is.list(grl))
-  stopifnot(c("s", "t", "gs", "sz", "lat", "lon", "flight") %in% names(grl))
-  stopifnot(length(grl$s) > 0)
-  stopifnot(is.data.frame(pressure))
-  stopifnot("date" %in% names(pressure))
-  stopifnot(inherits(pressure$date, "POSIXt"))
-  stopifnot("obs" %in% names(pressure))
-  stopifnot(is.numeric(pressure$obs))
-  stopifnot(is.character(filename))
-  stopifnot(file.exists(paste0(filename, "1.nc")))
-  stopifnot(is.numeric(thr_as))
-  stopifnot(length(thr_as) == 1)
-  stopifnot(thr_as >= 0)
+  assertthat::assert_that(is.list(grl))
+  assertthat::assert_that(assertthat::has_name(grl, "s"))
+  assertthat::assert_that(assertthat::has_name(grl, "t"))
+  assertthat::assert_that(assertthat::has_name(grl, "gs"))
+  assertthat::assert_that(assertthat::has_name(grl, "sz"))
+  assertthat::assert_that(assertthat::has_name(grl, "lat"))
+  assertthat::assert_that(assertthat::has_name(grl, "lon"))
+  assertthat::assert_that(assertthat::has_name(grl, "flight"))
+  assertthat::assert_that(length(grl$s) > 0)
+  assertthat::assert_that(is.data.frame(pressure))
+  assertthat::assert_that(assertthat::has_name(pressure, "date"))
+  assertthat::assert_that(assertthat::has_name(pressure, "obs"))
+  assertthat::assert_that(inherits(pressure$date, "POSIXt"))
+  assertthat::assert_that(is.numeric(pressure$obs))
+  assertthat::assert_that(is.character(filename))
+  assertthat::assert_that(file.exists(paste0(filename, "1.nc")))
+  assertthat::assert_that(is.numeric(thr_as))
+  assertthat::assert_that(length(thr_as) == 1)
+  assertthat::assert_that(thr_as >= 0)
 
   # Extract the index in lat, lon, sta from the source and target of all edges
   s <- arrayInd(grl$s, grl$sz)
@@ -512,7 +518,7 @@ graph_add_wind <- function(grl,
       pres <- ncdf4::ncvar_get(nc, "level")
       t_q <- seq(from = t_s, to = t_e, by = 60 * 60)
       pres_obs <- pressure$obs[pressure$date > t_s & pressure$date < t_e]
-      if (length(pres_obs) == 0 |
+      if (length(pres_obs) == 0 ||
         !(min(pres) <= min(pres_obs) &&
           max(pres) >= min(1000, max(pres_obs)))) {
         stop(paste0("Pressure not matching for sta=", i_s))
@@ -621,16 +627,16 @@ graph_add_wind <- function(grl,
 
       # Linear integration
       w <- numeric(length(t_q))
-      stopifnot(length(w) > 1)
+      assertthat::assert_that(length(w) > 1)
       alpha <- 1 - as.numeric(difftime(fl_s$start[i2], t_q[1],
         units = "hours"
       ))
-      stopifnot(alpha >= 0 & alpha <= 1)
+      assertthat::assert_that(alpha >= 0 & alpha <= 1)
       w[c(1, 2)] <- w[c(1, 2)] + c(alpha, 1 - alpha) * alpha
       alpha <- 1 - as.numeric(difftime(utils::tail(t_q, 1), fl_s$end[i2],
         units = "hours"
       ))
-      stopifnot(alpha >= 0 & alpha <= 1)
+      assertthat::assert_that(alpha >= 0 & alpha <= 1)
       w[length(w) - c(1, 0)] <- w[length(w) - c(1, 0)] +
         c(1 - alpha, alpha) * alpha
 
@@ -744,7 +750,7 @@ graph_add_wind <- function(grl,
     stop(paste0(
       "Using the `thr_as` of ", thr_as,
       " km/h provided with the exact distance of edges, there are ",
-      "not any nodes left for the stationay period: ", paste(sta_pass, collapse = ", "),
+      "not any nodes left for the stationary period: ", paste(sta_pass, collapse = ", "),
       " with a minimum airspeed of ", min(abs(grl$as[s[, 3] == sta_pass])), " km/h"
     ))
   }
@@ -771,12 +777,22 @@ graph_add_wind <- function(grl,
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map)
 #' @export
 graph_marginal <- function(grl) {
-  stopifnot(is.list(grl))
-  stopifnot(c(
-    "s", "t", "p", "sz", "lat", "lon", "mask_water", "equipement", "retrival",
-    "resolution", "extent", "temporal_extent", "flight", "sta_id"
-  ) %in% names(grl))
-  stopifnot(length(grl$s) > 0)
+  assertthat::assert_that(is.list(grl))
+  assertthat::assert_that(assertthat::has_name(grl, "s"))
+  assertthat::assert_that(assertthat::has_name(grl, "t"))
+  assertthat::assert_that(assertthat::has_name(grl, "p"))
+  assertthat::assert_that(assertthat::has_name(grl, "sz"))
+  assertthat::assert_that(assertthat::has_name(grl, "lat"))
+  assertthat::assert_that(assertthat::has_name(grl, "lon"))
+  assertthat::assert_that(assertthat::has_name(grl, "mask_water"))
+  assertthat::assert_that(assertthat::has_name(grl, "equipement"))
+  assertthat::assert_that(assertthat::has_name(grl, "retrival"))
+  assertthat::assert_that(assertthat::has_name(grl, "resolution"))
+  assertthat::assert_that(assertthat::has_name(grl, "extent"))
+  assertthat::assert_that(assertthat::has_name(grl, "temporal_extent"))
+  assertthat::assert_that(assertthat::has_name(grl, "flight"))
+  assertthat::assert_that(assertthat::has_name(grl, "sta_id"))
+  assertthat::assert_that(length(grl$s) > 0)
 
   # number of nodes in the 3d grid
   n <- prod(grl$sz)
@@ -862,30 +878,38 @@ graph_marginal <- function(grl) {
 #' @export
 graph_simulation <- function(grl,
                              nj = 10) {
-  stopifnot(is.list(grl))
-  stopifnot(c(
-    "s", "t", "p", "sz", "lat", "lon", "equipement", "retrival",
-    "resolution", "extent", "temporal_extent", "sta_id"
-  ) %in% names(grl))
-  stopifnot(length(grl$s) > 0)
-  stopifnot(is.numeric(nj))
-  stopifnot(nj > 0)
+  assertthat::assert_that(is.list(grl))
+  assertthat::assert_that(assertthat::has_name(grl, "s"))
+  assertthat::assert_that(assertthat::has_name(grl, "t"))
+  assertthat::assert_that(assertthat::has_name(grl, "p"))
+  assertthat::assert_that(assertthat::has_name(grl, "sz"))
+  assertthat::assert_that(assertthat::has_name(grl, "lat"))
+  assertthat::assert_that(assertthat::has_name(grl, "lon"))
+  assertthat::assert_that(assertthat::has_name(grl, "equipement"))
+  assertthat::assert_that(assertthat::has_name(grl, "retrival"))
+  assertthat::assert_that(assertthat::has_name(grl, "resolution"))
+  assertthat::assert_that(assertthat::has_name(grl, "extent"))
+  assertthat::assert_that(assertthat::has_name(grl, "temporal_extent"))
+  assertthat::assert_that(assertthat::has_name(grl, "sta_id"))
+  assertthat::assert_that(length(grl$s) > 0)
+  assertthat::assert_that(is.numeric(nj))
+  assertthat::assert_that(nj > 0)
 
   # number of nodes in the 3d grid
   n <- prod(grl$sz)
   nll <- grl$sz[1] * grl$sz[2]
 
-  # Initialize path. As we will simulate the path chronological order, only the first equipement
+  # Initialize path. As we will simulate the path chronological order, only the first equipment
   # site needs to be set.
   path <- matrix(ncol = grl$sz[3], nrow = nj)
   path[, 1] <- grl$equipement
 
-  # Find the stationary index of all the source so that only the edges from a specific stationay
+  # Find the stationary index of all the source so that only the edges from a specific stationary
   # period can be easily query
   s_id <- arrayInd(grl$s, grl$sz)
 
-  # As we will simulate in forward chronolofical order, we will be able to create map_f inside the
-  # simulation. However, map_b needs to be computed for all stationary period in advence, starting
+  # As we will simulate in forward chronological order, we will be able to create map_f inside the
+  # simulation. However, map_b needs to be computed for all stationary period in advance, starting
   # by the last stationary period and moving backward in time as follow
   map_b <- list()
   map_b[[grl$sz[3]]] <- Matrix::sparseMatrix(rep(1, length(grl$retrival)),
@@ -950,11 +974,15 @@ graph_simulation <- function(grl,
 #' @export
 graph_path2lonlat <- function(path_id,
                               grl) {
-  stopifnot(is.list(grl))
-  stopifnot(c("s", "t", "sz", "lat", "lon", "sta_id") %in% names(grl))
-  stopifnot(length(grl$s) > 0)
-  stopifnot(is.numeric(path_id))
-  stopifnot(all(path_id > 0 & path_id <= prod(grl$sz)))
+  assertthat::assert_that(is.list(grl))
+  assertthat::assert_that(assertthat::has_name(grl, "s"))
+  assertthat::assert_that(assertthat::has_name(grl, "t"))
+  assertthat::assert_that(assertthat::has_name(grl, "sz"))
+  assertthat::assert_that(assertthat::has_name(grl, "lat"))
+  assertthat::assert_that(assertthat::has_name(grl, "lon"))
+  assertthat::assert_that(length(grl$s) > 0)
+  assertthat::assert_that(is.numeric(path_id))
+  assertthat::assert_that(all(path_id > 0 & path_id <= prod(grl$sz)))
 
   ind <- arrayInd(path_id, grl$sz)
   p <- list()
@@ -979,18 +1007,19 @@ graph_path2lonlat <- function(path_id,
 #' @export
 graph_path2edge <- function(path_id,
                             grl) {
-  stopifnot(is.list(grl))
-  stopifnot(c("s", "t") %in% names(grl))
-  stopifnot(length(grl$s) > 0)
-  stopifnot(is.numeric(path_id))
-  stopifnot(all(path_id > 0 & path_id <= prod(grl$sz)))
+  assertthat::assert_that(is.list(grl))
+  assertthat::assert_that(assertthat::has_name(grl, "s"))
+  assertthat::assert_that(assertthat::has_name(grl, "t"))
+  assertthat::assert_that(length(grl$s) > 0)
+  assertthat::assert_that(is.numeric(path_id))
+  assertthat::assert_that(all(path_id > 0 & path_id <= prod(grl$sz)))
 
   if (is.matrix(path_id)) {
     # Number of paths
     nj <- dim(path_id)[1]
-    # number of stationay period
+    # number of stationary period
     nsta <- dim(path_id)[2]
-    stopifnot(nsta == grl$sz[3])
+    assertthat::assert_that(nsta == grl$sz[3])
 
     # Get the source and target
     path_s <- path_id[, 1:(nsta - 1)]
@@ -1002,7 +1031,7 @@ graph_path2edge <- function(path_id,
   } else {
     nsta <- length(path_id)
     nj <- 1
-    stopifnot(nsta == grl$sz[3])
+    assertthat::assert_that(nsta == grl$sz[3])
 
     path_s <- path_id[1:(nsta - 1)]
     path_t <- path_id[2:nsta]

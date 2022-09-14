@@ -20,10 +20,10 @@ suppressMessages({
 })
 
 # Read input
-stopifnot(file.exists("~/geopressureviz.RData"))
+assertthat::assert_that(file.exists("~/geopressureviz.RData"))
 load("~/geopressureviz.RData")
 
-stopifnot("static_prob" %in% names(geopressureviz))
+assertthat::assert_that("static_prob" %in% names(geopressureviz))
 static_prob <- geopressureviz$static_prob
 
 map_choices <- c()
@@ -31,34 +31,34 @@ map_val <- list()
 
 if ("light_prob" %in% names(geopressureviz)) {
   map_choices <- c(map_choices, "Light")
-  stopifnot(length(static_prob) == length(geopressureviz$light_prob))
+  assertthat::assert_that(length(static_prob) == length(geopressureviz$light_prob))
   map_val[[length(map_val) + 1]] <- geopressureviz$light_prob
 }
 if ("pressure_prob_mismatch" %in% names(geopressureviz)) {
   map_choices <- c(map_choices, "Pressure mis.")
-  stopifnot(length(static_prob) == length(geopressureviz$pressure_prob_mismatch))
+  assertthat::assert_that(length(static_prob) == length(geopressureviz$pressure_prob_mismatch))
   map_val[[length(map_val) + 1]] <- geopressureviz$pressure_prob_mismatch
 }
 if ("pressure_prob_thr" %in% names(geopressureviz)) {
   map_choices <- c(map_choices, "Pressure thres.")
-  stopifnot(length(static_prob) == length(geopressureviz$pressure_prob_thr))
+  assertthat::assert_that(length(static_prob) == length(geopressureviz$pressure_prob_thr))
   map_val[[length(map_val) + 1]] <- geopressureviz$pressure_prob_thr
 }
 if ("pressure_prob" %in% names(geopressureviz)) {
   map_choices <- c(map_choices, "Pressure")
-  stopifnot(length(static_prob) == length(geopressureviz$pressure_prob))
+  assertthat::assert_that(length(static_prob) == length(geopressureviz$pressure_prob))
   map_val[[length(map_val) + 1]] <- geopressureviz$pressure_prob
 }
 map_choices <- c(map_choices, "Static")
 map_val[[length(map_val) + 1]] <- static_prob
 if ("static_prob_marginal" %in% names(geopressureviz)) {
-  stopifnot(length(static_prob) == length(geopressureviz$static_prob_marginal))
+  assertthat::assert_that(length(static_prob) == length(geopressureviz$static_prob_marginal))
   map_choices <- c(map_choices, "Marginal")
   map_val[[length(map_val) + 1]] <- static_prob_marginal
 }
 
 
-# Get stationay period information
+# Get stationary period information
 sta <- do.call("rbind", lapply(static_prob, function(r) {
   mt <- raster::metadata(r)
   mt$start <- mt$temporal_extent[1]
@@ -70,18 +70,18 @@ sta <- do.call("rbind", lapply(static_prob, function(r) {
 
 
 # Get the timeserie of pressure
-if ("pam_data" %in% names(geopressureviz) & !("pam" %in% names(geopressureviz))){
+if ("pam_data" %in% names(geopressureviz) && !("pam" %in% names(geopressureviz))){
   warning("pam_data has been deprecated in favor of pam. Please make the change in your code.")
   geopressureviz$pam = pam_data
 }
-stopifnot("pam" %in% names(geopressureviz))
+assertthat::assert_that("pam" %in% names(geopressureviz))
 pressure <- geopressureviz$pam$pressure
-stopifnot(is.data.frame(pressure))
-stopifnot("date" %in% names(pressure))
-stopifnot(inherits(pressure$date, "POSIXt"))
-stopifnot("obs" %in% names(pressure))
-stopifnot(is.numeric(pressure$obs))
-stopifnot("sta_id" %in% names(pressure))
+assertthat::assert_that(is.data.frame(pressure))
+assertthat::assert_that("date" %in% names(pressure))
+assertthat::assert_that(inherits(pressure$date, "POSIXt"))
+assertthat::assert_that("obs" %in% names(pressure))
+assertthat::assert_that(is.numeric(pressure$obs))
+assertthat::assert_that("sta_id" %in% names(pressure))
 if (!("isoutliar" %in% names(pressure))) {
   if ("isoutliar" %in% names(pressure)) {
     warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
@@ -98,10 +98,10 @@ gdl_id <- geopressureviz$pam$id
 pres_outlier_sta <- aggregate(!pressure$isoutlier, by = list(sta_id = pressure$sta_id), FUN = sum)
 res <- as.numeric(difftime(pressure$date[2], pressure$date[1], units = "days"))
 id_match <- match(sta$sta_id, pres_outlier_sta$sta_id)
-stopifnot(!is.na(id_match))
+assertthat::assert_that(all(!is.na(id_match)))
 sta$duration <- pres_outlier_sta$x[id_match] * res
 
-# Set color of each stationay period
+# Set color of each stationary period
 col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(max(sta$sta_id) / 8))
 sta$col <- col[sta$sta_id]
 
@@ -124,7 +124,7 @@ flight <- lapply(static_prob, function(r) {
 if ("pressure_timeserie" %in% names(geopressureviz)) {
   pressure_timeserie <- geopressureviz$pressure_timeserie
 
-  stopifnot(length(pressure_timeserie) == nrow(sta))
+  assertthat::assert_that(length(pressure_timeserie) == nrow(sta))
   p_ts_sta_id <- unlist(lapply(pressure_timeserie, function(x) {
     if (is.null(x)) {
       NA
@@ -134,7 +134,7 @@ if ("pressure_timeserie" %in% names(geopressureviz)) {
   }))
   test <- p_ts_sta_id == sta$sta_id
   test[is.na(test)] <- TRUE
-  stopifnot(test)
+  assertthat::assert_that(all(test))
   ts0 <- pressure_timeserie
   ts0 <- lapply(ts0, function(x) {
     if (is.null(x)) {

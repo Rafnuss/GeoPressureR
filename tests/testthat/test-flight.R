@@ -5,6 +5,7 @@ test_that("check build from avonet only", {
   expect_error(flight_bird())
   expect_error(flight_bird("no_bird"))
   expect_error(flight_bird("scrocephalus"))
+  expect_error(flight_bird("Acrocephalus"))
   expect_error(flight_bird("Acrocephalus arundinaceus"), NA)
 })
 
@@ -15,13 +16,14 @@ test_that("check for full custum bird", {
   expect_error(
     flight_bird("custum_bird", mass = 1, wing_span = 1, wing_aspect = 4, wing_area = .1),
     NA
-  ) # Note that this example is not consistant
+  ) # Note that this example is not consistent
   expect_error(flight_bird("custum_bird", mass = 1, wing_aspect = 4))
 })
 
 test_that("check hybrid call", {
   expect_error(flight_bird("Acrocephalus arundinaceus", mass = .05), NA)
   expect_error(flight_bird("Acrocephalus arundinaceus", wing_aspect = 8), NA)
+  expect_error(flight_bird("Acrocephalus arundinaceus", wing_area = .01), NA)
   expect_error(flight_bird("Acrocephalus arundinaceus", wing_span = .25), NA)
   expect_error(flight_bird("Acrocephalus arundinaceus", body_frontal_area = .003), NA)
 })
@@ -41,6 +43,18 @@ test_that("check flight_prob() with groundspeed/gamma", {
     (1 / power)^6
   }
   expect_error(flight_prob(speed, fun_power = fun_power), NA)
+})
+
+test_that("check flight_prob() with groundspeed/logis", {
+  speed <- seq(0, 100)
+  expect_error(flight_prob(speed, method = "logis"), NA)
+  expect_error(flight_prob(speed + 1 * 1i, method = "logis"), NA)
+  expect_error(flight_prob(speed, shape = 8, scale = 2, method = "logis"), NA)
+  expect_error(flight_prob(speed, low_speed_fix = 0, method = "logis"), NA)
+  fun_power <- function(power) {
+    (1 / power)^6
+  }
+  expect_error(flight_prob(speed, fun_power = fun_power, method = "logis"), NA)
 })
 
 test_that("check flight_prob() with airspeed/bird", {

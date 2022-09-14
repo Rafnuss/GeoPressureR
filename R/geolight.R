@@ -192,16 +192,16 @@ refracted <- function(zenith) {
 find_twilights <- function(light,
                            threshold = NA,
                            shift_k = NA) {
-  stopifnot(is.data.frame(light))
-  stopifnot("date" %in% names(light))
-  stopifnot(inherits(light$date, "POSIXt"))
-  stopifnot("obs" %in% names(light))
-  stopifnot(is.numeric(light$obs))
+  assertthat::assert_that(is.data.frame(light))
+  assertthat::assert_that("date" %in% names(light))
+  assertthat::assert_that(inherits(light$date, "POSIXt"))
+  assertthat::assert_that("obs" %in% names(light))
+  assertthat::assert_that(is.numeric(light$obs))
 
   if (is.na(threshold)) {
     threshold <- min(light$obs[light$obs > 0])
   }
-  stopifnot(is.numeric(threshold))
+  assertthat::assert_that(is.numeric(threshold))
 
   # add padding of time to center if night are not at 00:00 UTC
   if (is.na(shift_k)) {
@@ -258,12 +258,12 @@ find_twilights <- function(light,
 #' @return A dataframe with columns obs and date
 #' @export
 light2mat <- function(light, shift_k = 0) {
-  stopifnot(is.data.frame(light))
-  stopifnot("date" %in% names(light))
-  stopifnot(inherits(light$date, "POSIXt"))
-  stopifnot("obs" %in% names(light))
-  stopifnot(is.numeric(light$obs))
-  stopifnot(is.numeric(shift_k))
+  assertthat::assert_that(is.data.frame(light))
+  assertthat::assert_that("date" %in% names(light))
+  assertthat::assert_that(inherits(light$date, "POSIXt"))
+  assertthat::assert_that("obs" %in% names(light))
+  assertthat::assert_that(is.numeric(light$obs))
+  assertthat::assert_that(is.numeric(shift_k))
 
   res <- difftime(utils::tail(light$date, -1), utils::head(light$date, -1), units = "secs")
   if (length(unique(res)) != 1) {
@@ -288,7 +288,7 @@ light2mat <- function(light, shift_k = 0) {
   # Match the observation on the new grid
   obs <- rep(NA, length(date))
   id <- date %in% light$date
-  stopifnot(any(id))
+  assertthat::assert_that(any(id))
   obs[id] <- light$obs
 
   # reshape in matrix format

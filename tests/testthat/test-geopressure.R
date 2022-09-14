@@ -1,6 +1,7 @@
 library(testthat)
 library(GeoPressureR)
 
+# Start by computing all the necessary file for the tests
 pam <- pam_read(
   pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
   crop_start = "2017-08-01", crop_end = "2017-10-01"
@@ -11,14 +12,27 @@ pam <- trainset_read(
 )
 pam <- pam_sta(pam)
 
+pressure_maps <- geopressure_map(pam$pressure,
+  extent = c(50, -16, 0, 23),
+  scale = 10,
+  max_sample = 100,
+  margin = 30
+)
+pressure_prob <- geopressure_prob_map(pressure_maps)
+path_pressure <- geopressure_map2path(pressure_prob)
+
+
+
 test_that("Check geopressure_map() for date too recent", {
   pressure <- data.frame(
-    date = c(Sys.time(),Sys.time()+1),
-    obs = c(1000,1000),
-    sta_id = c(1,1)
+    date = c(Sys.time(), Sys.time() + 1),
+    obs = c(1000, 1000),
+    sta_id = c(1, 1)
   )
   expect_error(raster_list <- geopressure_map(pressure, extent = c(1, 0, 0, 1), scale = 1))
 })
+
+
 
 test_that("Check geopressure_map() output", {
   pressure <- data.frame(
@@ -33,14 +47,28 @@ test_that("Check geopressure_map() output", {
   expect_type(raster_list, "list")
   expect_length(raster_list, 1)
   expect_s4_class(raster_list[[1]], "RasterBrick")
+
+  # Check error for incorrect pressure
+  pressure_tmp <- pressure
+  pressure_tmp$obs[2] <- 1200
+  expect_error(geopressure_map(pressure_tmp, extent = c(1, 0, 0, 1), scale = 1))
+
+  # Check error for incorrect pressure
+  pressure_tmp <- pressure
+  pressure_tmp$date[2] <- pressure$date[2] + 30 * 60
+  expect_warning(geopressure_map(pressure_tmp, extent = c(1, 0, 0, 1), scale = 1))
+
+  # Check error for incorrect pressure
+  pressure_tmp <- pressure
+  pressure_tmp$sta_id <- 0
+  expect_error(geopressure_map(pressure_tmp, extent = c(1, 0, 0, 1), scale = 1))
+
+  # Check back compatibility
+  pressure_tmp <- pressure
+  pressure_tmp$isoutliar <- FALSE
+  expect_warning(geopressure_map(pressure_tmp, extent = c(1, 0, 0, 1), scale = 1))
 })
 
-pressure_maps <- geopressure_map(pam$pressure,
-  extent = c(50, -16, 0, 23),
-  scale = 10,
-  max_sample = 100,
-  margin = 30
-)
 
 
 test_that("Check geopressure_prob_map() output", {
@@ -49,23 +77,29 @@ test_that("Check geopressure_prob_map() output", {
   expect_error(geopressure_prob_map(pressure_maps, thr = "not_a_number"))
   expect_error(geopressure_prob_map(pressure_maps, fun_w = "not_a_function"))
 })
-pressure_prob <- geopressure_prob_map(pressure_maps)
 
-path_pressure <- geopressure_map2path(pressure_prob)
+
 
 test_that("Check geopressure_map2path() output", {
   # Error on incorrect parameter
   expect_error(geopressure_map2path(pressure_prob, interp = 2), NA)
+  expect_error(geopressure_map2path(pressure_prob), NA)
   expect_error(geopressure_map2path(pressure_prob, format = "ind"), NA)
   expect_error(geopressure_map2path(pressure_prob, format = "arr.ind"), NA)
+
+  # Not working without temporal_extent
+  pressure_prob_tmp <- pressure_prob
+  mt <- raster::metadata(pressure_prob_tmp[[1]])
+  raster::metadata(pressure_prob_tmp[[1]]) <- mt[names(mt) %in% "temporal_extent" == FALSE]
+  expect_error(geopressure_map2path(pressure_prob_tmp, interp = 2))
+
+  # TODO: add flight
 
   # Check correct returned
   expect_s3_class(path_pressure, "data.frame")
   expect_true(all(c("lon", "lat", "sta_id") %in% names(path_pressure)))
   expect_gt(nrow(path_pressure), 0)
 })
-
-
 
 
 
@@ -84,9 +118,6 @@ test_that("Check geopressure_ts() output", {
     start_time = as.POSIXct("2017-06-20 00:00:00", tz = "UTC"),
     end_time = as.POSIXct("2017-06-20 02:00:00", tz = "UTC")
   ), "*water*")
-  expect_s3_class(pressure_timeserie, "data.frame")
-  expect_true(all(c("date", "pressure", "lat", "lon") %in% names(pressure_timeserie)))
-
 
   pressure <- data.frame(
     date = as.POSIXct(c(
@@ -99,6 +130,12 @@ test_that("Check geopressure_ts() output", {
   pressure_timeserie <- geopressure_ts(lon = 6, lat = 46, pressure = pressure)
   expect_s3_class(pressure_timeserie, "data.frame")
   expect_true(all(c("date", "pressure") %in% names(pressure_timeserie)))
+
+  # Check back compatibility
+  pressure_tmp <- pressure
+  pressure_tmp$isoutliar <- FALSE
+  expect_warning(geopressure_ts(lon = 6, lat = 46, pressure = pressure_tmp))
+
 
   # i_s <- 4
   # n <- c(32, 32, 29)
@@ -115,7 +152,6 @@ test_that("Check geopressure_ts() output", {
   # pressure_timeserie <- geopressure_ts(path$lon, path$lat, pressure)
   # expect_gt(nrow(pressure_timeserie), n[2])
 })
-
 
 
 
@@ -155,4 +191,11 @@ test_that("Check geopressure_ts_path() output", {
   path[1, ] <- c(0, 0, 4)
   expect_warning(pressure_timeserie <- geopressure_ts_path(path, pressure))
   expect_true(pressure_timeserie[[1]]$lat[1] != 0)
+
+  # Check back compatibility
+  pressure_tmp <- pressure
+  pressure_tmp$isoutliar <- FALSE
+  expect_warning(geopressure_ts_path(path, pressure_tmp))
+
+  expect_warning(geopressure_ts_path(path, pressure))
 })

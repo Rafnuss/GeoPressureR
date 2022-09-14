@@ -52,19 +52,21 @@ geopressure_map <- function(pressure,
                             max_sample = 250,
                             margin = 30) {
   # Check input
-  stopifnot(is.data.frame(pressure))
-  stopifnot(nrow(pressure)>1)
-  stopifnot("date" %in% names(pressure))
-  stopifnot(inherits(pressure$date, "POSIXt"))
-  stopifnot("obs" %in% names(pressure))
-  stopifnot(is.numeric(pressure$obs))
-  stopifnot("sta_id" %in% names(pressure))
+  assertthat::assert_that(is.data.frame(pressure))
+  assertthat::assert_that(nrow(pressure) > 1)
+  assertthat::assert_that("date" %in% names(pressure))
+  assertthat::assert_that(inherits(pressure$date, "POSIXt"))
+  assertthat::assert_that("obs" %in% names(pressure))
+  assertthat::assert_that(is.numeric(pressure$obs))
+  assertthat::assert_that("sta_id" %in% names(pressure))
   if (!("isoutlier" %in% names(pressure))) {
     if ("isoutliar" %in% names(pressure)) {
-      warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
-              " to be back compatible with futur version.")
+      warning(
+        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
+        " to be back compatible with futur version."
+      )
       pressure$isoutlier <- pressure$isoutliar
-    } else{
+    } else {
       pressure$isoutlier <- FALSE
     }
   }
@@ -75,22 +77,22 @@ geopressure_map <- function(pressure,
       "hPa). Check unit return by `pam_read()`"
     ))
   }
-  stopifnot(is.logical(pressure$isoutlier))
-  stopifnot(is.numeric(extent))
-  stopifnot(length(extent) == 4)
-  stopifnot(extent[1] >= -90 & extent[1] <= 90)
-  stopifnot(extent[2] >= -180 & extent[2] <= 180)
-  stopifnot(extent[3] >= -90 & extent[3] <= 90)
-  stopifnot(extent[4] >= -180 & extent[4] <= 180)
-  stopifnot(extent[3] < extent[1])
-  stopifnot(extent[2] < extent[4])
-  stopifnot(is.numeric(scale))
-  stopifnot(0 < scale)
-  stopifnot(scale <= 10)
-  stopifnot(is.numeric(max_sample))
-  stopifnot(0 < max_sample)
-  stopifnot(is.numeric(margin))
-  stopifnot(0 < margin)
+  assertthat::assert_that(is.logical(pressure$isoutlier))
+  assertthat::assert_that(is.numeric(extent))
+  assertthat::assert_that(length(extent) == 4)
+  assertthat::assert_that(extent[1] >= -90 & extent[1] <= 90)
+  assertthat::assert_that(extent[2] >= -180 & extent[2] <= 180)
+  assertthat::assert_that(extent[3] >= -90 & extent[3] <= 90)
+  assertthat::assert_that(extent[4] >= -180 & extent[4] <= 180)
+  assertthat::assert_that(extent[3] < extent[1])
+  assertthat::assert_that(extent[2] < extent[4])
+  assertthat::assert_that(is.numeric(scale))
+  assertthat::assert_that(0 < scale)
+  assertthat::assert_that(scale <= 10)
+  assertthat::assert_that(is.numeric(max_sample))
+  assertthat::assert_that(0 < max_sample)
+  assertthat::assert_that(is.numeric(margin))
+  assertthat::assert_that(0 < margin)
 
   # convert from hPa to Pa
   pres <- pressure$obs * 100
@@ -115,7 +117,7 @@ geopressure_map <- function(pressure,
   n <- round(1 / dt + 1)
   # make the convolution for each stationary period separately
   for (i_s in seq(1, max(pressure$sta_id, na.rm = TRUE))) {
-    if (length(pres) > n){
+    if (length(pres) > n) {
       pres_i_s <- pres
       pres_i_s[pressure$sta_id != i_s] <- NA
       pres_i_s_smoothna <- stats::filter(
@@ -183,15 +185,23 @@ geopressure_map <- function(pressure,
   urls[sapply(urls, is.null)] <- NA
   urls <- unlist(urls)
   # Note that the order of the urls will be different than requested to optimized the
-  # parralelization
+  # parallelization
   labels <- unlist(httr::content(res)$data$labels)
   labels_order <- order(labels)
-  # Check that the uri exist
-  if (any(is.na(urls))){
-    warning("There was no urls returned for stationary periods: ",
-            paste(labels[is.na(urls)], collapse = ", "), ". It is probably due to request(s) made ",
-            "for periods where no data are available. Note that ERA5 data is usually only ",
-            "available on GEE ~3-5 months after.")
+  # Check that the urls exist
+  if (all(is.na(urls))) {
+    stop(
+      "There was no urls returned for all stationary periods. It is probably due to request(s) ",
+      "made for periods where no data are available. Note that ERA5 data is usually only ",
+      "available on GEE ~3-5 months after."
+    )
+  } else if (any(is.na(urls))) {
+    warning(
+      "There was no urls returned for stationary periods: ",
+      paste(labels[is.na(urls)], collapse = ", "), ". It is probably due to request(s) made ",
+      "for periods where no data are available. Note that ERA5 data is usually only ",
+      "available on GEE ~3-5 months after."
+    )
     labels <- labels[!is.na(urls)]
     labels_order <- labels_order[!is.na(urls)]
     urls <- urls[!is.na(urls)]
@@ -321,11 +331,11 @@ geopressure_prob_map <- function(pressure_maps,
                                  fun_w = function(n) {
                                    log(n) / n
                                  }) {
-  stopifnot(is.numeric(s))
-  stopifnot(s >= 0)
-  stopifnot(is.numeric(thr))
-  stopifnot(thr >= 0 & thr <= 1)
-  stopifnot(is.function(fun_w))
+  assertthat::assert_that(is.numeric(s))
+  assertthat::assert_that(s >= 0)
+  assertthat::assert_that(is.numeric(thr))
+  assertthat::assert_that(thr >= 0 & thr <= 1)
+  assertthat::assert_that(is.function(fun_w))
 
   raster_prob_list <- c()
   for (i_s in seq_len(length(pressure_maps))) {
@@ -411,35 +421,37 @@ geopressure_ts <- function(lon,
                            start_time = NULL,
                            verbose = TRUE) {
   # Check input
-  stopifnot(is.numeric(lon))
-  stopifnot(is.numeric(lat))
-  stopifnot(lon >= -180 & lon <= 180)
-  stopifnot(lat >= -90 & lat <= 90)
+  assertthat::assert_that(is.numeric(lon))
+  assertthat::assert_that(is.numeric(lat))
+  assertthat::assert_that(lon >= -180 & lon <= 180)
+  assertthat::assert_that(lat >= -90 & lat <= 90)
   if (!is.null(pressure)) {
-    stopifnot(is.data.frame(pressure))
-    stopifnot("date" %in% names(pressure))
-    stopifnot(inherits(pressure$date, "POSIXt"))
-    stopifnot("obs" %in% names(pressure))
-    stopifnot(is.numeric(pressure$obs))
+    assertthat::assert_that(is.data.frame(pressure))
+    assertthat::assert_that("date" %in% names(pressure))
+    assertthat::assert_that(inherits(pressure$date, "POSIXt"))
+    assertthat::assert_that("obs" %in% names(pressure))
+    assertthat::assert_that(is.numeric(pressure$obs))
     end_time <- NULL
     start_time <- NULL
     if (!("isoutlier" %in% names(pressure))) {
       if ("isoutliar" %in% names(pressure)) {
-        warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
-                " to be back compatible with futur version.")
+        warning(
+          "pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
+          " to be back compatible with futur version."
+        )
         pressure$isoutlier <- pressure$isoutliar
-      } else{
+      } else {
         pressure$isoutlier <- FALSE
       }
     }
   } else {
-    stopifnot(!is.na(end_time))
-    stopifnot(!is.na(start_time))
-    stopifnot(inherits(end_time, "POSIXt"))
-    stopifnot(inherits(start_time, "POSIXt"))
-    stopifnot(start_time <= end_time)
+    assertthat::assert_that(!is.na(end_time))
+    assertthat::assert_that(!is.na(start_time))
+    assertthat::assert_that(inherits(end_time, "POSIXt"))
+    assertthat::assert_that(inherits(start_time, "POSIXt"))
+    assertthat::assert_that(start_time <= end_time)
   }
-  stopifnot(is.logical(verbose))
+  assertthat::assert_that(is.logical(verbose))
 
   # Format query
   body_df <- list(lon = lon, lat = lat)
@@ -575,23 +587,27 @@ geopressure_ts_path <- function(path,
                                 pressure,
                                 include_flight = FALSE,
                                 verbose = TRUE) {
-  stopifnot(is.data.frame(pressure))
-  stopifnot("date" %in% names(pressure))
-  stopifnot(inherits(pressure$date, "POSIXt"))
-  stopifnot("obs" %in% names(pressure))
-  stopifnot(is.numeric(pressure$obs))
-  stopifnot("sta_id" %in% names(pressure))
+  assertthat::assert_that(is.data.frame(pressure))
+  assertthat::assert_that("date" %in% names(pressure))
+  assertthat::assert_that(inherits(pressure$date, "POSIXt"))
+  assertthat::assert_that("obs" %in% names(pressure))
+  assertthat::assert_that(is.numeric(pressure$obs))
+  assertthat::assert_that("sta_id" %in% names(pressure))
   if (!("isoutlier" %in% names(pressure))) {
     if ("isoutliar" %in% names(pressure)) {
-      warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
-              " to be back compatible with futur version.")
+      warning(
+        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
+        " to be back compatible with futur version."
+      )
       pressure$isoutlier <- pressure$isoutliar
-    } else{
+    } else {
       pressure$isoutlier <- FALSE
     }
   }
-  stopifnot(is.data.frame(path))
-  stopifnot(c("lat", "lon", "sta_id") %in% names(path))
+  assertthat::assert_that(is.data.frame(path))
+  assertthat::assert_that(assertthat::has_name(path, "lat"))
+  assertthat::assert_that(assertthat::has_name(path, "lon"))
+  assertthat::assert_that(assertthat::has_name(path, "sta_id"))
   if (nrow(path) == 0) warning("path is empty")
   if (!all(path$sta_id %in% pressure$sta_id)) {
     warning("Some path sta_id are not present in pressure")
@@ -599,9 +615,9 @@ geopressure_ts_path <- function(path,
   if (is.logical(include_flight)) {
     include_flight <- (if (include_flight) c(-1, 0, 1) else 0)
   }
-  stopifnot(is.numeric(include_flight))
-  stopifnot(all(include_flight %in% c(-1, 0, 1)))
-  stopifnot(is.logical(verbose))
+  assertthat::assert_that(is.numeric(include_flight))
+  assertthat::assert_that(all(include_flight %in% c(-1, 0, 1)))
+  assertthat::assert_that(is.logical(verbose))
 
   # Interpolate sta_id for flight period so that, a flight between sta_id 2 and 3 will have a
   # `sta_id_interp` between 2 and 3.
@@ -685,11 +701,11 @@ geopressure_ts_path <- function(path,
 geopressure_map2path <- function(map,
                                  interp = 0,
                                  format = "lonlat") {
-  stopifnot(is.list(map))
-  stopifnot(inherits(map[[1]], "RasterLayer"))
-  stopifnot(is.numeric(interp))
-  stopifnot(interp >= 0)
-  stopifnot(format %in% c("lonlat", "ind", "arr.ind"))
+  assertthat::assert_that(is.list(map))
+  assertthat::assert_that(inherits(map[[1]], "RasterLayer"))
+  assertthat::assert_that(is.numeric(interp))
+  assertthat::assert_that(interp >= 0)
+  assertthat::assert_that(any(format %in% c("lonlat", "ind", "arr.ind")))
 
   # Set the initial path to the most likely from static prob
   # There is a difference between which.max(r) andwhich.max(as.matrix(r)) which appeared to be
@@ -734,11 +750,11 @@ geopressure_map2path <- function(map,
 
     # Find the spacing between the position
     if (is.null(raster::metadata(map[[1]])$flight)) {
-      # Or if flight duration are not available (e.g. `prob_pressure`), assumes homogenous spacing
+      # Or if flight duration are not available (e.g. `prob_pressure`), assumes homogeneous spacing
       # between consecutive stationary period
       x <- path$sta_id
     } else {
-      # If flight are avialabe, sum of the all flights between stationary period
+      # If flight are available, sum of the all flights between stationary period
       flight_duration <- unlist(lapply(map, function(r) {
         fl <- raster::metadata(r)$flight
         sum(as.numeric(difftime(fl$end,
@@ -746,7 +762,7 @@ geopressure_map2path <- function(map,
           units = "hours"
         )))
       }))
-      # Cumultate the flight duration to get a proxy of the over distance covered
+      # Cumulate the flight duration to get a proxy of the over distance covered
       x <- c(0, cumsum(utils::head(flight_duration, -1)))
     }
     # interpolate in between

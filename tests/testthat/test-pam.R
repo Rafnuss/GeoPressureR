@@ -14,7 +14,6 @@ test_that("Check pam_read()", {
   expect_type(pam_read(pathname = pathname), "list")
   expect_error(pam_read("not a path"))
 
-
   # Check that the return pam is correct
   expect_type(pam, "list")
   expect_true(all(c("pressure", "light", "acceleration") %in% names(pam)))
@@ -62,6 +61,17 @@ test_that("Check trainset_write()", {
   expect_error(trainset_write(pam_classified, pathname = tempdir()), NA)
   # Work even if not auto-classified
   expect_error(trainset_write(pam, pathname = tempdir()), NA)
+
+  # create new folder
+  expect_error(trainset_write(pam, pathname = paste0(tempdir(), "/", Sys.Date())), NA)
+
+  # Check with outlier
+  pam$pressure$isoutlier <- TRUE
+  expect_error(trainset_write(pam, pathname = tempdir()), NA)
+
+  # Check for back compatibility (isoutliar instead of isoutlier) outlier
+  names(pam$pressure)[3] <- "isoutliar"
+  expect_warning(trainset_write(pam, pathname = tempdir()))
 })
 
 pathname <- system.file("extdata/1_pressure/labels", package = "GeoPressureR")
