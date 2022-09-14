@@ -14,8 +14,8 @@
 #' representing the E-W as real and S-N as imaginary.
 #' * `ps`: static probability of each target node,
 #' * `sz`: size of the 3d grid lat-lon-sta,
-#' * `equipement`: node(s) of the first sta (index in the 3d grid lat-lon-sta),
-#' * `retrival`: node(s) of the last sta (index in the 3d grid lat-lon-sta),
+#' * `equipment`: node(s) of the first sta (index in the 3d grid lat-lon-sta),
+#' * `retrieval`: node(s) of the last sta (index in the 3d grid lat-lon-sta),
 #' * `flight_duration`: list of flight duration to next sta in hours,
 #' * `lat`: list of the `static_prob` latitude in cell center,
 #' * `lon`: list of the `static_prob` longitude in cell center,
@@ -166,8 +166,8 @@ graph_create <- function(static_prob,
   }
 
   # Identify equipment and retrieval
-  equipement <- which(nds[[1]] == TRUE)
-  retrival <- which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll
+  equipment <- which(nds[[1]] == TRUE)
+  retrieval <- which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll
 
 
   # Create the graph from nds with the exact groundspeed
@@ -261,8 +261,8 @@ graph_create <- function(static_prob,
   # Convert gr to a graph list
   grl <- as.list(do.call("rbind", gr))
   grl$sz <- sz
-  grl$equipement <- equipement
-  grl$retrival <- retrival
+  grl$equipment <- equipment
+  grl$retrieval <- retrieval
 
   # Add metadata information
   grl$flight_duration <- flight_duration
@@ -768,7 +768,7 @@ graph_add_wind <- function(grl,
 #' @export
 graph_marginal <- function(grl) {
   assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, c("s", "t", "p", "sz", "lat", "lon", "mask_water", "equipement", "retrival", "resolution", "extent", "temporal_extent", "flight", "sta_id")))
+  assertthat::assert_that(assertthat::has_name(grl, c("s", "t", "p", "sz", "lat", "lon", "mask_water", "equipment", "retrieval", "resolution", "extent", "temporal_extent", "flight", "sta_id")))
   assertthat::assert_that(length(grl$s) > 0)
 
   # number of nodes in the 3d grid
@@ -781,29 +781,29 @@ graph_marginal <- function(grl) {
   trans_b <- Matrix::sparseMatrix(grl$t, grl$s, x = grl$p, dims = c(n, n))
 
   # forward mapping of marginal probability
-  map_f <- Matrix::sparseMatrix(rep(1, length(grl$equipement)),
-    grl$equipement,
+  map_f <- Matrix::sparseMatrix(rep(1, length(grl$equipment)),
+    grl$equipment,
     x = 1, dims = c(1, n)
   )
 
   # backward mapping of marginal probability
-  map_b <- Matrix::sparseMatrix(rep(1, length(grl$retrival)),
-    grl$retrival,
+  map_b <- Matrix::sparseMatrix(rep(1, length(grl$retrieval)),
+    grl$retrieval,
     x = 1, dims = c(1, n)
   )
 
   # build iteratively the marginal probability backward and forward by re-using the mapping
   # computed for previous stationary period. Set the equipment and retrieval site in each loop
   for (i_s in seq_len(grl$sz[3] - 1)) {
-    map_f[1, grl$equipement] <- 1
+    map_f[1, grl$equipment] <- 1
     map_f <- map_f %*% trans_f
 
-    map_b[1, grl$retrival] <- 1
+    map_b[1, grl$retrieval] <- 1
     map_b <- map_b %*% trans_b
   }
   # add the retrieval and equipment at the end to finish it
-  map_f[1, grl$equipement] <- 1
-  map_b[1, grl$retrival] <- 1
+  map_f[1, grl$equipment] <- 1
+  map_b[1, grl$retrieval] <- 1
 
   # combine the forward and backward
   map <- map_f * map_b
@@ -856,7 +856,7 @@ graph_marginal <- function(grl) {
 graph_simulation <- function(grl,
                              nj = 10) {
   assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, c("s", "t", "p", "sz", "lat", "lon", "equipement", "retrival", "resolution", "extent", "temporal_extent", "sta_id")))
+  assertthat::assert_that(assertthat::has_name(grl, c("s", "t", "p", "sz", "lat", "lon", "equipment", "retrieval", "resolution", "extent", "temporal_extent", "sta_id")))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.numeric(nj))
   assertthat::assert_that(nj > 0)
@@ -868,7 +868,7 @@ graph_simulation <- function(grl,
   # Initialize path. As we will simulate the path chronological order, only the first equipment
   # site needs to be set.
   path <- matrix(ncol = grl$sz[3], nrow = nj)
-  path[, 1] <- grl$equipement
+  path[, 1] <- grl$equipment
 
   # Find the stationary index of all the source so that only the edges from a specific stationary
   # period can be easily query
@@ -878,8 +878,8 @@ graph_simulation <- function(grl,
   # simulation. However, map_b needs to be computed for all stationary period in advance, starting
   # by the last stationary period and moving backward in time as follow
   map_b <- list()
-  map_b[[grl$sz[3]]] <- Matrix::sparseMatrix(rep(1, length(grl$retrival)),
-    grl$retrival,
+  map_b[[grl$sz[3]]] <- Matrix::sparseMatrix(rep(1, length(grl$retrieval)),
+    grl$retrieval,
     x = 1, dims = c(1, n)
   )
 

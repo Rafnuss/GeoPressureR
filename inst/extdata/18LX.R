@@ -236,7 +236,7 @@ grl$p <- grl$ps * flight_prob(grl$as, method = "power", bird = bird, low_speed_f
 
 # Shortest path
 g <- graph_from_data_frame(data.frame(from = grl$s, to = grl$t, weight = -log(grl$p)))
-sp <- shortest_paths(g, from = paste(grl$equipement), to = paste(grl$retrival))
+sp <- shortest_paths(g, from = paste(grl$equipment), to = paste(grl$retrieval))
 grl$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), grl)
 
 # Pressure timeserie at the best math
