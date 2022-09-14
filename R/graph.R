@@ -468,10 +468,10 @@ graph_add_wind <- function(grl,
                            filename,
                            thr_as = Inf) {
   assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, c("s","t","gs","sz","lat","lon","flight")))
+  assertthat::assert_that(assertthat::has_name(grl, c("s", "t", "gs", "sz", "lat", "lon", "flight")))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that(assertthat::has_name(pam$pressure, c("date", "obs")))
+  assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$obs))
   assertthat::assert_that(is.character(filename))
@@ -941,7 +941,7 @@ graph_simulation <- function(grl,
 graph_path2lonlat <- function(path_id,
                               grl) {
   assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, c("s","t","sz","lat","lon")))
+  assertthat::assert_that(assertthat::has_name(grl, c("s", "t", "sz", "lat", "lon")))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.numeric(path_id))
   assertthat::assert_that(all(path_id > 0 & path_id <= prod(grl$sz)))
@@ -970,7 +970,7 @@ graph_path2lonlat <- function(path_id,
 graph_path2edge <- function(path_id,
                             grl) {
   assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, c("s","t")))
+  assertthat::assert_that(assertthat::has_name(grl, c("s", "t")))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.numeric(path_id))
   assertthat::assert_that(all(path_id > 0 & path_id <= prod(grl$sz)))

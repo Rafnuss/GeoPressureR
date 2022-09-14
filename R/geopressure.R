@@ -54,7 +54,7 @@ geopressure_map <- function(pressure,
   # Check input
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(nrow(pressure) > 1)
-  assertthat::assert_that(is.data.frame(pam$pressure))
+  assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs", "sta_id")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$obs))
@@ -67,7 +67,7 @@ geopressure_map <- function(pressure,
       )
       pressure$isoutlier <- pressure$isoutliar
     } else {
-      assertthat::assert_that(assertthat::has_name(pressure, "isoutlier"))
+      pressure$isoutlier <- FALSE
     }
   }
   if (min(pressure$obs[!pressure$isoutlier]) < 250 || 1100 <
@@ -441,7 +441,7 @@ geopressure_ts <- function(lon,
         )
         pressure$isoutlier <- pressure$isoutliar
       } else {
-        assertthat::assert_that(assertthat::has_name(pressure, "isoutlier"))
+        pressure$isoutlier <- FALSE
       }
     }
   } else {
@@ -588,7 +588,6 @@ geopressure_ts_path <- function(path,
                                 include_flight = FALSE,
                                 verbose = TRUE) {
   assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that(is.data.frame(pam$pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs", "sta_id")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$obs))

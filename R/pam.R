@@ -173,7 +173,7 @@ pam_classify <- function(pam,
   assertthat::assert_that(is.list(pam))
   assertthat::assert_that(assertthat::has_name(pam, "acceleration"))
   assertthat::assert_that(is.data.frame(pam$acceleration))
-  assertthat::assert_that(assertthat::has_name(pam$acceleration, c("obs","date")))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, c("obs", "date")))
   assertthat::assert_that(is.numeric(min_duration))
   assertthat::assert_that(min_duration > 0)
 
@@ -257,7 +257,7 @@ pam_sta <- function(pam) {
   )
 
   # Assign to each pressure the stationary period to which it belong to.
-  if (assertthat::has_name(pam, "pressure")){
+  if (assertthat::has_name(pam, "pressure")) {
     assertthat::assert_that(is.data.frame(pam$pressure))
     assertthat::assert_that(assertthat::has_name(pam$pressure, "date"))
     tmp <- mapply(function(start, end) {
@@ -270,7 +270,7 @@ pam_sta <- function(pam) {
 
 
   # Assign to each light measurement the stationary period
-  if (assertthat::has_name(pam, "light")){
+  if (assertthat::has_name(pam, "light")) {
     assertthat::assert_that(is.data.frame(pam$light))
     assertthat::assert_that(assertthat::has_name(pam$light, "date"))
     tmp <- mapply(function(start, end) {
@@ -315,10 +315,10 @@ trainset_write <- function(pam,
   assertthat::assert_that(is.list(pam))
   assertthat::assert_that(assertthat::has_name(pam, c("pressure", "acceleration")))
   assertthat::assert_that(is.data.frame(pam$pressure))
-  assertthat::assert_that(assertthat::has_name(pam$pressure, c("date","obs")))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, c("date", "obs")))
   assertthat::assert_that(is.data.frame(pam$acceleration))
-  assertthat::assert_that(assertthat::has_name(pam$acceleration, c("date","obs")))
-  if (!("ismig" %in% names(pam$acceleration))) {
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, c("date", "obs")))
+  if (!assertthat::has_name(pam$acceleration, "ismig")) {
     pam$acceleration$ismig <- FALSE
   }
   if (!assertthat::has_name(pam$pressure, "isoutlier")) {
@@ -330,7 +330,7 @@ trainset_write <- function(pam,
       )
       pam$pressure$isoutlier <- pam$pressure$isoutliar
     } else {
-      assertthat::assert_that(assertthat::has_name(pam$pressure, "isoutlier"))
+      pam$pressure$isoutlier <- FALSE
     }
   }
   assertthat::assert_that(is.character(pathname))
@@ -398,9 +398,9 @@ trainset_read <- function(pam,
   assertthat::assert_that(is.list(pam))
   assertthat::assert_that(assertthat::has_name(pam, c("pressure", "acceleration")))
   assertthat::assert_that(is.data.frame(pam$pressure))
-  assertthat::assert_that(assertthat::has_name(pam$pressure, c("date","obs")))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, c("date", "obs")))
   assertthat::assert_that(is.data.frame(pam$acceleration))
-  assertthat::assert_that(assertthat::has_name(pam$acceleration, c("date","obs")))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, c("date", "obs")))
   assertthat::assert_that(is.character(pathname))
   assertthat::assert_that(is.character(filename))
   assertthat::assert_that(dir.exists(pathname))
