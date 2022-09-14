@@ -10,6 +10,7 @@ twl <- find_twilights(pam$light, shift_k = 0)
 test_that("Check find_twilights()", {
   expect_true(all(c("twilight", "rise") %in% names(twl)))
   expect_true(nrow(twl) > 0)
+  expect_warning(find_twilights(pam$light))
 })
 
 test_that("Check solar()", {
