@@ -334,7 +334,7 @@ trainset_write <- function(pam,
         " to be back compatible with futur version."
       )
       pam$pressure$isoutlier <- pam$pressure$isoutliar
-    } else{
+    } else {
       pam$pressure$isoutlier <- FALSE
     }
   }

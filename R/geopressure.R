@@ -61,10 +61,12 @@ geopressure_map <- function(pressure,
   assertthat::assert_that("sta_id" %in% names(pressure))
   if (!("isoutlier" %in% names(pressure))) {
     if ("isoutliar" %in% names(pressure)) {
-      warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
-              " to be back compatible with futur version.")
+      warning(
+        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
+        " to be back compatible with futur version."
+      )
       pressure$isoutlier <- pressure$isoutliar
-    } else{
+    } else {
       pressure$isoutlier <- FALSE
     }
   }
@@ -115,7 +117,7 @@ geopressure_map <- function(pressure,
   n <- round(1 / dt + 1)
   # make the convolution for each stationary period separately
   for (i_s in seq(1, max(pressure$sta_id, na.rm = TRUE))) {
-    if (length(pres) > n){
+    if (length(pres) > n) {
       pres_i_s <- pres
       pres_i_s[pressure$sta_id != i_s] <- NA
       pres_i_s_smoothna <- stats::filter(
@@ -186,12 +188,20 @@ geopressure_map <- function(pressure,
   # parallelization
   labels <- unlist(httr::content(res)$data$labels)
   labels_order <- order(labels)
-  # Check that the uri exist
-  if (any(is.na(urls))){
-    warning("There was no urls returned for stationary periods: ",
-            paste(labels[is.na(urls)], collapse = ", "), ". It is probably due to request(s) made ",
-            "for periods where no data are available. Note that ERA5 data is usually only ",
-            "available on GEE ~3-5 months after.")
+  # Check that the urls exist
+  if (all(is.na(urls))) {
+    stop(
+      "There was no urls returned for all stationary periods. It is probably due to request(s) ",
+      "made for periods where no data are available. Note that ERA5 data is usually only ",
+      "available on GEE ~3-5 months after."
+    )
+  } else if (any(is.na(urls))) {
+    warning(
+      "There was no urls returned for stationary periods: ",
+      paste(labels[is.na(urls)], collapse = ", "), ". It is probably due to request(s) made ",
+      "for periods where no data are available. Note that ERA5 data is usually only ",
+      "available on GEE ~3-5 months after."
+    )
     labels <- labels[!is.na(urls)]
     labels_order <- labels_order[!is.na(urls)]
     urls <- urls[!is.na(urls)]
@@ -425,10 +435,12 @@ geopressure_ts <- function(lon,
     start_time <- NULL
     if (!("isoutlier" %in% names(pressure))) {
       if ("isoutliar" %in% names(pressure)) {
-        warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
-                " to be back compatible with futur version.")
+        warning(
+          "pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
+          " to be back compatible with futur version."
+        )
         pressure$isoutlier <- pressure$isoutliar
-      } else{
+      } else {
         pressure$isoutlier <- FALSE
       }
     }
@@ -583,10 +595,12 @@ geopressure_ts_path <- function(path,
   assertthat::assert_that("sta_id" %in% names(pressure))
   if (!("isoutlier" %in% names(pressure))) {
     if ("isoutliar" %in% names(pressure)) {
-      warning("pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
-              " to be back compatible with futur version.")
+      warning(
+        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
+        " to be back compatible with futur version."
+      )
       pressure$isoutlier <- pressure$isoutliar
-    } else{
+    } else {
       pressure$isoutlier <- FALSE
     }
   }

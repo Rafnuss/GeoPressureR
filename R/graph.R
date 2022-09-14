@@ -518,7 +518,7 @@ graph_add_wind <- function(grl,
       pres <- ncdf4::ncvar_get(nc, "level")
       t_q <- seq(from = t_s, to = t_e, by = 60 * 60)
       pres_obs <- pressure$obs[pressure$date > t_s & pressure$date < t_e]
-      if (length(pres_obs) == 0 |
+      if (length(pres_obs) == 0 ||
         !(min(pres) <= min(pres_obs) &&
           max(pres) >= min(1000, max(pres_obs)))) {
         stop(paste0("Pressure not matching for sta=", i_s))
