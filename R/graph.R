@@ -44,7 +44,10 @@ graph_create <- function(static_prob,
   # Check input
   assertthat::assert_that(is.list(static_prob))
   assertthat::assert_that(inherits(static_prob[[1]], "RasterLayer"))
-  assertthat::assert_that(assertthat::has_name(raster::metadata(static_prob[[1]]), c("flight", "sta_id")))
+  assertthat::assert_that(assertthat::has_name(
+    raster::metadata(static_prob[[1]]),
+    c("flight", "sta_id")
+  ))
   assertthat::assert_that(is.numeric(thr_prob_percentile))
   assertthat::assert_that(length(thr_prob_percentile) == 1)
   assertthat::assert_that(thr_prob_percentile >= 0 & thr_prob_percentile <= 1)
@@ -468,7 +471,8 @@ graph_add_wind <- function(grl,
                            filename,
                            thr_as = Inf) {
   assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, c("s", "t", "gs", "sz", "lat", "lon", "flight")))
+  assertthat::assert_that(assertthat::has_name(
+    grl, c("s", "t", "gs", "sz", "lat", "lon", "flight")))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs")))
@@ -768,8 +772,36 @@ graph_add_wind <- function(grl,
 #' @export
 graph_marginal <- function(grl) {
   assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, c("s", "t", "p", "sz", "lat", "lon", "mask_water", "equipment", "retrieval", "resolution", "extent", "temporal_extent", "flight", "sta_id")))
+  assertthat::assert_that(assertthat::has_name(
+    grl, c(
+      "s", "t", "p", "sz", "lat", "lon", "mask_water", "resolution", "extent",
+      "temporal_extent", "flight", "sta_id"
+    )
+  ))
   assertthat::assert_that(length(grl$s) > 0)
+
+  if (!assertthat::has_name(grl, "equipment")) {
+    if (assertthat::has_name(grl, "equipement")) {
+      warning(
+        "pressure$equipement is deprecated in favor of grl$equipment This code will continue",
+        " but update your code and data to be compatible with futur version of GeoPressureR."
+      )
+      grl$equipment <- grl$equipement
+    } else {
+      assertthat::assert_that(assertthat::has_name(grl, "equipment"))
+    }
+  }
+  if (!assertthat::has_name(grl, "retrieval")) {
+    if (assertthat::has_name(grl, "retrival")) {
+      warning(
+        "pressure$retrival is deprecated in favor of grl$retrieval This code will continue",
+        " but update your code and data to be compatible with futur version of GeoPressureR."
+      )
+      grl$retrieval <- grl$retrival
+    } else {
+      assertthat::assert_that(assertthat::has_name(grl, "retrieval"))
+    }
+  }
 
   # number of nodes in the 3d grid
   n <- prod(grl$sz)
@@ -856,10 +888,35 @@ graph_marginal <- function(grl) {
 graph_simulation <- function(grl,
                              nj = 10) {
   assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, c("s", "t", "p", "sz", "lat", "lon", "equipment", "retrieval", "resolution", "extent", "temporal_extent", "sta_id")))
+  assertthat::assert_that(assertthat::has_name(
+    grl, c("s", "t", "p", "sz", "lat", "lon", "resolution", "extent", "temporal_extent", "sta_id")
+  ))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.numeric(nj))
   assertthat::assert_that(nj > 0)
+
+  if (!assertthat::has_name(grl, "equipment")) {
+    if (assertthat::has_name(grl, "equipement")) {
+      warning(
+        "pressure$equipement is deprecated in favor of grl$equipment This code will continue",
+        " but update your code and data to be compatible with futur version of GeoPressureR."
+      )
+      grl$equipment <- grl$equipement
+    } else {
+      assertthat::assert_that(assertthat::has_name(grl, "equipment"))
+    }
+  }
+  if (!assertthat::has_name(grl, "retrieval")) {
+    if (assertthat::has_name(grl, "retrival")) {
+      warning(
+        "pressure$retrival is deprecated in favor of grl$retrieval This code will continue",
+        " but update your code and data to be compatible with futur version of GeoPressureR."
+      )
+      grl$retrieval <- grl$retrival
+    } else {
+      assertthat::assert_that(assertthat::has_name(grl, "retrieval"))
+    }
+  }
 
   # number of nodes in the 3d grid
   n <- prod(grl$sz)
