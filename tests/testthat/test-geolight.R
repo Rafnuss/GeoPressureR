@@ -17,4 +17,5 @@ test_that("Check solar()", {
   sun <- solar(twl$twilight)
   z <- zenith(sun, lon = 0, lat = 0)
   z <- refracted(z)
+  expect_vector(z)
 })
