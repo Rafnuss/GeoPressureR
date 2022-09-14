@@ -44,8 +44,7 @@ graph_create <- function(static_prob,
   # Check input
   assertthat::assert_that(is.list(static_prob))
   assertthat::assert_that(inherits(static_prob[[1]], "RasterLayer"))
-  assertthat::assert_that(assertthat::has_name(raster::metadata(static_prob[[1]]), "flight"))
-  assertthat::assert_that(assertthat::has_name(raster::metadata(static_prob[[1]]), "sta_id"))
+  assertthat::assert_that(assertthat::has_name(raster::metadata(static_prob[[1]]), c("flight", "sta_id")))
   assertthat::assert_that(is.numeric(thr_prob_percentile))
   assertthat::assert_that(length(thr_prob_percentile) == 1)
   assertthat::assert_that(thr_prob_percentile >= 0 & thr_prob_percentile <= 1)
@@ -373,12 +372,10 @@ graph_download_wind <- function(pam,
   assertthat::assert_that(is.list(pam))
   assertthat::assert_that(assertthat::has_name(pam, "pressure"))
   assertthat::assert_that(is.data.frame(pam$pressure))
-  assertthat::assert_that(assertthat::has_name(pam$pressure, "date"))
-  assertthat::assert_that(assertthat::has_name(pam$pressure, "obs"))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, c("date", "obs")))
   assertthat::assert_that(assertthat::has_name(pam, "sta"))
   assertthat::assert_that(is.data.frame(pam$sta))
-  assertthat::assert_that(assertthat::has_name(pam$sta, "end"))
-  assertthat::assert_that(assertthat::has_name(pam$sta, "start"))
+  assertthat::assert_that(assertthat::has_name(pam$sta, c("end", "start")))
 
   if (is.list(area)) {
     area <- area[[1]]
@@ -471,17 +468,10 @@ graph_add_wind <- function(grl,
                            filename,
                            thr_as = Inf) {
   assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, "s"))
-  assertthat::assert_that(assertthat::has_name(grl, "t"))
-  assertthat::assert_that(assertthat::has_name(grl, "gs"))
-  assertthat::assert_that(assertthat::has_name(grl, "sz"))
-  assertthat::assert_that(assertthat::has_name(grl, "lat"))
-  assertthat::assert_that(assertthat::has_name(grl, "lon"))
-  assertthat::assert_that(assertthat::has_name(grl, "flight"))
+  assertthat::assert_that(assertthat::has_name(grl, c("s","t","gs","sz","lat","lon","flight")))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that(assertthat::has_name(pressure, "date"))
-  assertthat::assert_that(assertthat::has_name(pressure, "obs"))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, c("date", "obs")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$obs))
   assertthat::assert_that(is.character(filename))
@@ -778,20 +768,7 @@ graph_add_wind <- function(grl,
 #' @export
 graph_marginal <- function(grl) {
   assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, "s"))
-  assertthat::assert_that(assertthat::has_name(grl, "t"))
-  assertthat::assert_that(assertthat::has_name(grl, "p"))
-  assertthat::assert_that(assertthat::has_name(grl, "sz"))
-  assertthat::assert_that(assertthat::has_name(grl, "lat"))
-  assertthat::assert_that(assertthat::has_name(grl, "lon"))
-  assertthat::assert_that(assertthat::has_name(grl, "mask_water"))
-  assertthat::assert_that(assertthat::has_name(grl, "equipement"))
-  assertthat::assert_that(assertthat::has_name(grl, "retrival"))
-  assertthat::assert_that(assertthat::has_name(grl, "resolution"))
-  assertthat::assert_that(assertthat::has_name(grl, "extent"))
-  assertthat::assert_that(assertthat::has_name(grl, "temporal_extent"))
-  assertthat::assert_that(assertthat::has_name(grl, "flight"))
-  assertthat::assert_that(assertthat::has_name(grl, "sta_id"))
+  assertthat::assert_that(assertthat::has_name(grl, c("s", "t", "p", "sz", "lat", "lon", "mask_water", "equipement", "retrival", "resolution", "extent", "temporal_extent", "flight", "sta_id")))
   assertthat::assert_that(length(grl$s) > 0)
 
   # number of nodes in the 3d grid
@@ -879,18 +856,7 @@ graph_marginal <- function(grl) {
 graph_simulation <- function(grl,
                              nj = 10) {
   assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, "s"))
-  assertthat::assert_that(assertthat::has_name(grl, "t"))
-  assertthat::assert_that(assertthat::has_name(grl, "p"))
-  assertthat::assert_that(assertthat::has_name(grl, "sz"))
-  assertthat::assert_that(assertthat::has_name(grl, "lat"))
-  assertthat::assert_that(assertthat::has_name(grl, "lon"))
-  assertthat::assert_that(assertthat::has_name(grl, "equipement"))
-  assertthat::assert_that(assertthat::has_name(grl, "retrival"))
-  assertthat::assert_that(assertthat::has_name(grl, "resolution"))
-  assertthat::assert_that(assertthat::has_name(grl, "extent"))
-  assertthat::assert_that(assertthat::has_name(grl, "temporal_extent"))
-  assertthat::assert_that(assertthat::has_name(grl, "sta_id"))
+  assertthat::assert_that(assertthat::has_name(grl, c("s", "t", "p", "sz", "lat", "lon", "equipement", "retrival", "resolution", "extent", "temporal_extent", "sta_id")))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.numeric(nj))
   assertthat::assert_that(nj > 0)
@@ -975,11 +941,7 @@ graph_simulation <- function(grl,
 graph_path2lonlat <- function(path_id,
                               grl) {
   assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, "s"))
-  assertthat::assert_that(assertthat::has_name(grl, "t"))
-  assertthat::assert_that(assertthat::has_name(grl, "sz"))
-  assertthat::assert_that(assertthat::has_name(grl, "lat"))
-  assertthat::assert_that(assertthat::has_name(grl, "lon"))
+  assertthat::assert_that(assertthat::has_name(grl, c("s","t","sz","lat","lon")))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.numeric(path_id))
   assertthat::assert_that(all(path_id > 0 & path_id <= prod(grl$sz)))
@@ -1008,8 +970,7 @@ graph_path2lonlat <- function(path_id,
 graph_path2edge <- function(path_id,
                             grl) {
   assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, "s"))
-  assertthat::assert_that(assertthat::has_name(grl, "t"))
+  assertthat::assert_that(assertthat::has_name(grl, c("s","t")))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.numeric(path_id))
   assertthat::assert_that(all(path_id > 0 & path_id <= prod(grl$sz)))

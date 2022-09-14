@@ -193,9 +193,8 @@ find_twilights <- function(light,
                            threshold = NA,
                            shift_k = NA) {
   assertthat::assert_that(is.data.frame(light))
-  assertthat::assert_that("date" %in% names(light))
+  assertthat::assert_that(assertthat::has_name(light, c("date", "obs")))
   assertthat::assert_that(inherits(light$date, "POSIXt"))
-  assertthat::assert_that("obs" %in% names(light))
   assertthat::assert_that(is.numeric(light$obs))
 
   if (is.na(threshold)) {
@@ -259,9 +258,9 @@ find_twilights <- function(light,
 #' @export
 light2mat <- function(light, shift_k = 0) {
   assertthat::assert_that(is.data.frame(light))
-  assertthat::assert_that("date" %in% names(light))
+  assertthat::assert_that(is.data.frame(light))
+  assertthat::assert_that(assertthat::has_name(light, c("date", "obs")))
   assertthat::assert_that(inherits(light$date, "POSIXt"))
-  assertthat::assert_that("obs" %in% names(light))
   assertthat::assert_that(is.numeric(light$obs))
   assertthat::assert_that(is.numeric(shift_k))
 

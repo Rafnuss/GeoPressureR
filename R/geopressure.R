@@ -54,11 +54,10 @@ geopressure_map <- function(pressure,
   # Check input
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(nrow(pressure) > 1)
-  assertthat::assert_that("date" %in% names(pressure))
+  assertthat::assert_that(is.data.frame(pam$pressure))
+  assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs", "sta_id")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
-  assertthat::assert_that("obs" %in% names(pressure))
   assertthat::assert_that(is.numeric(pressure$obs))
-  assertthat::assert_that("sta_id" %in% names(pressure))
   if (!("isoutlier" %in% names(pressure))) {
     if ("isoutliar" %in% names(pressure)) {
       warning(
@@ -588,11 +587,10 @@ geopressure_ts_path <- function(path,
                                 include_flight = FALSE,
                                 verbose = TRUE) {
   assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that("date" %in% names(pressure))
+  assertthat::assert_that(is.data.frame(pam$pressure))
+  assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs", "sta_id")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
-  assertthat::assert_that("obs" %in% names(pressure))
   assertthat::assert_that(is.numeric(pressure$obs))
-  assertthat::assert_that("sta_id" %in% names(pressure))
   if (!("isoutlier" %in% names(pressure))) {
     if ("isoutliar" %in% names(pressure)) {
       warning(
@@ -605,9 +603,7 @@ geopressure_ts_path <- function(path,
     }
   }
   assertthat::assert_that(is.data.frame(path))
-  assertthat::assert_that(assertthat::has_name(path, "lat"))
-  assertthat::assert_that(assertthat::has_name(path, "lon"))
-  assertthat::assert_that(assertthat::has_name(path, "sta_id"))
+  assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "sta_id")))
   if (nrow(path) == 0) warning("path is empty")
   if (!all(path$sta_id %in% pressure$sta_id)) {
     warning("Some path sta_id are not present in pressure")

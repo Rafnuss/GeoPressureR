@@ -173,8 +173,7 @@ pam_classify <- function(pam,
   assertthat::assert_that(is.list(pam))
   assertthat::assert_that(assertthat::has_name(pam, "acceleration"))
   assertthat::assert_that(is.data.frame(pam$acceleration))
-  assertthat::assert_that(assertthat::has_name(pam$acceleration, "obs"))
-  assertthat::assert_that(assertthat::has_name(pam$acceleration, "date"))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, c("obs","date")))
   assertthat::assert_that(is.numeric(min_duration))
   assertthat::assert_that(min_duration > 0)
 
@@ -314,14 +313,11 @@ trainset_write <- function(pam,
 
   # Perform test
   assertthat::assert_that(is.list(pam))
-  assertthat::assert_that(assertthat::has_name(pam, "pressure"))
+  assertthat::assert_that(assertthat::has_name(pam, c("pressure", "acceleration")))
   assertthat::assert_that(is.data.frame(pam$pressure))
-  assertthat::assert_that(assertthat::has_name(pam$pressure, "date"))
-  assertthat::assert_that(assertthat::has_name(pam$pressure, "obs"))
-  assertthat::assert_that(assertthat::has_name(pam, "acceleration"))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, c("date","obs")))
   assertthat::assert_that(is.data.frame(pam$acceleration))
-  assertthat::assert_that(assertthat::has_name(pam$acceleration, "obs"))
-  assertthat::assert_that(assertthat::has_name(pam$acceleration, "date"))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, c("date","obs")))
   if (!("ismig" %in% names(pam$acceleration))) {
     pam$acceleration$ismig <- FALSE
   }
@@ -399,14 +395,11 @@ trainset_read <- function(pam,
 
   # Perform test
   assertthat::assert_that(is.list(pam))
-  assertthat::assert_that(assertthat::has_name(pam, "pressure"))
+  assertthat::assert_that(assertthat::has_name(pam, c("pressure", "acceleration")))
   assertthat::assert_that(is.data.frame(pam$pressure))
-  assertthat::assert_that(assertthat::has_name(pam$pressure, "date"))
-  assertthat::assert_that(assertthat::has_name(pam$pressure, "obs"))
-  assertthat::assert_that(assertthat::has_name(pam, "acceleration"))
-  assertthat::assert_that(is.list(pam$acceleration))
-  assertthat::assert_that(assertthat::has_name(pam$acceleration, "obs"))
-  assertthat::assert_that(assertthat::has_name(pam$acceleration, "date"))
+  assertthat::assert_that(assertthat::has_name(pam$pressure, c("date","obs")))
+  assertthat::assert_that(is.data.frame(pam$acceleration))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, c("date","obs")))
   assertthat::assert_that(is.character(pathname))
   assertthat::assert_that(is.character(filename))
   assertthat::assert_that(dir.exists(pathname))
