@@ -247,7 +247,7 @@ shortest_path_timeserie <- geopressure_ts_path(shortest_path, pam$pressure)
 
 
 # Marginal
-grl_marginal <- graph_marginal(grl)
+static_prob_marginal <- graph_marginal(grl)
 
 #saveRDS(grl, "inst/extdata/18LX_grl.rda")
 #saveRDS(grl_marginal, "inst/extdata/18LX_grl_marginal.rda")
@@ -255,14 +255,14 @@ grl_marginal <- graph_marginal(grl)
 
 
 # Export for GeoPressureViz
-grl <- readRDS(system.file("extdata", "18LX_grl.rda", package = "GeoPressureR"))
-static_prob <- readRDS(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
-static_prob_marginal <- readRDS(system.file("extdata", "18LX_grl_marginal.rda",
-                                            package = "GeoPressureR"))
-shortest_path_timeserie <- readRDS(system.file("extdata", "18LX_shortest_path_timeserie.rda",
-                                               package = "GeoPressureR"))
-light_prob <- readRDS(system.file("extdata", "18LX_light_prob.rda", package = "GeoPressureR"))
-pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
+# grl <- readRDS(system.file("extdata", "18LX_grl.rda", package = "GeoPressureR"))
+# static_prob <- readRDS(system.file("extdata", "18LX_static_prob.rda", package = "GeoPressureR"))
+# static_prob_marginal <- readRDS(system.file("extdata", "18LX_grl_marginal.rda",
+#                                             package = "GeoPressureR"))
+# shortest_path_timeserie <- readRDS(system.file("extdata", "18LX_shortest_path_timeserie.rda",
+#                                                package = "GeoPressureR"))
+# light_prob <- readRDS(system.file("extdata", "18LX_light_prob.rda", package = "GeoPressureR"))
+# pressure_prob <- readRDS(system.file("extdata", "18LX_pressure_prob.rda", package = "GeoPressureR"))
 
 sta_marginal <- unlist(lapply(static_prob_marginal, function(x) raster::metadata(x)$sta_id))
 sta_pres <- unlist(lapply(pressure_prob, function(x) raster::metadata(x)$sta_id))
@@ -273,11 +273,11 @@ light_prob <- light_prob[sta_light %in% sta_marginal]
 
 
 # Query the pressure timeserie at each path
-pressure_timeserie <- geopressure_ts_path(path, pam$pressure, include_flight = c(0, 1))
-
-saveRDS(pressure_maps, "inst/extdata/18LX_pressure_maps.rda")
-saveRDS(pressure_prob, "inst/extdata/18LX_pressure_prob.rda")
-saveRDS(pressure_timeserie, "inst/extdata/18LX_pressure_timeserie.rda")
+# pressure_timeserie <- geopressure_ts_path(path, pam$pressure, include_flight = c(0, 1))
+#
+# saveRDS(pressure_maps, "inst/extdata/18LX_pressure_maps.rda")
+# saveRDS(pressure_prob, "inst/extdata/18LX_pressure_prob.rda")
+# saveRDS(pressure_timeserie, "inst/extdata/18LX_pressure_timeserie.rda")
 
 
 
@@ -290,3 +290,6 @@ geopressureviz <- list(
   pressure_timeserie = shortest_path_timeserie
 )
 save(geopressureviz, file = "inst/geopressureviz/geopressureviz.RData")
+save(geopressureviz, file = "~/geopressureviz.RData")
+
+shiny::runApp(system.file("geopressureviz", package = "GeoPressureR"), launch.browser = getOption("browser"))

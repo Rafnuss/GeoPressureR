@@ -70,7 +70,7 @@ sta <- do.call("rbind", lapply(static_prob, function(r) {
 
 
 # Get the timeserie of pressure
-if ("pam_data" %in% names(geopressureviz) & !("pam" %in% names(geopressureviz))){
+if ("pam_data" %in% names(geopressureviz) && !("pam" %in% names(geopressureviz))){
   warning("pam_data has been deprecated in favor of pam. Please make the change in your code.")
   geopressureviz$pam = pam_data
 }
@@ -98,7 +98,7 @@ gdl_id <- geopressureviz$pam$id
 pres_outlier_sta <- aggregate(!pressure$isoutlier, by = list(sta_id = pressure$sta_id), FUN = sum)
 res <- as.numeric(difftime(pressure$date[2], pressure$date[1], units = "days"))
 id_match <- match(sta$sta_id, pres_outlier_sta$sta_id)
-assertthat::assert_that(!is.na(id_match))
+assertthat::assert_that(all(!is.na(id_match)))
 sta$duration <- pres_outlier_sta$x[id_match] * res
 
 # Set color of each stationary period
@@ -134,7 +134,7 @@ if ("pressure_timeserie" %in% names(geopressureviz)) {
   }))
   test <- p_ts_sta_id == sta$sta_id
   test[is.na(test)] <- TRUE
-  assertthat::assert_that(test)
+  assertthat::assert_that(all(test))
   ts0 <- pressure_timeserie
   ts0 <- lapply(ts0, function(x) {
     if (is.null(x)) {
