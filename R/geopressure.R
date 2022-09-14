@@ -97,7 +97,7 @@ geopressure_map <- function(pressure,
   # convert from hPa to Pa
   pres <- pressure$obs * 100
 
-  # remove outliar as labeled in TRAINSET
+  # remove outlier as labeled in TRAINSET
   pres[pressure$isoutlier] <- NA
 
   # remove flight period
@@ -145,7 +145,7 @@ geopressure_map <- function(pressure,
   pres[!(seq(1, length(pres)) %in% idt)] <- NA
 
   if (sum(!is.na(pres)) == 0) {
-    stop("No pressure to query. Check outliar and staID==0 (for flight).")
+    stop("No pressure to query. Check outlier and staID==0 (for flight).")
   }
 
   # Format query
