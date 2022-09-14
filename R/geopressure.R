@@ -183,7 +183,7 @@ geopressure_map <- function(pressure,
   urls[sapply(urls, is.null)] <- NA
   urls <- unlist(urls)
   # Note that the order of the urls will be different than requested to optimized the
-  # parralelization
+  # parallelization
   labels <- unlist(httr::content(res)$data$labels)
   labels_order <- order(labels)
   # Check that the uri exist
@@ -734,11 +734,11 @@ geopressure_map2path <- function(map,
 
     # Find the spacing between the position
     if (is.null(raster::metadata(map[[1]])$flight)) {
-      # Or if flight duration are not available (e.g. `prob_pressure`), assumes homogenous spacing
+      # Or if flight duration are not available (e.g. `prob_pressure`), assumes homogeneous spacing
       # between consecutive stationary period
       x <- path$sta_id
     } else {
-      # If flight are avialabe, sum of the all flights between stationary period
+      # If flight are available, sum of the all flights between stationary period
       flight_duration <- unlist(lapply(map, function(r) {
         fl <- raster::metadata(r)$flight
         sum(as.numeric(difftime(fl$end,
@@ -746,7 +746,7 @@ geopressure_map2path <- function(map,
           units = "hours"
         )))
       }))
-      # Cumultate the flight duration to get a proxy of the over distance covered
+      # Cumulate the flight duration to get a proxy of the over distance covered
       x <- c(0, cumsum(utils::head(flight_duration, -1)))
     }
     # interpolate in between

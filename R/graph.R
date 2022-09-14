@@ -72,12 +72,12 @@ graph_create <- function(static_prob,
     stop(paste0(
       "static_prob is invalid for index ",
       paste(which(is.na(sta_id_0)), collapse = ", "),
-      " (check that the probability map is non-zero)"
+      " (check that the probability map is not null/na)."
     ))
   }
   if (any(sta_id_0)) {
     stop(paste0(
-      "The `static_prob` provided has an invalid probability map for the stationay period: ",
+      "The `static_prob` provided has an invalid probability map for the stationary period: ",
       which(sta_id_0)
     ))
   }
@@ -99,7 +99,7 @@ graph_create <- function(static_prob,
   if (any(nds_0)) {
     stop(paste0(
       "Using the `thr_prob_percentile` of ", thr_prob_percentile, " provided, there are not any ",
-      "nodes left for the stationay period: ", which(nds_0)
+      "nodes left for the stationary period: ", which(nds_0)
     ))
   }
 
@@ -133,8 +133,8 @@ graph_create <- function(static_prob,
       if (sum(nds[[i_s + 1]]) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
-          "there are not any nodes left at stationay period ",
-          raster::metadata(static_prob[[i_s + 1]])$sta_id, " from stationay period ",
+          "there are not any nodes left at stationary period ",
+          raster::metadata(static_prob[[i_s + 1]])$sta_id, " from stationary period ",
           raster::metadata(static_prob[[i_s]])$sta_id
         ))
       }
@@ -146,8 +146,8 @@ graph_create <- function(static_prob,
       if (sum(nds[[i_s - 1]]) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
-          "there are not any nodes left at stationay period ",
-          raster::metadata(static_prob[[i_s - 1]])$sta_id, " from stationay period ",
+          "there are not any nodes left at stationary period ",
+          raster::metadata(static_prob[[i_s - 1]])$sta_id, " from stationary period ",
           raster::metadata(static_prob[[i_s]])$sta_id
         ))
       }
@@ -166,7 +166,7 @@ graph_create <- function(static_prob,
     ))
   }
 
-  # Identify equipement and retrival
+  # Identify equipment and retrieval
   equipement <- which(nds[[1]] == TRUE)
   retrival <- which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll
 
@@ -214,7 +214,7 @@ graph_create <- function(static_prob,
       if (sum(id) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
-          "edges, there are not any nodes left for the stationay period: ", i_s
+          "edges, there are not any nodes left for the stationary period: ", i_s
         ))
       }
       grt <- grt[id, ]
@@ -242,7 +242,7 @@ graph_create <- function(static_prob,
       if (sum(id) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
-          "edges, there are not any nodes left for the stationay period: ", i_s
+          "edges, there are not any nodes left for the stationary period: ", i_s
         ))
       }
       return(grt)
@@ -744,7 +744,7 @@ graph_add_wind <- function(grl,
     stop(paste0(
       "Using the `thr_as` of ", thr_as,
       " km/h provided with the exact distance of edges, there are ",
-      "not any nodes left for the stationay period: ", paste(sta_pass, collapse = ", "),
+      "not any nodes left for the stationary period: ", paste(sta_pass, collapse = ", "),
       " with a minimum airspeed of ", min(abs(grl$as[s[, 3] == sta_pass])), " km/h"
     ))
   }
@@ -870,22 +870,23 @@ graph_simulation <- function(grl,
   stopifnot(length(grl$s) > 0)
   stopifnot(is.numeric(nj))
   stopifnot(nj > 0)
+  assertthat::assert_that(nj > 0)
 
   # number of nodes in the 3d grid
   n <- prod(grl$sz)
   nll <- grl$sz[1] * grl$sz[2]
 
-  # Initialize path. As we will simulate the path chronological order, only the first equipement
+  # Initialize path. As we will simulate the path chronological order, only the first equipment
   # site needs to be set.
   path <- matrix(ncol = grl$sz[3], nrow = nj)
   path[, 1] <- grl$equipement
 
-  # Find the stationary index of all the source so that only the edges from a specific stationay
+  # Find the stationary index of all the source so that only the edges from a specific stationary
   # period can be easily query
   s_id <- arrayInd(grl$s, grl$sz)
 
-  # As we will simulate in forward chronolofical order, we will be able to create map_f inside the
-  # simulation. However, map_b needs to be computed for all stationary period in advence, starting
+  # As we will simulate in forward chronological order, we will be able to create map_f inside the
+  # simulation. However, map_b needs to be computed for all stationary period in advance, starting
   # by the last stationary period and moving backward in time as follow
   map_b <- list()
   map_b[[grl$sz[3]]] <- Matrix::sparseMatrix(rep(1, length(grl$retrival)),

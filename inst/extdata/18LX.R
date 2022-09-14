@@ -86,7 +86,7 @@ sun <- solar(twl_calib$twilight)
 z <- refracted(zenith(sun, lon_calib, lat_calib))
 fit_z <- density(z, adjust = 1.4, from = 60, to = 120)
 
-# Add stationay period information on the twilight
+# Add stationary period information on the twilight
 twilight_sta_id <- sapply(twl$twilight, function(x) {
   which(pam$sta$start < x & x < pam$sta$end)
 })

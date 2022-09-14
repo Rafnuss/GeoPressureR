@@ -15,7 +15,7 @@ test_that("check for full custum bird", {
   expect_error(
     flight_bird("custum_bird", mass = 1, wing_span = 1, wing_aspect = 4, wing_area = .1),
     NA
-  ) # Note that this example is not consistant
+  ) # Note that this example is not consistent
   expect_error(flight_bird("custum_bird", mass = 1, wing_aspect = 4))
 })
 

@@ -58,7 +58,7 @@ if ("static_prob_marginal" %in% names(geopressureviz)) {
 }
 
 
-# Get stationay period information
+# Get stationary period information
 sta <- do.call("rbind", lapply(static_prob, function(r) {
   mt <- raster::metadata(r)
   mt$start <- mt$temporal_extent[1]
@@ -101,7 +101,7 @@ id_match <- match(sta$sta_id, pres_outlier_sta$sta_id)
 stopifnot(!is.na(id_match))
 sta$duration <- pres_outlier_sta$x[id_match] * res
 
-# Set color of each stationay period
+# Set color of each stationary period
 col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(max(sta$sta_id) / 8))
 sta$col <- col[sta$sta_id]
 

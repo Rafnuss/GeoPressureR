@@ -31,7 +31,7 @@ flight_bird <- function(species_name,
                         body_frontal_area = NA) {
   if (is.na(mass) || (is.na(wing_aspect) + is.na(wing_area) +
     is.na(wing_span) > 1)) {
-    # Mass, wing length and secondary length are retrived from the AVONET
+    # Mass, wing length and secondary length are retrieve from the AVONET
     sp_id <- grep(species_name, avonet$species, ignore.case = TRUE)
     if (length(sp_id) == 0) {
       tmp <- print(avonet[agrep(species_name,
@@ -71,7 +71,7 @@ flight_bird <- function(species_name,
     # 0.00813*mass^(0.666)
   }
 
-  # Combinaison of wing area, span and aspect ratio
+  # Combination of wing area, span and aspect ratio
   if (!is.na(wing_area) && is.na(wing_span) && !is.na(wing_aspect)) {
     wing_span <- sqrt(wing_aspect * wing_area)
   } else if (!is.na(wing_area) && !is.na(wing_span) && is.na(wing_aspect)) {
