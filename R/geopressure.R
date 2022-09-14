@@ -58,15 +58,16 @@ geopressure_map <- function(pressure,
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs", "sta_id")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$obs))
-  if (!("isoutlier" %in% names(pressure))) {
-    if ("isoutliar" %in% names(pressure)) {
+
+  if (!assertthat::has_name(pressure, "isoutlier")) {
+    if (assertthat::has_name(pressure, "isoutliar")) {
       warning(
-        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
-        " to be back compatible with futur version."
+        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. This code will continue",
+        " but update your code and data to be compatible with futur version of GeoPressureR."
       )
       pressure$isoutlier <- pressure$isoutliar
     } else {
-      pressure$isoutlier <- FALSE
+      assertthat::assert_that(assertthat::has_name(pressure, "isoutlier"))
     }
   }
   if (min(pressure$obs[!pressure$isoutlier]) < 250 || 1100 <
@@ -432,15 +433,15 @@ geopressure_ts <- function(lon,
     assertthat::assert_that(is.numeric(pressure$obs))
     end_time <- NULL
     start_time <- NULL
-    if (!("isoutlier" %in% names(pressure))) {
-      if ("isoutliar" %in% names(pressure)) {
+    if (!assertthat::has_name(pressure, "isoutlier")) {
+      if (assertthat::has_name(pressure, "isoutliar")) {
         warning(
-          "pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
-          " to be back compatible with futur version."
+          "pressure$isoutliar is deprecated in favor of pressure$isoutlier. This code will continue",
+          " but update your code and data to be compatible with futur version of GeoPressureR."
         )
         pressure$isoutlier <- pressure$isoutliar
       } else {
-        pressure$isoutlier <- FALSE
+        assertthat::assert_that(assertthat::has_name(pressure, "isoutlier"))
       }
     }
   } else {
@@ -591,15 +592,15 @@ geopressure_ts_path <- function(path,
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs", "sta_id")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$obs))
-  if (!("isoutlier" %in% names(pressure))) {
-    if ("isoutliar" %in% names(pressure)) {
+  if (!assertthat::has_name(pressure, "isoutlier")) {
+    if (assertthat::has_name(pressure, "isoutliar")) {
       warning(
-        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
-        " to be back compatible with futur version."
+        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. This code will continue",
+        " but update your code and data to be compatible with futur version of GeoPressureR."
       )
       pressure$isoutlier <- pressure$isoutliar
     } else {
-      pressure$isoutlier <- FALSE
+      assertthat::assert_that(assertthat::has_name(pressure, "isoutlier"))
     }
   }
   assertthat::assert_that(is.data.frame(path))

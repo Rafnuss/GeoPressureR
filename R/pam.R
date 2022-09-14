@@ -321,15 +321,16 @@ trainset_write <- function(pam,
   if (!("ismig" %in% names(pam$acceleration))) {
     pam$acceleration$ismig <- FALSE
   }
-  if (!("isoutlier" %in% names(pam$pressure))) {
-    if ("isoutliar" %in% names(pam$pressure)) {
+  if (!assertthat::has_name(pam$pressure, "isoutlier")) {
+    if (assertthat::has_name(pam$pressure, "isoutliar")) {
       warning(
-        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. Change your code",
-        " to be back compatible with futur version."
+        "pam$pressure$isoutliar is deprecated in favor of pam$pressure$isoutlier. This code will ",
+        "continue but update your code and data to be compatible with futur version of ",
+        "GeoPressureR."
       )
       pam$pressure$isoutlier <- pam$pressure$isoutliar
     } else {
-      pam$pressure$isoutlier <- FALSE
+      assertthat::assert_that(assertthat::has_name(pam$pressure, "isoutlier"))
     }
   }
   assertthat::assert_that(is.character(pathname))
