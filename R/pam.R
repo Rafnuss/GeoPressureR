@@ -435,7 +435,7 @@ trainset_read <- function(pam,
       missing_acc, " timesteps of acceleration and includes ",
       nrow(csv_pres) - nrow(pam$pressure) + missing_pres, " timestep of pressure and ",
       nrow(csv_acc) - nrow(pam$acceleration) + missing_acc, " timestep of acceleration",
-      " which are not nedded. We assumed no migration and no outliar during the ",
+      " which are not nedded. We assumed no migration and no outlier during the ",
       "timestep missing. You can find the updated labelization file at ", tempdir(), "/",
       pam$id, "_act_pres-labeled.csv"
     ))
