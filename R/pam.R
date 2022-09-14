@@ -232,19 +232,9 @@ pam_sta <- function(pam) {
 
   # Perform test
   assertthat::assert_that(is.list(pam))
-  assertthat::assert_that(assertthat::has_name(pam, "pressure"))
-  assertthat::assert_that(is.data.frame(pam$pressure))
-  assertthat::assert_that(assertthat::has_name(pam$pressure, "date"))
-  assertthat::assert_that(assertthat::has_name(pam$pressure, "obs"))
   assertthat::assert_that(assertthat::has_name(pam, "acceleration"))
   assertthat::assert_that(is.data.frame(pam$acceleration))
-  assertthat::assert_that(assertthat::has_name(pam$acceleration, "obs"))
-  assertthat::assert_that(assertthat::has_name(pam$acceleration, "date"))
-  assertthat::assert_that(assertthat::has_name(pam$acceleration, "ismig"))
-  assertthat::assert_that(assertthat::has_name(pam, "light"))
-  assertthat::assert_that(is.data.frame(pam$light))
-  assertthat::assert_that(assertthat::has_name(pam$light, "obs"))
-  assertthat::assert_that(assertthat::has_name(pam$light, "date"))
+  assertthat::assert_that(assertthat::has_name(pam$acceleration, c("date", "ismig")))
 
   # Create a table of activities (migration or stationary)
   act_id <- c(1, cumsum(diff(as.numeric(pam$acceleration$ismig)) != 0) + 1)
@@ -268,21 +258,29 @@ pam_sta <- function(pam) {
   )
 
   # Assign to each pressure the stationary period to which it belong to.
-  tmp <- mapply(function(start, end) {
-    start < pam$pressure$date & pam$pressure$date < end
-  }, pam$sta$start, pam$sta$end)
-  tmp <- which(tmp, arr.ind = TRUE)
-  pam$pressure$sta_id <- 0
-  pam$pressure$sta_id[tmp[, 1]] <- tmp[, 2]
+  if (assertthat::has_name(pam, "pressure")){
+    assertthat::assert_that(is.data.frame(pam$pressure))
+    assertthat::assert_that(assertthat::has_name(pam$pressure, "date"))
+    tmp <- mapply(function(start, end) {
+      start < pam$pressure$date & pam$pressure$date < end
+    }, pam$sta$start, pam$sta$end)
+    tmp <- which(tmp, arr.ind = TRUE)
+    pam$pressure$sta_id <- 0
+    pam$pressure$sta_id[tmp[, 1]] <- tmp[, 2]
+  }
+
 
   # Assign to each light measurement the stationary period
-  tmp <- mapply(function(start, end) {
-    start < pam$light$date & pam$light$date < end
-  }, pam$sta$start, pam$sta$end)
-  tmp <- which(tmp, arr.ind = TRUE)
-  pam$light$sta_id <- 0
-  pam$light$sta_id[tmp[, 1]] <- tmp[, 2]
-
+  if (assertthat::has_name(pam, "light")){
+    assertthat::assert_that(is.data.frame(pam$light))
+    assertthat::assert_that(assertthat::has_name(pam$light, "date"))
+    tmp <- mapply(function(start, end) {
+      start < pam$light$date & pam$light$date < end
+    }, pam$sta$start, pam$sta$end)
+    tmp <- which(tmp, arr.ind = TRUE)
+    pam$light$sta_id <- 0
+    pam$light$sta_id[tmp[, 1]] <- tmp[, 2]
+  }
   return(pam)
 }
 
