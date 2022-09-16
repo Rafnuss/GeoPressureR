@@ -209,9 +209,10 @@ find_twilights <- function(light,
     l <- mat$obs >= threshold
     tmp <- rowMeans(l, na.rm = TRUE)
     shift_id <- round(sum(tmp * seq_len(dim(mat$obs)[1])) / sum(tmp))
-    shift_k <- -(res * shift_id - 60 * 60 * 12)
+    shift_k <- res * shift_id - 60 * 60 * 12
   }
 
+  #
   mat <- light2mat(light, shift_k)
 
   # Compute exceed of light
@@ -272,13 +273,13 @@ light2mat <- function(light, shift_k = 0) {
 
   # Pad time to start and finish at 00:00
   date <- seq(
-    from = as.POSIXct(format(light$date[1] + shift_k, "%Y-%m-%d"), tz = "UTC"),
-    to = as.POSIXct(format(light$date[length(light$date)] + shift_k, "%Y-%m-%d"),
+    from = as.POSIXct(format(light$date[1] - shift_k, "%Y-%m-%d"), tz = "UTC"),
+    to = as.POSIXct(format(light$date[length(light$date)] - shift_k, "%Y-%m-%d"),
       tz = "UTC"
     ) + 60 * 60 * 24 - res,
     by = res
   )
-  date <- date - shift_k
+  date <- date + shift_k
 
   # if light$date is not measuring at 00:00 exacly, we need to move date
   closest <- which.min(abs(date - light$date[1]))
