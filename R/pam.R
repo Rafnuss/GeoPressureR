@@ -4,6 +4,12 @@
 #' The `*_file` arguments are matched using a regex expression (e.g., `"*.pressure"` matches any
 #' files with the extension `pressure`).
 #'
+#' The current implementation can read the files from:
+#' * Swiss Ornithological Institute (SOI) (default) with `pressure_file = "*.pressure"`,
+#' `light_file = "*.glf"` and `acceleration_file = "*.acceleration"`
+#' * Migrate Technology with `pressure_file = "*deg"`, `light_file = "*.lux"` and
+#' `acceleration_file = "*deg"`
+#'
 #' Create [an issue on github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you have data
 #' in a format not supported yet.
 #'
@@ -12,8 +18,8 @@
 #' @param light_file file with light data. Extension must be `.glf`, `.lux` or `NA` if absent.
 #' @param acceleration_file file with acceleration data. Extension must be `.acceleration`  or `NA`
 #' if absent.
-#' @param crop_start Remove all date before this date
-#' @param crop_end Remove all date after this date
+#' @param crop_start Remove all date before this date (in UTC).
+#' @param crop_end Remove all date after this date (in UTC).
 #' @param id Unique identifier of the track. Default (`NA`) is to take the part of
 #' `pressure_file` up to a character `_` (e.g. `18LX` for `18LX_20180725.pressure`).
 #'
@@ -63,11 +69,51 @@ pam_read <- function(pathname,
         subset(pam_read_delim_dto(pressure_path), date >= crop_start & date < crop_end)
       },
       "deg" = {
+        # Check that it is a valid Migrate Technology file
+        assertthat::assert_that(grepl("Migrate Technology", readLines(pressure_path, n = 1)))
+        line2 <- readLines(pressure_path, n = 2)[2]
+        v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
+        assertthat::assert_that(v >= 13,
+          msg = paste0(
+            "The pressure file (*.deg) is not compatible. Line 2 ",
+            "should contains 'Types:x', with x>=13."
+          )
+        )
+
+        # find column index with pressure
+        col <- which(utils::read.delim(pressure_path,
+          skip = 19, nrow = 1, header = FALSE
+        ) == "P(Pa)")
+        assertthat::assert_that(col > 0,
+          msg = paste0(
+            "The pressure file (*.deg) is not compatible. Line 20 ",
+            "should contains 'P(Pa)'"
+          )
+        )
+
+        # Read file
         pres <- pam_read_delim_dto(pressure_path,
-          skip = 20, col = 4,
+          skip = 20, col = col,
           date_format = "%d/%m/%Y %H:%M:%S"
         )
-        pres$obs <- pres$obs / 100 # return in hPa
+
+        # Check for error
+        if (any(is.na(pres$obs))) {
+          stop(paste0("Invalid data in ", basename(pressure_path), " at line(s): ", 20 +
+            which(is.na(pres$obs)), ". Check and fix the corresponding lines"))
+        }
+        if (length(unique(diff(pres$date))) > 1) {
+          dtime <- as.numeric(diff(pres$date))
+          warning(paste0(
+            "Irregular time spacing in ", basename(pressure_path), " at line(s): ",
+            20 + which(dtime != dtime[1]), "."
+          ))
+        }
+
+        # convert Pa in hPa
+        pres$obs <- pres$obs / 100
+
+        # Crop time
         subset(pres, date >= crop_start & date < crop_end)
       },
       {
@@ -79,10 +125,39 @@ pam_read <- function(pathname,
         subset(pam_read_delim_dto(light_path), date >= crop_start & date < crop_end)
       },
       "lux" = {
-        subset(
-          pam_read_delim_dto(pressure_path, skip = 20, col = 3, date_format = "%d/%m/%Y %H:%M:%S"),
-          date >= crop_start & date < crop_end
+        # find column index with light
+        col <- which(utils::read.delim(
+          light_path,
+          skip = 19, nrow = 1, header = FALSE
+        ) == "light(lux)")
+        assertthat::assert_that(col > 0,
+          msg = paste0(
+            "The light file (*.lux) is not compatible. Line 20 ",
+            "should contains 'light(lux)'"
+          )
         )
+
+        # Read file
+        light <- pam_read_delim_dto(light_path,
+          skip = 20, col = col,
+          date_format = "%d/%m/%Y %H:%M:%S"
+        )
+
+        # Check for error
+        if (any(is.na(light$obs))) {
+          stop(paste0("Invalid data in ", basename(light_path), " at line(s): ", 20 +
+            which(is.na(light$obs)), ". Check and fix the corresponding lines"))
+        }
+        if (length(unique(diff(light$date))) > 1) {
+          dtime <- as.numeric(diff(light$date))
+          warning(paste0(
+            "Irregular time spacing in ", basename(light_path), " at line(s): ",
+            20 + which(dtime != dtime[1]), "."
+          ))
+        }
+
+
+        subset(light, date >= crop_start & date < crop_end)
       },
       {
         data.frame()
@@ -91,6 +166,50 @@ pam_read <- function(pathname,
     acceleration = switch(tools::file_ext(acceleration_path),
       "acceleration" = {
         subset(pam_read_delim_dto(acceleration_path, col = 4), date >= crop_start & date < crop_end)
+      },
+      "deg" = {
+        # Check that it is a valid Migrate Technology file
+        assertthat::assert_that(grepl("Migrate Technology", readLines(acceleration_path, n = 1)))
+        line2 <- readLines(acceleration_path, n = 2)[2]
+        v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
+        assertthat::assert_that(v >= 13,
+          msg = paste0(
+            "The acceleration file (*.deg) is not compatible. Line 2 ",
+            "should contains 'Types:x', with x>=13."
+          )
+        )
+
+        # find column index with acceleration
+        col <- which(utils::read.delim(acceleration_path,
+          skip = 19, nrow = 1, header = FALSE
+        ) == "Zact")
+        assertthat::assert_that(col > 0,
+          msg = paste0(
+            "The acceleration file (*.deg) is not compatible. Line 20 ",
+            "should contains 'Zact'"
+          )
+        )
+
+        # Read file
+        acc <- pam_read_delim_dto(acceleration_path,
+          skip = 20, col = col,
+          date_format = "%d/%m/%Y %H:%M:%S"
+        )
+
+        # Check for error
+        if (any(is.na(acc$obs))) {
+          stop(paste0("Invalid data in ", basename(acceleration_path), " at line(s): ", 20 +
+            which(is.na(acc$obs)), ". Check and fix the corresponding lines"))
+        }
+        if (length(unique(diff(acc$date))) > 1) {
+          dtime <- as.numeric(diff(acc$date))
+          warning(paste0(
+            "Irregular time spacing in ", basename(acceleration_path), " at line(s): ",
+            20 + which(dtime != dtime[1]), "."
+          ))
+        }
+        # Crop time
+        subset(acc, date >= crop_start & date < crop_end)
       },
       {
         data.frame()

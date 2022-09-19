@@ -24,9 +24,9 @@ pam_read(
 \item{acceleration_file}{file with acceleration data. Extension must be \code{.acceleration}  or \code{NA}
 if absent.}
 
-\item{crop_start}{Remove all date before this date}
+\item{crop_start}{Remove all date before this date (in UTC).}
 
-\item{crop_end}{Remove all date after this date}
+\item{crop_end}{Remove all date after this date (in UTC).}
 
 \item{id}{Unique identifier of the track. Default (\code{NA}) is to take the part of
 \code{pressure_file} up to a character \verb{_} (e.g. \verb{18LX} for \verb{18LX_20180725.pressure}).}
@@ -40,6 +40,14 @@ The \verb{*_file} arguments are matched using a regex expression (e.g., \code{"*
 files with the extension \code{pressure}).
 }
 \details{
+The current implementation can read the files from:
+\itemize{
+\item Swiss Ornithological Institute (SOI) (default) with \code{pressure_file = "*.pressure"},
+\code{light_file = "*.glf"} and \code{acceleration_file = "*.acceleration"}
+\item Migrate Technology with \code{pressure_file = "*deg"}, \code{light_file = "*.lux"} and
+\code{acceleration_file = "*deg"}
+}
+
 Create \href{https://github.com/Rafnuss/GeoPressureR/issues/new}{an issue on github} if you have data
 in a format not supported yet.
 }
