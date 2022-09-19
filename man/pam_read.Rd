@@ -42,10 +42,11 @@ files with the extension \code{pressure}).
 \details{
 The current implementation can read the files from:
 \itemize{
-\item Swiss Ornithological Institute (SOI) (default) with \code{pressure_file = "*.pressure"},
-\code{light_file = "*.glf"} and \code{acceleration_file = "*.acceleration"}
-\item Migrate Technology with \code{pressure_file = "*deg"}, \code{light_file = "*.lux"} and
-\code{acceleration_file = "*deg"}
+\item \href{https://www.vogelwarte.ch/en/projects/bird-migration/tracking-devices-miniaturized-geolocators}{Swiss Ornithological Institute (SOI) }
+(default) with \code{pressure_file = "*.pressure"}, \code{light_file = "*.glf"} and
+\code{acceleration_file = "*.acceleration"}
+\item \href{http://www.migratetech.co.uk/}{Migrate Technology} with \code{pressure_file = "*deg"},
+\code{light_file = "*.lux"} and \code{acceleration_file = "*deg"}
 }
 
 Create \href{https://github.com/Rafnuss/GeoPressureR/issues/new}{an issue on github} if you have data

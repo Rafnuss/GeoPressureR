@@ -5,10 +5,12 @@
 #' files with the extension `pressure`).
 #'
 #' The current implementation can read the files from:
-#' * Swiss Ornithological Institute (SOI) (default) with `pressure_file = "*.pressure"`,
-#' `light_file = "*.glf"` and `acceleration_file = "*.acceleration"`
-#' * Migrate Technology with `pressure_file = "*deg"`, `light_file = "*.lux"` and
-#' `acceleration_file = "*deg"`
+#' * [Swiss Ornithological Institute (SOI)
+#' ](https://www.vogelwarte.ch/en/projects/bird-migration/tracking-devices-miniaturized-geolocators)
+#'  (default) with `pressure_file = "*.pressure"`, `light_file = "*.glf"` and
+#'  `acceleration_file = "*.acceleration"`
+#' * [Migrate Technology](http://www.migratetech.co.uk/) with `pressure_file = "*deg"`,
+#' `light_file = "*.lux"` and `acceleration_file = "*deg"`
 #'
 #' Create [an issue on github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you have data
 #' in a format not supported yet.
