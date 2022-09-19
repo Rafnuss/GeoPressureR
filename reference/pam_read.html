@@ -88,11 +88,11 @@ if absent.</p></dd>
 
 
 <dt>crop_start</dt>
-<dd><p>Remove all date before this date</p></dd>
+<dd><p>Remove all date before this date (in UTC).</p></dd>
 
 
 <dt>crop_end</dt>
-<dd><p>Remove all date after this date</p></dd>
+<dd><p>Remove all date after this date (in UTC).</p></dd>
 
 
 <dt>id</dt>
@@ -108,7 +108,11 @@ if absent.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Create <a href="https://github.com/Rafnuss/GeoPressureR/issues/new" class="external-link">an issue on github</a> if you have data
+    <p>The current implementation can read the files from:</p><ul><li><p>Swiss Ornithological Institute (SOI) (default) with <code>pressure_file = "*.pressure"</code>,
+<code>light_file = "*.glf"</code> and <code>acceleration_file = "*.acceleration"</code></p></li>
+<li><p>Migrate Technology with <code>pressure_file = "*deg"</code>, <code>light_file = "*.lux"</code> and
+<code>acceleration_file = "*deg"</code></p></li>
+</ul><p>Create <a href="https://github.com/Rafnuss/GeoPressureR/issues/new" class="external-link">an issue on github</a> if you have data
 in a format not supported yet.</p>
     </div>
     <div class="section level2">
