@@ -83,8 +83,8 @@ files with the extension <code>pressure</code>).</p>
 
 
 <dt>acceleration_file</dt>
-<dd><p>file with acceleration data. Extension must be <code>.acceleration</code>  or <code>NA</code>
-if absent.</p></dd>
+<dd><p>file with acceleration data. Extension must be <code>.acceleration</code>, <code>.deg</code>
+or <code>NA</code> if absent.</p></dd>
 
 
 <dt>crop_start</dt>
@@ -111,8 +111,8 @@ if absent.</p></dd>
     <p>The current implementation can read the files from:</p><ul><li><p><a href="https://www.vogelwarte.ch/en/projects/bird-migration/tracking-devices-miniaturized-geolocators" class="external-link">Swiss Ornithological Institute (SOI) </a>
 (default) with <code>pressure_file = "*.pressure"</code>, <code>light_file = "*.glf"</code> and
 <code>acceleration_file = "*.acceleration"</code></p></li>
-<li><p><a href="http://www.migratetech.co.uk/" class="external-link">Migrate Technology</a> with <code>pressure_file = "*deg"</code>,
-<code>light_file = "*.lux"</code> and <code>acceleration_file = "*deg"</code></p></li>
+<li><p><a href="http://www.migratetech.co.uk/" class="external-link">Migrate Technology</a> with <code>pressure_file = "*.deg"</code>,
+<code>light_file = "*.lux"</code> and <code>acceleration_file = "*.deg"</code></p></li>
 </ul><p>Create <a href="https://github.com/Rafnuss/GeoPressureR/issues/new" class="external-link">an issue on github</a> if you have data
 in a format not supported yet.</p>
     </div>
