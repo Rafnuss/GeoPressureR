@@ -472,7 +472,8 @@ graph_add_wind <- function(grl,
                            thr_as = Inf) {
   assertthat::assert_that(is.list(grl))
   assertthat::assert_that(assertthat::has_name(
-    grl, c("s", "t", "gs", "sz", "lat", "lon", "flight")))
+    grl, c("s", "t", "gs", "sz", "lat", "lon", "flight")
+  ))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs")))

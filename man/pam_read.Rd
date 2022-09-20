@@ -21,8 +21,8 @@ pam_read(
 
 \item{light_file}{file with light data. Extension must be \code{.glf}, \code{.lux} or \code{NA} if absent.}
 
-\item{acceleration_file}{file with acceleration data. Extension must be \code{.acceleration}  or \code{NA}
-if absent.}
+\item{acceleration_file}{file with acceleration data. Extension must be \code{.acceleration}, \code{.deg}
+or \code{NA} if absent.}
 
 \item{crop_start}{Remove all date before this date (in UTC).}
 
@@ -45,8 +45,8 @@ The current implementation can read the files from:
 \item \href{https://www.vogelwarte.ch/en/projects/bird-migration/tracking-devices-miniaturized-geolocators}{Swiss Ornithological Institute (SOI) }
 (default) with \code{pressure_file = "*.pressure"}, \code{light_file = "*.glf"} and
 \code{acceleration_file = "*.acceleration"}
-\item \href{http://www.migratetech.co.uk/}{Migrate Technology} with \code{pressure_file = "*deg"},
-\code{light_file = "*.lux"} and \code{acceleration_file = "*deg"}
+\item \href{http://www.migratetech.co.uk/}{Migrate Technology} with \code{pressure_file = "*.deg"},
+\code{light_file = "*.lux"} and \code{acceleration_file = "*.deg"}
 }
 
 Create \href{https://github.com/Rafnuss/GeoPressureR/issues/new}{an issue on github} if you have data

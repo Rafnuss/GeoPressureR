@@ -9,8 +9,8 @@
 #' ](https://www.vogelwarte.ch/en/projects/bird-migration/tracking-devices-miniaturized-geolocators)
 #'  (default) with `pressure_file = "*.pressure"`, `light_file = "*.glf"` and
 #'  `acceleration_file = "*.acceleration"`
-#' * [Migrate Technology](http://www.migratetech.co.uk/) with `pressure_file = "*deg"`,
-#' `light_file = "*.lux"` and `acceleration_file = "*deg"`
+#' * [Migrate Technology](http://www.migratetech.co.uk/) with `pressure_file = "*.deg"`,
+#' `light_file = "*.lux"` and `acceleration_file = "*.deg"`
 #'
 #' Create [an issue on github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you have data
 #' in a format not supported yet.
@@ -18,8 +18,8 @@
 #' @param pathname path of the directory where the files are stored
 #' @param pressure_file file with pressure data. Extension must be `.pressure`, `.deg`.
 #' @param light_file file with light data. Extension must be `.glf`, `.lux` or `NA` if absent.
-#' @param acceleration_file file with acceleration data. Extension must be `.acceleration`  or `NA`
-#' if absent.
+#' @param acceleration_file file with acceleration data. Extension must be `.acceleration`, `.deg`
+#' or `NA` if absent.
 #' @param crop_start Remove all date before this date (in UTC).
 #' @param crop_end Remove all date after this date (in UTC).
 #' @param id Unique identifier of the track. Default (`NA`) is to take the part of

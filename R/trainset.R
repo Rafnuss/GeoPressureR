@@ -61,7 +61,7 @@ trainset_write <- function(pam,
       data.frame(
         series = "acceleration",
         timestamp = strftime(pam$acceleration$date, "%Y-%m-%dT%H:%M:%SZ",
-                             tz = "UTC"
+          tz = "UTC"
         ),
         value = pam$acceleration$obs,
         label = ifelse(pam$acceleration$ismig, "1", "")
@@ -69,7 +69,7 @@ trainset_write <- function(pam,
       data.frame(
         series = "pressure",
         timestamp = strftime(pam$pressure$date, "%Y-%m-%dT%H:%M:%SZ",
-                             tz = "UTC"
+          tz = "UTC"
         ),
         value = pam$pressure$obs,
         label = ifelse(pam$pressure$isoutlier, "1", "")
