@@ -35,7 +35,10 @@ reference:
   desc: Convert groundspeed or airspeed to probability
   contents:
   - starts_with("flight_")
-
+- title: GeoPressureViz
+  desc: Vizualize trajectory with a shiny app
+  contents:
+  - geopressureviz
 navbar:
   left:
     - text: "Reference"
