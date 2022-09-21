@@ -221,20 +221,20 @@ find_twilights <- function(light,
 
   # Find the first light
   id_sr <- apply(l, 2, which.max)
-  if (any(id_sr == 1)) {
+  if (sum(id_sr == 1) > 1) {
     warning(
       "There is likely a problem with the shiftK, ", sum(id_sr == 1),
-      " twilight set at midnight. shift_k=", shift_k
+      " twilights set at midnight. shift_k=", shift_k
     )
   }
   id_sr_r <- id_sr + (seq_len(dim(l)[2]) - 1) * dim(l)[1]
   sr <- as.POSIXct(mat$date[id_sr_r], origin = "1970-01-01", tz = "UTC")
 
   id_ss <- dim(l)[1] - apply(l[nrow(l):1, ], 2, which.max)
-  if (any(id_ss == 1)) {
+  if (sum(id_ss == 1) > 1) {
     warning(
       "There is likely a problem with the shiftK, ", sum(id_ss == 1),
-      " twilight set at midnight. shift_k=", shift_k
+      " twilights set at midnight. shift_k=", shift_k
     )
   }
   id_ss_s <- id_ss + (seq_len(dim(l)[2]) - 1) * dim(l)[1]
