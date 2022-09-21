@@ -29,7 +29,7 @@ ui <- bootstrapPage(
       id = "thr_sta_page",
       fluidRow(
         column(8, tags$p("Minimum duration [days]", style = "font-weight:bold; line-height: 34px;text-align: right;"), ),
-        column(4, style = "padding:0px;", numericInput("thr_sta", NULL, min = 0, max = 50, value = 1, step = 0.5), ),
+        column(4, style = "padding:0px;", numericInput("thr_sta", NULL, min = 0, max = 50, value = 0, step = 0.5), ),
       )
     ),
     div(
@@ -52,7 +52,7 @@ ui <- bootstrapPage(
       div(
         id = "map_source_div",
         radioButtons("map_source",
-          label = "Probability map to display", inline = T, choices = map_choices, selected = map_choices[tail(which(!is.na(map_val)), 1)]
+          label = "Probability map to display", inline = T, choices = .map_choices, selected = map_choices[tail(which(!is.na(.map_val)), 1)]
         ),
         tags$hr(),
         tags$p("Change position by clicking on the map and update the pressure timeserie."),
