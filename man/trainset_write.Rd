@@ -21,6 +21,10 @@ trainset_write(
 This function writes the csv file of the automatically labeled activity and pressure which can
 be read with TRAINSET (https://trainset.geocene.com/).
 }
+\details{
+Optionally, it can also export a reference dataset for pressure \code{pam$pressure$ref} as another
+series to be visualized on TRAINSET, but without impacting the labeling process.
+}
 \examples{
 pam <- pam_read(
   pathname = system.file(

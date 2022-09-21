@@ -4,6 +4,9 @@
 #' This function writes the csv file of the automatically labeled activity and pressure which can
 #' be read with TRAINSET (https://trainset.geocene.com/).
 #'
+#' Optionally, it can also export a reference dataset for pressure `pam$pressure$ref` as another
+#' series to be visualized on TRAINSET, but without impacting the labeling process.
+#'
 #' @param pam pam logger dataset list
 #' @param pathname Path to the folder where the labeled files should be saved
 #' @param filename Name for the file.
@@ -55,26 +58,45 @@ trainset_write <- function(pam,
   }
   assertthat::assert_that(dir.exists(pathname))
 
+  # Combine the variable
+  df <- rbind(
+    data.frame(
+      series = "acceleration",
+      timestamp = strftime(pam$acceleration$date[!is.na(pam$acceleration$obs)],
+        "%Y-%m-%dT%H:%M:%SZ",
+        tz = "UTC"
+      ),
+      value = pam$acceleration$obs[!is.na(pam$acceleration$obs)],
+      label = ifelse(pam$acceleration$ismig[!is.na(pam$acceleration$obs)], "1", "")
+    ),
+    data.frame(
+      series = "pressure",
+      timestamp = strftime(pam$pressure$date[!is.na(pam$pressure$obs)], "%Y-%m-%dT%H:%M:%SZ",
+        tz = "UTC"
+      ),
+      value = pam$pressure$obs[!is.na(pam$pressure$obs)],
+      label = ifelse(pam$pressure$isoutlier[!is.na(pam$pressure$obs)], "1", "")
+    )
+  )
+
+  # Add optional reference dataset
+  if (assertthat::has_name(pam$pressure, "obs_ref")) {
+    df <- rbind(
+      df,
+      data.frame(
+        series = "pressure_reference",
+        timestamp = strftime(pam$pressure$date[!is.na(pam$pressure$obs_ref)], "%Y-%m-%dT%H:%M:%SZ",
+          tz = "UTC"
+        ),
+        value = pam$pressure$obs_ref[!is.na(pam$pressure$obs_ref)],
+        label = ""
+      )
+    )
+  }
+
   # write a combined data.frame of pressure and acceleration in csv.
   utils::write.csv(
-    rbind(
-      data.frame(
-        series = "acceleration",
-        timestamp = strftime(pam$acceleration$date, "%Y-%m-%dT%H:%M:%SZ",
-          tz = "UTC"
-        ),
-        value = pam$acceleration$obs,
-        label = ifelse(pam$acceleration$ismig, "1", "")
-      ),
-      data.frame(
-        series = "pressure",
-        timestamp = strftime(pam$pressure$date, "%Y-%m-%dT%H:%M:%SZ",
-          tz = "UTC"
-        ),
-        value = pam$pressure$obs,
-        label = ifelse(pam$pressure$isoutlier, "1", "")
-      )
-    ),
+    df,
     paste0(pathname, "/", filename, ".csv"),
     row.names = FALSE
   )
