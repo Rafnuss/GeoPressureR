@@ -2,7 +2,7 @@
 % Please edit documentation in R/geopressure.R
 \name{geopressure_map}
 \alias{geopressure_map}
-\title{Request and download mismatch maps of pressure}
+\title{Request and download mismatch and threshold maps of pressure}
 \usage{
 geopressure_map(pressure, extent, scale = 10, max_sample = 250, margin = 30)
 }
@@ -19,7 +19,7 @@ East  (e.g. \code{c(50,-16,0,20)}).}
 resolution of 0.1° (~10km) and 4 for a resolution of 0.25° (~30km). To avoid interpolating the
 ERA5 data, scale should be smaller than 10. Read more about \href{https://developers.google.com/earth-engine/guides/scale}{scale on Google earth Engine documentation}.}
 
-\item{max_sample}{The computation of the mismatch is only performed on \code{max_sample} datapoints of
+\item{max_sample}{The computation of the maps is only performed on \code{max_sample} datapoints of
 pressure to reduce computational time. The samples are randomly (uniformly) selected on the
 timeserie.}
 
@@ -30,14 +30,31 @@ meter. (1hPa~10m)}
 List of raster map
 }
 \description{
-This function return a maps of mismatch of atmospheric pressure measured by a geolocator. It
-performs the following actions:
+This function returns for each stationary period (1) a map of mismatch between the pressure
+measured by a geolocator and the ERA5 pressure database and (2) a map altitude threshold using
+a fine scale digital elevation model.
+}
+\details{
+These maps are generated on Google Earth Engine via the Pressure map entry point of the
+\href{https://raphaelnussbaumer.com/GeoPressureAPI/#description}{GeoPressure API}. The computation
+performed by this function consists of the following:
 \enumerate{
-\item Send a query to produce the Google Earth Engine (GEE) url of the code producing the maps for
-each stationary periods separately
-\item Read these map (geotiff) in a raster
-3 compute the likelihood map from the mismatch. See
-\href{https://raphaelnussbaumer.com/GeoPressureAPI/#description}{the GeoPressure API documentation}
+\item Send a query to generate the Google Earth Engine (GEE) url of the code producing the maps for
+each stationary periods separately.
+\item Download and read these geotiff maps as raster.
+}
+
+The maps of each stationary period are returned in two layers:
+\enumerate{
+\item The mismatch between the input pressure timeseries and the reanalysis one at each location.
+This is computed with a mean square error (MSE) where the mean error is removed. The mean error
+is removed because we assume no specific altitude of the geolocator, thus allowing an
+altitudinal shift of the pressure timeserie.
+\item The proportion of datapoint of the input pressure timeseries corresponding to altitude value
+which fall within the min and max ground elevation found at each location. The altitude value
+of the geolocator pressure timeseries is computed with the barometric formula accounting for the
+temporal variation of pressure (surface-pressure) and temperature (2m-temperature) based on
+ERA5 data. The min and max ground elevation of each pixel is computed from SRTM-90.
 }
 }
 \examples{

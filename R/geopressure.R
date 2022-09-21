@@ -1,12 +1,26 @@
-#' Request and download mismatch maps of pressure
+#' Request and download mismatch and threshold maps of pressure
 #'
-#' This function return a maps of mismatch of atmospheric pressure measured by a geolocator. It
-#' performs the following actions:
-#' 1. Send a query to produce the Google Earth Engine (GEE) url of the code producing the maps for
-#' each stationary periods separately
-#' 2. Read these map (geotiff) in a raster
-#' 3 compute the likelihood map from the mismatch. See
-#' [the GeoPressure API documentation](https://raphaelnussbaumer.com/GeoPressureAPI/#description)
+#' This function returns for each stationary period (1) a map of mismatch between the pressure
+#' measured by a geolocator and the ERA5 pressure database and (2) a map altitude threshold using
+#' a fine scale digital elevation model.
+#'
+#' These maps are generated on Google Earth Engine via the Pressure map entry point of the
+#' [GeoPressure API](https://raphaelnussbaumer.com/GeoPressureAPI/#description). The computation
+#' performed by this function consists of the following:
+#' 1. Send a query to generate the Google Earth Engine (GEE) url of the code producing the maps for
+#' each stationary periods separately.
+#' 2. Download and read these geotiff maps as raster.
+#'
+#' The maps of each stationary period are returned in two layers:
+#' 1. The mismatch between the input pressure timeseries and the reanalysis one at each location.
+#' This is computed with a mean square error (MSE) where the mean error is removed. The mean error
+#' is removed because we assume no specific altitude of the geolocator, thus allowing an
+#' altitudinal shift of the pressure timeserie.
+#' 2. The proportion of datapoint of the input pressure timeseries corresponding to altitude value
+#' which fall within the min and max ground elevation found at each location. The altitude value
+#' of the geolocator pressure timeseries is computed with the barometric formula accounting for the
+#' temporal variation of pressure (surface-pressure) and temperature (2m-temperature) based on
+#' ERA5 data. The min and max ground elevation of each pixel is computed from SRTM-90.
 #'
 #' @param pressure Pressure data.frame from a PAM logger. This data.frame needs to contains `date`
 #' as POSIXt, `obs` in hPa, `sta_id` grouping observation measured during the same stationary period
@@ -18,7 +32,7 @@
 #'   resolution of 0.1° (~10km) and 4 for a resolution of 0.25° (~30km). To avoid interpolating the
 #'   ERA5 data, scale should be smaller than 10. Read more about [scale on Google earth Engine
 #'   documentation](https://developers.google.com/earth-engine/guides/scale).
-#' @param max_sample The computation of the mismatch is only performed on `max_sample` datapoints of
+#' @param max_sample The computation of the maps is only performed on `max_sample` datapoints of
 #'   pressure to reduce computational time. The samples are randomly (uniformly) selected on the
 #'   timeserie.
 #' @param margin The margin is used in the threshold map to accept some measurement error. unit in
