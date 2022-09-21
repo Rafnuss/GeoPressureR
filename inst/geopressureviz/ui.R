@@ -52,7 +52,7 @@ ui <- bootstrapPage(
       div(
         id = "map_source_div",
         radioButtons("map_source",
-          label = "Probability map to display", inline = T, choices = .map_choices, selected = map_choices[tail(which(!is.na(.map_val)), 1)]
+          label = "Probability map to display", inline = T, choices = .map_choices, selected = .map_choices[tail(which(!is.na(.map_val)), 1)]
         ),
         tags$hr(),
         tags$p("Change position by clicking on the map and update the pressure timeserie."),

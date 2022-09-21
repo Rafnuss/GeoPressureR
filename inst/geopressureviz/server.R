@@ -14,7 +14,7 @@ server <- function(input, output, session) {
   )
 
   flight_duration <- reactive({
-    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
     flight_duration <- c()
     for (i_f in seq_len(max(0, length(idx_sta_short) - 1))) {
       from_idx_sta_short <- idx_sta_short[i_f]
@@ -94,7 +94,7 @@ server <- function(input, output, session) {
     if (is.null(fl_dur)) {
       return(HTML(""))
     }
-    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
     i <- which(idx_sta_short == input$i_sta)
     if (i != length(idx_sta_short)) {
       idx_sta_next <- idx_sta_short[i + 1]
@@ -258,7 +258,7 @@ server <- function(input, output, session) {
       proxy <- proxy %>%
         addCircles(
           lng = reactVal$path$lon[as.numeric(input$i_sta)], lat = reactVal$path$lat[as.numeric(input$i_sta)], opacity = 1,
-          weight = sta$duration[as.numeric(input$i_sta)]^(0.3) * 10, color = .sta$col[as.numeric(input$i_sta)]
+          weight = .sta$duration[as.numeric(input$i_sta)]^(0.3) * 10, color = .sta$col[as.numeric(input$i_sta)]
         )
     }
     proxy
