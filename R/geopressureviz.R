@@ -176,7 +176,8 @@ geopressureviz <- function(pam,
     path0 <- do.call("rbind", lapply(ts0, function(x) {
       data.frame(
         lon = x$lon[1],
-        lat = x$lat[1]
+        lat = x$lat[1],
+        sta_id = stats::median(x$sta_id)
       )
     }))
   } else {
