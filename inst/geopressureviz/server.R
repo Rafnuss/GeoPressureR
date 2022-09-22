@@ -75,7 +75,7 @@ server <- function(input, output, session) {
     i <- which(idx_sta_short == as.numeric(input$i_sta))
     if (i != 1) {
       idx_sta_prev <- idx_sta_short[i - 1]
-      dist <- distGeo(reactVal$path[idx_sta_prev, ], reactVal$path[as.numeric(input$i_sta), ]) / 1000
+      dist <- distGeo(reactVal$path[idx_sta_prev, c(1,2)], reactVal$path[as.numeric(input$i_sta), c(1,2)]) / 1000
       HTML(
         "<b>Previous flight:</b><br>",
         as.numeric(input$i_sta) - idx_sta_prev, " flights -",
@@ -202,7 +202,7 @@ server <- function(input, output, session) {
       return()
     }
     if (!input$allsta) {
-      reactVal$path[as.numeric(input$i_sta), ] <- c(click$lng, click$lat)
+      reactVal$path[as.numeric(input$i_sta), c(1,2)] <- c(click$lng, click$lat)
     }
   })
 
@@ -214,7 +214,7 @@ server <- function(input, output, session) {
     req(input$i_sta)
     idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
     sta_thr <- .sta[idx_sta_short, ]
-    path_thr <- reactVal$path[idx_sta_short, ]
+    path_thr <- reactVal$path[idx_sta_short, c(1, 2)]
     fl_dur <- flight_duration()
     if (is.null(fl_dur)) {
       return()
