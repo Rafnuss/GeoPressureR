@@ -41,7 +41,7 @@
 #'   pressure_prob = pressure_prob,
 #'   light_prob = light_prob,
 #'   pressure_timeserie = static_timeserie
-#'   )
+#' )
 #' }
 #' @export
 geopressureviz <- function(pam,
@@ -204,8 +204,11 @@ geopressureviz <- function(pam,
 
   # delete variable when removed
   on.exit(
-    rm(list = c(".map_choices", ".map_val", ".sta", ".pressure", ".ts0", ".path0", ".flight"),
-       envir = .GlobalEnv))
+    rm(
+      list = c(".map_choices", ".map_val", ".sta", ".pressure", ".ts0", ".path0", ".flight"),
+      envir = .GlobalEnv
+    )
+  )
 
   if (lauch_browser) {
     lauch_browser <- getOption("browser")

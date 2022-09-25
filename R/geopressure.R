@@ -130,8 +130,8 @@ geopressure_map <- function(pressure,
   dt <- as.numeric(stats::median(dtall))
   n <- round(1 / dt + 1)
   # make the convolution for each stationary period separately
-  for (i_s in seq(1, max(pressure$sta_id, na.rm = TRUE))) {
-    if (length(pres) > n) {
+  if (length(pres) > n) {
+    for (i_s in seq(1, max(pressure$sta_id, na.rm = TRUE))) {
       pres_i_s <- pres
       pres_i_s[pressure$sta_id != i_s] <- NA
       pres_i_s_smoothna <- stats::filter(

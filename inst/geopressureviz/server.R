@@ -1,5 +1,4 @@
 server <- function(input, output, session) {
-
   session$onSessionEnded(function() {
     # print("heleo")
     stopApp()
@@ -75,7 +74,7 @@ server <- function(input, output, session) {
     i <- which(idx_sta_short == as.numeric(input$i_sta))
     if (i != 1) {
       idx_sta_prev <- idx_sta_short[i - 1]
-      dist <- distGeo(reactVal$path[idx_sta_prev, c(1,2)], reactVal$path[as.numeric(input$i_sta), c(1,2)]) / 1000
+      dist <- distGeo(reactVal$path[idx_sta_prev, c(1, 2)], reactVal$path[as.numeric(input$i_sta), c(1, 2)]) / 1000
       HTML(
         "<b>Previous flight:</b><br>",
         as.numeric(input$i_sta) - idx_sta_prev, " flights -",
@@ -119,7 +118,7 @@ server <- function(input, output, session) {
 
     req(input$thr_sta)
     for (ts in reactVal$ts) {
-      sta_th <- .sta[median(ts$sta_id, na.rm=TRUE) == .sta$sta_id, ]
+      sta_th <- .sta[median(ts$sta_id, na.rm = TRUE) == .sta$sta_id, ]
       if (nrow(sta_th) > 0) {
         if (sta_th$duration > as.numeric(input$thr_sta)) {
           p <- p +
@@ -202,7 +201,7 @@ server <- function(input, output, session) {
       return()
     }
     if (!input$allsta) {
-      reactVal$path[as.numeric(input$i_sta), c(1,2)] <- c(click$lng, click$lat)
+      reactVal$path[as.numeric(input$i_sta), c(1, 2)] <- c(click$lng, click$lat)
     }
   })
 
