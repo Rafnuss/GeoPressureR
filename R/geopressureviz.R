@@ -166,7 +166,8 @@ geopressureviz <- function(pam,
         x <- data.frame(
           lon = NA,
           lat = NA,
-          lt = 1
+          lt = 1,
+          sta_id = 0
         )
       } else {
         x$lt <- 1
