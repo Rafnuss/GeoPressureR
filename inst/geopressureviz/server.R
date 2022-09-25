@@ -1,15 +1,20 @@
 server <- function(input, output, session) {
 
+  session$onSessionEnded(function() {
+    # print("heleo")
+    stopApp()
+  })
+
   ## Reactive variable ----
 
   reactVal <- reactiveValues(
-    path = path0, # path
-    ts = ts0, # timeserie of pressurer
+    path = .path0, # path
+    ts = .ts0, # timeserie of pressurer
     isEdit = F # if editing position
   )
 
   flight_duration <- reactive({
-    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
     flight_duration <- c()
     for (i_f in seq_len(max(0, length(idx_sta_short) - 1))) {
       from_idx_sta_short <- idx_sta_short[i_f]
@@ -17,7 +22,7 @@ server <- function(input, output, session) {
 
       flight_duration[i_f] <- sum(
         do.call(rbind, lapply(
-          flight[seq(from_idx_sta_short, to_idx_sta_short)],
+          .flight[seq(from_idx_sta_short, to_idx_sta_short)],
           function(x) {
             sum(x$duration)
           }
@@ -32,7 +37,7 @@ server <- function(input, output, session) {
     if (is.null(input$map_source)) {
       return(NA)
     }
-    return(map_val[[which(input$map_source == map_choices)]])
+    return(.map_val[[which(input$map_source == .map_choices)]])
   }) %>% bindEvent(input$map_source)
 
 
@@ -57,7 +62,7 @@ server <- function(input, output, session) {
       addLayersControl(baseGroups = c("Dark Matter", "Satellite", "Topography"), position = c("topleft"))
   })
   output$gdl_id <- renderUI({
-    return(HTML(paste0("<h3 style='margin:0;'>", gdl_id, "</h3>")))
+    return(HTML(paste0("<h3 style='margin:0;'>", .gdl_id, "</h3>")))
   })
 
   output$fl_prev_info <- renderUI({
@@ -66,11 +71,11 @@ server <- function(input, output, session) {
     if (is.null(fl_dur)) {
       return(HTML(""))
     }
-    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
     i <- which(idx_sta_short == as.numeric(input$i_sta))
     if (i != 1) {
       idx_sta_prev <- idx_sta_short[i - 1]
-      dist <- distGeo(reactVal$path[idx_sta_prev, ], reactVal$path[as.numeric(input$i_sta), ]) / 1000
+      dist <- distGeo(reactVal$path[idx_sta_prev, c(1,2)], reactVal$path[as.numeric(input$i_sta), c(1,2)]) / 1000
       HTML(
         "<b>Previous flight:</b><br>",
         as.numeric(input$i_sta) - idx_sta_prev, " flights -",
@@ -89,7 +94,7 @@ server <- function(input, output, session) {
     if (is.null(fl_dur)) {
       return(HTML(""))
     }
-    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
     i <- which(idx_sta_short == input$i_sta)
     if (i != length(idx_sta_short)) {
       idx_sta_next <- idx_sta_short[i + 1]
@@ -108,13 +113,13 @@ server <- function(input, output, session) {
 
   output$pressure_graph <- renderPlotly({
     p <- ggplot() +
-      geom_line(data = pressure, aes(x = date, y = obs), colour = "grey") +
-      geom_point(data = subset(pressure, isoutlier), aes(x = date, y = obs), colour = "black") +
+      geom_line(data = .pressure, aes(x = date, y = obs), colour = "grey") +
+      geom_point(data = subset(.pressure, isoutlier), aes(x = date, y = obs), colour = "black") +
       theme_bw()
 
     req(input$thr_sta)
     for (ts in reactVal$ts) {
-      sta_th <- sta[median(ts$sta_id, na.rm=TRUE) == sta$sta_id, ]
+      sta_th <- .sta[median(ts$sta_id, na.rm=TRUE) == .sta$sta_id, ]
       if (nrow(sta_th) > 0) {
         if (sta_th$duration > as.numeric(input$thr_sta)) {
           p <- p +
@@ -152,10 +157,10 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$thr_sta, {
-    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
     if (length(idx_sta_short) > 0) {
       tmp <- as.list(idx_sta_short)
-      names(tmp) <- paste0("#", sta$sta_id[idx_sta_short], " (", round(sta$duration[idx_sta_short], 1), "d.)")
+      names(tmp) <- paste0("#", .sta$sta_id[idx_sta_short], " (", round(.sta$duration[idx_sta_short], 1), "d.)")
     } else {
       tmp <- list()
     }
@@ -163,14 +168,14 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$prev_pos, {
-    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
     i <- which(input$i_sta == idx_sta_short)
     i <- min(max(i - 1, 1), length(idx_sta_short))
     updateSelectizeInput(session, "i_sta", selected = idx_sta_short[i])
   })
 
   observeEvent(input$next_pos, {
-    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
+    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
     i <- which(input$i_sta == idx_sta_short)
     i <- min(max(i + 1, 1), length(idx_sta_short))
     updateSelectizeInput(session, "i_sta", selected = idx_sta_short[i])
@@ -197,7 +202,7 @@ server <- function(input, output, session) {
       return()
     }
     if (!input$allsta) {
-      reactVal$path[as.numeric(input$i_sta), ] <- c(click$lng, click$lat)
+      reactVal$path[as.numeric(input$i_sta), c(1,2)] <- c(click$lng, click$lat)
     }
   })
 
@@ -207,9 +212,9 @@ server <- function(input, output, session) {
       clearShapes() %>%
       clearImages()
     req(input$i_sta)
-    idx_sta_short <- which(sta$duration >= as.numeric(input$thr_sta))
-    sta_thr <- sta[idx_sta_short, ]
-    path_thr <- reactVal$path[idx_sta_short, ]
+    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
+    sta_thr <- .sta[idx_sta_short, ]
+    path_thr <- reactVal$path[idx_sta_short, c(1, 2)]
     fl_dur <- flight_duration()
     if (is.null(fl_dur)) {
       return()
@@ -253,15 +258,15 @@ server <- function(input, output, session) {
       proxy <- proxy %>%
         addCircles(
           lng = reactVal$path$lon[as.numeric(input$i_sta)], lat = reactVal$path$lat[as.numeric(input$i_sta)], opacity = 1,
-          weight = sta$duration[as.numeric(input$i_sta)]^(0.3) * 10, color = sta$col[as.numeric(input$i_sta)]
+          weight = .sta$duration[as.numeric(input$i_sta)]^(0.3) * 10, color = .sta$col[as.numeric(input$i_sta)]
         )
     }
     proxy
   }) # %>% bindEvent(input$i_sta)
 
   observeEvent(input$query_pos, {
-    sta_id <- sta$sta_id[as.numeric(input$i_sta)]
-    pam_pressure_sta <- pressure[pressure$sta_id == sta_id, ]
+    sta_id <- .sta$sta_id[as.numeric(input$i_sta)]
+    pam_pressure_sta <- .pressure[.pressure$sta_id == sta_id, ]
     ts <- geopressure_ts(reactVal$path$lon[as.numeric(input$i_sta)], reactVal$path$lat[as.numeric(input$i_sta)],
       pressure = pam_pressure_sta
     )
@@ -278,14 +283,14 @@ server <- function(input, output, session) {
   # Pressure Graph
   observe({
     if (!input$allsta) {
-      sta_id <- sta$sta_id[as.numeric(input$i_sta)]
-      pres_sta_id <- pressure$sta_id == sta_id
+      sta_id <- .sta$sta_id[as.numeric(input$i_sta)]
+      pres_sta_id <- .pressure$sta_id == sta_id
       plotlyProxy("pressure_graph", session) %>%
         plotlyProxyInvoke(
           "relayout",
           list(
-            yaxis = list(range = c(min(pressure$obs[pres_sta_id]) - 5, max(pressure$obs[pres_sta_id]) + 5)),
-            xaxis = list(range = c(sta$start[as.numeric(input$i_sta)] - 60 * 60 * 24, sta$end[as.numeric(input$i_sta)] + 60 * 60 * 24))
+            yaxis = list(range = c(min(.pressure$obs[pres_sta_id]) - 5, max(.pressure$obs[pres_sta_id]) + 5)),
+            xaxis = list(range = c(.sta$start[as.numeric(input$i_sta)] - 60 * 60 * 24, .sta$end[as.numeric(input$i_sta)] + 60 * 60 * 24))
           )
         )
     } else {
