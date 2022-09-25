@@ -166,13 +166,13 @@ geopressure_map <- function(pressure,
   tmp <- data.frame(table(pressure$sta_id[!is.na(pres)]))
   if (any(tmp$Freq < 3)) {
     warning(
-      "There is less than 5 datapoints used for stationary periods: ",
+      "There is less than 3 datapoints used for stationary periods: ",
       paste0(tmp$Var1[tmp$Freq < 3], collapse = ", "), "."
     )
   }
   if (any(tmp$Freq == 1)) {
     warning(
-      "There is less than 5 datapoints used for stationary periods: ",
+      "There is less than 3 datapoints used for stationary periods: ",
       paste0(tmp$Var1[tmp$Freq < 3], collapse = ", "), "."
     )
   }

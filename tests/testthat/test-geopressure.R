@@ -24,10 +24,11 @@ path_pressure <- geopressure_map2path(pressure_prob)
 
 
 test_that("Check geopressure_map() for date too recent", {
+  tmp <- Sys.time()
   pressure <- data.frame(
-    date = c(Sys.time(), Sys.time() + 1),
-    obs = c(1000, 1000),
-    sta_id = c(1, 1)
+    date = c(tmp, tmp + 60 * 60, tmp + 2 * 60 * 60),
+    obs = c(1000, 1000, 1000),
+    sta_id = c(1, 1, 1)
   )
   expect_error(raster_list <- geopressure_map(pressure, extent = c(1, 0, 0, 1), scale = 1))
 })
