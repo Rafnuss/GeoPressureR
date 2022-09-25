@@ -162,6 +162,21 @@ geopressure_map <- function(pressure,
     stop("No pressure to query. Check outlier and staID==0 (for flight).")
   }
 
+  # Check number of datapoint per stationary periods
+  tmp <- data.frame(table(pressure$sta_id[!is.na(pres)]))
+  if (any(tmp$Freq < 3)) {
+    warning(
+      "There is less than 5 datapoints used for stationary periods: ",
+      paste0(tmp$Var1[tmp$Freq < 3], collapse = ", "), "."
+    )
+  }
+  if (any(tmp$Freq == 1)) {
+    warning(
+      "There is less than 5 datapoints used for stationary periods: ",
+      paste0(tmp$Var1[tmp$Freq < 3], collapse = ", "), "."
+    )
+  }
+
   # Format query
   body_df <- list(
     time = jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date[!is.na(pres)]))),
