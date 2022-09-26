@@ -83,7 +83,7 @@ geopressureviz <- function(pam,
   map_val[[length(map_val) + 1]] <- static_prob
   if (any(!is.na(static_prob_marginal))) {
     map_choices <- c(map_choices, "Marginal")
-    sta_tmp <- unlist(lapply(light_prob, function(x) raster::metadata(x)$sta_id))
+    sta_tmp <- unlist(lapply(static_prob_marginal, function(x) raster::metadata(x)$sta_id))
     map_val[[length(map_val) + 1]] <- static_prob_marginal[sta_tmp %in% sta_static]
   }
 
