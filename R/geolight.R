@@ -267,7 +267,10 @@ light2mat <- function(light, shift_k = 0) {
 
   res <- difftime(utils::tail(light$date, -1), utils::head(light$date, -1), units = "secs")
   if (length(unique(res)) != 1) {
-    stop("Temporal resolution of the light data is not the same. The code currently cannot work.")
+    stop(
+      "Temporal resolution of the light data is not constant. Use TwGeos::FindTwilight() ",
+      "instead."
+    )
   }
   res <- as.numeric(res[1])
 
