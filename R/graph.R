@@ -352,10 +352,7 @@ graph_trim <- function(gr) {
 #' (hourly basis) and pressure (altitude). To make the download more efficient,
 #' [`wf_request_batch()`](
 #' https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests)
-#' is used to download all wind file at the same time (up to 20 requests in parallel). If more
-#' data is downloaded at the same time (e.g., multiple tracks) and you don't want to wait or block
-#' your R console, use `transfer=FALSE` to make the requests on the CDS and download the queries
-#' later with `req$transfer()`.
+#' is used to download all wind file at the same time (up to 20 requests in parallel).
 #'
 #' To be able to download data from the Climate Data Store (CDS), you will need to create an account
 #' on [https://cds.climate.copernicus.eu](https://cds.climate.copernicus.eu). You can then save
@@ -371,10 +368,8 @@ graph_trim <- function(gr) {
 #' @param cds_key User (email address) used to sign up for the ECMWF data service. See
 #' [`wf_set_key()`].
 #' @param cds_user Token provided by ECMWF. See [`wf_set_key()`].
-#' @param transfer logical, download data (default = FALSE)
 #' @param path Path were to store the downloaded data.
-#' @param verbose show feedback on processing (default = TRUE)
-#' @return List of the R6 object with download/transfer information if `transfer = FALSE`. See
+#' @return The path of the downloaded (requested file).
 #' @seealso [`wf_request()`](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),
 #' [GeoPressureManual | Wind graph
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)
@@ -394,8 +389,6 @@ graph_download_wind <- function(pam,
   assertthat::assert_that(assertthat::has_name(pam, "sta"))
   assertthat::assert_that(is.data.frame(pam$sta))
   assertthat::assert_that(assertthat::has_name(pam$sta, c("end", "start")))
-  assertthat::assert_that(is.logical(transfer))
-  assertthat::assert_that(is.logical(verbose))
 
   if (is.list(area)) {
     area <- area[[1]]
@@ -465,29 +458,14 @@ graph_download_wind <- function(pam,
     )
   }
 
-  if (transfer) {
-    ecmwfr::wf_request_batch(
-      request_list,
-      workers = 20,
-      # user = ,
-      path = path,
-      # time_out = 3600,
-      # total_timeout = length(request_list) * time_out/workers
-    )
-  } else {
-    requests <- list()
-    for (i_req in seq_len(request_list)) {
-      requests[i_req] <- ecmwfr::wf_request(
-        request_list[i_req],
-        # user = ,
-        transfer = FALSE,
-        path = path,
-        # time_out = 3600,
-        verbose = verbose,
-      )
-    }
-    return(requests)
-  }
+  ecmwfr::wf_request_batch(
+    request_list,
+    workers = 20,
+    # user = ,
+    path = path,
+    # time_out = 3600,
+    # total_timeout = length(request_list) * time_out/workers
+  )
 }
 
 #' Add windspeed and airspeed
