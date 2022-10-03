@@ -339,19 +339,29 @@ graph_trim <- function(gr) {
   return(gr)
 }
 
-
 #' Download wind data
 #'
-#' This function download the wind data from ERA5 for all flights. The flight are determined from
-#' the stationary periods classified `pam$sta` (see `pam_classify()`). It request a single file for
-#' each flight using the exact time (hourly basis) and pressure (altitude). We use
-#' `wf_request_batch()` from `ecmwfr` to query multiple wind data at the same time.
+#'
+#' This function download the wind data from [ERA5 hourly pressure level](
+#' https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview)
+#' with the [Climate Data Store (CDS)](https://cds.climate.copernicus.eu) and through the [`ecmwfr`
+#' R package](https://bluegreen-labs.github.io/ecmwfr/index.html).
+#'
+#' The flight are determined from the stationary periods classified `pam$sta`
+#' (see `pam_classify()`). It request a single file for each flight using the exact time
+#' (hourly basis) and pressure (altitude). To make the download more efficient,
+#' [`wf_request_batch()`](
+#' https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests)
+#' is used to download all wind file at the same time (up to 20 requests in parallel). If more
+#' data is downloaded at the same time (e.g., multiple tracks) and you don't want to wait or block
+#' your R console, use `transfer=FALSE` to make the requests on the CDS and download the queries
+#' later with `req$transfer()`.
 #'
 #' To be able to download data from the Climate Data Store (CDS), you will need to create an account
-#'  on  [https://cds.climate.copernicus.eu](https://cds.climate.copernicus.eu). You can then save
-#'  your credential (`cds_key` and `cds_user`) in your `.Rprofile` (see
-#'  [GeoPressureManual | Wind graph](
-#'  https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)).
+#' on [https://cds.climate.copernicus.eu](https://cds.climate.copernicus.eu). You can then save
+#' your credential (`cds_key` and `cds_user`) in your `.Rprofile` (see
+#' [GeoPressureManual | Wind graph](
+#' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)).
 #'
 #' @param pam PAM logger dataset list with `pam$sta` computed. See [`pam_read()`] and [`pam_sta()`].
 #' @param area Geographical extent of the map to query. Either a raster (e.g. `static_prob`) or a
@@ -361,17 +371,22 @@ graph_trim <- function(gr) {
 #' @param cds_key User (email address) used to sign up for the ECMWF data service. See
 #' [`wf_set_key()`].
 #' @param cds_user Token provided by ECMWF. See [`wf_set_key()`].
+#' @param transfer logical, download data (default = FALSE)
 #' @param path Path were to store the downloaded data.
-#' @return The path of the downloaded (requested file).
-#' @seealso [`wf_request()`], [GeoPressureManual | Wind graph
+#' @param verbose show feedback on processing (default = TRUE)
+#' @return List of the R6 object with download/transfer information if `transfer = FALSE`. See
+#' @seealso [`wf_request()`](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),
+#' [GeoPressureManual | Wind graph
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)
 #' @export
 graph_download_wind <- function(pam,
-                                area, # area is specified as N, W, S, E
-                                sta_id = seq_len(nrow(pam$sta) - 1),
-                                cds_key = Sys.getenv("cds_key"),
-                                cds_user = Sys.getenv("cds_user"),
-                                path = paste0("data/5_wind_graph/", pam$id, "/")) {
+                               area, # area is specified as N, W, S, E
+                               sta_id = seq_len(nrow(pam$sta) - 1),
+                               cds_key = Sys.getenv("cds_key"),
+                               cds_user = Sys.getenv("cds_user"),
+                               transfer = FALSE,
+                               path = paste0("data/5_wind_graph/", pam$id, "/"),
+                               verbose = TRUE) {
   assertthat::assert_that(is.list(pam))
   assertthat::assert_that(assertthat::has_name(pam, "pressure"))
   assertthat::assert_that(is.data.frame(pam$pressure))
@@ -379,6 +394,8 @@ graph_download_wind <- function(pam,
   assertthat::assert_that(assertthat::has_name(pam, "sta"))
   assertthat::assert_that(is.data.frame(pam$sta))
   assertthat::assert_that(assertthat::has_name(pam$sta, c("end", "start")))
+  assertthat::assert_that(is.logical(transfer))
+  assertthat::assert_that(is.logical(verbose))
 
   if (is.list(area)) {
     area <- area[[1]]
@@ -392,7 +409,8 @@ graph_download_wind <- function(pam,
   ecmwfr::wf_set_key(user = cds_user, key = cds_key, service = "cds")
 
   if (!file.exists(path)) {
-    stop(paste0("The path ", path, " does not exist. You can create it with: `dir.create(path)`."))
+    warning(paste0("The path ", path, " did not exist, so we created it."))
+    dir.create(path, showWarnings = FALSE)
   }
 
   # see https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Levellistings
@@ -401,7 +419,9 @@ graph_download_wind <- function(pam,
     seq(100, 250, 25), seq(300, 750, 50), seq(775, 1000, 25)
   )
 
+  # create list of request
   request_list <- list()
+
   for (i_id in sta_id) {
     # Find the index of sta_id
     i_s <- which(pam$sta$sta_id == i_id)
@@ -415,12 +435,22 @@ graph_download_wind <- function(pam,
     # Find the pressure level needed during this flight
     flight_id <- flight_time[1] <= pam$pressure$date &
       pam$pressure$date <= utils::tail(flight_time, 1)
-    pres_id_min <- sum(!(min(pam$pressure$obs[flight_id]) < possible_pressure))
-    pres_id_max <- sum(max(pam$pressure$obs[flight_id]) > possible_pressure) + 1
-    flight_pres_id <- seq(pres_id_min, min(pres_id_max, length(possible_pressure)))
+    pres_id_min <- min(
+      sum(!(min(pam$pressure$obs[flight_id]) < possible_pressure)),
+      length(possible_pressure) - 1
+    )
+    pres_id_max <- min(
+      sum(max(pam$pressure$obs[flight_id]) > possible_pressure) + 1,
+      length(possible_pressure)
+    )
+    flight_pres_id <- seq(pres_id_min, pres_id_max)
+
+    # Make some check
+    assertthat::assert_that(length(possible_pressure[flight_pres_id]) > 1)
+    assertthat::assert_that(length(flight_time) > 1)
 
     # Prepare the query
-    request_list[[i_s]] <- list(
+    request_list[i_id] <- list(
       dataset_short_name = "reanalysis-era5-pressure-levels",
       product_type = "reanalysis",
       format = "netcdf",
@@ -435,16 +465,30 @@ graph_download_wind <- function(pam,
     )
   }
 
-  ecmwfr::wf_request_batch(
-    request_list,
-    workers = 20,
-    # user = ,
-    path = path,
-    # time_out = 3600,
-    # total_timeout = length(request_list) * time_out/workers
-  )
+  if (transfer) {
+    ecmwfr::wf_request_batch(
+      request_list,
+      workers = 20,
+      # user = ,
+      path = path,
+      # time_out = 3600,
+      # total_timeout = length(request_list) * time_out/workers
+    )
+  } else {
+    requests <- list()
+    for (i_req in seq_len(request_list)) {
+      requests[i_req] <- ecmwfr::wf_request(
+        request_list[i_req],
+        # user = ,
+        transfer = FALSE,
+        path = path,
+        # time_out = 3600,
+        verbose = verbose,
+      )
+    }
+    return(requests)
+  }
 }
-
 
 #' Add windspeed and airspeed
 #'
