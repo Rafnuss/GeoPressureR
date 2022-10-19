@@ -12,7 +12,7 @@ with the Climate Data Store (CDS) and through the ecmwfr R package."><meta prope
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,9 +60,7 @@ with the <a href="https://cds.climate.copernicus.eu" class="external-link">Clima
 <span>  sta_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">pam</span><span class="op">$</span><span class="va">sta</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  cds_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"cds_key"</span><span class="op">)</span>,</span>
 <span>  cds_user <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"cds_user"</span><span class="op">)</span>,</span>
-<span>  transfer <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"data/5_wind_graph/"</span>, <span class="va">pam</span><span class="op">$</span><span class="va">id</span>, <span class="st">"/"</span><span class="op">)</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"data/5_wind_graph/"</span>, <span class="va">pam</span><span class="op">$</span><span class="va">id</span>, <span class="st">"/"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -91,23 +89,15 @@ list ordered by North, West, South, East  (e.g. <code>c(50,-16,0,20)</code>).</p
 <dd><p>Token provided by ECMWF. See <code>wf_set_key()</code>.</p></dd>
 
 
-<dt>transfer</dt>
-<dd><p>logical, download data (default = FALSE)</p></dd>
-
-
 <dt>path</dt>
 <dd><p>Path were to store the downloaded data.</p></dd>
-
-
-<dt>verbose</dt>
-<dd><p>show feedback on processing (default = TRUE)</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>List of the R6 object with download/transfer information if <code>transfer = FALSE</code>. See</p>
+<p>The path of the downloaded (requested file).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -115,10 +105,7 @@ list ordered by North, West, South, East  (e.g. <code>c(50,-16,0,20)</code>).</p
 (see <code><a href="pam_classify.html">pam_classify()</a></code>). It request a single file for each flight using the exact time
 (hourly basis) and pressure (altitude). To make the download more efficient,
 <a href="https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests" class="external-link"><code>wf_request_batch()</code></a>
-is used to download all wind file at the same time (up to 20 requests in parallel). If more
-data is downloaded at the same time (e.g., multiple tracks) and you don't want to wait or block
-your R console, use <code>transfer=FALSE</code> to make the requests on the CDS and download the queries
-later with <code>req$transfer()</code>.</p>
+is used to download all wind file at the same time (up to 20 requests in parallel).</p>
 <p>To be able to download data from the Climate Data Store (CDS), you will need to create an account
 on <a href="https://cds.climate.copernicus.eu" class="external-link">https://cds.climate.copernicus.eu</a>. You can then save
 your credential (<code>cds_key</code> and <code>cds_user</code>) in your <code>.Rprofile</code> (see
