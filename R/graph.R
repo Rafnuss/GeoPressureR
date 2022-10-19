@@ -830,38 +830,35 @@ graph_marginal <- function(grl) {
   n <- prod(grl$sz)
 
   # matrix of forward transition
-  trans_f <- Matrix::sparseMatrix(grl$s, grl$t, x = grl$p, dims = c(n, n))
-
-  # matrix of backward transition
-  trans_b <- Matrix::sparseMatrix(grl$t, grl$s, x = grl$p, dims = c(n, n))
+  trans <- Matrix::sparseMatrix(grl$s, grl$t, x = grl$p, dims = c(n, n))
 
   # forward mapping of marginal probability
   map_f <- Matrix::sparseMatrix(rep(1, length(grl$equipment)),
-    grl$equipment,
-    x = 1, dims = c(1, n)
+                                grl$equipment,
+                                x = 1, dims = c(1, n)
   )
 
   # backward mapping of marginal probability
-  map_b <- Matrix::sparseMatrix(rep(1, length(grl$retrieval)),
-    grl$retrieval,
-    x = 1, dims = c(1, n)
+  map_b <- Matrix::sparseMatrix(grl$retrieval,
+                                rep(1, length(grl$retrieval)),
+                                x = 1, dims = c(n, 1)
   )
 
   # build iteratively the marginal probability backward and forward by re-using the mapping
   # computed for previous stationary period. Set the equipment and retrieval site in each loop
   for (i_s in seq_len(grl$sz[3] - 1)) {
     map_f[1, grl$equipment] <- 1
-    map_f <- map_f %*% trans_f
+    map_f <- map_f %*% trans
 
-    map_b[1, grl$retrieval] <- 1
-    map_b <- map_b %*% trans_b
+    map_b[grl$retrieval,1] <- 1
+    map_b <- trans %*% map_b
   }
   # add the retrieval and equipment at the end to finish it
   map_f[1, grl$equipment] <- 1
-  map_b[1, grl$retrieval] <- 1
+  map_b[grl$retrieval,1] <- 1
 
   # combine the forward and backward
-  map <- map_f * map_b
+  map <- map_f * Matrix::t(map_b)
 
   # reshape mapping as a full (non-sparce matrix of correct size)
   map <- as.matrix(map)
