@@ -375,13 +375,11 @@ graph_trim <- function(gr) {
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)
 #' @export
 graph_download_wind <- function(pam,
-                               area, # area is specified as N, W, S, E
-                               sta_id = seq_len(nrow(pam$sta) - 1),
-                               cds_key = Sys.getenv("cds_key"),
-                               cds_user = Sys.getenv("cds_user"),
-                               transfer = FALSE,
-                               path = paste0("data/5_wind_graph/", pam$id, "/"),
-                               verbose = TRUE) {
+                                area, # area is specified as N, W, S, E
+                                sta_id = seq_len(nrow(pam$sta) - 1),
+                                cds_key = Sys.getenv("cds_key"),
+                                cds_user = Sys.getenv("cds_user"),
+                                path = paste0("data/5_wind_graph/", pam$id, "/")) {
   assertthat::assert_that(is.list(pam))
   assertthat::assert_that(assertthat::has_name(pam, "pressure"))
   assertthat::assert_that(is.data.frame(pam$pressure))
@@ -834,14 +832,14 @@ graph_marginal <- function(grl) {
 
   # forward mapping of marginal probability
   map_f <- Matrix::sparseMatrix(rep(1, length(grl$equipment)),
-                                grl$equipment,
-                                x = 1, dims = c(1, n)
+    grl$equipment,
+    x = 1, dims = c(1, n)
   )
 
   # backward mapping of marginal probability
   map_b <- Matrix::sparseMatrix(grl$retrieval,
-                                rep(1, length(grl$retrieval)),
-                                x = 1, dims = c(n, 1)
+    rep(1, length(grl$retrieval)),
+    x = 1, dims = c(n, 1)
   )
 
   # build iteratively the marginal probability backward and forward by re-using the mapping
@@ -850,12 +848,12 @@ graph_marginal <- function(grl) {
     map_f[1, grl$equipment] <- 1
     map_f <- map_f %*% trans
 
-    map_b[grl$retrieval,1] <- 1
+    map_b[grl$retrieval, 1] <- 1
     map_b <- trans %*% map_b
   }
   # add the retrieval and equipment at the end to finish it
   map_f[1, grl$equipment] <- 1
-  map_b[grl$retrieval,1] <- 1
+  map_b[grl$retrieval, 1] <- 1
 
   # combine the forward and backward
   map <- map_f * Matrix::t(map_b)

@@ -10,9 +10,7 @@ graph_download_wind(
   sta_id = seq_len(nrow(pam$sta) - 1),
   cds_key = Sys.getenv("cds_key"),
   cds_user = Sys.getenv("cds_user"),
-  transfer = FALSE,
-  path = paste0("data/5_wind_graph/", pam$id, "/"),
-  verbose = TRUE
+  path = paste0("data/5_wind_graph/", pam$id, "/")
 )
 }
 \arguments{
@@ -29,14 +27,10 @@ list ordered by North, West, South, East  (e.g. \code{c(50,-16,0,20)}).}
 
 \item{cds_user}{Token provided by ECMWF. See \code{\link[=wf_set_key]{wf_set_key()}}.}
 
-\item{transfer}{logical, download data (default = FALSE)}
-
 \item{path}{Path were to store the downloaded data.}
-
-\item{verbose}{show feedback on processing (default = TRUE)}
 }
 \value{
-List of the R6 object with download/transfer information if \code{transfer = FALSE}. See
+The path of the downloaded (requested file).
 }
 \description{
 This function download the wind data from \href{https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview}{ERA5 hourly pressure level}
@@ -47,10 +41,7 @@ The flight are determined from the stationary periods classified \code{pam$sta}
 (see \code{pam_classify()}). It request a single file for each flight using the exact time
 (hourly basis) and pressure (altitude). To make the download more efficient,
 \href{https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests}{\code{wf_request_batch()}}
-is used to download all wind file at the same time (up to 20 requests in parallel). If more
-data is downloaded at the same time (e.g., multiple tracks) and you don't want to wait or block
-your R console, use \code{transfer=FALSE} to make the requests on the CDS and download the queries
-later with \code{req$transfer()}.
+is used to download all wind file at the same time (up to 20 requests in parallel).
 
 To be able to download data from the Climate Data Store (CDS), you will need to create an account
 on \url{https://cds.climate.copernicus.eu}. You can then save

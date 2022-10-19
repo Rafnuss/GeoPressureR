@@ -61,7 +61,7 @@ geopressureviz(
   pressure_prob = pressure_prob,
   light_prob = light_prob,
   pressure_timeserie = static_timeserie
-  )
+)
 }
 }
 \seealso{
