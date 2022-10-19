@@ -1,36 +1,51 @@
+# GeoPressureR v2.7-beta
+## Major
+* Major fix in the computation of the marginal map https://github.com/Rafnuss/GeoPressureR/commit/bd1103fda0c5b4e3c0f218ee7bcf3fbc69dc6123
+
+## Minor
+* Improve `graph_download_wind()` #54 
+* Geopressureviz function in #52
+* Replace `isoutliar` with `isoutlier in #43
+* Use `assertthat` in #46 and #47
+* Typo of equipement and retrival in #48
+* Various minor fixes
+
+# Full Changelog
+[https://github.com/Rafnuss/GeoPressureR/compare/v2.6-beta...v2.7-beta](https://github.com/Rafnuss/GeoPressureR/compare/v2.6-beta...v2.7-beta)
+
 # GeoPressureR v2.6-beta
 ## Major
 - add windspeed download function `graph_download_wind()`
 
 ## Minor
 - fixes for reading pam data
-- various fixes (see https://github.com/Rafnuss/GeoPressureR/pull/42)
+- various fixes (see #42)
 
 ## Full Changelog 
-https://github.com/Rafnuss/GeoPressureR/compare/v2.5-beta...v2.6-beta
+[https://github.com/Rafnuss/GeoPressureR/compare/v2.5-beta...v2.6-beta](https://github.com/Rafnuss/GeoPressureR/compare/v2.5-beta...v2.6-beta)
 
 # GeoPressureR v2.5-beta
 ## Major
-- Migration of all the vignette and data used for the vignette in GeoPressureManual bda0f7898dd9e6b8d9d786ce56ae3e5ec422c935
+- Migration of all the vignette and data used for the vignette in GeoPressureManual https://github.com/Rafnuss/GeoPressureR/commit/bda0f7898dd9e6b8d9d786ce56ae3e5ec422c935
 - Read Migrate Technology data (should not be breaking change, but some significant changes) #23
-- Add `logis` function in `flight_prob()` 6e1a8f0e93d82ec2a9bccce404cdb59fcc218277
+- Add `logis` function in `flight_prob()` https://github.com/Rafnuss/GeoPressureR/commit/6e1a8f0e93d82ec2a9bccce404cdb59fcc218277
 
 ## Minor
-- Read Avonet data as package data c5c8d807f9a7e13a49e3d1565a7b3beffb58022f
-- Update of `r-lib/actions` to v2 3382fb9b7b9970f1c102cf9aabf3a6b06b5d505e
-- 8720b6e6032f910f0c702e649a907dcf10bc2258
-- Improvement of GeoPressureViz 97be49de4ed6c309b16e23fbedde1d618ae0a04c 964b558913de7f7b6ef9915fc9cc41fc0b3dd0d3
+- Read Avonet data as package data https://github.com/Rafnuss/GeoPressureR/commit/c5c8d807f9a7e13a49e3d1565a7b3beffb58022f
+- Update of `r-lib/actions` to v2 https://github.com/Rafnuss/GeoPressureR/commit/3382fb9b7b9970f1c102cf9aabf3a6b06b5d505e
+- https://github.com/Rafnuss/GeoPressureR/commit/8720b6e6032f910f0c702e649a907dcf10bc2258
+- Improvement of GeoPressureViz https://github.com/Rafnuss/GeoPressureR/commit/97be49de4ed6c309b16e23fbedde1d618ae0a04c https://github.com/Rafnuss/GeoPressureR/commit/964b558913de7f7b6ef9915fc9cc41fc0b3dd0d3
 - Add checks and warning in functions
 - Preparation of the code for CRAN
 
 ## Full Changelog
-https://github.com/Rafnuss/GeoPressureR/compare/v2.4-beta...v2.5-beta
+[https://github.com/Rafnuss/GeoPressureR/compare/v2.4-beta...v2.5-beta](https://github.com/Rafnuss/GeoPressureR/compare/v2.4-beta...v2.5-beta)
 
 # GeoPressureR v2.4-beta
 ## Major
-- Accept request over water and display warning message. See https://github.com/Rafnuss/GeoPressureR/pull/15
+- Accept request over water and display warning message. See #15
 - Add logging of error and return JSON file of the request in case of error for troubleshooting 
-- Change downloading and reading of geotiff file to work on windows. See https://github.com/Rafnuss/GeoPressureR/issues/16
+- Change downloading and reading of geotiff file to work on windows. See #16
 - Remove the artificial increase of flight duration at the creation of graph https://github.com/Rafnuss/GeoPressureR/commit/696566e8041e90d04e3e01d7d84ef299660bab6e
 - Compute groundspeed in parallel in graph creation https://github.com/Rafnuss/GeoPressureR/commit/b1466c737a66c740e2f6a35bcdbc19d9f5aebfd1
 
@@ -42,7 +57,7 @@ https://github.com/Rafnuss/GeoPressureR/compare/v2.4-beta...v2.5-beta
 - typos, code readability and stlyer
 
 ## Full Changelog
-https://github.com/Rafnuss/GeoPressureR/compare/v2.3-beta...v2.4-beta
+[https://github.com/Rafnuss/GeoPressureR/compare/v2.3-beta...v2.4-beta](https://github.com/Rafnuss/GeoPressureR/compare/v2.3-beta...v2.4-beta)
 
 
 # GeoPressureR v2.3-beta
@@ -65,7 +80,7 @@ https://github.com/Rafnuss/GeoPressureR/compare/v2.3-beta...v2.4-beta
 - Add link to [GeoPressureTemplate](https://github.com/Rafnuss/GeoPressureTemplate)
 
 ## Full Changelog
-https://github.com/Rafnuss/GeoPressureR/compare/v2.2-beta...v2.3-beta
+[https://github.com/Rafnuss/GeoPressureR/compare/v2.2-beta...v2.3-beta](https://github.com/Rafnuss/GeoPressureR/compare/v2.2-beta...v2.3-beta)
 
 
 # GeoPressureR v2.2-beta
@@ -75,12 +90,12 @@ https://github.com/Rafnuss/GeoPressureR/compare/v2.2-beta...v2.3-beta
 - Update GeoPressureViz (https://rafnuss.shinyapps.io/GeoPressureViz/) to accept `geopressure_ts_path` output
 
 ## Minor
-- fix flight and avonet databse (https://github.com/Rafnuss/GeoPressureR/issues/10)
-- fix https://github.com/Rafnuss/GeoPressureR/issues/9 
+- fix flight and avonet databse #10
+- fix #9 
 
 ## Full Changelog
-https://github.com/Rafnuss/GeoPressureR/compare/v2.1-beta...v2.2-beta
- 
+[https://github.com/Rafnuss/GeoPressureR/compare/v2.1-beta...v2.2-beta](https://github.com/Rafnuss/GeoPressureR/compare/v2.1-beta...v2.2-beta)
+
  
 # GeoPressureR v2.1-beta
 ## Major
@@ -93,19 +108,19 @@ https://github.com/Rafnuss/GeoPressureR/compare/v2.1-beta...v2.2-beta
 - Update to GeoPresureAPI v2.1
 
 ## Full Changelog 
-https://github.com/Rafnuss/GeoPressureR/compare/v2.0-beta...v2.1-beta
+[https://github.com/Rafnuss/GeoPressureR/compare/v2.0-beta...v2.1-beta](https://github.com/Rafnuss/GeoPressureR/compare/v2.0-beta...v2.1-beta)
 
 
 # GeoPressureR v2.0-beta
 ## What's Changed
-* Add vignette and code for light geopositioning by @Rafnuss in https://github.com/Rafnuss/GeoPressureR/pull/4
-* minor language changes by @jsocolar in https://github.com/Rafnuss/GeoPressureR/pull/7
+* Add vignette and code for light geopositioning in #4
+* minor language changes by @jsocolar in #7
 
 ## New Contributors
-* @jsocolar made their first contribution in https://github.com/Rafnuss/GeoPressureR/pull/7
+* @jsocolar made their first contribution in #7
 
 ## Full Changelog 
-https://github.com/Rafnuss/GeoPressureR/compare/v1.1-beta...v2.0-beta
+[https://github.com/Rafnuss/GeoPressureR/compare/v1.1-beta...v2.0-beta](https://github.com/Rafnuss/GeoPressureR/compare/v1.1-beta...v2.0-beta)
 
 
 # GeoPressureR v1.1-beta
