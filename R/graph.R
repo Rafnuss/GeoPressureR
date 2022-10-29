@@ -441,7 +441,7 @@ graph_download_wind <- function(pam,
     assertthat::assert_that(length(flight_time) > 1)
 
     # Prepare the query
-    request_list[i_id] <- list(
+    request_list[[i_id]] <- list(
       dataset_short_name = "reanalysis-era5-pressure-levels",
       product_type = "reanalysis",
       format = "netcdf",
