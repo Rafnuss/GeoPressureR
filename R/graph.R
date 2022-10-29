@@ -519,7 +519,7 @@ graph_add_wind <- function(grl,
       i_s <- fl_s$sta_id[i2]
 
       if (!file.exists(paste0(filename, i_s, ".nc"))) {
-        stop(paste0("No file for sta=", i_s))
+        stop(paste0("No wind file: '", filename, i_s, ".nc'"))
       }
       nc <- ncdf4::nc_open(paste0(filename, i_s, ".nc"))
 
@@ -527,7 +527,7 @@ graph_add_wind <- function(grl,
       t_s <- as.POSIXct(format(fl_s$start[i2], "%Y-%m-%d %H:00:00"), tz = "UTC")
       t_e <- as.POSIXct(format(fl_s$end[i2] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
       if (!(min(time) <= t_e && max(time) >= t_s)) {
-        stop(paste0("Time not matching for for sta=", i_s))
+        stop(paste0("Time not matching for for '", filename, i_s, ".nc'"))
       }
 
       pres <- ncdf4::ncvar_get(nc, "level")
@@ -536,7 +536,15 @@ graph_add_wind <- function(grl,
       if (length(pres_obs) == 0 ||
         !(min(pres) <= min(pres_obs) &&
           max(pres) >= min(1000, max(pres_obs)))) {
-        stop(paste0("Pressure not matching for sta=", i_s))
+        stop(paste0("Pressure not matching for '", filename, i_s, ".nc'"))
+      }
+
+      # Check if spatial extend match
+      lat <- ncdf4::ncvar_get(nc, "latitude")
+      lon <- ncdf4::ncvar_get(nc, "longitude")
+      if (min(grl$lat) < min(lat) | max(grl$lat) > max(lat) |
+          min(grl$lon) < min(lon) | max(grl$lon) > max(lon)) {
+        stop(paste0("Spatial extend not matching for '", filename, i_s, ".nc'"))
       }
 
       # Check if flight duration is
@@ -664,6 +672,8 @@ graph_add_wind <- function(grl,
       # normalize the weight
       w <- w / sum(w)
 
+      assertthat::assert_that(all(!is.na(w)))
+
       # step integration
       # w <- difftime(pmin(pmax(t_q+60*60/2,fl_s$start[i2]),fl_s$end[i2]),
       #               pmin(pmax(t_q-60*60/2,fl_s$start[i2]),fl_s$end[i2]),
@@ -729,12 +739,14 @@ graph_add_wind <- function(grl,
           ll_int_uniq[, 1], ll_int_uniq[, 2],
           method = "linear"
         )
+        assertthat::assert_that(all(!is.na(tmp)))
         u_int[i3, ] <- tmp[id_uniq]
         tmp <- pracma::interp2(rev(lat[id_lat]), lon[id_lon],
           v[, rev(seq_len(ncol(u)))],
           ll_int_uniq[, 1], ll_int_uniq[, 2],
           method = "linear"
         )
+        assertthat::assert_that(all(!is.na(tmp)))
         v_int[i3, ] <- tmp[id_uniq]
       }
       # Compute the average wind component of the flight accounting for the weighting scheme
