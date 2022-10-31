@@ -93,6 +93,17 @@ the correct location.</p>
     <div class="dont-index"><p><code><a href="geopressure_prob_map.html">geopressure_prob_map()</a></code>, <code><a href="geopressure_ts_path.html">geopressure_ts_path()</a></code>, <a href="https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude" class="external-link">GeoPressureManual | Pressure Map </a></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># See `geopressure_prob_map()` for generating pressure_prob</span></span></span>
+<span class="r-in"><span><span class="va">pressure_prob_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/1_pressure/"</span>, <span class="st">"18LX_pressure_prob_1.rda"</span>,</span></span>
+<span class="r-in"><span>  package <span class="op">=</span> <span class="st">"GeoPressureR"</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">geopressure_map2path</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">pressure_prob_1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      lon    lat sta_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 17.125 48.875      1</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 
