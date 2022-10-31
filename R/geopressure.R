@@ -721,6 +721,12 @@ geopressure_ts_path <- function(path,
 #' stationary period id (`sta_id`) as column. Optionally, if indexes were requested, it will be
 #' return. You will need to use `which.max(as.matrix(raster))` and not `which.max(raster)` to get
 #' the correct location.
+#' @examples
+#' # See `geopressure_prob_map()` for generating pressure_prob
+#' pressure_prob_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_prob_1.rda",
+#'   package = "GeoPressureR"
+#' ))
+#' geopressure_map2path(list(pressure_prob_1))
 #' @seealso [`geopressure_prob_map()`], [`geopressure_ts_path()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude)
 #' @export

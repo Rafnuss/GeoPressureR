@@ -39,6 +39,10 @@ reference:
   desc: Vizualize trajectory with a shiny app
   contents:
   - geopressureviz
+- title: Utility
+  desc: Short functions
+  contents:
+  - path2df
 navbar:
   left:
     - text: "Reference"
