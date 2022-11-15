@@ -115,8 +115,11 @@ graph_create <- function(static_prob,
   )
   lon <- utils::head(lon, -1) + diff(lon[1:2]) / 2
 
-  # Approximate resolution of the grid in km assuming 111km/lat-lon
-  resolution <- mean(diff(lon)) * 111
+  # Approximate resolution of the grid from ° to in km
+  # Assume uniform grid in lat-lon
+  # Use the smaller resolution assuming 111km/lon and 111*cos(lat)km/lat
+  resolution <- mean(diff(lon)) * pmin(cos(lat*pi/180)*111.320,110.574)
+
 
   # extract the flight duration
   flight_duration <- unlist(lapply(static_prob, function(x) {
