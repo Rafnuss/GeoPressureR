@@ -126,37 +126,29 @@ graph_create <- function(static_prob,
 
   # filter the pixels which are not in reach of any location of the previous and next stationary
   # period
-  cond <- TRUE
-  while (cond) {
-    n_old <- sum(unlist(lapply(nds, sum)))
-    for (i_s in seq_len(sz[3] - 1)) {
-      nds[[i_s + 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
-        flight_duration[i_s] * thr_gs & nds[[i_s + 1]]
-      if (sum(nds[[i_s + 1]]) == 0) {
-        stop(paste0(
-          "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
-          "there are not any nodes left at stationary period ",
-          raster::metadata(static_prob[[i_s + 1]])$sta_id, " from stationary period ",
-          raster::metadata(static_prob[[i_s]])$sta_id
-        ))
-      }
+  for (i_s in seq_len(sz[3] - 1)) {
+    nds[[i_s + 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
+      flight_duration[i_s] * thr_gs & nds[[i_s + 1]]
+    if (sum(nds[[i_s + 1]]) == 0) {
+      stop(paste0(
+        "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
+        "there are not any nodes left at stationary period ",
+        raster::metadata(static_prob[[i_s + 1]])$sta_id, " from stationary period ",
+        raster::metadata(static_prob[[i_s]])$sta_id
+      ))
     }
-    for (i_sr in seq_len(sz[3] - 1)) {
-      i_s <- sz[3] - i_sr + 1
-      nds[[i_s - 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
-        flight_duration[i_s - 1] * thr_gs & nds[[i_s - 1]]
-      if (sum(nds[[i_s - 1]]) == 0) {
-        stop(paste0(
-          "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
-          "there are not any nodes left at stationary period ",
-          raster::metadata(static_prob[[i_s - 1]])$sta_id, " from stationary period ",
-          raster::metadata(static_prob[[i_s]])$sta_id
-        ))
-      }
-    }
-    n_new <- sum(unlist(lapply(nds, sum)))
-    if (n_new == n_old) {
-      cond <- FALSE
+  }
+  for (i_sr in seq_len(sz[3] - 1)) {
+    i_s <- sz[3] - i_sr + 1
+    nds[[i_s - 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
+      flight_duration[i_s - 1] * thr_gs & nds[[i_s - 1]]
+    if (sum(nds[[i_s - 1]]) == 0) {
+      stop(paste0(
+        "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
+        "there are not any nodes left at stationary period ",
+        raster::metadata(static_prob[[i_s - 1]])$sta_id, " from stationary period ",
+        raster::metadata(static_prob[[i_s]])$sta_id
+      ))
     }
   }
 
