@@ -27,7 +27,7 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -36,7 +36,7 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
-          
+
       - name: Install macOS dependencies
         if : contains( matrix.config.os, 'macOS' )
         run: |
