@@ -29,7 +29,8 @@ or \code{NA} if absent.}
 \item{crop_end}{Remove all date after this date (in UTC).}
 
 \item{id}{Unique identifier of the track. Default (\code{NA}) is to take the part of
-\code{pressure_file} up to a character \verb{_} (e.g. \verb{18LX} for \verb{18LX_20180725.pressure}).}
+\code{pressure_file} up to a character \verb{_} (e.g. \verb{18LX} for \verb{18LX_20180725.pressure}). If \code{basename},
+take the basename of \code{pressure_file}.}
 }
 \value{
 a list of data.frames of pressure, light and acceleration.

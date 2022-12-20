@@ -23,7 +23,8 @@
 #' @param crop_start Remove all date before this date (in UTC).
 #' @param crop_end Remove all date after this date (in UTC).
 #' @param id Unique identifier of the track. Default (`NA`) is to take the part of
-#' `pressure_file` up to a character `_` (e.g. `18LX` for `18LX_20180725.pressure`).
+#' `pressure_file` up to a character `_` (e.g. `18LX` for `18LX_20180725.pressure`). If `basename`,
+#' take the basename of `pressure_file`.
 #'
 #' @return a list of data.frames of pressure, light and acceleration.
 #' @seealso [GeoPressureManual | Pressure Map
@@ -84,7 +85,7 @@ pam_read <- function(pathname,
 
         # find column index with pressure
         col <- which(utils::read.delim(pressure_path,
-          skip = 19, nrow = 1, header = FALSE
+          skip = 19, nrow = 1, header = FALSE, sep = ""
         ) == "P(Pa)")
         assertthat::assert_that(col > 0,
           msg = paste0(
@@ -130,7 +131,7 @@ pam_read <- function(pathname,
         # find column index with light
         col <- which(utils::read.delim(
           light_path,
-          skip = 19, nrow = 1, header = FALSE
+          skip = 19, nrow = 1, header = FALSE, sep = ""
         ) == "light(lux)")
         assertthat::assert_that(col > 0,
           msg = paste0(
@@ -183,7 +184,7 @@ pam_read <- function(pathname,
 
         # find column index with acceleration
         col <- which(utils::read.delim(acceleration_path,
-          skip = 19, nrow = 1, header = FALSE
+          skip = 19, nrow = 1, header = FALSE, sep = ""
         ) == "Zact")
         assertthat::assert_that(col > 0,
           msg = paste0(
@@ -349,7 +350,6 @@ pam_classify <- function(pam,
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods)
 #' @export
 pam_sta <- function(pam) {
-
   # Perform test
   assertthat::assert_that(is.list(pam))
   assertthat::assert_that(assertthat::has_name(pam, "acceleration"))
