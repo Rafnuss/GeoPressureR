@@ -59,7 +59,7 @@ path2df <- function(pam, path) {
   if (is.matrix(path$lat)) {
     df0 <- data.frame(
       lat = utils::stack(as.data.frame(t(path$lat)))$values,
-      lon = stack(as.data.frame(t(path$lon)))$values,
+      lon = utils::stack(as.data.frame(t(path$lon)))$values,
       sta_id = rep(path$sta_id, dim(path$lat)[1]),
       track_id = paste0(pam$id, "_", rep(seq(1, dim(path$lat)[1]), dim(path$lat)[2]))
     )
