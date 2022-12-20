@@ -40,7 +40,6 @@
 graph_create <- function(static_prob,
                          thr_prob_percentile = .99,
                          thr_gs = 150) {
-
   # Check input
   assertthat::assert_that(is.list(static_prob))
   assertthat::assert_that(inherits(static_prob[[1]], "RasterLayer"))
@@ -118,7 +117,7 @@ graph_create <- function(static_prob,
   # Approximate resolution of the grid from ° to in km
   # Assume uniform grid in lat-lon
   # Use the smaller resolution assuming 111km/lon and 111*cos(lat)km/lat
-  resolution <- mean(diff(lon)) * pmin(cos(lat*pi/180)*111.320,110.574)
+  resolution <- mean(diff(lon)) * pmin(cos(lat * pi / 180) * 111.320, 110.574)
 
 
   # extract the flight duration
@@ -298,7 +297,6 @@ graph_trim <- function(gr) {
 
   # First, trim the graph from equipment to retrieval
   for (i_s in seq(2, length(gr))) {
-
     # Select the source id which exist in the target of the previous stationary period.
     s <- unique(gr[[i_s]]$s)
     t_b <- unique(gr[[i_s - 1]]$t)
@@ -538,7 +536,7 @@ graph_add_wind <- function(grl,
       lat <- ncdf4::ncvar_get(nc, "latitude")
       lon <- ncdf4::ncvar_get(nc, "longitude")
       if (min(grl$lat) < min(lat) | max(grl$lat) > max(lat) |
-          min(grl$lon) < min(lon) | max(grl$lon) > max(lon)) {
+        min(grl$lon) < min(lon) | max(grl$lon) > max(lon)) {
         stop(paste0("Spatial extend not matching for '", filename, i_s, ".nc'"))
       }
 
@@ -561,7 +559,6 @@ graph_add_wind <- function(grl,
 
   # Loop through the stationary period kept in the graph
   for (i1 in seq_len(grl$sz[3] - 1)) {
-
     # Extract the flight information from the current sta to the next one considered in the graph.
     # It can be the next, or if some sta are skipped at construction, it can contains multiples
     # flights
@@ -575,10 +572,10 @@ graph_add_wind <- function(grl,
 
     # We are assuming that the bird flight as a straight line between the source and the target node
     # of each edge. If multiple flights happen during this transition, we assume that the bird flew
-    # with a cosz[3]nt groundspeed during each flight, thus considering its stop-over position to be
+    # with a constant groundspeed during each flight, thus considering its stop-over position to be
     # spread according to the flight duration. This does not account for habitat, so that it would
     # assume a bird can stop over water. While we could improve this part of the code to assume
-    # cosz[3]nt airspeed rather than groundspeed, we suggest to create the graph considering all
+    # constant airspeed rather than groundspeed, we suggest to create the graph considering all
     # stopovers.
     ratio_sta <- as.matrix(c(0, cumsum(fl_s_dur) / sum(fl_s_dur)))
 
@@ -588,7 +585,6 @@ graph_add_wind <- function(grl,
 
     # Loop through each flight of the transition
     for (i2 in seq_len(length(fl_s$sta_id))) {
-
       # Find the stationary period ID from this specific flight (source)
       i_s <- fl_s$sta_id[i2]
 
@@ -680,7 +676,6 @@ graph_add_wind <- function(grl,
 
       # Loop through the 1hr interval
       for (i3 in seq_len(length(t_q))) {
-
         # find the time step to query in ERA5
         id_time <- which(time == t_q[i3])
         # find the two pressure level to query (one above, one under) based on the geolocator
