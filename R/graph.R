@@ -942,11 +942,6 @@ graph_simulation <- function(grl,
   n <- prod(grl$sz)
   nll <- grl$sz[1] * grl$sz[2]
 
-  # Initialize path. As we will simulate the path chronological order, only the first equipment
-  # site needs to be set.
-  path <- matrix(ncol = grl$sz[3], nrow = nj)
-  path[, 1] <- grl$equipment
-
   # Find the stationary index of all the source so that only the edges from a specific stationary
   # period can be easily query
   s_id <- arrayInd(grl$s, grl$sz)
@@ -964,6 +959,15 @@ graph_simulation <- function(grl,
     id <- s_id[, 3] == i_sta
     map_b[[i_sta]] <- map_b[[i_sta + 1]] %*%
       Matrix::sparseMatrix(grl$t[id], grl$s[id], x = grl$p[id], dims = c(n, n))
+  }
+
+  # Initialize the path
+  path <- matrix(ncol = grl$sz[3], nrow = nj)
+
+  # Sample the first position with map_b assuming map_f to be uniform
+  map <- map_b[[1]][1:nll]
+  for (i_j in seq_len(nj)) {
+    path[i_j, 1] <- sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
   }
 
   # Loop through the simulation along chronological order
