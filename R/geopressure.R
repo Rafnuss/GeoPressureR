@@ -193,7 +193,7 @@ geopressure_map <- function(pressure,
 
   # Request URLS
   message("Generate requests:")
-  res <- httr::POST("http://glp.mgravey.com:24853/GeoPressure/v1/map/",
+  res <- httr::POST("https://glp.mgravey.com/GeoPressure/v1/map/",
     body = body_df,
     encode = "form"
   )
@@ -202,7 +202,7 @@ geopressure_map <- function(pressure,
     temp_file <- tempfile("log_geopressure_map_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
     stop(paste0(
-      "Error with your request on http://glp.mgravey.com:24853/GeoPressure/v1/map/. ",
+      "Error with your request on https://glp.mgravey.com/GeoPressure/v1/map/. ",
       "Please try again, and if the problem persists, file an issue on Github:",
       "https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_ts&labels=crash
         with this log file located on your computer: ", temp_file
@@ -494,7 +494,7 @@ geopressure_ts <- function(lon,
   }
 
   if (verbose) message("Generate request.")
-  res <- httr::POST("http:///glp.mgravey.com:24853/GeoPressure/v1/timeseries/",
+  res <- httr::POST("https:///glp.mgravey.com/GeoPressure/v1/timeseries/",
     body = body_df,
     encode = "form"
   )
@@ -505,7 +505,7 @@ geopressure_ts <- function(lon,
     temp_file <- tempfile("log_geopressure_ts_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
     stop(paste0(
-      "Error with youre request on http://glp.mgravey.com:24853/GeoPressure/v1/timeseries/.",
+      "Error with youre request on https://glp.mgravey.com/GeoPressure/v1/timeseries/.",
       "Please try again, and if the problem persists, file an issue on Github:
         https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_ts&labels=crash
         with this log file located on your computer: ", temp_file
