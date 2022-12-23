@@ -7,8 +7,8 @@ cff-version: 1.2.0
 message: 'To cite package "GeoPressureR" in publications use:'
 type: software
 license: GPL-3.0-or-later
-title: 'GeoPressureR: Location from Reanalysed Pressure'
-version: '2.2'
+title: 'GeoPressureR: Global positioning by atmospheric pressure'
+version: '2.7'
 abstract: Determine the position of a geolocator from atmospheric pressure measurements.
 authors:
 - family-names: Nussbaumer
@@ -21,7 +21,7 @@ authors:
   orcid: https://orcid.org/0000-0002-0871-1507
 preferred-citation:
   type: manual
-  title: 'GeoPressureR: Location from Reanalysed Pressure'
+  title: 'GeoPressureR: Global positioning by atmospheric pressure'
   authors:
   - family-names: Nussbaumer
     given-names: Raphaël
@@ -31,10 +31,10 @@ preferred-citation:
     given-names: Mathieu
     email: mathieu@mgravey.com
     orcid: https://orcid.org/0000-0002-0871-1507
-  version: '2.2'
+  version: '2.7'
   abstract: Determine the position of a geolocator from atmospheric pressure measurements.
   repository-code: https://github.com/Rafnuss/GeoPressureR
-  url: https://github.com/Rafnuss/GeoPressureR
+  url: https://raphaelnussbaumer.com/GeoPressureR/
   contact:
   - family-names: Nussbaumer
     given-names: Raphaël
@@ -52,7 +52,7 @@ preferred-citation:
   license: GPL-3.0-or-later
   year: '2022'
 repository-code: https://github.com/Rafnuss/GeoPressureR
-url: https://github.com/Rafnuss/GeoPressureR
+url: https://raphaelnussbaumer.com/GeoPressureR/
 contact:
 - family-names: Nussbaumer
   given-names: Raphaël
