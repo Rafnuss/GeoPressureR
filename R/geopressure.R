@@ -192,7 +192,7 @@ geopressure_map <- function(pressure,
   )
 
   # Request URLS
-  message("Generate requests:")
+  message("Generate requests (on GeoPressureAPI):")
   res <- httr::POST("https://glp.mgravey.com/GeoPressure/v1/map/",
     body = body_df,
     encode = "form"
@@ -241,8 +241,8 @@ geopressure_map <- function(pressure,
   )
 
   # Perform the call in parallel
-  # GEE allows up to 12 requests at the same time, so we set the worker to 10
-  future::plan(future::multisession, workers = 10)
+  # GEE allows up to 100 requests at the same time, so we set the worker a little bit below
+  future::plan(future::multisession, workers = 90)
 
   f <- c()
   message("Send requests:")
@@ -260,7 +260,7 @@ geopressure_map <- function(pressure,
   # Get the raster
   pressure_maps <- c()
   filename <- c()
-  message("Download geotiff:")
+  message("Compute and download geotiff (GEE server):")
   progress_bar(0, max = length(urls))
   tryCatch(
     expr = {
@@ -493,7 +493,7 @@ geopressure_ts <- function(lon,
     body_df$endTime <- as.numeric(as.POSIXct(end_time))
   }
 
-  if (verbose) message("Generate request.")
+  if (verbose) message("Generate request (on GeoPressureAPI):")
   res <- httr::POST("https:///glp.mgravey.com/GeoPressure/v1/timeseries/",
     body = body_df,
     encode = "form"
@@ -654,8 +654,8 @@ geopressure_ts_path <- function(path,
     rule = 2
   )$y
 
-  # Define the parallel with 10 workers (ideal for Google Earth Engine allowance)
-  future::plan(future::multisession, workers = 10)
+  # Define the number of parallel worker (Google Earth Engine allowance is currently 100)
+  future::plan(future::multisession, workers = 90)
   f <- c()
 
   if (verbose) {
@@ -687,7 +687,7 @@ geopressure_ts_path <- function(path,
   }
 
   pressure_timeserie <- list()
-  message("Downloading the data:")
+  message("Compute and download the data (on GEE):")
   progress_bar(0, max = nrow(path))
   for (i_s in seq_len(length(f))) {
     progress_bar(i_s, max = nrow(path), text = paste0("| sta = ", i_sta))
