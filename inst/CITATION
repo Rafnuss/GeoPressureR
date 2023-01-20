@@ -7,27 +7,28 @@ citEntry(
   author  = personList(
   person("Raphael", "Nussbaumer", email = "rafnuss@gmail.com", comment = c(ORCID = "0000-0002-8185-1020")),
     person("Mathieu", "Gravey", email = "mathieu@mgravey.com", comment = c(ORCID = "0000-0002-0871-1507")),
-    person("Martins", "Briedis"),
+    person("Martins", "Briedis", email = "martins.briedis@vogelwarte.ch ", comment = c(ORCID = "0000-0002-9434-9056")),
     person("Felix", "Liechti", email = "felix.liechti@vogelwarte.ch", comment = c(ORCID = "0000-0001-9473-0837"))
   ),
-  doi     = "10.21203/rs.3.rs-1381915/v2",
-  url     = "https://doi.org/10.21203/rs.3.rs-1381915/v2",
-  pages   = "1--18",
-  year    = "2022"
+  doi     = "10.1111/2041-210X.14043",
+  url     = "https://doi.org/10.1111/2041-210X.14043",
+  pages   = "1--14",
+  year    = "2023"
 )
 
 citEntry(
   entry   = "misc",
   textVersion = "nussbaumer2022b",
-  title   = "Inferring bird’s trajectory from multi-sensor geolocators and remote sensing with a graphical model",
+  title   = "Reconstructing bird trajectories from pressure and wind data using a highly optimised hidden Markov model",
   author  = personList(
   person("Raphael", "Nussbaumer", email = "rafnuss@gmail.com", comment = c(ORCID = "0000-0002-8185-1020")),
     person("Mathieu", "Gravey", email = "mathieu@mgravey.com", comment = c(ORCID = "0000-0002-0871-1507")),
-    person("Martins", "Briedis"),
-    person("Felix", "Liechti", email = "felix.liechti@vogelwarte.ch", comment = c(ORCID = "0000-0001-9473-0837"))
+    person("Martins", "Briedis", email = "martins.briedis@vogelwarte.ch ", comment = c(ORCID = "0000-0002-9434-9056")),
+    person("Felix", "Liechti", email = "felix.liechti@vogelwarte.ch", comment = c(ORCID = "0000-0001-9473-0837")),
+    person("Daniel", "Sheldon", comment = c(ORCID = "0000-0002-4257-2432"))
   ),
-  doi     = "10.21203/rs.3.rs-1693751/v1",
-  url     = "https://doi.org/10.21203/rs.3.rs-1693751/v1",
+  doi     = "10.21203/rs.3.rs-1693751/v2",
+  url     = "https://doi.org/10.21203/rs.3.rs-1693751/v2",
   pages   = "1--32",
   year    = "2022"
 )
