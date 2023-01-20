@@ -37,7 +37,7 @@ citEntry(
 citEntry(
   entry   = "manual",
   textVersion = "nussbaumer2022c",
-  title   = "GeoPressureR: Location from Reanalysed Pressure",
+  title   = "GeoPressureR: Global positioning by atmospheric pressure",
   author  = personList(
   person("Raphael", "Nussbaumer", email = "rafnuss@gmail.com", comment = c(ORCID = "0000-0002-8185-1020")),
     person("Mathieu", "Gravey", email = "mathieu@mgravey.com", comment = c(ORCID = "0000-0002-0871-1507"))
