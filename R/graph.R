@@ -419,15 +419,23 @@ graph_download_wind <- function(pam,
     # Find the pressure level needed during this flight
     flight_id <- flight_time[1] <= pam$pressure$date &
       pam$pressure$date <= utils::tail(flight_time, 1)
-    pres_id_min <- min(
-      sum(!(min(pam$pressure$obs[flight_id]) < possible_pressure)),
-      length(possible_pressure) - 1
-    )
-    pres_id_max <- min(
-      sum(max(pam$pressure$obs[flight_id]) > possible_pressure) + 1,
-      length(possible_pressure)
-    )
-    flight_pres_id <- seq(pres_id_min, pres_id_max)
+    if (length(pam$pressure$obs[flight_id]) > 0) {
+      pres_id_min <- min(
+        sum(!(min(pam$pressure$obs[flight_id]) < possible_pressure)),
+        length(possible_pressure) - 1
+      )
+      pres_id_max <- min(
+        sum(max(pam$pressure$obs[flight_id]) > possible_pressure) + 1,
+        length(possible_pressure)
+      )
+      flight_pres_id <- seq(pres_id_min, pres_id_max)
+    } else {
+      warning(paste0(
+        "No pressure data available for sta_id=", i_id,
+        ". All pressure level will be downloaded"
+      ))
+      flight_pres_id <- seq_len(length(possible_pressure))
+    }
 
     # Make some check
     assertthat::assert_that(length(possible_pressure[flight_pres_id]) > 1)
@@ -535,8 +543,8 @@ graph_add_wind <- function(grl,
       # Check if spatial extend match
       lat <- ncdf4::ncvar_get(nc, "latitude")
       lon <- ncdf4::ncvar_get(nc, "longitude")
-      if (min(grl$lat) < min(lat) | max(grl$lat) > max(lat) |
-        min(grl$lon) < min(lon) | max(grl$lon) > max(lon)) {
+      if (min(grl$lat) < min(lat) || max(grl$lat) > max(lat) ||
+        min(grl$lon) < min(lon) || max(grl$lon) > max(lon)) {
         stop(paste0("Spatial extend not matching for '", filename, i_s, ".nc'"))
       }
 
