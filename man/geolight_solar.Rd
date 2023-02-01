@@ -11,16 +11,19 @@ geolight_solar(tm)
 }
 \value{
 A list containing the following vectors.
-\item{\code{solar_time} the solar time (degrees)}
-\item{\code{eqn_time} the equation of time (minutes of time)}
-\item{\code{sin_solar_dec} sine of the solar declination}
-\item{\code{cos_solar_dec} cosine of the solar declination}
+\itemize{
+\item \code{solar_time} the solar time (degrees)
+\item \code{eqn_time} the equation of time (minutes of time)
+\item \code{sin_solar_dec} sine of the solar declination
+\item \code{cos_solar_dec} cosine of the solar declination
+}
 }
 \description{
 Calculate solar time, the equation of time and solar declination
-The solar time, the equation of time and the sine and cosine of
-the solar declination are calculated for the times specified by
-\code{tm} using the same methods as
+}
+\details{
+The solar time, the equation of time and the sine and cosine of the solar declination are
+calculated for the times specified by \code{tm} using the same methods as
 \url{https://gml.noaa.gov/grad/solcalc/}.
 }
 \examples{

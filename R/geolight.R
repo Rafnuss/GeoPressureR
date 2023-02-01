@@ -157,19 +157,116 @@ geolight_light2mat <- function(light, shift_k = 0) {
 }
 
 
+#' Compute likelihood map for light data
+#'
+#' Instead of calibrating the twilight errors in terms of duration, we directly model the zenith
+#' angle error
+#'
+#' The adjust parameter allows to manually set how smooth you want the fit to be. Because the
+#' zenith angle error model is fitted with data only at the calibration site and that we are using
+#' it for all locations of the bird’s journey, it is safer to assume a broader/smoother
+#' distribution.
+#'
+#' @param twl A data.frame with columns `twilight` (date-time of twilights), `calib` (logical)
+#' indicating if the twilight occurs during the calibration period and `isoutlier` .
+#' See [`geolight_twilight()`].
+#' @param lon_calib longitude of the calibration site.
+#' @param lat_calib latitude of the calibration site.
+#' @param map raster on which the likelihood map should be computed.
+#' @param sta_id stationary periods on which the likelihood maps should be computed.
+#' @param adjust_calib smoothing parameter for the kernel density. See [`stats::kernel()`]
+#' @param w_llp Log-linear pooling aggregation weight. See [GeoPressureManual | Probability
+#' @param fit_z_return interupt the function after calibration and return the zenith angle fit
+#' aggregation](
+#' https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html#probability-aggregation-1)
+#' @param fit_z_return logical forcing to return the fit of the calibration.
+#' @return list of rasterLayer of the likelihood map for each stationary period. Or a kernel fit
+#' (see [`stats::kernel()`]) if `fit_z_return` is true.
+#' @export
+geolight_likelihood <- function(twl,
+                               lon_calib,
+                               lat_calib,
+                               map,
+                               sta_id = NA,
+                               adjust_calib = 1.4,
+                               w_llp = 0.1,
+                               fit_z_return = F) {
+  assertthat::assert_that(is.data.frame(twl))
+  assertthat::assert_that(assertthat::has_name(twl, c("twilight", "calib", "isoutlier")))
+  assertthat::assert_that(inherits(twl$twilight, "POSIXt"))
+  assertthat::assert_that(is.logical(twl$calib))
+  assertthat::assert_that(is.logical(twl$isoutlier))
+  assertthat::assert_that(is.numeric(lon_calib))
+  assertthat::assert_that(is.numeric(lat_calib))
+  assertthat::assert_that(inherits(map, "RasterLayer"))
+  assertthat::assert_that(is.numeric(adjust_calib))
+  assertthat::assert_that(is.numeric(w_llp))
+
+  if (is.na(sta_id)){
+    sta_id = seq_len(max(twl$sta_id))
+  }
+  assertthat::assert_that(is.numeric(sta_id))
+
+  # Remove outlier
+  twl_clean <- subset(twl, !isoutlier)
+
+  # Calibrate the twilight in term of zenith angle with a kernel density.
+  twl_calib <- subset(twl, calib)
+  sun_calib <- geolight_solar(twl_calib$twilight)
+  z_calib <- geolight_refracted(geolight_zenith(sun_calib, lon_calib, lat_calib))
+  fit_z <- stats::density(z_calib, adjust = adjust_calib, from = 60, to = 120)
+
+  # If request to return the fit, does not continue
+  if (fit_z_return){
+    return(fit_z)
+  }
+
+  # compute the probability of observing the zenith angle of each twilight using the calibrated
+  # error function for each grid cell.
+  sun <- geolight_solar(twl_clean$twilight)
+  g <- raster::as.data.frame(map, xy = TRUE)
+  g$layer <- NA
+  pgz <- apply(g, 1, function(x) {
+    z <- geolight_refracted(geolight_zenith(sun, x[1], x[2]))
+    stats::approx(fit_z$x, fit_z$y, z, yleft = 0, yright = 0)$y
+  })
+
+  # loop through each stationary period and create a raster map with the aggregated likelihood
+  light_likelihood <- c()
+  for (i_s in seq_len(length(sta_id))) {
+    id <- twl_clean$sta_id == sta_id[i_s]
+    if (sum(id) > 1) {
+      g$layer <- exp(colSums(w_llp * log(pgz[id, ]))) # Log-linear equation express in log
+    } else if (sum(id) == 1) {
+      g$layer <- pgz[id, ]
+    } else {
+      g$layer <- 1
+    }
+    gr <- raster::rasterFromXYZ(g)
+    raster::crs(gr) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+    raster::metadata(gr) <- list(
+      sta_id = sta_id[i_s],
+      nb_sample = sum(id)
+    )
+    light_likelihood[[i_s]] <- gr
+  }
+
+  return(light_likelihood)
+}
+
 
 #' Calculate solar time, the equation of time and solar declination
-#' The solar time, the equation of time and the sine and cosine of
-#' the solar declination are calculated for the times specified by
-#' `tm` using the same methods as
+#'
+#' The solar time, the equation of time and the sine and cosine of the solar declination are
+#' calculated for the times specified by `tm` using the same methods as
 #' \url{https://gml.noaa.gov/grad/solcalc/}.
 #' @title Solar Time and Declination
 #' @param tm a vector of POSIXct times.
 #' @return A list containing the following vectors.
-#' \item{`solar_time` the solar time (degrees)}
-#' \item{`eqn_time` the equation of time (minutes of time)}
-#' \item{`sin_solar_dec` sine of the solar declination}
-#' \item{`cos_solar_dec` cosine of the solar declination}
+#' - `solar_time` the solar time (degrees)
+#' - `eqn_time` the equation of time (minutes of time)
+#' - `sin_solar_dec` sine of the solar declination
+#' - `cos_solar_dec` cosine of the solar declination
 #' @seealso [`geolight_zenith`]
 #' @examples
 #' # Current solar time
