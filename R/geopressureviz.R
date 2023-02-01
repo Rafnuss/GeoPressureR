@@ -6,23 +6,23 @@
 #' a [demo of the Great Reed Warbler (18LX)](https://rafnuss.shinyapps.io/GeoPressureViz/).
 #'
 #' @param pam PAM logger dataset list with `pam$sta` computed. See [`pam_read()`] and [`pam_sta()`].
-#' @param static_prob List of raster containing probability map of each stationary period. The
-#' metadata of `static_prob` needs to include the flight information to the next stationary period
+#' @param static_likelihood List of raster containing probability map of each stationary period. The
+#' metadata of `static_likelihood` needs to include the flight information to the next stationary period
 #' in the metadata `flight`. See [GeoPressureManual | Static map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/static-map.html#combine-pressure-and-light).
-#' @param pressure_prob List of raster containing probability map of each stationary period
+#' @param pressure_likelihood List of raster containing probability map of each stationary period
 #' according to pressure data. See [GeoPressureManual | Pressure map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-probability-maps).
-#' @param light_prob List of raster containing probability map of each stationary period according
+#' @param light_likelihood List of raster containing probability map of each stationary period according
 #' to light data. See [GeoPressureManual | Light map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#compute-probability-map).
-#' @param static_prob_marginal List of raster containing probability map of each stationary period
+#' @param static_likelihood_marginal List of raster containing probability map of each stationary period
 #' according to the graph output. See [GeoPressureManual | Basic graph
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map).
-#' @param pressure_prob_thr List of raster containing probability map of each stationary period
+#' @param pressure_likelihood_thr List of raster containing probability map of each stationary period
 #' according to the threshold of pressure data. See [GeoPressureManual | Pressure map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#computing-pressure-maps).
-#' @param pressure_prob_mismatch List of raster containing probability map of each stationary period
+#' @param pressure_likelihood_mismatch List of raster containing probability map of each stationary period
 #' according to mismatch of pressure data. See [GeoPressureManual | Pressure map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#computing-pressure-maps).
 #' @param pressure_timeserie List of data.frame containing at least `sta_id`, `date` and `pressure0`
@@ -32,63 +32,63 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
 #' @examples
 #' \dontrun{
-#' load("data/1_pressure/18LX_pressure_prob.Rdata")
-#' load("data/2_light/18LX_light_prob.Rdata")
-#' load("data/3_static/18LX_static_prob.Rdata")
+#' load("data/1_pressure/18LX_pressure_likelihood.Rdata")
+#' load("data/2_light/18LX_light_likelihood.Rdata")
+#' load("data/3_static/18LX_static_likelihood.Rdata")
 #' geopressureviz(
 #'   pam = pam,
-#'   static_prob = static_prob,
-#'   pressure_prob = pressure_prob,
-#'   light_prob = light_prob,
+#'   static_likelihood = static_likelihood,
+#'   pressure_likelihood = pressure_likelihood,
+#'   light_likelihood = light_likelihood,
 #'   pressure_timeserie = static_timeserie
 #' )
 #' }
 #' @export
 geopressureviz <- function(pam,
-                           static_prob,
-                           pressure_prob = NA,
-                           light_prob = NA,
-                           static_prob_marginal = NA,
-                           pressure_prob_thr = NA,
-                           pressure_prob_mismatch = NA,
+                           static_likelihood,
+                           pressure_likelihood = NA,
+                           light_likelihood = NA,
+                           static_likelihood_marginal = NA,
+                           pressure_likelihood_thr = NA,
+                           pressure_likelihood_mismatch = NA,
                            pressure_timeserie = NA,
                            lauch_browser = TRUE) {
 
   # Add possible map to display
   map_choices <- c()
   map_val <- list()
-  sta_static <- unlist(lapply(static_prob, function(x) raster::metadata(x)$sta_id))
-  if (any(!is.na(light_prob))) {
+  sta_static <- unlist(lapply(static_likelihood, function(x) raster::metadata(x)$sta_id))
+  if (any(!is.na(light_likelihood))) {
     map_choices <- c(map_choices, "Light")
-    sta_tmp <- unlist(lapply(light_prob, function(x) raster::metadata(x)$sta_id))
-    map_val[[length(map_val) + 1]] <- light_prob[sta_tmp %in% sta_static]
+    sta_tmp <- unlist(lapply(light_likelihood, function(x) raster::metadata(x)$sta_id))
+    map_val[[length(map_val) + 1]] <- light_likelihood[sta_tmp %in% sta_static]
   }
-  if (any(!is.na(pressure_prob_mismatch))) {
+  if (any(!is.na(pressure_likelihood_mismatch))) {
     map_choices <- c(map_choices, "Pressure mis.")
-    sta_tmp <- unlist(lapply(pressure_prob_mismatch, function(x) raster::metadata(x)$sta_id))
-    map_val[[length(map_val) + 1]] <- pressure_prob_mismatch[sta_tmp %in% sta_static]
+    sta_tmp <- unlist(lapply(pressure_likelihood_mismatch, function(x) raster::metadata(x)$sta_id))
+    map_val[[length(map_val) + 1]] <- pressure_likelihood_mismatch[sta_tmp %in% sta_static]
   }
 
-  if (any(!is.na(pressure_prob_thr))) {
+  if (any(!is.na(pressure_likelihood_thr))) {
     map_choices <- c(map_choices, "Pressure thres.")
-    sta_tmp <- unlist(lapply(pressure_prob_thr, function(x) raster::metadata(x)$sta_id))
-    map_val[[length(map_val) + 1]] <- pressure_prob_thr[sta_tmp %in% sta_static]
+    sta_tmp <- unlist(lapply(pressure_likelihood_thr, function(x) raster::metadata(x)$sta_id))
+    map_val[[length(map_val) + 1]] <- pressure_likelihood_thr[sta_tmp %in% sta_static]
   }
-  if (any(!is.na(pressure_prob))) {
+  if (any(!is.na(pressure_likelihood))) {
     map_choices <- c(map_choices, "Pressure")
-    sta_tmp <- unlist(lapply(pressure_prob, function(x) raster::metadata(x)$sta_id))
-    map_val[[length(map_val) + 1]] <- pressure_prob[sta_tmp %in% sta_static]
+    sta_tmp <- unlist(lapply(pressure_likelihood, function(x) raster::metadata(x)$sta_id))
+    map_val[[length(map_val) + 1]] <- pressure_likelihood[sta_tmp %in% sta_static]
   }
   map_choices <- c(map_choices, "Static")
-  map_val[[length(map_val) + 1]] <- static_prob
-  if (any(!is.na(static_prob_marginal))) {
+  map_val[[length(map_val) + 1]] <- static_likelihood
+  if (any(!is.na(static_likelihood_marginal))) {
     map_choices <- c(map_choices, "Marginal")
-    sta_tmp <- unlist(lapply(static_prob_marginal, function(x) raster::metadata(x)$sta_id))
-    map_val[[length(map_val) + 1]] <- static_prob_marginal[sta_tmp %in% sta_static]
+    sta_tmp <- unlist(lapply(static_likelihood_marginal, function(x) raster::metadata(x)$sta_id))
+    map_val[[length(map_val) + 1]] <- static_likelihood_marginal[sta_tmp %in% sta_static]
   }
 
   # Get stationary period information
-  sta <- do.call("rbind", lapply(static_prob, function(r) {
+  sta <- do.call("rbind", lapply(static_likelihood, function(r) {
     mt <- raster::metadata(r)
     mt$start <- mt$temporal_extent[1]
     mt$end <- mt$temporal_extent[2]
@@ -132,7 +132,7 @@ geopressureviz <- function(pam,
   sta$col <- col[sta$sta_id]
 
   # Get flight information and compute flight duration directly
-  flight <- lapply(static_prob, function(r) {
+  flight <- lapply(static_likelihood, function(r) {
     fl <- raster::metadata(r)$flight
     if (length(fl) > 0) {
       fl$duration <- mapply(function(s, e) {
@@ -187,7 +187,7 @@ geopressureviz <- function(pam,
 
   if (!exists("path0")) {
     # Set the initial path to the most likely from static prob
-    path0 <- geopressure_map2path(static_prob)
+    path0 <- geopressure_map2path(static_likelihood)
   }
 
 

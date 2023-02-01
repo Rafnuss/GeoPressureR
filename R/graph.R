@@ -230,7 +230,7 @@ graph_create <- function(static_prob,
 
       # assign the static probability of the target node (pressure * light)
       # We use here the normalized probability assuming that the bird needs to be somewhere at each
-      # stationary period. The log-linear pooling (`geopressure_prob_map`) is supposed to account
+      # stationary period. The log-linear pooling (`geopressure_likelihood`) is supposed to account
       # for the variation in staionary period duration.
       # For un-normalized use raster::as.matrix(static_prob[[i_s + 1]]))
       grt$ps <- static_prob_n_i_s_1[grt$t - i_s * nll]

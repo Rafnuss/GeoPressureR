@@ -28,10 +28,10 @@ pam <- trainset_read(pam,
   pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 )
 pam <- pam_sta(pam)
-pressure_prob_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_prob_1.rda",
+pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_likelihood_1.rda",
   package = "GeoPressureR"
 ))
-path <- geopressure_map2path(list(pressure_prob_1))
+path <- geopressure_map2path(list(pressure_likelihood_1))
 path2df(pam, path)
 }
 \seealso{

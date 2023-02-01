@@ -266,7 +266,7 @@ server <- function(input, output, session) {
   observeEvent(input$query_pos, {
     sta_id <- .sta$sta_id[as.numeric(input$i_sta)]
     pam_pressure_sta <- .pressure[.pressure$sta_id == sta_id, ]
-    ts <- geopressure_ts(reactVal$path$lon[as.numeric(input$i_sta)], reactVal$path$lat[as.numeric(input$i_sta)],
+    ts <- geopressure_timeseries(reactVal$path$lon[as.numeric(input$i_sta)], reactVal$path$lat[as.numeric(input$i_sta)],
       pressure = pam_pressure_sta
     )
     ts$lt <- sum(sta_id == unlist(lapply(reactVal$ts, function(x) {

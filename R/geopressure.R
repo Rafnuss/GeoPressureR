@@ -38,33 +38,33 @@
 #' @param margin The margin is used in the threshold map to accept some measurement error. unit in
 #'   meter. (1hPa~10m)
 #' @return List of raster map
-#' @seealso [`geopressure_prob_map()`], [GeoPressureManual | Pressure Map
+#' @seealso [`geopressure_likelihood()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
 #' # See `pam_sta()` for generating pam
 #' \dontrun{
-#' pressure_maps <- geopressure_map(
+#' pressure_mismatch <- geopressure_mismatch(
 #'   pam$pressure,
 #'   extent = c(50, -16, 0, 23),
 #'   scale = 4,
 #'   max_sample = 250,
 #'   margin = 30
 #' )
-#' pressure_maps_1 <- pressure_maps[[1]]
+#' pressure_mismatch_1 <- pressure_mismatch[[1]]
 #' }
-#' pressure_maps_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_maps_1.rda",
+#' pressure_mismatch_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_mismatch_1.rda",
 #'   package = "GeoPressureR"
 #' ))
-#' raster::metadata(pressure_maps_1)
-#' raster::plot(pressure_maps_1,
+#' raster::metadata(pressure_mismatch_1)
+#' raster::plot(pressure_mismatch_1,
 #'   main = c("Mean Square Error", "Mask of pressure")
 #' )
 #' @export
-geopressure_map <- function(pressure,
-                            extent,
-                            scale = 10,
-                            max_sample = 250,
-                            margin = 30) {
+geopressure_mismatch <- function(pressure,
+                                 extent,
+                                 scale = 10,
+                                 max_sample = 250,
+                                 margin = 30) {
   # Check input
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(nrow(pressure) > 1)
@@ -199,12 +199,12 @@ geopressure_map <- function(pressure,
   )
   if (httr::http_error(res)) {
     message(httr::content(res))
-    temp_file <- tempfile("log_geopressure_map_", fileext = ".json")
+    temp_file <- tempfile("log_geopressure_mismatch_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
     stop(paste0(
       "Error with your request on https://glp.mgravey.com/GeoPressure/v1/map/. ",
       "Please try again, and if the problem persists, file an issue on Github:",
-      "https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_ts&labels=crash
+      "https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_timeseries&labels=crash
         with this log file located on your computer: ", temp_file
     ))
   }
@@ -258,7 +258,7 @@ geopressure_map <- function(pressure,
   }
 
   # Get the raster
-  pressure_maps <- c()
+  pressure_mismatch <- c()
   filename <- c()
   message("Compute and download geotiff (GEE server):")
   progress_bar(0, max = length(urls))
@@ -266,18 +266,18 @@ geopressure_map <- function(pressure,
     expr = {
       for (i_u in seq_len(length(urls))) {
         filename[i_u] <- future::value(f[[i_u]])
-        pressure_maps[[i_u]] <- raster::brick(filename[i_u])
+        pressure_mismatch[[i_u]] <- raster::brick(filename[i_u])
         progress_bar(i_u, max = length(urls))
 
         # Add datum
-        raster::crs(pressure_maps[[i_u]]) <-
+        raster::crs(pressure_mismatch[[i_u]]) <-
           "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
         # convert MSE from Pa to hPa
-        pressure_maps[[i_u]][[1]] <- pressure_maps[[i_u]][[1]] / 100 / 100
+        pressure_mismatch[[i_u]][[1]] <- pressure_mismatch[[i_u]][[1]] / 100 / 100
 
         # Writing some metadata
-        raster::metadata(pressure_maps[[i_u]]) <- list(
+        raster::metadata(pressure_mismatch[[i_u]]) <- list(
           sta_id = labels[i_u],
           nb_sample = sum(pressure$sta_id[!is.na(pres)] == labels[i_u]),
           max_sample = max_sample,
@@ -288,8 +288,8 @@ geopressure_map <- function(pressure,
           margin = margin
         )
       }
-      # return the pressure_maps in the same order than requested
-      return(pressure_maps[labels_order])
+      # return the pressure_mismatch in the same order than requested
+      return(pressure_mismatch[labels_order])
     },
     error = function(cond) {
       message(paste0(
@@ -300,7 +300,7 @@ geopressure_map <- function(pressure,
       return(list(
         urls = urls,
         filename = filename,
-        pressure_maps = pressure_maps,
+        pressure_mismatch = pressure_mismatch,
         future = f
       ))
     }
@@ -316,15 +316,16 @@ geopressure_map <- function(pressure,
 
 #' Compute probability raster
 #'
-#' This function convert the raster of normalized MSE and altitude threshold \eqn{z_{thr}} computed
-#' by [`geopressure_map()`] into a probability map with,
+#' This function convert the raster of \eqn{MSE} and altitude threshold \eqn{z_{thr}} computed
+#' by [`geopressure_mismatch()`] into a probability map with,
+#'
 #' \eqn{p = \exp \left(-w \frac{MSE}{s} \right) \left[z_{thr}>thr \right],}
+#'
 #' where \eqn{s} is the standard deviation of pressure and \eqn{thr} is the threshold. Because the
 #' auto-correlation of the timeseries is not accounted for in this equation, we use a log-linear
-#' pooling weight \eqn{w=\log(n) - 1}, with \eqn{n} is the number of data point in the timeserie.
-#' This operation is describe in \doi{10.21203/rs.3.rs-1381915/v1}.
+#' pooling weight \eqn{w=\log(n)/n}, with \eqn{n} is the number of data point in the timeserie.
 #'
-#' @param pressure_maps List of raster built with [`geopressure_map()`].
+#' @param pressure_mismatch List of raster built with [`geopressure_mismatch()`].
 #' @param s Standard deviation of the pressure error.
 #' @param thr Threshold of the percentage of data point outside the elevation range to be considered
 #' not possible.
@@ -333,33 +334,34 @@ geopressure_map <- function(pressure,
 #' [GeoPressureManual | Probability aggregation
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html))
 #' @return List of the probability raster map
-#' @seealso [`geopressure_map()`], [GeoPressureManual | Pressure Map
+#' @seealso [`geopressure_mismatch()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
-#' # See `geopressure_map()` for generating pressure_maps
+#' # See `geopressure_mismatch()` for generating pressure_mismatch
 #' \dontrun{
-#' pressure_prob <- geopressure_prob_map(
-#'   pressure_maps,
+#' pressure_likelihood <- geopressure_likelihood(
+#'   pressure_mismatch,
 #'   s = 0.4,
 #'   thr = 0.9
 #' )
-#' pressure_prob_1 <- pressure_prob[[1]]
+#' pressure_likelihood_1 <- pressure_likelihood[[1]]
 #' }
-#' pressure_prob_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_prob_1.rda",
+#' pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/",
+#'   "18LX_pressure_likelihood_1.rda",
 #'   package = "GeoPressureR"
 #' ))
-#' raster::metadata(pressure_prob_1)
-#' raster::plot(pressure_prob_1,
+#' raster::metadata(pressure_likelihood_1)
+#' raster::plot(pressure_likelihood_1,
 #'   main = "Probability",
 #'   xlim = c(5, 20), ylim = c(42, 50)
 #' )
 #' @export
-geopressure_prob_map <- function(pressure_maps,
-                                 s = 1,
-                                 thr = 0.9,
-                                 fun_w = function(n) {
-                                   log(n) / n
-                                 }) {
+geopressure_likelihood <- function(pressure_mismatch,
+                                   s = 1,
+                                   thr = 0.9,
+                                   fun_w = function(n) {
+                                     log(n) / n
+                                   }) {
   assertthat::assert_that(is.numeric(s))
   assertthat::assert_that(s >= 0)
   assertthat::assert_that(is.numeric(thr))
@@ -367,12 +369,12 @@ geopressure_prob_map <- function(pressure_maps,
   assertthat::assert_that(is.function(fun_w))
 
   raster_prob_list <- c()
-  for (i_s in seq_len(length(pressure_maps))) {
+  for (i_s in seq_len(length(pressure_mismatch))) {
     # get metadata
-    mt <- raster::metadata(pressure_maps[[i_s]])
+    mt <- raster::metadata(pressure_mismatch[[i_s]])
 
     # get MSE layer
-    raster_prob_list[[i_s]] <- pressure_maps[[i_s]][[1]]
+    raster_prob_list[[i_s]] <- pressure_mismatch[[i_s]][[1]]
     # change 0 (water) in NA
     raster_prob_list[[i_s]][raster_prob_list[[i_s]] == 0] <- NA
 
@@ -388,9 +390,9 @@ geopressure_prob_map <- function(pressure_maps,
     raster_prob_list[[i_s]] <- (1 / (2 * pi * s^2))^(pres_n * w / 2) * exp(-w * pres_n / 2 / (s^2)
       * raster_prob_list[[i_s]])
     # mask value of threshold
-    raster_prob_list[[i_s]] <- raster_prob_list[[i_s]] * (pressure_maps[[i_s]][[2]] >= thr)
+    raster_prob_list[[i_s]] <- raster_prob_list[[i_s]] * (pressure_mismatch[[i_s]][[2]] >= thr)
 
-    raster::metadata(raster_prob_list[[i_s]]) <- raster::metadata(pressure_maps[[i_s]])
+    raster::metadata(raster_prob_list[[i_s]]) <- raster::metadata(pressure_mismatch[[i_s]])
   }
   return(raster_prob_list)
 }
@@ -433,22 +435,22 @@ geopressure_prob_map <- function(pressure_maps,
 #' @param lat Latitude to query (0° to 90°).
 #' @param pressure Pressure list from PAM logger dataset list (optional).
 #' @param start_time If `pressure` is not provided, then `start_time` define the starting time of
-#' the timeserie as POSIXlt.
+#' the timeseries as POSIXlt.
 #' @param end_time If `pressure` is not provided, then `end_time` define the ending time of
-#' the timeserie as POSIXlt.
+#' the timeseries as POSIXlt.
 #' @param verbose Display (or not) the progress of the query (logical).
-#' @return A data.frame containing the timeserie of ERA5 pressure (date, pressure) as well as
+#' @return A data.frame containing the timeseries of ERA5 pressure (date, pressure) as well as
 #' longitude  and latitude (different if over water). If `pressure` is provided, the return
 #' data.frame is the same as `pressure` with altitude and pressure0.
-#' @seealso [`geopressure_ts_path()`], [GeoPressureManual | Pressure Map
+#' @seealso [`geopressure_timeseries_path()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html),
 #' @export
-geopressure_ts <- function(lon,
-                           lat,
-                           pressure = NULL,
-                           end_time = NULL,
-                           start_time = NULL,
-                           verbose = TRUE) {
+geopressure_timeseries <- function(lon,
+                                   lat,
+                                   pressure = NULL,
+                                   end_time = NULL,
+                                   start_time = NULL,
+                                   verbose = TRUE) {
   # Check input
   assertthat::assert_that(is.numeric(lon))
   assertthat::assert_that(is.numeric(lat))
@@ -502,12 +504,12 @@ geopressure_ts <- function(lon,
   if (httr::http_error(res)) {
     message(httr::http_status(res)$message)
     message(httr::content(res))
-    temp_file <- tempfile("log_geopressure_ts_", fileext = ".json")
+    temp_file <- tempfile("log_geopressure_timeseries_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
     stop(paste0(
       "Error with youre request on https://glp.mgravey.com/GeoPressure/v1/timeseries/.",
       "Please try again, and if the problem persists, file an issue on Github:
-        https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_ts&labels=crash
+        https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_timeseries&labels=crash
         with this log file located on your computer: ", temp_file
     ))
   }
@@ -538,7 +540,7 @@ geopressure_ts <- function(lon,
 
   # check for errors
   if (nrow(out) == 0) {
-    temp_file <- tempfile("log_geopressure_ts_", fileext = ".json")
+    temp_file <- tempfile("log_geopressure_timeseries_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
     stop(paste0(
       "Returned csv file is empty. Check that the time range is none-empty. Log of your ",
@@ -588,16 +590,16 @@ geopressure_ts <- function(lon,
 
 
 
-#' Query the timeserie of pressure from a path and geolocator pressure
+#' Query the timeseries of pressure from a path and geolocator pressure
 #'
-#' This function runs in parallel `geopressure_ts()` based on a path and pressure timeserie. It
-#' uses the `sta_id` to match the pressure timeserie to request for each position of the path.
+#' This function runs in parallel `geopressure_timeseries()` based on a path and pressure timeserie.
+#' It uses the `sta_id` to match the pressure timeseries to request for each position of the path.
 #'
 #' You can include previous and/or next flight period in each query. This is typically useful to
 #' estimate flight altitude with greater precision.
 #'
 #' If a position of the path is over water, it will be moved to the closest point onshore as
-#' explained in `geopressure_ts()`.
+#' explained in `geopressure_timeseries()`.
 #'
 #' @param path A data.frame of the position containing latitude (`lat`), longitude  (`lon`) and the
 #' stationary period id (`sta_id`) as column.
@@ -609,14 +611,14 @@ geopressure_ts <- function(lon,
 #' flights are defined by the +/1 of the `sta_id` value (and not the previous/next `sta_id` value).
 #' @param verbose Display (or not) the progress of the queries (logical).
 #' @return List of data.frame containing for each stationary period, the date, pressure, altitude
-#' (same as [`geopressure_ts()`]).
-#' @seealso [`geopressure_ts()`], [`geopressure_map2path()`], [GeoPressureManual | Pressure Map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
+#' (same as [`geopressure_timeseries()`]).
+#' @seealso [`geopressure_timeseries()`], [`geopressure_map2path()`], [GeoPressureManual | Pressure
+#' Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @export
-geopressure_ts_path <- function(path,
-                                pressure,
-                                include_flight = FALSE,
-                                verbose = TRUE) {
+geopressure_timeseries_path <- function(path,
+                                        pressure,
+                                        include_flight = FALSE,
+                                        verbose = TRUE) {
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs", "sta_id")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
@@ -679,14 +681,14 @@ geopressure_ts_path <- function(path,
     }
     # Send the query
     f[[i_s]] <- future::future({
-      geopressure_ts(path$lon[i_s], path$lat[i_s],
+      geopressure_timeseries(path$lon[i_s], path$lat[i_s],
         pressure = subset(pressure, !is.na(id_q)),
         verbose = FALSE
       )
     })
   }
 
-  pressure_timeserie <- list()
+  pressure_timeseries <- list()
   message("Compute and download the data (on GEE):")
   progress_bar(0, max = nrow(path))
   for (i_s in seq_len(length(f))) {
@@ -722,12 +724,13 @@ geopressure_ts_path <- function(path,
 #' return. You will need to use `which.max(as.matrix(raster))` and not `which.max(raster)` to get
 #' the correct location.
 #' @examples
-#' # See `geopressure_prob_map()` for generating pressure_prob
-#' pressure_prob_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_prob_1.rda",
+#' # See `geopressure_likelihood()` for generating pressure_likelihood
+#' pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/",
+#'   "18LX_pressure_likelihood_1.rda",
 #'   package = "GeoPressureR"
 #' ))
-#' geopressure_map2path(list(pressure_prob_1))
-#' @seealso [`geopressure_prob_map()`], [`geopressure_ts_path()`], [GeoPressureManual | Pressure Map
+#' geopressure_map2path(list(pressure_likelihood_1))
+#' @seealso [`geopressure_likelihood()`], [`geopressure_timeseries_path()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude)
 #' @export
 geopressure_map2path <- function(map,

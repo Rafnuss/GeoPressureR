@@ -28,12 +28,12 @@ stationary period based on the position of the longer ones. The interpolation as
 first and last stationary period can be safely estimated from the probability map.
 }
 \examples{
-# See `geopressure_prob_map()` for generating pressure_prob
-pressure_prob_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_prob_1.rda",
+# See `geopressure_likelihood()` for generating pressure_likelihood
+pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_likelihood_1.rda",
   package = "GeoPressureR"
 ))
-geopressure_map2path(list(pressure_prob_1))
+geopressure_map2path(list(pressure_likelihood_1))
 }
 \seealso{
-\code{\link[=geopressure_prob_map]{geopressure_prob_map()}}, \code{\link[=geopressure_ts_path]{geopressure_ts_path()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude}{GeoPressureManual | Pressure Map }
+\code{\link[=geopressure_likelihood]{geopressure_likelihood()}}, \code{\link[=geopressure_timeseries_path]{geopressure_timeseries_path()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude}{GeoPressureManual | Pressure Map }
 }
