@@ -37,7 +37,16 @@
 #'   timeserie.
 #' @param margin The margin is used in the threshold map to accept some measurement error. unit in
 #'   meter. (1hPa~10m)
-#' @return List of raster map
+#' @param timeout duration (sec) before the code is interrupted both for the request on
+#' GeoPressureAPI and GEE. See [`httr::timeout()`]
+#' @param workers number of parrellel request on GEE. Between 1 and 99.
+#' @return List for each stationary period containing:
+#' - `map`
+#' - `sta_id` index of stationary period
+#' - `nb_sample` number of pressure datapoint used
+#' - `max_sample`
+#' - `temporal_extent`
+#' - `margin`
 #' @seealso [`geopressure_likelihood()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
@@ -64,7 +73,9 @@ geopressure_mismatch <- function(pressure,
                                  extent,
                                  scale = 10,
                                  max_sample = 250,
-                                 margin = 30) {
+                                 margin = 30,
+                                 timeout = 60*5,
+                                 workers = 90) {
   # Check input
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(nrow(pressure) > 1)
@@ -72,6 +83,8 @@ geopressure_mismatch <- function(pressure,
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs", "sta_id")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$obs))
+  assertthat::assert_that(is.numeric(workers))
+  assertthat::assert_that(workers>0 & workers<100)
 
   if (!assertthat::has_name(pressure, "isoutlier")) {
     if (assertthat::has_name(pressure, "isoutliar")) {
@@ -195,7 +208,8 @@ geopressure_mismatch <- function(pressure,
   message("Generate requests (on GeoPressureAPI):")
   res <- httr::POST("https://glp.mgravey.com/GeoPressure/v1/map/",
     body = body_df,
-    encode = "form"
+    encode = "form",
+    httr::timeout(timeout)
   )
   if (httr::http_error(res)) {
     message(httr::content(res))
@@ -241,8 +255,8 @@ geopressure_mismatch <- function(pressure,
   )
 
   # Perform the call in parallel
-  # GEE allows up to 100 requests at the same time, so we set the worker a little bit below
-  future::plan(future::multisession, workers = 90)
+  # GEE allows up to 100 requests at the same time, so we set the workers a little bit below
+  future::plan(future::multisession, workers = workers)
 
   f <- c()
   message("Send requests:")
@@ -250,8 +264,9 @@ geopressure_mismatch <- function(pressure,
   for (i_u in seq_len(length(urls))) {
     f[[i_u]] <- future::future(expr = {
       filename <- tempfile()
-      options(timeout = 60 * 5)
-      res <- httr::GET(urls[i_u], httr::write_disk(filename))
+      res <- httr::GET(urls[i_u],
+                       httr::write_disk(filename),
+                       httr::timeout(timeout))
       if (httr::http_error(res)){
         httr::warn_for_status(res, task = "download GEE data")
         cat(readChar(filename, 1e5))
@@ -442,6 +457,8 @@ geopressure_likelihood <- function(pressure_mismatch,
 #' the timeseries as POSIXlt.
 #' @param end_time If `pressure` is not provided, then `end_time` define the ending time of
 #' the timeseries as POSIXlt.
+#' @param timeout duration (sec) before the code is interrupted both for the request on
+#' GeoPressureAPI and GEE. See [`httr::timeout()`].
 #' @param verbose Display (or not) the progress of the query (logical).
 #' @return A data.frame containing the timeseries of ERA5 pressure (date, pressure) as well as
 #' longitude  and latitude (different if over water). If `pressure` is provided, the return
@@ -454,6 +471,7 @@ geopressure_timeseries <- function(lon,
                                    pressure = NULL,
                                    end_time = NULL,
                                    start_time = NULL,
+                                   timeout = 60*5,
                                    verbose = TRUE) {
   # Check input
   assertthat::assert_that(is.numeric(lon))
@@ -502,7 +520,8 @@ geopressure_timeseries <- function(lon,
   if (verbose) message("Generate request (on GeoPressureAPI):")
   res <- httr::POST("https:///glp.mgravey.com/GeoPressure/v1/timeseries/",
     body = body_df,
-    encode = "form"
+    encode = "form",
+    httr::timeout(timeout)
   )
 
   if (httr::http_error(res)) {
@@ -533,7 +552,7 @@ geopressure_timeseries <- function(lon,
   }
 
   # Download the csv file
-  res2 <- httr::GET(res_data$url)
+  res2 <- httr::GET(res_data$url, httr::timeout(timeout))
 
   # read csv
   out <- as.data.frame(httr::content(res2,
@@ -613,6 +632,7 @@ geopressure_timeseries <- function(lon,
 #' flight), 0 (stationary) and/or 1 (next flight). (e.g. `include_flight=c(-1, 1)` will only search
 #' for the flight before and after but not the stationary period). Note that next and previous
 #' flights are defined by the +/1 of the `sta_id` value (and not the previous/next `sta_id` value).
+#' @param workers number of parrellel request on GEE. Between 1 and 99.
 #' @param verbose Display (or not) the progress of the queries (logical).
 #' @return List of data.frame containing for each stationary period, the date, pressure, altitude
 #' (same as [`geopressure_timeseries()`]).
@@ -622,6 +642,7 @@ geopressure_timeseries <- function(lon,
 geopressure_timeseries_path <- function(path,
                                         pressure,
                                         include_flight = FALSE,
+                                        workers = 90,
                                         verbose = TRUE) {
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs", "sta_id")))
@@ -660,8 +681,8 @@ geopressure_timeseries_path <- function(path,
     rule = 2
   )$y
 
-  # Define the number of parallel worker (Google Earth Engine allowance is currently 100)
-  future::plan(future::multisession, workers = 90)
+  # Define the number of parallel workers (Google Earth Engine allowance is currently 100)
+  future::plan(future::multisession, workers = workers)
   f <- c()
 
   if (verbose) {

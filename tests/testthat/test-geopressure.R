@@ -35,6 +35,13 @@ test_that("Check geopressure_mismatch() for date too recent", {
 
 
 
+test_that("Check geopressure_mismatch() timeout and worker", {
+  expect_error(geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1, timeout=1))
+  expect_error(geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1, worker=100))
+})
+
+
+
 test_that("Check geopressure_mismatch() output", {
   pressure <- data.frame(
     date = as.POSIXct(c(
