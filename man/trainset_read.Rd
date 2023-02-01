@@ -22,7 +22,7 @@ pam logger dataset list updated with the labels (\code{pam$pressure$isoutlier} a
 \code{pam$acceleration$ismig})
 }
 \description{
-This function read an exported csv file from trainset (https://trainset.geocene.com/) and update
+This function read an exported csv file from \href{https://trainset.geocene.com/}{trainset} and update
 the pam logger dataset
 }
 \examples{

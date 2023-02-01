@@ -17,7 +17,7 @@ pam_read(
 \arguments{
 \item{pathname}{path of the directory where the files are stored}
 
-\item{pressure_file}{file with pressure data. Extension must be \code{.pressure}, \code{.deg}.}
+\item{pressure_file}{file with pressure data. Extension must be \code{.pressure} or \code{.deg} (required).}
 
 \item{light_file}{file with light data. Extension must be \code{.glf}, \code{.lux} or \code{NA} if absent.}
 

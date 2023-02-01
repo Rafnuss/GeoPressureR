@@ -106,7 +106,7 @@ trainset_write <- function(pam,
 
 #' Read classification of activity and pressure
 #'
-#' This function read an exported csv file from trainset (https://trainset.geocene.com/) and update
+#' This function read an exported csv file from [trainset](https://trainset.geocene.com/) and update
 #' the pam logger dataset
 #'
 #' @param pam pam logger dataset list

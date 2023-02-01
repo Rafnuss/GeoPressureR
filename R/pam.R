@@ -16,7 +16,7 @@
 #' in a format not supported yet.
 #'
 #' @param pathname path of the directory where the files are stored
-#' @param pressure_file file with pressure data. Extension must be `.pressure`, `.deg`.
+#' @param pressure_file file with pressure data. Extension must be `.pressure` or `.deg` (required).
 #' @param light_file file with light data. Extension must be `.glf`, `.lux` or `NA` if absent.
 #' @param acceleration_file file with acceleration data. Extension must be `.acceleration`, `.deg`
 #' or `NA` if absent.
