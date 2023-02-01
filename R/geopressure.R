@@ -251,7 +251,11 @@ geopressure_mismatch <- function(pressure,
     f[[i_u]] <- future::future(expr = {
       filename <- tempfile()
       options(timeout = 60 * 5)
-      httr::GET(urls[i_u], httr::write_disk(filename))
+      res <- httr::GET(urls[i_u], httr::write_disk(filename))
+      if (httr::http_error(res)){
+        httr::warn_for_status(res, task = "download GEE data")
+        cat(readChar(filename, 1e5))
+      }
       return(filename)
     }, seed = TRUE)
     progress_bar(i_u, max = length(urls))
