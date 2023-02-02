@@ -44,9 +44,7 @@
 #' - `map`
 #' - `sta_id` index of stationary period
 #' - `nb_sample` number of pressure datapoint used
-#' - `max_sample`
 #' - `temporal_extent`
-#' - `margin`
 #' @seealso [`geopressure_likelihood()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
@@ -305,6 +303,7 @@ geopressure_mismatch <- function(pressure,
             max(pressure$date[!is.na(pres) & pressure$sta_id == labels[i_u]])
           ),
           margin = margin
+          )
         )
       }
       # return the pressure_mismatch in the same order than requested
