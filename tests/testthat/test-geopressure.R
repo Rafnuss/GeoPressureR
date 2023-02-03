@@ -19,7 +19,7 @@ pressure_mismatch <- geopressure_mismatch(pam$pressure,
   margin = 30
 )
 pressure_likelihood <- geopressure_likelihood(pressure_mismatch)
-path_pressure <- geopressure_map2path(pressure_likelihood)
+path_pressure <- map2path(pressure_likelihood)
 
 
 
@@ -36,8 +36,8 @@ test_that("Check geopressure_mismatch() for date too recent", {
 
 
 test_that("Check geopressure_mismatch() timeout and worker", {
-  expect_error(geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1, timeout=1))
-  expect_error(geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1, worker=100))
+  expect_error(geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1, timeout = 1))
+  expect_error(geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1, worker = 100))
 })
 
 
@@ -88,18 +88,17 @@ test_that("Check geopressure_likelihood() output", {
 
 
 
-test_that("Check geopressure_map2path() output", {
+test_that("Check map2path() output", {
   # Error on incorrect parameter
-  expect_error(geopressure_map2path(pressure_likelihood, interp = 2), NA)
-  expect_error(geopressure_map2path(pressure_likelihood), NA)
-  expect_error(geopressure_map2path(pressure_likelihood, format = "ind"), NA)
-  expect_error(geopressure_map2path(pressure_likelihood, format = "arr.ind"), NA)
+  expect_error(map2path(pressure_likelihood, interp = 2), NA)
+  expect_error(map2path(pressure_likelihood), NA)
+  expect_error(map2path(pressure_likelihood, format = "ind"), NA)
+  expect_error(map2path(pressure_likelihood, format = "arr.ind"), NA)
 
   # Not working without temporal_extent
   pressure_likelihood_tmp <- pressure_likelihood
-  mt <- raster::metadata(pressure_likelihood_tmp[[1]])
-  raster::metadata(pressure_likelihood_tmp[[1]]) <- mt[names(mt) %in% "temporal_extent" == FALSE]
-  expect_error(geopressure_map2path(pressure_likelihood_tmp, interp = 2))
+  pressure_likelihood_tmp[[1]]$temporal_extent <- NA
+  expect_error(map2path(pressure_likelihood_tmp, interp = 2))
 
   # TODO: add flight
 
@@ -164,7 +163,6 @@ test_that("Check geopressure_timeseries() output", {
 
 
 test_that("Check geopressure_timeseries_path() output", {
-
   # Check for incorrect input
   expect_error(geopressure_timeseries_path(path_pressure, "no_a_pressure"))
   expect_error(geopressure_timeseries_path("not_a_path", pam$pressure))

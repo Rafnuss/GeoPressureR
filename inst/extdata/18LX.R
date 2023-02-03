@@ -1,7 +1,7 @@
 # This scripts generate the dataset used in the examples
 # Load library
 library(GeoPressureR)
-library(raster)
+library(terra)
 library(igraph)
 
 # 1. PAM reading and labeling ----
@@ -31,30 +31,24 @@ pam <- pam_sta(pam)
 
 # 2. Pressure Map ----
 # Compute pressure maps from GeoPressureAPI
-pressure_maps <- geopressure_mismatch(pam$pressure,
+pressure_mismatch <- geopressure_mismatch(pam$pressure,
   extent = c(50, -16, 0, 23),
-  scale = 4,
-  max_sample = 250,
-  margin = 30
-)
-saveRDS(pressure_maps[[1]], "inst/extdata/1_pressure/18LX_pressure_maps_1.rda")
+  scale = 4)
+saveRDS(pressure_mismatch[[1]], "inst/extdata/1_pressure/18LX_pressure_mismatch_1.rda")
 
 
 # Convert to probability map
-pressure_likelihood <- geopressure_likelihood(pressure_maps,
-  s = 1,
-  thr = 0.9
-)
+pressure_likelihood <- geopressure_likelihood(pressure_mismatch)
 saveRDS(pressure_likelihood[[1]], "inst/extdata/1_pressure/18LX_pressure_likelihood_1.rda")
 
 
 # Compute the most likely path
 p <- list(
-  simple_path = geopressure_map2path(pressure_likelihood),
-  interp_path = geopressure_map2path(pressure_likelihood, interp = 2),
+  simple_path = map2path(pressure_likelihood),
+  interp_path = map2path(pressure_likelihood, interp = 2),
   sta_duration = unlist(lapply(pressure_likelihood, function(x) {
-       as.numeric(difftime(raster::metadata(x)$temporal_extent[2],
-         raster::metadata(x)$temporal_extent[1],
+       as.numeric(difftime(x$temporal_extent[2],
+         x$temporal_extent[1],
          units = "days"
        ))
      }))
@@ -67,66 +61,22 @@ saveRDS(p, "inst/extdata/1_pressure/18LX_pressure_path.rda")
 
 
 # 3. Light Map  ----
-# Define calibration information
-lon_calib <- 17.05
-lat_calib <- 48.9
-tm_calib_1 <- c(pam$sta$start[1], pam$sta$end[1])
 
 # Compute twilight and read labeling file
-twl <- find_twilights(pam$light, shift_k = 0)
+twl <- geolight_twilight(pam$light, shift_k = 0)
 csv <- read.csv(paste0(system.file("extdata/2_light/labels/", package = "GeoPressureR"),
                        "18LX_light-labeled.csv"))
-twl$deleted <- !csv$label == ""
+twl$isoutlier <- !csv$label == ""
 
 # Extract twilight at calibration
-twl_calib <- subset(twl, !deleted & twilight >= tm_calib_1[1] & twilight <= tm_calib_1[2])
+tm_calib_1 <- c(pam$sta$start[1], pam$sta$end[1])
+twl$calib <- twl$twilight >= tm_calib_1[1] & twl$twilight <= tm_calib_1[2]
 
-# Compute zenith angle and fit distribution
-sun <- solar(twl_calib$twilight)
-z <- refracted(zenith(sun, lon_calib, lat_calib))
-fit_z <- density(z, adjust = 1.4, from = 60, to = 120)
-
-# Add stationary period information on the twilight
-twilight_sta_id <- sapply(twl$twilight, function(x) {
-  which(pam$sta$start < x & x < pam$sta$end)
-})
-twilight_sta_id[sapply(twilight_sta_id, function(x) length(x) == 0)] <- 0
-twl$sta_id <- unlist(twilight_sta_id)
-
-# Find grid information from pressure map
-g <- as.data.frame(pressure_likelihood[[1]], xy = TRUE)
-g$layer <- NA
-
-# Compute zenith angle and corresponding probability on twilight
-twl_clean <- subset(twl, !deleted)
-sun <- solar(twl_clean$twilight)
-pgz <- apply(g, 1, function(x) {
-  z <- refracted(zenith(sun, x[1], x[2]))
-  approx(fit_z$x, fit_z$y, z, yleft = 0, yright = 0)$y
-})
-
-# Define Log-linear Pooling
-w <- 0.1
-
-# Produce proabibility map from light data
-light_likelihood <- c()
-for (i_s in seq_len(nrow(pam$sta))) {
-  id <- twl_clean$sta_id == pam$sta$sta_id[i_s]
-  if (sum(id) > 1) {
-    g$layer <- exp(colSums(w * log(pgz[id, ]))) # Log-linear equation express in log
-  } else if (sum(id) == 1) {
-    g$layer <- pgz[id, ]
-  } else {
-    g$layer <- 1
-  }
-  gr <- rasterFromXYZ(g)
-  crs(gr) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
-  metadata(gr) <- list(
-    sta_id = pam$sta$sta_id[i_s],
-    nb_sample = sum(id)
-  )
-  light_likelihood[[i_s]] <- gr
-}
+# Compute likelihood map
+light_likelihood <- geolight_likelihood(twl,
+                    lon_calib = 17.05,
+                    lat_calib = 48.9,
+                    pressure_likelihood[[1]]$likelihood)
 
 
 
@@ -143,8 +93,8 @@ for (i_s in seq_len(nrow(pam$sta))) {
 
 # Combine light and pressure map
 thr_sta_dur <- 0 # in hours
-sta_pres <- unlist(lapply(pressure_likelihood, function(x) raster::metadata(x)$sta_id))
-sta_light <- unlist(lapply(light_likelihood, function(x) raster::metadata(x)$sta_id))
+sta_pres <- unlist(lapply(pressure_likelihood, function(x) x$sta_id))
+sta_light <- unlist(lapply(light_likelihood, function(x) x$sta_id))
 sta_thres <- pam$sta$sta_id[difftime(pam$sta$end, pam$sta$start, units = "hours")
                                  > thr_sta_dur]
 # Get the sta_id present on all three data sources
@@ -168,22 +118,18 @@ flight[[i_f + 1]] <- list()
 
 # Compute static prob
 static_likelihood <- mapply(function(light, pressure, flight) {
-  # define static prob as the product of light and pressure prob
-  static_likelihood <- light * pressure
-
-  # define metadata
-  metadata(static_likelihood) <- metadata(pressure)
-  metadata(static_likelihood)$flight <- flight
-
-  # return
-  static_likelihood
+  list(
+    sta_id = light$sta_id,
+    flight = flight,
+    likelihood = light$likelihood * pressure$likelihood
+  )
 }, light_likelihood, pressure_likelihood, flight)
 
 # Add known position
-lat <- seq(raster::ymax(static_likelihood[[1]]), raster::ymin(static_likelihood[[1]]),
+lat <- seq(terra::ymax(static_likelihood[[1]]), terra::ymin(static_likelihood[[1]]),
            length.out = nrow(static_likelihood[[1]]) + 1)
 lat <- lat[seq_len(length(lat) - 1)] + diff(lat[1:2]) / 2
-lon <- seq(raster::xmin(static_likelihood[[1]]), raster::xmax(static_likelihood[[1]]),
+lon <- seq(terra::xmin(static_likelihood[[1]]), terra::xmax(static_likelihood[[1]]),
            length.out = ncol(static_likelihood[[1]]) + 1)
 lon <- lon[seq_len(length(lon) - 1)] + diff(lon[1:2]) / 2
 
@@ -200,7 +146,7 @@ tmp[lat_calib_id, lon_calib_id] <- 1
 values(static_likelihood[[length(static_likelihood)]]) <- tmp
 
 # Compute the most likely path
-# path <- geopressure_map2path(static_likelihood)
+# path <- map2path(static_likelihood)
 # static_timeserie <- geopressure_timeseries_path(path, pam$pressure)
 
 
@@ -264,9 +210,9 @@ static_likelihood_marginal <- graph_marginal(grl)
 # light_likelihood <- readRDS(system.file("extdata", "18LX_light_likelihood.rda", package = "GeoPressureR"))
 # pressure_likelihood <- readRDS(system.file("extdata", "18LX_pressure_likelihood.rda", package = "GeoPressureR"))
 
-sta_marginal <- unlist(lapply(static_likelihood_marginal, function(x) raster::metadata(x)$sta_id))
-sta_pres <- unlist(lapply(pressure_likelihood, function(x) raster::metadata(x)$sta_id))
-sta_light <- unlist(lapply(light_likelihood, function(x) raster::metadata(x)$sta_id))
+sta_marginal <- unlist(lapply(static_likelihood_marginal, function(x) terra::metadata(x)$sta_id))
+sta_pres <- unlist(lapply(pressure_likelihood, function(x) terra::metadata(x)$sta_id))
+sta_light <- unlist(lapply(light_likelihood, function(x) terra::metadata(x)$sta_id))
 pressure_likelihood <- pressure_likelihood[sta_pres %in% sta_marginal]
 light_likelihood <- light_likelihood[sta_light %in% sta_marginal]
 

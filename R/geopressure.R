@@ -262,10 +262,12 @@ geopressure_mismatch <- function(pressure,
   for (i_u in seq_len(length(urls))) {
     f[[i_u]] <- future::future(expr = {
       filename <- tempfile()
-      res <- httr::GET(urls[i_u],
-                       httr::write_disk(filename),
-                       httr::timeout(timeout))
-      if (httr::http_error(res)){
+      res <- httr::GET(
+        urls[i_u],
+        httr::write_disk(filename),
+        httr::timeout(timeout)
+      )
+      if (httr::http_error(res)) {
         httr::warn_for_status(res, task = "download GEE data")
         cat(readChar(filename, 1e5))
       }
@@ -299,12 +301,9 @@ geopressure_mismatch <- function(pressure,
           mask = map[[2]],
           sta_id = labels[i_u],
           nb_sample = sum(pressure$sta_id[!is.na(pres)] == labels[i_u]),
-          max_sample = max_sample,
           temporal_extent = c(
             min(pressure$date[!is.na(pres) & pressure$sta_id == labels[i_u]]),
             max(pressure$date[!is.na(pres) & pressure$sta_id == labels[i_u]])
-          ),
-          margin = margin
           )
         )
       }
@@ -475,7 +474,7 @@ geopressure_timeseries <- function(lon,
                                    pressure = NULL,
                                    end_time = NULL,
                                    start_time = NULL,
-                                   timeout = 60*5,
+                                   timeout = 60 * 5,
                                    verbose = TRUE) {
   # Check input
   assertthat::assert_that(is.numeric(lon))
@@ -640,7 +639,7 @@ geopressure_timeseries <- function(lon,
 #' @param verbose Display (or not) the progress of the queries (logical).
 #' @return List of data.frame containing for each stationary period, the date, pressure, altitude
 #' (same as [`geopressure_timeseries()`]).
-#' @seealso [`geopressure_timeseries()`], [`geopressure_map2path()`], [GeoPressureManual | Pressure
+#' @seealso [`geopressure_timeseries()`], [`map2path()`], [GeoPressureManual | Pressure
 #' Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @export
 geopressure_timeseries_path <- function(path,
@@ -675,6 +674,8 @@ geopressure_timeseries_path <- function(path,
   assertthat::assert_that(is.numeric(include_flight))
   assertthat::assert_that(all(include_flight %in% c(-1, 0, 1)))
   assertthat::assert_that(is.logical(verbose))
+  assertthat::assert_that(is.numeric(workers))
+  assertthat::assert_that(workers > 0 & workers < 100)
 
   # Interpolate sta_id for flight period so that, a flight between sta_id 2 and 3 will have a
   # `sta_id_interp` between 2 and 3.
@@ -733,5 +734,3 @@ geopressure_timeseries_path <- function(path,
   }
   return(pressure_timeserie)
 }
-
-

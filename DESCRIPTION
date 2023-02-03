@@ -25,7 +25,7 @@ Imports:
     jsonlite,
     Matrix,
     pracma,
-    raster,
+    terra,
     stats,
     tools,
     utils

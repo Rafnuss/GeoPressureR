@@ -1,10 +1,9 @@
-
 #' Returns twilights for each day based on a threshold of light
 #'
 #' Search for pairs of sunset, sunrise that correspond to a given light threshold. Function inspired
 #' from [`TwGeos::findTwilights`](https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html).
 #'
-#' @param pam PAM logger dataset list containing `pam$light`, a dataframe with columns `date` and
+#' @param pam PAM logger dataset list containing `light`, a dataframe with columns `date` and
 #' `obs` that are the sequence of sample  times (as POSIXct) and light levels recorded by the tag
 #' respectively (see [`pam_read()`]). In addition, `pam$sta` is present, `sta_id` will be added to
 #' the the data.frame returned.
@@ -24,24 +23,22 @@
 #' twl <- geolight_twilight(pam)
 #' head(twl)
 #' @export
-geolight_twilight <- function(pam,
+geolight_twilight <- function(light,
                               threshold = NA,
                               shift_k = NA) {
-  assertthat::assert_that(is.list(pam))
-  assertthat::assert_that(assertthat::has_name(pam, "light"))
-  assertthat::assert_that(is.data.frame(pam$light))
-  assertthat::assert_that(assertthat::has_name(pam$light, c("date", "obs")))
-  assertthat::assert_that(inherits(pam$light$date, "POSIXt"))
-  assertthat::assert_that(is.numeric(pam$light$obs))
+  assertthat::assert_that(is.data.frame(light))
+  assertthat::assert_that(assertthat::has_name(light, c("date", "obs")))
+  assertthat::assert_that(inherits(light$date, "POSIXt"))
+  assertthat::assert_that(is.numeric(light$obs))
 
   if (is.na(threshold)) {
-    threshold <- min(pam$light$obs[pam$light$obs > 0])
+    threshold <- min(light$obs[light$obs > 0])
   }
   assertthat::assert_that(is.numeric(threshold))
 
   # add padding of time to center if night are not at 00:00 UTC
   if (is.na(shift_k)) {
-    mat <- geolight_light2mat(pam$light, shift_k = 0)
+    mat <- geolight_light2mat(light, shift_k = 0)
     res <- as.numeric(difftime(mat$date[2], mat$date[1], units = "secs"))
     l <- mat$obs >= threshold
     tmp <- rowMeans(l, na.rm = TRUE)
@@ -50,11 +47,11 @@ geolight_twilight <- function(pam,
   }
 
   #
-  mat <- geolight_light2mat(pam$light, shift_k)
+  mat <- geolight_light2mat(light, shift_k)
 
   # Compute exceed of light
   l <- mat$obs >= threshold
-  # raster::image(l)
+  # terra::image(l)
 
   # Find the first light
   id_sr <- apply(l, 2, which.max)
@@ -85,8 +82,8 @@ geolight_twilight <- function(pam,
   # order by time
   twl <- twl[order(twl$twilight), ]
 
-  #
-  if (assertthat::has_name(pam, "sta")){
+  # Combine twilight by sta_id
+  if (assertthat::has_name(light, "sta_id")) {
     assertthat::assert_that(assertthat::has_name(pam$sta, "start"))
     assertthat::assert_that(assertthat::has_name(pam$sta, "end"))
     tmp <- which(mapply(function(start, end) {
@@ -99,62 +96,6 @@ geolight_twilight <- function(pam,
   return(twl)
 }
 
-
-#' Convert light data in matrix format
-#'
-#' @param light a dataframe with columns `date` and `obs` that are the sequence of sample
-#' times (as POSIXct) and light levels recorded by the tag.
-#' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
-#' provided, will try to figure it out from the data
-#' @return A dataframe with columns obs and date
-#' @export
-geolight_light2mat <- function(light, shift_k = 0) {
-  assertthat::assert_that(is.data.frame(light))
-  assertthat::assert_that(is.data.frame(light))
-  assertthat::assert_that(assertthat::has_name(light, c("date", "obs")))
-  assertthat::assert_that(inherits(light$date, "POSIXt"))
-  assertthat::assert_that(is.numeric(light$obs))
-  assertthat::assert_that(is.numeric(shift_k))
-
-  res <- difftime(utils::tail(light$date, -1), utils::head(light$date, -1), units = "secs")
-  if (length(unique(res)) != 1) {
-    stop(
-      "Temporal resolution of the light data is not constant. Use TwGeos::FindTwilight() ",
-      "instead."
-    )
-  }
-  res <- as.numeric(res[1])
-
-  # Pad time to start and finish at 00:00
-  date <- seq(
-    from = as.POSIXct(format(light$date[1] - shift_k, "%Y-%m-%d"), tz = "UTC"),
-    to = as.POSIXct(format(light$date[length(light$date)] - shift_k, "%Y-%m-%d"),
-                    tz = "UTC"
-    ) + 60 * 60 * 24 - res,
-    by = res
-  )
-  date <- date + shift_k
-
-  # if light$date is not measuring at 00:00 exacly, we need to move date
-  closest <- which.min(abs(date - light$date[1]))
-  date <- date - (date[closest] - light$date[1])
-
-  # Match the observation on the new grid
-  obs <- rep(NA, length(date))
-  id <- date %in% light$date
-  assertthat::assert_that(any(id))
-  obs[id] <- light$obs
-
-  # reshape in matrix format
-  mat <- list(
-    obs = matrix(obs, nrow = 24 * 60 * 60 / res),
-    date = matrix(date, nrow = 24 * 60 * 60 / res)
-  )
-  # raster::image(mat$obs)
-  mat$date <- as.POSIXct(mat$date, origin = "1970-01-01", tz = "UTC")
-
-  return(mat)
-}
 
 
 #' Compute likelihood map for light data
@@ -172,7 +113,7 @@ geolight_light2mat <- function(light, shift_k = 0) {
 #' See [`geolight_twilight()`].
 #' @param lon_calib longitude of the calibration site.
 #' @param lat_calib latitude of the calibration site.
-#' @param map raster on which the likelihood map should be computed.
+#' @param map SpatRaster on which the likelihood map should be computed.
 #' @param sta_id stationary periods on which the likelihood maps should be computed.
 #' @param adjust_calib smoothing parameter for the kernel density. See [`stats::kernel()`]
 #' @param w_llp Log-linear pooling aggregation weight. See [GeoPressureManual | Probability
@@ -184,13 +125,13 @@ geolight_light2mat <- function(light, shift_k = 0) {
 #' (see [`stats::kernel()`]) if `fit_z_return` is true.
 #' @export
 geolight_likelihood <- function(twl,
-                               lon_calib,
-                               lat_calib,
-                               map,
-                               sta_id = NA,
-                               adjust_calib = 1.4,
-                               w_llp = 0.1,
-                               fit_z_return = F) {
+                                lon_calib,
+                                lat_calib,
+                                map,
+                                sta_id = NA,
+                                adjust_calib = 1.4,
+                                w_llp = 0.1,
+                                fit_z_return = F) {
   assertthat::assert_that(is.data.frame(twl))
   assertthat::assert_that(assertthat::has_name(twl, c("twilight", "calib", "isoutlier")))
   assertthat::assert_that(inherits(twl$twilight, "POSIXt"))
@@ -202,8 +143,8 @@ geolight_likelihood <- function(twl,
   assertthat::assert_that(is.numeric(adjust_calib))
   assertthat::assert_that(is.numeric(w_llp))
 
-  if (is.na(sta_id)){
-    sta_id = seq_len(max(twl$sta_id))
+  if (is.na(sta_id)) {
+    sta_id <- seq_len(max(twl$sta_id))
   }
   assertthat::assert_that(is.numeric(sta_id))
 
@@ -217,7 +158,7 @@ geolight_likelihood <- function(twl,
   fit_z <- stats::density(z_calib, adjust = adjust_calib, from = 60, to = 120)
 
   # If request to return the fit, does not continue
-  if (fit_z_return){
+  if (fit_z_return) {
     return(fit_z)
   }
 
@@ -253,6 +194,62 @@ geolight_likelihood <- function(twl,
 }
 
 
+#' Convert light data in matrix format
+#'
+#' @param light a dataframe with columns `date` and `obs` that are the sequence of sample
+#' times (as POSIXct) and light levels recorded by the tag.
+#' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
+#' provided, will try to figure it out from the data
+#' @return A dataframe with columns obs and date
+geolight_light2mat <- function(light, shift_k = 0) {
+  assertthat::assert_that(is.data.frame(light))
+  assertthat::assert_that(is.data.frame(light))
+  assertthat::assert_that(assertthat::has_name(light, c("date", "obs")))
+  assertthat::assert_that(inherits(light$date, "POSIXt"))
+  assertthat::assert_that(is.numeric(light$obs))
+  assertthat::assert_that(is.numeric(shift_k))
+
+  res <- difftime(utils::tail(light$date, -1), utils::head(light$date, -1), units = "secs")
+  if (length(unique(res)) != 1) {
+    stop(
+      "Temporal resolution of the light data is not constant. Use TwGeos::FindTwilight() ",
+      "instead."
+    )
+  }
+  res <- as.numeric(res[1])
+
+  # Pad time to start and finish at 00:00
+  date <- seq(
+    from = as.POSIXct(format(light$date[1] - shift_k, "%Y-%m-%d"), tz = "UTC"),
+    to = as.POSIXct(format(light$date[length(light$date)] - shift_k, "%Y-%m-%d"),
+      tz = "UTC"
+    ) + 60 * 60 * 24 - res,
+    by = res
+  )
+  date <- date + shift_k
+
+  # if light$date is not measuring at 00:00 exacly, we need to move date
+  closest <- which.min(abs(date - light$date[1]))
+  date <- date - (date[closest] - light$date[1])
+
+  # Match the observation on the new grid
+  obs <- rep(NA, length(date))
+  id <- date %in% light$date
+  assertthat::assert_that(any(id))
+  obs[id] <- light$obs
+
+  # reshape in matrix format
+  mat <- list(
+    obs = matrix(obs, nrow = 24 * 60 * 60 / res),
+    date = matrix(date, nrow = 24 * 60 * 60 / res)
+  )
+  # terra::image(mat$obs)
+  mat$date <- as.POSIXct(mat$date, origin = "1970-01-01", tz = "UTC")
+
+  return(mat)
+}
+
+
 #' Calculate solar time, the equation of time and solar declination
 #'
 #' The solar time, the equation of time and the sine and cosine of the solar declination are
@@ -269,7 +266,6 @@ geolight_likelihood <- function(twl,
 #' @examples
 #' # Current solar time
 #' geolight_solar(Sys.time())
-#' @export
 geolight_solar <- function(tm) {
   rad <- pi / 180
 
@@ -355,7 +351,6 @@ geolight_solar <- function(tm) {
 #' # at the Sydney Harbour Bridge
 #' s <- geolight_solar(as.POSIXct("2000-05-01 12:00:00", "EST"))
 #' geolight_zenith(s, lon, lat)
-#' @export
 geolight_zenith <- function(sun, lon, lat) {
   rad <- pi / 180
 
@@ -385,7 +380,6 @@ geolight_zenith <- function(sun, lon, lat) {
 #' @title Atmospheric Refraction
 #' @param zenith zenith angle (degrees) to adjust.
 #' @return vector of zenith angles (degrees) adjusted for atmospheric refraction.
-#' @export
 geolight_refracted <- function(zenith) {
   rad <- pi / 180
   elev <- 90 - zenith
@@ -402,5 +396,3 @@ geolight_refracted <- function(zenith) {
   # Corrected Zenith [90-AG]
   zenith - r / 3600
 }
-
-
