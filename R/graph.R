@@ -17,34 +17,34 @@
 #' * `equipment`: node(s) of the first sta (index in the 3d grid lat-lon-sta),
 #' * `retrieval`: node(s) of the last sta (index in the 3d grid lat-lon-sta),
 #' * `flight_duration`: list of flight duration to next sta in hours,
-#' * `lat`: list of the `static_prob` latitude in cell center,
-#' * `lon`: list of the `static_prob` longitude in cell center,
-#' * `extent`: raster geographical extent of the `static_prob`,
-#' * `resolution`: raster res of the `static_prob`,
-#' * `temporal_extent`: start and end date time retrieved from the metadata of `static_prob`.
+#' * `lat`: list of the `likelihood$map` latitude in cell center,
+#' * `lon`: list of the `likelihood$map` longitude in cell center,
+#' * `extent`: SpatRaster geographical extent of `likelihood$map`,
+#' * `resolution`: resolution of `likelihood$map`,
+#' * `temporal_extent`: start and end date time retrieved from `likelihood`.
 #'
 #' The [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph) provided an
 #' example how to prepare the
 #' data for the function and the output of this function.
 #'
-#' @param static_prob List of raster containing probability map of each stationary period. The
-#'   metadata of `static_prob` needs to include the flight information to the next stationary period
-#'   in the metadata `flight`.
+#' @param likelihood List of likelihood map of each stationary period. The
+#'   metadata of `likelihood` needs to include the flight information to the next stationary period
+#'   in `likelihood[[1]]$flight`.
 #' @param thr_prob_percentile Threshold of percentile (see details).
 #' @param thr_gs Threshold of groundspeed (km/h)  (see details).
 #' @return Graph as a list (see details).
 #' @seealso [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph)
 #' @export
-graph_create <- function(static_prob,
+graph_create <- function(likelihood,
                          thr_prob_percentile = .99,
                          thr_gs = 150) {
   # Check input
-  assertthat::assert_that(is.list(static_prob))
-  assertthat::assert_that(inherits(static_prob[[1]], "RasterLayer"))
+  assertthat::assert_that(is.list(likelihood))
+  assertthat::assert_that(inherits(likelihood[[1]], "SpatRaster"))
   assertthat::assert_that(assertthat::has_name(
-    raster::metadata(static_prob[[1]]),
+    terra::describe(likelihood[[1]]),
     c("flight", "sta_id")
   ))
   assertthat::assert_that(is.numeric(thr_prob_percentile))
@@ -55,12 +55,12 @@ graph_create <- function(static_prob,
   assertthat::assert_that(thr_gs >= 0)
 
   # compute size
-  sz <- c(nrow(static_prob[[1]]), ncol(static_prob[[1]]), length(static_prob))
+  sz <- c(nrow(likelihood[[1]]), ncol(likelihood[[1]]), length(likelihood))
   nll <- sz[1] * sz[2]
 
-  # convert raster into normalized matrix
-  static_prob_n <- lapply(static_prob, function(x) {
-    probt <- raster::as.matrix(x)
+  # convert map into normalized matrix
+  likelihood_n <- lapply(likelihood, function(x) {
+    probt <- terra::as.matrix(x)
     if (sum(probt, na.rm = TRUE) == 0) {
       probt[probt == 0] <- 1
     }
@@ -68,23 +68,23 @@ graph_create <- function(static_prob,
     probt / sum(probt, na.rm = TRUE)
   })
 
-  sta_id_0 <- unlist(lapply(static_prob_n, sum)) == 0
+  sta_id_0 <- unlist(lapply(likelihood_n, sum)) == 0
   if (any(is.na(sta_id_0))) {
     stop(paste0(
-      "static_prob is invalid for index ",
+      "likelihood is invalid for index ",
       paste(which(is.na(sta_id_0)), collapse = ", "),
       " (check that the probability map is not null/na)."
     ))
   }
   if (any(sta_id_0)) {
     stop(paste0(
-      "The `static_prob` provided has an invalid probability map for the stationary period: ",
+      "The `likelihood` provided has an invalid probability map for the stationary period: ",
       which(sta_id_0)
     ))
   }
 
   # find the pixels above to the percentile
-  nds <- lapply(static_prob_n, function(probi) {
+  nds <- lapply(likelihood_n, function(probi) {
     # First, compute the threshold of prob corresponding to percentile
     probis <- sort(probi)
     id_prob_percentile <- sum(cumsum(probis) <= (1 - thr_prob_percentile))
@@ -105,12 +105,12 @@ graph_create <- function(static_prob,
   }
 
   # Get latitude and longitude of the center of the pixel
-  lat <- seq(raster::ymax(static_prob[[1]]), raster::ymin(static_prob[[1]]),
-    length.out = nrow(static_prob[[1]]) + 1
+  lat <- seq(terra::ymax(likelihood[[1]]), terra::ymin(likelihood[[1]]),
+    length.out = nrow(likelihood[[1]]) + 1
   )
   lat <- utils::head(lat, -1) + diff(lat[1:2]) / 2
-  lon <- seq(raster::xmin(static_prob[[1]]), raster::xmax(static_prob[[1]]),
-    length.out = ncol(static_prob[[1]]) + 1
+  lon <- seq(terra::xmin(likelihood[[1]]), terra::xmax(likelihood[[1]]),
+    length.out = ncol(likelihood[[1]]) + 1
   )
   lon <- utils::head(lon, -1) + diff(lon[1:2]) / 2
 
@@ -121,8 +121,8 @@ graph_create <- function(static_prob,
 
 
   # extract the flight duration
-  flight_duration <- unlist(lapply(static_prob, function(x) {
-    mtf <- raster::metadata(x)
+  flight_duration <- unlist(lapply(likelihood, function(x) {
+    mtf <- terra::describe(x)
     as.numeric(sum(difftime(mtf$flight$end, mtf$flight$start, units = "hours")))
   }))
 
@@ -135,8 +135,8 @@ graph_create <- function(static_prob,
       stop(paste0(
         "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
         "there are not any nodes left at stationary period ",
-        raster::metadata(static_prob[[i_s + 1]])$sta_id, " from stationary period ",
-        raster::metadata(static_prob[[i_s]])$sta_id
+        terra::describe(likelihood[[i_s + 1]])$sta_id, " from stationary period ",
+        terra::describe(likelihood[[i_s]])$sta_id
       ))
     }
   }
@@ -148,8 +148,8 @@ graph_create <- function(static_prob,
       stop(paste0(
         "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
         "there are not any nodes left at stationary period ",
-        raster::metadata(static_prob[[i_s - 1]])$sta_id, " from stationary period ",
-        raster::metadata(static_prob[[i_s]])$sta_id
+        terra::describe(likelihood[[i_s - 1]])$sta_id, " from stationary period ",
+        terra::describe(likelihood[[i_s]])$sta_id
       ))
     }
   }
@@ -186,7 +186,7 @@ graph_create <- function(static_prob,
     i_s <- nds_sorted_idx[i]
     nds_i_s <- nds[[i_s]]
     nds_i_s_1 <- nds[[i_s + 1]]
-    static_prob_n_i_s_1 <- static_prob_n[[i_s + 1]]
+    likelihood_n_i_s_1 <- likelihood_n[[i_s + 1]]
     f[[i_s]] <- future::future(expr = {
       # find all the possible equipment and target based on nds and expand to all possible
       # combination
@@ -232,8 +232,8 @@ graph_create <- function(static_prob,
       # We use here the normalized probability assuming that the bird needs to be somewhere at each
       # stationary period. The log-linear pooling (`geopressure_likelihood`) is supposed to account
       # for the variation in staionary period duration.
-      # For un-normalized use raster::as.matrix(static_prob[[i_s + 1]]))
-      grt$ps <- static_prob_n_i_s_1[grt$t - i_s * nll]
+      # For un-normalized use terra::as.matrix(likelihood[[i_s + 1]]))
+      grt$ps <- likelihood_n_i_s_1[grt$t - i_s * nll]
 
       if (sum(id) == 0) {
         stop(paste0(
@@ -265,18 +265,18 @@ graph_create <- function(static_prob,
   grl$flight_duration <- flight_duration
   grl$lat <- lat
   grl$lon <- lon
-  grl$extent <- raster::extent(static_prob[[1]])
-  grl$resolution <- raster::res(static_prob[[1]])
-  grl$temporal_extent <- lapply(static_prob, function(x) {
-    raster::metadata(x)$temporal_extent
+  grl$extent <- terra::extent(likelihood[[1]])
+  grl$resolution <- terra::res(likelihood[[1]])
+  grl$temporal_extent <- lapply(likelihood, function(x) {
+    terra::describe(x)$temporal_extent
   })
-  grl$flight <- lapply(static_prob, function(x) {
-    raster::metadata(x)$flight
+  grl$flight <- lapply(likelihood, function(x) {
+    terra::describe(x)$flight
   })
-  grl$sta_id <- unlist(lapply(static_prob, function(x) {
-    raster::metadata(x)$sta_id
+  grl$sta_id <- unlist(lapply(likelihood, function(x) {
+    terra::describe(x)$sta_id
   }))
-  grl$mask_water <- is.na(raster::as.matrix(static_prob[[1]]))
+  grl$mask_water <- is.na(terra::as.matrix(likelihood[[1]]))
   return(grl)
 }
 
@@ -354,7 +354,7 @@ graph_trim <- function(gr) {
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)).
 #'
 #' @param pam PAM logger dataset list with `pam$sta` computed. See [`pam_read()`] and [`pam_sta()`].
-#' @param area Geographical extent of the map to query. Either a raster (e.g. `static_prob`) or a
+#' @param area Geographical extent of the map to query. Either a raster (e.g. `likelihood`) or a
 #' list ordered by North, West, South, East  (e.g. `c(50,-16,0,20)`).
 #' @param sta_id Stationary period identifier of the start of the flight to query as defined in
 #' `pam$sta`. Be default, download for all the flight.
@@ -384,7 +384,7 @@ graph_download_wind <- function(pam,
   if (is.list(area)) {
     area <- area[[1]]
   }
-  area <- raster::extent(area)
+  area <- terra::extent(area)
   area <- c(area@ymax, area@xmin, area@ymin, area@xmax)
 
   assertthat::assert_that(is.numeric(sta_id))
@@ -789,7 +789,7 @@ graph_add_wind <- function(grl,
 #' This function return the marginal probability map as raster from a graph.
 #'
 #' @param grl graph constructed with [`graph_create()`]
-#' @return list of raster of the marginal probability at each stationary period
+#' @return list of map of the marginal probability at each stationary period
 #' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map)
 #' @export
@@ -865,7 +865,7 @@ graph_marginal <- function(grl) {
   dim(map) <- grl$sz
 
   # convert to raster
-  static_prob_marginal <- list()
+  likelihood_marginal <- list()
   for (i_s in seq_len(dim(map)[3])) {
     tmp <- map[, , i_s]
     tmp[grl$mask_water] <- NA
@@ -875,20 +875,20 @@ graph_marginal <- function(grl) {
         "Please check the data used to create the graph."
       )
     }
-    static_prob_marginal[[i_s]] <- raster::raster(grl$extent,
+    likelihood_marginal[[i_s]] <- terra::rast(grl$extent,
       resolution = grl$resolution,
       vals = tmp
     )
-    raster::crs(static_prob_marginal[[i_s]]) <-
+    terra::crs(likelihood_marginal[[i_s]]) <-
       "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
-    raster::metadata(static_prob_marginal[[i_s]]) <- list(
+    terra::describe(likelihood_marginal[[i_s]]) <- list(
       sta_id = grl$sta_id[i_s],
       temporal_extent = grl$temporal_extent[[i_s]],
       flight = grl$flight[[i_s]]
     )
   }
 
-  return(static_prob_marginal)
+  return(likelihood_marginal)
 }
 
 

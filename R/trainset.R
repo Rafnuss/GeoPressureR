@@ -1,4 +1,3 @@
-
 #' Write classification of activity and pressure
 #'
 #' This function writes the csv file of the automatically labeled activity and pressure which can
@@ -27,7 +26,6 @@
 trainset_write <- function(pam,
                            pathname = "data/1_pressure/labels/",
                            filename = paste0(pam$id, "_act_pres")) {
-
   # Perform test
   assertthat::assert_that(is.list(pam))
   assertthat::assert_that(assertthat::has_name(pam, c("pressure", "acceleration")))
@@ -129,7 +127,6 @@ trainset_write <- function(pam,
 trainset_read <- function(pam,
                           pathname = "data/1_pressure/labels/",
                           filename = paste0(pam$id, "_act_pres-labeled.csv")) {
-
   # Perform test
   assertthat::assert_that(is.list(pam))
   assertthat::assert_that(assertthat::has_name(pam, c("pressure", "acceleration")))

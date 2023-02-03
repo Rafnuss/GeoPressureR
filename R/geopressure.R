@@ -9,7 +9,7 @@
 #' performed by this function consists of the following:
 #' 1. Send a query to generate the Google Earth Engine (GEE) url of the code producing the maps for
 #' each stationary periods separately.
-#' 2. Download and read these geotiff maps as raster.
+#' 2. Download and read these geotiff maps as SpatRaster
 #'
 #' The maps of each stationary period are returned in two layers:
 #' 1. The mismatch between the input pressure timeseries and the reanalysis one at each location.
@@ -40,11 +40,11 @@
 #' @param timeout duration (sec) before the code is interrupted both for the request on
 #' GeoPressureAPI and GEE. See [`httr::timeout()`]
 #' @param workers number of parrellel request on GEE. Between 1 and 99.
-#' @return List for each stationary period containing:
-#' - `map`
-#' - `sta_id` index of stationary period
-#' - `nb_sample` number of pressure datapoint used
-#' - `temporal_extent`
+#' @return List of the misfit map for each stationary period, containing:
+#' - `map`: list of the MSE and threashold (see description above)
+#' - `sta_id` index of stationary period.
+#' - `nb_sample` number of pressure datapoint used.
+#' - `temporal_extent` datetime of the start and end of the stationary period
 #' @seealso [`geopressure_likelihood()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
@@ -57,13 +57,13 @@
 #'   max_sample = 250,
 #'   margin = 30
 #' )
-#' pressure_mismatch_1 <- pressure_mismatch[[1]]
+#' pressure_mismatch_1 <- pressure_mismatch$map[[1]]
 #' }
 #' pressure_mismatch_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_mismatch_1.rda",
 #'   package = "GeoPressureR"
 #' ))
-#' raster::metadata(pressure_mismatch_1)
-#' raster::plot(pressure_mismatch_1,
+#' pressure_mismatch_1
+#' terra::plot(pressure_mismatch_1$map,
 #'   main = c("Mean Square Error", "Mask of pressure")
 #' )
 #' @export
@@ -72,7 +72,7 @@ geopressure_mismatch <- function(pressure,
                                  scale = 10,
                                  max_sample = 250,
                                  margin = 30,
-                                 timeout = 60*5,
+                                 timeout = 60 * 5,
                                  workers = 90) {
   # Check input
   assertthat::assert_that(is.data.frame(pressure))
@@ -82,7 +82,7 @@ geopressure_mismatch <- function(pressure,
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$obs))
   assertthat::assert_that(is.numeric(workers))
-  assertthat::assert_that(workers>0 & workers<100)
+  assertthat::assert_that(workers > 0 & workers < 100)
 
   if (!assertthat::has_name(pressure, "isoutlier")) {
     if (assertthat::has_name(pressure, "isoutliar")) {
@@ -274,7 +274,7 @@ geopressure_mismatch <- function(pressure,
     progress_bar(i_u, max = length(urls))
   }
 
-  # Get the raster
+  # Get the SpatRaster
   pressure_mismatch <- c()
   filename <- c()
   message("Compute and download geotiff (GEE server):")
@@ -283,18 +283,20 @@ geopressure_mismatch <- function(pressure,
     expr = {
       for (i_u in seq_len(length(urls))) {
         filename[i_u] <- future::value(f[[i_u]])
-        pressure_mismatch[[i_u]] <- raster::brick(filename[i_u])
+        map <- terra::rast(filename[i_u])
         progress_bar(i_u, max = length(urls))
 
-        # Add datum
-        raster::crs(pressure_mismatch[[i_u]]) <-
-          "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+        # Set names for layer
+        names(map[[1]]) <- "Mean Square Error"
+        names(map[[2]]) <- "Mask of pressure"
 
         # convert MSE from Pa to hPa
-        pressure_mismatch[[i_u]][[1]] <- pressure_mismatch[[i_u]][[1]] / 100 / 100
+        map[[1]] <- map[[1]] / 100 / 100
 
         # Writing some metadata
-        raster::metadata(pressure_mismatch[[i_u]]) <- list(
+        pressure_mismatch[[i_u]] <- list(
+          mse = map[[1]],
+          mask = map[[2]],
           sta_id = labels[i_u],
           nb_sample = sum(pressure$sta_id[!is.na(pres)] == labels[i_u]),
           max_sample = max_sample,
@@ -332,10 +334,10 @@ geopressure_mismatch <- function(pressure,
 
 
 
-#' Compute probability raster
+#' Compute Likelihood Map
 #'
-#' This function convert the raster of \eqn{MSE} and altitude threshold \eqn{z_{thr}} computed
-#' by [`geopressure_mismatch()`] into a probability map with,
+#' This function convert the map of \eqn{MSE} and altitude threshold \eqn{z_{thr}} computed
+#' by [`geopressure_mismatch()`] into a likelihood map with,
 #'
 #' \eqn{p = \exp \left(-w \frac{MSE}{s} \right) \left[z_{thr}>thr \right],}
 #'
@@ -343,7 +345,7 @@ geopressure_mismatch <- function(pressure,
 #' auto-correlation of the timeseries is not accounted for in this equation, we use a log-linear
 #' pooling weight \eqn{w=\log(n)/n}, with \eqn{n} is the number of data point in the timeserie.
 #'
-#' @param pressure_mismatch List of raster built with [`geopressure_mismatch()`].
+#' @param pressure_mismatch List of SpatRaster built with [`geopressure_mismatch()`].
 #' @param s Standard deviation of the pressure error.
 #' @param thr Threshold of the percentage of data point outside the elevation range to be considered
 #' not possible.
@@ -351,7 +353,8 @@ geopressure_mismatch <- function(pressure,
 #' probability map and return the log-linear pooling weight (see the
 #' [GeoPressureManual | Probability aggregation
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html))
-#' @return List of the probability raster map
+#' @return List of the likelihood map for each stationary period. See [`geopressure_mismatch()`] for
+#' description of the output list.
 #' @seealso [`geopressure_mismatch()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
@@ -368,8 +371,8 @@ geopressure_mismatch <- function(pressure,
 #'   "18LX_pressure_likelihood_1.rda",
 #'   package = "GeoPressureR"
 #' ))
-#' raster::metadata(pressure_likelihood_1)
-#' raster::plot(pressure_likelihood_1,
+#' pressure_likelihood_1
+#' terra::plot(pressure_likelihood_1$map,
 #'   main = "Probability",
 #'   xlim = c(5, 20), ylim = c(42, 50)
 #' )
@@ -386,33 +389,35 @@ geopressure_likelihood <- function(pressure_mismatch,
   assertthat::assert_that(thr >= 0 & thr <= 1)
   assertthat::assert_that(is.function(fun_w))
 
-  raster_prob_list <- c()
+  pressure_likelihood <- c()
   for (i_s in seq_len(length(pressure_mismatch))) {
-    # get metadata
-    mt <- raster::metadata(pressure_mismatch[[i_s]])
-
-    # get MSE layer
-    raster_prob_list[[i_s]] <- pressure_mismatch[[i_s]][[1]]
-    # change 0 (water) in NA
-    raster_prob_list[[i_s]][raster_prob_list[[i_s]] == 0] <- NA
-
-    # compute Log-linear pooling weight
     # Number of datapoint could also be measured with
     # pres_n <- as.numeric(difftime(mt$temporal_extent[2], mt$temporal_extent[1], units = "hours"))
-    pres_n <- mt$nb_sample
+    nb_sample <- pressure_mismatch[[i_s]]$nb_sample
 
-    # Weight
-    w <- fun_w(pres_n)
+    # Log-linear pooling weight
+    w <- fun_w(nb_sample)
+
+
+    # get MSE layer
+    mse <- pressure_mismatch[[i_s]]$mse
+    # change 0 (water) in NA
+    mse[mse == 0] <- NA
 
     # compute probability with equation
-    raster_prob_list[[i_s]] <- (1 / (2 * pi * s^2))^(pres_n * w / 2) * exp(-w * pres_n / 2 / (s^2)
-      * raster_prob_list[[i_s]])
-    # mask value of threshold
-    raster_prob_list[[i_s]] <- raster_prob_list[[i_s]] * (pressure_mismatch[[i_s]][[2]] >= thr)
+    likelihood <- (1 / (2 * pi * s^2))^(nb_sample * w / 2) * exp(-w * nb_sample / 2 / (s^2)
+      * mse)
 
-    raster::metadata(raster_prob_list[[i_s]]) <- raster::metadata(pressure_mismatch[[i_s]])
+    # mask value of threshold and assign the new map
+    pressure_likelihood[[i_s]] <- list(
+      sta_id = pressure_mismatch[[i_s]]$sta_id,
+      nb_sample = pressure_mismatch[[i_s]]$nb_sample,
+      temporal_extent = pressure_mismatch[[i_s]]$temporal_extent,
+      likelihood = likelihood * (pressure_mismatch[[i_s]]$mask >= thr)
+    )
+    names(pressure_likelihood[[i_s]]$likelihood) <- "likelihood"
   }
-  return(raster_prob_list)
+  return(pressure_likelihood)
 }
 
 

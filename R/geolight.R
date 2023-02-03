@@ -180,7 +180,7 @@ geolight_light2mat <- function(light, shift_k = 0) {
 #' aggregation](
 #' https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html#probability-aggregation-1)
 #' @param fit_z_return logical forcing to return the fit of the calibration.
-#' @return list of rasterLayer of the likelihood map for each stationary period. Or a kernel fit
+#' @return list of SpatRaster of the likelihood map for each stationary period. Or a kernel fit
 #' (see [`stats::kernel()`]) if `fit_z_return` is true.
 #' @export
 geolight_likelihood <- function(twl,
@@ -198,7 +198,7 @@ geolight_likelihood <- function(twl,
   assertthat::assert_that(is.logical(twl$isoutlier))
   assertthat::assert_that(is.numeric(lon_calib))
   assertthat::assert_that(is.numeric(lat_calib))
-  assertthat::assert_that(inherits(map, "RasterLayer"))
+  assertthat::assert_that(inherits(map, "SpatRaster"))
   assertthat::assert_that(is.numeric(adjust_calib))
   assertthat::assert_that(is.numeric(w_llp))
 
@@ -224,31 +224,29 @@ geolight_likelihood <- function(twl,
   # compute the probability of observing the zenith angle of each twilight using the calibrated
   # error function for each grid cell.
   sun <- geolight_solar(twl_clean$twilight)
-  g <- raster::as.data.frame(map, xy = TRUE)
-  g$layer <- NA
+  g <- terra::as.data.frame(map, xy = TRUE)
+  g$likelihood <- NA
   pgz <- apply(g, 1, function(x) {
     z <- geolight_refracted(geolight_zenith(sun, x[1], x[2]))
     stats::approx(fit_z$x, fit_z$y, z, yleft = 0, yright = 0)$y
   })
 
-  # loop through each stationary period and create a raster map with the aggregated likelihood
+  # loop through each stationary period and create a SpatRaster with the aggregated likelihood
   light_likelihood <- c()
   for (i_s in seq_len(length(sta_id))) {
     id <- twl_clean$sta_id == sta_id[i_s]
     if (sum(id) > 1) {
-      g$layer <- exp(colSums(w_llp * log(pgz[id, ]))) # Log-linear equation express in log
+      g$likelihood <- exp(colSums(w_llp * log(pgz[id, ]))) # Log-linear equation express in log
     } else if (sum(id) == 1) {
-      g$layer <- pgz[id, ]
+      g$likelihood <- pgz[id, ]
     } else {
-      g$layer <- 1
+      g$likelihood <- 1
     }
-    gr <- raster::rasterFromXYZ(g)
-    raster::crs(gr) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
-    raster::metadata(gr) <- list(
+    light_likelihood[[i_s]] <- list(
       sta_id = sta_id[i_s],
-      nb_sample = sum(id)
+      nb_sample = sum(id),
+      likelihood = terra::rast(g, type = "xyz")
     )
-    light_likelihood[[i_s]] <- gr
   }
 
   return(light_likelihood)

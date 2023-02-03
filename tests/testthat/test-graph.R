@@ -13,12 +13,12 @@ grl$p <- grl$ps * flight_prob(grl$gs)
 test_that("Check graph", {
   # map of prob 0 are fill up with 1
   static_prob_1_4_tmp <- static_prob_1_4
-  raster::values(static_prob_1_4_tmp[[2]]) <- 0
+  terra::values(static_prob_1_4_tmp[[2]]) <- 0
   expect_error(graph_create(static_prob_1_4_tmp), NA)
 
   # map of prob NA or NULL return an error
   static_prob_1_4_tmp <- static_prob_1_4
-  raster::values(static_prob_1_4_tmp[[4]]) <- NA
+  terra::values(static_prob_1_4_tmp[[4]]) <- NA
   expect_error(graph_create(static_prob_1_4_tmp))
 
   grl_marginal <- graph_marginal(grl)

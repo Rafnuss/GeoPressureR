@@ -46,7 +46,6 @@ progress_bar <- function(x, max = 100, text = "") {
 #' [`map2path`], [`graph_simulation`], [`geopressureviz`]
 #' @export
 path2df <- function(pam, path) {
-
   # Check input variable
   assertthat::assert_that(is.list(pam))
   assertthat::assert_that(assertthat::has_name(pam, "sta"))
@@ -88,14 +87,14 @@ path2df <- function(pam, path) {
 #' the position of the longer ones. The interpolation assumes that the first and last stationary
 #' period can be safely estimated from the probability map.
 #'
-#' @param likelihood_map List of likelihood map of each stationary period. See
+#' @param likelihood List of likelihood map of each stationary period. See
 #' [`geopressure_likelihood()`] or [`geolight_likelihood()`].
 #' @param interp The position of the stationary period shorter than `interp` will be
 #' replace by a linear average from other position (in days) .
 #' @param format One of `"lonlat"`, `"ind"`, `"arr.ind"`. return the path in lon-lat or indices
 #' @return a data.frame of the position containing latitude (`lat`), longitude (`lon`) and the
 #' stationary period id (`sta_id`) as column. Optionally, if indexes were requested, it will be
-#' return. You will need to use `which.max(as.matrix(raster))` and not `which.max(raster)` to get
+#' return. You will need to use `which.max(as.matrix(map))` and not `which.max(map)` to get
 #' the correct location.
 #' @examples
 #' # See `geopressure_likelihood()` for generating pressure_likelihood
@@ -107,50 +106,51 @@ path2df <- function(pam, path) {
 #' @seealso [`geopressure_likelihood()`], [`geopressure_timeseries_path()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude)
 #' @export
-map2path <- function(likelihood_map,
+map2path <- function(likelihood,
                      interp = 0,
                      format = "lonlat") {
-  assertthat::assert_that(is.list(likelihood_map))
-  assertthat::assert_that(is.list(likelihood_map[[1]]))
-  assertthat::assert_that(inherits(likelihood_map[[1]]$map, "RasterLayer"))
-  assertthat::assert_that(is.numeric(likelihood_map[[1]]$sta_id))
+  # Check if likelihood map is a map or a list of maps.
+  assertthat::assert_that(is.list(likelihood))
+  assertthat::assert_that(is.list(likelihood[[1]]))
+  assertthat::assert_that(inherits(likelihood[[1]]$likelihood, "SpatRaster"))
+  assertthat::assert_that(is.numeric(likelihood[[1]]$sta_id))
   assertthat::assert_that(is.numeric(interp))
   assertthat::assert_that(interp >= 0)
   assertthat::assert_that(any(format %in% c("lonlat", "ind", "arr.ind")))
 
   # Set the initial path to the most likely from static prob
-  # There is a difference between which.max(r$map) and which.max(as.matrix(r$map)) which appeared
+  # There is a difference between which.max(l$map) and which.max(as.matrix(l$map)) which appeared
   # to be necessary to get correctly the position. Not really practical, maybe the way lat lon are
-  # index in a raster.
-  path <- do.call("rbind", lapply(likelihood_map, function(r) {
+  # index in a map
+  path <- do.call("rbind", lapply(likelihood, function(l) {
     if (format == "lonlat") {
-      pos <- terra::xyFromCell(r$map, terra::which.max(r$map))
+      pos <- terra::as.data.frame(l$likelihood, xy = TRUE)
       p <- data.frame(
-        lon = pos[1],
-        lat = pos[2]
+        lon = pos[which.max(pos[, 3]), 1],
+        lat = pos[which.max(pos[, 3]), 2]
       )
     } else {
-      pos <- arrayInd(which.max(terra::as.matrix(r$map)), dim(r$map))
+      pos <- arrayInd(which.max(terra::as.matrix(l$likelihood)), dim(l$likelihood))
       p <- data.frame(
         lon = pos[2],
         lat = pos[1]
       )
     }
-    p$sta_id <- r$sta_id
+    p$sta_id <- l$sta_id
     return(p)
   }))
 
   # Interpolation for short stationary period is only performed if interp>0
   if (interp > 0) {
-    if (assertthat::has_name(likelihood_map[[1]], "temporal_extent")){
-      stop("`temporal_extent` is required in likelihood_map to perform an interpolation")
+    if (!assertthat::has_name(likelihood[[1]], "temporal_extent")) {
+      stop("`temporal_extent` is required in likelihood to perform an interpolation")
     }
 
     # remove short stationary period
-    duration <- unlist(lapply(likelihood_map, function(r) {
-      as.numeric(difftime(r$temporal_extent[2],
-                          r$temporal_extent[1],
-                          units = "days"
+    duration <- unlist(lapply(likelihood, function(l) {
+      as.numeric(difftime(l$temporal_extent[2],
+        l$temporal_extent[1],
+        units = "days"
       ))
     }))
     id_interp <- duration < interp
@@ -158,16 +158,16 @@ map2path <- function(likelihood_map,
     id_interp[length(id_interp)] <- FALSE
 
     # Find the spacing between the position
-    if (is.null(likelihood_map[[1]]$flight)) {
-      # Or if flight duration are not available (e.g. `prob_pressure`), assumes homogeneous spacing
+    if (is.null(likelihood[[1]]$flight)) {
+      # Or if flight duration are not available (e.g. `pressure_likelihood`), assumes homogeneous spacing
       # between consecutive stationary period
       x <- path$sta_id
     } else {
       # If flight are available, sum of the all flights between stationary period
-      flight_duration <- unlist(lapply(likelihood_map, function(r) {
-        sum(as.numeric(difftime(r$flight$end,
-                                r$flight$start,
-                                units = "hours"
+      flight_duration <- unlist(lapply(likelihood, function(l) {
+        sum(as.numeric(difftime(l$flight$end,
+          l$flight$start,
+          units = "hours"
         )))
       }))
       # Cumulate the flight duration to get a proxy of the over distance covered
@@ -191,7 +191,7 @@ map2path <- function(likelihood_map,
   }
 
   if (format == "ind") {
-    path$ind <- (path$lon - 1) * dim(likelihood_map[[1]]$map)[1] + path$lat
+    path$ind <- (path$lon - 1) * dim(likelihood[[1]]$map)[1] + path$lat
   }
   return(path)
 }
