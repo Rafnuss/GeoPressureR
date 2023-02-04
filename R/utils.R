@@ -24,33 +24,33 @@ progress_bar <- function(x, max = 100, text = "") {
 #' The function basically duplicate location position at the start and end time of each stationary
 #' period.
 #'
-#' @param pam pam logger dataset list with `pam$sta` computed (see `pam_sta`)
+#' @param tag data logger dataset list with `tag$sta` computed (see `tag_sta`)
 #' @param path data.frame containtings the path(s) of the bird with column `lat`, `lon` and `sta_id`
 #' at least. Path can be generated with `map2path`, `graph_simulation`, `geopressureviz`
 #' .
 #'
 #' @examples
-#' pam <- pam_read(
-#'   pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR")
+#' tag <- tag_read(
+#'   pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR")
 #' )
-#' pam <- trainset_read(pam,
+#' tag <- trainset_read(tag,
 #'   pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 #' )
-#' pam <- pam_sta(pam)
+#' tag <- tag_sta(tag)
 #' pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_likelihood_1.rda",
 #'   package = "GeoPressureR"
 #' ))
 #' path <- map2path(list(pressure_likelihood_1))
-#' path2df(pam, path)
+#' path2df(tag, path)
 #' @seealso [`movevis::df2move`](https://movevis.org/reference/df2move.html),
 #' [`map2path`], [`graph_simulation`], [`geopressureviz`]
 #' @export
-path2df <- function(pam, path) {
+path2df <- function(tag, path) {
   # Check input variable
-  assertthat::assert_that(is.list(pam))
-  assertthat::assert_that(assertthat::has_name(pam, "sta"))
-  assertthat::assert_that(is.data.frame(pam$sta))
-  assertthat::assert_that(assertthat::has_name(pam$sta, c("sta_id", "start", "end")))
+  assertthat::assert_that(is.list(tag))
+  assertthat::assert_that(assertthat::has_name(tag, "sta"))
+  assertthat::assert_that(is.data.frame(tag$sta))
+  assertthat::assert_that(assertthat::has_name(tag$sta, c("sta_id", "start", "end")))
 
   assertthat::assert_that(is.list(path))
   assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "sta_id")))
@@ -60,12 +60,12 @@ path2df <- function(pam, path) {
       lat = utils::stack(as.data.frame(t(path$lat)))$values,
       lon = utils::stack(as.data.frame(t(path$lon)))$values,
       sta_id = rep(path$sta_id, dim(path$lat)[1]),
-      track_id = paste0(pam$id, "_", rep(seq(1, dim(path$lat)[1]), dim(path$lat)[2]))
+      track_id = paste0(tag$id, "_", rep(seq(1, dim(path$lat)[1]), dim(path$lat)[2]))
     )
-    df0 <- merge(df0, pam$sta, by = "sta_id")
+    df0 <- merge(df0, tag$sta, by = "sta_id")
   } else {
-    df0 <- merge(as.data.frame(path), pam$sta, by = "sta_id")
-    df0$track_id <- pam$id
+    df0 <- merge(as.data.frame(path), tag$sta, by = "sta_id")
+    df0$track_id <- tag$id
   }
 
   df1 <- df0

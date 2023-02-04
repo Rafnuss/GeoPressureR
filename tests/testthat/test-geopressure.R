@@ -2,17 +2,17 @@ library(testthat)
 library(GeoPressureR)
 
 # Start by computing all the necessary file for the tests
-pam <- pam_read(
-  pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
+tag <- tag_read(
+  pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR"),
   crop_start = "2017-08-01", crop_end = "2017-10-01"
 )
-pam <- trainset_read(
-  pam,
+tag <- trainset_read(
+  tag,
   pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 )
-pam <- pam_sta(pam)
+tag <- tag_sta(tag)
 
-pressure_mismatch <- geopressure_mismatch(pam$pressure,
+pressure_mismatch <- geopressure_mismatch(tag$pressure,
   extent = c(50, -16, 0, 23),
   scale = 10,
   max_sample = 100,
@@ -149,13 +149,13 @@ test_that("Check geopressure_timeseries() output", {
   # path <- subset(path_pressure, sta_id == i_s)
   #
   # # Test Include flight
-  # pressure <- subset(pam$pressure, sta_id == i_s)
+  # pressure <- subset(tag$pressure, sta_id == i_s)
   # pressure_timeserie <- geopressure_timeseries(path$lon, path$lat, pressure)
   # expect_true(all(c("date", "pressure", "altitude", "pressure0", "sta_id")
   # %in% names(pressure_timeserie)))
   # expect_equal(nrow(pressure_timeserie), n[2])
   #
-  # pressure <- subset(pam$pressure, sta_id == i_s | sta_id == 0)
+  # pressure <- subset(tag$pressure, sta_id == i_s | sta_id == 0)
   # pressure_timeserie <- geopressure_timeseries(path$lon, path$lat, pressure)
   # expect_gt(nrow(pressure_timeserie), n[2])
 })
@@ -165,19 +165,19 @@ test_that("Check geopressure_timeseries() output", {
 test_that("Check geopressure_timeseries_path() output", {
   # Check for incorrect input
   expect_error(geopressure_timeseries_path(path_pressure, "no_a_pressure"))
-  expect_error(geopressure_timeseries_path("not_a_path", pam$pressure))
-  expect_error(geopressure_timeseries_path(path_pressure, pam$pressure, include_flight = 2))
-  expect_error(geopressure_timeseries_path(path_pressure, pam$pressure, include_flight = NA))
-  expect_error(geopressure_timeseries_path(path_pressure, pam$pressure, include_flight = c(0, 10)))
+  expect_error(geopressure_timeseries_path("not_a_path", tag$pressure))
+  expect_error(geopressure_timeseries_path(path_pressure, tag$pressure, include_flight = 2))
+  expect_error(geopressure_timeseries_path(path_pressure, tag$pressure, include_flight = NA))
+  expect_error(geopressure_timeseries_path(path_pressure, tag$pressure, include_flight = c(0, 10)))
 
   i_s <- 4
   n <- c(16, 32, 10)
-  pressure <- subset(pam$pressure, sta_id == i_s)
+  pressure <- subset(tag$pressure, sta_id == i_s)
   path <- subset(path_pressure, sta_id == i_s)
   pressure_timeserie <- geopressure_timeseries_path(path, pressure)
 
   # Test Include flight
-  pressure <- pam$pressure
+  pressure <- tag$pressure
   pressure_timeserie <- geopressure_timeseries_path(path, pressure)
   expect_equal(nrow(pressure_timeserie[[1]]), n[2])
   pressure_timeserie <- geopressure_timeseries_path(path, pressure, include_flight = TRUE)

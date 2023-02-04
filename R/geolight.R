@@ -3,24 +3,24 @@
 #' Search for pairs of sunset, sunrise that correspond to a given light threshold. Function inspired
 #' from [`TwGeos::findTwilights`](https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html).
 #'
-#' @param pam PAM logger dataset list containing `light`, a dataframe with columns `date` and
+#' @param tag data logger dataset list containing `light`, a dataframe with columns `date` and
 #' `obs` that are the sequence of sample  times (as POSIXct) and light levels recorded by the tag
-#' respectively (see [`pam_read()`]). In addition, `pam$sta` is present, `sta_id` will be added to
+#' respectively (see [`tag_read()`]). In addition, `tag$sta` is present, `sta_id` will be added to
 #' the the data.frame returned.
 #' @param threshold the light threshold that defines twilight. If not provided, it uses the first
 #' light (i.e, `obs>0`).
 #' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
 #' provided, it will take the middle of all nights.
 #' @return A data.frame with columns `twilight` (date-time of twilights), `rise` (logical) and
-#' optionally `sta_id` if `pam$sta` is present.
+#' optionally `sta_id` if `tag$sta` is present.
 #' @seealso [GeoPressureManual | Light Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#twilight-annotation)
 #' @examples
-#' pam <- pam_read(
-#'   pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
+#' tag <- tag_read(
+#'   pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR"),
 #'   crop_start = "2017-06-20", crop_end = "2018-05-02"
 #' )
-#' twl <- geolight_twilight(pam)
+#' twl <- geolight_twilight(tag)
 #' head(twl)
 #' @export
 geolight_twilight <- function(light,
@@ -84,11 +84,11 @@ geolight_twilight <- function(light,
 
   # Combine twilight by sta_id
   if (assertthat::has_name(light, "sta_id")) {
-    assertthat::assert_that(assertthat::has_name(pam$sta, "start"))
-    assertthat::assert_that(assertthat::has_name(pam$sta, "end"))
+    assertthat::assert_that(assertthat::has_name(tag$sta, "start"))
+    assertthat::assert_that(assertthat::has_name(tag$sta, "end"))
     tmp <- which(mapply(function(start, end) {
       start < twl$twilight & twl$twilight < end
-    }, pam$sta$start, pam$sta$end), arr.ind = TRUE)
+    }, tag$sta$start, tag$sta$end), arr.ind = TRUE)
     twl$sta_id <- 0
     twl$sta_id[tmp[, 1]] <- tmp[, 2]
   }

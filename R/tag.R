@@ -1,6 +1,6 @@
 #' Read tag data
 #'
-#' Imports logger data from a folder (`pathname`) and optionally crop at specific date.
+#' Imports multi-sensor logger data from a folder (`pathname`) and optionally crop at specific date.
 #' The `*_file` arguments are matched using a regex expression (e.g., `"*.pressure"` matches any
 #' files with the extension `pressure`).
 #'

@@ -22,10 +22,10 @@
 #' temporal variation of pressure (surface-pressure) and temperature (2m-temperature) based on
 #' ERA5 data. The min and max ground elevation of each pixel is computed from SRTM-90.
 #'
-#' @param pressure Pressure data.frame from a PAM logger. This data.frame needs to contains `date`
+#' @param pressure Pressure data.frame from a data logger. This data.frame needs to contains `date`
 #' as POSIXt, `obs` in hPa, `sta_id` grouping observation measured during the same stationary period
 #' and `isoutlier` as logical to label observation which need to be ignored. It is best practice to
-#' use `pam_read()` and `pam_sta()` to build this data.frame.
+#' use `tag_read()` and `tag_sta()` to build this data.frame.
 #' @param extent Geographical extent of the map to query as a list ordered by North, West, South,
 #'   East  (e.g. `c(50,-16,0,20)`).
 #' @param scale Number of pixel per 1° latitude-longitude. For instance, `scale = 10` for a
@@ -48,10 +48,10 @@
 #' @seealso [`geopressure_likelihood()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
-#' # See `pam_sta()` for generating pam
+#' # See `tag_sta()` for generating tag
 #' \dontrun{
 #' pressure_mismatch <- geopressure_mismatch(
-#'   pam$pressure,
+#'   tag$pressure,
 #'   extent = c(50, -16, 0, 23),
 #'   scale = 4,
 #'   max_sample = 250,
@@ -99,7 +99,7 @@ geopressure_mismatch <- function(pressure,
     max(pressure$obs[!pressure$isoutlier])) {
     stop(paste0(
       "Pressure observation should be between 250 hPa (~10000m)  and 1100 hPa (sea level at 1013",
-      "hPa). Check unit return by `pam_read()`"
+      "hPa). Check unit return by `tag_read()`"
     ))
   }
   assertthat::assert_that(is.logical(pressure$isoutlier))
@@ -455,7 +455,7 @@ geopressure_likelihood <- function(pressure_mismatch,
 #' for more information on the meaning of this value.
 #' @param lon Longitude to query (-180° to 180°).
 #' @param lat Latitude to query (0° to 90°).
-#' @param pressure Pressure list from PAM logger dataset list (optional).
+#' @param pressure Pressure list from data logger dataset list (optional).
 #' @param start_time If `pressure` is not provided, then `start_time` define the starting time of
 #' the timeseries as POSIXlt.
 #' @param end_time If `pressure` is not provided, then `end_time` define the ending time of
@@ -629,7 +629,7 @@ geopressure_timeseries <- function(lon,
 #'
 #' @param path A data.frame of the position containing latitude (`lat`), longitude  (`lon`) and the
 #' stationary period id (`sta_id`) as column.
-#' @param pressure Pressure list from PAM logger dataset list.
+#' @param pressure Pressure list from data logger dataset list.
 #' @param include_flight Extend request to also query the pressure and altitude during the previous
 #' and/or next flight. Flights are defined by a `sta_id=0`. Accept Logical or vector of -1 (previous
 #' flight), 0 (stationary) and/or 1 (next flight). (e.g. `include_flight=c(-1, 1)` will only search

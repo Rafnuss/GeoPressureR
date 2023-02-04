@@ -340,8 +340,8 @@ graph_trim <- function(gr) {
 #' with the [Climate Data Store (CDS)](https://cds.climate.copernicus.eu) and through the [`ecmwfr`
 #' R package](https://bluegreen-labs.github.io/ecmwfr/index.html).
 #'
-#' The flight are determined from the stationary periods classified `pam$sta`
-#' (see `pam_classify()`). It request a single file for each flight using the exact time
+#' The flight are determined from the stationary periods classified `tag$sta`
+#' (see `tag_classify()`). It request a single file for each flight using the exact time
 #' (hourly basis) and pressure (altitude). To make the download more efficient,
 #' [`wf_request_batch()`](
 #' https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests)
@@ -353,11 +353,11 @@ graph_trim <- function(gr) {
 #' [GeoPressureManual | Wind graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)).
 #'
-#' @param pam PAM logger dataset list with `pam$sta` computed. See [`pam_read()`] and [`pam_sta()`].
+#' @param tag data logger dataset list with `tag$sta` computed. See [`tag_read()`] and [`tag_sta()`].
 #' @param area Geographical extent of the map to query. Either a raster (e.g. `likelihood`) or a
 #' list ordered by North, West, South, East  (e.g. `c(50,-16,0,20)`).
 #' @param sta_id Stationary period identifier of the start of the flight to query as defined in
-#' `pam$sta`. Be default, download for all the flight.
+#' `tag$sta`. Be default, download for all the flight.
 #' @param cds_key User (email address) used to sign up for the ECMWF data service. See
 #' [`wf_set_key()`].
 #' @param cds_user Token provided by ECMWF. See [`wf_set_key()`].
@@ -367,19 +367,19 @@ graph_trim <- function(gr) {
 #' [GeoPressureManual | Wind graph
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)
 #' @export
-graph_download_wind <- function(pam,
+graph_download_wind <- function(tag,
                                 area, # area is specified as N, W, S, E
-                                sta_id = seq_len(nrow(pam$sta) - 1),
+                                sta_id = seq_len(nrow(tag$sta) - 1),
                                 cds_key = Sys.getenv("cds_key"),
                                 cds_user = Sys.getenv("cds_user"),
-                                path = paste0("data/5_wind_graph/", pam$id, "/")) {
-  assertthat::assert_that(is.list(pam))
-  assertthat::assert_that(assertthat::has_name(pam, "pressure"))
-  assertthat::assert_that(is.data.frame(pam$pressure))
-  assertthat::assert_that(assertthat::has_name(pam$pressure, c("date", "obs")))
-  assertthat::assert_that(assertthat::has_name(pam, "sta"))
-  assertthat::assert_that(is.data.frame(pam$sta))
-  assertthat::assert_that(assertthat::has_name(pam$sta, c("end", "start")))
+                                path = paste0("data/5_wind_graph/", tag$id, "/")) {
+  assertthat::assert_that(is.list(tag))
+  assertthat::assert_that(assertthat::has_name(tag, "pressure"))
+  assertthat::assert_that(is.data.frame(tag$pressure))
+  assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "obs")))
+  assertthat::assert_that(assertthat::has_name(tag, "sta"))
+  assertthat::assert_that(is.data.frame(tag$sta))
+  assertthat::assert_that(assertthat::has_name(tag$sta, c("end", "start")))
 
   if (is.list(area)) {
     area <- area[[1]]
@@ -388,7 +388,7 @@ graph_download_wind <- function(pam,
   area <- c(area@ymax, area@xmin, area@ymin, area@xmax)
 
   assertthat::assert_that(is.numeric(sta_id))
-  assertthat::assert_that(all(sta_id %in% pam$sta$sta_id))
+  assertthat::assert_that(all(sta_id %in% tag$sta$sta_id))
 
   ecmwfr::wf_set_key(user = cds_user, key = cds_key, service = "cds")
 
@@ -408,23 +408,23 @@ graph_download_wind <- function(pam,
 
   for (i_id in sta_id) {
     # Find the index of sta_id
-    i_s <- which(pam$sta$sta_id == i_id)
+    i_s <- which(tag$sta$sta_id == i_id)
 
     # Get the timeserie of the flight on a 1 hour resolution
-    flight_time <- seq(round.POSIXt(pam$sta$end[i_s] - 30 * 60, units = "hours"),
-      round.POSIXt(pam$sta$start[i_s + 1] + 30 * 60, units = "hours"),
+    flight_time <- seq(round.POSIXt(tag$sta$end[i_s] - 30 * 60, units = "hours"),
+      round.POSIXt(tag$sta$start[i_s + 1] + 30 * 60, units = "hours"),
       by = 60 * 60
     )
 
     # Find the pressure level needed during this flight
-    flight_id <- flight_time[1] <= pam$pressure$date &
-      pam$pressure$date <= utils::tail(flight_time, 1)
+    flight_id <- flight_time[1] <= tag$pressure$date &
+      tag$pressure$date <= utils::tail(flight_time, 1)
     pres_id_min <- min(
-      sum(!(min(pam$pressure$obs[flight_id]) < possible_pressure)),
+      sum(!(min(tag$pressure$obs[flight_id]) < possible_pressure)),
       length(possible_pressure) - 1
     )
     pres_id_max <- min(
-      sum(max(pam$pressure$obs[flight_id]) > possible_pressure) + 1,
+      sum(max(tag$pressure$obs[flight_id]) > possible_pressure) + 1,
       length(possible_pressure)
     )
     flight_pres_id <- seq(pres_id_min, pres_id_max)
@@ -445,7 +445,7 @@ graph_download_wind <- function(pam,
       day = sort(unique(format(flight_time, "%d"))),
       time = sort(unique(format(flight_time, "%H:%M"))),
       area = area,
-      target = paste0(pam$id, "_", i_s, ".nc")
+      target = paste0(tag$id, "_", i_s, ".nc")
     )
   }
 
@@ -469,8 +469,8 @@ graph_download_wind <- function(pam,
 #' explanations and example on how to download the `NetCDF` files from ERA-5.
 #'
 #' @param grl graph constructed with [`graph_create()`]
-#' @param pressure pressure data from a PAM logger. This data.frame needs to contains `date` as
-#' POSIXt and `obs` in hPa. It is best practice to use [`pam_read()`] and [`pam_sta()`] to build
+#' @param pressure pressure data from a data logger. This data.frame needs to contains `date` as
+#' POSIXt and `obs` in hPa. It is best practice to use [`tag_read()`] and [`tag_sta()`] to build
 #' this data.frame.
 #' @param filename Character of the path where to find the netCDF file.
 #' @param thr_as Threshold of airspeed (km/h).
