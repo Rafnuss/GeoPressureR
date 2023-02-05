@@ -85,15 +85,7 @@ geopressure_mismatch <- function(pressure,
   assertthat::assert_that(workers > 0 & workers < 100)
 
   if (!assertthat::has_name(pressure, "isoutlier")) {
-    if (assertthat::has_name(pressure, "isoutliar")) {
-      warning(
-        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. This code will continue",
-        " but update your code and data to be compatible with futur version of GeoPressureR."
-      )
-      pressure$isoutlier <- pressure$isoutliar
-    } else {
-      pressure$isoutlier <- FALSE
-    }
+    pressure$isoutlier <- FALSE
   }
   if (min(pressure$value[!pressure$isoutlier]) < 250 || 1100 <
     max(pressure$value[!pressure$isoutlier])) {
@@ -490,16 +482,7 @@ geopressure_timeseries <- function(lon,
     end_time <- NULL
     start_time <- NULL
     if (!assertthat::has_name(pressure, "isoutlier")) {
-      if (assertthat::has_name(pressure, "isoutliar")) {
-        warning(
-          "pressure$isoutliar is deprecated in favor of pressure$isoutlier. This code will ",
-          "continue but update your code and data to be compatible with futur version of ",
-          "GeoPressureR."
-        )
-        pressure$isoutlier <- pressure$isoutliar
-      } else {
-        pressure$isoutlier <- FALSE
-      }
+      pressure$isoutlier <- FALSE
     }
   } else {
     assertthat::assert_that(!is.na(end_time))
@@ -651,17 +634,7 @@ geopressure_timeseries_path <- function(path,
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "sta_id")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$value))
-  if (!assertthat::has_name(pressure, "isoutlier")) {
-    if (assertthat::has_name(pressure, "isoutliar")) {
-      warning(
-        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. This code will continue",
-        " but update your code and data to be compatible with futur version of GeoPressureR."
-      )
-      pressure$isoutlier <- pressure$isoutliar
-    } else {
-      assertthat::assert_that(assertthat::has_name(pressure, "isoutlier"))
-    }
-  }
+  assertthat::assert_that(assertthat::has_name(pressure, "isoutlier"))
   assertthat::assert_that(is.data.frame(path))
   assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "sta_id")))
   if (nrow(path) == 0) warning("path is empty")

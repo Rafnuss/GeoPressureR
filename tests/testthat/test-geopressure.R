@@ -73,7 +73,7 @@ test_that("Check geopressure_mismatch() output", {
 
   # Check back compatibility
   pressure_tmp <- pressure
-  pressure_tmp$isoutliar <- FALSE
+  pressure_tmp$isoutlier <- FALSE
   expect_warning(geopressure_mismatch(pressure_tmp, extent = c(1, 0, 0, 1), scale = 1))
 })
 
@@ -140,7 +140,7 @@ test_that("Check geopressure_timeseries() output", {
 
   # Check back compatibility
   pressure_tmp <- pressure
-  pressure_tmp$isoutliar <- FALSE
+  pressure_tmp$isoutlier <- FALSE
   expect_warning(geopressure_timeseries(lon = 6, lat = 46, pressure = pressure_tmp))
 
 
@@ -200,7 +200,7 @@ test_that("Check geopressure_timeseries_path() output", {
 
   # Check back compatibility
   pressure_tmp <- pressure
-  pressure_tmp$isoutliar <- FALSE
+  pressure_tmp$isoutlier <- FALSE
   expect_warning(geopressure_timeseries_path(path, pressure_tmp))
 
   expect_warning(geopressure_timeseries_path(path, pressure))

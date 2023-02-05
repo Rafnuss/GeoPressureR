@@ -37,16 +37,7 @@ trainset_write <- function(tag,
     tag$acceleration$ismig <- FALSE
   }
   if (!assertthat::has_name(tag$pressure, "isoutlier")) {
-    if (assertthat::has_name(tag$pressure, "isoutliar")) {
-      warning(
-        "tag$pressure$isoutliar is deprecated in favor of tag$pressure$isoutlier. This code will ",
-        "continue but update your code and data to be compatible with futur version of ",
-        "GeoPressureR."
-      )
-      tag$pressure$isoutlier <- tag$pressure$isoutliar
-    } else {
       tag$pressure$isoutlier <- FALSE
-    }
   }
   assertthat::assert_that(is.character(pathname))
   assertthat::assert_that(is.character(filename))

@@ -101,18 +101,7 @@ geopressureviz <- function(tag,
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "sta_id")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$value))
-
-  if (!assertthat::has_name(pressure, "isoutlier")) {
-    if (assertthat::has_name(pressure, "isoutliar")) {
-      warning(
-        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. This code will continue",
-        " but update your code and data to be compatible with futur version of GeoPressureR."
-      )
-      pressure$isoutlier <- pressure$isoutliar
-    } else {
-      assertthat::assert_that(assertthat::has_name(pressure, "isoutlier"))
-    }
-  }
+  assertthat::assert_that(assertthat::has_name(pressure, "isoutlier"))
   gdl_id <- tag$id
 
 
