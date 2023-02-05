@@ -27,7 +27,7 @@ test_that("Check geopressure_mismatch() for date too recent", {
   tmp <- Sys.time()
   pressure <- data.frame(
     date = c(tmp, tmp + 60 * 60, tmp + 2 * 60 * 60),
-    obs = c(1000, 1000, 1000),
+    value = c(1000, 1000, 1000),
     sta_id = c(1, 1, 1)
   )
   expect_error(raster_list <- geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1))
@@ -48,7 +48,7 @@ test_that("Check geopressure_mismatch() output", {
       "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
       "2017-06-20 02:00:00 UTC"
     )),
-    obs = c(1000, 1000, 1000),
+    value = c(1000, 1000, 1000),
     sta_id = c(1, 1, 1)
   )
   raster_list <- geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1)
@@ -58,7 +58,7 @@ test_that("Check geopressure_mismatch() output", {
 
   # Check error for incorrect pressure
   pressure_tmp <- pressure
-  pressure_tmp$obs[2] <- 1200
+  pressure_tmp$value[2] <- 1200
   expect_error(geopressure_mismatch(pressure_tmp, extent = c(1, 0, 0, 1), scale = 1))
 
   # Check error for incorrect pressure
@@ -131,7 +131,7 @@ test_that("Check geopressure_timeseries() output", {
       "2017-06-20 00:00:00", "2017-06-20 01:00:00",
       "2017-06-20 02:00:00"
     ), tz = "UTC"),
-    obs = c(1000, 1000, 1000),
+    value = c(1000, 1000, 1000),
     sta_id = c(1, 1, 1)
   )
   pressure_timeserie <- geopressure_timeseries(lon = 6, lat = 46, pressure = pressure)

@@ -98,9 +98,9 @@ geopressureviz <- function(tag,
   # Check tag
   pressure <- tag$pressure
   assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs", "sta_id")))
+  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "sta_id")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
-  assertthat::assert_that(is.numeric(pressure$obs))
+  assertthat::assert_that(is.numeric(pressure$value))
 
   if (!assertthat::has_name(pressure, "isoutlier")) {
     if (assertthat::has_name(pressure, "isoutliar")) {

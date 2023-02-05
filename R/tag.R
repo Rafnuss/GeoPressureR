@@ -101,9 +101,9 @@ tag_read <- function(pathname,
         )
 
         # Check for error
-        if (any(is.na(pres$obs))) {
+        if (any(is.na(pres$value))) {
           stop(paste0("Invalid data in ", basename(pressure_path), " at line(s): ", 20 +
-            which(is.na(pres$obs)), ". Check and fix the corresponding lines"))
+            which(is.na(pres$value)), ". Check and fix the corresponding lines"))
         }
         if (length(unique(diff(pres$date))) > 1) {
           dtime <- as.numeric(diff(pres$date))
@@ -114,7 +114,7 @@ tag_read <- function(pathname,
         }
 
         # convert Pa in hPa
-        pres$obs <- pres$obs / 100
+        pres$value <- pres$value / 100
 
         # Crop time
         subset(pres, date >= crop_start & date < crop_end)
@@ -147,9 +147,9 @@ tag_read <- function(pathname,
         )
 
         # Check for error
-        if (any(is.na(light$obs))) {
+        if (any(is.na(light$value))) {
           stop(paste0("Invalid data in ", basename(light_path), " at line(s): ", 20 +
-            which(is.na(light$obs)), ". Check and fix the corresponding lines"))
+            which(is.na(light$value)), ". Check and fix the corresponding lines"))
         }
         if (length(unique(diff(light$date))) > 1) {
           dtime <- as.numeric(diff(light$date))
@@ -200,9 +200,9 @@ tag_read <- function(pathname,
         )
 
         # Check for error
-        if (any(is.na(acc$obs))) {
+        if (any(is.na(acc$value))) {
           stop(paste0("Invalid data in ", basename(acceleration_path), " at line(s): ", 20 +
-            which(is.na(acc$obs)), ". Check and fix the corresponding lines"))
+            which(is.na(acc$value)), ". Check and fix the corresponding lines"))
         }
         if (length(unique(diff(acc$date))) > 1) {
           dtime <- as.numeric(diff(acc$date))
@@ -258,7 +258,7 @@ tag_read_delim_dto <- function(path, skip = 6, col = 3, date_format = "%d.%m.%Y 
       tz = "UTC",
       format = date_format
     )),
-    obs = data_raw[, col]
+    value = data_raw[, col]
   )
 }
 
@@ -295,15 +295,15 @@ tag_classify <- function(tag,
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, "acceleration"))
   assertthat::assert_that(is.data.frame(tag$acceleration))
-  assertthat::assert_that(assertthat::has_name(tag$acceleration, c("obs", "date")))
+  assertthat::assert_that(assertthat::has_name(tag$acceleration, c("value", "date")))
   assertthat::assert_that(is.numeric(min_duration))
   assertthat::assert_that(min_duration > 0)
 
   # Run a 2 class k mean clustering
-  km <- stats::kmeans(tag$acceleration$obs[tag$acceleration$obs > 0], centers = 2)
+  km <- stats::kmeans(tag$acceleration$value[tag$acceleration$value > 0], centers = 2)
 
   # classify all datapoints belonging to the high value cluster
-  act_mig <- tag$acceleration$obs > mean(km$centers)
+  act_mig <- tag$acceleration$value > mean(km$centers)
 
   # group continous activites (low or high) with and ID
   act_id <- c(1, cumsum(diff(as.numeric(act_mig)) != 0) + 1)
@@ -319,7 +319,7 @@ tag_classify <- function(tag,
   tag$acceleration$ismig <- tmp[act_id]
 
   # plot(tag$acceleration$date[tag$acceleration$ismig],
-  # tag$acceleration$obs[tag$acceleration$ismig])
+  # tag$acceleration$value[tag$acceleration$ismig])
 
   return(tag)
 }

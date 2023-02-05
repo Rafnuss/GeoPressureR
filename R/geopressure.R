@@ -23,7 +23,7 @@
 #' ERA5 data. The min and max ground elevation of each pixel is computed from SRTM-90.
 #'
 #' @param pressure Pressure data.frame from a data logger. This data.frame needs to contains `date`
-#' as POSIXt, `obs` in hPa, `sta_id` grouping observation measured during the same stationary period
+#' as POSIXt, `value` in hPa, `sta_id` grouping observation measured during the same stationary period
 #' and `isoutlier` as logical to label observation which need to be ignored. It is best practice to
 #' use `tag_read()` and `tag_sta()` to build this data.frame.
 #' @param extent Geographical extent of the map to query as a list ordered by North, West, South,
@@ -78,9 +78,9 @@ geopressure_mismatch <- function(pressure,
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(nrow(pressure) > 1)
   assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs", "sta_id")))
+  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "sta_id")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
-  assertthat::assert_that(is.numeric(pressure$obs))
+  assertthat::assert_that(is.numeric(pressure$value))
   assertthat::assert_that(is.numeric(workers))
   assertthat::assert_that(workers > 0 & workers < 100)
 
@@ -95,8 +95,8 @@ geopressure_mismatch <- function(pressure,
       pressure$isoutlier <- FALSE
     }
   }
-  if (min(pressure$obs[!pressure$isoutlier]) < 250 || 1100 <
-    max(pressure$obs[!pressure$isoutlier])) {
+  if (min(pressure$value[!pressure$isoutlier]) < 250 || 1100 <
+    max(pressure$value[!pressure$isoutlier])) {
     stop(paste0(
       "Pressure observation should be between 250 hPa (~10000m)  and 1100 hPa (sea level at 1013",
       "hPa). Check unit return by `tag_read()`"
@@ -120,7 +120,7 @@ geopressure_mismatch <- function(pressure,
   assertthat::assert_that(0 < margin)
 
   # convert from hPa to Pa
-  pres <- pressure$obs * 100
+  pres <- pressure$value * 100
 
   # remove outlier as labeled in TRAINSET
   pres[pressure$isoutlier] <- NA
@@ -485,8 +485,8 @@ geopressure_timeseries <- function(lon,
     assertthat::assert_that(is.data.frame(pressure))
     assertthat::assert_that("date" %in% names(pressure))
     assertthat::assert_that(inherits(pressure$date, "POSIXt"))
-    assertthat::assert_that("obs" %in% names(pressure))
-    assertthat::assert_that(is.numeric(pressure$obs))
+    assertthat::assert_that("value" %in% names(pressure))
+    assertthat::assert_that(is.numeric(pressure$value))
     end_time <- NULL
     start_time <- NULL
     if (!assertthat::has_name(pressure, "isoutlier")) {
@@ -514,7 +514,7 @@ geopressure_timeseries <- function(lon,
   body_df <- list(lon = lon, lat = lat)
   if (!is.null(pressure)) {
     body_df$time <- jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date)))
-    body_df$pressure <- jsonlite::toJSON(pressure$obs * 100)
+    body_df$pressure <- jsonlite::toJSON(pressure$value * 100)
   } else {
     body_df$startTime <- as.numeric(as.POSIXct(start_time))
     body_df$endTime <- as.numeric(as.POSIXct(end_time))
@@ -605,10 +605,10 @@ geopressure_timeseries <- function(lon,
       # (id_q==0) and when not marked as outliar
       id_norm <- !id_0 & !pressure$isoutlier
 
-      pressure_obs_m <- mean(pressure$obs[id_norm])
+      pressure_value_m <- mean(pressure$value[id_norm])
       pressure_out_m <- mean(out$pressure[id_norm])
 
-      out$pressure0 <- out$pressure - pressure_out_m + pressure_obs_m
+      out$pressure0 <- out$pressure - pressure_out_m + pressure_value_m
     }
   }
   return(out)
@@ -648,9 +648,9 @@ geopressure_timeseries_path <- function(path,
                                         workers = 90,
                                         verbose = TRUE) {
   assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs", "sta_id")))
+  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "sta_id")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
-  assertthat::assert_that(is.numeric(pressure$obs))
+  assertthat::assert_that(is.numeric(pressure$value))
   if (!assertthat::has_name(pressure, "isoutlier")) {
     if (assertthat::has_name(pressure, "isoutliar")) {
       warning(

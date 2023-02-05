@@ -376,7 +376,7 @@ graph_download_wind <- function(tag,
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
-  assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "obs")))
+  assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "value")))
   assertthat::assert_that(assertthat::has_name(tag, "sta"))
   assertthat::assert_that(is.data.frame(tag$sta))
   assertthat::assert_that(assertthat::has_name(tag$sta, c("end", "start")))
@@ -420,11 +420,11 @@ graph_download_wind <- function(tag,
     flight_id <- flight_time[1] <= tag$pressure$date &
       tag$pressure$date <= utils::tail(flight_time, 1)
     pres_id_min <- min(
-      sum(!(min(tag$pressure$obs[flight_id]) < possible_pressure)),
+      sum(!(min(tag$pressure$value[flight_id]) < possible_pressure)),
       length(possible_pressure) - 1
     )
     pres_id_max <- min(
-      sum(max(tag$pressure$obs[flight_id]) > possible_pressure) + 1,
+      sum(max(tag$pressure$value[flight_id]) > possible_pressure) + 1,
       length(possible_pressure)
     )
     flight_pres_id <- seq(pres_id_min, pres_id_max)
@@ -470,7 +470,7 @@ graph_download_wind <- function(tag,
 #'
 #' @param grl graph constructed with [`graph_create()`]
 #' @param pressure pressure data from a data logger. This data.frame needs to contains `date` as
-#' POSIXt and `obs` in hPa. It is best practice to use [`tag_read()`] and [`tag_sta()`] to build
+#' POSIXt and `value` in hPa. It is best practice to use [`tag_read()`] and [`tag_sta()`] to build
 #' this data.frame.
 #' @param filename Character of the path where to find the netCDF file.
 #' @param thr_as Threshold of airspeed (km/h).
@@ -489,9 +489,9 @@ graph_add_wind <- function(grl,
   ))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs")))
+  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
-  assertthat::assert_that(is.numeric(pressure$obs))
+  assertthat::assert_that(is.numeric(pressure$value))
   assertthat::assert_that(is.character(filename))
   assertthat::assert_that(file.exists(paste0(filename, "1.nc")))
   assertthat::assert_that(is.numeric(thr_as))
@@ -525,10 +525,10 @@ graph_add_wind <- function(grl,
 
       pres <- ncdf4::ncvar_get(nc, "level")
       t_q <- seq(from = t_s, to = t_e, by = 60 * 60)
-      pres_obs <- pressure$obs[pressure$date > t_s & pressure$date < t_e]
-      if (length(pres_obs) == 0 ||
-        !(min(pres) <= min(pres_obs) &&
-          max(pres) >= min(1000, max(pres_obs)))) {
+      pres_value <- pressure$value[pressure$date > t_s & pressure$date < t_e]
+      if (length(pres_value) == 0 ||
+        !(min(pres) <= min(pres_value) &&
+          max(pres) >= min(1000, max(pres_value)))) {
         stop(paste0("Pressure not matching for '", filename, i_s, ".nc'"))
       }
 
@@ -680,8 +680,8 @@ graph_add_wind <- function(grl,
         id_time <- which(time == t_q[i3])
         # find the two pressure level to query (one above, one under) based on the geolocator
         # pressure at this timestep
-        pres_obs <- stats::approx(pressure$date, pressure$obs, t_q[i3])$y
-        df <- pres_obs - pres
+        pres_value <- stats::approx(pressure$date, pressure$value, t_q[i3])$y
+        df <- pres_value - pres
         df[df < 0] <- NA
         id_pres <- which.min(df)
         # if the pressure is higher than the highest level (i.e. bird below the ground level
@@ -709,7 +709,7 @@ graph_add_wind <- function(grl,
 
         # Interpolate linearly the map of wind based on pressure.
         if (n_pres == 2) {
-          w2 <- abs(pres[id_pres + c(0, 1)] - pres_obs)
+          w2 <- abs(pres[id_pres + c(0, 1)] - pres_value)
           w2 <- w2 / sum(w2)
           u <- w2[1] * u[, , 1] + w2[2] * u[, , 2]
           v <- w2[1] * v[, , 1] + w2[2] * v[, , 2]

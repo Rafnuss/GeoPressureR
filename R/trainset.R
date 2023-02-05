@@ -30,9 +30,9 @@ trainset_write <- function(tag,
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, c("pressure", "acceleration")))
   assertthat::assert_that(is.data.frame(tag$pressure))
-  assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "obs")))
+  assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "value")))
   assertthat::assert_that(is.data.frame(tag$acceleration))
-  assertthat::assert_that(assertthat::has_name(tag$acceleration, c("date", "obs")))
+  assertthat::assert_that(assertthat::has_name(tag$acceleration, c("date", "value")))
   if (!assertthat::has_name(tag$acceleration, "ismig")) {
     tag$acceleration$ismig <- FALSE
   }
@@ -60,33 +60,33 @@ trainset_write <- function(tag,
   df <- rbind(
     data.frame(
       series = "acceleration",
-      timestamp = strftime(tag$acceleration$date[!is.na(tag$acceleration$obs)],
+      timestamp = strftime(tag$acceleration$date[!is.na(tag$acceleration$value)],
         "%Y-%m-%dT%H:%M:%SZ",
         tz = "UTC"
       ),
-      value = tag$acceleration$obs[!is.na(tag$acceleration$obs)],
-      label = ifelse(tag$acceleration$ismig[!is.na(tag$acceleration$obs)], "1", "")
+      value = tag$acceleration$value[!is.na(tag$acceleration$value)],
+      label = ifelse(tag$acceleration$ismig[!is.na(tag$acceleration$value)], "1", "")
     ),
     data.frame(
       series = "pressure",
-      timestamp = strftime(tag$pressure$date[!is.na(tag$pressure$obs)], "%Y-%m-%dT%H:%M:%SZ",
+      timestamp = strftime(tag$pressure$date[!is.na(tag$pressure$value)], "%Y-%m-%dT%H:%M:%SZ",
         tz = "UTC"
       ),
-      value = tag$pressure$obs[!is.na(tag$pressure$obs)],
-      label = ifelse(tag$pressure$isoutlier[!is.na(tag$pressure$obs)], "1", "")
+      value = tag$pressure$value[!is.na(tag$pressure$value)],
+      label = ifelse(tag$pressure$isoutlier[!is.na(tag$pressure$value)], "1", "")
     )
   )
 
   # Add optional reference dataset
-  if (assertthat::has_name(tag$pressure, "obs_ref")) {
+  if (assertthat::has_name(tag$pressure, "value_ref")) {
     df <- rbind(
       df,
       data.frame(
         series = "pressure_reference",
-        timestamp = strftime(tag$pressure$date[!is.na(tag$pressure$obs_ref)], "%Y-%m-%dT%H:%M:%SZ",
+        timestamp = strftime(tag$pressure$date[!is.na(tag$pressure$value_ref)], "%Y-%m-%dT%H:%M:%SZ",
           tz = "UTC"
         ),
-        value = tag$pressure$obs_ref[!is.na(tag$pressure$obs_ref)],
+        value = tag$pressure$value_ref[!is.na(tag$pressure$value_ref)],
         label = ""
       )
     )
@@ -131,9 +131,9 @@ trainset_read <- function(tag,
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, c("pressure", "acceleration")))
   assertthat::assert_that(is.data.frame(tag$pressure))
-  assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "obs")))
+  assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "value")))
   assertthat::assert_that(is.data.frame(tag$acceleration))
-  assertthat::assert_that(assertthat::has_name(tag$acceleration, c("date", "obs")))
+  assertthat::assert_that(assertthat::has_name(tag$acceleration, c("date", "value")))
   assertthat::assert_that(is.character(pathname))
   assertthat::assert_that(is.character(filename))
   assertthat::assert_that(dir.exists(pathname))

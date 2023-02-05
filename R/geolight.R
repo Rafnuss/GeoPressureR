@@ -4,11 +4,11 @@
 #' from [`TwGeos::findTwilights`](https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html).
 #'
 #' @param tag data logger dataset list containing `light`, a dataframe with columns `date` and
-#' `obs` that are the sequence of sample  times (as POSIXct) and light levels recorded by the tag
+#' `value` that are the sequence of sample  times (as POSIXct) and light levels recorded by the tag
 #' respectively (see [`tag_read()`]). In addition, `tag$sta` is present, `sta_id` will be added to
 #' the the data.frame returned.
 #' @param threshold the light threshold that defines twilight. If not provided, it uses the first
-#' light (i.e, `obs>0`).
+#' light (i.e, `value>0`).
 #' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
 #' provided, it will take the middle of all nights.
 #' @return A data.frame with columns `twilight` (date-time of twilights), `rise` (logical) and
@@ -27,12 +27,12 @@ geolight_twilight <- function(light,
                               threshold = NA,
                               shift_k = NA) {
   assertthat::assert_that(is.data.frame(light))
-  assertthat::assert_that(assertthat::has_name(light, c("date", "obs")))
+  assertthat::assert_that(assertthat::has_name(light, c("date", "value")))
   assertthat::assert_that(inherits(light$date, "POSIXt"))
-  assertthat::assert_that(is.numeric(light$obs))
+  assertthat::assert_that(is.numeric(light$value))
 
   if (is.na(threshold)) {
-    threshold <- min(light$obs[light$obs > 0])
+    threshold <- min(light$value[light$value > 0])
   }
   assertthat::assert_that(is.numeric(threshold))
 
@@ -40,9 +40,9 @@ geolight_twilight <- function(light,
   if (is.na(shift_k)) {
     mat <- geolight_light2mat(light, shift_k = 0)
     res <- as.numeric(difftime(mat$date[2], mat$date[1], units = "secs"))
-    l <- mat$obs >= threshold
+    l <- mat$value >= threshold
     tmp <- rowMeans(l, na.rm = TRUE)
-    shift_id <- round(sum(tmp * seq_len(dim(mat$obs)[1])) / sum(tmp))
+    shift_id <- round(sum(tmp * seq_len(dim(mat$value)[1])) / sum(tmp))
     shift_k <- res * shift_id - 60 * 60 * 12
   }
 
@@ -50,7 +50,7 @@ geolight_twilight <- function(light,
   mat <- geolight_light2mat(light, shift_k)
 
   # Compute exceed of light
-  l <- mat$obs >= threshold
+  l <- mat$value >= threshold
   # terra::image(l)
 
   # Find the first light
@@ -196,17 +196,17 @@ geolight_likelihood <- function(twl,
 
 #' Convert light data in matrix format
 #'
-#' @param light a dataframe with columns `date` and `obs` that are the sequence of sample
+#' @param light a dataframe with columns `date` and `value` that are the sequence of sample
 #' times (as POSIXct) and light levels recorded by the tag.
 #' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
 #' provided, will try to figure it out from the data
-#' @return A dataframe with columns obs and date
+#' @return A dataframe with columns value and date
 geolight_light2mat <- function(light, shift_k = 0) {
   assertthat::assert_that(is.data.frame(light))
   assertthat::assert_that(is.data.frame(light))
-  assertthat::assert_that(assertthat::has_name(light, c("date", "obs")))
+  assertthat::assert_that(assertthat::has_name(light, c("date", "value")))
   assertthat::assert_that(inherits(light$date, "POSIXt"))
-  assertthat::assert_that(is.numeric(light$obs))
+  assertthat::assert_that(is.numeric(light$value))
   assertthat::assert_that(is.numeric(shift_k))
 
   res <- difftime(utils::tail(light$date, -1), utils::head(light$date, -1), units = "secs")
@@ -233,17 +233,17 @@ geolight_light2mat <- function(light, shift_k = 0) {
   date <- date - (date[closest] - light$date[1])
 
   # Match the observation on the new grid
-  obs <- rep(NA, length(date))
+  value <- rep(NA, length(date))
   id <- date %in% light$date
   assertthat::assert_that(any(id))
-  obs[id] <- light$obs
+  value[id] <- light$value
 
   # reshape in matrix format
   mat <- list(
-    obs = matrix(obs, nrow = 24 * 60 * 60 / res),
+    value = matrix(value, nrow = 24 * 60 * 60 / res),
     date = matrix(date, nrow = 24 * 60 * 60 / res)
   )
-  # terra::image(mat$obs)
+  # terra::image(mat$value)
   mat$date <- as.POSIXct(mat$date, origin = "1970-01-01", tz = "UTC")
 
   return(mat)
