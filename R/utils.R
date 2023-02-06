@@ -25,7 +25,7 @@ progress_bar <- function(x, max = 100, text = "") {
 #' period.
 #'
 #' @param tag data logger dataset list with `tag$sta` computed (see `tag_sta`)
-#' @param path data.frame containtings the path(s) of the bird with column `lat`, `lon` and `sta_id`
+#' @param path data.frame containtings the path(s) of the bird with column `lat`, `lon` and `stap`
 #' at least. Path can be generated with `map2path`, `graph_simulation`, `geopressureviz`
 #' .
 #'
@@ -50,21 +50,21 @@ path2df <- function(tag, path) {
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, "sta"))
   assertthat::assert_that(is.data.frame(tag$sta))
-  assertthat::assert_that(assertthat::has_name(tag$sta, c("sta_id", "start", "end")))
+  assertthat::assert_that(assertthat::has_name(tag$sta, c("stap", "start", "end")))
 
   assertthat::assert_that(is.list(path))
-  assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "sta_id")))
+  assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "stap")))
 
   if (is.matrix(path$lat)) {
     df0 <- data.frame(
       lat = utils::stack(as.data.frame(t(path$lat)))$values,
       lon = utils::stack(as.data.frame(t(path$lon)))$values,
-      sta_id = rep(path$sta_id, dim(path$lat)[1]),
+      stap = rep(path$stap, dim(path$lat)[1]),
       track_id = paste0(tag$id, "_", rep(seq(1, dim(path$lat)[1]), dim(path$lat)[2]))
     )
-    df0 <- merge(df0, tag$sta, by = "sta_id")
+    df0 <- merge(df0, tag$sta, by = "stap")
   } else {
-    df0 <- merge(as.data.frame(path), tag$sta, by = "sta_id")
+    df0 <- merge(as.data.frame(path), tag$sta, by = "stap")
     df0$track_id <- tag$id
   }
 
@@ -93,7 +93,7 @@ path2df <- function(tag, path) {
 #' replace by a linear average from other position (in days) .
 #' @param format One of `"lonlat"`, `"ind"`, `"arr.ind"`. return the path in lon-lat or indices
 #' @return a data.frame of the position containing latitude (`lat`), longitude (`lon`) and the
-#' stationary period id (`sta_id`) as column. Optionally, if indexes were requested, it will be
+#' stationary period id (`stap`) as column. Optionally, if indexes were requested, it will be
 #' return. You will need to use `which.max(as.matrix(map))` and not `which.max(map)` to get
 #' the correct location.
 #' @examples
@@ -113,7 +113,7 @@ map2path <- function(likelihood,
   assertthat::assert_that(is.list(likelihood))
   assertthat::assert_that(is.list(likelihood[[1]]))
   assertthat::assert_that(inherits(likelihood[[1]]$likelihood, "SpatRaster"))
-  assertthat::assert_that(is.numeric(likelihood[[1]]$sta_id))
+  assertthat::assert_that(is.numeric(likelihood[[1]]$stap))
   assertthat::assert_that(is.numeric(interp))
   assertthat::assert_that(interp >= 0)
   assertthat::assert_that(any(format %in% c("lonlat", "ind", "arr.ind")))
@@ -136,7 +136,7 @@ map2path <- function(likelihood,
         lat = pos[1]
       )
     }
-    p$sta_id <- l$sta_id
+    p$stap <- l$stap
     return(p)
   }))
 
@@ -161,7 +161,7 @@ map2path <- function(likelihood,
     if (is.null(likelihood[[1]]$flight)) {
       # Or if flight duration are not available (e.g. `pressure_likelihood`), assumes homogeneous spacing
       # between consecutive stationary period
-      x <- path$sta_id
+      x <- path$stap
     } else {
       # If flight are available, sum of the all flights between stationary period
       flight_duration <- unlist(lapply(likelihood, function(l) {

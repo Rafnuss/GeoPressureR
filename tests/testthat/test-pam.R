@@ -95,11 +95,11 @@ test_that("Check trainset_read()", {
 })
 
 
-tag_sta <- tag_sta(tag_labeled)
+tag_stap <- tag_sta(tag_labeled)
 test_that("Check tag_sta()", {
   # Returned value is correct
   expect_type(tag_sta, "list")
   expect_true(c("sta") %in% names(tag_sta))
   expect_type(tag_labeled$pressure$isoutlier, "logical")
-  expect_gt(nrow(tag_sta$sta), 0)
+  expect_gt(nrow(tag_stap$sta), 0)
 })

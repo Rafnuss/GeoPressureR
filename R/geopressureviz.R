@@ -25,7 +25,7 @@
 #' @param pressure_likelihood_mismatch List of raster containing probability map of each stationary period
 #' according to mismatch of pressure data. See [GeoPressureManual | Pressure map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#computing-pressure-maps).
-#' @param pressure_timeserie List of data.frame containing at least `sta_id`, `date` and `pressure0`
+#' @param pressure_timeserie List of data.frame containing at least `stap`, `date` and `pressure0`
 #' @param lauch_browser If true (default), the app run in your browser, otherwise on Rstudio
 #' @return The path modified in the app.
 #' @seealso [GeoPressureManual | GeoPressureViz
@@ -56,38 +56,38 @@ geopressureviz <- function(tag,
   # Add possible map to display
   map_choices <- c()
   map_val <- list()
-  sta_static <- unlist(lapply(static_likelihood, function(x) terra::metadata(x)$sta_id))
+  sta_static <- unlist(lapply(static_likelihood, function(x) terra::metadata(x)$stap))
   if (any(!is.na(light_likelihood))) {
     map_choices <- c(map_choices, "Light")
-    sta_tmp <- unlist(lapply(light_likelihood, function(x) terra::metadata(x)$sta_id))
+    sta_tmp <- unlist(lapply(light_likelihood, function(x) terra::metadata(x)$stap))
     map_val[[length(map_val) + 1]] <- light_likelihood[sta_tmp %in% sta_static]
   }
   if (any(!is.na(pressure_likelihood_mismatch))) {
     map_choices <- c(map_choices, "Pressure mis.")
-    sta_tmp <- unlist(lapply(pressure_likelihood_mismatch, function(x) terra::metadata(x)$sta_id))
+    sta_tmp <- unlist(lapply(pressure_likelihood_mismatch, function(x) terra::metadata(x)$stap))
     map_val[[length(map_val) + 1]] <- pressure_likelihood_mismatch[sta_tmp %in% sta_static]
   }
 
   if (any(!is.na(pressure_likelihood_thr))) {
     map_choices <- c(map_choices, "Pressure thres.")
-    sta_tmp <- unlist(lapply(pressure_likelihood_thr, function(x) terra::metadata(x)$sta_id))
+    sta_tmp <- unlist(lapply(pressure_likelihood_thr, function(x) terra::metadata(x)$stap))
     map_val[[length(map_val) + 1]] <- pressure_likelihood_thr[sta_tmp %in% sta_static]
   }
   if (any(!is.na(pressure_likelihood))) {
     map_choices <- c(map_choices, "Pressure")
-    sta_tmp <- unlist(lapply(pressure_likelihood, function(x) terra::metadata(x)$sta_id))
+    sta_tmp <- unlist(lapply(pressure_likelihood, function(x) terra::metadata(x)$stap))
     map_val[[length(map_val) + 1]] <- pressure_likelihood[sta_tmp %in% sta_static]
   }
   map_choices <- c(map_choices, "Static")
   map_val[[length(map_val) + 1]] <- static_likelihood
   if (any(!is.na(static_likelihood_marginal))) {
     map_choices <- c(map_choices, "Marginal")
-    sta_tmp <- unlist(lapply(static_likelihood_marginal, function(x) terra::metadata(x)$sta_id))
+    sta_tmp <- unlist(lapply(static_likelihood_marginal, function(x) terra::metadata(x)$stap))
     map_val[[length(map_val) + 1]] <- static_likelihood_marginal[sta_tmp %in% sta_static]
   }
 
   # Get stationary period information
-  sta <- do.call("rbind", lapply(static_likelihood, function(r) {
+  stap <- do.call("rbind", lapply(static_likelihood, function(r) {
     mt <- terra::metadata(r)
     mt$start <- mt$temporal_extent[1]
     mt$end <- mt$temporal_extent[2]
@@ -98,7 +98,7 @@ geopressureviz <- function(tag,
   # Check tag
   pressure <- tag$pressure
   assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "sta_id")))
+  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "stap")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$value))
   assertthat::assert_that(assertthat::has_name(pressure, "isoutlier"))
@@ -106,18 +106,18 @@ geopressureviz <- function(tag,
 
 
   # Correct duration for pressure datapoint available
-  pres_outlier_sta <- stats::aggregate(!pressure$isoutlier,
-    by = list(sta_id = pressure$sta_id),
+  pres_outlier_stap <- stats::aggregate(!pressure$isoutlier,
+    by = list(stap = pressure$stap),
     FUN = sum
   )
   res <- as.numeric(difftime(pressure$date[2], pressure$date[1], units = "days"))
-  id_match <- match(sta$sta_id, pres_outlier_sta$sta_id)
+  id_match <- match(stap$stap, pres_outlier_stap$stap)
   assertthat::assert_that(all(!is.na(id_match)))
-  sta$duration <- pres_outlier_sta$x[id_match] * res
+  stap$duration <- pres_outlier_stap$x[id_match] * res
 
   # Set color of each stationary period
-  col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(max(sta$sta_id) / 8))
-  sta$col <- col[sta$sta_id]
+  col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(max(stap$stap) / 8))
+  stap$col <- col[stap$stap]
 
   # Get flight information and compute flight duration directly
   flight <- lapply(static_likelihood, function(r) {
@@ -138,14 +138,14 @@ geopressureviz <- function(tag,
   if (any(!is.na(pressure_timeserie))) {
     assertthat::assert_that(length(pressure_timeserie) == nrow(sta))
     # TODO Assert pressure_timeserie is correct
-    p_ts_sta_id <- unlist(lapply(pressure_timeserie, function(x) {
+    p_ts_stap <- unlist(lapply(pressure_timeserie, function(x) {
       if (is.null(x)) {
         NA
       } else {
-        stats::median(x$sta_id[!(x$sta_id == 0)])
+        stats::median(x$stap[!(x$stap == 0)])
       }
     }))
-    test <- p_ts_sta_id == sta$sta_id
+    test <- p_ts_stap == stap$stap
     test[is.na(test)] <- TRUE
     assertthat::assert_that(all(test))
     ts0 <- pressure_timeserie
@@ -155,7 +155,7 @@ geopressureviz <- function(tag,
           lon = NA,
           lat = NA,
           lt = 1,
-          sta_id = 0
+          stap = 0
         )
       } else {
         x$lt <- 1
@@ -166,7 +166,7 @@ geopressureviz <- function(tag,
       data.frame(
         lon = x$lon[1],
         lat = x$lat[1],
-        sta_id = stats::median(x$sta_id)
+        stap = stats::median(x$stap)
       )
     }))
   } else {
@@ -183,7 +183,7 @@ geopressureviz <- function(tag,
   # PEROSENVIR <- new.env(parent=emptyenv())
   .GlobalEnv$.map_choices <- map_choices
   .GlobalEnv$.map_val <- map_val
-  .GlobalEnv$.sta <- sta
+  .GlobalEnv$.stap <- sta
   .GlobalEnv$.pressure <- pressure
   .GlobalEnv$.gdl_id <- gdl_id
   .GlobalEnv$.ts0 <- ts0

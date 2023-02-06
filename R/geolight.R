@@ -5,14 +5,14 @@
 #'
 #' @param tag data logger dataset list containing `light`, a dataframe with columns `date` and
 #' `value` that are the sequence of sample  times (as POSIXct) and light levels recorded by the tag
-#' respectively (see [`tag_read()`]). In addition, `tag$sta` is present, `sta_id` will be added to
+#' respectively (see [`tag_read()`]). In addition, `tag$sta` is present, `stap` will be added to
 #' the the data.frame returned.
 #' @param threshold the light threshold that defines twilight. If not provided, it uses the first
 #' light (i.e, `value>0`).
 #' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
 #' provided, it will take the middle of all nights.
 #' @return A data.frame with columns `twilight` (date-time of twilights), `rise` (logical) and
-#' optionally `sta_id` if `tag$sta` is present.
+#' optionally `stap` if `tag$sta` is present.
 #' @seealso [GeoPressureManual | Light Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#twilight-annotation)
 #' @examples
@@ -82,15 +82,15 @@ geolight_twilight <- function(light,
   # order by time
   twl <- twl[order(twl$twilight), ]
 
-  # Combine twilight by sta_id
-  if (assertthat::has_name(light, "sta_id")) {
+  # Combine twilight by stap
+  if (assertthat::has_name(light, "stap")) {
     assertthat::assert_that(assertthat::has_name(tag$sta, "start"))
     assertthat::assert_that(assertthat::has_name(tag$sta, "end"))
     tmp <- which(mapply(function(start, end) {
       start < twl$twilight & twl$twilight < end
-    }, tag$sta$start, tag$sta$end), arr.ind = TRUE)
-    twl$sta_id <- 0
-    twl$sta_id[tmp[, 1]] <- tmp[, 2]
+    }, tag$stap$start, tag$stap$end), arr.ind = TRUE)
+    twl$stap <- 0
+    twl$stap[tmp[, 1]] <- tmp[, 2]
   }
 
   return(twl)
@@ -114,7 +114,7 @@ geolight_twilight <- function(light,
 #' @param lon_calib longitude of the calibration site.
 #' @param lat_calib latitude of the calibration site.
 #' @param map SpatRaster on which the likelihood map should be computed.
-#' @param sta_id stationary periods on which the likelihood maps should be computed.
+#' @param stap stationary periods on which the likelihood maps should be computed.
 #' @param adjust_calib smoothing parameter for the kernel density. See [`stats::kernel()`]
 #' @param w_llp Log-linear pooling aggregation weight. See [GeoPressureManual | Probability
 #' @param fit_z_return interupt the function after calibration and return the zenith angle fit
@@ -128,7 +128,7 @@ geolight_likelihood <- function(twl,
                                 lon_calib,
                                 lat_calib,
                                 map,
-                                sta_id = NA,
+                                stap = NA,
                                 adjust_calib = 1.4,
                                 w_llp = 0.1,
                                 fit_z_return = F) {
@@ -143,10 +143,10 @@ geolight_likelihood <- function(twl,
   assertthat::assert_that(is.numeric(adjust_calib))
   assertthat::assert_that(is.numeric(w_llp))
 
-  if (is.na(sta_id)) {
-    sta_id <- seq_len(max(twl$sta_id))
+  if (is.na(stap)) {
+    stap <- seq_len(max(twl$stap))
   }
-  assertthat::assert_that(is.numeric(sta_id))
+  assertthat::assert_that(is.numeric(stap))
 
   # Remove outlier
   twl_clean <- subset(twl, !isoutlier)
@@ -174,8 +174,8 @@ geolight_likelihood <- function(twl,
 
   # loop through each stationary period and create a SpatRaster with the aggregated likelihood
   light_likelihood <- c()
-  for (i_s in seq_len(length(sta_id))) {
-    id <- twl_clean$sta_id == sta_id[i_s]
+  for (i_s in seq_len(length(stap))) {
+    id <- twl_clean$stap == stap[i_s]
     if (sum(id) > 1) {
       g$likelihood <- exp(colSums(w_llp * log(pgz[id, ]))) # Log-linear equation express in log
     } else if (sum(id) == 1) {
@@ -184,7 +184,7 @@ geolight_likelihood <- function(twl,
       g$likelihood <- 1
     }
     light_likelihood[[i_s]] <- list(
-      sta_id = sta_id[i_s],
+      stap = stap[i_s],
       nb_sample = sum(id),
       likelihood = terra::rast(g, type = "xyz")
     )

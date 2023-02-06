@@ -14,9 +14,9 @@
 #' representing the E-W as real and S-N as imaginary.
 #' * `ps`: static probability of each target node,
 #' * `sz`: size of the 3d grid lat-lon-sta,
-#' * `equipment`: node(s) of the first sta (index in the 3d grid lat-lon-sta),
-#' * `retrieval`: node(s) of the last sta (index in the 3d grid lat-lon-sta),
-#' * `flight_duration`: list of flight duration to next sta in hours,
+#' * `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-sta),
+#' * `retrieval`: node(s) of the last stap (index in the 3d grid lat-lon-sta),
+#' * `flight_duration`: list of flight duration to next stap in hours,
 #' * `lat`: list of the `likelihood$map` latitude in cell center,
 #' * `lon`: list of the `likelihood$map` longitude in cell center,
 #' * `extent`: SpatRaster geographical extent of `likelihood$map`,
@@ -45,7 +45,7 @@ graph_create <- function(likelihood,
   assertthat::assert_that(inherits(likelihood[[1]], "SpatRaster"))
   assertthat::assert_that(assertthat::has_name(
     terra::describe(likelihood[[1]]),
-    c("flight", "sta_id")
+    c("flight", "stap")
   ))
   assertthat::assert_that(is.numeric(thr_prob_percentile))
   assertthat::assert_that(length(thr_prob_percentile) == 1)
@@ -68,18 +68,18 @@ graph_create <- function(likelihood,
     probt / sum(probt, na.rm = TRUE)
   })
 
-  sta_id_0 <- unlist(lapply(likelihood_n, sum)) == 0
-  if (any(is.na(sta_id_0))) {
+  stap_0 <- unlist(lapply(likelihood_n, sum)) == 0
+  if (any(is.na(stap_0))) {
     stop(paste0(
       "likelihood is invalid for index ",
-      paste(which(is.na(sta_id_0)), collapse = ", "),
+      paste(which(is.na(stap_0)), collapse = ", "),
       " (check that the probability map is not null/na)."
     ))
   }
-  if (any(sta_id_0)) {
+  if (any(stap_0)) {
     stop(paste0(
       "The `likelihood` provided has an invalid probability map for the stationary period: ",
-      which(sta_id_0)
+      which(stap_0)
     ))
   }
 
@@ -135,8 +135,8 @@ graph_create <- function(likelihood,
       stop(paste0(
         "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
         "there are not any nodes left at stationary period ",
-        terra::describe(likelihood[[i_s + 1]])$sta_id, " from stationary period ",
-        terra::describe(likelihood[[i_s]])$sta_id
+        terra::describe(likelihood[[i_s + 1]])$stap, " from stationary period ",
+        terra::describe(likelihood[[i_s]])$stap
       ))
     }
   }
@@ -148,8 +148,8 @@ graph_create <- function(likelihood,
       stop(paste0(
         "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
         "there are not any nodes left at stationary period ",
-        terra::describe(likelihood[[i_s - 1]])$sta_id, " from stationary period ",
-        terra::describe(likelihood[[i_s]])$sta_id
+        terra::describe(likelihood[[i_s - 1]])$stap, " from stationary period ",
+        terra::describe(likelihood[[i_s]])$stap
       ))
     }
   }
@@ -195,7 +195,7 @@ graph_create <- function(likelihood,
         t = as.integer(which(nds_i_s_1) + i_s * nll)
       )
 
-      # Find the index in lat, lon, sta of those equipment and target
+      # Find the index in lat, lon, stap of those equipment and target
       s_id <- arrayInd(grt$s, sz)
       t_id <- arrayInd(grt$t, sz)
 
@@ -245,7 +245,7 @@ graph_create <- function(likelihood,
     }, seed = TRUE)
     progress_bar(sum(nds_expend_sum[seq(1, i)]),
       max = sum(nds_expend_sum),
-      text = paste0("| sta = ", i, "/", sz[3] - 1)
+      text = paste0("| stap = ", i, "/", sz[3] - 1)
     )
   }
 
@@ -273,8 +273,8 @@ graph_create <- function(likelihood,
   grl$flight <- lapply(likelihood, function(x) {
     terra::describe(x)$flight
   })
-  grl$sta_id <- unlist(lapply(likelihood, function(x) {
-    terra::describe(x)$sta_id
+  grl$stap <- unlist(lapply(likelihood, function(x) {
+    terra::describe(x)$stap
   }))
   grl$mask_water <- is.na(terra::as.matrix(likelihood[[1]]))
   return(grl)
@@ -356,7 +356,7 @@ graph_trim <- function(gr) {
 #' @param tag data logger dataset list with `tag$sta` computed. See [`tag_read()`] and [`tag_sta()`].
 #' @param area Geographical extent of the map to query. Either a raster (e.g. `likelihood`) or a
 #' list ordered by North, West, South, East  (e.g. `c(50,-16,0,20)`).
-#' @param sta_id Stationary period identifier of the start of the flight to query as defined in
+#' @param stap Stationary period identifier of the start of the flight to query as defined in
 #' `tag$sta`. Be default, download for all the flight.
 #' @param cds_key User (email address) used to sign up for the ECMWF data service. See
 #' [`wf_set_key()`].
@@ -369,7 +369,7 @@ graph_trim <- function(gr) {
 #' @export
 graph_download_wind <- function(tag,
                                 area, # area is specified as N, W, S, E
-                                sta_id = seq_len(nrow(tag$sta) - 1),
+                                stap = seq_len(nrow(tag$sta) - 1),
                                 cds_key = Sys.getenv("cds_key"),
                                 cds_user = Sys.getenv("cds_user"),
                                 path = paste0("data/5_wind_graph/", tag$id, "/")) {
@@ -387,8 +387,8 @@ graph_download_wind <- function(tag,
   area <- terra::extent(area)
   area <- c(area@ymax, area@xmin, area@ymin, area@xmax)
 
-  assertthat::assert_that(is.numeric(sta_id))
-  assertthat::assert_that(all(sta_id %in% tag$sta$sta_id))
+  assertthat::assert_that(is.numeric(stap))
+  assertthat::assert_that(all(stap %in% tag$stap$stap))
 
   ecmwfr::wf_set_key(user = cds_user, key = cds_key, service = "cds")
 
@@ -406,13 +406,13 @@ graph_download_wind <- function(tag,
   # create list of request
   request_list <- list()
 
-  for (i_id in sta_id) {
-    # Find the index of sta_id
-    i_s <- which(tag$sta$sta_id == i_id)
+  for (i_id in stap) {
+    # Find the index of stap
+    i_s <- which(tag$stap$stap == i_id)
 
     # Get the timeserie of the flight on a 1 hour resolution
-    flight_time <- seq(round.POSIXt(tag$sta$end[i_s] - 30 * 60, units = "hours"),
-      round.POSIXt(tag$sta$start[i_s + 1] + 30 * 60, units = "hours"),
+    flight_time <- seq(round.POSIXt(tag$stap$end[i_s] - 30 * 60, units = "hours"),
+      round.POSIXt(tag$stap$start[i_s + 1] + 30 * 60, units = "hours"),
       by = 60 * 60
     )
 
@@ -498,7 +498,7 @@ graph_add_wind <- function(grl,
   assertthat::assert_that(length(thr_as) == 1)
   assertthat::assert_that(thr_as >= 0)
 
-  # Extract the index in lat, lon, sta from the source and target of all edges
+  # Extract the index in lat, lon, stap from the source and target of all edges
   s <- arrayInd(grl$s, grl$sz)
   t <- arrayInd(grl$t, grl$sz)
 
@@ -508,8 +508,8 @@ graph_add_wind <- function(grl,
   # Check that all the files of wind_speed exist and match the data request
   for (i1 in seq_len(grl$sz[3] - 1)) {
     fl_s <- grl$flight[[i1]]
-    for (i2 in seq_len(length(fl_s$sta_id))) {
-      i_s <- fl_s$sta_id[i2]
+    for (i2 in seq_len(length(fl_s$stap))) {
+      i_s <- fl_s$stap[i2]
 
       if (!file.exists(paste0(filename, i_s, ".nc"))) {
         stop(paste0("No wind file: '", filename, i_s, ".nc'"))
@@ -543,7 +543,7 @@ graph_add_wind <- function(grl,
       # Check if flight duration is
       if (fl_s$start[i2] >= fl_s$end[i2]) {
         stop(paste0(
-          "Flight starting on sta_id=", fl_s$sta_id[i2], " has a start time equal or greater than ",
+          "Flight starting on stap=", fl_s$stap[i2], " has a start time equal or greater than ",
           "the end time. Please review your labeling file."
         ))
       }
@@ -554,13 +554,13 @@ graph_add_wind <- function(grl,
   nds_expend_sum <- table(s[, 3])
   progress_bar(0,
     max = sum(nds_expend_sum),
-    text = paste0("| sta = ", 0, "/", grl$sz[3] - 1)
+    text = paste0("| stap = ", 0, "/", grl$sz[3] - 1)
   )
 
   # Loop through the stationary period kept in the graph
   for (i1 in seq_len(grl$sz[3] - 1)) {
-    # Extract the flight information from the current sta to the next one considered in the graph.
-    # It can be the next, or if some sta are skipped at construction, it can contains multiples
+    # Extract the flight information from the current stap to the next one considered in the graph.
+    # It can be the next, or if some stap are skipped at construction, it can contains multiples
     # flights
     fl_s <- grl$flight[[i1]]
 
@@ -577,16 +577,16 @@ graph_add_wind <- function(grl,
     # assume a bird can stop over water. While we could improve this part of the code to assume
     # constant airspeed rather than groundspeed, we suggest to create the graph considering all
     # stopovers.
-    ratio_sta <- as.matrix(c(0, cumsum(fl_s_dur) / sum(fl_s_dur)))
+    ratio_stap <- as.matrix(c(0, cumsum(fl_s_dur) / sum(fl_s_dur)))
 
     # Prepare the u- and v- windspeed for each flight (row) and edge (col)
-    u_sta <- matrix(NA, nrow = length(fl_s$sta_id), ncol = length(st_id))
-    v_sta <- matrix(NA, nrow = length(fl_s$sta_id), ncol = length(st_id))
+    u_stap <- matrix(NA, nrow = length(fl_s$stap), ncol = length(st_id))
+    v_stap <- matrix(NA, nrow = length(fl_s$stap), ncol = length(st_id))
 
     # Loop through each flight of the transition
-    for (i2 in seq_len(length(fl_s$sta_id))) {
+    for (i2 in seq_len(length(fl_s$stap))) {
       # Find the stationary period ID from this specific flight (source)
-      i_s <- fl_s$sta_id[i2]
+      i_s <- fl_s$stap[i2]
 
       # Read the netCDF file
       nc <- ncdf4::nc_open(paste0(filename, i_s, ".nc"))
@@ -745,13 +745,13 @@ graph_add_wind <- function(grl,
 
       progress_bar(sum(nds_expend_sum[seq(1, i1)]),
         max = sum(nds_expend_sum),
-        text = paste0("| sta = ", i1, "/", grl$sz[3] - 1)
+        text = paste0("| stap = ", i1, "/", grl$sz[3] - 1)
       )
     }
     # Compute the average  over all the flight of the transition accounting for the duration of the
     # flight.
-    uv[st_id, 1] <- colSums(u_sta * fl_s_dur / sum(fl_s_dur))
-    uv[st_id, 2] <- colSums(v_sta * fl_s_dur / sum(fl_s_dur))
+    uv[st_id, 1] <- colSums(u_stap * fl_s_dur / sum(fl_s_dur))
+    uv[st_id, 2] <- colSums(v_stap * fl_s_dur / sum(fl_s_dur))
   }
 
   # save windspeed in complex notation and convert from m/s to km/h
@@ -798,7 +798,7 @@ graph_marginal <- function(grl) {
   assertthat::assert_that(assertthat::has_name(
     grl, c(
       "s", "t", "p", "sz", "lat", "lon", "mask_water", "resolution", "extent",
-      "temporal_extent", "flight", "sta_id"
+      "temporal_extent", "flight", "stap"
     )
   ))
   assertthat::assert_that(length(grl$s) > 0)
@@ -882,7 +882,7 @@ graph_marginal <- function(grl) {
     terra::crs(likelihood_marginal[[i_s]]) <-
       "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
     terra::describe(likelihood_marginal[[i_s]]) <- list(
-      sta_id = grl$sta_id[i_s],
+      stap = grl$stap[i_s],
       temporal_extent = grl$temporal_extent[[i_s]],
       flight = grl$flight[[i_s]]
     )
@@ -909,7 +909,7 @@ graph_simulation <- function(grl,
                              nj = 10) {
   assertthat::assert_that(is.list(grl))
   assertthat::assert_that(assertthat::has_name(
-    grl, c("s", "t", "p", "sz", "lat", "lon", "resolution", "extent", "temporal_extent", "sta_id")
+    grl, c("s", "t", "p", "sz", "lat", "lon", "resolution", "extent", "temporal_extent", "stap")
   ))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.numeric(nj))
@@ -955,9 +955,9 @@ graph_simulation <- function(grl,
     x = 1, dims = c(1, n)
   )
 
-  for (i_sta in (grl$sz[3] - 1):1) {
+  for (i_stap in (grl$sz[3] - 1):1) {
     id <- s_id[, 3] == i_sta
-    map_b[[i_sta]] <- map_b[[i_sta + 1]] %*%
+    map_b[[i_sta]] <- map_b[[i_stap + 1]] %*%
       Matrix::sparseMatrix(grl$t[id], grl$s[id], x = grl$p[id], dims = c(n, n))
   }
 
@@ -972,11 +972,11 @@ graph_simulation <- function(grl,
 
   # Loop through the simulation along chronological order
   progress_bar(1, max = grl$sz[3])
-  for (i_sta in seq(2, grl$sz[3])) {
+  for (i_stap in seq(2, grl$sz[3])) {
     # find edges arriving to this stationary period
-    id <- s_id[, 3] == (i_sta - 1)
+    id <- s_id[, 3] == (i_stap - 1)
 
-    # create the local trans_f (only edges from previous sta to this sta
+    # create the local trans_f (only edges from previous stap to this sta
     trans_f <- Matrix::sparseMatrix(grl$s[id], grl$t[id],
       x = grl$p[id],
       dims = c(n, n)
@@ -984,24 +984,24 @@ graph_simulation <- function(grl,
 
     # build the forward mapping from the simulated nodes of the previous stationary period to the
     # current one using trans_f
-    map_f <- Matrix::sparseMatrix(seq_len(nj), path[, i_sta - 1],
+    map_f <- Matrix::sparseMatrix(seq_len(nj), path[, i_stap - 1],
       x = 1,
       dims = c(nj, n)
     ) %*% trans_f
 
     # Combine forward and backward and samples
     if (nj > 1) {
-      ids <- apply(map_f[, nll * (i_sta - 1) + (1:nll)], 1, function(x) {
-        map <- x * map_b[[i_sta]][nll * (i_sta - 1) + (1:nll)]
+      ids <- apply(map_f[, nll * (i_stap - 1) + (1:nll)], 1, function(x) {
+        map <- x * map_b[[i_sta]][nll * (i_stap - 1) + (1:nll)]
         sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
       })
     } else {
-      map <- map_f[, nll * (i_sta - 1) + (1:nll)] * map_b[[i_sta]][nll * (i_sta - 1) + (1:nll)]
+      map <- map_f[, nll * (i_stap - 1) + (1:nll)] * map_b[[i_sta]][nll * (i_stap - 1) + (1:nll)]
       ids <- sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
     }
 
     #
-    path[, i_sta] <- ids + nll * (i_sta - 1)
+    path[, i_sta] <- ids + nll * (i_stap - 1)
 
     # Update progress bar
     progress_bar(i_sta, max = grl$sz[3])
@@ -1034,7 +1034,7 @@ graph_path2lonlat <- function(path_id,
   dim(p$lat) <- dim(p$id)
   p$lon <- grl$lon[ind[, 2]]
   dim(p$lon) <- dim(p$id)
-  p$sta_id <- grl$sta_id
+  p$stap <- grl$stap
   return(p)
 }
 
@@ -1060,22 +1060,22 @@ graph_path2edge <- function(path_id,
     # Number of paths
     nj <- dim(path_id)[1]
     # number of stationary period
-    nsta <- dim(path_id)[2]
-    assertthat::assert_that(nsta == grl$sz[3])
+    nstap <- dim(path_id)[2]
+    assertthat::assert_that(nstap == grl$sz[3])
 
     # Get the source and target
-    path_s <- path_id[, 1:(nsta - 1)]
+    path_s <- path_id[, 1:(nstap - 1)]
     path_t <- path_id[, 2:nsta]
 
     # put as vector
-    dim(path_s) <- (nsta - 1) * nj
-    dim(path_t) <- (nsta - 1) * nj
+    dim(path_s) <- (nstap - 1) * nj
+    dim(path_t) <- (nstap - 1) * nj
   } else {
-    nsta <- length(path_id)
+    nstap <- length(path_id)
     nj <- 1
-    assertthat::assert_that(nsta == grl$sz[3])
+    assertthat::assert_that(nstap == grl$sz[3])
 
-    path_s <- path_id[1:(nsta - 1)]
+    path_s <- path_id[1:(nstap - 1)]
     path_t <- path_id[2:nsta]
   }
 
@@ -1086,7 +1086,7 @@ graph_path2edge <- function(path_id,
   }, path_s, path_t)
 
   # reshape in original shapre
-  dim(edge) <- c(nj, (nsta - 1))
+  dim(edge) <- c(nj, (nstap - 1))
 
   return(edge)
 }

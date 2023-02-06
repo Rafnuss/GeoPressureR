@@ -204,7 +204,7 @@ trainset_read <- function(tag,
 
   # construct stationary period table based on migration activity and pressure
   tag$sta <- data.frame(
-    sta_id = seq_len(nrow(act_mig) + 1),
+    stap = seq_len(nrow(act_mig) + 1),
     start = append(tag$acceleration$date[1], act_mig$end),
     end = append(act_mig$start, tag$acceleration$date[length(tag$acceleration$date)])
   )
@@ -212,10 +212,10 @@ trainset_read <- function(tag,
   # Assign to each pressure the stationary period to which it belong to.
   tmp <- mapply(function(start, end) {
     start < tag$pressure$date & tag$pressure$date < end
-  }, tag$sta$start, tag$sta$end)
+  }, tag$stap$start, tag$stap$end)
   tmp <- which(tmp, arr.ind = TRUE)
-  tag$pressure$sta_id <- 0
-  tag$pressure$sta_id[tmp[, 1]] <- tmp[, 2]
+  tag$pressure$stap <- 0
+  tag$pressure$stap[tmp[, 1]] <- tmp[, 2]
 
   # Assign to each acceleration measurement the stationary period
   if (assertthat::has_name(tag, "acceleration")) {
@@ -223,10 +223,10 @@ trainset_read <- function(tag,
     assertthat::assert_that(assertthat::has_name(tag$acceleration, "date"))
     tmp <- mapply(function(start, end) {
       start < tag$acceleration$date & tag$acceleration$date < end
-    }, tag$sta$start, tag$sta$end)
+    }, tag$stap$start, tag$stap$end)
     tmp <- which(tmp, arr.ind = TRUE)
-    tag$acceleration$sta_id <- 0
-    tag$acceleration$sta_id[tmp[, 1]] <- tmp[, 2]
+    tag$acceleration$stap <- 0
+    tag$acceleration$stap[tmp[, 1]] <- tmp[, 2]
   }
 
   # Assign to each light measurement the stationary period
@@ -235,10 +235,10 @@ trainset_read <- function(tag,
     assertthat::assert_that(assertthat::has_name(tag$light, "date"))
     tmp <- mapply(function(start, end) {
       start < tag$light$date & tag$light$date < end
-    }, tag$sta$start, tag$sta$end)
+    }, tag$stap$start, tag$stap$end)
     tmp <- which(tmp, arr.ind = TRUE)
-    tag$light$sta_id <- 0
-    tag$light$sta_id[tmp[, 1]] <- tmp[, 2]
+    tag$light$stap <- 0
+    tag$light$stap[tmp[, 1]] <- tmp[, 2]
   }
 
   return(tag)

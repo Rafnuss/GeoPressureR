@@ -28,7 +28,7 @@ test_that("Check geopressure_mismatch() for date too recent", {
   pressure <- data.frame(
     date = c(tmp, tmp + 60 * 60, tmp + 2 * 60 * 60),
     value = c(1000, 1000, 1000),
-    sta_id = c(1, 1, 1)
+    stap = c(1, 1, 1)
   )
   expect_error(raster_list <- geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1))
 })
@@ -49,7 +49,7 @@ test_that("Check geopressure_mismatch() output", {
       "2017-06-20 02:00:00 UTC"
     )),
     value = c(1000, 1000, 1000),
-    sta_id = c(1, 1, 1)
+    stap = c(1, 1, 1)
   )
   raster_list <- geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1)
   expect_type(raster_list, "list")
@@ -68,7 +68,7 @@ test_that("Check geopressure_mismatch() output", {
 
   # Check error for incorrect pressure
   pressure_tmp <- pressure
-  pressure_tmp$sta_id <- 0
+  pressure_tmp$stap <- 0
   expect_error(geopressure_mismatch(pressure_tmp, extent = c(1, 0, 0, 1), scale = 1))
 
   # Check back compatibility
@@ -104,7 +104,7 @@ test_that("Check map2path() output", {
 
   # Check correct returned
   expect_s3_class(path_pressure, "data.frame")
-  expect_true(all(c("lon", "lat", "sta_id") %in% names(path_pressure)))
+  expect_true(all(c("lon", "lat", "stap") %in% names(path_pressure)))
   expect_gt(nrow(path_pressure), 0)
 })
 
@@ -132,7 +132,7 @@ test_that("Check geopressure_timeseries() output", {
       "2017-06-20 02:00:00"
     ), tz = "UTC"),
     value = c(1000, 1000, 1000),
-    sta_id = c(1, 1, 1)
+    stap = c(1, 1, 1)
   )
   pressure_timeserie <- geopressure_timeseries(lon = 6, lat = 46, pressure = pressure)
   expect_s3_class(pressure_timeserie, "data.frame")
@@ -146,16 +146,16 @@ test_that("Check geopressure_timeseries() output", {
 
   # i_s <- 4
   # n <- c(32, 32, 29)
-  # path <- subset(path_pressure, sta_id == i_s)
+  # path <- subset(path_pressure, stap == i_s)
   #
   # # Test Include flight
-  # pressure <- subset(tag$pressure, sta_id == i_s)
+  # pressure <- subset(tag$pressure, stap == i_s)
   # pressure_timeserie <- geopressure_timeseries(path$lon, path$lat, pressure)
-  # expect_true(all(c("date", "pressure", "altitude", "pressure0", "sta_id")
+  # expect_true(all(c("date", "pressure", "altitude", "pressure0", "stap")
   # %in% names(pressure_timeserie)))
   # expect_equal(nrow(pressure_timeserie), n[2])
   #
-  # pressure <- subset(tag$pressure, sta_id == i_s | sta_id == 0)
+  # pressure <- subset(tag$pressure, stap == i_s | stap == 0)
   # pressure_timeserie <- geopressure_timeseries(path$lon, path$lat, pressure)
   # expect_gt(nrow(pressure_timeserie), n[2])
 })
@@ -172,8 +172,8 @@ test_that("Check geopressure_timeseries_path() output", {
 
   i_s <- 4
   n <- c(16, 32, 10)
-  pressure <- subset(tag$pressure, sta_id == i_s)
-  path <- subset(path_pressure, sta_id == i_s)
+  pressure <- subset(tag$pressure, stap == i_s)
+  path <- subset(path_pressure, stap == i_s)
   pressure_timeserie <- geopressure_timeseries_path(path, pressure)
 
   # Test Include flight
@@ -182,7 +182,7 @@ test_that("Check geopressure_timeseries_path() output", {
   expect_equal(nrow(pressure_timeserie[[1]]), n[2])
   pressure_timeserie <- geopressure_timeseries_path(path, pressure, include_flight = TRUE)
   expect_equal(nrow(pressure_timeserie[[1]]), sum(n))
-  expect_equal(sum(pressure_timeserie[[1]]$sta_id == i_s), n[2])
+  expect_equal(sum(pressure_timeserie[[1]]$stap == i_s), n[2])
   pressure_timeserie <- geopressure_timeseries_path(path, pressure, include_flight = c(-1, 1))
   expect_equal(nrow(pressure_timeserie[[1]]), sum(n[c(1, 3)]))
 

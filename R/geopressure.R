@@ -23,7 +23,7 @@
 #' ERA5 data. The min and max ground elevation of each pixel is computed from SRTM-90.
 #'
 #' @param pressure Pressure data.frame from a data logger. This data.frame needs to contains `date`
-#' as POSIXt, `value` in hPa, `sta_id` grouping observation measured during the same stationary period
+#' as POSIXt, `value` in hPa, `stap` grouping observation measured during the same stationary period
 #' and `isoutlier` as logical to label observation which need to be ignored. It is best practice to
 #' use `tag_read()` and `tag_sta()` to build this data.frame.
 #' @param extent Geographical extent of the map to query as a list ordered by North, West, South,
@@ -42,7 +42,7 @@
 #' @param workers number of parrellel request on GEE. Between 1 and 99.
 #' @return List of the misfit map for each stationary period, containing:
 #' - `map`: list of the MSE and threashold (see description above)
-#' - `sta_id` index of stationary period.
+#' - `stap` index of stationary period.
 #' - `nb_sample` number of pressure datapoint used.
 #' - `temporal_extent` datetime of the start and end of the stationary period
 #' @seealso [`geopressure_likelihood()`], [GeoPressureManual | Pressure Map
@@ -78,7 +78,7 @@ geopressure_mismatch <- function(pressure,
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(nrow(pressure) > 1)
   assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "sta_id")))
+  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "stap")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$value))
   assertthat::assert_that(is.numeric(workers))
@@ -118,10 +118,10 @@ geopressure_mismatch <- function(pressure,
   pres[pressure$isoutlier] <- NA
 
   # remove flight period
-  pres[pressure$sta_id == 0] <- NA
+  pres[pressure$stap == 0] <- NA
 
   # remove stationary period with NA
-  pres[is.na(pressure$sta_id)] <- NA
+  pres[is.na(pressure$stap)] <- NA
 
   # smooth the data with a moving average of 1hr
   # find the size of the windows for 1 hour
@@ -134,9 +134,9 @@ geopressure_mismatch <- function(pressure,
   n <- round(1 / dt + 1)
   # make the convolution for each stationary period separately
   if (length(pres) > n) {
-    for (i_s in seq(1, max(pressure$sta_id, na.rm = TRUE))) {
+    for (i_s in seq(1, max(pressure$stap, na.rm = TRUE))) {
       pres_i_s <- pres
-      pres_i_s[pressure$sta_id != i_s] <- NA
+      pres_i_s[pressure$stap != i_s] <- NA
       pres_i_s_smoothna <- stats::filter(
         c(FALSE, !is.na(pres_i_s), FALSE),
         rep(1 / n, n)
@@ -147,8 +147,8 @@ geopressure_mismatch <- function(pressure,
       tmp <- pres_i_s_smooth / pres_i_s_smoothna
       tmp <- tmp[seq(2, length(tmp) - 1)]
 
-      pres[!is.na(pressure$sta_id) & pressure$sta_id == i_s] <-
-        tmp[!is.na(pressure$sta_id) & pressure$sta_id == i_s]
+      pres[!is.na(pressure$stap) & pressure$stap == i_s] <-
+        tmp[!is.na(pressure$stap) & pressure$stap == i_s]
     }
   }
 
@@ -166,7 +166,7 @@ geopressure_mismatch <- function(pressure,
   }
 
   # Check number of datapoint per stationary periods
-  tmp <- data.frame(table(pressure$sta_id[!is.na(pres)]))
+  tmp <- data.frame(table(pressure$stap[!is.na(pres)]))
   if (any(tmp$Freq < 3)) {
     warning(
       "There is less than 3 datapoints used for stationary periods: ",
@@ -183,7 +183,7 @@ geopressure_mismatch <- function(pressure,
   # Format query
   body_df <- list(
     time = jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date[!is.na(pres)]))),
-    label = jsonlite::toJSON(pressure$sta_id[!is.na(pres)]),
+    label = jsonlite::toJSON(pressure$stap[!is.na(pres)]),
     pressure = jsonlite::toJSON(pres[!is.na(pres)]),
     N = extent[1],
     W = extent[2],
@@ -291,11 +291,11 @@ geopressure_mismatch <- function(pressure,
         pressure_mismatch[[i_u]] <- list(
           mse = map[[1]],
           mask = map[[2]],
-          sta_id = labels[i_u],
-          nb_sample = sum(pressure$sta_id[!is.na(pres)] == labels[i_u]),
+          stap = labels[i_u],
+          nb_sample = sum(pressure$stap[!is.na(pres)] == labels[i_u]),
           temporal_extent = c(
-            min(pressure$date[!is.na(pres) & pressure$sta_id == labels[i_u]]),
-            max(pressure$date[!is.na(pres) & pressure$sta_id == labels[i_u]])
+            min(pressure$date[!is.na(pres) & pressure$stap == labels[i_u]]),
+            max(pressure$date[!is.na(pres) & pressure$stap == labels[i_u]])
           )
         )
       }
@@ -401,7 +401,7 @@ geopressure_likelihood <- function(pressure_mismatch,
 
     # mask value of threshold and assign the new map
     pressure_likelihood[[i_s]] <- list(
-      sta_id = pressure_mismatch[[i_s]]$sta_id,
+      stap = pressure_mismatch[[i_s]]$stap,
       nb_sample = pressure_mismatch[[i_s]]$nb_sample,
       temporal_extent = pressure_mismatch[[i_s]]$temporal_extent,
       likelihood = likelihood * (pressure_mismatch[[i_s]]$mask >= thr)
@@ -581,7 +581,7 @@ geopressure_timeseries <- function(lon,
     out <- merge(pressure, out, all.x = TRUE)
 
     # find when the bird was in flight or not to be considered
-    id_0 <- pressure$sta_id == 0 | is.na(pressure$sta_id)
+    id_0 <- pressure$stap == 0 | is.na(pressure$stap)
     # If no ground (ie. only flight) is present, pressure0 has no meaning
     if (!all(id_0)) {
       # We compute the mean pressure of the geolocator only when the bird is on the ground
@@ -602,7 +602,7 @@ geopressure_timeseries <- function(lon,
 #' Query the timeseries of pressure from a path and geolocator pressure
 #'
 #' This function runs in parallel `geopressure_timeseries()` based on a path and pressure timeserie.
-#' It uses the `sta_id` to match the pressure timeseries to request for each position of the path.
+#' It uses the `stap` to match the pressure timeseries to request for each position of the path.
 #'
 #' You can include previous and/or next flight period in each query. This is typically useful to
 #' estimate flight altitude with greater precision.
@@ -611,13 +611,13 @@ geopressure_timeseries <- function(lon,
 #' explained in `geopressure_timeseries()`.
 #'
 #' @param path A data.frame of the position containing latitude (`lat`), longitude  (`lon`) and the
-#' stationary period id (`sta_id`) as column.
+#' stationary period id (`stap`) as column.
 #' @param pressure Pressure list from data logger dataset list.
 #' @param include_flight Extend request to also query the pressure and altitude during the previous
-#' and/or next flight. Flights are defined by a `sta_id=0`. Accept Logical or vector of -1 (previous
+#' and/or next flight. Flights are defined by a `stap=0`. Accept Logical or vector of -1 (previous
 #' flight), 0 (stationary) and/or 1 (next flight). (e.g. `include_flight=c(-1, 1)` will only search
 #' for the flight before and after but not the stationary period). Note that next and previous
-#' flights are defined by the +/1 of the `sta_id` value (and not the previous/next `sta_id` value).
+#' flights are defined by the +/1 of the `stap` value (and not the previous/next `stap` value).
 #' @param workers number of parrellel request on GEE. Between 1 and 99.
 #' @param verbose Display (or not) the progress of the queries (logical).
 #' @return List of data.frame containing for each stationary period, the date, pressure, altitude
@@ -631,15 +631,15 @@ geopressure_timeseries_path <- function(path,
                                         workers = 90,
                                         verbose = TRUE) {
   assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "sta_id")))
+  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "stap")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$value))
   assertthat::assert_that(assertthat::has_name(pressure, "isoutlier"))
   assertthat::assert_that(is.data.frame(path))
-  assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "sta_id")))
+  assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "stap")))
   if (nrow(path) == 0) warning("path is empty")
-  if (!all(path$sta_id %in% pressure$sta_id)) {
-    warning("Some path sta_id are not present in pressure")
+  if (!all(path$stap %in% pressure$stap)) {
+    warning("Some path stap are not present in pressure")
   }
   if (is.logical(include_flight)) {
     include_flight <- (if (include_flight) c(-1, 0, 1) else 0)
@@ -650,12 +650,12 @@ geopressure_timeseries_path <- function(path,
   assertthat::assert_that(is.numeric(workers))
   assertthat::assert_that(workers > 0 & workers < 100)
 
-  # Interpolate sta_id for flight period so that, a flight between sta_id 2 and 3 will have a
-  # `sta_id_interp` between 2 and 3.
-  id_0 <- pressure$sta_id == 0 | is.na(pressure$sta_id)
-  sta_id_interp <- pressure$sta_id
-  sta_id_interp[id_0] <- stats::approx(which(!id_0),
-    pressure$sta_id[!id_0], which(id_0),
+  # Interpolate stap for flight period so that, a flight between stap 2 and 3 will have a
+  # `stap_interp` between 2 and 3.
+  id_0 <- pressure$stap == 0 | is.na(pressure$stap)
+  stap_interp <- pressure$stap
+  stap_interp[id_0] <- stats::approx(which(!id_0),
+    pressure$stap[!id_0], which(id_0),
     rule = 2
   )$y
 
@@ -669,18 +669,18 @@ geopressure_timeseries_path <- function(path,
   }
 
   for (i_s in seq_len(nrow(path))) {
-    i_sta <- path$sta_id[i_s]
-    if (verbose) progress_bar(i_s, max = nrow(path), text = paste0("| sta = ", i_sta))
+    i_stap <- path$stap[i_s]
+    if (verbose) progress_bar(i_s, max = nrow(path), text = paste0("| stap = ", i_sta))
     # Subset the pressure of the stationary period
-    id_q <- rep(NA, length(sta_id_interp))
+    id_q <- rep(NA, length(stap_interp))
     if (any(0 == include_flight)) {
-      id_q[path$sta_id[i_s] == sta_id_interp] <- 0
+      id_q[path$stap[i_s] == stap_interp] <- 0
     }
     if (any(-1 == include_flight)) {
-      id_q[i_sta - 1 < sta_id_interp & sta_id_interp < i_sta] <- -1
+      id_q[i_stap - 1 < stap_interp & stap_interp < i_sta] <- -1
     }
     if (any(1 == include_flight)) {
-      id_q[i_sta < sta_id_interp & sta_id_interp < i_sta + 1] <- 1
+      id_q[i_stap < stap_interp & stap_interp < i_stap + 1] <- 1
     }
     # Send the query
     f[[i_s]] <- future::future({
@@ -695,13 +695,13 @@ geopressure_timeseries_path <- function(path,
   message("Compute and download the data (on GEE):")
   progress_bar(0, max = nrow(path))
   for (i_s in seq_len(length(f))) {
-    progress_bar(i_s, max = nrow(path), text = paste0("| sta = ", i_sta))
+    progress_bar(i_s, max = nrow(path), text = paste0("| stap = ", i_sta))
     tryCatch(
       expr = {
         pressure_timeserie[[i_s]] <- future::value(f[[i_s]])
       },
       error = function(cond) {
-        warning(paste0("Error for sta_id = ", path$sta_id[i_s], ".\n", cond))
+        warning(paste0("Error for stap = ", path$stap[i_s], ".\n", cond))
       }
     )
   }

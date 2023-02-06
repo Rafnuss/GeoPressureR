@@ -29,11 +29,11 @@ tag <- tag_sta(tag)
 
 twl <- geolight_twilight(tag, shift_k = 0)
 test_that("Check geolight_twilight() with sta", {
-  expect_true(all(c("sta_id") %in% names(twl)))
+  expect_true(all(c("stap") %in% names(twl)))
 })
 
 twl$isoutlier <- F
-twl$calib <- twl$sta_id == 1
+twl$calib <- twl$stap == 1
 lon_calib <- 17.05
 lat_calib <- 48.9
 
@@ -42,10 +42,10 @@ map <- terra::raster(nrow = 66, ncol = 23, xmn = 0, xmx = 23, ymn = -16, ymx = 5
 test_that("Check geolight_likelihood() with sta", {
   likelihood_map <- geolight_likelihood(twl, lon_calib, lat_calib, map)
   expect_type(likelihood_map, "list")
-  expect_length(likelihood_map, max(twl$sta_id))
+  expect_length(likelihood_map, max(twl$stap))
   expect_s4_class(likelihood_map[[1]], "RasterLayer")
 
-  likelihood_map <- geolight_likelihood(twl, lon_calib, lat_calib, map, sta_id = 1)
+  likelihood_map <- geolight_likelihood(twl, lon_calib, lat_calib, map, stap = 1)
   expect_length(likelihood_map, 1)
 
   fit_z <- geolight_likelihood(twl, lon_calib, lat_calib, map, fit_z_return = T)
