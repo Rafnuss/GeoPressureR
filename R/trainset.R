@@ -152,17 +152,93 @@ trainset_read <- function(tag,
 
   missing_acc <- sum(is.na(id_acc_match))
   missing_pres <- sum(is.na(id_pres_match))
-  if (missing_acc > 0 || missing_pres > 0) {
-    trainset_write(tag, pathname = tempdir(), filename = paste0(tag$id, "_act_pres-labeled"))
-    warning(paste0(
-      "The labelization file is missing ", missing_pres, " timesteps of pressure and ",
-      missing_acc, " timesteps of acceleration and includes ",
-      nrow(csv_pres) - nrow(tag$pressure) + missing_pres, " timestep of pressure and ",
-      nrow(csv_acc) - nrow(tag$acceleration) + missing_acc, " timestep of acceleration",
-      " which are not nedded. We assumed no migration and no outlier during the ",
-      "timestep missing. You can find the updated labelization file at ", tempdir(), "/",
-      tag$id, "_act_pres-labeled.csv"
-    ))
+
+
+  if (any(csv$series == "acceleration")) {
+    csv_acc <- subset(csv, series == "acceleration")
+    id_acc_match <- match(as.numeric(tag$acceleration$date), as.numeric(csv_acc$date))
+    tag$acceleration$ismig <- !is.na(csv_acc$label[id_acc_match])
+    missing_acc <- sum(is.na(id_acc_match))
+  }
+
+
+  if (any(csv$series == "acceleration")) {
+    if (missing_acc > 0 || missing_pres > 0) {
+      trainset_write(tag, pathname = tempdir(), filename = paste0(tag$id, "_act_pres-labeled"))
+      warning(paste0(
+        "The labelization file is missing ", missing_pres, " timesteps of pressure and ",
+        missing_acc, " timesteps of acceleration and includes ",
+        nrow(csv_pres) - nrow(tag$pressure) + missing_pres, " timestep of pressure and ",
+        nrow(csv_acc) - nrow(tag$acceleration) + missing_acc, " timestep of acceleration",
+        " which are not nedded. We assumed no migration and no outlier during the ",
+        "timestep missing. You can find the updated labelization file at ", tempdir(), "/",
+        tag$id, "_act_pres-labeled.csv"
+      ))
+    }
+  } else {
+    if (missing_pres > 0) {
+      trainset_write(tag, pathname = tempdir(), filename = paste0(tag$id, "_act_pres-labeled"))
+      warning(paste0(
+        "The labelization file is missing ", missing_pres, " timesteps of pressure and includes ",
+        nrow(csv_pres) - nrow(tag$pressure) + missing_pres, " timestep of pressure",
+        " which are not nedded. We assumed no migration and no outlier during the ",
+        "timestep missing. You can find the updated labelization file at ", tempdir(), "/",
+        tag$id, "_act_pres-labeled.csv"
+      ))
+    }
+  }
+
+  # Create a table of activities (migration or stationary)
+  act_id <- c(1, cumsum(diff(as.numeric(tag$acceleration$ismig)) != 0) + 1)
+
+  act <- data.frame(
+    # id = unique(act_id),
+    start = do.call("c", lapply(split(tag$acceleration$date, act_id), min)),
+    end = do.call("c", lapply(split(tag$acceleration$date, act_id), max)),
+    mig = sapply(split(tag$acceleration$ismig, act_id), unique)
+  )
+
+  # filter to keep only migration activities
+  act_mig <- act[act$mig, ]
+  # act_mig$duration <- act_mig$end - act_mig$start
+
+  # construct stationary period table based on migration activity and pressure
+  tag$sta <- data.frame(
+    sta_id = seq_len(nrow(act_mig) + 1),
+    start = append(tag$acceleration$date[1], act_mig$end),
+    end = append(act_mig$start, tag$acceleration$date[length(tag$acceleration$date)])
+  )
+
+  # Assign to each pressure the stationary period to which it belong to.
+  tmp <- mapply(function(start, end) {
+    start < tag$pressure$date & tag$pressure$date < end
+  }, tag$sta$start, tag$sta$end)
+  tmp <- which(tmp, arr.ind = TRUE)
+  tag$pressure$sta_id <- 0
+  tag$pressure$sta_id[tmp[, 1]] <- tmp[, 2]
+
+  # Assign to each acceleration measurement the stationary period
+  if (assertthat::has_name(tag, "acceleration")) {
+    assertthat::assert_that(is.data.frame(tag$acceleration))
+    assertthat::assert_that(assertthat::has_name(tag$acceleration, "date"))
+    tmp <- mapply(function(start, end) {
+      start < tag$acceleration$date & tag$acceleration$date < end
+    }, tag$sta$start, tag$sta$end)
+    tmp <- which(tmp, arr.ind = TRUE)
+    tag$acceleration$sta_id <- 0
+    tag$acceleration$sta_id[tmp[, 1]] <- tmp[, 2]
+  }
+
+  # Assign to each light measurement the stationary period
+  if (assertthat::has_name(tag, "light")) {
+    assertthat::assert_that(is.data.frame(tag$light))
+    assertthat::assert_that(assertthat::has_name(tag$light, "date"))
+    tmp <- mapply(function(start, end) {
+      start < tag$light$date & tag$light$date < end
+    }, tag$sta$start, tag$sta$end)
+    tmp <- which(tmp, arr.ind = TRUE)
+    tag$light$sta_id <- 0
+    tag$light$sta_id[tmp[, 1]] <- tmp[, 2]
   }
 
   return(tag)
