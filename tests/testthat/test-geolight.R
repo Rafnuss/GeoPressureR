@@ -25,7 +25,7 @@ tag <- trainset_read(
   tag,
   pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 )
-tag <- tag_sta(tag)
+tag <- tag_stap(tag)
 
 twl <- geolight_twilight(tag, shift_k = 0)
 test_that("Check geolight_twilight() with sta", {

@@ -353,7 +353,7 @@ graph_trim <- function(gr) {
 #' [GeoPressureManual | Wind graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)).
 #'
-#' @param tag data logger dataset list with `tag$sta` computed. See [`tag_read()`] and [`tag_sta()`].
+#' @param tag data logger dataset list with `tag$sta` computed. See [`tag_read()`] and [`tag_stap()`].
 #' @param area Geographical extent of the map to query. Either a raster (e.g. `likelihood`) or a
 #' list ordered by North, West, South, East  (e.g. `c(50,-16,0,20)`).
 #' @param stap Stationary period identifier of the start of the flight to query as defined in
@@ -470,7 +470,7 @@ graph_download_wind <- function(tag,
 #'
 #' @param grl graph constructed with [`graph_create()`]
 #' @param pressure pressure data from a data logger. This data.frame needs to contains `date` as
-#' POSIXt and `value` in hPa. It is best practice to use [`tag_read()`] and [`tag_sta()`] to build
+#' POSIXt and `value` in hPa. It is best practice to use [`tag_read()`] and [`tag_stap()`] to build
 #' this data.frame.
 #' @param filename Character of the path where to find the netCDF file.
 #' @param thr_as Threshold of airspeed (km/h).

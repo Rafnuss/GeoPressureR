@@ -48,7 +48,7 @@
 #' @seealso [`geopressure_likelihood()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
-#' # See `tag_sta()` for generating tag
+#' # See `tag_stap()` for generating tag
 #' \dontrun{
 #' pressure_mismatch <- geopressure_mismatch(
 #'   tag$pressure,

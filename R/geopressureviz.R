@@ -5,7 +5,7 @@
 #' GeoPressureViz](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
 #' a [demo of the Great Reed Warbler (18LX)](https://rafnuss.shinyapps.io/GeoPressureViz/).
 #'
-#' @param tag data logger dataset list with `tag$sta` computed. See [`tag_read()`] and [`tag_sta()`].
+#' @param tag data logger dataset list with `tag$sta` computed. See [`tag_read()`] and [`tag_stap()`].
 #' @param static_likelihood List of SpatRaster containing probability map of each stationary period. The
 #' metadata of `static_likelihood` needs to include the flight information to the next stationary period
 #' in the metadata `flight`. See [GeoPressureManual | Static map

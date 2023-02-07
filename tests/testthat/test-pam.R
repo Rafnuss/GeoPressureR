@@ -95,8 +95,8 @@ test_that("Check trainset_read()", {
 })
 
 
-tag_stap <- tag_sta(tag_labeled)
-test_that("Check tag_sta()", {
+tag_stap <- tag_stap(tag_labeled)
+test_that("Check tag_stap()", {
   # Returned value is correct
   expect_type(tag_sta, "list")
   expect_true(c("sta") %in% names(tag_sta))

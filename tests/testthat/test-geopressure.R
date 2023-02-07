@@ -10,7 +10,7 @@ tag <- trainset_read(
   tag,
   pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 )
-tag <- tag_sta(tag)
+tag <- tag_stap(tag)
 
 pressure_mismatch <- geopressure_mismatch(tag$pressure,
   extent = c(50, -16, 0, 23),
