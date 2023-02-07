@@ -25,22 +25,20 @@
 #' @export
 trainset_write <- function(tag,
                            pathname = "data/1_pressure/labels/",
-  # Perform test
                            filename = paste0(tag$id, "_act_pres.csv")) {
   assertthat::assert_that(is.list(tag))
-  assertthat::assert_that(assertthat::has_name(tag, c("pressure", "acceleration")))
+  assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
   assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "value")))
-  assertthat::assert_that(is.data.frame(tag$acceleration))
-  assertthat::assert_that(assertthat::has_name(tag$acceleration, c("date", "value")))
+  assertthat::assert_that(is.character(pathname))
+  assertthat::assert_that(is.character(filename))
+
   if (!assertthat::has_name(tag$acceleration, "ismig")) {
     tag$acceleration$ismig <- FALSE
   }
   if (!assertthat::has_name(tag$pressure, "isoutlier")) {
-      tag$pressure$isoutlier <- FALSE
+    tag$pressure$isoutlier <- FALSE
   }
-  assertthat::assert_that(is.character(pathname))
-  assertthat::assert_that(is.character(filename))
   # create path if does not exit
   if (!dir.exists(pathname)) {
     dir.create(pathname)
@@ -74,7 +72,8 @@ trainset_write <- function(tag,
       df,
       data.frame(
         series = "pressure_reference",
-        timestamp = strftime(tag$pressure$date[!is.na(tag$pressure$value_ref)], "%Y-%m-%dT%H:%M:%SZ",
+        timestamp = strftime(tag$pressure$date[!is.na(tag$pressure$value_ref)],
+                             "%Y-%m-%dT%H:%M:%SZ",
           tz = "UTC"
         ),
         value = tag$pressure$value_ref[!is.na(tag$pressure$value_ref)],
@@ -118,13 +117,10 @@ trainset_write <- function(tag,
 trainset_read <- function(tag,
                           pathname = "data/1_pressure/labels/",
                           filename = paste0(tag$id, "_act_pres-labeled.csv")) {
-  # Perform test
   assertthat::assert_that(is.list(tag))
-  assertthat::assert_that(assertthat::has_name(tag, c("pressure", "acceleration")))
+  assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
   assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "value")))
-  assertthat::assert_that(is.data.frame(tag$acceleration))
-  assertthat::assert_that(assertthat::has_name(tag$acceleration, c("date", "value")))
   assertthat::assert_that(is.character(pathname))
   assertthat::assert_that(is.character(filename))
   assertthat::assert_that(dir.exists(pathname))
@@ -139,29 +135,28 @@ trainset_read <- function(tag,
   assertthat::assert_that(assertthat::has_name(csv, "timestamp"))
   assertthat::assert_that(assertthat::has_name(csv, "label"))
 
+  # Check that all label are correct
+  assertthat::assert_that(all(csv$label %in% c("flight", "discard", "") |
+    startsWith(csv$label, "elev_")))
+
+  # Convert to date format
   csv$date <- strptime(csv$timestamp, "%FT%T", tz = "UTC")
-  series <- NULL
-  csv_acc <- subset(csv, series == "acceleration")
-  csv_pres <- subset(csv, series == "pressure")
 
-  id_acc_match <- match(as.numeric(tag$acceleration$date), as.numeric(csv_acc$date))
-  tag$acceleration$ismig <- !is.na(csv_acc$label[id_acc_match])
-
+  # Extract pressure label
+  csv_pres <- csv[csv$series == "pressure", ]
   id_pres_match <- match(as.numeric(tag$pressure$date), as.numeric((csv_pres$date)))
-  tag$pressure$isoutlier <- !is.na(csv_pres$label[id_pres_match])
-
-  missing_acc <- sum(is.na(id_acc_match))
+  tag$pressure$label <- !is.na(csv_pres$label[id_pres_match])
   missing_pres <- sum(is.na(id_pres_match))
 
-
+  # Extract acceleration label
   if (any(csv$series == "acceleration")) {
-    csv_acc <- subset(csv, series == "acceleration")
+    csv_acc <- csv[csv$series == "acceleration", ]
     id_acc_match <- match(as.numeric(tag$acceleration$date), as.numeric(csv_acc$date))
     tag$acceleration$ismig <- !is.na(csv_acc$label[id_acc_match])
     missing_acc <- sum(is.na(id_acc_match))
   }
 
-
+  # Message in case missing label
   if (any(csv$series == "acceleration")) {
     if (missing_acc > 0 || missing_pres > 0) {
       trainset_write(tag, pathname = tempdir(), filename = paste0(tag$id, "_act_pres-labeled"))
@@ -187,59 +182,4 @@ trainset_read <- function(tag,
       ))
     }
   }
-
-  # Create a table of activities (migration or stationary)
-  act_id <- c(1, cumsum(diff(as.numeric(tag$acceleration$ismig)) != 0) + 1)
-
-  act <- data.frame(
-    # id = unique(act_id),
-    start = do.call("c", lapply(split(tag$acceleration$date, act_id), min)),
-    end = do.call("c", lapply(split(tag$acceleration$date, act_id), max)),
-    mig = sapply(split(tag$acceleration$ismig, act_id), unique)
-  )
-
-  # filter to keep only migration activities
-  act_mig <- act[act$mig, ]
-  # act_mig$duration <- act_mig$end - act_mig$start
-
-  # construct stationary period table based on migration activity and pressure
-  tag$sta <- data.frame(
-    stap = seq_len(nrow(act_mig) + 1),
-    start = append(tag$acceleration$date[1], act_mig$end),
-    end = append(act_mig$start, tag$acceleration$date[length(tag$acceleration$date)])
-  )
-
-  # Assign to each pressure the stationary period to which it belong to.
-  tmp <- mapply(function(start, end) {
-    start < tag$pressure$date & tag$pressure$date < end
-  }, tag$stap$start, tag$stap$end)
-  tmp <- which(tmp, arr.ind = TRUE)
-  tag$pressure$stap <- 0
-  tag$pressure$stap[tmp[, 1]] <- tmp[, 2]
-
-  # Assign to each acceleration measurement the stationary period
-  if (assertthat::has_name(tag, "acceleration")) {
-    assertthat::assert_that(is.data.frame(tag$acceleration))
-    assertthat::assert_that(assertthat::has_name(tag$acceleration, "date"))
-    tmp <- mapply(function(start, end) {
-      start < tag$acceleration$date & tag$acceleration$date < end
-    }, tag$stap$start, tag$stap$end)
-    tmp <- which(tmp, arr.ind = TRUE)
-    tag$acceleration$stap <- 0
-    tag$acceleration$stap[tmp[, 1]] <- tmp[, 2]
-  }
-
-  # Assign to each light measurement the stationary period
-  if (assertthat::has_name(tag, "light")) {
-    assertthat::assert_that(is.data.frame(tag$light))
-    assertthat::assert_that(assertthat::has_name(tag$light, "date"))
-    tmp <- mapply(function(start, end) {
-      start < tag$light$date & tag$light$date < end
-    }, tag$stap$start, tag$stap$end)
-    tmp <- which(tmp, arr.ind = TRUE)
-    tag$light$stap <- 0
-    tag$light$stap[tmp[, 1]] <- tmp[, 2]
-  }
-
-  return(tag)
 }

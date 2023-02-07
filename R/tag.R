@@ -323,3 +323,98 @@ tag_classify <- function(tag,
 
   return(tag)
 }
+
+
+
+
+
+#' Compute stationary periods
+#'
+#' This function computes the stationary periods from classified acceleration data
+#' (`tag$acceleration$ismig`).
+#'
+#' @param tag data logger dataset list. See [`tag_read()`].
+#' @return Same as input `tag` but with (1) a new data.frame of stationary periods `tag$sta` and (2)
+#' a new column `stap` for pressure and light data.
+#'
+#' @examples
+#' tag <- tag_read(
+#'   pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR")
+#' )
+#' tag <- trainset_read(tag,
+#'   pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
+#' )
+#' tag <- tag_stap(tag)
+#' head(tag$pressure)
+#' head(tag$light)
+#' @seealso [`tag_read`], [`tag_classify`], [GeoPressureManual | Pressure Map
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods)
+#' @export
+tag_stap <- function(tag) {
+  # Perform test
+  assertthat::assert_that(is.list(tag))
+  assertthat::assert_that(assertthat::has_name(tag, "pressure"))
+  assertthat::assert_that(is.data.frame(tag$pressure))
+  assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "label")))
+
+  # If acceleration is present, use acceleration, otherwise pressure
+  if (assertthat::assert_that(assertthat::has_name(tag, "acceleration"))) {
+    assertthat::assert_that(is.data.frame(tag$acceleration))
+    assertthat::assert_that(assertthat::has_name(tag$acceleration, c("date", "label")))
+    sensor <- tag$acceleration
+  } else {
+    sensor <- tag$pressure
+  }
+
+  # Create a table of activities (migration or stationary)
+  act_id <- c(1, cumsum(diff(as.numeric(sensor$pressure == "flight")) != 0) + 1)
+  act <- data.frame(
+    start = do.call("c", lapply(split(sensor$date, act_id), min)),
+    end = do.call("c", lapply(split(sensor$date, act_id), max)),
+  )
+
+  # construct stationary period table based on migration activity and pressure
+  tag$stap <- data.frame(
+    stap_id = seq_len(nrow(act) + 1),
+    start = append(sensor$date[1], act$end),
+    end = append(act$start, sensor$date[length(sensor$date)])
+  )
+
+  # Assign to each pressure the stationary period to which it belong to.
+  if (assertthat::has_name(tag, "pressure")) {
+    assertthat::assert_that(is.data.frame(tag$pressure))
+    assertthat::assert_that(assertthat::has_name(tag$pressure, "date"))
+    tmp <- mapply(function(start, end) {
+      start < tag$pressure$date & tag$pressure$date < end
+    }, tag$stap$start, tag$stap$end)
+    tmp <- which(tmp, arr.ind = TRUE)
+    tag$pressure$stap <- 0
+    tag$pressure$stap[tmp[, 1]] <- tmp[, 2]
+  }
+
+  # Assign to each acceleration measurement the stationary period
+  if (assertthat::has_name(tag, "acceleration")) {
+    assertthat::assert_that(is.data.frame(tag$acceleration))
+    assertthat::assert_that(assertthat::has_name(tag$acceleration, "date"))
+    tmp <- mapply(function(start, end) {
+      start < tag$acceleration$date & tag$acceleration$date < end
+    }, tag$stap$start, tag$stap$end)
+    tmp <- which(tmp, arr.ind = TRUE)
+    tag$acceleration$stap <- 0
+    tag$acceleration$stap[tmp[, 1]] <- tmp[, 2]
+  }
+
+  # Assign to each light measurement the stationary period
+  if (assertthat::has_name(tag, "light")) {
+    assertthat::assert_that(is.data.frame(tag$light))
+    assertthat::assert_that(assertthat::has_name(tag$light, "date"))
+    tmp <- mapply(function(start, end) {
+      start < tag$light$date & tag$light$date < end
+    }, tag$stap$start, tag$stap$end)
+    tmp <- which(tmp, arr.ind = TRUE)
+    tag$light$stap <- 0
+    tag$light$stap[tmp[, 1]] <- tmp[, 2]
+  }
+
+  return(tag)
+}
