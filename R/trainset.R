@@ -25,8 +25,8 @@
 #' @export
 trainset_write <- function(tag,
                            pathname = "data/1_pressure/labels/",
-                           filename = paste0(tag$id, "_act_pres")) {
   # Perform test
+                           filename = paste0(tag$id, "_act_pres.csv")) {
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, c("pressure", "acceleration")))
   assertthat::assert_that(is.data.frame(tag$pressure))
@@ -86,7 +86,7 @@ trainset_write <- function(tag,
   # write a combined data.frame of pressure and acceleration in csv.
   utils::write.csv(
     df,
-    paste0(pathname, "/", filename, ".csv"),
+    paste0(pathname, "/", filename),
     row.names = FALSE
   )
 }
