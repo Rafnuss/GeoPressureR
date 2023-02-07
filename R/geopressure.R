@@ -24,8 +24,8 @@
 #'
 #' @param pressure Pressure data.frame from a data logger. This data.frame needs to contains `date`
 #' as POSIXt, `value` in hPa, `stap` grouping observation measured during the same stationary period
-#' and `isoutlier` as logical to label observation which need to be ignored. It is best practice to
-#' use `tag_read()` and `tag_sta()` to build this data.frame.
+#' and `label` to label observation which need to be discarded It is best practice to
+#' use `tag_read()` and `tag_stap()` to build this data.frame.
 #' @param extent Geographical extent of the map to query as a list ordered by North, West, South,
 #'   East  (e.g. `c(50,-16,0,20)`).
 #' @param scale Number of pixel per 1° latitude-longitude. For instance, `scale = 10` for a
@@ -78,23 +78,9 @@ geopressure_mismatch <- function(pressure,
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(nrow(pressure) > 1)
   assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "stap")))
+  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "label", "stap")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$value))
-  assertthat::assert_that(is.numeric(workers))
-  assertthat::assert_that(workers > 0 & workers < 100)
-
-  if (!assertthat::has_name(pressure, "isoutlier")) {
-    pressure$isoutlier <- FALSE
-  }
-  if (min(pressure$value[!pressure$isoutlier]) < 250 || 1100 <
-    max(pressure$value[!pressure$isoutlier])) {
-    stop(paste0(
-      "Pressure observation should be between 250 hPa (~10000m)  and 1100 hPa (sea level at 1013",
-      "hPa). Check unit return by `tag_read()`"
-    ))
-  }
-  assertthat::assert_that(is.logical(pressure$isoutlier))
   assertthat::assert_that(is.numeric(extent))
   assertthat::assert_that(length(extent) == 4)
   assertthat::assert_that(extent[1] >= -90 & extent[1] <= 90)
@@ -110,12 +96,22 @@ geopressure_mismatch <- function(pressure,
   assertthat::assert_that(0 < max_sample)
   assertthat::assert_that(is.numeric(margin))
   assertthat::assert_that(0 < margin)
+  assertthat::assert_that(is.numeric(timeout))
+  assertthat::assert_that(is.numeric(workers))
+  assertthat::assert_that(workers > 0 & workers < 100)
 
-  # convert from hPa to Pa
-  pres <- pressure$value * 100
+  pres <- pressure$value
 
-  # remove outlier as labeled in TRAINSET
-  pres[pressure$isoutlier] <- NA
+  # remove flight and discard label
+  pres[pressure$label != ""] <- NA
+
+  # check values
+  if (min(pres, na.rm=T) < 250 || 1100 < max(pres, na.rm=T)) {
+    stop(paste0(
+      "Pressure observation should be between 250 hPa (~10000m)  and 1100 hPa (sea level at 1013",
+      "hPa). Check unit return by `tag_read()`"
+    ))
+  }
 
   # remove flight period
   pres[pressure$stap == 0] <- NA
@@ -184,7 +180,7 @@ geopressure_mismatch <- function(pressure,
   body_df <- list(
     time = jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date[!is.na(pres)]))),
     label = jsonlite::toJSON(pressure$stap[!is.na(pres)]),
-    pressure = jsonlite::toJSON(pres[!is.na(pres)]),
+    pressure = jsonlite::toJSON(pres[!is.na(pres)] * 100), # convert from hPa to Pa
     N = extent[1],
     W = extent[2],
     S = extent[3],
@@ -396,8 +392,7 @@ geopressure_likelihood <- function(pressure_mismatch,
     mse[mse == 0] <- NA
 
     # compute probability with equation
-    likelihood <- (1 / (2 * pi * s^2))^(nb_sample * w / 2) * exp(-w * nb_sample / 2 / (s^2)
-      * mse)
+    likelihood <- (1 / (2 * pi * s^2))^(nb_sample * w / 2) * exp(-w * nb_sample / 2 / (s^2) * mse)
 
     # mask value of threshold and assign the new map
     pressure_likelihood[[i_s]] <- list(
@@ -481,9 +476,6 @@ geopressure_timeseries <- function(lon,
     assertthat::assert_that(is.numeric(pressure$value))
     end_time <- NULL
     start_time <- NULL
-    if (!assertthat::has_name(pressure, "isoutlier")) {
-      pressure$isoutlier <- FALSE
-    }
   } else {
     assertthat::assert_that(!is.na(end_time))
     assertthat::assert_that(!is.na(start_time))
@@ -585,8 +577,8 @@ geopressure_timeseries <- function(lon,
     # If no ground (ie. only flight) is present, pressure0 has no meaning
     if (!all(id_0)) {
       # We compute the mean pressure of the geolocator only when the bird is on the ground
-      # (id_q==0) and when not marked as outliar
-      id_norm <- !id_0 & !pressure$isoutlier
+      # (id_q==0) and when not labeled as flight or discard
+      id_norm <- !id_0 & pressure$label==""
 
       pressure_value_m <- mean(pressure$value[id_norm])
       pressure_out_m <- mean(out$pressure[id_norm])
@@ -634,7 +626,6 @@ geopressure_timeseries_path <- function(path,
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "stap")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$value))
-  assertthat::assert_that(assertthat::has_name(pressure, "isoutlier"))
   assertthat::assert_that(is.data.frame(path))
   assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "stap")))
   if (nrow(path) == 0) warning("path is empty")

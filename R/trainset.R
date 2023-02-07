@@ -145,14 +145,14 @@ trainset_read <- function(tag,
   # Extract pressure label
   csv_pres <- csv[csv$series == "pressure", ]
   id_pres_match <- match(as.numeric(tag$pressure$date), as.numeric((csv_pres$date)))
-  tag$pressure$label <- !is.na(csv_pres$label[id_pres_match])
+  tag$pressure$label <- csv_pres$label[id_pres_match]
   missing_pres <- sum(is.na(id_pres_match))
 
   # Extract acceleration label
   if (any(csv$series == "acceleration")) {
     csv_acc <- csv[csv$series == "acceleration", ]
     id_acc_match <- match(as.numeric(tag$acceleration$date), as.numeric(csv_acc$date))
-    tag$acceleration$ismig <- !is.na(csv_acc$label[id_acc_match])
+    tag$acceleration$label <- csv_acc$label[id_acc_match]
     missing_acc <- sum(is.na(id_acc_match))
   }
 
@@ -182,4 +182,6 @@ trainset_read <- function(tag,
       ))
     }
   }
+
+  return(tag)
 }

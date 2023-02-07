@@ -358,26 +358,21 @@ tag_stap <- function(tag) {
   assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "label")))
 
   # If acceleration is present, use acceleration, otherwise pressure
-  if (assertthat::assert_that(assertthat::has_name(tag, "acceleration"))) {
-    assertthat::assert_that(is.data.frame(tag$acceleration))
-    assertthat::assert_that(assertthat::has_name(tag$acceleration, c("date", "label")))
+  if (assertthat::has_name(tag, "acceleration") && assertthat::has_name(tag$acceleration, "label")) {
     sensor <- tag$acceleration
   } else {
     sensor <- tag$pressure
   }
 
   # Create a table of activities (migration or stationary)
-  act_id <- c(1, cumsum(diff(as.numeric(sensor$pressure == "flight")) != 0) + 1)
-  act <- data.frame(
-    start = do.call("c", lapply(split(sensor$date, act_id), min)),
-    end = do.call("c", lapply(split(sensor$date, act_id), max)),
-  )
+  tmp <- c(1, cumsum(diff(as.numeric(sensor$label == "flight")) == 1) + 1)
+  tmp[sensor$label == "flight"] <- NA
 
-  # construct stationary period table based on migration activity and pressure
+  # construct stationary period table
   tag$stap <- data.frame(
-    stap_id = seq_len(nrow(act) + 1),
-    start = append(sensor$date[1], act$end),
-    end = append(act$start, sensor$date[length(sensor$date)])
+    id = unique(tmp[!is.na(tmp)]),
+    start = do.call(c, lapply(split(sensor$date, tmp), min)),
+    end = do.call("c", lapply(split(sensor$date, tmp), max))
   )
 
   # Assign to each pressure the stationary period to which it belong to.
