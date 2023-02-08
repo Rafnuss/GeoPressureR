@@ -109,7 +109,7 @@ geolight_twilight <- function(light,
 #' distribution.
 #'
 #' @param twl A data.frame with columns `twilight` (date-time of twilights), `calib` (logical)
-#' indicating if the twilight occurs during the calibration period and `isoutlier` .
+#' indicating if the twilight occurs during the calibration period and `discard` .
 #' See [`geolight_twilight()`].
 #' @param lon_calib longitude of the calibration site.
 #' @param lat_calib latitude of the calibration site.
@@ -133,10 +133,10 @@ geolight_likelihood <- function(twl,
                                 w_llp = 0.1,
                                 fit_z_return = F) {
   assertthat::assert_that(is.data.frame(twl))
-  assertthat::assert_that(assertthat::has_name(twl, c("twilight", "calib", "isoutlier")))
+  assertthat::assert_that(assertthat::has_name(twl, c("twilight", "calib", "discard")))
   assertthat::assert_that(inherits(twl$twilight, "POSIXt"))
   assertthat::assert_that(is.logical(twl$calib))
-  assertthat::assert_that(is.logical(twl$isoutlier))
+  assertthat::assert_that(is.logical(twl$discard))
   assertthat::assert_that(is.numeric(lon_calib))
   assertthat::assert_that(is.numeric(lat_calib))
   assertthat::assert_that(inherits(map, "SpatRaster"))
@@ -149,7 +149,7 @@ geolight_likelihood <- function(twl,
   assertthat::assert_that(is.numeric(stap))
 
   # Remove outlier
-  twl_clean <- subset(twl, !isoutlier)
+  twl_clean <- subset(twl, !discard)
 
   # Calibrate the twilight in term of zenith angle with a kernel density.
   twl_calib <- subset(twl, calib)

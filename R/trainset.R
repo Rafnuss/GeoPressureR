@@ -33,11 +33,11 @@ trainset_write <- function(tag,
   assertthat::assert_that(is.character(pathname))
   assertthat::assert_that(is.character(filename))
 
-  if (!assertthat::has_name(tag$acceleration, "ismig")) {
-    tag$acceleration$ismig <- FALSE
+  if (!assertthat::has_name(tag$acceleration, "label")) {
+    tag$acceleration$label <- ""
   }
-  if (!assertthat::has_name(tag$pressure, "isoutlier")) {
-    tag$pressure$isoutlier <- FALSE
+  if (!assertthat::has_name(tag$pressure, "label")) {
+    tag$pressure$label <- ""
   }
   # create path if does not exit
   if (!dir.exists(pathname)) {
@@ -100,8 +100,8 @@ trainset_write <- function(tag,
 #' @param tag data logger dataset list
 #' @param pathname Path to the folder where the labeled file is.
 #' @param filename Name of the file.
-#' @return data logger dataset list updated with the labels (`tag$pressure$isoutlier` and
-#' `tag$acceleration$ismig`)
+#' @return data logger dataset list updated with the labels (`tag$pressure$label` and
+#' `tag$acceleration$label`)
 #'
 #' @examples
 #' tag <- tag_read(pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR"))

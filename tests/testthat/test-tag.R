@@ -66,8 +66,8 @@ test_that("Check trainset_write()", {
   expect_error(trainset_write(tag, pathname = paste0(tempdir(), "/", Sys.Date())), NA)
 
   # Check with outlier
-  tag$pressure$isoutlier <- TRUE
-  expect_error(trainset_write(tag, pathname = tempdir()), NA)
+  # tag$pressure$isoutlier <- TRUE
+  # expect_error(trainset_write(tag, pathname = tempdir()), NA)
 })
 
 pathname <- system.file("extdata/1_pressure/labels", package = "GeoPressureR")

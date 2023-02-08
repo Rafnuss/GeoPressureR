@@ -181,10 +181,5 @@ test_that("Check geopressure_timeseries_path() output", {
   expect_warning(pressure_timeserie <- geopressure_timeseries_path(path, pressure))
   expect_true(pressure_timeserie[[1]]$lat[1] != 0)
 
-  # Check back compatibility
-  pressure_tmp <- pressure
-  pressure_tmp$isoutlier <- FALSE
-  expect_warning(geopressure_timeseries_path(path, pressure_tmp))
-
   expect_warning(geopressure_timeseries_path(path, pressure))
 })
