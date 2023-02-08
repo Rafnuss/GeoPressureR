@@ -380,7 +380,7 @@ tag_stap <- function(tag) {
     assertthat::assert_that(is.data.frame(tag$pressure))
     assertthat::assert_that(assertthat::has_name(tag$pressure, "date"))
     tmp <- mapply(function(start, end) {
-      start < tag$pressure$date & tag$pressure$date < end
+      start <= tag$pressure$date & tag$pressure$date <= end
     }, tag$stap$start, tag$stap$end)
     tmp <- which(tmp, arr.ind = TRUE)
     tag$pressure$stap <- 0
@@ -392,7 +392,7 @@ tag_stap <- function(tag) {
     assertthat::assert_that(is.data.frame(tag$acceleration))
     assertthat::assert_that(assertthat::has_name(tag$acceleration, "date"))
     tmp <- mapply(function(start, end) {
-      start < tag$acceleration$date & tag$acceleration$date < end
+      start <= tag$acceleration$date & tag$acceleration$date <= end
     }, tag$stap$start, tag$stap$end)
     tmp <- which(tmp, arr.ind = TRUE)
     tag$acceleration$stap <- 0
@@ -404,7 +404,7 @@ tag_stap <- function(tag) {
     assertthat::assert_that(is.data.frame(tag$light))
     assertthat::assert_that(assertthat::has_name(tag$light, "date"))
     tmp <- mapply(function(start, end) {
-      start < tag$light$date & tag$light$date < end
+      start <= tag$light$date & tag$light$date <= end
     }, tag$stap$start, tag$stap$end)
     tmp <- which(tmp, arr.ind = TRUE)
     tag$light$stap <- 0
