@@ -173,12 +173,6 @@ geopressure_mismatch <- function(tag,
       paste0(tmp$Var1[tmp$Freq < 3], collapse = ", "), "."
     )
   }
-  if (any(tmp$Freq == 1)) {
-    warning(
-      "There is less than 3 datapoints used for stationary periods: ",
-      paste0(tmp$Var1[tmp$Freq < 3], collapse = ", "), "."
-    )
-  }
 
   # Format query
   body_df <- list(
@@ -292,9 +286,9 @@ geopressure_mismatch <- function(tag,
           mse = map[[1]],
           mask = map[[2]],
           stap = labels[i_u],
-          nb_sample = sum(pressure$stap[!is.na(pres)] == labels[i_u]),
-          start = tag$start[labels[i_u] == tag$stap],
-          end = tag$end[labels[i_u] == tag$stap]
+          nb_sample = sum(tag$pressure$stap[!is.na(pres)] == labels[i_u]),
+          start = tag$stap$start[labels[i_u] == tag$stap$id],
+          end = tag$stap$end[labels[i_u] == tag$stap$id]
         )
       }
       # return the pressure_mismatch in the same order than requested
@@ -380,8 +374,7 @@ geopressure_likelihood <- function(pressure_mismatch,
 
   pressure_likelihood <- c()
   for (i_s in seq_len(length(pressure_mismatch))) {
-    # Number of datapoint could also be measured with
-    # pres_n <- as.numeric(difftime(mt$temporal_extent[2], mt$temporal_extent[1], units = "hours"))
+
     nb_sample <- pressure_mismatch[[i_s]]$nb_sample
 
     # Log-linear pooling weight
@@ -397,10 +390,11 @@ geopressure_likelihood <- function(pressure_mismatch,
 
     # mask value of threshold and assign the new map
     pressure_likelihood[[i_s]] <- list(
+      likelihood = likelihood * (pressure_mismatch[[i_s]]$mask >= thr),
       stap = pressure_mismatch[[i_s]]$stap,
       nb_sample = pressure_mismatch[[i_s]]$nb_sample,
-      temporal_extent = pressure_mismatch[[i_s]]$temporal_extent,
-      likelihood = likelihood * (pressure_mismatch[[i_s]]$mask >= thr)
+      start = pressure_mismatch[[i_s]]$start,
+      end = pressure_mismatch[[i_s]]$end
     )
     names(pressure_likelihood[[i_s]]$likelihood) <- "likelihood"
   }

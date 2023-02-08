@@ -76,10 +76,10 @@ tag_labeled <- trainset_read(tag, pathname = pathname)
 test_that("Check trainset_read()", {
   # Returned value is correct
   expect_type(tag_labeled, "list")
-  expect_true(c("isoutlier") %in% names(tag_labeled$pressure))
-  expect_type(tag_labeled$pressure$isoutlier, "logical")
-  expect_true(c("ismig") %in% names(tag_labeled$acceleration))
-  expect_type(tag_labeled$acceleration$ismig, "logical")
+  expect_true(c("label") %in% names(tag_labeled$pressure))
+  expect_type(tag_labeled$pressure$label, "character")
+  expect_true(c("label") %in% names(tag_labeled$acceleration))
+  expect_type(tag_labeled$acceleration$label, "character")
 
   # Return error for incorrect input
   expect_error(trainset_read(tag, pathname = "not a path"))
@@ -90,16 +90,15 @@ test_that("Check trainset_read()", {
     pathname = pathname,
     filename = "18LX_act_pres-labeled-diffsize.csv"
   ))
-  expect_true(c("isoutlier") %in% names(tag$pressure))
-  expect_true(c("ismig") %in% names(tag$acceleration))
 })
 
 
 tag_stap <- tag_stap(tag_labeled)
 test_that("Check tag_stap()", {
   # Returned value is correct
-  expect_type(tag_sta, "list")
-  expect_true(c("sta") %in% names(tag_sta))
-  expect_type(tag_labeled$pressure$isoutlier, "logical")
-  expect_gt(nrow(tag_stap$sta), 0)
+  expect_type(tag_stap, "list")
+  expect_true(c("stap") %in% names(tag_stap))
+  expect_type(tag_labeled$pressure$label, "character")
+  expect_type(tag_labeled$acceleration$label, "character")
+  expect_gt(nrow(tag_stap$stap), 0)
 })

@@ -142,16 +142,9 @@ map2path <- function(likelihood,
 
   # Interpolation for short stationary period is only performed if interp>0
   if (interp > 0) {
-    if (!assertthat::has_name(likelihood[[1]], "temporal_extent")) {
-      stop("`temporal_extent` is required in likelihood to perform an interpolation")
-    }
-
     # remove short stationary period
     duration <- unlist(lapply(likelihood, function(l) {
-      as.numeric(difftime(l$temporal_extent[2],
-        l$temporal_extent[1],
-        units = "days"
-      ))
+      as.numeric(difftime(l$end, l$start, units = "days"))
     }))
     id_interp <- duration < interp
     id_interp[1] <- FALSE
@@ -191,7 +184,7 @@ map2path <- function(likelihood,
   }
 
   if (format == "ind") {
-    path$ind <- (path$lon - 1) * dim(likelihood[[1]]$map)[1] + path$lat
+    path$ind <- (path$lon - 1) * dim(likelihood[[1]]$likelihood)[1] + path$lat
   }
   return(path)
 }

@@ -1,6 +1,7 @@
 library(testthat)
 library(GeoPressureR)
 
+
 # Start by computing all the necessary file for the tests
 tag <- tag_read(
   pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR"),
@@ -11,81 +12,76 @@ tag <- trainset_read(
   pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 )
 tag <- tag_stap(tag)
-
-pressure_mismatch <- geopressure_mismatch(tag$pressure,
-  extent = c(50, -16, 0, 23),
-  scale = 10,
-  max_sample = 100,
-  margin = 30
+pressure_mismatch <- geopressure_mismatch(tag,
+                                          extent = c(50, -16, 0, 23),
+                                          scale = 10,
+                                          max_sample = 100,
+                                          margin = 30
 )
 pressure_likelihood <- geopressure_likelihood(pressure_mismatch)
 path_pressure <- map2path(pressure_likelihood)
 
 
-
-test_that("Check geopressure_mismatch() for date too recent", {
-  tmp <- Sys.time()
-  pressure <- data.frame(
-    date = c(tmp, tmp + 60 * 60, tmp + 2 * 60 * 60),
-    value = c(1000, 1000, 1000),
-    stap = c(1, 1, 1)
-  )
-  expect_error(raster_list <- geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1))
-})
-
-
-
-test_that("Check geopressure_mismatch() timeout and worker", {
-  expect_error(geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1, timeout = 1))
-  expect_error(geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1, worker = 100))
-})
-
+# Small synthetic case
+tag_sm=list()
+tag_sm$pressure <- data.frame(
+  date = as.POSIXct(c(
+    "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
+    "2017-06-20 02:00:00 UTC"
+  ), tz = "UTC"),
+  value = c(1000, 1000, 1000),
+  label = c("","","")
+)
+tag_sm <- tag_stap(tag_sm)
 
 
 test_that("Check geopressure_mismatch() output", {
-  pressure <- data.frame(
-    date = as.POSIXct(c(
-      "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
-      "2017-06-20 02:00:00 UTC"
-    )),
-    value = c(1000, 1000, 1000),
-    stap = c(1, 1, 1)
-  )
-  raster_list <- geopressure_mismatch(pressure, extent = c(1, 0, 0, 1), scale = 1)
-  expect_type(raster_list, "list")
-  expect_length(raster_list, 1)
-  expect_s4_class(raster_list[[1]], "RasterBrick")
+  mismatch <- geopressure_mismatch(tag_sm, extent = c(1, 0, 0, 1), scale = 1)
+  expect_type(mismatch, "list")
+  expect_length(mismatch, 1)
+  expect_type(mismatch[[1]], "list")
+  expect_true(all(c("mse","mask","stap","nb_sample","start","end") %in% names(mismatch[[1]])))
+  expect_s4_class(mismatch[[1]]$mse, "SpatRaster")
+  expect_s4_class(mismatch[[1]]$mask, "SpatRaster")
+  expect_true(mismatch[[1]]$stap==1)
+  expect_true(mismatch[[1]]$nb_sample==3)
+  expect_true(mismatch[[1]]$start==tag_sm$pressure$date[1])
+  expect_true(mismatch[[1]]$end==tag_sm$pressure$date[3])
+
 
   # Check error for incorrect pressure
-  pressure_tmp <- pressure
-  pressure_tmp$value[2] <- 1200
-  expect_error(geopressure_mismatch(pressure_tmp, extent = c(1, 0, 0, 1), scale = 1))
+  tag_sm_2 <- tag_sm
+  tag_sm_2$pressure$value[2] <- 1200
+  expect_error(geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1))
 
-  # Check error for incorrect pressure
-  pressure_tmp <- pressure
-  pressure_tmp$date[2] <- pressure$date[2] + 30 * 60
-  expect_warning(geopressure_mismatch(pressure_tmp, extent = c(1, 0, 0, 1), scale = 1))
+  # Check warning for incorrect date
+  tag_sm_2 <- tag_sm
+  tag_sm_2$pressure$date[2] <- tag_sm_2$pressure$date[2] + 30 * 60
+  expect_warning(geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1))
 
-  # Check error for incorrect pressure
-  pressure_tmp <- pressure
-  pressure_tmp$stap <- 0
-  expect_error(geopressure_mismatch(pressure_tmp, extent = c(1, 0, 0, 1), scale = 1))
+  # Check error for incorrect stap
+  tag_sm_2 <- tag_sm
+  tag_sm_2$pressure$stap <- 0
+  expect_error(geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1))
 
-  # Check back compatibility
-  pressure_tmp <- pressure
-  pressure_tmp$isoutlier <- FALSE
-  expect_warning(geopressure_mismatch(pressure_tmp, extent = c(1, 0, 0, 1), scale = 1))
+  # Check error for date too recent
+  tag_sm_2 <- tag_sm
+  tmp <- Sys.time()
+  tag_sm_2$pressure$date = c(tmp, tmp + 60 * 60, tmp + 2 * 60 * 60)
+  expect_error(geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1))
+
+  # Check geopressure_mismatch() timeout and worker
+  expect_error(geopressure_mismatch(tag, extent = c(1, 0, 0, 1), scale = 1, timeout = 1))
+  expect_error(geopressure_mismatch(tag_sm, extent = c(1, 0, 0, 1), scale = 1, worker = 100))
 })
 
 
 
 test_that("Check geopressure_likelihood() output", {
-  expect_error(geopressure_likelihood(pressure_mismatch), NA)
   expect_error(geopressure_likelihood(pressure_mismatch, s = "not_a_number"))
   expect_error(geopressure_likelihood(pressure_mismatch, thr = "not_a_number"))
   expect_error(geopressure_likelihood(pressure_mismatch, fun_w = "not_a_function"))
 })
-
 
 
 test_that("Check map2path() output", {
@@ -94,11 +90,6 @@ test_that("Check map2path() output", {
   expect_error(map2path(pressure_likelihood), NA)
   expect_error(map2path(pressure_likelihood, format = "ind"), NA)
   expect_error(map2path(pressure_likelihood, format = "arr.ind"), NA)
-
-  # Not working without temporal_extent
-  pressure_likelihood_tmp <- pressure_likelihood
-  pressure_likelihood_tmp[[1]]$temporal_extent <- NA
-  expect_error(map2path(pressure_likelihood_tmp, interp = 2))
 
   # TODO: add flight
 
@@ -126,22 +117,14 @@ test_that("Check geopressure_timeseries() output", {
     end_time = as.POSIXct("2017-06-20 02:00:00", tz = "UTC")
   ), "*water*")
 
-  pressure <- data.frame(
-    date = as.POSIXct(c(
-      "2017-06-20 00:00:00", "2017-06-20 01:00:00",
-      "2017-06-20 02:00:00"
-    ), tz = "UTC"),
-    value = c(1000, 1000, 1000),
-    stap = c(1, 1, 1)
-  )
-  pressure_timeserie <- geopressure_timeseries(lon = 6, lat = 46, pressure = pressure)
+  pressure_timeserie <- geopressure_timeseries(lon = 6, lat = 46, pressure = tag_sm$pressure)
   expect_s3_class(pressure_timeserie, "data.frame")
   expect_true(all(c("date", "pressure") %in% names(pressure_timeserie)))
 
   # Check back compatibility
-  pressure_tmp <- pressure
-  pressure_tmp$isoutlier <- FALSE
-  expect_warning(geopressure_timeseries(lon = 6, lat = 46, pressure = pressure_tmp))
+  tag_sm_tmp <- tag_sm
+  tag_sm_tmp$pressure$label <- "discard"
+  expect_warning(geopressure_timeseries(lon = 6, lat = 46, pressure = tag_sm_tmp$pressure))
 
 
   # i_s <- 4
