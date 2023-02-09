@@ -4,34 +4,34 @@
 \alias{geolight_twilight}
 \title{Returns twilights for each day based on a threshold of light}
 \usage{
-geolight_twilight(pam, threshold = NA, shift_k = NA)
+geolight_twilight(light, threshold = NA, shift_k = NA)
 }
 \arguments{
-\item{pam}{PAM logger dataset list containing \code{pam$light}, a dataframe with columns \code{date} and
-\code{obs} that are the sequence of sample  times (as POSIXct) and light levels recorded by the tag
-respectively (see \code{\link[=pam_read]{pam_read()}}). In addition, \code{pam$sta} is present, \code{sta_id} will be added to
-the the data.frame returned.}
-
 \item{threshold}{the light threshold that defines twilight. If not provided, it uses the first
-light (i.e, \code{obs>0}).}
+light (i.e, \code{value>0}).}
 
 \item{shift_k}{shift of the middle of the night compared to 00:00 UTC (in seconds). If not
 provided, it will take the middle of all nights.}
+
+\item{tag}{data logger dataset list containing \code{light}, a dataframe with columns \code{date} and
+\code{value} that are the sequence of sample  times (as POSIXct) and light levels recorded by the tag
+respectively (see \code{\link[=tag_read]{tag_read()}}). In addition, \code{tag$sta} is present, \code{stap} will be added to
+the the data.frame returned.}
 }
 \value{
 A data.frame with columns \code{twilight} (date-time of twilights), \code{rise} (logical) and
-optionally \code{sta_id} if \code{pam$sta} is present.
+optionally \code{stap} if \code{tag$sta} is present.
 }
 \description{
 Search for pairs of sunset, sunrise that correspond to a given light threshold. Function inspired
 from \href{https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html}{\code{TwGeos::findTwilights}}.
 }
 \examples{
-pam <- pam_read(
-  pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"),
+tag <- tag_read(
+  pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR"),
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
-twl <- geolight_twilight(pam)
+twl <- geolight_twilight(tag)
 head(twl)
 }
 \seealso{

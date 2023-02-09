@@ -7,14 +7,14 @@
 geolight_light2mat(light, shift_k = 0)
 }
 \arguments{
-\item{light}{a dataframe with columns \code{date} and \code{obs} that are the sequence of sample
+\item{light}{a dataframe with columns \code{date} and \code{value} that are the sequence of sample
 times (as POSIXct) and light levels recorded by the tag.}
 
 \item{shift_k}{shift of the middle of the night compared to 00:00 UTC (in seconds). If not
 provided, will try to figure it out from the data}
 }
 \value{
-A dataframe with columns obs and date
+A dataframe with columns value and date
 }
 \description{
 Convert light data in matrix format

@@ -4,12 +4,12 @@
 \alias{graph_create}
 \title{Create graph}
 \usage{
-graph_create(static_prob, thr_prob_percentile = 0.99, thr_gs = 150)
+graph_create(likelihood, thr_prob_percentile = 0.99, thr_gs = 150)
 }
 \arguments{
-\item{static_prob}{List of raster containing probability map of each stationary period. The
-metadata of \code{static_prob} needs to include the flight information to the next stationary period
-in the metadata \code{flight}.}
+\item{likelihood}{List of likelihood map of each stationary period. The
+metadata of \code{likelihood} needs to include the flight information to the next stationary period
+in \code{likelihood[[1]]$flight}.}
 
 \item{thr_prob_percentile}{Threshold of percentile (see details).}
 
@@ -35,14 +35,14 @@ The graph returned is a list of the edges of the graph containing:
 representing the E-W as real and S-N as imaginary.
 \item \code{ps}: static probability of each target node,
 \item \code{sz}: size of the 3d grid lat-lon-sta,
-\item \code{equipment}: node(s) of the first sta (index in the 3d grid lat-lon-sta),
-\item \code{retrieval}: node(s) of the last sta (index in the 3d grid lat-lon-sta),
-\item \code{flight_duration}: list of flight duration to next sta in hours,
-\item \code{lat}: list of the \code{static_prob} latitude in cell center,
-\item \code{lon}: list of the \code{static_prob} longitude in cell center,
-\item \code{extent}: raster geographical extent of the \code{static_prob},
-\item \code{resolution}: raster res of the \code{static_prob},
-\item \code{temporal_extent}: start and end date time retrieved from the metadata of \code{static_prob}.
+\item \code{equipment}: node(s) of the first stap (index in the 3d grid lat-lon-sta),
+\item \code{retrieval}: node(s) of the last stap (index in the 3d grid lat-lon-sta),
+\item \code{flight_duration}: list of flight duration to next stap in hours,
+\item \code{lat}: list of the \code{likelihood$map} latitude in cell center,
+\item \code{lon}: list of the \code{likelihood$map} longitude in cell center,
+\item \code{extent}: SpatRaster geographical extent of \code{likelihood$map},
+\item \code{resolution}: resolution of \code{likelihood$map},
+\item \code{temporal_extent}: start and end date time retrieved from \code{likelihood}.
 }
 
 The \href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph}{GeoPressureManual | Basic graph} provided an

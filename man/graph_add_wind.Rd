@@ -9,8 +9,8 @@ graph_add_wind(grl, pressure, filename, thr_as = Inf)
 \arguments{
 \item{grl}{graph constructed with \code{\link[=graph_create]{graph_create()}}}
 
-\item{pressure}{pressure data from a PAM logger. This data.frame needs to contains \code{date} as
-POSIXt and \code{obs} in hPa. It is best practice to use \code{\link[=pam_read]{pam_read()}} and \code{\link[=pam_sta]{pam_sta()}} to build
+\item{pressure}{pressure data from a data logger. This data.frame needs to contains \code{date} as
+POSIXt and \code{value} in hPa. It is best practice to use \code{\link[=tag_read]{tag_read()}} and \code{\link[=tag_stap]{tag_stap()}} to build
 this data.frame.}
 
 \item{filename}{Character of the path where to find the netCDF file.}

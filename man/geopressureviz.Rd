@@ -5,7 +5,7 @@
 \title{Start the GeoPressureViz shiny app}
 \usage{
 geopressureviz(
-  pam,
+  tag,
   static_likelihood,
   pressure_likelihood = NA,
   light_likelihood = NA,
@@ -17,28 +17,28 @@ geopressureviz(
 )
 }
 \arguments{
-\item{pam}{PAM logger dataset list with \code{pam$sta} computed. See \code{\link[=pam_read]{pam_read()}} and \code{\link[=pam_sta]{pam_sta()}}.}
+\item{tag}{data logger dataset list with \code{tag$sta} computed. See \code{\link[=tag_read]{tag_read()}} and \code{\link[=tag_stap]{tag_stap()}}.}
 
-\item{static_likelihood}{List of raster containing probability map of each stationary period. The
+\item{static_likelihood}{List of SpatRaster containing probability map of each stationary period. The
 metadata of \code{static_likelihood} needs to include the flight information to the next stationary period
 in the metadata \code{flight}. See \href{https://raphaelnussbaumer.com/GeoPressureManual/static-map.html#combine-pressure-and-light}{GeoPressureManual | Static map }.}
 
-\item{pressure_likelihood}{List of raster containing probability map of each stationary period
+\item{pressure_likelihood}{List of SpatRaster containing probability map of each stationary period
 according to pressure data. See \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-probability-maps}{GeoPressureManual | Pressure map }.}
 
-\item{light_likelihood}{List of raster containing probability map of each stationary period according
+\item{light_likelihood}{List of SpatRaster containing probability map of each stationary period according
 to light data. See \href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#compute-probability-map}{GeoPressureManual | Light map }.}
 
-\item{static_likelihood_marginal}{List of raster containing probability map of each stationary period
+\item{static_likelihood_marginal}{List of SpatRaster containing probability map of each stationary period
 according to the graph output. See \href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map}{GeoPressureManual | Basic graph }.}
 
-\item{pressure_likelihood_thr}{List of raster containing probability map of each stationary period
+\item{pressure_likelihood_thr}{List of SpatRaster containing probability map of each stationary period
 according to the threshold of pressure data. See \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#computing-pressure-maps}{GeoPressureManual | Pressure map }.}
 
 \item{pressure_likelihood_mismatch}{List of raster containing probability map of each stationary period
 according to mismatch of pressure data. See \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#computing-pressure-maps}{GeoPressureManual | Pressure map }.}
 
-\item{pressure_timeserie}{List of data.frame containing at least \code{sta_id}, \code{date} and \code{pressure0}}
+\item{pressure_timeserie}{List of data.frame containing at least \code{stap}, \code{date} and \code{pressure0}}
 
 \item{lauch_browser}{If true (default), the app run in your browser, otherwise on Rstudio}
 }
@@ -56,7 +56,7 @@ load("data/1_pressure/18LX_pressure_likelihood.Rdata")
 load("data/2_light/18LX_light_likelihood.Rdata")
 load("data/3_static/18LX_static_likelihood.Rdata")
 geopressureviz(
-  pam = pam,
+  tag = tag,
   static_likelihood = static_likelihood,
   pressure_likelihood = pressure_likelihood,
   light_likelihood = light_likelihood,

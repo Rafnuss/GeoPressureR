@@ -10,6 +10,7 @@ geopressure_timeseries(
   pressure = NULL,
   end_time = NULL,
   start_time = NULL,
+  timeout = 60 * 5,
   verbose = TRUE
 )
 }
@@ -18,13 +19,16 @@ geopressure_timeseries(
 
 \item{lat}{Latitude to query (0° to 90°).}
 
-\item{pressure}{Pressure list from PAM logger dataset list (optional).}
+\item{pressure}{Pressure list from data logger dataset list (optional).}
 
 \item{end_time}{If \code{pressure} is not provided, then \code{end_time} define the ending time of
 the timeseries as POSIXlt.}
 
 \item{start_time}{If \code{pressure} is not provided, then \code{start_time} define the starting time of
 the timeseries as POSIXlt.}
+
+\item{timeout}{duration (sec) before the code is interrupted both for the request on
+GeoPressureAPI and GEE. See \code{\link[httr:timeout]{httr::timeout()}}.}
 
 \item{verbose}{Display (or not) the progress of the query (logical).}
 }

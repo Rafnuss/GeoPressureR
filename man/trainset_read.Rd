@@ -5,35 +5,35 @@
 \title{Read classification of activity and pressure}
 \usage{
 trainset_read(
-  pam,
+  tag,
   pathname = "data/1_pressure/labels/",
-  filename = paste0(pam$id, "_act_pres-labeled.csv")
+  filename = paste0(tag$id, "_act_pres-labeled.csv")
 )
 }
 \arguments{
-\item{pam}{pam logger dataset list}
+\item{tag}{data logger dataset list}
 
 \item{pathname}{Path to the folder where the labeled file is.}
 
 \item{filename}{Name of the file.}
 }
 \value{
-pam logger dataset list updated with the labels (\code{pam$pressure$isoutlier} and
-\code{pam$acceleration$ismig})
+data logger dataset list updated with the labels (\code{tag$pressure$label} and
+\code{tag$acceleration$label})
 }
 \description{
 This function read an exported csv file from \href{https://trainset.geocene.com/}{trainset} and update
-the pam logger dataset
+the data logger dataset
 }
 \examples{
-pam <- pam_read(pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR"))
-pam <- pam_classify(pam)
-pam <- trainset_read(pam, pathname = system.file("extdata/1_pressure/labels/",
+tag <- tag_read(pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR"))
+tag <- tag_classify(tag)
+tag <- trainset_read(tag, pathname = system.file("extdata/1_pressure/labels/",
   package = "GeoPressureR"
 ))
-head(pam$pressure)
-head(pam$acceleration)
+head(tag$pressure)
+head(tag$acceleration)
 }
 \seealso{
-\code{\link{pam_read}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset}{GeoPressureManual | Pressure Map }
+\code{\link{tag_read}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset}{GeoPressureManual | Pressure Map }
 }

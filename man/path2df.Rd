@@ -4,13 +4,13 @@
 \alias{path2df}
 \title{Path to data.frame}
 \usage{
-path2df(pam, path)
+path2df(tag, path)
 }
 \arguments{
-\item{pam}{pam logger dataset list with \code{pam$sta} computed (see \code{pam_sta})}
+\item{tag}{data logger dataset list with \code{tag$sta} computed (see \code{tag_sta})}
 
-\item{path}{data.frame containtings the path(s) of the bird with column \code{lat}, \code{lon} and \code{sta_id}
-at least. Path can be generated with \code{geopressure_map2path}, \code{graph_simulation}, \code{geopressureviz}
+\item{path}{data.frame containtings the path(s) of the bird with column \code{lat}, \code{lon} and \code{stap}
+at least. Path can be generated with \code{map2path}, \code{graph_simulation}, \code{geopressureviz}
 .}
 }
 \description{
@@ -21,20 +21,20 @@ The function basically duplicate location position at the start and end time of 
 period.
 }
 \examples{
-pam <- pam_read(
-  pathname = system.file("extdata/0_PAM/18LX", package = "GeoPressureR")
+tag <- tag_read(
+  pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR")
 )
-pam <- trainset_read(pam,
+tag <- trainset_read(tag,
   pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 )
-pam <- pam_sta(pam)
+tag <- tag_stap(tag)
 pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_likelihood_1.rda",
   package = "GeoPressureR"
 ))
-path <- geopressure_map2path(list(pressure_likelihood_1))
-path2df(pam, path)
+path <- map2path(list(pressure_likelihood_1))
+path2df(tag, path)
 }
 \seealso{
 \href{https://movevis.org/reference/df2move.html}{\code{movevis::df2move}},
-\code{\link{geopressure_map2path}}, \code{\link{graph_simulation}}, \code{\link{geopressureviz}}
+\code{\link{map2path}}, \code{\link{graph_simulation}}, \code{\link{geopressureviz}}
 }

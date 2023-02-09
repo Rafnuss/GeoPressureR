@@ -8,20 +8,23 @@ geopressure_timeseries_path(
   path,
   pressure,
   include_flight = FALSE,
+  workers = 90,
   verbose = TRUE
 )
 }
 \arguments{
 \item{path}{A data.frame of the position containing latitude (\code{lat}), longitude  (\code{lon}) and the
-stationary period id (\code{sta_id}) as column.}
+stationary period id (\code{stap}) as column.}
 
-\item{pressure}{Pressure list from PAM logger dataset list.}
+\item{pressure}{Pressure list from data logger dataset list.}
 
 \item{include_flight}{Extend request to also query the pressure and altitude during the previous
-and/or next flight. Flights are defined by a \code{sta_id=0}. Accept Logical or vector of -1 (previous
+and/or next flight. Flights are defined by a \code{stap=0}. Accept Logical or vector of -1 (previous
 flight), 0 (stationary) and/or 1 (next flight). (e.g. \code{include_flight=c(-1, 1)} will only search
 for the flight before and after but not the stationary period). Note that next and previous
-flights are defined by the +/1 of the \code{sta_id} value (and not the previous/next \code{sta_id} value).}
+flights are defined by the +/1 of the \code{stap} value (and not the previous/next \code{stap} value).}
+
+\item{workers}{number of parrellel request on GEE. Between 1 and 99.}
 
 \item{verbose}{Display (or not) the progress of the queries (logical).}
 }
@@ -30,8 +33,8 @@ List of data.frame containing for each stationary period, the date, pressure, al
 (same as \code{\link[=geopressure_timeseries]{geopressure_timeseries()}}).
 }
 \description{
-This function runs in parallel \code{geopressure_timeseries()} based on a path and pressure timeserie. It
-uses the \code{sta_id} to match the pressure timeseries to request for each position of the path.
+This function runs in parallel \code{geopressure_timeseries()} based on a path and pressure timeserie.
+It uses the \code{stap} to match the pressure timeseries to request for each position of the path.
 }
 \details{
 You can include previous and/or next flight period in each query. This is typically useful to
@@ -41,5 +44,5 @@ If a position of the path is over water, it will be moved to the closest point o
 explained in \code{geopressure_timeseries()}.
 }
 \seealso{
-\code{\link[=geopressure_timeseries]{geopressure_timeseries()}}, \code{\link[=geopressure_map2path]{geopressure_map2path()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map }
+\code{\link[=geopressure_timeseries]{geopressure_timeseries()}}, \code{\link[=map2path]{map2path()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map}
 }

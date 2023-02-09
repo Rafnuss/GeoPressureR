@@ -2,7 +2,7 @@
 % Please edit documentation in R/geopressure.R
 \name{geopressure_likelihood}
 \alias{geopressure_likelihood}
-\title{Compute probability raster}
+\title{Compute Likelihood Map}
 \usage{
 geopressure_likelihood(
   pressure_mismatch,
@@ -14,7 +14,7 @@ geopressure_likelihood(
 )
 }
 \arguments{
-\item{pressure_mismatch}{List of raster built with \code{\link[=geopressure_mismatch]{geopressure_mismatch()}}.}
+\item{pressure_mismatch}{List of SpatRaster built with \code{\link[=geopressure_mismatch]{geopressure_mismatch()}}.}
 
 \item{s}{Standard deviation of the pressure error.}
 
@@ -26,11 +26,12 @@ probability map and return the log-linear pooling weight (see the
 \href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation })}
 }
 \value{
-List of the probability raster map
+List of the likelihood map for each stationary period. See \code{\link[=geopressure_mismatch]{geopressure_mismatch()}} for
+description of the output list.
 }
 \description{
-This function convert the raster of \eqn{MSE} and altitude threshold \eqn{z_{thr}} computed
-by \code{\link[=geopressure_mismatch]{geopressure_mismatch()}} into a probability map with,
+This function convert the map of \eqn{MSE} and altitude threshold \eqn{z_{thr}} computed
+by \code{\link[=geopressure_mismatch]{geopressure_mismatch()}} into a likelihood map with,
 }
 \details{
 \eqn{p = \exp \left(-w \frac{MSE}{s} \right) \left[z_{thr}>thr \right],}
@@ -49,11 +50,12 @@ pressure_likelihood <- geopressure_likelihood(
 )
 pressure_likelihood_1 <- pressure_likelihood[[1]]
 }
-pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_likelihood_1.rda",
+pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/",
+  "18LX_pressure_likelihood_1.rda",
   package = "GeoPressureR"
 ))
-raster::metadata(pressure_likelihood_1)
-raster::plot(pressure_likelihood_1,
+pressure_likelihood_1
+terra::plot(pressure_likelihood_1$map,
   main = "Probability",
   xlim = c(5, 20), ylim = c(42, 50)
 )

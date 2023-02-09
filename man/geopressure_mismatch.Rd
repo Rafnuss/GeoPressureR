@@ -5,18 +5,21 @@
 \title{Request and download mismatch and threshold maps of pressure}
 \usage{
 geopressure_mismatch(
-  pressure,
+  tag,
   extent,
   scale = 10,
   max_sample = 250,
-  margin = 30
+  margin = 30,
+  timeout = 60 * 5,
+  workers = 90
 )
 }
 \arguments{
-\item{pressure}{Pressure data.frame from a PAM logger. This data.frame needs to contains \code{date}
-as POSIXt, \code{obs} in hPa, \code{sta_id} grouping observation measured during the same stationary period
-and \code{isoutlier} as logical to label observation which need to be ignored. It is best practice to
-use \code{pam_read()} and \code{pam_sta()} to build this data.frame.}
+\item{tag}{data logger dataset list (see \code{\link[=tag_read]{tag_read()}}). This list needs to contains a
+\code{pressure} data.frame nwith variable \code{date} as POSIXt, \code{value} in hPa, \code{stap} grouping
+observation measured during the same stationary period and \code{label} to label observation which
+need to be discarded. In addition also need to contains \code{stap} with exact time of the stationary
+period and in between flights.}
 
 \item{extent}{Geographical extent of the map to query as a list ordered by North, West, South,
 East  (e.g. \code{c(50,-16,0,20)}).}
@@ -31,9 +34,20 @@ timeserie.}
 
 \item{margin}{The margin is used in the threshold map to accept some measurement error. unit in
 meter. (1hPa~10m)}
+
+\item{timeout}{duration (sec) before the code is interrupted both for the request on
+GeoPressureAPI and GEE. See \code{\link[httr:timeout]{httr::timeout()}}}
+
+\item{workers}{number of parrellel request on GEE. Between 1 and 99.}
 }
 \value{
-List of raster map
+List of the misfit map for each stationary period, containing:
+\itemize{
+\item \code{map}: list of the MSE and threashold (see description above)
+\item \code{stap} index of stationary period.
+\item \code{nb_sample} number of pressure datapoint used.
+\item \code{temporal_extent} datetime of the start and end of the stationary period
+}
 }
 \description{
 This function returns for each stationary period (1) a map of mismatch between the pressure
@@ -47,7 +61,7 @@ performed by this function consists of the following:
 \enumerate{
 \item Send a query to generate the Google Earth Engine (GEE) url of the code producing the maps for
 each stationary periods separately.
-\item Download and read these geotiff maps as raster.
+\item Download and read these geotiff maps as SpatRaster
 }
 
 The maps of each stationary period are returned in two layers:
@@ -64,22 +78,22 @@ ERA5 data. The min and max ground elevation of each pixel is computed from SRTM-
 }
 }
 \examples{
-# See `pam_sta()` for generating pam
+# See `tag_stap()` for generating tag
 \dontrun{
 pressure_mismatch <- geopressure_mismatch(
-  pam$pressure,
+  tag$pressure,
   extent = c(50, -16, 0, 23),
   scale = 4,
   max_sample = 250,
   margin = 30
 )
-pressure_mismatch_1 <- pressure_mismatch[[1]]
+pressure_mismatch_1 <- pressure_mismatch$map[[1]]
 }
 pressure_mismatch_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_mismatch_1.rda",
   package = "GeoPressureR"
 ))
-raster::metadata(pressure_mismatch_1)
-raster::plot(pressure_mismatch_1,
+pressure_mismatch_1
+terra::plot(pressure_mismatch_1$map,
   main = c("Mean Square Error", "Mask of pressure")
 )
 }

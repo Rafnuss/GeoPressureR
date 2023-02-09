@@ -5,13 +5,13 @@
 \title{Write classification of activity and pressure}
 \usage{
 trainset_write(
-  pam,
+  tag,
   pathname = "data/1_pressure/labels/",
-  filename = paste0(pam$id, "_act_pres")
+  filename = paste0(tag$id, "_act_pres.csv")
 )
 }
 \arguments{
-\item{pam}{pam logger dataset list}
+\item{tag}{data logger dataset list}
 
 \item{pathname}{Path to the folder where the labeled files should be saved}
 
@@ -22,20 +22,20 @@ This function writes the csv file of the automatically labeled activity and pres
 be read with TRAINSET (https://trainset.geocene.com/).
 }
 \details{
-Optionally, it can also export a reference dataset for pressure \code{pam$pressure$ref} as another
+Optionally, it can also export a reference dataset for pressure \code{tag$pressure$ref} as another
 series to be visualized on TRAINSET, but without impacting the labeling process.
 }
 \examples{
-pam <- pam_read(
+tag <- tag_read(
   pathname = system.file(
-    "extdata/0_PAM/18LX",
+    "extdata/0_tag/18LX",
     package = "GeoPressureR"
   )
 )
-trainset_write(pam, pathname = system.file("extdata/1_pressure/labels/",
+trainset_write(tag, pathname = system.file("extdata/1_pressure/labels/",
   package = "GeoPressureR"
 ))
 }
 \seealso{
-\code{\link{pam_read}}, \code{\link[=trainset_read]{trainset_read()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset}{GeoPressureManual | Pressure Map }
+\code{\link{tag_read}}, \code{\link[=trainset_read]{trainset_read()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset}{GeoPressureManual | Pressure Map }
 }

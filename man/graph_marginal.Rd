@@ -10,7 +10,7 @@ graph_marginal(grl)
 \item{grl}{graph constructed with \code{\link[=graph_create]{graph_create()}}}
 }
 \value{
-list of raster of the marginal probability at each stationary period
+list of map of the marginal probability at each stationary period
 }
 \description{
 This function return the marginal probability map as raster from a graph.

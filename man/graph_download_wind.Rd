@@ -5,22 +5,22 @@
 \title{Download wind data}
 \usage{
 graph_download_wind(
-  pam,
+  tag,
   area,
-  sta_id = seq_len(nrow(pam$sta) - 1),
+  stap = seq_len(nrow(tag$sta) - 1),
   cds_key = Sys.getenv("cds_key"),
   cds_user = Sys.getenv("cds_user"),
-  path = paste0("data/5_wind_graph/", pam$id, "/")
+  path = paste0("data/5_wind_graph/", tag$id, "/")
 )
 }
 \arguments{
-\item{pam}{PAM logger dataset list with \code{pam$sta} computed. See \code{\link[=pam_read]{pam_read()}} and \code{\link[=pam_sta]{pam_sta()}}.}
+\item{tag}{data logger dataset list with \code{tag$sta} computed. See \code{\link[=tag_read]{tag_read()}} and \code{\link[=tag_stap]{tag_stap()}}.}
 
-\item{area}{Geographical extent of the map to query. Either a raster (e.g. \code{static_prob}) or a
+\item{area}{Geographical extent of the map to query. Either a raster (e.g. \code{likelihood}) or a
 list ordered by North, West, South, East  (e.g. \code{c(50,-16,0,20)}).}
 
-\item{sta_id}{Stationary period identifier of the start of the flight to query as defined in
-\code{pam$sta}. Be default, download for all the flight.}
+\item{stap}{Stationary period identifier of the start of the flight to query as defined in
+\code{tag$sta}. Be default, download for all the flight.}
 
 \item{cds_key}{User (email address) used to sign up for the ECMWF data service. See
 \code{\link[=wf_set_key]{wf_set_key()}}.}
@@ -37,8 +37,8 @@ This function download the wind data from \href{https://cds.climate.copernicus.e
 with the \href{https://cds.climate.copernicus.eu}{Climate Data Store (CDS)} and through the \href{https://bluegreen-labs.github.io/ecmwfr/index.html}{\code{ecmwfr} R package}.
 }
 \details{
-The flight are determined from the stationary periods classified \code{pam$sta}
-(see \code{pam_classify()}). It request a single file for each flight using the exact time
+The flight are determined from the stationary periods classified \code{tag$sta}
+(see \code{tag_classify()}). It request a single file for each flight using the exact time
 (hourly basis) and pressure (altitude). To make the download more efficient,
 \href{https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests}{\code{wf_request_batch()}}
 is used to download all wind file at the same time (up to 20 requests in parallel).

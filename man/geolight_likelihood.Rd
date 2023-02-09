@@ -9,7 +9,7 @@ geolight_likelihood(
   lon_calib,
   lat_calib,
   map,
-  sta_id = NA,
+  stap = NA,
   adjust_calib = 1.4,
   w_llp = 0.1,
   fit_z_return = F
@@ -17,16 +17,16 @@ geolight_likelihood(
 }
 \arguments{
 \item{twl}{A data.frame with columns \code{twilight} (date-time of twilights), \code{calib} (logical)
-indicating if the twilight occurs during the calibration period and \code{isoutlier} .
+indicating if the twilight occurs during the calibration period and \code{discard} .
 See \code{\link[=geolight_twilight]{geolight_twilight()}}.}
 
 \item{lon_calib}{longitude of the calibration site.}
 
 \item{lat_calib}{latitude of the calibration site.}
 
-\item{map}{raster on which the likelihood map should be computed.}
+\item{map}{SpatRaster on which the likelihood map should be computed.}
 
-\item{sta_id}{stationary periods on which the likelihood maps should be computed.}
+\item{stap}{stationary periods on which the likelihood maps should be computed.}
 
 \item{adjust_calib}{smoothing parameter for the kernel density. See \code{\link[stats:kernel]{stats::kernel()}}}
 
@@ -35,7 +35,7 @@ See \code{\link[=geolight_twilight]{geolight_twilight()}}.}
 \item{fit_z_return}{logical forcing to return the fit of the calibration.}
 }
 \value{
-list of rasterLayer of the likelihood map for each stationary period. Or a kernel fit
+list of SpatRaster of the likelihood map for each stationary period. Or a kernel fit
 (see \code{\link[stats:kernel]{stats::kernel()}}) if \code{fit_z_return} is true.
 }
 \description{
