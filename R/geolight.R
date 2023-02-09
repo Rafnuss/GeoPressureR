@@ -382,14 +382,14 @@ geolight_zenith <- function(sun, lon, lat) {
 #' @return vector of zenith angles (degrees) adjusted for atmospheric refraction.
 geolight_refracted <- function(zenith) {
   rad <- pi / 180
-  elev <- 90 - zenith
-  te <- tan((rad) * elev)
+  e <- 90 - zenith
+  te <- tan((rad) * e)
   # Atmospheric Refraction [AF]
-  r <- ifelse(elev > 85, 0,
-    ifelse(elev > 5, 58.1 / te - 0.07 / te^3 + 0.000086 / te^5,
-      ifelse(elev > -0.575,
-        1735 + elev * (-518.2 + elev *
-          (103.4 + elev * (-12.79 + elev * 0.711))), -20.772 / te
+  r <- ifelse(e > 85, 0,
+    ifelse(e > 5, 58.1 / te - 0.07 / te^3 + 0.000086 / te^5,
+      ifelse(e > -0.575,
+        1735 + e * (-518.2 + e *
+          (103.4 + e * (-12.79 + e * 0.711))), -20.772 / te
       )
     )
   )
