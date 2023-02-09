@@ -370,7 +370,7 @@ tag_stap <- function(tag) {
 
   # construct stationary period table
   tag$stap <- data.frame(
-    id = unique(tmp[!is.na(tmp)]),
+    stap = unique(tmp[!is.na(tmp)]),
     start = do.call(c, lapply(split(sensor$date, tmp), min)),
     end = do.call("c", lapply(split(sensor$date, tmp), max))
   )

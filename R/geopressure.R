@@ -84,7 +84,7 @@ geopressure_mismatch <- function(tag,
   assertthat::assert_that(is.numeric(tag$pressure$value))
   assertthat::assert_that(assertthat::has_name(tag, "stap"))
   assertthat::assert_that(is.data.frame(tag$stap))
-  assertthat::assert_that(all(unique(tag$pressure$stap) %in% c(0, unique(tag$stap$id))))
+  assertthat::assert_that(all(unique(tag$pressure$stap) %in% c(0, unique(tag$stap$stap))))
   assertthat::assert_that(is.numeric(extent))
   assertthat::assert_that(length(extent) == 4)
   assertthat::assert_that(extent[1] >= -90 & extent[1] <= 90)
