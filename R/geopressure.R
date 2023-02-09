@@ -230,7 +230,6 @@ geopressure_mismatch <- function(tag,
       "available on GEE ~3-5 months after."
     )
     labels <- labels[!is.na(urls)]
-    labels_order <- labels_order[!is.na(urls)]
     urls <- urls[!is.na(urls)]
   }
   message(
@@ -262,8 +261,10 @@ geopressure_mismatch <- function(tag,
     progress_bar(i_u, max = length(urls))
   }
 
-  # Get the SpatRaster
-  pressure_mismatch <- c()
+  # Initialize the return list from tag$stap to make sure all stap are present
+  pressure_mismatch <- lapply(split(tag$stap, tag$stap$stap), as.list)
+
+  # Get maps
   filename <- c()
   message("Compute and download geotiff (GEE server):")
   progress_bar(0, max = length(urls))
@@ -281,18 +282,16 @@ geopressure_mismatch <- function(tag,
         # convert MSE from Pa to hPa
         map[[1]] <- map[[1]] / 100 / 100
 
+        # find the stap in list
+        i_s <- which(names(pressure_mismatch) == labels[i_u])
+
         # Writing some metadata
-        pressure_mismatch[[i_u]] <- list(
-          mse = map[[1]],
-          mask = map[[2]],
-          stap = labels[i_u],
-          nb_sample = sum(tag$pressure$stap[!is.na(pres)] == labels[i_u]),
-          start = tag$stap$start[labels[i_u] == tag$stap$id],
-          end = tag$stap$end[labels[i_u] == tag$stap$id]
-        )
+        pressure_mismatch[[i_s]]$mse <- map[[1]]
+        pressure_mismatch[[i_s]]$mask <- map[[2]]
+        pressure_mismatch[[i_s]]$nb_sample <- sum(tag$pressure$stap[!is.na(pres)] == labels[i_u])
       }
       # return the pressure_mismatch in the same order than requested
-      return(pressure_mismatch[labels_order])
+      return(pressure_mismatch)
     },
     error = function(cond) {
       message(paste0(
@@ -366,38 +365,48 @@ geopressure_likelihood <- function(pressure_mismatch,
                                    fun_w = function(n) {
                                      log(n) / n
                                    }) {
+  assertthat::assert_that(is.list(pressure_mismatch))
+  assertthat::assert_that(is.list(pressure_mismatch[[1]]))
+  assertthat::assert_that(assertthat::has_name(pressure_mismatch[[1]], c("stap", "start", "end")))
   assertthat::assert_that(is.numeric(s))
   assertthat::assert_that(s >= 0)
   assertthat::assert_that(is.numeric(thr))
   assertthat::assert_that(thr >= 0 & thr <= 1)
   assertthat::assert_that(is.function(fun_w))
 
-  pressure_likelihood <- c()
-  for (i_s in seq_len(length(pressure_mismatch))) {
-
-    nb_sample <- pressure_mismatch[[i_s]]$nb_sample
-
-    # Log-linear pooling weight
-    w <- fun_w(nb_sample)
-
-    # get MSE layer
-    mse <- pressure_mismatch[[i_s]]$mse
-    # change 0 (water) in NA
-    mse[mse == 0] <- NA
-
-    # compute probability with equation
-    likelihood <- (1 / (2 * pi * s^2))^(nb_sample * w / 2) * exp(-w * nb_sample / 2 / (s^2) * mse)
-
-    # mask value of threshold and assign the new map
-    pressure_likelihood[[i_s]] <- list(
-      likelihood = likelihood * (pressure_mismatch[[i_s]]$mask >= thr),
-      stap = pressure_mismatch[[i_s]]$stap,
-      nb_sample = pressure_mismatch[[i_s]]$nb_sample,
-      start = pressure_mismatch[[i_s]]$start,
-      end = pressure_mismatch[[i_s]]$end
+  pressure_likelihood <- lapply(pressure_mismatch, function(x) {
+    l <- list(
+      stap = x$stap,
+      start = x$start,
+      end = x$end
     )
-    names(pressure_likelihood[[i_s]]$likelihood) <- "likelihood"
-  }
+
+    if ("mse" %in% names(x)) {
+      # Check that all variables needed are presents
+      assertthat::assert_that(assertthat::has_name(x, c("nb_sample", "mse", "mask")))
+
+      # Log-linear pooling weight
+      w <- fun_w(x$nb_sample)
+
+      # get MSE layer
+      mse <- x$mse
+      # change 0 (water) in NA
+      mse[mse == 0] <- NA
+
+      # compute probability with equation
+      likelihood <- (1 / (2 * pi * s^2))^(x$nb_sample * w / 2) *
+        exp(-w * x$nb_sample / 2 / (s^2) * mse)
+
+      # mask value of threshold
+      likelihood <- likelihood * (x$mask >= thr)
+      names(likelihood) <- "likelihood"
+
+      l$likelihood <- likelihood
+    }
+
+    return(l)
+  })
+
   return(pressure_likelihood)
 }
 

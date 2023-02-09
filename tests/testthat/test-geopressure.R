@@ -14,7 +14,7 @@ tag <- trainset_read(
 tag <- tag_stap(tag)
 pressure_mismatch <- geopressure_mismatch(tag,
                                           extent = c(50, -16, 0, 23),
-                                          scale = 10,
+                                          scale = 1,
                                           max_sample = 100,
                                           margin = 30
 )
@@ -81,6 +81,21 @@ test_that("Check geopressure_likelihood() output", {
   expect_error(geopressure_likelihood(pressure_mismatch, s = "not_a_number"))
   expect_error(geopressure_likelihood(pressure_mismatch, thr = "not_a_number"))
   expect_error(geopressure_likelihood(pressure_mismatch, fun_w = "not_a_function"))
+})
+
+
+test_that("Check geopressure_mismatch() for incomplete stap", {
+  tag_tmp <- tag
+  tag_tmp$pressure <- subset(tag_tmp$pressure, stap==3 | stap==4)
+  mismatch <- geopressure_mismatch(tag_tmp,
+                                                extent = c(50, -16, 0, 23),
+                                                scale = 1,
+  )
+  expect_true(length(mismatch)==nrow(tag$stap))
+  expect_s4_class(mismatch[[3]]$mse, "SpatRaster")
+  likelihood <- geopressure_likelihood(mismatch)
+  expect_true(length(likelihood)==nrow(tag$stap))
+  expect_s4_class(likelihood[[4]]$likelihood, "SpatRaster")
 })
 
 
