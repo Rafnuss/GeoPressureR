@@ -3,16 +3,13 @@
 #' Search for pairs of sunset, sunrise that correspond to a given light threshold. Function inspired
 #' from [`TwGeos::findTwilights`](https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html).
 #'
-#' @param tag data logger dataset list containing `light`, a dataframe with columns `date` and
-#' `value` that are the sequence of sample  times (as POSIXct) and light levels recorded by the tag
-#' respectively (see [`tag_read()`]). In addition, `tag$sta` is present, `stap` will be added to
-#' the the data.frame returned.
+#' @param light a dataframe with columns `date` and `value` that are the sequence of sample  times
+#' (as POSIXct) and light levels recorded by the tag respectively (see [`tag_read()`]).
 #' @param threshold the light threshold that defines twilight. If not provided, it uses the first
 #' light (i.e, `value>0`).
 #' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
 #' provided, it will take the middle of all nights.
-#' @return A data.frame with columns `twilight` (date-time of twilights), `rise` (logical) and
-#' optionally `stap` if `tag$sta` is present.
+#' @return A data.frame with columns `twilight` (date-time of twilights) and `rise` (logical).
 #' @seealso [GeoPressureManual | Light Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#twilight-annotation)
 #' @examples
@@ -20,7 +17,7 @@
 #'   pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR"),
 #'   crop_start = "2017-06-20", crop_end = "2018-05-02"
 #' )
-#' twl <- geolight_twilight(tag)
+#' twl <- geolight_twilight(tag$light)
 #' head(twl)
 #' @export
 geolight_twilight <- function(light,
@@ -82,17 +79,6 @@ geolight_twilight <- function(light,
   # order by time
   twl <- twl[order(twl$twilight), ]
 
-  # Combine twilight by stap
-  if (assertthat::has_name(light, "stap")) {
-    assertthat::assert_that(assertthat::has_name(tag$sta, "start"))
-    assertthat::assert_that(assertthat::has_name(tag$sta, "end"))
-    tmp <- which(mapply(function(start, end) {
-      start < twl$twilight & twl$twilight < end
-    }, tag$stap$start, tag$stap$end), arr.ind = TRUE)
-    twl$stap <- 0
-    twl$stap[tmp[, 1]] <- tmp[, 2]
-  }
-
   return(twl)
 }
 
@@ -108,13 +94,14 @@ geolight_twilight <- function(light,
 #' it for all locations of the bird’s journey, it is safer to assume a broader/smoother
 #' distribution.
 #'
-#' @param twl A data.frame with columns `twilight` (date-time of twilights), `calib` (logical)
-#' indicating if the twilight occurs during the calibration period and `discard` .
-#' See [`geolight_twilight()`].
+#' @param tag data logger dataset list (see [`tag_read()`]). This list needs to contains the
+#' data.frame `stap` (see [`tag_stap()`]).
+#' @param twl A data.frame with columns `twilight` (date-time of twilights) and `discard`
+#' (see [`geolight_twilight()`]).
+#' @param stap_calib staionary period of calibration.
 #' @param lon_calib longitude of the calibration site.
 #' @param lat_calib latitude of the calibration site.
 #' @param map SpatRaster on which the likelihood map should be computed.
-#' @param stap stationary periods on which the likelihood maps should be computed.
 #' @param adjust_calib smoothing parameter for the kernel density. See [`stats::kernel()`]
 #' @param w_llp Log-linear pooling aggregation weight. See [GeoPressureManual | Probability
 #' @param fit_z_return interupt the function after calibration and return the zenith angle fit
@@ -124,35 +111,41 @@ geolight_twilight <- function(light,
 #' @return list of SpatRaster of the likelihood map for each stationary period. Or a kernel fit
 #' (see [`stats::kernel()`]) if `fit_z_return` is true.
 #' @export
-geolight_likelihood <- function(twl,
+geolight_likelihood <- function(tag,
+                                twl,
+                                stap_calib,
                                 lon_calib,
                                 lat_calib,
                                 map,
-                                stap = NA,
                                 adjust_calib = 1.4,
                                 w_llp = 0.1,
-                                fit_z_return = F) {
+                                fit_z_return = FALSE) {
+  assertthat::assert_that(is.list(tag))
+  assertthat::assert_that(assertthat::has_name(tag, "stap"))
+  assertthat::assert_that(is.data.frame(tag$stap))
   assertthat::assert_that(is.data.frame(twl))
-  assertthat::assert_that(assertthat::has_name(twl, c("twilight", "calib", "discard")))
+  assertthat::assert_that(assertthat::has_name(twl, c("twilight", "discard")))
   assertthat::assert_that(inherits(twl$twilight, "POSIXt"))
-  assertthat::assert_that(is.logical(twl$calib))
   assertthat::assert_that(is.logical(twl$discard))
   assertthat::assert_that(is.numeric(lon_calib))
   assertthat::assert_that(is.numeric(lat_calib))
+  assertthat::assert_that(all(stap_calib %in% tag$stap$stap))
   assertthat::assert_that(inherits(map, "SpatRaster"))
   assertthat::assert_that(is.numeric(adjust_calib))
   assertthat::assert_that(is.numeric(w_llp))
 
-  if (is.na(stap)) {
-    stap <- seq_len(max(twl$stap))
-  }
-  assertthat::assert_that(is.numeric(stap))
+  # Assign stap to twl
+  tmp <- which(mapply(function(start, end) {
+    start < twl$twilight & twl$twilight < end
+  }, tag$stap$start, tag$stap$end), arr.ind = TRUE)
+  twl$stap <- 0
+  twl$stap[tmp[, 1]] <- tmp[, 2]
 
   # Remove outlier
-  twl_clean <- subset(twl, !discard)
+  twl_clean <- twl[!twl$discard, ]
 
   # Calibrate the twilight in term of zenith angle with a kernel density.
-  twl_calib <- subset(twl, calib)
+  twl_calib <- twl[twl$stap %in% stap_calib, ]
   sun_calib <- geolight_solar(twl_calib$twilight)
   z_calib <- geolight_refracted(geolight_zenith(sun_calib, lon_calib, lat_calib))
   fit_z <- stats::density(z_calib, adjust = adjust_calib, from = 60, to = 120)
@@ -166,16 +159,21 @@ geolight_likelihood <- function(twl,
   # error function for each grid cell.
   sun <- geolight_solar(twl_clean$twilight)
   g <- terra::as.data.frame(map, xy = TRUE)
-  g$likelihood <- NA
+  g <- data.frame(
+    x = g$x,
+    y = g$y,
+    likelihood = NA
+  )
   pgz <- apply(g, 1, function(x) {
     z <- geolight_refracted(geolight_zenith(sun, x[1], x[2]))
     stats::approx(fit_z$x, fit_z$y, z, yleft = 0, yright = 0)$y
   })
 
-  # loop through each stationary period and create a SpatRaster with the aggregated likelihood
-  light_likelihood <- c()
-  for (i_s in seq_len(length(stap))) {
-    id <- twl_clean$stap == stap[i_s]
+  # Initialize the return list from tag$stap to make sure all stap are present
+  light_likelihood <- lapply(split(tag$stap, tag$stap$stap), function(l) {
+    l <- as.list(l)
+    # find all twilights from this stap
+    id <- twl_clean$stap == l$stap
     if (sum(id) > 1) {
       g$likelihood <- exp(colSums(w_llp * log(pgz[id, ]))) # Log-linear equation express in log
     } else if (sum(id) == 1) {
@@ -183,12 +181,9 @@ geolight_likelihood <- function(twl,
     } else {
       g$likelihood <- 1
     }
-    light_likelihood[[i_s]] <- list(
-      stap = stap[i_s],
-      nb_sample = sum(id),
-      likelihood = terra::rast(g, type = "xyz")
-    )
-  }
+    l$likelihood <- terra::rast(g, type = "xyz")
+    return(l)
+  })
 
   return(light_likelihood)
 }
