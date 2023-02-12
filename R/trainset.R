@@ -33,47 +33,62 @@ trainset_write <- function(tag,
   assertthat::assert_that(is.character(pathname))
   assertthat::assert_that(is.character(filename))
 
-  if (!assertthat::has_name(tag$acceleration, "label")) {
-    tag$acceleration$label <- ""
-  }
-  if (!assertthat::has_name(tag$pressure, "label")) {
-    tag$pressure$label <- ""
-  }
   # create path if does not exit
   if (!dir.exists(pathname)) {
     dir.create(pathname)
   }
   assertthat::assert_that(dir.exists(pathname))
 
+  # Create empty label if tag$pressure$label doesn't exit
+  if (!assertthat::has_name(tag$pressure, "label")) {
+    tag$pressure$label <- ""
+  }
+
+  tag$pressure <- tag$pressure[!is.na(tag$pressure$value), ]
+
   # Combine the variable
-  df <- rbind(
-    data.frame(
-      series = "acceleration",
-      timestamp = strftime(tag$acceleration$date[!is.na(tag$acceleration$value)],
-        "%Y-%m-%dT%H:%M:%SZ",
-        tz = "UTC"
-      ),
-      value = tag$acceleration$value[!is.na(tag$acceleration$value)],
-      label = ifelse(tag$acceleration$ismig[!is.na(tag$acceleration$value)], "1", "")
+  df <- data.frame(
+    series = "pressure",
+    timestamp = strftime(tag$pressure$date, "%Y-%m-%dT%H:%M:%SZ",
+      tz = "UTC"
     ),
-    data.frame(
-      series = "pressure",
-      timestamp = strftime(tag$pressure$date[!is.na(tag$pressure$value)], "%Y-%m-%dT%H:%M:%SZ",
-        tz = "UTC"
-      ),
-      value = tag$pressure$value[!is.na(tag$pressure$value)],
-      label = ifelse(tag$pressure$isoutlier[!is.na(tag$pressure$value)], "1", "")
-    )
+    value = tag$pressure$value,
+    label = tag$pressure$label
   )
+
+  # Add acceleration label if available
+  if (assertthat::has_name(tag, "acceleration")) {
+    # Create empty label if tag$light$label doesn't exit
+    if (!assertthat::has_name(tag$acceleration, "label")) {
+      tag$acceleration$label <- ""
+    }
+
+    tag$acceleration <- tag$acceleration[!is.na(tag$acceleration$value), ]
+
+    df <- rbind(
+      df,
+      data.frame(
+        series = "acceleration",
+        timestamp = strftime(tag$acceleration$date,
+          "%Y-%m-%dT%H:%M:%SZ",
+          tz = "UTC"
+        ),
+        value = tag$acceleration$value,
+        label = tag$acceleration$label
+      )
+    )
+  }
 
   # Add optional reference dataset
   if (assertthat::has_name(tag$pressure, "value_ref")) {
+    tag$pressure <- tag$pressure[!is.na(tag$pressure$value_ref), ]
+
     df <- rbind(
       df,
       data.frame(
         series = "pressure_reference",
         timestamp = strftime(tag$pressure$date[!is.na(tag$pressure$value_ref)],
-                             "%Y-%m-%dT%H:%M:%SZ",
+          "%Y-%m-%dT%H:%M:%SZ",
           tz = "UTC"
         ),
         value = tag$pressure$value_ref[!is.na(tag$pressure$value_ref)],
