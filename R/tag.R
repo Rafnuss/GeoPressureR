@@ -316,10 +316,7 @@ tag_classify <- function(tag,
   tmp <- sapply(split(act_mig, act_id), unique) & table(act_id) * dt > min_duration
 
   # Classify acceleration accordingly
-  tag$acceleration$ismig <- tmp[act_id]
-
-  # plot(tag$acceleration$date[tag$acceleration$ismig],
-  # tag$acceleration$value[tag$acceleration$ismig])
+  tag$acceleration$label <- ifelse(tmp[act_id],"flight","")
 
   return(tag)
 }
@@ -345,8 +342,10 @@ tag_classify <- function(tag,
 #'   pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 #' )
 #' tag <- tag_stap(tag)
+#' head(tag$stap)
 #' head(tag$pressure)
 #' head(tag$light)
+#' head(tag$acceleration)
 #' @seealso [`tag_read`], [`tag_classify`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods)
 #' @export

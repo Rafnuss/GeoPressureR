@@ -52,13 +52,13 @@
 #' # See `tag_stap()` for generating tag
 #' \dontrun{
 #' pressure_mismatch <- geopressure_mismatch(
-#'   tag$pressure,
+#'   tag,
 #'   extent = c(50, -16, 0, 23),
 #'   scale = 4,
 #'   max_sample = 250,
 #'   margin = 30
 #' )
-#' pressure_mismatch_1 <- pressure_mismatch$map[[1]]
+#' pressure_mismatch_1 <- pressure_mismatch[[1]]
 #' }
 #' pressure_mismatch_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_mismatch_1.rda",
 #'   package = "GeoPressureR"
