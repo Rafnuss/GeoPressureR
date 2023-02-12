@@ -52,23 +52,21 @@ test_that("Check geopressure_mismatch() output", {
   # Check error for incorrect pressure
   tag_sm_2 <- tag_sm
   tag_sm_2$pressure$value[2] <- 1200
-  expect_error(geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1))
+  err <- expect_error(geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1))
+  expect_match(err$message,"Pressure observation should be between 250 hPa")
 
-  # Check warning for incorrect date
+  # Check warning for irregular date
   tag_sm_2 <- tag_sm
   tag_sm_2$pressure$date[2] <- tag_sm_2$pressure$date[2] + 30 * 60
-  expect_warning(geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1))
-
-  # Check error for incorrect stap
-  tag_sm_2 <- tag_sm
-  tag_sm_2$pressure$stap <- 0
-  expect_error(geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1))
+  warn <- expect_warning(geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1))
+  expect_match(warn$message,"The pressure data is not on a regular interval")
 
   # Check error for date too recent
   tag_sm_2 <- tag_sm
   tmp <- Sys.time()
   tag_sm_2$pressure$date = c(tmp, tmp + 60 * 60, tmp + 2 * 60 * 60)
-  expect_error(geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1))
+  err <- expect_error(geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1))
+  expect_match(err$message,"made for periods where no data are available")
 
   # Check geopressure_mismatch() timeout and worker
   expect_error(geopressure_mismatch(tag, extent = c(1, 0, 0, 1), scale = 1, timeout = 1))
@@ -87,16 +85,31 @@ test_that("Check geopressure_likelihood() output", {
 test_that("Check geopressure_mismatch() for incomplete stap", {
   tag_tmp <- tag
   tag_tmp$pressure <- subset(tag_tmp$pressure, stap==3 | stap==4)
-  mismatch <- geopressure_mismatch(tag_tmp,
+  expect_warning(mismatch <- geopressure_mismatch(tag_tmp,
                                                 extent = c(50, -16, 0, 23),
                                                 scale = 1,
-  )
+  ))
   expect_true(length(mismatch)==nrow(tag$stap))
   expect_s4_class(mismatch[[3]]$mse, "SpatRaster")
   likelihood <- geopressure_likelihood(mismatch)
   expect_true(length(likelihood)==nrow(tag$stap))
   expect_s4_class(likelihood[[4]]$likelihood, "SpatRaster")
 })
+
+
+test_that("Check geopressure_mismatch() with elev_", {
+  tag_tmp <- trainset_read(tag,
+                               pathname = system.file("extdata/1_pressure/labels/", package = "GeoPressureR"),
+                               filename = "18LX_act_pres-labeled_elev.csv")
+  tag_tmp <- tag_stap(tag_tmp)
+  mismatch <- geopressure_mismatch(tag_tmp,
+                                   extent = c(50, -16, 0, 23),
+                                   scale = 1,
+  )
+  expect_length(mismatch, 5)
+})
+
+
 
 
 test_that("Check map2path() output", {

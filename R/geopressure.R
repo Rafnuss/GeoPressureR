@@ -23,7 +23,7 @@
 #' ERA5 data. The min and max ground elevation of each pixel is computed from SRTM-90.
 #'
 #' @param tag data logger dataset list (see [`tag_read()`]). This list needs to contains a
-#' `pressure` data.frame nwith variable `date` as POSIXt, `value` in hPa, `stap` grouping
+#' `pressure` data.frame nwith variable `date` as POSIXt, `value` in hPa, `stap` stapeleving
 #' observation measured during the same stationary period and `label` to label observation which
 #' need to be discarded. In addition also need to contains `stap` with exact time of the stationary
 #' period and in between flights.
@@ -82,6 +82,8 @@ geopressure_mismatch <- function(tag,
   assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "value", "label", "stap")))
   assertthat::assert_that(inherits(tag$pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(tag$pressure$value))
+  assertthat::assert_that(nrow(tag$pressure) >= 3)
+  assertthat::assert_that(min(diff(as.numeric(tag$pressure$date)))/60/60 <= 1)
   assertthat::assert_that(assertthat::has_name(tag, "stap"))
   assertthat::assert_that(is.data.frame(tag$stap))
   assertthat::assert_that(all(unique(tag$pressure$stap) %in% c(0, unique(tag$stap$stap))))
@@ -104,81 +106,113 @@ geopressure_mismatch <- function(tag,
   assertthat::assert_that(is.numeric(workers))
   assertthat::assert_that(workers > 0 & workers < 100)
 
-  pres <- tag$pressure$value
+  pres <- tag$pressure
+
+  if (length(unique(diff(pres$date))) > 1){
+    warning("The pressure data is not on a regular interval. This might caused issue later.")
+  }
 
   # remove flight and discard label
-  pres[tag$pressure$label != ""] <- NA
+  pres <- pres[pres$label != "flight" & pres$label != "discard",]
 
   # check values
-  if (min(pres, na.rm = TRUE) < 250 || 1100 < max(pres, na.rm = TRUE)) {
+  if (min(pres$value, na.rm = TRUE) < 250 || 1100 < max(pres$value, na.rm = TRUE)) {
     stop(paste0(
-      "Pressure observation should be between 250 hPa (~10000m)  and 1100 hPa (sea level at 1013",
-      "hPa). Check unit return by `tag_read()`"
+      "Pressure observation should be between 250 hPa (~10000m) and 1100 hPa (sea level at 1013",
+      "hPa). Check unit returned by `tag_read()`"
     ))
   }
 
-  # remove flight period
-  pres[tag$pressure$stap == 0] <- NA
+  # Create the stapelev of pressure to query: stationary period and elevation
+  pres$stapelev <- paste0(
+    pres$stap, "|",
+    ifelse(startsWith(pres$label, "elev_"),
+      gsub("^.*?elev_", "", pres$label),
+      "0"
+    )
+  )
 
-  # remove stationary period with NA
-  pres[is.na(tag$pressure$stap)] <- NA
+  # Split the data.frame per stapelev
+  pres_stapelev <- split(pres, pres$stapelev)
 
-  # smooth the data with a moving average of 1hr
-  # find the size of the windows for 1 hour
-  dtall <- diff(tag$pressure$date)
-  units(dtall) <- "hours"
-  if (length(unique(dtall)) > 1) {
-    warning("Date of pressure are not on a regular interval. This might cause issue later.")
-  }
-  dt <- as.numeric(stats::median(dtall))
-  n <- round(1 / dt + 1)
-  # make the convolution for each stationary period separately
-  if (length(pres) > n) {
-    for (i_s in seq(1, max(tag$pressure$stap, na.rm = TRUE))) {
-      pres_i_s <- pres
-      pres_i_s[tag$pressure$stap != i_s] <- NA
-      pres_i_s_smoothna <- stats::filter(
-        c(FALSE, !is.na(pres_i_s), FALSE),
+  # Smooth and downscale each stapelev
+  pres_stapelev_clean <- lapply(pres_stapelev, function(pgi) {
+    # Define a regular temporal grid for smoothing and down scaling, rounded to the hours
+    date_reg <- seq(
+      round.POSIXt(min(pgi$date), units = "hours"),
+      round.POSIXt(max(pgi$date), units = "hours"),
+      by = min(diff(pgi$date))
+    )
+
+    # Re-sample to the new temporal grid
+    id <- sapply(pgi$date, function(d){ which.min(abs(d - date_reg)) })
+    pgi$date <- date_reg[id]
+
+    # Create the dataset on the new grid, allowing for NA if no data available
+    pgi_reg <- merge(
+      data.frame(date = date_reg),
+      pgi,
+      by = "date",
+      all.x = TRUE
+    )
+
+    # smooth the data with a moving average of 1hr
+    # find the size of the windows for 1 hour
+    dtall <- diff(pgi_reg$date)
+    units(dtall) <- "hours"
+    dt <- as.numeric(stats::median(dtall))
+    n <- round(1 / dt + 1)
+
+    # check that there are enough datapoint for the smoothing
+    if (nrow(pgi_reg) > n) {
+      smoothna <- stats::filter(
+        c(FALSE, !is.na(pgi_reg$value), FALSE),
         rep(1 / n, n)
       )
-      pres_i_s[is.na(pres_i_s)] <- 0
-      pres_i_s_smooth <- stats::filter(c(0, pres_i_s, 0), rep(1 / n, n))
+      pgi_reg$value[is.na(pgi_reg$value)] <- 0
+      smooth <- stats::filter(c(0, pgi_reg$value, 0), rep(1 / n, n))
 
-      tmp <- pres_i_s_smooth / pres_i_s_smoothna
+      tmp <- smooth / smoothna
       tmp <- tmp[seq(2, length(tmp) - 1)]
 
-      pres[!is.na(tag$pressure$stap) & tag$pressure$stap == i_s] <-
-        tmp[!is.na(tag$pressure$stap) & tag$pressure$stap == i_s]
+      pgi_reg$value <- tmp
     }
-  }
 
-  # downscale to 1 hour
-  # Find the start time closer to the hour
-  idt_s <- which.min(abs(round.POSIXt(tag$pressure$date[seq_len(1 / dt)], units = "hours") -
-    tag$pressure$date[seq_len(1 / dt)]))
-  # Define the index of time to keep
-  idt <- seq(idt_s, length(tag$pressure$date), by = 1 / dt)
-  # Remove the other ones
-  pres[!(seq(1, length(pres)) %in% idt)] <- NA
+    # downscale to 1 hour
+    # Pressure is an instantaneous parameters
+    # (https://confluence.ecmwf.int/display/CKB/Parameters+valid+at+the+specified+time), so we take
+    # the value at the exact hour
+    pgi_reg <- pgi_reg[seq(1, nrow(pgi_reg), by = 1 / dt), ]
 
-  if (sum(!is.na(pres)) == 0) {
-    stop("No pressure to query. Check outlier and staID==0 (for flight).")
-  }
+    # Remove time without measure
+    pgi_reg <- pgi_reg[!is.na(pgi_reg$stap), ]
 
-  # Check number of datapoint per stationary periods
-  tmp <- data.frame(table(tag$pressure$stap[!is.na(pres)]))
-  if (any(tmp$Freq < 3)) {
+    return(pgi_reg)
+  })
+
+  nb_pres_stapelev_clean <- sapply(pres_stapelev_clean, function(x) { nrow(x) })
+  if (any(nb_pres_stapelev_clean < 3)) {
     warning(
-      "There is less than 3 datapoints used for stationary periods: ",
-      paste0(tmp$Var1[tmp$Freq < 3], collapse = ", "), "."
+      "There is less than 3 datapoints used for the following stationary periods: ",
+      paste0(names(nb_pres_stapelev_clean)[nb_pres_stapelev_clean < 3], collapse = ", "), "."
     )
   }
 
+  pres_query <- do.call("rbind", pres_stapelev_clean)
+
+  if (nrow(pres_query) == 0) {
+    stop("No pressure to query. Check outlier and staID==0 (for flight).")
+  }
+
+  assertthat::assert_that(all(!is.na(pres_query$date)))
+  assertthat::assert_that(all(!is.na(pres_query$value)))
+  assertthat::assert_that(all(pres_query$stapelev != ""))
+
   # Format query
   body_df <- list(
-    time = jsonlite::toJSON(as.numeric(as.POSIXct(tag$pressure$date[!is.na(pres)]))),
-    label = jsonlite::toJSON(tag$pressure$stap[!is.na(pres)]),
-    pressure = jsonlite::toJSON(pres[!is.na(pres)] * 100), # convert from hPa to Pa
+    time = jsonlite::toJSON(as.numeric(as.POSIXct(pres_query$date))),
+    label = jsonlite::toJSON(pres_query$stapelev),
+    pressure = jsonlite::toJSON(round(pres_query$value * 100)), # convert from hPa to Pa
     N = extent[1],
     W = extent[2],
     S = extent[3],
@@ -195,6 +229,7 @@ geopressure_mismatch <- function(tag,
     encode = "form",
     httr::timeout(timeout)
   )
+
   if (httr::http_error(res)) {
     message(httr::content(res))
     temp_file <- tempfile("log_geopressure_mismatch_", fileext = ".json")
@@ -202,7 +237,7 @@ geopressure_mismatch <- function(tag,
     stop(paste0(
       "Error with your request on https://glp.mgravey.com/GeoPressure/v1/map/. ",
       "Please try again, and if the problem persists, file an issue on Github:",
-      "https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_timeseries&labels=crash
+      "https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_map&labels=crash
         with this log file located on your computer: ", temp_file
     ))
   }
@@ -211,10 +246,8 @@ geopressure_mismatch <- function(tag,
   urls <- httr::content(res)$data$urls
   urls[sapply(urls, is.null)] <- NA
   urls <- unlist(urls)
-  # Note that the order of the urls will be different than requested to optimized the
-  # parallelization
   labels <- unlist(httr::content(res)$data$labels)
-  labels_order <- order(labels)
+
   # Check that the urls exist
   if (all(is.na(urls))) {
     stop(
@@ -261,37 +294,18 @@ geopressure_mismatch <- function(tag,
     progress_bar(i_u, max = length(urls))
   }
 
-  # Initialize the return list from tag$stap to make sure all stap are present
-  pressure_mismatch <- lapply(split(tag$stap, tag$stap$stap), as.list)
-
   # Get maps
   filename <- c()
+  map <- c()
   message("Compute and download geotiff (GEE server):")
   progress_bar(0, max = length(urls))
   tryCatch(
     expr = {
       for (i_u in seq_len(length(urls))) {
         filename[i_u] <- future::value(f[[i_u]])
-        map <- terra::rast(filename[i_u])
+        map[[i_u]] <- terra::rast(filename[i_u])
         progress_bar(i_u, max = length(urls))
-
-        # Set names for layer
-        names(map[[1]]) <- "Mean Square Error"
-        names(map[[2]]) <- "Mask of pressure"
-
-        # convert MSE from Pa to hPa
-        map[[1]] <- map[[1]] / 100 / 100
-
-        # find the stap in list
-        i_s <- which(names(pressure_mismatch) == labels[i_u])
-
-        # Writing some metadata
-        pressure_mismatch[[i_s]]$mse <- map[[1]]
-        pressure_mismatch[[i_s]]$mask <- map[[2]]
-        pressure_mismatch[[i_s]]$nb_sample <- sum(tag$pressure$stap[!is.na(pres)] == labels[i_u])
       }
-      # return the pressure_mismatch in the same order than requested
-      return(pressure_mismatch)
     },
     error = function(cond) {
       message(paste0(
@@ -302,11 +316,50 @@ geopressure_mismatch <- function(tag,
       return(list(
         urls = urls,
         filename = filename,
-        pressure_mismatch = pressure_mismatch,
+        map = map,
         future = f
       ))
     }
   )
+
+  # Find the stap of each urls from labels (same order)
+  labels_stap <- sub("\\|.*", "", labels)
+
+  # Find the number of sample (datapoint) for each map
+  nb_sample <- pmin(max_sample, unlist(lapply(labels, function(l) {
+    sum(pres_query$stapelev == l)
+  })))
+
+  # Initialize the return list from tag$stap to make sure all stap are present
+  pressure_mismatch <- lapply(split(tag$stap, tag$stap$stap), function(l) {
+    # convert tag from df into a list
+    l <- as.list(l)
+
+    # Find all stapelevs that belong to this stap
+    i_s <- which(labels_stap == l$stap)
+
+    # compute the total number of sample for that stap.
+    l$nb_sample <- sum(nb_sample[i_s])
+
+    if (length(i_s)>0){
+      # Compute the average of the mse and mask map weighted by the number of sample
+      tmp <- Reduce(`+`, mapply(function(m, w) {
+        w * m
+      }, map[i_s], nb_sample[i_s])) / l$nb_sample
+
+      # Extract the two map
+      l$mse <- tmp[[1]] / 100 / 100 # convert MSE from Pa to hPa
+      l$mask <- tmp[[2]]
+
+      # Set names for layer
+      names(l$mse) <- "Mean Square Error"
+      names(l$mask) <- "Mask of pressure"
+    }
+    return(l)
+  })
+
+  # return the pressure_mismatch in the same order than requested
+  return(pressure_mismatch)
 }
 
 
@@ -693,12 +746,12 @@ geopressure_timeseries_path <- function(path,
     progress_bar(i_s, max = nrow(path), text = paste0("| stap = ", i_stap))
     tryCatch(
       expr = {
-        pressure_timeserie[[i_s]] <- future::value(f[[i_s]])
+        pressure_timeseries[[i_s]] <- future::value(f[[i_s]])
       },
       error = function(cond) {
         warning(paste0("Error for stap = ", path$stap[i_s], ".\n", cond))
       }
     )
   }
-  return(pressure_timeserie)
+  return(pressure_timeseries)
 }
