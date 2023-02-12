@@ -123,7 +123,12 @@ map2path <- function(likelihood,
   # to be necessary to get correctly the position. Not really practical, maybe the way lat lon are
   # index in a map
   path <- do.call("rbind", lapply(likelihood, function(l) {
-    if (format == "lonlat") {
+    if (!("likelihood" %in% names(l))){
+      p <- data.frame(
+        lon = NA,
+        lat = NA
+      )
+    } else if (format == "lonlat") {
       pos <- terra::as.data.frame(l$likelihood, xy = TRUE)
       p <- data.frame(
         lon = pos[which.max(pos[, 3]), 1],
@@ -142,33 +147,29 @@ map2path <- function(likelihood,
 
   # Interpolation for short stationary period is only performed if interp>0
   if (interp > 0) {
-    # remove short stationary period
+    # compute duration
     duration <- unlist(lapply(likelihood, function(l) {
       as.numeric(difftime(l$end, l$start, units = "days"))
     }))
+    # identify stap to interpolate
     id_interp <- duration < interp
-    id_interp[1] <- FALSE
-    id_interp[length(id_interp)] <- FALSE
-
-    # Find the spacing between the position
-    if (is.null(likelihood[[1]]$flight)) {
-      # Or if flight duration are not available (e.g. `pressure_likelihood`), assumes homogeneous spacing
-      # between consecutive stationary period
-      x <- path$stap
-    } else {
-      # If flight are available, sum of the all flights between stationary period
-      flight_duration <- unlist(lapply(likelihood, function(l) {
-        sum(as.numeric(difftime(l$flight$end,
-          l$flight$start,
-          units = "hours"
-        )))
-      }))
-      # Cumulate the flight duration to get a proxy of the over distance covered
-      x <- c(0, cumsum(utils::head(flight_duration, -1)))
+    # Enforce first and last stap constant
+    if (any(id_interp[c(1, length(id_interp))])){
+      id_interp[c(1, length(id_interp))] <- FALSE
+      warning(paste0("First and last stap are shorter than ", interp," days but cannot be ",
+                     "interpolated. They will be kept as constant."))
     }
+
+    # Compute flight duration
+    flight <- utils::tail(sapply(likelihood, function(l){l$end}),-1) -
+      utils::head(sapply(likelihood, function(l){l$end}),-1)
+
+    # Cumulate the flight duration to get a proxy of the over distance covered
+    w <- c(0, flight)
+
     # interpolate in between
-    path$lon[id_interp] <- stats::approx(x[!id_interp], path$lon[!id_interp], x[id_interp])$y
-    path$lat[id_interp] <- stats::approx(x[!id_interp], path$lat[!id_interp], x[id_interp])$y
+    path$lon[id_interp] <- stats::approx(w[!id_interp], path$lon[!id_interp], w[id_interp])$y
+    path$lat[id_interp] <- stats::approx(w[!id_interp], path$lat[!id_interp], w[id_interp])$y
 
     if (format != "lonlat") {
       path <- round(path)
