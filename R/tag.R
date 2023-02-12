@@ -358,7 +358,8 @@ tag_stap <- function(tag) {
   assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "label")))
 
   # If acceleration is present, use acceleration, otherwise pressure
-  if (assertthat::has_name(tag, "acceleration") && assertthat::has_name(tag$acceleration, "label")) {
+  if (assertthat::has_name(tag, "acceleration") &&
+      assertthat::has_name(tag$acceleration, "label")) {
     sensor <- tag$acceleration
   } else {
     sensor <- tag$pressure

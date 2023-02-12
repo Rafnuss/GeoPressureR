@@ -83,7 +83,7 @@ geopressure_mismatch <- function(tag,
   assertthat::assert_that(inherits(tag$pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(tag$pressure$value))
   assertthat::assert_that(nrow(tag$pressure) >= 3)
-  assertthat::assert_that(min(diff(as.numeric(tag$pressure$date)))/60/60 <= 1)
+  assertthat::assert_that(min(diff(as.numeric(tag$pressure$date))) / 60 / 60 <= 1)
   assertthat::assert_that(assertthat::has_name(tag, "stap"))
   assertthat::assert_that(is.data.frame(tag$stap))
   assertthat::assert_that(all(unique(tag$pressure$stap) %in% c(0, unique(tag$stap$stap))))
@@ -108,12 +108,12 @@ geopressure_mismatch <- function(tag,
 
   pres <- tag$pressure
 
-  if (length(unique(diff(pres$date))) > 1){
+  if (length(unique(diff(pres$date))) > 1) {
     warning("The pressure data is not on a regular interval. This might caused issue later.")
   }
 
   # remove flight and discard label
-  pres <- pres[pres$label != "flight" & pres$label != "discard",]
+  pres <- pres[pres$label != "flight" & pres$label != "discard", ]
 
   # check values
   if (min(pres$value, na.rm = TRUE) < 250 || 1100 < max(pres$value, na.rm = TRUE)) {
@@ -144,8 +144,15 @@ geopressure_mismatch <- function(tag,
       by = min(diff(pgi$date))
     )
 
+    # Remove observation be
+    pgi <- pgi[pgi$date >= date_reg[1] & pgi$date <= date_reg[length(date_reg)], ]
+
     # Re-sample to the new temporal grid
-    id <- sapply(pgi$date, function(d){ which.min(abs(d - date_reg)) })
+    id <- sapply(pgi$date, function(d) {
+      which.min(abs(d - date_reg))
+    })
+    assertthat::assert_that(length(id) == length(unique(id)))
+    assertthat::assert_that(all(difftime(pgi$date, date_reg[id], units = "hours") <= 0.5))
     pgi$date <- date_reg[id]
 
     # Create the dataset on the new grid, allowing for NA if no data available
@@ -190,7 +197,9 @@ geopressure_mismatch <- function(tag,
     return(pgi_reg)
   })
 
-  nb_pres_stapelev_clean <- sapply(pres_stapelev_clean, function(x) { nrow(x) })
+  nb_pres_stapelev_clean <- sapply(pres_stapelev_clean, function(x) {
+    nrow(x)
+  })
   if (any(nb_pres_stapelev_clean < 3)) {
     warning(
       "There is less than 3 datapoints used for the following stationary periods: ",
@@ -341,7 +350,7 @@ geopressure_mismatch <- function(tag,
     # compute the total number of sample for that stap.
     l$nb_sample <- sum(nb_sample[i_s])
 
-    if (length(i_s)>0){
+    if (length(i_s) > 0) {
       # Compute the average of the mse and mask map weighted by the number of sample
       tmp <- Reduce(`+`, mapply(function(m, w) {
         w * m

@@ -37,7 +37,8 @@ progress_bar <- function(x, max = 100, text = "") {
 #'   pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 #' )
 #' tag <- tag_stap(tag)
-#' pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_likelihood_1.rda",
+#' pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/", "
+#'   18LX_pressure_likelihood_1.rda",
 #'   package = "GeoPressureR"
 #' ))
 #' path <- map2path(list(pressure_likelihood_1))
@@ -103,8 +104,8 @@ path2df <- function(tag, path) {
 #'   package = "GeoPressureR"
 #' ))
 #' map2path(list(pressure_likelihood_1))
-#' @seealso [`geopressure_likelihood()`], [`geopressure_timeseries_path()`], [GeoPressureManual | Pressure Map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude)
+#' @seealso [`geopressure_likelihood()`], [`geopressure_timeseries_path()`], [GeoPressureManual |
+#' Pressure Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude)
 #' @export
 map2path <- function(likelihood,
                      interp = 0,
@@ -112,7 +113,6 @@ map2path <- function(likelihood,
   # Check if likelihood map is a map or a list of maps.
   assertthat::assert_that(is.list(likelihood))
   assertthat::assert_that(is.list(likelihood[[1]]))
-  assertthat::assert_that(inherits(likelihood[[1]]$likelihood, "SpatRaster"))
   assertthat::assert_that(is.numeric(likelihood[[1]]$stap))
   assertthat::assert_that(is.numeric(interp))
   assertthat::assert_that(interp >= 0)
@@ -123,7 +123,7 @@ map2path <- function(likelihood,
   # to be necessary to get correctly the position. Not really practical, maybe the way lat lon are
   # index in a map
   path <- do.call("rbind", lapply(likelihood, function(l) {
-    if (!("likelihood" %in% names(l))){
+    if (!("likelihood" %in% names(l))) {
       p <- data.frame(
         lon = NA,
         lat = NA
@@ -154,15 +154,21 @@ map2path <- function(likelihood,
     # identify stap to interpolate
     id_interp <- duration < interp
     # Enforce first and last stap constant
-    if (any(id_interp[c(1, length(id_interp))])){
+    if (any(id_interp[c(1, length(id_interp))])) {
       id_interp[c(1, length(id_interp))] <- FALSE
-      warning(paste0("First and last stap are shorter than ", interp," days but cannot be ",
-                     "interpolated. They will be kept as constant."))
+      warning(paste0(
+        "First and last stap are shorter than ", interp, " days but cannot be ",
+        "interpolated. They will be kept as constant."
+      ))
     }
 
     # Compute flight duration
-    flight <- utils::tail(sapply(likelihood, function(l){l$end}),-1) -
-      utils::head(sapply(likelihood, function(l){l$end}),-1)
+    flight <- utils::tail(sapply(likelihood, function(l) {
+      l$end
+    }), -1) -
+      utils::head(sapply(likelihood, function(l) {
+        l$end
+      }), -1)
 
     # Cumulate the flight duration to get a proxy of the over distance covered
     w <- c(0, flight)

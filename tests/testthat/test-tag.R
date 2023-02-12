@@ -107,10 +107,10 @@ test_that("Check tag_stap()", {
 
 test_that("for elev", {
   tag_labeled <- trainset_read(tag,
-                               pathname = system.file("extdata/1_pressure/labels/", package = "GeoPressureR"),
-                               filename = "18LX_act_pres-labeled_elev.csv")
+    pathname = system.file("extdata/1_pressure/labels/", package = "GeoPressureR"),
+    filename = "18LX_act_pres-labeled_elev.csv"
+  )
   expect_true(all(c("elev_1", "elev_2") %in% unique(tag_labeled$pressure$label)))
   tag_stap <- tag_stap(tag_labeled)
   expect_true(all(c("elev_1", "elev_2") %in% unique(tag_stap$pressure$label)))
 })
-
