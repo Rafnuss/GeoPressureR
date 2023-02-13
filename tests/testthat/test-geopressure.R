@@ -41,8 +41,8 @@ test_that("Check geopressure_mismatch() output", {
   expect_length(mismatch, 1)
   expect_type(mismatch[[1]], "list")
   expect_true(all(c("mse", "mask", "stap", "nb_sample", "start", "end") %in% names(mismatch[[1]])))
-  expect_s4_class(mismatch[[1]]$mse, "SpatRaster")
-  expect_s4_class(mismatch[[1]]$mask, "SpatRaster")
+  expect_equal(length(dim(mismatch[[1]]$mse)), 2)
+  expect_equal(length(dim(mismatch[[1]]$mask)), 2)
   expect_true(mismatch[[1]]$stap == 1)
   expect_true(mismatch[[1]]$nb_sample == 4)
   expect_true(mismatch[[1]]$start == tag_sm$pressure$date[1])
@@ -125,12 +125,12 @@ test_that("Check for incomplete stap", {
     scale = 1,
   ))
   expect_true(length(mismatch) == nrow(tag$stap))
-  expect_s4_class(mismatch[[3]]$mse, "SpatRaster")
+  expect_equal(length(dim(mismatch[[3]]$mse)), 2)
 
   # Check geopressure_likelihood
   likelihood <- geopressure_likelihood(mismatch)
   expect_true(length(likelihood) == nrow(tag$stap))
-  expect_s4_class(likelihood[[4]]$likelihood, "SpatRaster")
+  expect_equal(length(dim(likelihood[[4]]$likelihood)), 2)
 
   # Check map2path
   expect_error(map2path(likelihood), NA)

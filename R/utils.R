@@ -119,9 +119,6 @@ map2path <- function(likelihood,
   assertthat::assert_that(any(format %in% c("lonlat", "ind", "arr.ind")))
 
   # Set the initial path to the most likely from static prob
-  # There is a difference between which.max(l$map) and which.max(as.matrix(l$map)) which appeared
-  # to be necessary to get correctly the position. Not really practical, maybe the way lat lon are
-  # index in a map
   path <- do.call("rbind", lapply(likelihood, function(l) {
     if (!("likelihood" %in% names(l))) {
       p <- data.frame(
@@ -129,13 +126,13 @@ map2path <- function(likelihood,
         lat = NA
       )
     } else if (format == "lonlat") {
-      pos <- terra::as.data.frame(l$likelihood, xy = TRUE)
+      pos <- terra::as.data.frame(terra::rast(l$likelihood, extent = l$extent), xy = TRUE)
       p <- data.frame(
         lon = pos[which.max(pos[, 3]), 1],
         lat = pos[which.max(pos[, 3]), 2]
       )
     } else {
-      pos <- arrayInd(which.max(terra::as.matrix(l$likelihood)), dim(l$likelihood))
+      pos <- arrayInd(which.max(l$likelihood), dim(l$likelihood))
       p <- data.frame(
         lon = pos[2],
         lat = pos[1]

@@ -101,7 +101,9 @@ geolight_twilight <- function(light,
 #' @param stap_calib staionary period of calibration.
 #' @param lon_calib longitude of the calibration site.
 #' @param lat_calib latitude of the calibration site.
-#' @param map SpatRaster on which the likelihood map should be computed.
+#' @param map_extent extent
+#' @param map_nrow number of row
+#' @param map_ncol number of column
 #' @param adjust_calib smoothing parameter for the kernel density. See [`stats::kernel()`]
 #' @param w_llp Log-linear pooling aggregation weight. See [GeoPressureManual | Probability
 #' @param fit_z_return interupt the function after calibration and return the zenith angle fit
@@ -116,7 +118,9 @@ geolight_likelihood <- function(tag,
                                 stap_calib,
                                 lon_calib,
                                 lat_calib,
-                                map,
+                                map_extent,
+                                map_nrow,
+                                map_ncol,
                                 adjust_calib = 1.4,
                                 w_llp = 0.1,
                                 fit_z_return = FALSE) {
@@ -130,7 +134,14 @@ geolight_likelihood <- function(tag,
   assertthat::assert_that(is.numeric(lon_calib))
   assertthat::assert_that(is.numeric(lat_calib))
   assertthat::assert_that(all(stap_calib %in% tag$stap$stap))
-  assertthat::assert_that(inherits(map, "SpatRaster"))
+  assertthat::assert_that(is.vector(map_extent))
+  assertthat::assert_that(length(map_extent) == 4)
+  assertthat::assert_that(map_extent[2] > map_extent[1])
+  assertthat::assert_that(map_extent[4] > map_extent[3])
+  assertthat::assert_that(map_nrow %% 1 == 0)
+  assertthat::assert_that(map_ncol %% 1 == 0)
+  assertthat::assert_that(map_nrow > 0)
+  assertthat::assert_that(map_ncol > 0)
   assertthat::assert_that(is.numeric(adjust_calib))
   assertthat::assert_that(is.numeric(w_llp))
 
@@ -158,6 +169,7 @@ geolight_likelihood <- function(tag,
   # compute the probability of observing the zenith angle of each twilight using the calibrated
   # error function for each grid cell.
   sun <- geolight_solar(twl_clean$twilight)
+  map <- terra::rast(matrix(data = 0, nrow = map_nrow, ncol = map_ncol), extent = map_extent)
   g <- terra::as.data.frame(map, xy = TRUE)
   g <- data.frame(
     x = g$x,
@@ -181,7 +193,8 @@ geolight_likelihood <- function(tag,
     } else {
       g$likelihood <- 1
     }
-    l$likelihood <- terra::rast(g, type = "xyz")
+    l$likelihood <- as.matrix(g$likelihood, nrow = map_nrow, ncol = map_ncol)
+    l$extent <- map_extent
     return(l)
   })
 

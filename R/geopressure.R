@@ -54,18 +54,20 @@
 #' pressure_mismatch <- geopressure_mismatch(
 #'   tag,
 #'   extent = c(50, -16, 0, 23),
-#'   scale = 4,
-#'   max_sample = 250,
-#'   margin = 30
+#'   scale = 4
 #' )
 #' pressure_mismatch_1 <- pressure_mismatch[[1]]
 #' }
-#' pressure_mismatch_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_mismatch_1.rda",
+#' pressure_mismatch_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_mismatch_1.rds",
 #'   package = "GeoPressureR"
 #' ))
 #' pressure_mismatch_1
-#' terra::plot(pressure_mismatch_1$map,
-#'   main = c("Mean Square Error", "Mask of pressure")
+#' mse <- terra::rast(pressure_mismatch_1$mse, extent = pressure_mismatch_1$extent)
+#' names(mse) <- "Mean Square Error"
+#' mask <- terra::rast(pressure_mismatch_1$mask, extent = pressure_mismatch_1$extent)
+#' names(mask) <- "mask"
+#'
+#' terra::plot(c(mse, mask))
 #' )
 #' @export
 geopressure_mismatch <- function(tag,
@@ -357,12 +359,9 @@ geopressure_mismatch <- function(tag,
       }, map[i_s], nb_sample[i_s])) / l$nb_sample
 
       # Extract the two map
-      l$mse <- tmp[[1]] / 100 / 100 # convert MSE from Pa to hPa
-      l$mask <- tmp[[2]]
-
-      # Set names for layer
-      names(l$mse) <- "Mean Square Error"
-      names(l$mask) <- "Mask of pressure"
+      l$mse <- terra::as.matrix(tmp[[1]], wide=TRUE) / 100 / 100 # convert MSE from Pa to hPa
+      l$mask <- terra::as.matrix(tmp[[2]], wide=TRUE)
+      l$extent <- as.vector(terra::ext(tmp[[1]]))
     }
     return(l)
   })
@@ -389,7 +388,7 @@ geopressure_mismatch <- function(tag,
 #' auto-correlation of the timeseries is not accounted for in this equation, we use a log-linear
 #' pooling weight \eqn{w=\log(n)/n}, with \eqn{n} is the number of data point in the timeserie.
 #'
-#' @param pressure_mismatch List of SpatRaster built with [`geopressure_mismatch()`].
+#' @param pressure_mismatch List built with [`geopressure_mismatch()`].
 #' @param s Standard deviation of the pressure error.
 #' @param thr Threshold of the percentage of data point outside the elevation range to be considered
 #' not possible.
@@ -412,11 +411,12 @@ geopressure_mismatch <- function(tag,
 #' pressure_likelihood_1 <- pressure_likelihood[[1]]
 #' }
 #' pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/",
-#'   "18LX_pressure_likelihood_1.rda",
+#'   "18LX_pressure_likelihood_1.rds",
 #'   package = "GeoPressureR"
 #' ))
 #' pressure_likelihood_1
-#' terra::plot(pressure_likelihood_1$map,
+#' likelihood <- terra::rast(pressure_likelihood_1$mask, extent = pressure_likelihood_1$extent)
+#' terra::plot(likelihood,
 #'   main = "Probability",
 #'   xlim = c(5, 20), ylim = c(42, 50)
 #' )
@@ -461,11 +461,10 @@ geopressure_likelihood <- function(pressure_mismatch,
 
       # mask value of threshold
       likelihood <- likelihood * (x$mask >= thr)
-      names(likelihood) <- "likelihood"
 
       l$likelihood <- likelihood
+      l$extent <- x$extent
     }
-
     return(l)
   })
 
