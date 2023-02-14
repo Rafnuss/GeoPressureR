@@ -105,10 +105,10 @@ geolight_twilight <- function(light,
 #' @param map_nrow number of row
 #' @param map_ncol number of column
 #' @param adjust_calib smoothing parameter for the kernel density. See [`stats::kernel()`]
-#' @param w_llp Log-linear pooling aggregation weight. See [GeoPressureManual | Probability
-#' @param fit_z_return interupt the function after calibration and return the zenith angle fit
-#' aggregation](
+#' @param w_llp Log-linear pooling aggregation weight. See
+#' [GeoPressureManual | Probability aggregation](
 #' https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html#probability-aggregation-1)
+#' @param fit_z_return interupt the function after calibration and return the zenith angle fit
 #' @param fit_z_return logical forcing to return the fit of the calibration.
 #' @return list of SpatRaster of the likelihood map for each stationary period. Or a kernel fit
 #' (see [`stats::kernel()`]) if `fit_z_return` is true.
@@ -166,16 +166,23 @@ geolight_likelihood <- function(tag,
     return(fit_z)
   }
 
-  # compute the probability of observing the zenith angle of each twilight using the calibrated
+  # compute the likelihood of observing the zenith angle of each twilight using the calibrated
   # error function for each grid cell.
+
+  # Compute the sun angle
   sun <- geolight_solar(twl_clean$twilight)
-  map <- terra::rast(matrix(data = 0, nrow = map_nrow, ncol = map_ncol), extent = map_extent)
-  g <- terra::as.data.frame(map, xy = TRUE)
+
+  # construct the grid of latitude and longitude on cell centered
+  lat <- seq(map_extent[4], map_extent[3], length.out = map_nrow + 1)
+  lat <- utils::head(lat, -1) + diff(lat[1:2]) / 2
+  lon <- seq(map_extent[1], map_extent[2], length.out = map_ncol + 1)
+  lon <- utils::head(lon, -1) + diff(lon[1:2]) / 2
   g <- data.frame(
-    x = g$x,
-    y = g$y,
-    likelihood = NA
+    lon = rep(lon, each = length(lat)),
+    lat = rep(lat, times = length(lon)),
+    likelihood = 1
   )
+
   pgz <- apply(g, 1, function(x) {
     z <- geolight_refracted(geolight_zenith(sun, x[1], x[2]))
     stats::approx(fit_z$x, fit_z$y, z, yleft = 0, yright = 0)$y
@@ -193,7 +200,7 @@ geolight_likelihood <- function(tag,
     } else {
       g$likelihood <- 1
     }
-    l$likelihood <- as.matrix(g$likelihood, nrow = map_nrow, ncol = map_ncol)
+    l$likelihood <- matrix(g$likelihood, nrow = map_nrow, ncol = map_ncol)
     l$extent <- map_extent
     return(l)
   })
