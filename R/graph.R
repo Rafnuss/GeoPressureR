@@ -1,117 +1,110 @@
 #' Create graph
 #'
 #' This function return a graph representing the trajectory of a bird based on filtering and triming
-#' the probability maps provided.
+#' the likelihood maps provided.
+#'
+#' The likelihood map list `likelihood` needs to contain all stationary periods in order to
+#' build the adequate flight structure (account for all individual flights). Stationary periods with
+#' no likelihood map will not be modeled. Use `stap` and `thr_duration` to furthere limit which
+#' stationary periods to model.
 #'
 #' In the final graph, we only keep the most likely node (position in time) defined as: 1. those
 #' which cumulative probability reach up to `thr_prob_percentile` for each stationary period. 2.
 #' those which average ground speed is lower than `thr_gs` km/h.
 #'
 #' The graph returned is a list of the edges of the graph containing:
-#' * `s`: source node (index in the 3d grid lat-lon-sta),
-#' * `t`: target node (index in the 3d grid lat-lon-sta),
-#' * `gs`: average ground speed required to make that transition (km/h) as complex number
+#' * `s`:   source node (index in the 3d grid lat-lon-stap),
+#' * `t`:   target node (index in the 3d grid lat-lon-stap),
+#' * `gs`:  average ground speed required to make that transition (km/h) as complex number
 #' representing the E-W as real and S-N as imaginary.
-#' * `ps`: static probability of each target node,
-#' * `sz`: size of the 3d grid lat-lon-sta,
+#' * `O`:   observation likelihood of each node,
+#' * `sz`:  size of the 3d grid lat-lon-stap,
+#' * `lat`: vector of the latitude in cell center,
+#' * `lon`: vector of the longitude in cell center,
+#' * `stap`: vector of the stationary period modeled,
+#' * `flight`: list of a data.frame of all flights included between subsequent stationary period,
+#' * `flight_duration`: vector of the total flights duration (in hours),
 #' * `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-sta),
 #' * `retrieval`: node(s) of the last stap (index in the 3d grid lat-lon-sta),
-#' * `flight_duration`: list of flight duration to next stap in hours,
-#' * `lat`: list of the `likelihood$map` latitude in cell center,
-#' * `lon`: list of the `likelihood$map` longitude in cell center,
-#' * `extent`: SpatRaster geographical extent of `likelihood$map`,
-#' * `resolution`: resolution of `likelihood$map`,
-#' * `temporal_extent`: start and end date time retrieved from `likelihood`.
+#' * `extent`: vector of the geographical extent `c(xmin, xmax, ymin, ymax)`,
+#' * `mask_water`: logical matrix of water-land
 #'
 #' The [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph) provided an
 #' example how to prepare the
 #' data for the function and the output of this function.
 #'
-#' @param likelihood List of likelihood map of each stationary period. The
-#'   metadata of `likelihood` needs to include the flight information to the next stationary period
-#'   in `likelihood[[1]]$flight`.
-#' @param thr_prob_percentile Threshold of percentile (see details).
-#' @param thr_gs Threshold of groundspeed (km/h)  (see details).
+#' @param likelihood list of likelihood map, ideally build with `geopressure_likelihood()` or
+#' `geolight_likelihood()`.
+#' @param thr_prob_percentile threshold of percentile (see details).
+#' @param thr_gs threshold of groundspeed (km/h)  (see details).
+#' @param thr_duration threshold of the duration (in hours) for which stationary period are modeled
+#' (default includes all).
+#' @param stap stationary period modeled.
+#' @param known data.frame of the known positions. Need to includes a column `stap`, `lat` and
+#' `lon`.
 #' @return Graph as a list (see details).
 #' @seealso [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph)
 #' @export
 graph_create <- function(likelihood,
                          thr_prob_percentile = .99,
-                         thr_gs = 150) {
+                         thr_gs = 150,
+                         thr_duration = 0,
+                         stap = seq_len(length(likelihood)),
+                         known = data.frame(
+                           stap = integer(),
+                           lat = double(),
+                           lon = double()
+                         )) {
   # Check input
   assertthat::assert_that(is.list(likelihood))
-  assertthat::assert_that(inherits(likelihood[[1]], "SpatRaster"))
-  assertthat::assert_that(assertthat::has_name(
-    terra::describe(likelihood[[1]]),
-    c("flight", "stap")
-  ))
+  assertthat::assert_that(is.list(likelihood[[1]]))
+  assertthat::assert_that(assertthat::has_name(likelihood[[1]], c("stap", "start", "end")))
   assertthat::assert_that(is.numeric(thr_prob_percentile))
   assertthat::assert_that(length(thr_prob_percentile) == 1)
   assertthat::assert_that(thr_prob_percentile >= 0 & thr_prob_percentile <= 1)
   assertthat::assert_that(is.numeric(thr_gs))
   assertthat::assert_that(length(thr_gs) == 1)
   assertthat::assert_that(thr_gs >= 0)
+  assertthat::assert_that(is.numeric(thr_duration))
+  assertthat::assert_that(all(stap %in% seq_len(length(likelihood))))
+  assertthat::assert_that(is.data.frame(known))
+  assertthat::assert_that(assertthat::has_name(known, c("stap", "lat", "lon")))
 
-  # compute size
-  sz <- c(nrow(likelihood[[1]]), ncol(likelihood[[1]]), length(likelihood))
-  nll <- sz[1] * sz[2]
+  # construct stap data.frame (same as tag$stap, but tag not available here)
+  stap_df <- do.call(rbind, lapply(likelihood, function(l) {
+    data.frame(
+      stap = l$stap,
+      start = l$start,
+      end = l$end
+    )
+  }))
+  assertthat::assert_that(all(stap_df$stap == seq_len(nrow(stap_df))))
 
-  # convert map into normalized matrix
-  likelihood_n <- lapply(likelihood, function(x) {
-    probt <- terra::as.matrix(x)
-    if (sum(probt, na.rm = TRUE) == 0) {
-      probt[probt == 0] <- 1
-    }
-    probt[is.na(probt)] <- 0
-    probt / sum(probt, na.rm = TRUE)
+  # Define map parameters
+  stap_map <- sapply(likelihood, function(l) {
+    "likelihood" %in% names(l)
   })
 
-  stap_0 <- unlist(lapply(likelihood_n, sum)) == 0
-  if (any(is.na(stap_0))) {
-    stop(paste0(
-      "likelihood is invalid for index ",
-      paste(which(is.na(stap_0)), collapse = ", "),
-      " (check that the probability map is not null/na)."
-    ))
-  }
-  if (any(stap_0)) {
-    stop(paste0(
-      "The `likelihood` provided has an invalid probability map for the stationary period: ",
-      which(stap_0)
-    ))
-  }
-
-  # find the pixels above to the percentile
-  nds <- lapply(likelihood_n, function(probi) {
-    # First, compute the threshold of prob corresponding to percentile
-    probis <- sort(probi)
-    id_prob_percentile <- sum(cumsum(probis) <= (1 - thr_prob_percentile))
-    thr_prob <- probis[id_prob_percentile + 1]
-
-    # filter the pixels above the threshold
-    nds <- probi >= thr_prob
-    # return
-    nds
-  })
-
-  nds_0 <- unlist(lapply(nds, sum)) == 0
-  if (any(nds_0)) {
-    stop(paste0(
-      "Using the `thr_prob_percentile` of ", thr_prob_percentile, " provided, there are not any ",
-      "nodes left for the stationary period: ", which(nds_0)
-    ))
-  }
+  # Asset that the map are the same
+  assertthat::assert_that(length(unique(lapply(likelihood[stap_map], function(l) {
+    l$extent
+  }))) == 1)
+  map_extent <- unique(lapply(likelihood[stap_map], function(l) {
+    l$extent
+  }))[[1]]
+  assertthat::assert_that(length(unique(lapply(likelihood[stap_map], function(l) {
+    dim(l$likelihood)
+  }))) == 1)
+  map_dim <- unique(lapply(likelihood[stap_map], function(l) {
+    dim(l$likelihood)
+  }))[[1]]
 
   # Get latitude and longitude of the center of the pixel
-  lat <- seq(terra::ymax(likelihood[[1]]), terra::ymin(likelihood[[1]]),
-    length.out = nrow(likelihood[[1]]) + 1
-  )
+  lat <- seq(map_extent[4], map_extent[3], length.out = map_dim[1] + 1)
   lat <- utils::head(lat, -1) + diff(lat[1:2]) / 2
-  lon <- seq(terra::xmin(likelihood[[1]]), terra::xmax(likelihood[[1]]),
-    length.out = ncol(likelihood[[1]]) + 1
-  )
+  lon <- seq(map_extent[1], map_extent[2], length.out = map_dim[2] + 1)
   lon <- utils::head(lon, -1) + diff(lon[1:2]) / 2
 
   # Approximate resolution of the grid from ° to in km
@@ -119,12 +112,109 @@ graph_create <- function(likelihood,
   # Use the smaller resolution assuming 111km/lon and 111*cos(lat)km/lat
   resolution <- mean(diff(lon)) * pmin(cos(lat * pi / 180) * 111.320, 110.574)
 
+  # Define the mask of water
+  mask_water <- is.na(static_likelihood[[stap_map[1]]]$likelihood)
 
-  # extract the flight duration
-  flight_duration <- unlist(lapply(likelihood, function(x) {
-    mtf <- terra::describe(x)
-    as.numeric(sum(difftime(mtf$flight$end, mtf$flight$start, units = "hours")))
-  }))
+  # Overwrite known position
+  for (k in seq_len(nrow(known))) {
+    lon_calib_id <- which.min(abs(known$lon[k] - lon))
+    lat_calib_id <- which.min(abs(known$lat[k] - lat))
+    tmp <- static_likelihood[[stap_map[1]]]$likelihood
+    tmp[!is.na(tmp)] <- 0
+    tmp[lat_calib_id, lon_calib_id] <- 1
+    likelihood[[known$stap[k]]]$likelihood <- tmp
+  }
+
+  # Find stap to be included in the graph model
+  # stap matching the thr_duration threshold.
+  stap_model <- intersect(
+    stap,
+    stap_df$stap[difftime(stap_df$end, stap_df$start, units = "hours") >= thr_duration]
+  )
+  # stap with likelihood map or present as known value
+  stap_model <- intersect(
+    stap_model,
+    stap_df$stap[sapply(likelihood, function(l) {
+      "likelihood" %in% names(l)
+    })]
+  )
+
+  assertthat::assert_that(length(stap_model) >= 2)
+
+  # Construct flight
+  # construct the full flight data.frame (completely defined by stap data.frame)
+  flight_df <- data.frame(
+    start = utils::head(stap_df$end, -1),
+    end = utils::tail(stap_df$start, -1),
+    stap_s = utils::head(stap_df$stap, -1),
+    stap_t = utils::tail(stap_df$stap, -1)
+  )
+
+  # create the list of flight per stationary period modeled
+  flight <- split(flight_df, stap_model[sapply(flight_df$stap_s, function(s) {
+    sum(stap_model <= s)
+  })])
+
+  # compute flight duration for each stationary period
+  flight_duration <- sapply(flight, function(f) {
+    sum(difftime(f$end, f$start, units = "hours"))
+  })
+
+  # Compute size
+  sz <- c(map_dim[1], map_dim[2], length(stap_model))
+  nll <- sz[1] * sz[2]
+
+  # Process likelihood map
+  likelihood_n <- lapply(likelihood[stap_model], function(x) {
+    l <- x$likelihood
+
+    # replace empty map with 1 everywhere
+    if (sum(l, na.rm = TRUE) == 0) {
+      l[l == 0] <- 1
+    }
+
+    # replace NA by 0
+    l[is.na(l)] <- 0
+
+    # Normalize
+    l / sum(l, na.rm = TRUE)
+  })
+
+  # Check for invalid map
+  stap_0 <- sapply(likelihood_n, sum) == 0
+  if (any(is.na(stap_0))) {
+    stop(paste0(
+      "likelihood is invalid for stationary period: ",
+      paste(stap_model[which(is.na(stap_0))], collapse = ", "),
+      " (check that the probability map is not null/na)."
+    ))
+  }
+  if (any(stap_0)) {
+    stop(paste0(
+      "The `likelihood` provided has an invalid probability map for the stationary period: ",
+      stap_model[which(stap_0)], "."
+    ))
+  }
+
+  # find the pixels above to the percentile
+  nds <- lapply(likelihood_n, function(l) {
+    # First, compute the threshold of prob corresponding to percentile
+    ls <- sort(l)
+    id_prob_percentile <- sum(cumsum(ls) <= (1 - thr_prob_percentile))
+    thr_prob <- ls[id_prob_percentile + 1]
+
+    # return matrix if the values are above the threshold
+    return(l >= thr_prob)
+  })
+
+  # Check that there are still values
+  nds_0 <- unlist(lapply(nds, sum)) == 0
+  if (any(nds_0)) {
+    stop(paste0(
+      "Using the `thr_prob_percentile` of ", thr_prob_percentile, " provided, there are not any ",
+      "nodes left for the stationary period: ", stap_model[which(nds_0)], "."
+    ))
+  }
 
   # filter the pixels which are not in reach of any location of the previous and next stationary
   # period
@@ -134,9 +224,8 @@ graph_create <- function(likelihood,
     if (sum(nds[[i_s + 1]]) == 0) {
       stop(paste0(
         "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
-        "there are not any nodes left at stationary period ",
-        terra::describe(likelihood[[i_s + 1]])$stap, " from stationary period ",
-        terra::describe(likelihood[[i_s]])$stap
+        "there are not any nodes left at stationary period ", stap_model[i_s + 1],
+        " from stationary period ", stap_model[i_s], "."
       ))
     }
   }
@@ -147,13 +236,13 @@ graph_create <- function(likelihood,
     if (sum(nds[[i_s - 1]]) == 0) {
       stop(paste0(
         "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
-        "there are not any nodes left at stationary period ",
-        terra::describe(likelihood[[i_s - 1]])$stap, " from stationary period ",
-        terra::describe(likelihood[[i_s]])$stap
+        "there are not any nodes left at stationary period ", stap_model[i_s - 1],
+        " from stationary period ", stap_model[i_s], "."
       ))
     }
   }
 
+  # Check that there are still pixel present
   tmp <- unlist(lapply(nds, sum)) == 0
   if (any(tmp)) {
     stop(paste0(
@@ -161,11 +250,6 @@ graph_create <- function(likelihood,
       "any nodes left"
     ))
   }
-
-  # Identify equipment and retrieval
-  equipment <- which(nds[[1]] == TRUE)
-  retrieval <- which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll
-
 
   # Create the graph from nds with the exact groundspeed
 
@@ -210,7 +294,7 @@ graph_create <- function(likelihood,
       if (sum(id) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
-          "edges, there are not any nodes left for the stationary period: ", i_s
+          "edges, there are not any nodes left for the stationary period: ", stap_model[i_s]
         ))
       }
       grt <- grt[id, ]
@@ -228,17 +312,17 @@ graph_create <- function(likelihood,
       grt$gs <- gs_abs[id] * cos(gs_arg * pi / 180) +
         1i * gs_abs[id] * sin(gs_arg * pi / 180)
 
-      # assign the static probability of the target node (pressure * light)
-      # We use here the normalized probability assuming that the bird needs to be somewhere at each
+      # assign the observation model (i.e. likelihood) of the target node
+      # We use here the normalized likelihood assuming that the bird needs to be somewhere at each
       # stationary period. The log-linear pooling (`geopressure_likelihood`) is supposed to account
-      # for the variation in staionary period duration.
-      # For un-normalized use terra::as.matrix(likelihood[[i_s + 1]]))
-      grt$ps <- likelihood_n_i_s_1[grt$t - i_s * nll]
+      # for the variation in stationary period duration.
+      # For un-normalized use likelihood[[i_s + 1]])
+      grt$O <- likelihood_n_i_s_1[grt$t - i_s * nll]
 
       if (sum(id) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
-          "edges, there are not any nodes left for the stationary period: ", i_s
+          "edges, there are not any nodes left for the stationary period: ", stap_model[i_s]
         ))
       }
       return(grt)
@@ -257,26 +341,18 @@ graph_create <- function(likelihood,
 
   # Convert gr to a graph list
   grl <- as.list(do.call("rbind", gr))
-  grl$sz <- sz
-  grl$equipment <- equipment
-  grl$retrieval <- retrieval
 
   # Add metadata information
-  grl$flight_duration <- flight_duration
+  grl$sz <- sz
   grl$lat <- lat
   grl$lon <- lon
-  grl$extent <- terra::extent(likelihood[[1]])
-  grl$resolution <- terra::res(likelihood[[1]])
-  grl$temporal_extent <- lapply(likelihood, function(x) {
-    terra::describe(x)$temporal_extent
-  })
-  grl$flight <- lapply(likelihood, function(x) {
-    terra::describe(x)$flight
-  })
-  grl$stap <- unlist(lapply(likelihood, function(x) {
-    terra::describe(x)$stap
-  }))
-  grl$mask_water <- is.na(terra::as.matrix(likelihood[[1]]))
+  grl$stap <- stap_model
+  grl$flight <- flight
+  grl$flight_duration <- flight_duration
+  grl$equipment <- which(nds[[1]] == TRUE)
+  grl$retrieval <- which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll
+  grl$mask_water <- mask_water
+  grl$extent <- map_extent
   return(grl)
 }
 
@@ -287,10 +363,14 @@ graph_create <- function(likelihood,
 #' Trimming consists in removing "dead branch" of a graph, that is removing the edges which are not
 #' connected to both the source (i.e, equipment) or sink (i.e. retrieval site).
 #'
-#' @param gr Graph constructed with [`graph_create()`].
-#' @return Graph trimmed
+#' @param gr graph constructed with [`graph_create()`].
+#' @return graph trimmed
 #' @seealso [`graph_create()`]
 graph_trim <- function(gr) {
+  if (length(gr) < 2) {
+    return(gr)
+  }
+
   message("Trimming the graph:")
 
   progress_bar(1, max = (length(gr) - 1) * 2)
@@ -353,8 +433,9 @@ graph_trim <- function(gr) {
 #' [GeoPressureManual | Wind graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)).
 #'
-#' @param tag data logger dataset list with `tag$sta` computed. See [`tag_read()`] and [`tag_stap()`].
-#' @param area Geographical extent of the map to query. Either a raster (e.g. `likelihood`) or a
+#' @param tag data logger dataset list with `tag$sta` computed. See [`tag_read()`] and
+#' [`tag_stap()`].
+#' @param extent Geographical extent of the map to query. Either a raster (e.g. `likelihood`) or a
 #' list ordered by North, West, South, East  (e.g. `c(50,-16,0,20)`).
 #' @param stap Stationary period identifier of the start of the flight to query as defined in
 #' `tag$sta`. Be default, download for all the flight.
@@ -368,7 +449,7 @@ graph_trim <- function(gr) {
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)
 #' @export
 graph_download_wind <- function(tag,
-                                area, # area is specified as N, W, S, E
+                                extent,
                                 stap = seq_len(nrow(tag$sta) - 1),
                                 cds_key = Sys.getenv("cds_key"),
                                 cds_user = Sys.getenv("cds_user"),
@@ -381,11 +462,11 @@ graph_download_wind <- function(tag,
   assertthat::assert_that(is.data.frame(tag$sta))
   assertthat::assert_that(assertthat::has_name(tag$sta, c("end", "start")))
 
-  if (is.list(area)) {
-    area <- area[[1]]
+  if (is.list(extent)) {
+    extent <- extent[[1]]
   }
-  area <- terra::extent(area)
-  area <- c(area@ymax, area@xmin, area@ymin, area@xmax)
+  extent <- terra::extent(extent)
+  extent <- c(extent@ymax, extent@xmin, extent@ymin, extent@xmax)
 
   assertthat::assert_that(is.numeric(stap))
   assertthat::assert_that(all(stap %in% tag$stap$stap))
@@ -444,7 +525,7 @@ graph_download_wind <- function(tag,
       month = sort(unique(format(flight_time, "%m"))),
       day = sort(unique(format(flight_time, "%d"))),
       time = sort(unique(format(flight_time, "%H:%M"))),
-      area = area,
+      extent = extent,
       target = paste0(tag$id, "_", i_s, ".nc")
     )
   }
@@ -535,8 +616,8 @@ graph_add_wind <- function(grl,
       # Check if spatial extend match
       lat <- ncdf4::ncvar_get(nc, "latitude")
       lon <- ncdf4::ncvar_get(nc, "longitude")
-      if (min(grl$lat) < min(lat) | max(grl$lat) > max(lat) |
-        min(grl$lon) < min(lon) | max(grl$lon) > max(lon)) {
+      if (min(grl$lat) < min(lat) || max(grl$lat) > max(lat) ||
+        min(grl$lon) < min(lon) || max(grl$lon) > max(lon)) {
         stop(paste0("Spatial extend not matching for '", filename, i_s, ".nc'"))
       }
 
@@ -601,13 +682,13 @@ graph_add_wind <- function(grl,
 
       # Find the start and end latitude and longitude of each edge
       lat_s <- grl$lat[s[st_id, 1]] +
-        ratio_sta[i2] * (grl$lat[t[st_id, 1]] - grl$lat[s[st_id, 1]])
+        ratio_stap[i2] * (grl$lat[t[st_id, 1]] - grl$lat[s[st_id, 1]])
       lon_s <- grl$lon[s[st_id, 2]] +
-        ratio_sta[i2] * (grl$lon[t[st_id, 2]] - grl$lon[s[st_id, 2]])
+        ratio_stap[i2] * (grl$lon[t[st_id, 2]] - grl$lon[s[st_id, 2]])
       lat_e <- grl$lat[s[st_id, 1]] +
-        ratio_sta[i2 + 1] * (grl$lat[t[st_id, 1]] - grl$lat[s[st_id, 1]])
+        ratio_stap[i2 + 1] * (grl$lat[t[st_id, 1]] - grl$lat[s[st_id, 1]])
       lon_e <- grl$lon[s[st_id, 2]] +
-        ratio_sta[i2 + 1] * (grl$lon[t[st_id, 2]] - grl$lon[s[st_id, 2]])
+        ratio_stap[i2 + 1] * (grl$lon[t[st_id, 2]] - grl$lon[s[st_id, 2]])
 
       # As ERA5 data is available every hour, we build a one hour resolution timeserie including the
       # start and end time of the flight. Thus, we first round the start end end time.
@@ -956,8 +1037,8 @@ graph_simulation <- function(grl,
   )
 
   for (i_stap in (grl$sz[3] - 1):1) {
-    id <- s_id[, 3] == i_sta
-    map_b[[i_sta]] <- map_b[[i_stap + 1]] %*%
+    id <- s_id[, 3] == i_stap
+    map_b[[i_stap]] <- map_b[[i_stap + 1]] %*%
       Matrix::sparseMatrix(grl$t[id], grl$s[id], x = grl$p[id], dims = c(n, n))
   }
 
@@ -992,19 +1073,19 @@ graph_simulation <- function(grl,
     # Combine forward and backward and samples
     if (nj > 1) {
       ids <- apply(map_f[, nll * (i_stap - 1) + (1:nll)], 1, function(x) {
-        map <- x * map_b[[i_sta]][nll * (i_stap - 1) + (1:nll)]
+        map <- x * map_b[[i_stap]][nll * (i_stap - 1) + (1:nll)]
         sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
       })
     } else {
-      map <- map_f[, nll * (i_stap - 1) + (1:nll)] * map_b[[i_sta]][nll * (i_stap - 1) + (1:nll)]
+      map <- map_f[, nll * (i_stap - 1) + (1:nll)] * map_b[[i_stap]][nll * (i_stap - 1) + (1:nll)]
       ids <- sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
     }
 
     #
-    path[, i_sta] <- ids + nll * (i_stap - 1)
+    path[, i_stap] <- ids + nll * (i_stap - 1)
 
     # Update progress bar
-    progress_bar(i_sta, max = grl$sz[3])
+    progress_bar(i_stap, max = grl$sz[3])
   }
 
   return(graph_path2lonlat(path, grl))
@@ -1065,7 +1146,7 @@ graph_path2edge <- function(path_id,
 
     # Get the source and target
     path_s <- path_id[, 1:(nstap - 1)]
-    path_t <- path_id[, 2:nsta]
+    path_t <- path_id[, 2:nstap]
 
     # put as vector
     dim(path_s) <- (nstap - 1) * nj
@@ -1076,7 +1157,7 @@ graph_path2edge <- function(path_id,
     assertthat::assert_that(nstap == grl$sz[3])
 
     path_s <- path_id[1:(nstap - 1)]
-    path_t <- path_id[2:nsta]
+    path_t <- path_id[2:nstap]
   }
 
 
