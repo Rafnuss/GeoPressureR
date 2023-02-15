@@ -1,8 +1,8 @@
 #' Read tag data
 #'
-#' Imports multi-sensor logger data from a folder (`directory`) and optionally crop at specific date.
-#' The `*_file` arguments are matched using a regex expression (e.g., `"*.pressure"` matches any
-#' files with the extension `pressure`).
+#' Imports multi-sensor logger data from a folder (`directory`) and optionally crop at specific
+#' date. The `*_file` arguments are matched using a regex expression (e.g., `"*.pressure"` matches
+#' any files with the extension `pressure`).
 #'
 #' The current implementation can read the files from:
 #' * [Swiss Ornithological Institute (SOI)
@@ -16,15 +16,16 @@
 #' in a format not supported yet.
 #'
 #' @param directory path of the directory where the files are stored
-#' @param pressure_filename file with pressure data. Extension must be `.pressure` or `.deg` (required).
+#' @param pressure_filename file with pressure data. Extension must be `.pressure` or `.deg`
+#' (required).
 #' @param light_filename file with light data. Extension must be `.glf`, `.lux` or `NA` if absent.
-#' @param acceleration_filename file with acceleration data. Extension must be `.acceleration`, `.deg`
-#' or `NA` if absent.
+#' @param acceleration_filename file with acceleration data. Extension must be `.acceleration`,
+#' `.deg` or `NA` if absent.
 #' @param crop_start Remove all date before this date (in UTC).
 #' @param crop_end Remove all date after this date (in UTC).
 #' @param id Unique identifier of the track. Default (`NA`) is to take the part of
-#' `pressure_filename` up to a character `_` (e.g. `18LX` for `18LX_20180725.pressure`). If `basename`,
-#' take the basename of `pressure_filename`.
+#' `pressure_filename` up to a character `_` (e.g. `18LX` for `18LX_20180725.pressure`). If
+#' `basename`, take the basename of `pressure_filename`.
 #'
 #' @return a list of data.frames of pressure, light and acceleration.
 #' @seealso [GeoPressureManual | Pressure Map
@@ -53,7 +54,8 @@ tag_read <- function(directory,
   crop_end <- as.POSIXct(crop_end, tz = "UTC")
 
   # Check existence of the file
-  pressure_path <- ifelse(is.na(pressure_filename), "", tag_read_check(directory, pressure_filename))
+  pressure_path <- ifelse(is.na(pressure_filename), "",
+                          tag_read_check(directory, pressure_filename))
   light_path <- ifelse(is.na(light_filename), "", tag_read_check(directory, light_filename))
   acceleration_path <- ifelse(is.na(acceleration_filename), "",
     tag_read_check(directory, acceleration_filename)
@@ -274,7 +276,7 @@ tag_read_delim_dto <- function(full_path, skip = 6, col = 3, date_format = "%d.%
 #' list `tag` adding a column `ismig` to the data.frame `acceleration`. This function is inspired by
 #' the function `classify_flap` from the [tagLr package](https://github.com/KiranLDA/taglr).
 #'
-#' @param data logger dataset list. See [`tag_read()`].
+#' @param tag logger dataset list. See [`tag_read()`].
 #' @param min_duration duration in minutes
 #'
 #' @return tag
@@ -314,7 +316,7 @@ tag_classify <- function(tag,
   tmp <- sapply(split(act_mig, act_id), unique) & table(act_id) * dt > min_duration
 
   # Classify acceleration accordingly
-  tag$acceleration$label <- ifelse(tmp[act_id],"flight","")
+  tag$acceleration$label <- ifelse(tmp[act_id], "flight", "")
 
   return(tag)
 }
@@ -356,7 +358,7 @@ tag_stap <- function(tag) {
 
   # If acceleration is present, use acceleration, otherwise pressure
   if (assertthat::has_name(tag, "acceleration") &&
-      assertthat::has_name(tag$acceleration, "label")) {
+    assertthat::has_name(tag$acceleration, "label")) {
     sensor <- tag$acceleration
   } else {
     sensor <- tag$pressure

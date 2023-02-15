@@ -29,18 +29,19 @@ lat_calib <- 48.9
 
 test_that("Check geolight_likelihood() with sta", {
   likelihood_map <- geolight_likelihood(tag, twl, calib_stap, lon_calib, lat_calib,
-                                        map_dim = c(66, 23),
-                                        extent = c(0, 23, -16, 50)
-                                        )
+    map_dim = c(66, 23),
+    extent = c(0, 23, -16, 50)
+  )
   expect_type(likelihood_map, "list")
   expect_length(likelihood_map, nrow(tag$stap))
   expect_type(likelihood_map[[1]], "list")
   expect_equal(length(dim(likelihood_map[[1]]$likelihood)), 2)
 
   fit_z <- geolight_likelihood(tag, twl, calib_stap, lon_calib, lat_calib,
-                               map_dim = c(66, 23),
-                               extent = c(0, 23, -16, 50),
-                               fit_z_return = TRUE)
+    map_dim = c(66, 23),
+    extent = c(0, 23, -16, 50),
+    fit_z_return = TRUE
+  )
   expect_true(assertthat::has_name(fit_z, "bw"))
 })
 

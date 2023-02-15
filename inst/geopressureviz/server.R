@@ -1,6 +1,5 @@
 server <- function(input, output, session) {
   session$onSessionEnded(function() {
-    # print("heleo")
     stopApp()
   })
 

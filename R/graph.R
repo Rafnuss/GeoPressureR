@@ -113,13 +113,13 @@ graph_create <- function(likelihood,
   resolution <- mean(diff(lon)) * pmin(cos(lat * pi / 180) * 111.320, 110.574)
 
   # Define the mask of water
-  mask_water <- is.na(static_likelihood[[stap_map[1]]]$likelihood)
+  mask_water <- is.na(likelihood[[stap_map[1]]]$likelihood)
 
   # Overwrite known position
   for (k in seq_len(nrow(known))) {
     lon_calib_id <- which.min(abs(known$lon[k] - lon))
     lat_calib_id <- which.min(abs(known$lat[k] - lat))
-    tmp <- static_likelihood[[stap_map[1]]]$likelihood
+    tmp <- likelihood[[stap_map[1]]]$likelihood
     tmp[!is.na(tmp)] <- 0
     tmp[lat_calib_id, lon_calib_id] <- 1
     likelihood[[known$stap[k]]]$likelihood <- tmp
@@ -442,7 +442,7 @@ graph_trim <- function(gr) {
 #' @param cds_key User (email address) used to sign up for the ECMWF data service. See
 #' [`wf_set_key()`].
 #' @param cds_user Token provided by ECMWF. See [`wf_set_key()`].
-#' @param path Path were to store the downloaded data.
+#' @param directory Path were to store the downloaded data.
 #' @return The path of the downloaded (requested file).
 #' @seealso [`wf_request()`](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),
 #' [GeoPressureManual | Wind graph
@@ -461,7 +461,7 @@ graph_download_wind <- function(tag,
   assertthat::assert_that(assertthat::has_name(tag, "sta"))
   assertthat::assert_that(is.data.frame(tag$sta))
   assertthat::assert_that(assertthat::has_name(tag$sta, c("end", "start")))
-  assertthat::assert_that(length(extent)==4)
+  assertthat::assert_that(length(extent) == 4)
   assertthat::assert_that(is.numeric(stap))
   assertthat::assert_that(all(stap %in% tag$stap$stap))
 
@@ -876,11 +876,11 @@ graph_marginal <- function(graph) {
   ))
   assertthat::assert_that(length(graph$s) > 0)
 
-  if ("TO" %in% names(graph)){
+  if ("TO" %in% names(graph)) {
     TO <- graph$TO
-  } else if (all(c("T","O") %in% names(graph))){
+  } else if (all(c("T", "O") %in% names(graph))) {
     TO <- graph$T * graph$O
-  } else{
+  } else {
     stop("graph needs to contains 'TO', 'T' and 'O' or 'O' and 'flight()' ")
   }
 

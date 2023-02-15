@@ -56,39 +56,39 @@ geopressureviz <- function(tag,
   # Add possible map to display
   map_choices <- c()
   map_val <- list()
-  sta_static <- unlist(lapply(static_likelihood, function(x) terra::metadata(x)$stap))
+  sta_static <- unlist(lapply(static_likelihood, function(x) metadata(x)$stap))
   if (any(!is.na(light_likelihood))) {
     map_choices <- c(map_choices, "Light")
-    sta_tmp <- unlist(lapply(light_likelihood, function(x) terra::metadata(x)$stap))
+    sta_tmp <- unlist(lapply(light_likelihood, function(x) metadata(x)$stap))
     map_val[[length(map_val) + 1]] <- light_likelihood[sta_tmp %in% sta_static]
   }
   if (any(!is.na(pressure_likelihood_mismatch))) {
     map_choices <- c(map_choices, "Pressure mis.")
-    sta_tmp <- unlist(lapply(pressure_likelihood_mismatch, function(x) terra::metadata(x)$stap))
+    sta_tmp <- unlist(lapply(pressure_likelihood_mismatch, function(x) metadata(x)$stap))
     map_val[[length(map_val) + 1]] <- pressure_likelihood_mismatch[sta_tmp %in% sta_static]
   }
 
   if (any(!is.na(pressure_likelihood_thr))) {
     map_choices <- c(map_choices, "Pressure thres.")
-    sta_tmp <- unlist(lapply(pressure_likelihood_thr, function(x) terra::metadata(x)$stap))
+    sta_tmp <- unlist(lapply(pressure_likelihood_thr, function(x) metadata(x)$stap))
     map_val[[length(map_val) + 1]] <- pressure_likelihood_thr[sta_tmp %in% sta_static]
   }
   if (any(!is.na(pressure_likelihood))) {
     map_choices <- c(map_choices, "Pressure")
-    sta_tmp <- unlist(lapply(pressure_likelihood, function(x) terra::metadata(x)$stap))
+    sta_tmp <- unlist(lapply(pressure_likelihood, function(x) metadata(x)$stap))
     map_val[[length(map_val) + 1]] <- pressure_likelihood[sta_tmp %in% sta_static]
   }
   map_choices <- c(map_choices, "Static")
   map_val[[length(map_val) + 1]] <- static_likelihood
   if (any(!is.na(static_likelihood_marginal))) {
     map_choices <- c(map_choices, "Marginal")
-    sta_tmp <- unlist(lapply(static_likelihood_marginal, function(x) terra::metadata(x)$stap))
+    sta_tmp <- unlist(lapply(static_likelihood_marginal, function(x) metadata(x)$stap))
     map_val[[length(map_val) + 1]] <- static_likelihood_marginal[sta_tmp %in% sta_static]
   }
 
   # Get stationary period information
   stap <- do.call("rbind", lapply(static_likelihood, function(r) {
-    mt <- terra::metadata(r)
+    mt <- metadata(r)
     mt$start <- mt$temporal_extent[1]
     mt$end <- mt$temporal_extent[2]
     # mt$duration <- as.numeric(difftime(mt$end, mt$start, units = "days"))
@@ -121,7 +121,7 @@ geopressureviz <- function(tag,
 
   # Get flight information and compute flight duration directly
   flight <- lapply(static_likelihood, function(r) {
-    fl <- terra::metadata(r)$flight
+    fl <- metadata(r)$flight
     if (length(fl) > 0) {
       fl$duration <- mapply(function(s, e) {
         as.numeric(difftime(e, s, units = "hours"))

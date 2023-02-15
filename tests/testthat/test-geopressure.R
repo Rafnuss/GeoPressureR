@@ -53,7 +53,7 @@ test_that("Check geopressure_mismatch() output", {
   tag_sm_2 <- tag_sm
   tag_sm_2$pressure$value[2] <- 1200
   expect_error(
-    geopressure_mismatch(tag_sm_2, extent = c(0, 1,0,1), scale = 1),
+    geopressure_mismatch(tag_sm_2, extent = c(0, 1, 0, 1), scale = 1),
     "*Pressure observation should be between 250 hPa*"
   )
 
@@ -61,7 +61,7 @@ test_that("Check geopressure_mismatch() output", {
   tag_sm_2 <- tag_sm
   tag_sm_2$pressure$date[3] <- tag_sm_2$pressure$date[3] + 1
   expect_warning(
-    geopressure_mismatch(tag_sm_2, extent = c(0, 1,0,1), scale = 1),
+    geopressure_mismatch(tag_sm_2, extent = c(0, 1, 0, 1), scale = 1),
     "*The pressure data is not on a regular interval*"
   )
 
@@ -70,13 +70,13 @@ test_that("Check geopressure_mismatch() output", {
   tmp <- Sys.time()
   tag_sm_2$pressure$date <- tmp + c(0, 1, 2, 3) * 60 * 60
   expect_error(
-    geopressure_mismatch(tag_sm_2, extent = c(0, 1,0,1), scale = 1),
+    geopressure_mismatch(tag_sm_2, extent = c(0, 1, 0, 1), scale = 1),
     "*made for periods where no data are available*"
   )
 
   # Check geopressure_mismatch() timeout and worker
-  expect_error(geopressure_mismatch(tag, extent = c(0, 1,0,1), scale = 1, timeout = 1))
-  expect_error(geopressure_mismatch(tag_sm, extent = c(0, 1,0,1), scale = 1, worker = 100))
+  expect_error(geopressure_mismatch(tag, extent = c(0, 1, 0, 1), scale = 1, timeout = 1))
+  expect_error(geopressure_mismatch(tag_sm, extent = c(0, 1, 0, 1), scale = 1, worker = 100))
 })
 
 

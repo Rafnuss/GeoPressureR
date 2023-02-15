@@ -359,8 +359,8 @@ geopressure_mismatch <- function(tag,
       }, map[i_s], nb_sample[i_s])) / l$nb_sample
 
       # Extract the two map
-      l$mse <- terra::as.matrix(tmp[[1]], wide=TRUE) / 100 / 100 # convert MSE from Pa to hPa
-      l$mask <- terra::as.matrix(tmp[[2]], wide=TRUE)
+      l$mse <- terra::as.matrix(tmp[[1]], wide = TRUE) / 100 / 100 # convert MSE from Pa to hPa
+      l$mask <- terra::as.matrix(tmp[[2]], wide = TRUE)
       l$extent <- as.vector(terra::ext(tmp[[1]]))
     }
     return(l)
@@ -390,7 +390,7 @@ geopressure_mismatch <- function(tag,
 #'
 #' @param pressure_mismatch List built with [`geopressure_mismatch()`].
 #' @param sd Standard deviation of the pressure error.
-#' @param thr Threshold of the percentage of data point outside the elevation range to be considered
+#' @param thr_mask Threshold of the percentage of data point outside the elevation range to be considered
 #' not possible.
 #' @param fun_w function taking the number of sample of the timeseries used to compute the
 #' probability map and return the log-linear pooling weight (see the
