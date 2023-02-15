@@ -877,41 +877,25 @@ graph_add_wind <- function(grl,
 graph_marginal <- function(grl) {
   assertthat::assert_that(is.list(grl))
   assertthat::assert_that(assertthat::has_name(
-    grl, c(
-      "s", "t", "p", "sz", "lat", "lon", "mask_water", "resolution", "extent",
-      "temporal_extent", "flight", "stap"
+    graph, c(
+      "s", "t", "sz", "lat", "lon", "mask_water", "extent", "flight", "stap"
     )
   ))
-  assertthat::assert_that(length(grl$s) > 0)
+  assertthat::assert_that(length(graph$s) > 0)
 
-  if (!assertthat::has_name(grl, "equipment")) {
-    if (assertthat::has_name(grl, "equipement")) {
-      warning(
-        "pressure$equipement is deprecated in favor of grl$equipment This code will continue",
-        " but update your code and data to be compatible with futur version of GeoPressureR."
-      )
-      grl$equipment <- grl$equipement
-    } else {
-      assertthat::assert_that(assertthat::has_name(grl, "equipment"))
-    }
-  }
-  if (!assertthat::has_name(grl, "retrieval")) {
-    if (assertthat::has_name(grl, "retrival")) {
-      warning(
-        "pressure$retrival is deprecated in favor of grl$retrieval This code will continue",
-        " but update your code and data to be compatible with futur version of GeoPressureR."
-      )
-      grl$retrieval <- grl$retrival
-    } else {
-      assertthat::assert_that(assertthat::has_name(grl, "retrieval"))
-    }
+  if ("TO" %in% names(graph)){
+    TO <- graph$TO
+  } else if (all(c("T","O") %in% names(graph))){
+    TO <- graph$T * graph$O
+  } else{
+    stop("graph needs to contains 'TO', 'T' and 'O' or 'O' and 'flight()' ")
   }
 
   # number of nodes in the 3d grid
   n <- prod(grl$sz)
 
-  # matrix of forward transition
-  trans <- Matrix::sparseMatrix(grl$s, grl$t, x = grl$p, dims = c(n, n))
+  # matrix of transition * observation
+  TO <- Matrix::sparseMatrix(graph$s, graph$t, x = TO, dims = c(n, n))
 
   # forward mapping of marginal probability
   map_f <- Matrix::sparseMatrix(rep(1, length(grl$equipment)),
@@ -956,16 +940,11 @@ graph_marginal <- function(grl) {
         "Please check the data used to create the graph."
       )
     }
-    likelihood_marginal[[i_s]] <- terra::rast(grl$extent,
-      resolution = grl$resolution,
-      vals = tmp
-    )
-    terra::crs(likelihood_marginal[[i_s]]) <-
-      "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
-    terra::describe(likelihood_marginal[[i_s]]) <- list(
-      stap = grl$stap[i_s],
-      temporal_extent = grl$temporal_extent[[i_s]],
-      flight = grl$flight[[i_s]]
+    likelihood_marginal[[i_s]] <- list(
+      marginal = tmp,
+      stap = graph$stap[i_s],
+      flight = graph$flight[[i_s]],
+      extent = graph$extent
     )
   }
 
@@ -990,34 +969,11 @@ graph_simulation <- function(grl,
                              nj = 10) {
   assertthat::assert_that(is.list(grl))
   assertthat::assert_that(assertthat::has_name(
-    grl, c("s", "t", "p", "sz", "lat", "lon", "resolution", "extent", "temporal_extent", "stap")
+    graph, c("s", "t", "p", "sz", "lat", "lon", "extent", "stap")
   ))
   assertthat::assert_that(length(grl$s) > 0)
   assertthat::assert_that(is.numeric(nj))
   assertthat::assert_that(nj > 0)
-
-  if (!assertthat::has_name(grl, "equipment")) {
-    if (assertthat::has_name(grl, "equipement")) {
-      warning(
-        "pressure$equipement is deprecated in favor of grl$equipment This code will continue",
-        " but update your code and data to be compatible with futur version of GeoPressureR."
-      )
-      grl$equipment <- grl$equipement
-    } else {
-      assertthat::assert_that(assertthat::has_name(grl, "equipment"))
-    }
-  }
-  if (!assertthat::has_name(grl, "retrieval")) {
-    if (assertthat::has_name(grl, "retrival")) {
-      warning(
-        "pressure$retrival is deprecated in favor of grl$retrieval This code will continue",
-        " but update your code and data to be compatible with futur version of GeoPressureR."
-      )
-      grl$retrieval <- grl$retrival
-    } else {
-      assertthat::assert_that(assertthat::has_name(grl, "retrieval"))
-    }
-  }
 
   # number of nodes in the 3d grid
   n <- prod(grl$sz)
