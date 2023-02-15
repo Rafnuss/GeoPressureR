@@ -42,32 +42,39 @@
 #' GeoPressureAPI and GEE. See [`httr::timeout()`]
 #' @param workers number of parrellel request on GEE. Between 1 and 99.
 #' @return List of the misfit map for each stationary period, containing:
-#' - `map`: list of the MSE and threashold (see description above)
-#' - `stap` index of stationary period.
+#' - `stap` index of stationary period
+#' - `start` POSIXct date time of the start of the stationary period
+#' - `end` POSIXct date time of the end of the stationary period
 #' - `nb_sample` number of pressure datapoint used.
-#' - `temporal_extent` datetime of the start and end of the stationary period
+#' - `mse` matrix of the map of the mean square error
+#' - `mask` matrix of the map of the mask
+#' - `extent` datetime of the start and end of the stationary period
 #' @seealso [`geopressure_likelihood()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
-#' # See `tag_stap()` for generating tag
+#' library(terra)
 #' \dontrun{
-#' pressure_mismatch <- geopressure_mismatch(
-#'   tag,
-#'   extent = c(-16, 23, 0, 50),
-#'   scale = 4
-#' )
-#' pressure_mismatch_1 <- pressure_mismatch[[1]]
+#'   # See `tag_stap()` for generating tag
+#'   pressure_mismatch <- geopressure_mismatch(
+#'     tag,
+#'     extent = c(-16, 23, 0, 50),
+#'     scale = 4
+#'   )
+#'   pressure_mismatch_1 <- pressure_mismatch[[1]]
 #' }
+#' # Load a single pressure mismatch element
 #' pressure_mismatch_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_mismatch_1.rds",
 #'   package = "GeoPressureR"
 #' ))
-#' pressure_mismatch_1
-#' mse <- terra::rast(pressure_mismatch_1$mse, extent = pressure_mismatch_1$extent)
-#' names(mse) <- "Mean Square Error"
-#' mask <- terra::rast(pressure_mismatch_1$mask, extent = pressure_mismatch_1$extent)
-#' names(mask) <- "mask"
 #'
-#' terra::plot(c(mse, mask))
+#' str(pressure_mismatch_1)
+#'
+#' terra::plot(
+#'   c(
+#'     terra::rast(pressure_mismatch_1$mse, extent = pressure_mismatch_1$extent),
+#'     terra::rast(pressure_mismatch_1$mask, extent = pressure_mismatch_1$extent)
+#'   ),
+#'   main = c("Mean Square Error", "Mask")
 #' )
 #' @export
 geopressure_mismatch <- function(tag,
@@ -396,28 +403,35 @@ geopressure_mismatch <- function(tag,
 #' probability map and return the log-linear pooling weight (see the
 #' [GeoPressureManual | Probability aggregation
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html))
-#' @return List of the likelihood map for each stationary period. See [`geopressure_mismatch()`] for
-#' description of the output list.
+#' @return A list for each stationary period in order 1,2,...,n containing:
+#' - `stap` stationary period. Needs to be in continuous
+#' - `start` POSIXct date time of the start of the stationary period
+#' - `end` POSIXct date time of the end of the stationary period and start of the flight
+#' - `likelihood` matrix of the likelihood map
+#' - `extent` vector length 4 of the extent of the map `c(xmin, xmax, ymin, ymax)`
 #' @seealso [`geopressure_mismatch()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
-#' # See `geopressure_mismatch()` for generating pressure_mismatch
+#' library(terra)
 #' \dontrun{
-#' pressure_likelihood <- geopressure_likelihood(
-#'   pressure_mismatch,
-#'   sd = 0.4,
-#'   thr = 0.9
-#' )
-#' pressure_likelihood_1 <- pressure_likelihood[[1]]
+#'   # See `geopressure_mismatch()` for generating pressure_mismatch
+#'   pressure_likelihood <- geopressure_likelihood(
+#'     pressure_mismatch,
+#'     sd = 0.4,
+#'     thr_mask = 0.9
+#'   )
+#'   pressure_likelihood_1 <- pressure_likelihood[[1]]
 #' }
 #' pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/",
 #'   "18LX_pressure_likelihood_1.rds",
 #'   package = "GeoPressureR"
 #' ))
-#' pressure_likelihood_1
-#' likelihood <- terra::rast(pressure_likelihood_1$mask, extent = pressure_likelihood_1$extent)
-#' terra::plot(likelihood,
-#'   main = "Probability",
+#'
+#' str(pressure_likelihood_1)
+#'
+#' terra::plot(
+#'   terra::rast(pressure_likelihood_1$likelihood, extent = pressure_likelihood_1$extent),
+#'   main = "Likelihood",
 #'   xlim = c(5, 20), ylim = c(42, 50)
 #' )
 #' @export
@@ -515,9 +529,13 @@ geopressure_likelihood <- function(pressure_mismatch,
 #' @param timeout duration (sec) before the code is interrupted both for the request on
 #' GeoPressureAPI and GEE. See [`httr::timeout()`].
 #' @param verbose Display (or not) the progress of the query (logical).
-#' @return A data.frame containing the timeseries of ERA5 pressure (date, pressure) as well as
-#' longitude  and latitude (different if over water). If `pressure` is provided, the return
-#' data.frame is the same as `pressure` with altitude and pressure0.
+#' @return A data.frame containing
+#' - `date` POSIXct date time
+#' - `pressure` pressure (hPa)
+#' - `longitude`(different if over water)
+#' - `latitude`
+#' - `pressure0` only if `pressure` is provided as input
+#' - `altitude` only if `pressure` is provided as input
 #' @seealso [`geopressure_timeseries_path()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html),
 #' @export

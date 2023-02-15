@@ -11,15 +11,11 @@
 #' @param filename Name for the file.
 #'
 #' @examples
-#' tag <- tag_read(
-#'   directory = system.file(
-#'     "extdata/0_tag/18LX",
-#'     package = "GeoPressureR"
-#'   )
+#' tag <- tag_read(directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR"))
+#' tag <- trainset_write(
+#'   tag,
+#'   directory = system.file("extdata/1_pressure/labels/",package = "GeoPressureR")
 #' )
-#' trainset_write(tag, directory = system.file("extdata/1_pressure/labels/",
-#'   package = "GeoPressureR"
-#' ))
 #' @seealso [`tag_read`], [`trainset_read()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset)
 #' @export
@@ -121,9 +117,10 @@ trainset_write <- function(tag,
 #' @examples
 #' tag <- tag_read(directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR"))
 #' tag <- tag_classify(tag)
-#' tag <- trainset_read(tag, directory = system.file("extdata/1_pressure/labels/",
-#'   package = "GeoPressureR"
-#' ))
+#' tag <- trainset_read(
+#'   tag,
+#'   directory = system.file("extdata/1_pressure/labels/", package = "GeoPressureR")
+#' )
 #' head(tag$pressure)
 #' head(tag$acceleration)
 #' @seealso [`tag_read`], [GeoPressureManual | Pressure Map

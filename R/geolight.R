@@ -1,7 +1,10 @@
-#' Returns twilights for each day based on a threshold of light
+#' Estimate twilight from continuous light data
 #'
-#' Search for pairs of sunset, sunrise that correspond to a given light threshold. Function inspired
-#' from [`TwGeos::findTwilights`](https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html).
+#' Search for time of sunset and sunrise that correspond to first time light exceed and fall below
+#' a given light threshold.
+#'
+#' Function inspired from [`TwGeos::findTwilights`](
+#' https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html).
 #'
 #' @param light a dataframe with columns `date` and `value` that are the sequence of sample  times
 #' (as POSIXct) and light levels recorded by the tag respectively (see [`tag_read()`]).
@@ -9,7 +12,9 @@
 #' light (i.e, `value>0`).
 #' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
 #' provided, it will take the middle of all nights.
-#' @return A data.frame with columns `twilight` (date-time of twilights) and `rise` (logical).
+#' @return A data.frame with columns:
+#' - `twilight` (date-time of twilight)
+#' - `rise` (logical) indicating sunrise (`TRUE`) or sunset (`FALSE`).
 #' @seealso [GeoPressureManual | Light Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#twilight-annotation)
 #' @examples
@@ -43,7 +48,7 @@ geolight_twilight <- function(light,
     shift_k <- res * shift_id - 60 * 60 * 12
   }
 
-  #
+  # Use geolight_light2mat() to reshape light into a matrix
   mat <- geolight_light2mat(light, shift_k)
 
   # Compute exceed of light
@@ -84,15 +89,35 @@ geolight_twilight <- function(light,
 
 
 
-#' Compute likelihood map for light data
+#' Compute likelihood map from twilights
+#'
+#' @description
+#' This functions uses a data.frame of twilight to estimate a list of likelihood map for each
+#' stationary periods. The functions performs the following steps
+#'
+#' 1. Perform a calibration on the stationary period `stap_calib`.
+#' 2. Using the calibration, a likelihood map is computed for each twilight.
+#' 3. Using the stationary periods dates, all likelihood map of the same calibration period are
+#' combined.
+#'
+#' # Calibration
 #'
 #' Instead of calibrating the twilight errors in terms of duration, we directly model the zenith
-#' angle error
-#'
-#' The adjust parameter allows to manually set how smooth you want the fit to be. Because the
-#' zenith angle error model is fitted with data only at the calibration site and that we are using
-#' it for all locations of the bird’s journey, it is safer to assume a broader/smoother
+#' angle error.
+#' The `adjust_calib` parameter allows to manually set how smooth you want the fit to be.
+#' Because the zenith angle error model is fitted with data only at the calibration site and that
+#' we are using it for all locations of the bird’s journey, it is safer to assume a broader/smoother
 #' distribution.
+#'
+#' To check the calibration, use `fit_z_return=TRUE` to interrupt the function after the calibration
+#' and return the model fit.
+#'
+#' # Log-linear pooling of the twilight likelihood map
+#'
+#' The twilights map are aggregated by stationary period according to the date time defined in
+#' `tag$stap` and twilights. See [GeoPressureManual | Probability aggregation](
+#' https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html#probability-aggregation-1)
+#' for more information on probability aggreagation using log-linear pooling.
 #'
 #' @param tag data logger dataset list (see [`tag_read()`]). This list needs to contains the
 #' data.frame `stap` (see [`tag_stap()`]).
@@ -104,13 +129,16 @@ geolight_twilight <- function(light,
 #' @param extent extent
 #' @param map_dim number of row and column
 #' @param adjust_calib smoothing parameter for the kernel density. See [`stats::kernel()`]
-#' @param w_llp Log-linear pooling aggregation weight. See
-#' [GeoPressureManual | Probability aggregation](
-#' https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html#probability-aggregation-1)
-#' @param fit_z_return interupt the function after calibration and return the zenith angle fit
-#' @param fit_z_return logical forcing to return the fit of the calibration.
-#' @return list of SpatRaster of the likelihood map for each stationary period. Or a kernel fit
-#' (see [`stats::kernel()`]) if `fit_z_return` is true.
+#' @param w_llp Log-linear pooling aggregation weight.
+#' @param fit_z_return logical interrupting the function after calibration and return the zenith
+#' angle fit
+#' @return A list for each stationary period in order 1,2,...,n containing:
+#' - `stap` stationary period. Needs to be in continuous
+#' - `start` POSIXct date time of the start of the stationary period
+#' - `end` POSIXct date time of the end of the stationary period and start of the flight
+#' - `likelihood` matrix of the likelihood map
+#' - `extent` vector length 4 of the extent of the map `c(xmin, xmax, ymin, ymax)`
+#' Or a kernel fit (see [`stats::kernel()`]) if `fit_z_return` is true.
 #' @export
 geolight_likelihood <- function(tag,
                                 twl,
@@ -265,18 +293,16 @@ geolight_light2mat <- function(light, shift_k = 0) {
 
 #' Solar time and declination
 #'
-#' Calculate solar time, the equation of time and solar declination
+#' Calculate solar time, the equation of time and the sine and cosine of the solar declination.
+#' These are calculated using the same methods as \url{https://gml.noaa.gov/grad/solcalc/}.
 #'
-#' The solar time, the equation of time and the sine and cosine of the solar declination are
-#' calculated for the times specified by `tm` using the same methods as
-#' \url{https://gml.noaa.gov/grad/solcalc/}.
 #' @param tm a vector of POSIXct times.
 #' @return A list containing the following vectors.
 #' - `solar_time` the solar time (degrees)
 #' - `eqn_time` the equation of time (minutes of time)
 #' - `sin_solar_dec` sine of the solar declination
 #' - `cos_solar_dec` cosine of the solar declination
-#' @seealso [`geolight_zenith`]
+#' @seealso [`geolight_zenith()`]
 #' @examples
 #' # Current solar time
 #' geolight_solar(Sys.time())
@@ -357,7 +383,7 @@ geolight_solar <- function(tm) {
 #' @param lon vector of longitudes.
 #' @param lat vector latitudes.
 #' @return A vector of solar zenith angles (degrees) for the given locations and times.
-#' @seealso [`geolight_solar`]
+#' @seealso [`geolight_solar()`]
 #' @examples
 #' # Approx location of Sydney Harbour Bridge
 #' lon <- 151.211
@@ -389,13 +415,12 @@ geolight_zenith <- function(sun, lon, lat) {
 
 #' Atmospheric refraction
 #'
-#' Adjust the solar zenith angle for atmospheric refraction.
-#'
-#' Given a vector of solar zeniths computed by [`geolight_zenith`], [`geolight_refracted`]
-#' calculates the solar zeniths adjusted for the effect of atmospheric refraction.
+#' Adjust the solar zenith angle computed by [`geolight_zenith`] for the effect of atmospheric
+#' refraction.
 #'
 #' @param zenith zenith angle (degrees) to adjust.
 #' @return vector of zenith angles (degrees) adjusted for atmospheric refraction.
+#' @seealso [`geolight_zenith()`]
 geolight_refracted <- function(zenith) {
   rad <- pi / 180
   e <- 90 - zenith

@@ -1,15 +1,16 @@
 #' Read tag data
 #'
+#' @description
 #' Imports multi-sensor logger data from a folder (`directory`) and optionally crop at specific
-#' date. The `*_file` arguments are matched using a regex expression (e.g., `"*.pressure"` matches
-#' any files with the extension `pressure`).
+#' date. The `*_filename` arguments are matched using a regex expression (e.g., `"*.pressure"`
+#' matches any files with the extension `pressure`).
 #'
 #' The current implementation can read the files from:
-#' * [Swiss Ornithological Institute (SOI)
+#' - [Swiss Ornithological Institute (SOI)
 #' ](https://www.vogelwarte.ch/en/projects/bird-migration/tracking-devices-miniaturized-geolocators)
 #'  (default) with `pressure_filename = "*.pressure"`, `light_filename = "*.glf"` and
 #'  `acceleration_filename = "*.acceleration"`
-#' * [Migrate Technology](http://www.migratetech.co.uk/) with `pressure_filename = "*.deg"`,
+#' - [Migrate Technology](http://www.migratetech.co.uk/) with `pressure_filename = "*.deg"`,
 #' `light_filename = "*.lux"` and `acceleration_filename = "*.deg"`
 #'
 #' Create [an issue on github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you have data
@@ -23,22 +24,43 @@
 #' `.deg` or `NA` if absent.
 #' @param crop_start Remove all date before this date (in UTC).
 #' @param crop_end Remove all date after this date (in UTC).
-#' @param id Unique identifier of the track. Default (`NA`) is to take the part of
+#' @param id Unique identifier of the tag Default (`NA`) is to take the part of
 #' `pressure_filename` up to a character `_` (e.g. `18LX` for `18LX_20180725.pressure`). If
-#' `basename`, take the basename of `pressure_filename`.
-#'
-#' @return a list of data.frames of pressure, light and acceleration.
+#' `id = "basename"`, take the [`basename()`] of `pressure_filename`
+#' @return a list containing (see examples)
+#' - `id` character of the unique identifier of the tag
+#' - `pressure` data.frame with column `date` and `value`
+#' - `light` (optional) same structure as pressure
+#' - `acceleration` (optional) same structure as pressure
 #' @seealso [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#read-geolocator-data)
 #' @examples
+#' # By default, the function will read the files "18LX_20180725.pressure",
+#' # "18LX_20180725.glf" and "18LX_20180725.acceleration" from SOI standard
 #' tag <- tag_read(
 #'   directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR")
 #' )
-#' summary(tag)
-#' head(tag$id)
-#' head(tag$pressure)
-#' head(tag$light)
-#' head(tag$acceleration)
+#' str(tag)
+#'
+#' # For Migrate Technology file, use
+#' tag <- tag_read(
+#'   directory = system.file("extdata/0_tag/CB621", package = "GeoPressureR"),
+#'   pressure_filename = "*.deg",
+#'   light_filename = "*.lux",
+#'   acceleration_filename = NA
+#' )
+#' str(tag)
+#'
+#' # You can also specify exactly the filename in case multiple file with the same
+#' # extension exist in your directory
+#' tag <- tag_read(
+#'   directory = system.file("extdata/0_tag/CB621", package = "GeoPressureR"),
+#'   pressure_filename = "CB621_BAR.deg",
+#'   light_filename = NA,
+#'   acceleration_filename = NA
+#' )
+#' str(tag)
+#'
 #' @export
 tag_read <- function(directory,
                      pressure_filename = "*.pressure",
@@ -69,6 +91,7 @@ tag_read <- function(directory,
 
   # Initialize the tag list
   tag <- list(
+    id = id,
     pressure = switch(tools::file_ext(pressure_path),
       "pressure" = {
         subset(tag_read_delim_dto(pressure_path), date >= crop_start & date < crop_end)
@@ -217,8 +240,7 @@ tag_read <- function(directory,
       {
         data.frame()
       }
-    ),
-    id = id
+    )
   )
 
   return(tag)
@@ -274,14 +296,17 @@ tag_read_delim_dto <- function(full_path, skip = 6, col = 3, date_format = "%d.%
 
 #' Automatic classification of tag
 #'
-#' This function uses activity data to classify migratory flapping flight. It returns the same data
-#' list `tag` adding a column `ismig` to the data.frame `acceleration`. This function is inspired by
-#' the function `classify_flap` from the [tagLr package](https://github.com/KiranLDA/taglr).
+#' This function uses acceleration data to classify migratory flapping flight. The function uses a
+#' `k=2` mean clustering ([`kmeans()`]) to identify high activity periods. Periods lasting more than
+#' `min_duration` are then considered to be migratory flight.
+#'
+#' This function is inspired by the function `classify_flap` from the
+#' [PAMlr package](https://github.com/KiranLDA/PAMlr).
 #'
 #' @param tag logger dataset list. See [`tag_read()`].
 #' @param min_duration duration in minutes
-#'
-#' @return tag
+#' @return same list as input `tag` but with the column `label` filled with `"flight"` in the
+#' acceleration data.frame when a sustained high-activity period is detected.
 #' @seealso [`tag_read()`], [flapping chapter of the tagLr
 #' manual](https://kiranlda.github.io/tagLrManual/flapping.html), [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#automatic-classification-of-activity)
@@ -329,12 +354,18 @@ tag_classify <- function(tag,
 
 #' Compute stationary periods
 #'
-#' This function computes the stationary periods from classified acceleration data
-#' (`tag$acceleration$ismig`).
+#' @description
+#' This function computes the stationary periods from classified pressure and/or acceleration data.
 #'
-#' @param tag data logger dataset list. See [`tag_read()`].
-#' @return Same as input `tag` but with (1) a new data.frame of stationary periods `tag$sta` and (2)
-#' a new column `stap` for pressure and light data.
+#' If acceleration data.frame is present and contains a colum `label`, the stationary period will be
+#' computed from it, otherwise, uses pressure data.frame.
+#'
+#' Uses the label `"flight"` to separate stationary periods. flight of any duration will be
+#' considered.
+#'
+#' @param tag list of classified data logger (see [`tag_read()`] and `trainset_read()`)
+#' @return same list as input `tag` but with (1) a new data.frame of stationary periods `tag$stap`
+#' and (2) a new column `stap` for pressure, light and acceleration data.
 #'
 #' @examples
 #' tag <- tag_read(
@@ -344,11 +375,8 @@ tag_classify <- function(tag,
 #'   directory = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 #' )
 #' tag <- tag_stap(tag)
-#' head(tag$stap)
-#' head(tag$pressure)
-#' head(tag$light)
-#' head(tag$acceleration)
-#' @seealso [`tag_read`], [`tag_classify`], [GeoPressureManual | Pressure Map
+#' str(tag)
+#' @seealso [`tag_read()`], [`tag_classify()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods)
 #' @export
 tag_stap <- function(tag) {
