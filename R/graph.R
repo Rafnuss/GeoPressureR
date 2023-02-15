@@ -9,7 +9,7 @@
 #' stationary periods to model.
 #'
 #' In the final graph, we only keep the most likely node (position in time) defined as: 1. those
-#' which cumulative probability reach up to `thr_prob_percentile` for each stationary period. 2.
+#' which cumulative probability reach up to `thr_likelihood` for each stationary period. 2.
 #' those which average ground speed is lower than `thr_gs` km/h.
 #'
 #' The graph returned is a list of the edges of the graph containing:
@@ -36,7 +36,7 @@
 #'
 #' @param likelihood list of likelihood map, ideally build with `geopressure_likelihood()` or
 #' `geolight_likelihood()`.
-#' @param thr_prob_percentile threshold of percentile (see details).
+#' @param thr_likelihood threshold of percentile (see details).
 #' @param thr_gs threshold of groundspeed (km/h)  (see details).
 #' @param thr_duration threshold of the duration (in hours) for which stationary period are modeled
 #' (default includes all).
@@ -48,7 +48,7 @@
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph)
 #' @export
 graph_create <- function(likelihood,
-                         thr_prob_percentile = .99,
+                         thr_likelihood = .99,
                          thr_gs = 150,
                          thr_duration = 0,
                          stap = seq_len(length(likelihood)),
@@ -61,9 +61,9 @@ graph_create <- function(likelihood,
   assertthat::assert_that(is.list(likelihood))
   assertthat::assert_that(is.list(likelihood[[1]]))
   assertthat::assert_that(assertthat::has_name(likelihood[[1]], c("stap", "start", "end")))
-  assertthat::assert_that(is.numeric(thr_prob_percentile))
-  assertthat::assert_that(length(thr_prob_percentile) == 1)
-  assertthat::assert_that(thr_prob_percentile >= 0 & thr_prob_percentile <= 1)
+  assertthat::assert_that(is.numeric(thr_likelihood))
+  assertthat::assert_that(length(thr_likelihood) == 1)
+  assertthat::assert_that(thr_likelihood >= 0 & thr_likelihood <= 1)
   assertthat::assert_that(is.numeric(thr_gs))
   assertthat::assert_that(length(thr_gs) == 1)
   assertthat::assert_that(thr_gs >= 0)
@@ -91,7 +91,7 @@ graph_create <- function(likelihood,
   assertthat::assert_that(length(unique(lapply(likelihood[stap_map], function(l) {
     l$extent
   }))) == 1)
-  map_extent <- unique(lapply(likelihood[stap_map], function(l) {
+  extent <- unique(lapply(likelihood[stap_map], function(l) {
     l$extent
   }))[[1]]
   assertthat::assert_that(length(unique(lapply(likelihood[stap_map], function(l) {
@@ -102,9 +102,9 @@ graph_create <- function(likelihood,
   }))[[1]]
 
   # Get latitude and longitude of the center of the pixel
-  lat <- seq(map_extent[4], map_extent[3], length.out = map_dim[1] + 1)
+  lat <- seq(extent[4], extent[3], length.out = map_dim[1] + 1)
   lat <- utils::head(lat, -1) + diff(lat[1:2]) / 2
-  lon <- seq(map_extent[1], map_extent[2], length.out = map_dim[2] + 1)
+  lon <- seq(extent[1], extent[2], length.out = map_dim[2] + 1)
   lon <- utils::head(lon, -1) + diff(lon[1:2]) / 2
 
   # Approximate resolution of the grid from ° to in km
@@ -200,7 +200,7 @@ graph_create <- function(likelihood,
   nds <- lapply(likelihood_n, function(l) {
     # First, compute the threshold of prob corresponding to percentile
     ls <- sort(l)
-    id_prob_percentile <- sum(cumsum(ls) <= (1 - thr_prob_percentile))
+    id_prob_percentile <- sum(cumsum(ls) <= (1 - thr_likelihood))
     thr_prob <- ls[id_prob_percentile + 1]
 
     # return matrix if the values are above the threshold
@@ -211,7 +211,7 @@ graph_create <- function(likelihood,
   nds_0 <- unlist(lapply(nds, sum)) == 0
   if (any(nds_0)) {
     stop(paste0(
-      "Using the `thr_prob_percentile` of ", thr_prob_percentile, " provided, there are not any ",
+      "Using the `thr_likelihood` of ", thr_likelihood, " provided, there are not any ",
       "nodes left for the stationary period: ", stap_model[which(nds_0)], "."
     ))
   }
@@ -340,20 +340,20 @@ graph_create <- function(likelihood,
   gr <- graph_trim(gr)
 
   # Convert gr to a graph list
-  grl <- as.list(do.call("rbind", gr))
+  graph <- as.list(do.call("rbind", gr))
 
   # Add metadata information
-  grl$sz <- sz
-  grl$lat <- lat
-  grl$lon <- lon
-  grl$stap <- stap_model
-  grl$flight <- flight
-  grl$flight_duration <- flight_duration
-  grl$equipment <- which(nds[[1]] == TRUE)
-  grl$retrieval <- which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll
-  grl$mask_water <- mask_water
-  grl$extent <- map_extent
-  return(grl)
+  graph$sz <- sz
+  graph$lat <- lat
+  graph$lon <- lon
+  graph$stap <- stap_model
+  graph$flight <- flight
+  graph$flight_duration <- flight_duration
+  graph$equipment <- which(nds[[1]] == TRUE)
+  graph$retrieval <- which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll
+  graph$mask_water <- mask_water
+  graph$extent <- extent
+  return(graph)
 }
 
 
@@ -450,10 +450,10 @@ graph_trim <- function(gr) {
 #' @export
 graph_download_wind <- function(tag,
                                 extent,
-                                stap = seq_len(nrow(tag$sta) - 1),
+                                stap = seq_len(nrow(tag$stap) - 1),
                                 cds_key = Sys.getenv("cds_key"),
                                 cds_user = Sys.getenv("cds_user"),
-                                path = paste0("data/5_wind_graph/", tag$id, "/")) {
+                                directory = paste0("data/5_wind_graph/", tag$id, "/")) {
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
@@ -461,21 +461,15 @@ graph_download_wind <- function(tag,
   assertthat::assert_that(assertthat::has_name(tag, "sta"))
   assertthat::assert_that(is.data.frame(tag$sta))
   assertthat::assert_that(assertthat::has_name(tag$sta, c("end", "start")))
-
-  if (is.list(extent)) {
-    extent <- extent[[1]]
-  }
-  extent <- terra::extent(extent)
-  extent <- c(extent@ymax, extent@xmin, extent@ymin, extent@xmax)
-
+  assertthat::assert_that(length(extent)==4)
   assertthat::assert_that(is.numeric(stap))
   assertthat::assert_that(all(stap %in% tag$stap$stap))
 
   ecmwfr::wf_set_key(user = cds_user, key = cds_key, service = "cds")
 
-  if (!file.exists(path)) {
-    warning(paste0("The path ", path, " did not exist, so we created it."))
-    dir.create(path, showWarnings = FALSE)
+  if (!file.exists(directory)) {
+    warning(paste0("The directory ", directory, " did not exist, so we created it."))
+    dir.create(directory, showWarnings = FALSE)
   }
 
   # see https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Levellistings
@@ -525,7 +519,7 @@ graph_download_wind <- function(tag,
       month = sort(unique(format(flight_time, "%m"))),
       day = sort(unique(format(flight_time, "%d"))),
       time = sort(unique(format(flight_time, "%H:%M"))),
-      extent = extent,
+      extent = c(extent[4], extent[1], extent[3], extent[2]),
       target = paste0(tag$id, "_", i_s, ".nc")
     )
   }
@@ -534,7 +528,7 @@ graph_download_wind <- function(tag,
     request_list,
     workers = 20,
     # user = ,
-    path = path,
+    path = directory,
     # time_out = 3600,
     # total_timeout = length(request_list) * time_out/workers
   )
@@ -549,59 +543,59 @@ graph_download_wind <- function(tag,
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data) for
 #' explanations and example on how to download the `NetCDF` files from ERA-5.
 #'
-#' @param grl graph constructed with [`graph_create()`]
+#' @param graph graph constructed with [`graph_create()`]
 #' @param pressure pressure data from a data logger. This data.frame needs to contains `date` as
 #' POSIXt and `value` in hPa. It is best practice to use [`tag_read()`] and [`tag_stap()`] to build
 #' this data.frame.
-#' @param filename Character of the path where to find the netCDF file.
+#' @param directory Character of the path where to find the netCDF file.
 #' @param thr_as Threshold of airspeed (km/h).
 #' @return Graph as a list with windspeed and airspeed as `ws` and `as` respectively (see
 #' [`graph_create()`] for more detail on the graph returned).
 #' @seealso [`graph_create()`], [GeoPressureManual | Wind graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph)
 #' @export
-graph_add_wind <- function(grl,
+graph_add_wind <- function(graph,
                            pressure,
-                           filename,
+                           directory,
                            thr_as = Inf) {
-  assertthat::assert_that(is.list(grl))
+  assertthat::assert_that(is.list(graph))
   assertthat::assert_that(assertthat::has_name(
-    grl, c("s", "t", "gs", "sz", "lat", "lon", "flight")
+    graph, c("s", "t", "gs", "sz", "lat", "lon", "flight")
   ))
-  assertthat::assert_that(length(grl$s) > 0)
+  assertthat::assert_that(length(graph$s) > 0)
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$value))
-  assertthat::assert_that(is.character(filename))
-  assertthat::assert_that(file.exists(paste0(filename, "1.nc")))
+  assertthat::assert_that(is.character(directory))
+  assertthat::assert_that(file.exists(file.path(directory, "1.nc")))
   assertthat::assert_that(is.numeric(thr_as))
   assertthat::assert_that(length(thr_as) == 1)
   assertthat::assert_that(thr_as >= 0)
 
   # Extract the index in lat, lon, stap from the source and target of all edges
-  s <- arrayInd(grl$s, grl$sz)
-  t <- arrayInd(grl$t, grl$sz)
+  s <- arrayInd(graph$s, graph$sz)
+  t <- arrayInd(graph$t, graph$sz)
 
   # Prepare the matrix of speed to return
-  uv <- matrix(NA, nrow = length(grl$s), ncol = 2)
+  uv <- matrix(NA, nrow = length(graph$s), ncol = 2)
 
   # Check that all the files of wind_speed exist and match the data request
-  for (i1 in seq_len(grl$sz[3] - 1)) {
-    fl_s <- grl$flight[[i1]]
-    for (i2 in seq_len(length(fl_s$stap))) {
-      i_s <- fl_s$stap[i2]
+  for (i1 in seq_len(graph$sz[3] - 1)) {
+    fl_s <- graph$flight[[i1]]
+    for (i2 in seq_len(length(fl_s$stap_s))) {
+      i_s <- fl_s$stap_s[i2]
 
-      if (!file.exists(paste0(filename, i_s, ".nc"))) {
-        stop(paste0("No wind file: '", filename, i_s, ".nc'"))
+      if (!file.exists(file.path(directory, i_s, ".nc"))) {
+        stop(paste0("No wind file: '", directory, i_s, ".nc'"))
       }
-      nc <- ncdf4::nc_open(paste0(filename, i_s, ".nc"))
+      nc <- ncdf4::nc_open(file.path(directory, i_s, ".nc"))
 
       time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60, origin = "1900-01-01", tz = "UTC")
       t_s <- as.POSIXct(format(fl_s$start[i2], "%Y-%m-%d %H:00:00"), tz = "UTC")
       t_e <- as.POSIXct(format(fl_s$end[i2] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
       if (!(min(time) <= t_e && max(time) >= t_s)) {
-        stop(paste0("Time not matching for for '", filename, i_s, ".nc'"))
+        stop(paste0("Time not matching for for '", directory, i_s, ".nc'"))
       }
 
       pres <- ncdf4::ncvar_get(nc, "level")
@@ -610,21 +604,21 @@ graph_add_wind <- function(grl,
       if (length(pres_value) == 0 ||
         !(min(pres) <= min(pres_value) &&
           max(pres) >= min(1000, max(pres_value)))) {
-        stop(paste0("Pressure not matching for '", filename, i_s, ".nc'"))
+        stop(paste0("Pressure not matching for '", directory, i_s, ".nc'"))
       }
 
       # Check if spatial extend match
       lat <- ncdf4::ncvar_get(nc, "latitude")
       lon <- ncdf4::ncvar_get(nc, "longitude")
-      if (min(grl$lat) < min(lat) || max(grl$lat) > max(lat) ||
-        min(grl$lon) < min(lon) || max(grl$lon) > max(lon)) {
-        stop(paste0("Spatial extend not matching for '", filename, i_s, ".nc'"))
+      if (min(graph$lat) < min(lat) || max(graph$lat) > max(lat) ||
+        min(graph$lon) < min(lon) || max(graph$lon) > max(lon)) {
+        stop(paste0("Spatial extend not matching for '", directory, i_s, ".nc'"))
       }
 
       # Check if flight duration is
       if (fl_s$start[i2] >= fl_s$end[i2]) {
         stop(paste0(
-          "Flight starting on stap=", fl_s$stap[i2], " has a start time equal or greater than ",
+          "Flight starting on stap ", fl_s$stap_s[i2], " has a start time equal or greater than ",
           "the end time. Please review your labeling file."
         ))
       }
@@ -635,15 +629,15 @@ graph_add_wind <- function(grl,
   nds_expend_sum <- table(s[, 3])
   progress_bar(0,
     max = sum(nds_expend_sum),
-    text = paste0("| stap = ", 0, "/", grl$sz[3] - 1)
+    text = paste0("| stap = ", 0, "/", graph$sz[3] - 1)
   )
 
   # Loop through the stationary period kept in the graph
-  for (i1 in seq_len(grl$sz[3] - 1)) {
+  for (i1 in seq_len(graph$sz[3] - 1)) {
     # Extract the flight information from the current stap to the next one considered in the graph.
     # It can be the next, or if some stap are skipped at construction, it can contains multiples
     # flights
-    fl_s <- grl$flight[[i1]]
+    fl_s <- graph$flight[[i1]]
 
     # Extract the duration of each flights.
     fl_s_dur <- as.numeric(difftime(fl_s$end, fl_s$start, units = "hours"))
@@ -661,16 +655,16 @@ graph_add_wind <- function(grl,
     ratio_stap <- as.matrix(c(0, cumsum(fl_s_dur) / sum(fl_s_dur)))
 
     # Prepare the u- and v- windspeed for each flight (row) and edge (col)
-    u_stap <- matrix(NA, nrow = length(fl_s$stap), ncol = length(st_id))
-    v_stap <- matrix(NA, nrow = length(fl_s$stap), ncol = length(st_id))
+    u_stap <- matrix(NA, nrow = length(fl_s$stap_s), ncol = length(st_id))
+    v_stap <- matrix(NA, nrow = length(fl_s$stap_s), ncol = length(st_id))
 
     # Loop through each flight of the transition
-    for (i2 in seq_len(length(fl_s$stap))) {
+    for (i2 in seq_len(length(fl_s$stap_s))) {
       # Find the stationary period ID from this specific flight (source)
-      i_s <- fl_s$stap[i2]
+      i_s <- fl_s$stap_s[i2]
 
       # Read the netCDF file
-      nc <- ncdf4::nc_open(paste0(filename, i_s, ".nc"))
+      nc <- ncdf4::nc_open(file.path(directory, i_s, ".nc"))
 
       # Read data from netCDF file and convert the time of data to posixt
       time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60,
@@ -681,14 +675,14 @@ graph_add_wind <- function(grl,
       lon <- ncdf4::ncvar_get(nc, "longitude")
 
       # Find the start and end latitude and longitude of each edge
-      lat_s <- grl$lat[s[st_id, 1]] +
-        ratio_stap[i2] * (grl$lat[t[st_id, 1]] - grl$lat[s[st_id, 1]])
-      lon_s <- grl$lon[s[st_id, 2]] +
-        ratio_stap[i2] * (grl$lon[t[st_id, 2]] - grl$lon[s[st_id, 2]])
-      lat_e <- grl$lat[s[st_id, 1]] +
-        ratio_stap[i2 + 1] * (grl$lat[t[st_id, 1]] - grl$lat[s[st_id, 1]])
-      lon_e <- grl$lon[s[st_id, 2]] +
-        ratio_stap[i2 + 1] * (grl$lon[t[st_id, 2]] - grl$lon[s[st_id, 2]])
+      lat_s <- graph$lat[s[st_id, 1]] +
+        ratio_stap[i2] * (graph$lat[t[st_id, 1]] - graph$lat[s[st_id, 1]])
+      lon_s <- graph$lon[s[st_id, 2]] +
+        ratio_stap[i2] * (graph$lon[t[st_id, 2]] - graph$lon[s[st_id, 2]])
+      lat_e <- graph$lat[s[st_id, 1]] +
+        ratio_stap[i2 + 1] * (graph$lat[t[st_id, 1]] - graph$lat[s[st_id, 1]])
+      lon_e <- graph$lon[s[st_id, 2]] +
+        ratio_stap[i2 + 1] * (graph$lon[t[st_id, 2]] - graph$lon[s[st_id, 2]])
 
       # As ERA5 data is available every hour, we build a one hour resolution timeserie including the
       # start and end time of the flight. Thus, we first round the start end end time.
@@ -826,7 +820,7 @@ graph_add_wind <- function(grl,
 
       progress_bar(sum(nds_expend_sum[seq(1, i1)]),
         max = sum(nds_expend_sum),
-        text = paste0("| stap = ", i1, "/", grl$sz[3] - 1)
+        text = paste0("| stap = ", i1, "/", graph$sz[3] - 1)
       )
     }
     # Compute the average  over all the flight of the transition accounting for the duration of the
@@ -836,31 +830,30 @@ graph_add_wind <- function(grl,
   }
 
   # save windspeed in complex notation and convert from m/s to km/h
-  grl$ws <- (uv[, 1] + 1i * uv[, 2]) / 1000 * 60 * 60
+  graph$ws <- (uv[, 1] + 1i * uv[, 2]) / 1000 * 60 * 60
 
   # compute airspeed
-  grl$as <- grl$gs - grl$ws
+  as <- graph$gs - graph$ws
 
   # filter edges based on airspeed
-  id <- abs(grl$as) <= thr_as
-  sta_pass <- which(!(seq_len(grl$sz[3] - 1) %in% unique(s[id, 3])))
+  id <- abs(as) <= thr_as
+  sta_pass <- which(!(seq_len(graph$sz[3] - 1) %in% unique(s[id, 3])))
   if (length(sta_pass) > 0) {
     stop(paste0(
       "Using the `thr_as` of ", thr_as,
       " km/h provided with the exact distance of edges, there are ",
       "not any nodes left for the stationary period: ", paste(sta_pass, collapse = ", "),
-      " with a minimum airspeed of ", min(abs(grl$as[s[, 3] == sta_pass])), " km/h"
+      " with a minimum airspeed of ", min(abs(as[s[, 3] == sta_pass])), " km/h"
     ))
   }
 
-  grl$s <- grl$s[id]
-  grl$t <- grl$t[id]
-  grl$gs <- grl$gs[id]
-  grl$as <- grl$as[id]
-  grl$ws <- grl$ws[id]
-  grl$ps <- grl$ps[id]
+  graph$s <- graph$s[id]
+  graph$t <- graph$t[id]
+  graph$gs <- graph$gs[id]
+  graph$ws <- graph$ws[id]
+  graph$O <- graph$O[id]
 
-  return(grl)
+  return(graph)
 }
 
 
@@ -869,13 +862,13 @@ graph_add_wind <- function(grl,
 #'
 #' This function return the marginal probability map as raster from a graph.
 #'
-#' @param grl graph constructed with [`graph_create()`]
+#' @param graph graph constructed with [`graph_create()`]
 #' @return list of map of the marginal probability at each stationary period
 #' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map)
 #' @export
-graph_marginal <- function(grl) {
-  assertthat::assert_that(is.list(grl))
+graph_marginal <- function(graph) {
+  assertthat::assert_that(is.list(graph))
   assertthat::assert_that(assertthat::has_name(
     graph, c(
       "s", "t", "sz", "lat", "lon", "mask_water", "extent", "flight", "stap"
@@ -892,48 +885,48 @@ graph_marginal <- function(grl) {
   }
 
   # number of nodes in the 3d grid
-  n <- prod(grl$sz)
+  n <- prod(graph$sz)
 
   # matrix of transition * observation
   TO <- Matrix::sparseMatrix(graph$s, graph$t, x = TO, dims = c(n, n))
 
   # forward mapping of marginal probability
-  map_f <- Matrix::sparseMatrix(rep(1, length(grl$equipment)),
-    grl$equipment,
+  map_f <- Matrix::sparseMatrix(rep(1, length(graph$equipment)),
+    graph$equipment,
     x = 1, dims = c(1, n)
   )
 
   # backward mapping of marginal probability
-  map_b <- Matrix::sparseMatrix(grl$retrieval,
-    rep(1, length(grl$retrieval)),
+  map_b <- Matrix::sparseMatrix(graph$retrieval,
+    rep(1, length(graph$retrieval)),
     x = 1, dims = c(n, 1)
   )
 
   # build iteratively the marginal probability backward and forward by re-using the mapping
   # computed for previous stationary period. Set the equipment and retrieval site in each loop
-  for (i_s in seq_len(grl$sz[3] - 1)) {
-    map_f[1, grl$equipment] <- 1
-    map_f <- map_f %*% trans
+  for (i_s in seq_len(graph$sz[3] - 1)) {
+    map_f[1, graph$equipment] <- 1
+    map_f <- map_f %*% TO
 
-    map_b[grl$retrieval, 1] <- 1
-    map_b <- trans %*% map_b
+    map_b[graph$retrieval, 1] <- 1
+    map_b <- TO %*% map_b
   }
   # add the retrieval and equipment at the end to finish it
-  map_f[1, grl$equipment] <- 1
-  map_b[grl$retrieval, 1] <- 1
+  map_f[1, graph$equipment] <- 1
+  map_b[graph$retrieval, 1] <- 1
 
   # combine the forward and backward
   map <- map_f * Matrix::t(map_b)
 
   # reshape mapping as a full (non-sparce matrix of correct size)
   map <- as.matrix(map)
-  dim(map) <- grl$sz
+  dim(map) <- graph$sz
 
-  # convert to raster
+  # return as list
   likelihood_marginal <- list()
   for (i_s in seq_len(dim(map)[3])) {
     tmp <- map[, , i_s]
-    tmp[grl$mask_water] <- NA
+    tmp[graph$mask_water] <- NA
     if (sum(tmp, na.rm = TRUE) == 0) {
       stop(
         "The probability of some transition are too small to find numerical solution. ",
@@ -959,47 +952,47 @@ graph_marginal <- function(grl) {
 #' This function simulates multiple trajectory from a graph. The trajectories consist of the
 #' positions at each stationary periods.
 #'
-#' @param grl Graph constructed with [`graph_create()`].
+#' @param graph Graph constructed with [`graph_create()`].
 #' @param nj Number of simulation.
 #' @return List of simulated paths.
 #' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-3-simulate-path)
 #' @export
-graph_simulation <- function(grl,
+graph_simulation <- function(graph,
                              nj = 10) {
-  assertthat::assert_that(is.list(grl))
+  assertthat::assert_that(is.list(graph))
   assertthat::assert_that(assertthat::has_name(
     graph, c("s", "t", "p", "sz", "lat", "lon", "extent", "stap")
   ))
-  assertthat::assert_that(length(grl$s) > 0)
+  assertthat::assert_that(length(graph$s) > 0)
   assertthat::assert_that(is.numeric(nj))
   assertthat::assert_that(nj > 0)
 
   # number of nodes in the 3d grid
-  n <- prod(grl$sz)
-  nll <- grl$sz[1] * grl$sz[2]
+  n <- prod(graph$sz)
+  nll <- graph$sz[1] * graph$sz[2]
 
   # Find the stationary index of all the source so that only the edges from a specific stationary
   # period can be easily query
-  s_id <- arrayInd(grl$s, grl$sz)
+  s_id <- arrayInd(graph$s, graph$sz)
 
   # As we will simulate in forward chronological order, we will be able to create map_f inside the
   # simulation. However, map_b needs to be computed for all stationary period in advance, starting
   # by the last stationary period and moving backward in time as follow
   map_b <- list()
-  map_b[[grl$sz[3]]] <- Matrix::sparseMatrix(rep(1, length(grl$retrieval)),
-    grl$retrieval,
+  map_b[[graph$sz[3]]] <- Matrix::sparseMatrix(rep(1, length(graph$retrieval)),
+    graph$retrieval,
     x = 1, dims = c(1, n)
   )
 
-  for (i_stap in (grl$sz[3] - 1):1) {
+  for (i_stap in (graph$sz[3] - 1):1) {
     id <- s_id[, 3] == i_stap
     map_b[[i_stap]] <- map_b[[i_stap + 1]] %*%
-      Matrix::sparseMatrix(grl$t[id], grl$s[id], x = grl$p[id], dims = c(n, n))
+      Matrix::sparseMatrix(graph$t[id], graph$s[id], x = graph$p[id], dims = c(n, n))
   }
 
   # Initialize the path
-  path <- matrix(ncol = grl$sz[3], nrow = nj)
+  path <- matrix(ncol = graph$sz[3], nrow = nj)
 
   # Sample the first position with map_b assuming map_f to be uniform
   map <- map_b[[1]][1:nll]
@@ -1008,14 +1001,14 @@ graph_simulation <- function(grl,
   }
 
   # Loop through the simulation along chronological order
-  progress_bar(1, max = grl$sz[3])
-  for (i_stap in seq(2, grl$sz[3])) {
+  progress_bar(1, max = graph$sz[3])
+  for (i_stap in seq(2, graph$sz[3])) {
     # find edges arriving to this stationary period
     id <- s_id[, 3] == (i_stap - 1)
 
     # create the local trans_f (only edges from previous stap to this sta
-    trans_f <- Matrix::sparseMatrix(grl$s[id], grl$t[id],
-      x = grl$p[id],
+    trans_f <- Matrix::sparseMatrix(graph$s[id], graph$t[id],
+      x = graph$p[id],
       dims = c(n, n)
     )
 
@@ -1041,37 +1034,37 @@ graph_simulation <- function(grl,
     path[, i_stap] <- ids + nll * (i_stap - 1)
 
     # Update progress bar
-    progress_bar(i_stap, max = grl$sz[3])
+    progress_bar(i_stap, max = graph$sz[3])
   }
 
-  return(graph_path2lonlat(path, grl))
+  return(graph_path2lonlat(path, graph))
 }
 
 
 #' Find the latitude and longitude from a path index
 #'
 #' @param path_id List or matrix of node index.
-#' @param grl Graph constructed with [`graph_create()`].
+#' @param graph Graph constructed with [`graph_create()`].
 #' @return List of the path with latitude and longitude and index of the the path provided.
 #' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-1-shortest-path)
 #' @export
 graph_path2lonlat <- function(path_id,
-                              grl) {
-  assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, c("s", "t", "sz", "lat", "lon")))
-  assertthat::assert_that(length(grl$s) > 0)
+                              graph) {
+  assertthat::assert_that(is.list(graph))
+  assertthat::assert_that(assertthat::has_name(graph, c("s", "t", "sz", "lat", "lon")))
+  assertthat::assert_that(length(graph$s) > 0)
   assertthat::assert_that(is.numeric(path_id))
-  assertthat::assert_that(all(path_id > 0 & path_id <= prod(grl$sz)))
+  assertthat::assert_that(all(path_id > 0 & path_id <= prod(graph$sz)))
 
-  ind <- arrayInd(path_id, grl$sz)
+  ind <- arrayInd(path_id, graph$sz)
   p <- list()
   p$id <- path_id
-  p$lat <- grl$lat[ind[, 1]]
+  p$lat <- graph$lat[ind[, 1]]
   dim(p$lat) <- dim(p$id)
-  p$lon <- grl$lon[ind[, 2]]
+  p$lon <- graph$lon[ind[, 2]]
   dim(p$lon) <- dim(p$id)
-  p$stap <- grl$stap
+  p$stap <- graph$stap
   return(p)
 }
 
@@ -1079,26 +1072,26 @@ graph_path2lonlat <- function(path_id,
 #'
 #' Very inefficient way to find the edges...
 #'
-#' @param path_id List or matrix of node index (`nj x nsta`).
-#' @param grl Graph constructed with [`graph_create()`].
-#' @return List or matrix of the edge `nj x (nsta-1)`.
+#' @param path_id list or matrix of node index (`nj x nstap`).
+#' @param graph graph constructed with [`graph_create()`].
+#' @return List or matrix of the edge `nj x (nstap-1)`.
 #' @seealso [`graph_create()`], [GeoPressureManual | Wind graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#energy)
 #' @export
 graph_path2edge <- function(path_id,
-                            grl) {
-  assertthat::assert_that(is.list(grl))
-  assertthat::assert_that(assertthat::has_name(grl, c("s", "t")))
-  assertthat::assert_that(length(grl$s) > 0)
+                            graph) {
+  assertthat::assert_that(is.list(graph))
+  assertthat::assert_that(assertthat::has_name(graph, c("s", "t")))
+  assertthat::assert_that(length(graph$s) > 0)
   assertthat::assert_that(is.numeric(path_id))
-  assertthat::assert_that(all(path_id > 0 & path_id <= prod(grl$sz)))
+  assertthat::assert_that(all(path_id > 0 & path_id <= prod(graph$sz)))
 
   if (is.matrix(path_id)) {
     # Number of paths
     nj <- dim(path_id)[1]
     # number of stationary period
     nstap <- dim(path_id)[2]
-    assertthat::assert_that(nstap == grl$sz[3])
+    assertthat::assert_that(nstap == graph$sz[3])
 
     # Get the source and target
     path_s <- path_id[, 1:(nstap - 1)]
@@ -1110,7 +1103,7 @@ graph_path2edge <- function(path_id,
   } else {
     nstap <- length(path_id)
     nj <- 1
-    assertthat::assert_that(nstap == grl$sz[3])
+    assertthat::assert_that(nstap == graph$sz[3])
 
     path_s <- path_id[1:(nstap - 1)]
     path_t <- path_id[2:nstap]
@@ -1119,7 +1112,7 @@ graph_path2edge <- function(path_id,
 
   # Use mapply to loop through each edge. THE WORST!
   edge <- mapply(function(s, t) {
-    which(grl$s == s & grl$t == t)
+    which(graph$s == s & graph$t == t)
   }, path_s, path_t)
 
   # reshape in original shapre

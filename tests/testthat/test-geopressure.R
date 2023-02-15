@@ -4,16 +4,16 @@ library(GeoPressureR)
 
 # Start by computing all the necessary file for the tests
 tag <- tag_read(
-  pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR"),
+  directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR"),
   crop_start = "2017-08-01", crop_end = "2017-10-01"
 )
 tag <- trainset_read(
   tag,
-  pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
+  directory = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 )
 tag <- tag_stap(tag)
 pressure_mismatch <- geopressure_mismatch(tag,
-  extent = c(50, -16, 0, 23),
+  extent = c(-16, 23, 0, 50),
   scale = 1,
   max_sample = 100,
   margin = 30
@@ -36,7 +36,7 @@ tag_sm <- tag_stap(tag_sm)
 
 
 test_that("Check geopressure_mismatch() output", {
-  mismatch <- geopressure_mismatch(tag_sm, extent = c(1, 0, 0, 1), scale = 1)
+  mismatch <- geopressure_mismatch(tag_sm, extent = c(0, 1, 0, 1), scale = 1)
   expect_type(mismatch, "list")
   expect_length(mismatch, 1)
   expect_type(mismatch[[1]], "list")
@@ -53,7 +53,7 @@ test_that("Check geopressure_mismatch() output", {
   tag_sm_2 <- tag_sm
   tag_sm_2$pressure$value[2] <- 1200
   expect_error(
-    geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1),
+    geopressure_mismatch(tag_sm_2, extent = c(0, 1,0,1), scale = 1),
     "*Pressure observation should be between 250 hPa*"
   )
 
@@ -61,7 +61,7 @@ test_that("Check geopressure_mismatch() output", {
   tag_sm_2 <- tag_sm
   tag_sm_2$pressure$date[3] <- tag_sm_2$pressure$date[3] + 1
   expect_warning(
-    geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1),
+    geopressure_mismatch(tag_sm_2, extent = c(0, 1,0,1), scale = 1),
     "*The pressure data is not on a regular interval*"
   )
 
@@ -70,24 +70,24 @@ test_that("Check geopressure_mismatch() output", {
   tmp <- Sys.time()
   tag_sm_2$pressure$date <- tmp + c(0, 1, 2, 3) * 60 * 60
   expect_error(
-    geopressure_mismatch(tag_sm_2, extent = c(1, 0, 0, 1), scale = 1),
+    geopressure_mismatch(tag_sm_2, extent = c(0, 1,0,1), scale = 1),
     "*made for periods where no data are available*"
   )
 
   # Check geopressure_mismatch() timeout and worker
-  expect_error(geopressure_mismatch(tag, extent = c(1, 0, 0, 1), scale = 1, timeout = 1))
-  expect_error(geopressure_mismatch(tag_sm, extent = c(1, 0, 0, 1), scale = 1, worker = 100))
+  expect_error(geopressure_mismatch(tag, extent = c(0, 1,0,1), scale = 1, timeout = 1))
+  expect_error(geopressure_mismatch(tag_sm, extent = c(0, 1,0,1), scale = 1, worker = 100))
 })
 
 
 test_that("Check with elev_", {
   tag_tmp <- trainset_read(tag,
-    pathname = system.file("extdata/1_pressure/labels/", package = "GeoPressureR"),
+    directory = system.file("extdata/1_pressure/labels/", package = "GeoPressureR"),
     filename = "18LX_act_pres-labeled_elev.csv"
   )
   tag_tmp <- tag_stap(tag_tmp)
   mismatch <- geopressure_mismatch(tag_tmp,
-    extent = c(50, -16, 0, 23),
+    extent = c(-16, 23, 0, 50),
     scale = 1,
   )
   expect_length(mismatch, 5)
@@ -121,7 +121,7 @@ test_that("Check for incomplete stap", {
 
   # Check geopressure_mismatch
   expect_warning(mismatch <- geopressure_mismatch(tag_tmp,
-    extent = c(50, -16, 0, 23),
+    extent = c(-16, 23, 0, 50),
     scale = 1,
   ))
   expect_true(length(mismatch) == nrow(tag$stap))

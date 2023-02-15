@@ -5,7 +5,7 @@
 #'
 #' @param light a dataframe with columns `date` and `value` that are the sequence of sample  times
 #' (as POSIXct) and light levels recorded by the tag respectively (see [`tag_read()`]).
-#' @param threshold the light threshold that defines twilight. If not provided, it uses the first
+#' @param thr_light the light threshold that defines twilight. If not provided, it uses the first
 #' light (i.e, `value>0`).
 #' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
 #' provided, it will take the middle of all nights.
@@ -14,30 +14,30 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#twilight-annotation)
 #' @examples
 #' tag <- tag_read(
-#'   pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR"),
+#'   directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR"),
 #'   crop_start = "2017-06-20", crop_end = "2018-05-02"
 #' )
 #' twl <- geolight_twilight(tag$light)
 #' head(twl)
 #' @export
 geolight_twilight <- function(light,
-                              threshold = NA,
+                              thr_light = NA,
                               shift_k = NA) {
   assertthat::assert_that(is.data.frame(light))
   assertthat::assert_that(assertthat::has_name(light, c("date", "value")))
   assertthat::assert_that(inherits(light$date, "POSIXt"))
   assertthat::assert_that(is.numeric(light$value))
 
-  if (is.na(threshold)) {
-    threshold <- min(light$value[light$value > 0])
+  if (is.na(thr_light)) {
+    thr_light <- min(light$value[light$value > 0])
   }
-  assertthat::assert_that(is.numeric(threshold))
+  assertthat::assert_that(is.numeric(thr_light))
 
   # add padding of time to center if night are not at 00:00 UTC
   if (is.na(shift_k)) {
     mat <- geolight_light2mat(light, shift_k = 0)
     res <- as.numeric(difftime(mat$date[2], mat$date[1], units = "secs"))
-    l <- mat$value >= threshold
+    l <- mat$value >= thr_light
     tmp <- rowMeans(l, na.rm = TRUE)
     shift_id <- round(sum(tmp * seq_len(dim(mat$value)[1])) / sum(tmp))
     shift_k <- res * shift_id - 60 * 60 * 12
@@ -47,7 +47,7 @@ geolight_twilight <- function(light,
   mat <- geolight_light2mat(light, shift_k)
 
   # Compute exceed of light
-  l <- mat$value >= threshold
+  l <- mat$value >= thr_light
   # terra::image(l)
 
   # Find the first light
@@ -101,9 +101,8 @@ geolight_twilight <- function(light,
 #' @param stap_calib staionary period of calibration.
 #' @param lon_calib longitude of the calibration site.
 #' @param lat_calib latitude of the calibration site.
-#' @param map_extent extent
-#' @param map_nrow number of row
-#' @param map_ncol number of column
+#' @param extent extent
+#' @param map_dim number of row and column
 #' @param adjust_calib smoothing parameter for the kernel density. See [`stats::kernel()`]
 #' @param w_llp Log-linear pooling aggregation weight. See
 #' [GeoPressureManual | Probability aggregation](
@@ -118,9 +117,8 @@ geolight_likelihood <- function(tag,
                                 stap_calib,
                                 lon_calib,
                                 lat_calib,
-                                map_extent,
-                                map_nrow,
-                                map_ncol,
+                                extent,
+                                map_dim,
                                 adjust_calib = 1.4,
                                 w_llp = 0.1,
                                 fit_z_return = FALSE) {
@@ -134,14 +132,13 @@ geolight_likelihood <- function(tag,
   assertthat::assert_that(is.numeric(lon_calib))
   assertthat::assert_that(is.numeric(lat_calib))
   assertthat::assert_that(all(stap_calib %in% tag$stap$stap))
-  assertthat::assert_that(is.vector(map_extent))
-  assertthat::assert_that(length(map_extent) == 4)
-  assertthat::assert_that(map_extent[2] > map_extent[1])
-  assertthat::assert_that(map_extent[4] > map_extent[3])
-  assertthat::assert_that(map_nrow %% 1 == 0)
-  assertthat::assert_that(map_ncol %% 1 == 0)
-  assertthat::assert_that(map_nrow > 0)
-  assertthat::assert_that(map_ncol > 0)
+  assertthat::assert_that(is.vector(extent))
+  assertthat::assert_that(length(extent) == 4)
+  assertthat::assert_that(extent[2] > extent[1])
+  assertthat::assert_that(extent[4] > extent[3])
+  assertthat::assert_that(length(map_dim) == 2)
+  assertthat::assert_that(all(map_dim %% 1 == 0))
+  assertthat::assert_that(all(map_dim > 0))
   assertthat::assert_that(is.numeric(adjust_calib))
   assertthat::assert_that(is.numeric(w_llp))
 
@@ -173,9 +170,9 @@ geolight_likelihood <- function(tag,
   sun <- geolight_solar(twl_clean$twilight)
 
   # construct the grid of latitude and longitude on cell centered
-  lat <- seq(map_extent[4], map_extent[3], length.out = map_nrow + 1)
+  lat <- seq(extent[4], extent[3], length.out = map_dim[1] + 1)
   lat <- utils::head(lat, -1) + diff(lat[1:2]) / 2
-  lon <- seq(map_extent[1], map_extent[2], length.out = map_ncol + 1)
+  lon <- seq(extent[1], extent[2], length.out = map_dim[2] + 1)
   lon <- utils::head(lon, -1) + diff(lon[1:2]) / 2
   g <- data.frame(
     lon = rep(lon, each = length(lat)),
@@ -200,8 +197,8 @@ geolight_likelihood <- function(tag,
     } else {
       g$likelihood <- 1
     }
-    l$likelihood <- matrix(g$likelihood, nrow = map_nrow, ncol = map_ncol)
-    l$extent <- map_extent
+    l$likelihood <- matrix(g$likelihood, nrow = map_dim[1], ncol = map_dim[2])
+    l$extent <- extent
     return(l)
   })
 

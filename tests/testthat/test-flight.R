@@ -37,7 +37,7 @@ test_that("check flight_prob() with groundspeed/gamma", {
   speed <- seq(0, 100)
   expect_error(flight_prob(speed), NA)
   expect_error(flight_prob(speed + 1 * 1i), NA)
-  expect_error(flight_prob(speed, shape = 8, scale = 2), NA)
+  expect_error(flight_prob(speed, shape = 8, rate = 1/2), NA)
   expect_error(flight_prob(speed, low_speed_fix = 0), NA)
   fun_power <- function(power) {
     (1 / power)^6
@@ -49,7 +49,7 @@ test_that("check flight_prob() with groundspeed/logis", {
   speed <- seq(0, 100)
   expect_error(flight_prob(speed, method = "logis"), NA)
   expect_error(flight_prob(speed + 1 * 1i, method = "logis"), NA)
-  expect_error(flight_prob(speed, shape = 8, scale = 2, method = "logis"), NA)
+  expect_error(flight_prob(speed, shape = 8, rate = 1/2, method = "logis"), NA)
   expect_error(flight_prob(speed, low_speed_fix = 0, method = "logis"), NA)
   fun_power <- function(power) {
     (1 / power)^6

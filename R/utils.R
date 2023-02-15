@@ -31,10 +31,10 @@ progress_bar <- function(x, max = 100, text = "") {
 #'
 #' @examples
 #' tag <- tag_read(
-#'   pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR")
+#'   directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR")
 #' )
 #' tag <- trainset_read(tag,
-#'   pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
+#'   directory = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 #' )
 #' tag <- tag_stap(tag)
 #' pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/", "

@@ -53,7 +53,7 @@
 #' \dontrun{
 #' pressure_mismatch <- geopressure_mismatch(
 #'   tag,
-#'   extent = c(50, -16, 0, 23),
+#'   extent = c(-16, 23, 0, 50),
 #'   scale = 4
 #' )
 #' pressure_mismatch_1 <- pressure_mismatch[[1]]
@@ -91,12 +91,12 @@ geopressure_mismatch <- function(tag,
   assertthat::assert_that(all(unique(tag$pressure$stap) %in% c(0, unique(tag$stap$stap))))
   assertthat::assert_that(is.numeric(extent))
   assertthat::assert_that(length(extent) == 4)
-  assertthat::assert_that(extent[1] >= -90 & extent[1] <= 90)
+  assertthat::assert_that(extent[1] >= -180 & extent[1] <= 180)
   assertthat::assert_that(extent[2] >= -180 & extent[2] <= 180)
   assertthat::assert_that(extent[3] >= -90 & extent[3] <= 90)
-  assertthat::assert_that(extent[4] >= -180 & extent[4] <= 180)
-  assertthat::assert_that(extent[3] < extent[1])
-  assertthat::assert_that(extent[2] < extent[4])
+  assertthat::assert_that(extent[4] >= -90 & extent[4] <= 90)
+  assertthat::assert_that(extent[1] < extent[2])
+  assertthat::assert_that(extent[3] < extent[4])
   assertthat::assert_that(is.numeric(scale))
   assertthat::assert_that(0 < scale)
   assertthat::assert_that(scale <= 10)
@@ -224,10 +224,10 @@ geopressure_mismatch <- function(tag,
     time = jsonlite::toJSON(as.numeric(as.POSIXct(pres_query$date))),
     label = jsonlite::toJSON(pres_query$stapelev),
     pressure = jsonlite::toJSON(round(pres_query$value * 100)), # convert from hPa to Pa
-    N = extent[1],
-    W = extent[2],
+    W = extent[1],
+    E = extent[2],
     S = extent[3],
-    E = extent[4],
+    N = extent[4],
     scale = scale,
     max_sample = max_sample,
     margin = margin
@@ -382,14 +382,14 @@ geopressure_mismatch <- function(tag,
 #' This function convert the map of \eqn{MSE} and altitude threshold \eqn{z_{thr}} computed
 #' by [`geopressure_mismatch()`] into a likelihood map with,
 #'
-#' \eqn{p = \exp \left(-w \frac{MSE}{s} \right) \left[z_{thr}>thr \right],}
+#' \eqn{p = \exp \left(-w \frac{MSE}{sd} \right) \left[z_{thr}>thr \right],}
 #'
-#' where \eqn{s} is the standard deviation of pressure and \eqn{thr} is the threshold. Because the
+#' where \eqn{sd} is the standard deviation of pressure and \eqn{thr} is the threshold. Because the
 #' auto-correlation of the timeseries is not accounted for in this equation, we use a log-linear
 #' pooling weight \eqn{w=\log(n)/n}, with \eqn{n} is the number of data point in the timeserie.
 #'
 #' @param pressure_mismatch List built with [`geopressure_mismatch()`].
-#' @param s Standard deviation of the pressure error.
+#' @param sd Standard deviation of the pressure error.
 #' @param thr Threshold of the percentage of data point outside the elevation range to be considered
 #' not possible.
 #' @param fun_w function taking the number of sample of the timeseries used to compute the
@@ -405,7 +405,7 @@ geopressure_mismatch <- function(tag,
 #' \dontrun{
 #' pressure_likelihood <- geopressure_likelihood(
 #'   pressure_mismatch,
-#'   s = 0.4,
+#'   sd = 0.4,
 #'   thr = 0.9
 #' )
 #' pressure_likelihood_1 <- pressure_likelihood[[1]]
@@ -422,18 +422,18 @@ geopressure_mismatch <- function(tag,
 #' )
 #' @export
 geopressure_likelihood <- function(pressure_mismatch,
-                                   s = 1,
-                                   thr = 0.9,
+                                   sd = 1,
+                                   thr_mask = 0.9,
                                    fun_w = function(n) {
                                      log(n) / n
                                    }) {
   assertthat::assert_that(is.list(pressure_mismatch))
   assertthat::assert_that(is.list(pressure_mismatch[[1]]))
   assertthat::assert_that(assertthat::has_name(pressure_mismatch[[1]], c("stap", "start", "end")))
-  assertthat::assert_that(is.numeric(s))
-  assertthat::assert_that(s >= 0)
-  assertthat::assert_that(is.numeric(thr))
-  assertthat::assert_that(thr >= 0 & thr <= 1)
+  assertthat::assert_that(is.numeric(sd))
+  assertthat::assert_that(sd >= 0)
+  assertthat::assert_that(is.numeric(thr_mask))
+  assertthat::assert_that(thr_mask >= 0 & thr_mask <= 1)
   assertthat::assert_that(is.function(fun_w))
 
   pressure_likelihood <- lapply(pressure_mismatch, function(x) {
@@ -456,11 +456,11 @@ geopressure_likelihood <- function(pressure_mismatch,
       mse[mse == 0] <- NA
 
       # compute probability with equation
-      likelihood <- (1 / (2 * pi * s^2))^(x$nb_sample * w / 2) *
-        exp(-w * x$nb_sample / 2 / (s^2) * mse)
+      likelihood <- (1 / (2 * pi * sd^2))^(x$nb_sample * w / 2) *
+        exp(-w * x$nb_sample / 2 / (sd^2) * mse)
 
       # mask value of threshold
-      likelihood <- likelihood * (x$mask >= thr)
+      likelihood <- likelihood * (x$mask >= thr_mask)
 
       l$likelihood <- likelihood
       l$extent <- x$extent
@@ -524,8 +524,8 @@ geopressure_likelihood <- function(pressure_mismatch,
 geopressure_timeseries <- function(lon,
                                    lat,
                                    pressure = NULL,
-                                   end_time = NULL,
                                    start_time = NULL,
+                                   end_time = NULL,
                                    timeout = 60 * 5,
                                    verbose = TRUE) {
   # Check input

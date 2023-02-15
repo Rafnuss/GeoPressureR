@@ -1,17 +1,17 @@
 library(testthat)
 library(GeoPressureR)
 
-pathname <- system.file("extdata/0_tag/18LX", package = "GeoPressureR")
+directory <- system.file("extdata/0_tag/18LX", package = "GeoPressureR")
 
 tag <- tag_read(
-  pathname = pathname,
+  directory = directory,
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
 
 test_that("Check tag_read()", {
   # Check for error with incorrect input
   expect_error(tag_read("not a path"))
-  expect_type(tag_read(pathname = pathname), "list")
+  expect_type(tag_read(directory = directory), "list")
   expect_error(tag_read("not a path"))
 
   # Check that the return tag is correct
@@ -22,25 +22,25 @@ test_that("Check tag_read()", {
   expect_gt(nrow(tag$acceleration), 0)
 
   expect_warning(tag_read(
-    pathname = pathname,
-    pressure_file = "wrong_file"
+    directory = directory,
+    pressure_filename = "wrong_file"
   ))
 
   # Check crop
   expect_true(nrow(tag_read(
-    pathname = pathname,
+    directory = directory,
     crop_start = "2019-06-20", crop_end = "2018-05-02"
   )$light) == 0)
 })
 
 test_that("Check tag_read() for Migrate Technology", {
-  pathname <- system.file("extdata/0_tag/CB621", package = "GeoPressureR")
+  directory <- system.file("extdata/0_tag/CB621", package = "GeoPressureR")
 
   tag <- tag_read(
-    pathname = pathname,
-    pressure_file = ".deg",
-    light_file = ".lux",
-    acceleration_file = NA
+    directory = directory,
+    pressure_filename = ".deg",
+    light_filename = ".lux",
+    acceleration_filename = NA
     # crop_start = "2017-06-20", crop_end = "2018-05-02"
   )
   expect_gt(nrow(tag$pressure), 0)
@@ -50,29 +50,29 @@ test_that("Check tag_read() for Migrate Technology", {
 tag_classified <- tag_classify(tag)
 test_that("Check tag_classify()", {
   expect_error(tag_classify("not a tag"))
-  expect_true(c("ismig") %in% names(tag_classified$acceleration))
-  expect_type(tag_classified$acceleration$ismig, "logical")
+  expect_true(c("label") %in% names(tag_classified$acceleration))
+  expect_type(tag_classified$acceleration$label, "character")
 })
 
 
 test_that("Check trainset_write()", {
-  expect_error(trainset_write("not a tag", pathname = tempdir()))
+  expect_error(trainset_write("not a tag", directory = tempdir()))
   # Work under normal condition
-  expect_error(trainset_write(tag_classified, pathname = tempdir()), NA)
+  expect_error(trainset_write(tag_classified, directory = tempdir()), NA)
   # Work even if not auto-classified
-  expect_error(trainset_write(tag, pathname = tempdir()), NA)
+  expect_error(trainset_write(tag, directory = tempdir()), NA)
 
   # create new folder
-  expect_error(trainset_write(tag, pathname = paste0(tempdir(), "/", Sys.Date())), NA)
+  expect_error(trainset_write(tag, directory = paste0(tempdir(), "/", Sys.Date())), NA)
 
   # Check with outlier
   # tag$pressure$isoutlier <- TRUE
-  # expect_error(trainset_write(tag, pathname = tempdir()), NA)
+  # expect_error(trainset_write(tag, directory = tempdir()), NA)
 })
 
-pathname <- system.file("extdata/1_pressure/labels", package = "GeoPressureR")
+directory <- system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 
-tag_labeled <- trainset_read(tag, pathname = pathname)
+tag_labeled <- trainset_read(tag, directory = directory)
 test_that("Check trainset_read()", {
   # Returned value is correct
   expect_type(tag_labeled, "list")
@@ -82,12 +82,12 @@ test_that("Check trainset_read()", {
   expect_type(tag_labeled$acceleration$label, "character")
 
   # Return error for incorrect input
-  expect_error(trainset_read(tag, pathname = "not a path"))
-  expect_error(trainset_read("not a tag", pathname = pathname))
+  expect_error(trainset_read(tag, directory = "not a path"))
+  expect_error(trainset_read("not a tag", directory = directory))
 
   # Test with different labeled file size
   expect_warning(tag <- trainset_read(tag,
-    pathname = pathname,
+    directory = directory,
     filename = "18LX_act_pres-labeled-diffsize.csv"
   ))
 })
@@ -107,7 +107,7 @@ test_that("Check tag_stap()", {
 
 test_that("for elev", {
   tag_labeled <- trainset_read(tag,
-    pathname = system.file("extdata/1_pressure/labels/", package = "GeoPressureR"),
+    directory = system.file("extdata/1_pressure/labels/", package = "GeoPressureR"),
     filename = "18LX_act_pres-labeled_elev.csv"
   )
   expect_true(all(c("elev_1", "elev_2") %in% unique(tag_labeled$pressure$label)))

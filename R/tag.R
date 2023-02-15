@@ -1,37 +1,37 @@
 #' Read tag data
 #'
-#' Imports multi-sensor logger data from a folder (`pathname`) and optionally crop at specific date.
+#' Imports multi-sensor logger data from a folder (`directory`) and optionally crop at specific date.
 #' The `*_file` arguments are matched using a regex expression (e.g., `"*.pressure"` matches any
 #' files with the extension `pressure`).
 #'
 #' The current implementation can read the files from:
 #' * [Swiss Ornithological Institute (SOI)
 #' ](https://www.vogelwarte.ch/en/projects/bird-migration/tracking-devices-miniaturized-geolocators)
-#'  (default) with `pressure_file = "*.pressure"`, `light_file = "*.glf"` and
-#'  `acceleration_file = "*.acceleration"`
-#' * [Migrate Technology](http://www.migratetech.co.uk/) with `pressure_file = "*.deg"`,
-#' `light_file = "*.lux"` and `acceleration_file = "*.deg"`
+#'  (default) with `pressure_filename = "*.pressure"`, `light_filename = "*.glf"` and
+#'  `acceleration_filename = "*.acceleration"`
+#' * [Migrate Technology](http://www.migratetech.co.uk/) with `pressure_filename = "*.deg"`,
+#' `light_filename = "*.lux"` and `acceleration_filename = "*.deg"`
 #'
 #' Create [an issue on github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you have data
 #' in a format not supported yet.
 #'
-#' @param pathname path of the directory where the files are stored
-#' @param pressure_file file with pressure data. Extension must be `.pressure` or `.deg` (required).
-#' @param light_file file with light data. Extension must be `.glf`, `.lux` or `NA` if absent.
-#' @param acceleration_file file with acceleration data. Extension must be `.acceleration`, `.deg`
+#' @param directory path of the directory where the files are stored
+#' @param pressure_filename file with pressure data. Extension must be `.pressure` or `.deg` (required).
+#' @param light_filename file with light data. Extension must be `.glf`, `.lux` or `NA` if absent.
+#' @param acceleration_filename file with acceleration data. Extension must be `.acceleration`, `.deg`
 #' or `NA` if absent.
 #' @param crop_start Remove all date before this date (in UTC).
 #' @param crop_end Remove all date after this date (in UTC).
 #' @param id Unique identifier of the track. Default (`NA`) is to take the part of
-#' `pressure_file` up to a character `_` (e.g. `18LX` for `18LX_20180725.pressure`). If `basename`,
-#' take the basename of `pressure_file`.
+#' `pressure_filename` up to a character `_` (e.g. `18LX` for `18LX_20180725.pressure`). If `basename`,
+#' take the basename of `pressure_filename`.
 #'
 #' @return a list of data.frames of pressure, light and acceleration.
 #' @seealso [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#read-geolocator-data)
 #' @examples
 #' tag <- tag_read(
-#'   pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR")
+#'   directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR")
 #' )
 #' summary(tag)
 #' head(tag$id)
@@ -39,30 +39,30 @@
 #' head(tag$light)
 #' head(tag$acceleration)
 #' @export
-tag_read <- function(pathname,
-                     pressure_file = "*.pressure",
-                     light_file = "*.glf",
-                     acceleration_file = "*.acceleration",
+tag_read <- function(directory,
+                     pressure_filename = "*.pressure",
+                     light_filename = "*.glf",
+                     acceleration_filename = "*.acceleration",
                      crop_start = "1900-01-01",
                      crop_end = "2100-01-01",
                      id = NA) {
-  assertthat::assert_that(dir.exists(pathname))
+  assertthat::assert_that(dir.exists(directory))
 
   # convert date to POSIXct date and check format
   crop_start <- as.POSIXct(crop_start, tz = "UTC")
   crop_end <- as.POSIXct(crop_end, tz = "UTC")
 
   # Check existence of the file
-  pressure_path <- ifelse(is.na(pressure_file), "", tag_read_check(pathname, pressure_file))
-  light_path <- ifelse(is.na(light_file), "", tag_read_check(pathname, light_file))
-  acceleration_path <- ifelse(is.na(acceleration_file), "",
-    tag_read_check(pathname, acceleration_file)
+  pressure_path <- ifelse(is.na(pressure_filename), "", tag_read_check(directory, pressure_filename))
+  light_path <- ifelse(is.na(light_filename), "", tag_read_check(directory, light_filename))
+  acceleration_path <- ifelse(is.na(acceleration_filename), "",
+    tag_read_check(directory, acceleration_filename)
   )
 
   if (is.na(id)) {
     id <- strsplit(basename(pressure_path), "_")[[1]][1]
   } else if (id == "basename") {
-    id <- basename(pathname)
+    id <- basename(directory)
   }
 
   # Initialize the tag list
@@ -135,8 +135,7 @@ tag_read <- function(pathname,
         ) == "light(lux)")
         assertthat::assert_that(col > 0,
           msg = paste0(
-            "The light file (*.lux) is not compatible. Line 20 ",
-            "should contains 'light(lux)'"
+            "The light file (*.lux) is not compatible. Line 20 should contains 'light(lux)'"
           )
         )
 
@@ -177,8 +176,8 @@ tag_read <- function(pathname,
         v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
         assertthat::assert_that(v >= 13,
           msg = paste0(
-            "The acceleration file (*.deg) is not compatible. Line 2 ",
-            "should contains 'Types:x', with x>=13."
+            "The acceleration file (*.deg) is not compatible. Line 2  should contains 'Types:x', ",
+            "with x>=13."
           )
         )
 
@@ -188,8 +187,7 @@ tag_read <- function(pathname,
         ) == "Zact")
         assertthat::assert_that(col > 0,
           msg = paste0(
-            "The acceleration file (*.deg) is not compatible. Line 20 ",
-            "should contains 'Zact'"
+            "The acceleration file (*.deg) is not compatible. Line 20 should contains 'Zact'"
           )
         )
 
@@ -224,19 +222,19 @@ tag_read <- function(pathname,
   return(tag)
 }
 
-#' Check that a given `pathname` and `file` exists and is unique.
+#' Check that a given `directory` and `filename` exists and is unique.
 #'
-#' @param pathname is the path where file is
-#' @param file is the name of he file
+#' @param directory is the directory of the file
+#' @param filename is the name of he file
 #' @seealso [`tag_read()`]
-tag_read_check <- function(pathname, file) {
-  path <- list.files(pathname, pattern = paste0(file, "$"), full.names = TRUE)
+tag_read_check <- function(directory, filename) {
+  path <- list.files(directory, pattern = paste0(filename, "$"), full.names = TRUE)
   if (length(path) == 0) {
-    warning(paste0("No file is matching '", file, "'. This file will be ignored."))
+    warning(paste0("No file is matching '", filename, "'. This file will be ignored."))
     path <- ""
   } else if (length(path) > 1) {
     warning(paste0(
-      "Multiple files matching '", file, "': \n", paste(path, collapse = "\n"),
+      "Multiple files matching '", filename, "': \n", paste(path, collapse = "\n"),
       ". \nThe function will continue with the first one."
     ))
     path <- path[1]
@@ -246,13 +244,13 @@ tag_read_check <- function(pathname, file) {
 
 #' Read data file with a DTO format (Date Time Observation)
 #'
-#' @param path is the full path of the file (pathname + filename)
+#' @param full_path is the full full_path of the file (directory + filename)
 #' @param skip is the number of lines of the data file to skip before beginning to read data.
 #' @param col is the the index of the column of the data to take as observation
 #' @param date_format format of the date
 #' @seealso [`tag_read()`]
-tag_read_delim_dto <- function(path, skip = 6, col = 3, date_format = "%d.%m.%Y %H:%M") {
-  data_raw <- utils::read.delim(path, skip = skip, sep = "", header = FALSE)
+tag_read_delim_dto <- function(full_path, skip = 6, col = 3, date_format = "%d.%m.%Y %H:%M") {
+  data_raw <- utils::read.delim(full_path, skip = skip, sep = "", header = FALSE)
   data.frame(
     date = as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),
       tz = "UTC",
@@ -285,7 +283,7 @@ tag_read_delim_dto <- function(path, skip = 6, col = 3, date_format = "%d.%m.%Y 
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#automatic-classification-of-activity)
 #' @examples
 #' tag <- tag_read(
-#'   pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR")
+#'   directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR")
 #' )
 #' tag <- tag_classify(tag, min_duration = 15)
 #' head(tag$acceleration)
@@ -336,10 +334,10 @@ tag_classify <- function(tag,
 #'
 #' @examples
 #' tag <- tag_read(
-#'   pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR")
+#'   directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR")
 #' )
 #' tag <- trainset_read(tag,
-#'   pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
+#'   directory = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 #' )
 #' tag <- tag_stap(tag)
 #' head(tag$stap)

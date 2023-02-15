@@ -181,7 +181,7 @@ flight_power <- function(as,
 #' @param speed airspeed or groundspeed in km/h
 #' @param method method used to convert the speed to probability ("gamma", "logis" or "power")
 #' @param shape parameter of the gamma distribution
-#' @param scale  parameter of the gamma and logistic distribution
+#' @param rate  parameter of the gamma and logistic distribution
 #' @param location parameter for the logistic distribution
 #' @param bird list of basic morphological trait necessary: mass, wing span, wing aspect ratio and
 #'   body frontal area. It is best practice to create bird with [`flight_bird()`].
@@ -194,7 +194,7 @@ flight_power <- function(as,
 #' speed <- seq(1, 120)
 #' low_speed_fix <- 20 # minimum speed allowed
 #' prob <- flight_prob(speed,
-#'   method = "gamma", shape = 7, scale = 7,
+#'   method = "gamma", shape = 7, rate = 7,
 #'   low_speed_fix = low_speed_fix
 #' )
 #' plot(speed, prob,
@@ -209,7 +209,7 @@ flight_power <- function(as,
 flight_prob <- function(speed,
                         method = "gamma",
                         shape = 7,
-                        scale = 7,
+                        rate = 1/7,
                         location = 40,
                         bird = NA,
                         fun_power = function(power) {
@@ -228,11 +228,11 @@ flight_prob <- function(speed,
   speed <- pmax(speed, low_speed_fix)
 
   if (method == "gamma") {
-    norm <- sum(stats::dgamma(seq(0, 150), shape, 1 / scale))
-    return(stats::dgamma(speed, shape, 1 / scale) / norm)
+    norm <- sum(stats::dgamma(seq(0, 150), shape, 1 / rate))
+    return(stats::dgamma(speed, shape, 1 / rate) / norm)
   } else if (method == "logis") {
-    norm <- sum(stats::plogis(seq(0, 150), location, scale, lower.tail = FALSE))
-    return(stats::plogis(speed, location, scale, lower.tail = FALSE) / norm)
+    norm <- sum(stats::plogis(seq(0, 150), location, rate, lower.tail = FALSE))
+    return(stats::plogis(speed, location, rate, lower.tail = FALSE) / norm)
   } else if (method == "power") {
     # `flight_power` is defined in m/s (SI), but the rest of your code is using km/h. This is where
     # we need to convert.

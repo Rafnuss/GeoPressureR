@@ -7,37 +7,37 @@
 #' series to be visualized on TRAINSET, but without impacting the labeling process.
 #'
 #' @param tag data logger dataset list
-#' @param pathname Path to the folder where the labeled files should be saved
+#' @param directory Path to the folder where the labeled files should be saved
 #' @param filename Name for the file.
 #'
 #' @examples
 #' tag <- tag_read(
-#'   pathname = system.file(
+#'   directory = system.file(
 #'     "extdata/0_tag/18LX",
 #'     package = "GeoPressureR"
 #'   )
 #' )
-#' trainset_write(tag, pathname = system.file("extdata/1_pressure/labels/",
+#' trainset_write(tag, directory = system.file("extdata/1_pressure/labels/",
 #'   package = "GeoPressureR"
 #' ))
 #' @seealso [`tag_read`], [`trainset_read()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset)
 #' @export
 trainset_write <- function(tag,
-                           pathname = "data/1_pressure/labels/",
+                           directory = "data/1_pressure/labels/",
                            filename = paste0(tag$id, "_act_pres.csv")) {
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
   assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "value")))
-  assertthat::assert_that(is.character(pathname))
+  assertthat::assert_that(is.character(directory))
   assertthat::assert_that(is.character(filename))
 
   # create path if does not exit
-  if (!dir.exists(pathname)) {
-    dir.create(pathname)
+  if (!dir.exists(directory)) {
+    dir.create(directory)
   }
-  assertthat::assert_that(dir.exists(pathname))
+  assertthat::assert_that(dir.exists(directory))
 
   # Create empty label if tag$pressure$label doesn't exit
   if (!assertthat::has_name(tag$pressure, "label")) {
@@ -100,7 +100,7 @@ trainset_write <- function(tag,
   # write a combined data.frame of pressure and acceleration in csv.
   utils::write.csv(
     df,
-    paste0(pathname, "/", filename),
+    paste0(directory, "/", filename),
     row.names = FALSE
   )
 }
@@ -113,15 +113,15 @@ trainset_write <- function(tag,
 #' the data logger dataset
 #'
 #' @param tag data logger dataset list
-#' @param pathname Path to the folder where the labeled file is.
+#' @param directory Path to the folder where the labeled file is.
 #' @param filename Name of the file.
 #' @return data logger dataset list updated with the labels (`tag$pressure$label` and
 #' `tag$acceleration$label`)
 #'
 #' @examples
-#' tag <- tag_read(pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR"))
+#' tag <- tag_read(directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR"))
 #' tag <- tag_classify(tag)
-#' tag <- trainset_read(tag, pathname = system.file("extdata/1_pressure/labels/",
+#' tag <- trainset_read(tag, directory = system.file("extdata/1_pressure/labels/",
 #'   package = "GeoPressureR"
 #' ))
 #' head(tag$pressure)
@@ -130,16 +130,16 @@ trainset_write <- function(tag,
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset)
 #' @export
 trainset_read <- function(tag,
-                          pathname = "data/1_pressure/labels/",
+                          directory = "data/1_pressure/labels/",
                           filename = paste0(tag$id, "_act_pres-labeled.csv")) {
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
   assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "value")))
-  assertthat::assert_that(is.character(pathname))
+  assertthat::assert_that(is.character(directory))
   assertthat::assert_that(is.character(filename))
-  assertthat::assert_that(dir.exists(pathname))
-  fullpath <- paste0(pathname, "/", filename)
+  assertthat::assert_that(dir.exists(directory))
+  fullpath <- paste0(directory, "/", filename)
   assertthat::assert_that(file.exists(fullpath))
 
   # read the file
@@ -174,7 +174,7 @@ trainset_read <- function(tag,
   # Message in case missing label
   if (any(csv$series == "acceleration")) {
     if (missing_acc > 0 || missing_pres > 0) {
-      trainset_write(tag, pathname = tempdir(), filename = paste0(tag$id, "_act_pres-labeled"))
+      trainset_write(tag, directory = tempdir(), filename = paste0(tag$id, "_act_pres-labeled"))
       warning(paste0(
         "The labelization file is missing ", missing_pres, " timesteps of pressure and ",
         missing_acc, " timesteps of acceleration and includes ",
@@ -187,7 +187,7 @@ trainset_read <- function(tag,
     }
   } else {
     if (missing_pres > 0) {
-      trainset_write(tag, pathname = tempdir(), filename = paste0(tag$id, "_act_pres-labeled"))
+      trainset_write(tag, directory = tempdir(), filename = paste0(tag$id, "_act_pres-labeled"))
       warning(paste0(
         "The labelization file is missing ", missing_pres, " timesteps of pressure and includes ",
         nrow(csv_pres) - nrow(tag$pressure) + missing_pres, " timestep of pressure",

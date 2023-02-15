@@ -3,7 +3,7 @@ library(GeoPressureR)
 library(terra)
 
 tag <- tag_read(
-  pathname = system.file("extdata/0_tag/18LX", package = "GeoPressureR"),
+  directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR"),
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
 
@@ -16,7 +16,7 @@ test_that("Check geolight_twilight()", {
 
 tag <- trainset_read(
   tag,
-  pathname = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
+  directory = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 )
 tag <- tag_stap(tag)
 twl <- geolight_twilight(tag$light, shift_k = 0)
@@ -29,9 +29,8 @@ lat_calib <- 48.9
 
 test_that("Check geolight_likelihood() with sta", {
   likelihood_map <- geolight_likelihood(tag, twl, calib_stap, lon_calib, lat_calib,
-                                        map_nrow = 66,
-                                        map_ncol = 23,
-                                        map_extent = c(0, 23, -16, 50)
+                                        map_dim = c(66, 23),
+                                        extent = c(0, 23, -16, 50)
                                         )
   expect_type(likelihood_map, "list")
   expect_length(likelihood_map, nrow(tag$stap))
@@ -39,9 +38,8 @@ test_that("Check geolight_likelihood() with sta", {
   expect_equal(length(dim(likelihood_map[[1]]$likelihood)), 2)
 
   fit_z <- geolight_likelihood(tag, twl, calib_stap, lon_calib, lat_calib,
-                               map_nrow = 66,
-                               map_ncol = 23,
-                               map_extent = c(0, 23, -16, 50),
+                               map_dim = c(66, 23),
+                               extent = c(0, 23, -16, 50),
                                fit_z_return = TRUE)
   expect_true(assertthat::has_name(fit_z, "bw"))
 })
