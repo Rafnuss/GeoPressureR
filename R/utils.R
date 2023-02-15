@@ -3,7 +3,6 @@
 #' @param max maximum value that x will reach
 #' @param text text to display
 #' @noRd
-
 progress_bar <- function(x, max = 100, text = "") {
   percent <- x / max * 100
   cat(sprintf(

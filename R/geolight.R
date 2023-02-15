@@ -213,6 +213,7 @@ geolight_likelihood <- function(tag,
 #' @param shift_k shift of the middle of the night compared to 00:00 UTC (in seconds). If not
 #' provided, will try to figure it out from the data
 #' @return A dataframe with columns value and date
+#' @noRd
 geolight_light2mat <- function(light, shift_k = 0) {
   assertthat::assert_that(is.data.frame(light))
   assertthat::assert_that(is.data.frame(light))

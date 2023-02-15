@@ -366,6 +366,7 @@ graph_create <- function(likelihood,
 #' @param gr graph constructed with [`graph_create()`].
 #' @return graph trimmed
 #' @seealso [`graph_create()`]
+#' @noRd
 graph_trim <- function(gr) {
   if (length(gr) < 2) {
     return(gr)

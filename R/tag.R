@@ -229,6 +229,7 @@ tag_read <- function(directory,
 #' @param directory is the directory of the file
 #' @param filename is the name of he file
 #' @seealso [`tag_read()`]
+#' @noRd
 tag_read_check <- function(directory, filename) {
   path <- list.files(directory, pattern = paste0(filename, "$"), full.names = TRUE)
   if (length(path) == 0) {
@@ -251,6 +252,7 @@ tag_read_check <- function(directory, filename) {
 #' @param col is the the index of the column of the data to take as observation
 #' @param date_format format of the date
 #' @seealso [`tag_read()`]
+#' @noRd
 tag_read_delim_dto <- function(full_path, skip = 6, col = 3, date_format = "%d.%m.%Y %H:%M") {
   data_raw <- utils::read.delim(full_path, skip = skip, sep = "", header = FALSE)
   data.frame(
