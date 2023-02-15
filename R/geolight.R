@@ -263,12 +263,13 @@ geolight_light2mat <- function(light, shift_k = 0) {
 }
 
 
+#' Solar time and declination
+#'
 #' Calculate solar time, the equation of time and solar declination
 #'
 #' The solar time, the equation of time and the sine and cosine of the solar declination are
 #' calculated for the times specified by `tm` using the same methods as
 #' \url{https://gml.noaa.gov/grad/solcalc/}.
-#' @title Solar Time and Declination
 #' @param tm a vector of POSIXct times.
 #' @return A list containing the following vectors.
 #' - `solar_time` the solar time (degrees)
@@ -344,13 +345,14 @@ geolight_solar <- function(tm) {
 }
 
 
+#' Solar zenith angle
+#'
 #' Calculate the solar zenith angle for given times and locations
 #'
 #' `geolight_zenith` uses the solar time and declination calculated by `geolight_solar` to compute
 #' the solar zenith angle for given times and locations, using the same methods as
 #' \url{https://gml.noaa.gov/grad/solcalc/}.  This function does not adjust for atmospheric
 #' refraction see [`geolight_refracted`].
-#' @title Solar Zenith Angle
 #' @param sun list of solar time and declination computed by `geolight_solar`.
 #' @param lon vector of longitudes.
 #' @param lat vector latitudes.
@@ -385,12 +387,13 @@ geolight_zenith <- function(sun, lon, lat) {
 
 
 
+#' Atmospheric refraction
+#'
 #' Adjust the solar zenith angle for atmospheric refraction.
 #'
 #' Given a vector of solar zeniths computed by [`geolight_zenith`], [`geolight_refracted`]
 #' calculates the solar zeniths adjusted for the effect of atmospheric refraction.
 #'
-#' @title Atmospheric Refraction
 #' @param zenith zenith angle (degrees) to adjust.
 #' @return vector of zenith angles (degrees) adjusted for atmospheric refraction.
 geolight_refracted <- function(zenith) {
