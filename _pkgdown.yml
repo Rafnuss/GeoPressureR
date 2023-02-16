@@ -1,48 +1,24 @@
 url: https://raphaelnussbaumer.com/GeoPressureR/
 template:
   bootstrap: 5
+  includes:
+    in_header: |
+       <!-- Global site tag (gtag.js) - Google Analytics -->
+       <script async src="https://www.googletagmanager.com/gtag/js?id=M5FY4BPHTB"#' ></script>
+       <script>
+         window.dataLayer = window.dataLayer || [];
+         function gtag(){dataLayer.push(arguments);}
+         gtag('js', new Date());
+
+         gtag('config', 'M5FY4BPHTB');
+       </script>
+
+development:
+  mode: auto
 
 home:
   sidebar:
     structure: [community, citation, authors]
-
-reference:
-- title: PAM data
-  desc: Reading, crop, and basic operation for PAM data
-  contents:
-  - starts_with("pam_")
-- title: Trainset
-  desc: Read and write csv file for trainset.net
-  contents:
-  - starts_with("trainset_")
-- title: GeoPressure
-  desc: Wrapper to the GeoPressure API
-  contents:
-  - starts_with("geopressure_")
-- title: GeoLight
-  desc: Functions for geopositioning based on light data
-  contents:
-  - solar
-  - zenith
-  - refracted
-  - find_twilights
-  - light2mat
-- title: Graph
-  desc: Create a graph and compute graph products
-  contents:
-  - starts_with("graph_")
-- title: Flight
-  desc: Convert groundspeed or airspeed to probability
-  contents:
-  - starts_with("flight_")
-- title: GeoPressureViz
-  desc: Vizualize trajectory with a shiny app
-  contents:
-  - geopressureviz
-- title: Utility
-  desc: Short functions
-  contents:
-  - path2df
 navbar:
   left:
     - text: "Reference"
@@ -50,3 +26,34 @@ navbar:
     - text: "News"
       href: news/index.html
 
+reference:
+- title: Tag
+  desc: Reading, crop, and basic operation for data logger.
+  contents:
+  - starts_with("tag_")
+  - starts_with("trainset_")
+- title: GeoPressure
+  desc: Geopositioning based on pressure data.
+  contents:
+  - starts_with("geopressure_")
+- title: Graph
+  desc: Construct the Hidden-Markov Model with a graph and compute trajectories products.
+  contents:
+  - starts_with("graph_")
+- title: Flight
+  desc: Building movement model converting groundspeed or airspeed to a likelihood function specific to a bird.
+  contents:
+  - starts_with("flight_")
+- title: GeoPressureViz
+  desc: Vizualize likelihood map and trajectory with a Shiny app.
+  contents:
+  - geopressureviz
+- title: GeoLight
+  desc: Geopositioning based on light data.
+  contents:
+  - starts_with("geolight_")
+- title: Utility
+  desc: GeoPressureR utilits functions
+  contents:
+  - path2df
+  - map2path

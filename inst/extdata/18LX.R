@@ -7,14 +7,14 @@ library(igraph)
 # 1. Tag reading and labeling ----
 # Read tag data
 tag <- tag_read(
-  pathname = "inst/extdata/0_tag/18LX",
+  directory = "inst/extdata/0_tag/18LX",
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
 
 # Add labeling
 tag <- trainset_read(
   tag,
-  pathname = "inst/extdata/1_pressure/labels",
+  directory = "inst/extdata/1_pressure/labels",
 )
 
 tag <- tag_stap(tag)
@@ -28,32 +28,26 @@ tag <- tag_stap(tag)
 # 2. Pressure Map ----
 # Compute pressure maps from GeoPressureAPI
 pressure_mismatch <- geopressure_mismatch(tag,
-  extent = c(50, -16, 0, 23),
-  scale = 4)
-saveRDS(pressure_mismatch[[1]], "inst/extdata/1_pressure/18LX_pressure_mismatch_1.rda")
+  extent = c(-16, 23, 0, 50),
+  scale = 4
+)
+saveRDS(pressure_mismatch, "inst/extdata/1_pressure/18LX_pressure_mismatch.rds")
 
 
 # Convert to probability map
 pressure_likelihood <- geopressure_likelihood(pressure_mismatch)
-saveRDS(pressure_likelihood[[1]], "inst/extdata/1_pressure/18LX_pressure_likelihood_1.rda")
 
+# Compute the path
+path <- map2path(pressure_likelihood, interp = 1)
 
-# Compute the most likely path
-p <- list(
-  simple_path = map2path(pressure_likelihood),
-  interp_path = map2path(pressure_likelihood, interp = 2),
-  sta_duration = unlist(lapply(pressure_likelihood, function(x) {
-    as.numeric(difftime(x$temporal_extent[2],
-      x$temporal_extent[1],
-      units = "days"
-    ))
-  }))
+# Compute the pressure at this location.
+pressure_timeseries <- geopressure_timeseries_path(
+  path = path,
+  pressure = tag$pressure,
+  include_flight = TRUE
 )
-saveRDS(p, "inst/extdata/1_pressure/18LX_pressure_path.rda")
 
-
-
-
+saveRDS(pressure_timeseries, "inst/extdata/1_pressure/18LX_pressure_timeseries.rds")
 
 
 # 3. Light Map  ----
@@ -67,14 +61,14 @@ write.csv(
     series = ifelse(twl$rise, "Rise", "Set"),
     timestamp = strftime(twl$twilight, "%Y-%m-%dT00:00:00Z", tz = "UTC"),
     value = (as.numeric(format(twl$twilight, "%H")) * 60 +
-               as.numeric(format(twl$twilight, "%M")) - shift_k / 60 + 60 * 12) %% (60 * 24),
+      as.numeric(format(twl$twilight, "%M")) - shift_k / 60 + 60 * 12) %% (60 * 24),
     label = ifelse(is.null(twl$delete), "", ifelse(twl$delete, "Delete", ""))
   ),
   file = "inst/extdata/2_light/labels/18LX_light.csv",
   row.names = FALSE
 )
 
-csv <- read.csv(paste0(
+csv <- read.csv(file.path(
   system.file("extdata/2_light/labels/", package = "GeoPressureR"),
   "18LX_light-labeled.csv"
 ))
@@ -86,108 +80,77 @@ light_likelihood <- geolight_likelihood(tag,
   1,
   lon_calib = 17.05,
   lat_calib = 48.9,
-  pressure_likelihood[[1]]$likelihood
+  extent = pressure_likelihood[[1]]$extent,
+  map_dim = dim(pressure_likelihood[[1]]$likelihood)
 )
 
 # Combine Pressure and light
 static_likelihood <- mapply(function(light, pressure) {
-  stopifnot(light$stap==pressure$stap)
-  pressure$likelihood = prod(light_likelihood[[1]]$likelihood, pressure_likelihood[[1]]$likelihood)
+  stopifnot(light$stap == pressure$stap)
+  stopifnot(all(light$extent == pressure$extent))
+  pressure$likelihood <- light$likelihood * pressure$likelihood
   return(pressure)
-}, light_likelihood, pressure_likelihood, SIMPLIFY = F)
-
-saveRDS(static_likelihood, "inst/extdata/3_static/18LX_static_likelihood.rda")
+}, light_likelihood, pressure_likelihood, SIMPLIFY = FALSE)
 
 
 
+
+
+
+# Compute the most likely path
+p <- list(
+  simple_path = map2path(pressure_likelihood),
+  interp_path = map2path(pressure_likelihood, interp = 2),
+)
+saveRDS(p, "inst/extdata/1_pressure/18LX_pressure_path.rds")
 
 
 
 # 4-5. Basic and wind Graph ----
 
-
-
-# Add known position
-lat <- seq(terra::ymax(static_likelihood[[1]]), terra::ymin(static_likelihood[[1]]),
-           length.out = nrow(static_likelihood[[1]]) + 1
-)
-lat <- lat[seq_len(length(lat) - 1)] + diff(lat[1:2]) / 2
-lon <- seq(terra::xmin(static_likelihood[[1]]), terra::xmax(static_likelihood[[1]]),
-           length.out = ncol(static_likelihood[[1]]) + 1
-)
-lon <- lon[seq_len(length(lon) - 1)] + diff(lon[1:2]) / 2
-
-lon_calib_id <- which.min(abs(lon_calib - lon))
-lat_calib_id <- which.min(abs(lat_calib - lat))
-
-tmp <- as.matrix(static_likelihood[[1]])
-tmp[!is.na(tmp)] <- 0
-tmp[lat_calib_id, lon_calib_id] <- 1
-values(static_likelihood[[1]]) <- tmp
-tmp <- as.matrix(static_likelihood[[length(static_likelihood)]])
-tmp[!is.na(tmp)] <- 0
-tmp[lat_calib_id, lon_calib_id] <- 1
-values(static_likelihood[[length(static_likelihood)]]) <- tmp
-
-# Compute the most likely path
-# path <- map2path(static_likelihood)
-# static_timeserie <- geopressure_timeseries_path(path, tag$pressure)
-
-
-
-
-
 # create graph
-grl <- graph_create(static_likelihood, thr_likelihood_percentile = .99, thr_gs = 150)
+graph <- graph_create(static_likelihood,
+  thr_likelihood = .99,
+  thr_gs = 150,
+  known = data.frame(
+    stap = 1,
+    lat = 48.9,
+    lon = 17.05
+  )
+)
 
 # Location of wind data
 
-
 # Add wind data
-filename <- "/Users/raphael/Documents/GitHub/GeoPressureManual/data/5_wind_graph/18LX/18LX_"
-grl <- graph_add_wind(grl, pressure = tag$pressure, filename, thr_as = 100)
+graph <- graph_add_wind(graph,
+  pressure = tag$pressure,
+  directory = "/Users/raphael/Documents/GitHub/GeoPressureManual/data/5_wind_graph/18LX/18LX_",
+  thr_as = 100
+)
 
 # Compute the probability
 bird <- flight_bird("Acrocephalus arundinaceus")
-grl$p <- grl$ps * flight_likelihood(grl$as, method = "power", bird = bird, low_speed_fix = 10)
+graph$p <- graph$ps * flight_likelihood(graph$as, method = "power", bird = bird, low_speed_fix = 10)
 
 
 # Shortest path
-g <- graph_from_data_frame(data.frame(from = grl$s, to = grl$t, weight = -log(grl$p)))
-sp <- shortest_paths(g, from = paste(grl$equipment), to = paste(grl$retrieval))
-grl$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), grl)
+g <- graph_from_data_frame(data.frame(from = graph$s, to = graph$t, weight = -log(graph$p)))
+sp <- shortest_paths(g, from = paste(graph$equipment), to = paste(graph$retrieval))
+graph$shortest_path <- graph_path2lonlat(as.numeric(sp$vpath[[1]]$name), graph)
 
 # Pressure timeserie at the best math
-shortest_path <- as.data.frame(grl$shortest_path)
+shortest_path <- as.data.frame(graph$shortest_path)
 shortest_path_timeserie <- geopressure_timeseries_path(shortest_path, tag$pressure)
 
 # saveRDS(shortest_path_timeserie, "inst/extdata/5_wind_graph/18LX_shortest_path_timeserie.rda")
 
 
 # Marginal
-static_likelihood_marginal <- graph_marginal(grl)
+static_likelihood_marginal <- graph_marginal(graph)
 
-# saveRDS(grl, "inst/extdata/18LX_grl.rda")
-# saveRDS(grl_marginal, "inst/extdata/18LX_grl_marginal.rda")
+# saveRDS(graph, "inst/extdata/18LX_graph.rda")
+# saveRDS(graph_marginal, "inst/extdata/18LX_graph_marginal.rda")
 # saveRDS(shortest_path_timeserie, "inst/extdata/18LX_shortest_path_timeserie.rda")
-
-
-# Export for GeoPressureViz
-# grl <- readRDS(system.file("extdata", "18LX_grl.rda", package = "GeoPressureR"))
-# static_likelihood <- readRDS(system.file("extdata", "18LX_static_likelihood.rda", package = "GeoPressureR"))
-# static_likelihood_marginal <- readRDS(system.file("extdata", "18LX_grl_marginal.rda",
-#                                             package = "GeoPressureR"))
-# shortest_path_timeserie <- readRDS(system.file("extdata", "18LX_shortest_path_timeserie.rda",
-#                                                package = "GeoPressureR"))
-# light_likelihood <- readRDS(system.file("extdata", "18LX_light_likelihood.rda", package = "GeoPressureR"))
-# pressure_likelihood <- readRDS(system.file("extdata", "18LX_pressure_likelihood.rda", package = "GeoPressureR"))
-
-sta_marginal <- unlist(lapply(static_likelihood_marginal, function(x) terra::metadata(x)$stap))
-sta_pres <- unlist(lapply(pressure_likelihood, function(x) terra::metadata(x)$stap))
-sta_light <- unlist(lapply(light_likelihood, function(x) terra::metadata(x)$stap))
-pressure_likelihood <- pressure_likelihood[sta_pres %in% sta_marginal]
-light_likelihood <- light_likelihood[sta_light %in% sta_marginal]
-
 
 
 # Query the pressure timeserie at each path
@@ -196,14 +159,3 @@ light_likelihood <- light_likelihood[sta_light %in% sta_marginal]
 # saveRDS(pressure_maps, "inst/extdata/18LX_pressure_maps.rda")
 # saveRDS(pressure_likelihood, "inst/extdata/18LX_pressure_likelihood.rda")
 # saveRDS(pressure_timeserie, "inst/extdata/18LX_pressure_timeserie.rda")
-
-
-
-geopressureviz(
-  tag = tag,
-  static_likelihood = static_likelihood,
-  static_likelihood_marginal = static_likelihood_marginal,
-  pressure_likelihood = pressure_likelihood,
-  light_likelihood = light_likelihood,
-  pressure_timeserie = shortest_path_timeserie
-)

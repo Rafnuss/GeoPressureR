@@ -16,14 +16,15 @@
 #' Create [an issue on github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you have data
 #' in a format not supported yet.
 #'
-#' @param directory path of the directory where the files are stored
-#' @param pressure_filename file with pressure data. Extension must be `.pressure` or `.deg`
-#' (required).
-#' @param light_filename file with light data. Extension must be `.glf`, `.lux` or `NA` if absent.
-#' @param acceleration_filename file with acceleration data. Extension must be `.acceleration`,
-#' `.deg` or `NA` if absent.
-#' @param crop_start Remove all date before this date (in UTC).
-#' @param crop_end Remove all date after this date (in UTC).
+#' @param directory Path of the directory where the files are stored
+#' @param pressure_filename Name of the file with pressure data. Extension must be `.pressure` or
+#' `.deg` (required).
+#' @param light_filename Name of the file with light data. Extension must be `.glf`, `.lux` or `NA`
+#' if absent.
+#' @param acceleration_filename Name of the file with acceleration data. Extension must be
+#' `.acceleration`, `.deg` or `NA` if absent.
+#' @param crop_start Remove all data before this date (POSIXct in UTC).
+#' @param crop_end Remove all data after this date (POSIXct in UTC).
 #' @param id Unique identifier of the tag Default (`NA`) is to take the part of
 #' `pressure_filename` up to a character `_` (e.g. `18LX` for `18LX_20180725.pressure`). If
 #' `id = "basename"`, take the [`basename()`] of `pressure_filename`
@@ -77,7 +78,8 @@ tag_read <- function(directory,
 
   # Check existence of the file
   pressure_path <- ifelse(is.na(pressure_filename), "",
-                          tag_read_check(directory, pressure_filename))
+    tag_read_check(directory, pressure_filename)
+  )
   light_path <- ifelse(is.na(light_filename), "", tag_read_check(directory, light_filename))
   acceleration_path <- ifelse(is.na(acceleration_filename), "",
     tag_read_check(directory, acceleration_filename)
@@ -248,8 +250,8 @@ tag_read <- function(directory,
 
 #' Check that a given `directory` and `filename` exists and is unique.
 #'
-#' @param directory is the directory of the file
-#' @param filename is the name of he file
+#' @param directory Directory of the file
+#' @param filename Name of the file
 #' @seealso [`tag_read()`]
 #' @noRd
 tag_read_check <- function(directory, filename) {
@@ -269,10 +271,10 @@ tag_read_check <- function(directory, filename) {
 
 #' Read data file with a DTO format (Date Time Observation)
 #'
-#' @param full_path is the full full_path of the file (directory + filename)
-#' @param skip is the number of lines of the data file to skip before beginning to read data.
-#' @param col is the the index of the column of the data to take as observation
-#' @param date_format format of the date
+#' @param full_path Full path of the file (directory + filename)
+#' @param skip Number of lines of the data file to skip before beginning to read data.
+#' @param colIndex of the column of the data to take as observation.
+#' @param date_format Format of the date (see [`strptime()`]).
 #' @seealso [`tag_read()`]
 #' @noRd
 tag_read_delim_dto <- function(full_path, skip = 6, col = 3, date_format = "%d.%m.%Y %H:%M") {
@@ -303,10 +305,11 @@ tag_read_delim_dto <- function(full_path, skip = 6, col = 3, date_format = "%d.%
 #' This function is inspired by the function `classify_flap` from the
 #' [PAMlr package](https://github.com/KiranLDA/PAMlr).
 #'
-#' @param tag logger dataset list. See [`tag_read()`].
-#' @param min_duration duration in minutes
-#' @return same list as input `tag` but with the column `label` filled with `"flight"` in the
-#' acceleration data.frame when a sustained high-activity period is detected.
+#' @param tag Data logger list. See [`tag_read()`].
+#' @param min_duration Minimal duration (in minutes) to consider an high activity as migratory
+#' flight.
+#' @return Same data logger list than input `tag`, but with the column `label` filled with
+#' `"flight"` in the acceleration data.frame when a sustained high-activity period is detected.
 #' @seealso [`tag_read()`], [flapping chapter of the tagLr
 #' manual](https://kiranlda.github.io/tagLrManual/flapping.html), [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#automatic-classification-of-activity)
@@ -363,9 +366,9 @@ tag_classify <- function(tag,
 #' Uses the label `"flight"` to separate stationary periods. flight of any duration will be
 #' considered.
 #'
-#' @param tag list of classified data logger (see [`tag_read()`] and `trainset_read()`)
-#' @return same list as input `tag` but with (1) a new data.frame of stationary periods `tag$stap`
-#' and (2) a new column `stap` for pressure, light and acceleration data.
+#' @param tag Data logger list with label (see [`tag_read()`] and [`trainset_read()`])
+#' @return Same data logger list as input `tag` but with (1) a new data.frame of stationary periods
+#' `tag$stap` and (2) a new column `stap` for pressure, light and acceleration data.
 #'
 #' @examples
 #' tag <- tag_read(

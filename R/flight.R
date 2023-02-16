@@ -138,8 +138,10 @@ flight_power <- function(as,
   assertthat::assert_that(is.numeric(as))
   assertthat::assert_that(all(as >= 0))
   assertthat::assert_that(is.list(bird))
-  assertthat::assert_that(assertthat::has_name(bird, c("mass", "wing_span", "body_frontal_area",
-                                                       "wing_aspect")))
+  assertthat::assert_that(assertthat::has_name(bird, c(
+    "mass", "wing_span", "body_frontal_area",
+    "wing_aspect"
+  )))
 
   # Constant of gravity [ms-2]
   g <- 9.80665

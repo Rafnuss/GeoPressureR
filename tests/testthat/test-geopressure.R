@@ -168,8 +168,10 @@ test_that("Check geopressure_timeseries() output", {
   # # Test Include flight
   pressure <- subset(tag$pressure, stap == i_s)
   pressure_timeserie <- geopressure_timeseries(path$lon, path$lat, pressure)
-  expect_true(all(c("date", "pressure_tag", "pressure_era5", "altitude", "pressure_era5_norm",
-                    "stap")  %in% names(pressure_timeserie)))
+  expect_true(all(c(
+    "date", "pressure_tag", "pressure_era5", "altitude", "pressure_era5_norm",
+    "stap"
+  ) %in% names(pressure_timeserie)))
   expect_equal(nrow(pressure_timeserie), n[2])
 
   pressure <- subset(tag$pressure, stap == i_s | stap == 0)
@@ -206,9 +208,9 @@ test_that("Check geopressure_timeseries_path() output", {
   # test with multiple sta
   path <- path_pressure[c(3, 4), ]
   pressure_timeserie <- geopressure_timeseries_path(path, pressure)
-  expect_equal(sum(pressure_timeserie$stap==4), n[2])
+  expect_equal(sum(pressure_timeserie$stap == 4), n[2])
   pressure_timeserie <- geopressure_timeseries_path(path, pressure, include_flight = c(-1, 0, 1))
-  expect_equal(sum(pressure_timeserie$stap_ref==4), sum(n))
+  expect_equal(sum(pressure_timeserie$stap_ref == 4), sum(n))
 
   # test on water
   path[1, ] <- c(0, 0, 4)

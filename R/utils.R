@@ -105,6 +105,28 @@ path2df <- function(tag, path) {
 #' map2path(list(pressure_likelihood_1))
 #' @seealso [`geopressure_likelihood()`], [`geopressure_timeseries_path()`], [GeoPressureManual |
 #' Pressure Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude)
+#' @examples
+#' # See `geopressure_mismatch()` for generating pressure_mismatch
+#' # Load pre-computed pressure mismatch
+#' pressure_mismatch <- readRDS(
+#'   system.file(
+#'     "extdata/1_pressure/18LX_pressure_mismatch_1.rds",
+#'     package = "GeoPressureR"
+#'   )
+#' )
+#' pressure_likelihood <- geopressure_likelihood(pressure_mismatch)
+#'
+#' # Compute the path
+#' path <- map2path(pressure_likelihood)
+#' str(path)
+#'
+#' # Compute the path as index of the map matrix
+#' path <- map2path(pressure_likelihood, format = "ind")
+#' str(path)
+#'
+#' # Compute the path with interpolating stap shorter than 1 days.
+#' path <- map2path(pressure_likelihood, interp = 1)
+#' str(path)
 #' @export
 map2path <- function(likelihood,
                      interp = 0,

@@ -6,17 +6,17 @@
 #' Optionally, it can also export a reference dataset for pressure `tag$pressure$ref` as another
 #' series to be visualized on TRAINSET, but without impacting the labeling process.
 #'
-#' @param tag data logger dataset list
-#' @param directory Path to the folder where the labeled files should be saved
-#' @param filename Name for the file.
+#' @param tag Data logger list (see [`tag_read()`]).
+#' @param directory Directory to the folder where the label file should be saved.
+#' @param filename Name of the label file to be saved.
 #'
 #' @examples
 #' tag <- tag_read(directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR"))
 #' tag <- trainset_write(
 #'   tag,
-#'   directory = system.file("extdata/1_pressure/labels/",package = "GeoPressureR")
+#'   directory = system.file("extdata/1_pressure/labels/", package = "GeoPressureR")
 #' )
-#' @seealso [`tag_read`], [`trainset_read()`], [GeoPressureManual | Pressure Map
+#' @seealso [`tag_read()`], [`trainset_read()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset)
 #' @export
 trainset_write <- function(tag,
@@ -106,13 +106,13 @@ trainset_write <- function(tag,
 #' Read classification of activity and pressure
 #'
 #' This function read an exported csv file from [trainset](https://trainset.geocene.com/) and update
-#' the data logger dataset
+#' the data logger dataset `tag`.
 #'
-#' @param tag data logger dataset list
-#' @param directory Path to the folder where the labeled file is.
-#' @param filename Name of the file.
-#' @return data logger dataset list updated with the labels (`tag$pressure$label` and
-#' `tag$acceleration$label`)
+#' @param tag Data logger dataset list (see [`tag_read()`]).
+#' @param directory Directory where the label file can be found.
+#' @param filename Name of the label file.
+#' @return Same data logger list as input, updated with the labels `tag$pressure$label` and
+#' optionally `tag$acceleration$label`.
 #'
 #' @examples
 #' tag <- tag_read(directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR"))
@@ -123,7 +123,7 @@ trainset_write <- function(tag,
 #' )
 #' head(tag$pressure)
 #' head(tag$acceleration)
-#' @seealso [`tag_read`], [GeoPressureManual | Pressure Map
+#' @seealso [`tag_read()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset)
 #' @export
 trainset_read <- function(tag,
@@ -162,6 +162,10 @@ trainset_read <- function(tag,
 
   # Extract acceleration label
   if (any(csv$series == "acceleration")) {
+    assertthat::assert_that(assertthat::has_name(tag, "acceleration"))
+    assertthat::assert_that(is.data.frame(tag$acceleration))
+    assertthat::assert_that(assertthat::has_name(tag$acceleration, c("date", "value")))
+
     csv_acc <- csv[csv$series == "acceleration", ]
     id_acc_match <- match(as.numeric(tag$acceleration$date), as.numeric(csv_acc$date))
     tag$acceleration$label <- csv_acc$label[id_acc_match]

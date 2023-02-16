@@ -1,46 +1,62 @@
-#' Request and download mismatch and threshold maps of pressure
+#' Request and download mismatch maps from pressure
 #'
-#' This function returns for each stationary period (1) a map of mismatch between the pressure
-#' measured by a geolocator and the ERA5 pressure database and (2) a map altitude threshold using
-#' a fine scale digital elevation model.
+#' This function returns for each stationary period two map of mismatch between the pressure
+#' measured by a geolocator and the ERA5 pressure database.
 #'
-#' These maps are generated on Google Earth Engine via the Pressure map entry point of the
+#' These maps are generated on Google Earth Engine via the map entry point of the
 #' [GeoPressure API](https://raphaelnussbaumer.com/GeoPressureAPI/#description). The computation
 #' performed by this function consists of the following:
-#' 1. Send a query to generate the Google Earth Engine (GEE) url of the code producing the maps for
-#' each stationary periods separately.
-#' 2. Download and read these geotiff maps as SpatRaster
+#' 1. Send a request to generate the Google Earth Engine (GEE) url of the code producing the maps
+#' for each stationary periods separately.
+#' 2. Download and read these geotiff maps as matrix. The computation on GEE only happen in this
+#' second step when fetching the url.
 #'
 #' The maps of each stationary period are returned in two layers:
-#' 1. The mismatch between the input pressure timeseries and the reanalysis one at each location.
-#' This is computed with a mean square error (MSE) where the mean error is removed. The mean error
-#' is removed because we assume no specific altitude of the geolocator, thus allowing an
-#' altitudinal shift of the pressure timeserie.
-#' 2. The proportion of datapoint of the input pressure timeseries corresponding to altitude value
+#' 1. The Mean Square Error (MSE) between the data logger pressure timeseries and the reanalysis.
+#' The mean error is removed because we assume no specific altitude of the geolocator, thus
+#' allowing an altitudinal shift of the pressure timeserie.
+#' 2. The mask of the proportion of the pressure measurement corresponding to altitude value
 #' which fall within the min and max ground elevation found at each location. The altitude value
 #' of the geolocator pressure timeseries is computed with the barometric formula accounting for the
 #' temporal variation of pressure (surface-pressure) and temperature (2m-temperature) based on
 #' ERA5 data. The min and max ground elevation of each pixel is computed from SRTM-90.
 #'
-#' @param tag data logger dataset list (see [`tag_read()`]). This list needs to contains a
-#' `pressure` data.frame nwith variable `date` as POSIXt, `value` in hPa, `stap` stapeleving
-#' observation measured during the same stationary period and `label` to label observation which
-#' need to be discarded. In addition also need to contains `stap` with exact time of the stationary
-#' period and in between flights.
-#' @param extent Geographical extent of the map to query as a list ordered by North, West, South,
-#'   East  (e.g. `c(50,-16,0,20)`).
+#' For each stationary period, the pressure measurements are smoothed and downscale to 1 hour
+#' resolution in order to match ERA-5 resolution.
+#'
+#' It is possible to indicates different elevation level when the bird was spending time at
+#' places with different elevation within general area (~10km), and thus within the same stationary
+#' period. This can be done by using `tag$label="elev_*n*"`for all measurements of the same
+#' elevation level *n*. See example in [GeoPressureManual | Pressure Map
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html).
+#'
+#' For more background and detail on the algorithm, read the [associated scientific publication
+#' ]( https://doi.org/10.1111/2041-210X.14043). For more information on the exact computation, read
+#' the [GeoPressure API documentation](https://raphaelnussbaumer.com/GeoPressureAPI/).
+#'
+#' @param tag Data logger list (see [`tag_read()`]). This list needs to contains a `pressure`
+#' data.frame with variable :
+#' - `date` datetime of measurement as POSIXt,
+#' - `value` pressure measurement in hPa,
+#' - `stap` grouping observation measured during the same stationary period and
+#' - `label` indicates the observation to be discarded (`"discard"` and `"flight"`) as well as
+#' grouped into sub
+#' In addition, `tag` also need to contains `stap` with exact time of the stationary period and in
+#' the between flights.
+#' @param extent Geographical extent of the map on which the likelihood will be computed. Vector of
+#' length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.
 #' @param scale Number of pixel per 1° latitude-longitude. For instance, `scale = 10` for a
-#'   resolution of 0.1° (~10km) and 4 for a resolution of 0.25° (~30km). To avoid interpolating the
-#'   ERA5 data, scale should be smaller than 10. Read more about [scale on Google earth Engine
-#'   documentation](https://developers.google.com/earth-engine/guides/scale).
+#' resolution of 0.1° (~10km) and `scale=4` for a resolution of 0.25° (~30km). To avoid
+#' interpolating the ERA5 data, scale should be smaller than 10. Read more about [scale on Google
+#' earth Engine documentation](https://developers.google.com/earth-engine/guides/scale).
 #' @param max_sample The computation of the maps is only performed on `max_sample` datapoints of
-#'   pressure to reduce computational time. The samples are randomly (uniformly) selected on the
-#'   timeserie.
-#' @param margin The margin is used in the threshold map to accept some measurement error. unit in
-#'   meter. (1hPa~10m)
-#' @param timeout duration (sec) before the code is interrupted both for the request on
-#' GeoPressureAPI and GEE. See [`httr::timeout()`]
-#' @param workers number of parrellel request on GEE. Between 1 and 99.
+#' pressure to reduce computational time. The samples are randomly (uniformly) selected on the
+#' timeserie.
+#' @param margin The margin is used in the mask map to accept measurement error, small scale
+#' topography and vertical movement of the bird (unit in meter, 1hPa~10m).
+#' @param timeout Duration before the code is interrupted both for the request on
+#' GeoPressureAPI and GEE (in seconds, see [`httr::timeout()`]).
+#' @param workers number of parallel requests on GEE. Integer between 1 and 99.
 #' @return List of the misfit map for each stationary period, containing:
 #' - `stap` index of stationary period
 #' - `start` POSIXct date time of the start of the stationary period
@@ -52,27 +68,29 @@
 #' @seealso [`geopressure_likelihood()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
-#' library(terra)
 #' \dontrun{
-#'   # See `tag_stap()` for generating tag
-#'   pressure_mismatch <- geopressure_mismatch(
-#'     tag,
-#'     extent = c(-16, 23, 0, 50),
-#'     scale = 4
-#'   )
-#'   pressure_mismatch_1 <- pressure_mismatch[[1]]
+#' # See `tag_stap()` for generating tag
+#' pressure_mismatch <- geopressure_mismatch(
+#'   tag,
+#'   extent = c(-16, 23, 0, 50),
+#'   scale = 4
+#' )
 #' }
-#' # Load a single pressure mismatch element
-#' pressure_mismatch_1 <- readRDS(system.file("extdata/1_pressure/", "18LX_pressure_mismatch_1.rds",
-#'   package = "GeoPressureR"
-#' ))
+#' # Load pre-computed pressure mismatch
+#' pressure_mismatch <- readRDS(
+#'   system.file(
+#'     "extdata/1_pressure/18LX_pressure_mismatch.rds",
+#'     package = "GeoPressureR"
+#'   )
+#' )
 #'
-#' str(pressure_mismatch_1)
+#' str(pressure_mismatch)
 #'
+#' # Plot the matrix as a terra Rast
 #' terra::plot(
 #'   c(
-#'     terra::rast(pressure_mismatch_1$mse, extent = pressure_mismatch_1$extent),
-#'     terra::rast(pressure_mismatch_1$mask, extent = pressure_mismatch_1$extent)
+#'     terra::rast(pressure_mismatch[[1]]$mse, extent = pressure_mismatch[[1]]$extent),
+#'     terra::rast(pressure_mismatch[[1]]$mask, extent = pressure_mismatch[[1]]$extent)
 #'   ),
 #'   main = c("Mean Square Error", "Mask")
 #' )
@@ -384,25 +402,33 @@ geopressure_mismatch <- function(tag,
 
 
 
-#' Compute Likelihood Map
+#' Compute likelihood map of pressure
 #'
-#' This function convert the map of \eqn{MSE} and altitude threshold \eqn{z_{thr}} computed
+#' This function convert the mismatch maps (MSE and mask) into a likelihood map.
+#'
+#' Convert the map of the mean square error \eqn{MSE} and altitude mask \eqn{z_{mask}} computed
 #' by [`geopressure_mismatch()`] into a likelihood map with,
 #'
-#' \eqn{p = \exp \left(-w \frac{MSE}{sd} \right) \left[z_{thr}>thr \right],}
+#' \eqn{L = \exp \left(-w \frac{MSE}{\sigma} \right) \left[z_{mask}>T \right],}
 #'
-#' where \eqn{sd} is the standard deviation of pressure and \eqn{thr} is the threshold. Because the
-#' auto-correlation of the timeseries is not accounted for in this equation, we use a log-linear
-#' pooling weight \eqn{w=\log(n)/n}, with \eqn{n} is the number of data point in the timeserie.
+#' where \eqn{\sigma} is the standard deviation of pressure and \eqn{T} is the mask threshold.
 #'
-#' @param pressure_mismatch List built with [`geopressure_mismatch()`].
+#' Because the auto-correlation of the timeseries is not accounted for in this equation, we use a
+#' log-linear pooling weight \eqn{w=\log(n)/n}, with \eqn{n} is the number of data point in the
+#' timeserie.
+#'
+#' For more background and detail on the algorithm, read the [associated scientific publication
+#' ]( https://doi.org/10.1111/2041-210X.14043) and [GeoPressureManual | Probability aggregation
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html).
+#'
+#' @param pressure_mismatch List of mismatch built with [`geopressure_mismatch()`].
 #' @param sd Standard deviation of the pressure error.
 #' @param thr_mask Threshold of the percentage of data point outside the elevation range to be considered
 #' not possible.
-#' @param fun_w function taking the number of sample of the timeseries used to compute the
-#' probability map and return the log-linear pooling weight (see the
+#' @param fun_w Weighting function of the log-linear pooling,taking the number of sample of the
+#' stationary period used and return the weight of the aggregation. See the
 #' [GeoPressureManual | Probability aggregation
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html))
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html) for more details.
 #' @return A list for each stationary period in order 1,2,...,n containing:
 #' - `stap` stationary period. Needs to be in continuous
 #' - `start` POSIXct date time of the start of the stationary period
@@ -412,26 +438,26 @@ geopressure_mismatch <- function(tag,
 #' @seealso [`geopressure_mismatch()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
-#' library(terra)
-#' \dontrun{
-#'   # See `geopressure_mismatch()` for generating pressure_mismatch
-#'   pressure_likelihood <- geopressure_likelihood(
-#'     pressure_mismatch,
-#'     sd = 0.4,
-#'     thr_mask = 0.9
+#' # See `geopressure_mismatch()` for generating pressure_mismatch
+#' # Load pre-computed pressure mismatch
+#' pressure_mismatch <- readRDS(
+#'   system.file(
+#'     "extdata/1_pressure/18LX_pressure_mismatch.rds",
+#'     package = "GeoPressureR"
 #'   )
-#'   pressure_likelihood_1 <- pressure_likelihood[[1]]
-#' }
-#' pressure_likelihood_1 <- readRDS(system.file("extdata/1_pressure/",
-#'   "18LX_pressure_likelihood_1.rds",
-#'   package = "GeoPressureR"
-#' ))
+#' )
 #'
-#' str(pressure_likelihood_1)
+#' pressure_likelihood <- geopressure_likelihood(
+#'   pressure_mismatch,
+#'   sd = 0.4,
+#'   thr_mask = 0.9
+#' )
+#'
+#' str(pressure_likelihood)
 #'
 #' terra::plot(
-#'   terra::rast(pressure_likelihood_1$likelihood, extent = pressure_likelihood_1$extent),
-#'   main = "Likelihood",
+#'   terra::rast(pressure_likelihood[[1]]$likelihood, extent = pressure_likelihood[[1]]$extent),
+#'   main = "Pressure likelihood",
 #'   xlim = c(5, 20), ylim = c(42, 50)
 #' )
 #' @export
@@ -490,7 +516,7 @@ geopressure_likelihood <- function(pressure_mismatch,
 
 
 
-#' Request and download surface pressure timeseries at location
+#' Request and download pressure timeseries at location
 #'
 #' This function return the surface atmospheric pressure timeseries from ERA5 at a queried location.
 #'
@@ -521,7 +547,8 @@ geopressure_likelihood <- function(pressure_mismatch,
 #' for more information on the meaning of this value.
 #' @param lon Longitude to query (-180° to 180°).
 #' @param lat Latitude to query (0° to 90°).
-#' @param pressure Pressure list from data logger dataset list (optional).
+#' @param pressure Pressure list from data logger dataset list (optional). Needs to contains at
+#' least `date` and `value`.
 #' @param start_time If `pressure` is not provided, then `start_time` define the starting time of
 #' the timeseries as POSIXlt.
 #' @param end_time If `pressure` is not provided, then `end_time` define the ending time of
@@ -538,6 +565,38 @@ geopressure_likelihood <- function(pressure_mismatch,
 #' - `altitude` only if `pressure` is provided as input
 #' @seealso [`geopressure_timeseries_path()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html),
+#' @examples
+#' pressure_timeserie <- geopressure_timeseries(
+#'   lon = 6, lat = 46,
+#'   start_time = as.POSIXct("2017-01-01 00:00:00", tz = "UTC"),
+#'   end_time = as.POSIXct("2017-01-02 00:00:00", tz = "UTC")
+#' )
+#'
+#' str(pressure_timeserie)
+#'
+#' plot(pressure_timeserie$date, pressure_timeserie$pressure,
+#'   type = "b", ylab = "Pressure (hPa)", xlab = "Datetime"
+#' )
+#'
+#' pressure_timeserie <- geopressure_timeseries(
+#'   lon = 6, lat = 46,
+#'   pressure = data.frame(
+#'     data.frame(
+#'       date = as.POSIXct(c(
+#'         "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
+#'         "2017-06-20 02:00:00 UTC", "2017-06-20 03:00:00 UTC"
+#'       ), tz = "UTC"),
+#'       value = c(1000, 1000, 1000, 1000)
+#'     )
+#'   )
+#' )
+#'
+#' str(pressure_timeserie)
+#'
+#' plot(pressure_timeserie$date, pressure_timeserie$altitude,
+#'   type = "b", ylab = "Altitude (m)", xlab = "Datetime"
+#' )
+#'
 #' @export
 geopressure_timeseries <- function(lon,
                                    lat,
@@ -638,7 +697,7 @@ geopressure_timeseries <- function(lon,
   # convert time into date
   out$time <- as.POSIXct(out$time, origin = "1970-01-01", tz = "UTC")
   names(out)[names(out) == "time"] <- "date"
-  names(out)[names(out) == "pressure"] ="pressure_era5"
+  names(out)[names(out) == "pressure"] <- "pressure_era5"
 
   # Add exact location
   out$lat <- res_data$lat
@@ -655,7 +714,7 @@ geopressure_timeseries <- function(lon,
 
     # Use a merge to combine all information possible from out into pressure.
     out <- merge(pressure, out, all.x = TRUE)
-    names(out)[names(out) == "value"] ="pressure_tag"
+    names(out)[names(out) == "value"] <- "pressure_tag"
 
     # find when the bird was in flight or not to be considered
     id_0 <- pressure$stap == 0 | is.na(pressure$stap)
@@ -676,9 +735,12 @@ geopressure_timeseries <- function(lon,
 
 
 
-#' Query the timeseries of pressure from a path and geolocator pressure
+#' Wrapper of `geopressure_timeseries()` for a path
 #'
-#' This function runs in parallel `geopressure_timeseries()` based on a path and pressure timeserie.
+#' This function request and download multiple pressure timeseries from a path and data logger
+#' pressure measurement by calling `geopressure_timeseries()` in parallel.
+#'
+#'
 #' It uses the `stap` to match the pressure timeseries to request for each position of the path.
 #'
 #' You can include previous and/or next flight period in each query. This is typically useful to
@@ -689,7 +751,7 @@ geopressure_timeseries <- function(lon,
 #'
 #' @param path A data.frame of the position containing latitude (`lat`), longitude  (`lon`) and the
 #' stationary period id (`stap`) as column.
-#' @param pressure Pressure list from data logger dataset list.
+#' @param pressure Pressure data.frame from data logger.
 #' @param include_flight Extend request to also query the pressure and altitude during the previous
 #' and/or next flight. Flights are defined by a `stap=0`. Accept Logical or vector of -1 (previous
 #' flight), 0 (stationary) and/or 1 (next flight). (e.g. `include_flight=c(-1, 1)` will only search
@@ -697,10 +759,45 @@ geopressure_timeseries <- function(lon,
 #' flights are defined by the +/1 of the `stap` value (and not the previous/next `stap` value).
 #' @param workers number of parrellel request on GEE. Between 1 and 99.
 #' @param verbose Display (or not) the progress of the queries (logical).
-#' @return List of data.frame containing for each stationary period, the date, pressure, altitude
+#' @return A data.frame containing:
+#' - `date` equivalent to `tag$date`
+#' - `pressure_tag`: equivalent to `tag$value`
+#' - `label` equivalent to `tag$label`
+#' - `stap` equivalent to `tag$stap`
+#' - `pressure_era5` from `geopressure_timeseries()`
+#' - `altitude` from `geopressure_timeseries()`
+#' - `lat` from `geopressure_timeseries()`
+#' - `lon` from `geopressure_timeseries()`
+#' - `pressure_era5_norm` from `geopressure_timeseries()`
+#' - `stap_ref` stap used as reference (same as stap except for flight where `stap=0`)
 #' (same as [`geopressure_timeseries()`]).
 #' @seealso [`geopressure_timeseries()`], [`map2path()`], [GeoPressureManual | Pressure
 #' Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
+#' @examples
+#' \dontrun{
+#' path <- map2path(pressure_likelihood, interp = 1)
+#' pressure_timeseries <- geopressure_timeseries_path(
+#'   path = path,
+#'   pressure = tag$pressure,
+#'   include_flight = TRUE
+#' )
+#' }
+#' # Load pre-computed pressure mismatch
+#' pressure_timeseries <- readRDS(
+#'   system.file(
+#'     "extdata/1_pressure/18LX_pressure_timeseries.rds",
+#'     package = "GeoPressureR"
+#'   )
+#' )
+#'
+#' str(pressure_timeseries)
+#'
+#' plot(pressure_timeseries$date, pressure_timeseries$value,
+#'   col = pressure_timeseries$stap,
+#'   ylab = "Pressure (hPa)", xlab = "Datetime"
+#' )
+#'
+#' lines(pressure_timeseries_df$date, pressure_timeseries_df$pressure0, col = "red")
 #' @export
 geopressure_timeseries_path <- function(path,
                                         pressure,
