@@ -531,10 +531,10 @@ geopressure_likelihood <- function(pressure_mismatch,
 #' @param verbose Display (or not) the progress of the query (logical).
 #' @return A data.frame containing
 #' - `date` POSIXct date time
-#' - `pressure` pressure (hPa)
+#' - `pressure_era5` pressure (hPa)
 #' - `longitude`(different if over water)
 #' - `latitude`
-#' - `pressure0` only if `pressure` is provided as input
+#' - `pressure_era5_norm` only if `pressure` is provided as input
 #' - `altitude` only if `pressure` is provided as input
 #' @seealso [`geopressure_timeseries_path()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html),
@@ -638,6 +638,7 @@ geopressure_timeseries <- function(lon,
   # convert time into date
   out$time <- as.POSIXct(out$time, origin = "1970-01-01", tz = "UTC")
   names(out)[names(out) == "time"] <- "date"
+  names(out)[names(out) == "pressure"] ="pressure_era5"
 
   # Add exact location
   out$lat <- res_data$lat
@@ -654,6 +655,7 @@ geopressure_timeseries <- function(lon,
 
     # Use a merge to combine all information possible from out into pressure.
     out <- merge(pressure, out, all.x = TRUE)
+    names(out)[names(out) == "value"] ="pressure_tag"
 
     # find when the bird was in flight or not to be considered
     id_0 <- pressure$stap == 0 | is.na(pressure$stap)
@@ -663,10 +665,10 @@ geopressure_timeseries <- function(lon,
       # (id_q==0) and when not labeled as flight or discard
       id_norm <- !id_0 & pressure$label == ""
 
-      pressure_value_m <- mean(pressure$value[id_norm])
-      pressure_out_m <- mean(out$pressure[id_norm])
+      pressure_tag_m <- mean(pressure$value[id_norm])
+      pressure_era5_m <- mean(out$pressure_era5[id_norm])
 
-      out$pressure0 <- out$pressure - pressure_out_m + pressure_value_m
+      out$pressure_era5_norm <- out$pressure_era5 - pressure_era5_m + pressure_tag_m
     }
   }
   return(out)
@@ -769,15 +771,20 @@ geopressure_timeseries_path <- function(path,
   message("Compute and download the data (on GEE):")
   progress_bar(0, max = nrow(path))
   for (i_s in seq_len(length(f))) {
+    i_stap <- path$stap[i_s]
     progress_bar(i_s, max = nrow(path), text = paste0("| stap = ", i_stap))
     tryCatch(
       expr = {
         pressure_timeseries[[i_s]] <- future::value(f[[i_s]])
+        pressure_timeseries[[i_s]]$stap_ref <- i_stap
       },
       error = function(cond) {
         warning(paste0("Error for stap = ", path$stap[i_s], ".\n", cond))
       }
     )
   }
-  return(pressure_timeseries)
+
+  pressure_timeseries_df <- do.call("rbind", pressure_timeseries)
+
+  return(pressure_timeseries_df)
 }

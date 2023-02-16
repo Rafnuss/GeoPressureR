@@ -148,7 +148,7 @@ test_that("Check geopressure_timeseries() output", {
     end_time = as.POSIXct("2017-06-20 02:00:00", tz = "UTC")
   )
   expect_s3_class(pressure_timeserie, "data.frame")
-  expect_true(all(c("date", "pressure", "lat", "lon") %in% names(pressure_timeserie)))
+  expect_true(all(c("date", "pressure_era5", "lat", "lon") %in% names(pressure_timeserie)))
 
   # On water
   expect_warning(geopressure_timeseries(
@@ -159,7 +159,7 @@ test_that("Check geopressure_timeseries() output", {
 
   pressure_timeserie <- geopressure_timeseries(lon = 6, lat = 46, pressure = tag_sm$pressure)
   expect_s3_class(pressure_timeserie, "data.frame")
-  expect_true(all(c("date", "pressure") %in% names(pressure_timeserie)))
+  expect_true(all(c("date", "pressure_era5") %in% names(pressure_timeserie)))
 
   i_s <- 4
   n <- c(16, 32, 10) # number of valid datapoint for this stap
@@ -168,8 +168,8 @@ test_that("Check geopressure_timeseries() output", {
   # # Test Include flight
   pressure <- subset(tag$pressure, stap == i_s)
   pressure_timeserie <- geopressure_timeseries(path$lon, path$lat, pressure)
-  expect_true(all(c("date", "pressure", "altitude", "pressure0", "stap")
-  %in% names(pressure_timeserie)))
+  expect_true(all(c("date", "pressure_tag", "pressure_era5", "altitude", "pressure_era5_norm",
+                    "stap")  %in% names(pressure_timeserie)))
   expect_equal(nrow(pressure_timeserie), n[2])
 
   pressure <- subset(tag$pressure, stap == i_s | stap == 0)
@@ -196,24 +196,24 @@ test_that("Check geopressure_timeseries_path() output", {
   # Test Include flight
   pressure <- tag$pressure
   pressure_timeserie <- geopressure_timeseries_path(path, pressure)
-  expect_equal(nrow(pressure_timeserie[[1]]), n[2])
+  expect_equal(nrow(pressure_timeserie), n[2])
   pressure_timeserie <- geopressure_timeseries_path(path, pressure, include_flight = TRUE)
-  expect_equal(nrow(pressure_timeserie[[1]]), sum(n))
-  expect_equal(sum(pressure_timeserie[[1]]$stap == i_s), n[2])
+  expect_equal(nrow(pressure_timeserie), sum(n))
+  expect_equal(sum(pressure_timeserie$stap == i_s), n[2])
   pressure_timeserie <- geopressure_timeseries_path(path, pressure, include_flight = c(-1, 1))
-  expect_equal(nrow(pressure_timeserie[[1]]), sum(n[c(1, 3)]))
+  expect_equal(nrow(pressure_timeserie), sum(n[c(1, 3)]))
 
   # test with multiple sta
   path <- path_pressure[c(3, 4), ]
   pressure_timeserie <- geopressure_timeseries_path(path, pressure)
-  expect_equal(nrow(pressure_timeserie[[2]]), n[2])
-  pressure_timeserie <- geopressure_timeseries_path(path, pressure, include_flight = c(-1, 0))
-  expect_equal(nrow(pressure_timeserie[[2]]), sum(n[c(1, 2)]))
+  expect_equal(sum(pressure_timeserie$stap==4), n[2])
+  pressure_timeserie <- geopressure_timeseries_path(path, pressure, include_flight = c(-1, 0, 1))
+  expect_equal(sum(pressure_timeserie$stap_ref==4), sum(n))
 
   # test on water
   path[1, ] <- c(0, 0, 4)
   expect_warning(pressure_timeserie <- geopressure_timeseries_path(path, pressure))
-  expect_true(pressure_timeserie[[1]]$lat[1] != 0)
+  expect_true(pressure_timeserie$lat[1] != 0)
 
   expect_warning(geopressure_timeseries_path(path, pressure))
 })
