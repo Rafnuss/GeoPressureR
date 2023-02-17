@@ -56,18 +56,31 @@ test_that("Check tag_classify()", {
 
 
 test_that("Check trainset_write()", {
-  expect_error(trainset_write("not a tag", directory = tempdir()))
+  temp_dir <- tempdir() # "~" in case to test the file
+
+  expect_error(trainset_write("not a tag", directory = temp_dir), "*tag is not a list*")
   # Work under normal condition
-  expect_error(trainset_write(tag_classified, directory = tempdir()), NA)
+  full_path <- expect_error(trainset_write(tag_classified, directory = temp_dir), NA)
+  csv <- read.csv(full_path)
+  expect_true(all(c("series", "timestamp", "value", "label" ) %in% names(csv)))
+  expect_true(all(c("pressure",    "acceleration") %in% csv$series))
+  expect_true("flight" %in% csv$label)
+
   # Work even if not auto-classified
-  expect_error(trainset_write(tag, directory = tempdir()), NA)
+  expect_error(trainset_write(tag, directory = temp_dir), NA)
 
   # create new folder
-  expect_error(trainset_write(tag, directory = paste0(tempdir(), "/", Sys.Date())), NA)
+  expect_error(trainset_write(tag, directory = paste0(temp_dir, "/", Sys.Date())), NA)
 
-  # Check with outlier
-  # tag$pressure$isoutlier <- TRUE
-  # expect_error(trainset_write(tag, directory = tempdir()), NA)
+  # Test without pressure
+  tag_tmp <- tag
+  tag_tmp$acceleration <- NULL
+  expect_error(trainset_write(tag_tmp, directory = temp_dir), NA)
+
+  # Test with ref
+  tag_tmp <- tag
+  tag_tmp$pressure$value_ref <- tag_tmp$pressure$value + 10
+  expect_error(trainset_write(tag_tmp, directory = temp_dir), NA)
 })
 
 directory <- system.file("extdata/1_pressure/labels", package = "GeoPressureR")
@@ -86,7 +99,7 @@ test_that("Check trainset_read()", {
   expect_error(trainset_read("not a tag", directory = directory))
 
   # Test with different labeled file size
-  expect_warning(tag <- trainset_read(tag,
+  expect_warning(trainset_read(tag,
     directory = directory,
     filename = "18LX_act_pres-labeled-diffsize.csv"
   ))
