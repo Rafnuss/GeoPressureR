@@ -46,6 +46,27 @@
 #' @return Graph as a list (see details).
 #' @seealso [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph)
+#' @example
+#' # See `geopressure_mismatch()` for generating pressure_mismatch
+#' # Load pre-computed pressure mismatch
+#' pressure_mismatch <- readRDS(
+#'   system.file(
+#'     "extdata/1_pressure/18LX_pressure_mismatch.rds", package = "GeoPressureR"
+#'   )
+#' )
+#' pressure_likelihood <- geopressure_likelihood(pressure_mismatch)
+#'
+#' graph <- graph_create(
+#' pressure_likelihood,
+#'    known = data.frame(
+#'      stap = 1,
+#'      lat = 48.9,
+#'      lon = 17.05
+#'    )
+#' )
+#'
+#' str(graph)
+#'
 #' @export
 graph_create <- function(likelihood,
                          thr_likelihood = .99,
@@ -159,6 +180,7 @@ graph_create <- function(likelihood,
   flight_duration <- sapply(flight, function(f) {
     sum(difftime(f$end, f$start, units = "hours"))
   })
+  names(flight_duration) <- NULL
 
   # Compute size
   sz <- c(map_dim[1], map_dim[2], length(stap_model))
@@ -341,6 +363,7 @@ graph_create <- function(likelihood,
 
   # Convert gr to a graph list
   graph <- as.list(do.call("rbind", gr))
+  attr(graph, "out.attrs") <- NULL
 
   # Add metadata information
   graph$sz <- sz
@@ -350,7 +373,7 @@ graph_create <- function(likelihood,
   graph$flight <- flight
   graph$flight_duration <- flight_duration
   graph$equipment <- which(nds[[1]] == TRUE)
-  graph$retrieval <- which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll
+  graph$retrieval <- as.integer(which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll)
   graph$mask_water <- mask_water
   graph$extent <- extent
   return(graph)
