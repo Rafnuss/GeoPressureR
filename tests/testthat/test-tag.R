@@ -62,8 +62,8 @@ test_that("Check trainset_write()", {
   # Work under normal condition
   full_path <- expect_error(trainset_write(tag_classified, directory = temp_dir), NA)
   csv <- read.csv(full_path)
-  expect_true(all(c("series", "timestamp", "value", "label" ) %in% names(csv)))
-  expect_true(all(c("pressure",    "acceleration") %in% csv$series))
+  expect_true(all(c("series", "timestamp", "value", "label") %in% names(csv)))
+  expect_true(all(c("pressure", "acceleration") %in% csv$series))
   expect_true("flight" %in% csv$label)
 
   # Work even if not auto-classified

@@ -17,11 +17,12 @@
 #' * `t`:   target node (index in the 3d grid lat-lon-stap),
 #' * `gs`:  average ground speed required to make that transition (km/h) as complex number
 #' representing the E-W as real and S-N as imaginary.
-#' * `O`:   observation likelihood of each node,
+#' * `obs`:   observation likelihood of each node,
 #' * `sz`:  size of the 3d grid lat-lon-stap,
 #' * `lat`: vector of the latitude in cell center,
 #' * `lon`: vector of the longitude in cell center,
-#' * `stap`: vector of the stationary period modeled,
+#' * `stap_model`: vector of the stationary period modeled,
+#' * `stap`: data.frame of all stationary periods,
 #' * `flight`: list of a data.frame of all flights included between subsequent stationary period,
 #' * `flight_duration`: vector of the total flights duration (in hours),
 #' * `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-sta),
@@ -34,35 +35,36 @@
 #' example how to prepare the
 #' data for the function and the output of this function.
 #'
-#' @param likelihood list of likelihood map, ideally build with `geopressure_likelihood()` or
+#' @param likelihood List of likelihood map, ideally build with `geopressure_likelihood()` or
 #' `geolight_likelihood()`.
-#' @param thr_likelihood threshold of percentile (see details).
-#' @param thr_gs threshold of groundspeed (km/h)  (see details).
-#' @param thr_duration threshold of the duration (in hours) for which stationary period are modeled
+#' @param thr_likelihood Threshold of percentile (see details).
+#' @param thr_gs Threshold of groundspeed (km/h)  (see details).
+#' @param thr_duration Threshold of the duration (in hours) for which stationary period are modeled
 #' (default includes all).
-#' @param stap stationary period modeled.
-#' @param known data.frame of the known positions. Need to includes a column `stap`, `lat` and
+#' @param stap_model Vector of the stationary period to model.
+#' @param known Data.frame of the known positions. Need to includes a column `stap`, `lat` and
 #' `lon`.
 #' @return Graph as a list (see details).
 #' @seealso [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph)
-#' @example
+#' @examples
 #' # See `geopressure_mismatch()` for generating pressure_mismatch
 #' # Load pre-computed pressure mismatch
 #' pressure_mismatch <- readRDS(
 #'   system.file(
-#'     "extdata/1_pressure/18LX_pressure_mismatch.rds", package = "GeoPressureR"
+#'     "extdata/1_pressure/18LX_pressure_mismatch.rds",
+#'     package = "GeoPressureR"
 #'   )
 #' )
 #' pressure_likelihood <- geopressure_likelihood(pressure_mismatch)
 #'
 #' graph <- graph_create(
-#' pressure_likelihood,
-#'    known = data.frame(
-#'      stap = 1,
-#'      lat = 48.9,
-#'      lon = 17.05
-#'    )
+#'   pressure_likelihood,
+#'   known = data.frame(
+#'     stap = 1,
+#'     lat = 48.9,
+#'     lon = 17.05
+#'   )
 #' )
 #'
 #' str(graph)
@@ -72,7 +74,7 @@ graph_create <- function(likelihood,
                          thr_likelihood = .99,
                          thr_gs = 150,
                          thr_duration = 0,
-                         stap = seq_len(length(likelihood)),
+                         stap_model = seq_len(length(likelihood)),
                          known = data.frame(
                            stap = integer(),
                            lat = double(),
@@ -89,19 +91,19 @@ graph_create <- function(likelihood,
   assertthat::assert_that(length(thr_gs) == 1)
   assertthat::assert_that(thr_gs >= 0)
   assertthat::assert_that(is.numeric(thr_duration))
-  assertthat::assert_that(all(stap %in% seq_len(length(likelihood))))
+  assertthat::assert_that(all(stap_model %in% seq_len(length(likelihood))))
   assertthat::assert_that(is.data.frame(known))
   assertthat::assert_that(assertthat::has_name(known, c("stap", "lat", "lon")))
 
   # construct stap data.frame (same as tag$stap, but tag not available here)
-  stap_df <- do.call(rbind, lapply(likelihood, function(l) {
+  stap <- do.call(rbind, lapply(likelihood, function(l) {
     data.frame(
       stap = l$stap,
       start = l$start,
       end = l$end
     )
   }))
-  assertthat::assert_that(all(stap_df$stap == seq_len(nrow(stap_df))))
+  assertthat::assert_that(all(stap$stap == seq_len(nrow(stap))))
 
   # Define map parameters
   stap_map <- sapply(likelihood, function(l) {
@@ -149,13 +151,13 @@ graph_create <- function(likelihood,
   # Find stap to be included in the graph model
   # stap matching the thr_duration threshold.
   stap_model <- intersect(
-    stap,
-    stap_df$stap[difftime(stap_df$end, stap_df$start, units = "hours") >= thr_duration]
+    stap_model,
+    stap$stap[difftime(stap$end, stap$start, units = "hours") >= thr_duration]
   )
   # stap with likelihood map or present as known value
   stap_model <- intersect(
     stap_model,
-    stap_df$stap[sapply(likelihood, function(l) {
+    stap$stap[sapply(likelihood, function(l) {
       "likelihood" %in% names(l)
     })]
   )
@@ -165,10 +167,10 @@ graph_create <- function(likelihood,
   # Construct flight
   # construct the full flight data.frame (completely defined by stap data.frame)
   flight_df <- data.frame(
-    start = utils::head(stap_df$end, -1),
-    end = utils::tail(stap_df$start, -1),
-    stap_s = utils::head(stap_df$stap, -1),
-    stap_t = utils::tail(stap_df$stap, -1)
+    start = utils::head(stap$end, -1),
+    end = utils::tail(stap$start, -1),
+    stap_s = utils::head(stap$stap, -1),
+    stap_t = utils::tail(stap$stap, -1)
   )
 
   # create the list of flight per stationary period modeled
@@ -339,7 +341,7 @@ graph_create <- function(likelihood,
       # stationary period. The log-linear pooling (`geopressure_likelihood`) is supposed to account
       # for the variation in stationary period duration.
       # For un-normalized use likelihood[[i_s + 1]])
-      grt$O <- likelihood_n_i_s_1[grt$t - i_s * nll]
+      grt$obs <- likelihood_n_i_s_1[grt$t - i_s * nll]
 
       if (sum(id) == 0) {
         stop(paste0(
@@ -369,7 +371,8 @@ graph_create <- function(likelihood,
   graph$sz <- sz
   graph$lat <- lat
   graph$lon <- lon
-  graph$stap <- stap_model
+  graph$stap_model <- stap_model
+  graph$stap <- stap
   graph$flight <- flight
   graph$flight_duration <- flight_duration
   graph$equipment <- which(nds[[1]] == TRUE)
@@ -459,8 +462,8 @@ graph_trim <- function(gr) {
 #'
 #' @param tag data logger dataset list with `tag$sta` computed. See [`tag_read()`] and
 #' [`tag_stap()`].
-#' @param extent Geographical extent of the map to query. Either a raster (e.g. `likelihood`) or a
-#' list ordered by North, West, South, East  (e.g. `c(50,-16,0,20)`).
+#' @param extent extent Geographical extent of the map on which the likelihood will be computed.
+#' Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.
 #' @param stap Stationary period identifier of the start of the flight to query as defined in
 #' `tag$sta`. Be default, download for all the flight.
 #' @param cds_key User (email address) used to sign up for the ECMWF data service. See
@@ -543,7 +546,7 @@ graph_download_wind <- function(tag,
       month = sort(unique(format(flight_time, "%m"))),
       day = sort(unique(format(flight_time, "%d"))),
       time = sort(unique(format(flight_time, "%H:%M"))),
-      extent = c(extent[4], extent[1], extent[3], extent[2]),
+      extent = c(extent[4], extent[1], extent[3], extent[2]), # N, W, S, E
       target = paste0(tag$id, "_", i_s, ".nc")
     )
   }
@@ -875,9 +878,90 @@ graph_add_wind <- function(graph,
   graph$t <- graph$t[id]
   graph$gs <- graph$gs[id]
   graph$ws <- graph$ws[id]
-  graph$O <- graph$O[id]
+  graph$obs <- graph$obs[id]
 
   return(graph)
+}
+
+
+
+#' Define the movement model
+#'
+#' Define the movement model used later by storing the parameter needed to build `flight_prob()`.
+#'
+#' @param graph graph constructed with `graph_create()`
+#' @param type Groundspeed `"gs"` or airspeed `"as"`
+#' @return graph list with a new list `graph$movement` storing all the parameters needed to compute
+#' the transition probability
+#' @seealso [`graph_create()`], [`graph_tran()`], [`graph_create()`], [GeoPressureManual | Basic graph](
+#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map)
+#' @examples
+#' # See `geopressure_mismatch()` for generating pressure_mismatch
+#' # Load pre-computed pressure mismatch
+#' pressure_mismatch <- readRDS(
+#'   system.file(
+#'     "extdata/1_pressure/18LX_pressure_mismatch.rds",
+#'     package = "GeoPressureR"
+#'   )
+#' )
+#' pressure_likelihood <- geopressure_likelihood(pressure_mismatch)
+#'
+#' graph <- graph_create(pressure_likelihood,
+#'   known = data.frame(
+#'     stap = 1,
+#'     lat = 48.9,
+#'     lon = 17.05
+#'   )
+#' )
+#'
+#' graph <- graph_add_movement(graph, method = "logis", rate = 3)
+#'
+#' str(graph$movement)
+#' @export
+graph_add_movement <- function(graph,
+                               type = ifelse("ws" %in% names(graph), "as", "gs"),
+                               ...) {
+  assertthat::assert_that(is.list(graph))
+  assertthat::assert_that(type == "ws" | type == "gs")
+
+  graph$movement <- list(
+    type = type,
+    ...
+  )
+
+  # Test that everything is correct
+  graph_trans(graph)
+
+  return(graph)
+}
+
+#' Compute transition probability of graph
+#'
+#' Use the movement model (see `graph_add_movement()`) to convert groundspeed `gs` or airspeed `as`
+#' if available, to compute the transition probability of the edges of the graph.
+#'
+#' @param graph graph constructed with `graph_create()` and with movement (see
+#' `graph_add_movement()`).
+#' @return vector of transition probability for each edge.
+#' @seealso [`graph_create()`], [`graph_add_movement()`]
+#' @noRd
+graph_trans <- function(graph) {
+  assertthat::assert_that(is.list(graph))
+  assertthat::assert_that(assertthat::has_name(graph, c("movement", "gs")))
+
+  if ("trans" %in% names(graph)) {
+    trans <- graph$trans
+  } else {
+    if (graph$movement$type == "as") {
+      trans <- do.call(flight_prob, c(graph$movement, list(speed = graph$gs - graph$ws)))
+    } else if (graph$movement$type == "gs") {
+      trans <- do.call(flight_prob, c(graph$movement, list(speed = graph$gs)))
+    } else {
+      throws_error("Invalid movement type :", graph$movement$type)
+    }
+
+    return(trans)
+  }
 }
 
 
@@ -890,107 +974,141 @@ graph_add_wind <- function(graph,
 #' @return list of map of the marginal probability at each stationary period
 #' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map)
+#' @examples
+#' # See `geopressure_mismatch()` for generating pressure_mismatch
+#' # Load pre-computed pressure mismatch
+#' pressure_mismatch <- readRDS(
+#'   system.file(
+#'     "extdata/1_pressure/18LX_pressure_mismatch.rds",
+#'     package = "GeoPressureR"
+#'   )
+#' )
+#' pressure_likelihood <- geopressure_likelihood(pressure_mismatch)
+#' graph <- graph_create(pressure_likelihood,
+#'   known = data.frame(
+#'     stap = 1,
+#'     lat = 48.9,
+#'     lon = 17.05
+#'   )
+#' )
+#' graph <- graph_add_movement(graph)
+#'
+#' marginal <- graph_marginal(graph)
+#'
+#' str(marginal)
+#'
+#' terra::plot(
+#'   c(
+#'     terra::rast(pressure_likelihood[[3]]$likelihood, extent = pressure_likelihood[[3]]$extent),
+#'     terra::rast(marginal[[3]]$marginal, extent = marginal[[3]]$extent),
+#'   ),
+#'   main = c("Likelihood", "Marginal likelihood"),
+#'   xlim = c(5, 23), ylim = c(35, 50)
+#' )
 #' @export
 graph_marginal <- function(graph) {
   assertthat::assert_that(is.list(graph))
-  assertthat::assert_that(assertthat::has_name(
-    graph, c(
-      "s", "t", "sz", "lat", "lon", "mask_water", "extent", "flight", "stap"
-    )
-  ))
+  assertthat::assert_that(assertthat::has_name(graph, c(
+    "s", "t", "obs", "sz", "lat", "lon", "stap_model", "stap", "equipment", "retrieval",
+    "mask_water", "extent"
+  )))
   assertthat::assert_that(length(graph$s) > 0)
-
-  if ("TO" %in% names(graph)) {
-    TO <- graph$TO
-  } else if (all(c("T", "O") %in% names(graph))) {
-    TO <- graph$T * graph$O
-  } else {
-    stop("graph needs to contains 'TO', 'T' and 'O' or 'O' and 'flight()' ")
+  if (!assertthat::has_name(graph, "movement")) {
+    stop("The graph does not have a movement model. Make sure to call graph_add_movement() before.")
   }
+
+  # Compute the transition matrix (movement model)
+  trans <- graph_trans(graph)
 
   # number of nodes in the 3d grid
   n <- prod(graph$sz)
 
   # matrix of transition * observation
-  TO <- Matrix::sparseMatrix(graph$s, graph$t, x = TO, dims = c(n, n))
+  trans_obs <- Matrix::sparseMatrix(graph$s, graph$t, x = trans * graph$obs, dims = c(n, n))
 
-  # forward mapping of marginal probability
-  map_f <- Matrix::sparseMatrix(rep(1, length(graph$equipment)),
-    graph$equipment,
-    x = 1, dims = c(1, n)
-  )
+  # Initiate the forward probability vector (f_k^T in Nussbaumer et al. (2023) )
+  map_f <- Matrix::sparseMatrix(1, 1, x = 0, dims = c(1, n))
 
-  # backward mapping of marginal probability
-  map_b <- Matrix::sparseMatrix(graph$retrieval,
-    rep(1, length(graph$retrieval)),
-    x = 1, dims = c(n, 1)
-  )
+  # Initiate the backward probability vector (b_k in Nussbaumer et al. (2023) )
+  map_b <- Matrix::sparseMatrix(1, 1, x = 0, dims = c(n, 1))
 
   # build iteratively the marginal probability backward and forward by re-using the mapping
   # computed for previous stationary period. Set the equipment and retrieval site in each loop
   for (i_s in seq_len(graph$sz[3] - 1)) {
-    map_f[1, graph$equipment] <- 1
-    map_f <- map_f %*% TO
+    map_f[1, graph$equipment] <- 1 # P_0^T O_0. WHy not graph$O ????
+    map_f <- map_f %*% trans_obs # Eq. 3 in Nussbaumer et al. (2023)
 
-    map_b[graph$retrieval, 1] <- 1
-    map_b <- TO %*% map_b
+    map_b[graph$retrieval, 1] <- 1 # equivalent to map_b[, 1] <- 1 but slower
+    map_b <- trans_obs %*% map_b # Eq. 3 in Nussbaumer et al. (2023)
   }
   # add the retrieval and equipment at the end to finish it
   map_f[1, graph$equipment] <- 1
   map_b[graph$retrieval, 1] <- 1
 
   # combine the forward and backward
-  map <- map_f * Matrix::t(map_b)
+  map <- map_f * Matrix::t(map_b) # Eq. 5 in Nussbaumer et al. (2023)
 
   # reshape mapping as a full (non-sparce matrix of correct size)
   map <- as.matrix(map)
   dim(map) <- graph$sz
 
   # return as list
-  likelihood_marginal <- list()
-  for (i_s in seq_len(dim(map)[3])) {
-    tmp <- map[, , i_s]
-    tmp[graph$mask_water] <- NA
-    if (sum(tmp, na.rm = TRUE) == 0) {
-      stop(
-        "The probability of some transition are too small to find numerical solution. ",
-        "Please check the data used to create the graph."
-      )
+  marginal <- lapply(split(graph$stap, graph$stap$stap), function(m) {
+    m <- as.list(m)
+    i_s <- which(m$stap == graph$stap_model)
+    if (length(i_s) > 0) {
+      tmp <- map[, , i_s]
+      tmp[graph$mask_water] <- NA
+      if (sum(tmp, na.rm = TRUE) == 0) {
+        stop(
+          "The probability of some transition are too small to find numerical solution. ",
+          "Please check the data used to create the graph."
+        )
+      }
+      m$marginal <- tmp
+      m$extent <- graph$extent
     }
-    likelihood_marginal[[i_s]] <- list(
-      marginal = tmp,
-      stap = graph$stap[i_s],
-      flight = graph$flight[[i_s]],
-      extent = graph$extent
-    )
-  }
-
-  return(likelihood_marginal)
+    return(m)
+  })
+  return(marginal)
 }
 
 
 
 
-#' Simulation of trajectory
+#' Simulation of trajectories
 #'
-#' This function simulates multiple trajectory from a graph. The trajectories consist of the
-#' positions at each stationary periods.
+#' This function simulates randomly multiple trajectories from a graph using the [forward filtering
+#' backward sampling algorithm](https://en.wikipedia.org/wiki/Forward%E2%80%93backward_algorithm).
+#' The trajectories consist of the set of positions of the bird at all stationary periods,
+#' accounting for both the likely posit.
 #'
 #' @param graph Graph constructed with [`graph_create()`].
 #' @param nj Number of simulation.
-#' @return List of simulated paths.
+#' @return List of simulated paths:
+#' - `id` Matrix of index in the graph (graph$sz) `nj x nstap`
+#' - `lat` Matrix of latitude `nj x nstap`
+#' - `lon` Matrix of longitude `nj x nstap`
+#' - `stap` stationary period data.frame (same as `graph$stap` or `tag$stap`)
 #' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-3-simulate-path)
 #' @export
 graph_simulation <- function(graph,
                              nj = 10) {
   assertthat::assert_that(is.list(graph))
-  assertthat::assert_that(assertthat::has_name(
-    graph, c("s", "t", "p", "sz", "lat", "lon", "extent", "stap")
-  ))
+  assertthat::assert_that(assertthat::has_name(graph, c(
+    "s", "t", "obs", "sz", "lat", "lon", "stap_model", "stap", "equipment", "retrieval",
+    "mask_water", "extent"
+  )))
   assertthat::assert_that(length(graph$s) > 0)
   assertthat::assert_that(is.numeric(nj))
   assertthat::assert_that(nj > 0)
+  if (!assertthat::has_name(graph, "movement")) {
+    stop("The graph does not have a movement model. Make sure to call graph_add_movement() before.")
+  }
+
+  trans <- graph_trans(graph)
+  trans_obs <- trans * graph$obs
 
   # number of nodes in the 3d grid
   n <- prod(graph$sz)
@@ -1012,7 +1130,7 @@ graph_simulation <- function(graph,
   for (i_stap in (graph$sz[3] - 1):1) {
     id <- s_id[, 3] == i_stap
     map_b[[i_stap]] <- map_b[[i_stap + 1]] %*%
-      Matrix::sparseMatrix(graph$t[id], graph$s[id], x = graph$p[id], dims = c(n, n))
+      Matrix::sparseMatrix(graph$t[id], graph$s[id], x = trans_obs[id], dims = c(n, n))
   }
 
   # Initialize the path
@@ -1020,6 +1138,7 @@ graph_simulation <- function(graph,
 
   # Sample the first position with map_b assuming map_f to be uniform
   map <- map_b[[1]][1:nll]
+
   for (i_j in seq_len(nj)) {
     path[i_j, 1] <- sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
   }
@@ -1030,9 +1149,9 @@ graph_simulation <- function(graph,
     # find edges arriving to this stationary period
     id <- s_id[, 3] == (i_stap - 1)
 
-    # create the local trans_f (only edges from previous stap to this sta
+    # create the local trans_f (only edges from previous stap to this stap
     trans_f <- Matrix::sparseMatrix(graph$s[id], graph$t[id],
-      x = graph$p[id],
+      x = trans_obs[id],
       dims = c(n, n)
     )
 

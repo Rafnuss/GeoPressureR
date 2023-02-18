@@ -60,7 +60,7 @@ trainset_write <- function(tag,
     directory = directory,
     filename = filename
   )
-  return (full_path)
+  return(full_path)
 }
 
 
@@ -192,7 +192,7 @@ trainset_write_df <- function(df,
     row.names = FALSE
   )
 
-  return (full_path)
+  return(full_path)
 }
 
 
@@ -231,7 +231,7 @@ trainset_read_df <- function(df,
   fullpath <- file.path(directory, filename)
   assertthat::assert_that(file.exists(fullpath))
 
-  if (!assertthat::has_name(df, label)){
+  if (!assertthat::has_name(df, label)) {
     df[[label]] <- ""
   }
 

@@ -133,6 +133,7 @@ flight_bird <- function(species_name,
 #' plot(airspeed, power, xlab = "Airspeed [m/s]", ylab = "Mechanical Power [W]", type = "l")
 #' @export
 #' @seealso [`flight_bird()`], [`flight_prob()`]
+#' @noRd
 flight_power <- function(as,
                          bird) {
   assertthat::assert_that(is.numeric(as))
@@ -176,15 +177,14 @@ flight_power <- function(as,
 
 
 
-#' Movement model
+#' Probability of flight
 #'
-#' Compute the mechanical power required for a specific bird flying as at a given airspeed in km/h.
-#' `bird` (created with [`flight_bird()`])
+#' Convert a speed (airspeed or groundspeed) to a probability using different parametric functions.
 #'
 #' @param speed airspeed or groundspeed in km/h
 #' @param method method used to convert the speed to probability ("gamma", "logis" or "power")
 #' @param shape parameter of the gamma distribution
-#' @param rate  parameter of the gamma and logistic distribution
+#' @param scale  parameter of the gamma and logistic distribution
 #' @param location parameter for the logistic distribution
 #' @param bird list of basic morphological trait necessary: mass, wing span, wing aspect ratio and
 #'   body frontal area. It is best practice to create bird with [`flight_bird()`].
@@ -197,7 +197,7 @@ flight_power <- function(as,
 #' speed <- seq(1, 120)
 #' low_speed_fix <- 20 # minimum speed allowed
 #' prob <- flight_prob(speed,
-#'   method = "gamma", shape = 7, rate = 7,
+#'   method = "gamma", shape = 7, scale = 7,
 #'   low_speed_fix = low_speed_fix
 #' )
 #' plot(speed, prob,
@@ -212,13 +212,14 @@ flight_power <- function(as,
 flight_prob <- function(speed,
                         method = "gamma",
                         shape = 7,
-                        rate = 1 / 7,
+                        scale = 7,
                         location = 40,
                         bird = NA,
                         fun_power = function(power) {
                           (1 / power)^3
                         },
-                        low_speed_fix = 15) {
+                        low_speed_fix = 15,
+                        ...) {
   if (is.complex(speed)) {
     speed <- abs(speed)
   }
@@ -231,12 +232,15 @@ flight_prob <- function(speed,
   speed <- pmax(speed, low_speed_fix)
 
   if (method == "gamma") {
-    norm <- sum(stats::dgamma(seq(0, 150), shape, 1 / rate))
-    return(stats::dgamma(speed, shape, 1 / rate) / norm)
+    norm <- sum(stats::dgamma(seq(0, 150), shape = shape, scale = scale))
+    return(stats::dgamma(speed, shape = shape, scale = scale) / norm)
   } else if (method == "logis") {
-    norm <- sum(stats::plogis(seq(0, 150), location, rate, lower.tail = FALSE))
-    return(stats::plogis(speed, location, rate, lower.tail = FALSE) / norm)
+    norm <- sum(stats::plogis(seq(0, 150), location = location, scale = scale, lower.tail = FALSE))
+    return(stats::plogis(speed, location = location, scale = scale, lower.tail = FALSE) / norm)
   } else if (method == "power") {
+    # Power method need to have a bird flight.
+    assertthat::assert_that(is.list(bird))
+
     # `flight_power` is defined in m/s (SI), but the rest of your code is using km/h. This is where
     # we need to convert.
     as <- speed * 1000 / 60 / 60
