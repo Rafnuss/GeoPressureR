@@ -93,6 +93,8 @@ test_that("Check graph_marginal()", {
   expect_length(marginal[[1]], 5)
   expect_true(all(c("start", "end", "stap", "marginal", "extent") %in% names(marginal[[1]])))
 
+  # image(marginal[[4]]$marginal)
+
   graph_short <- graph_add_movement(graph_short)
   marginal <- graph_marginal(graph_short)
   expect_length(marginal, 5)

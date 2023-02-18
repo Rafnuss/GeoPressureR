@@ -1,5 +1,6 @@
 #' Create graph
 #'
+#' @description
 #' This function return a graph representing the trajectory of a bird based on filtering and triming
 #' the likelihood maps provided.
 #'
@@ -13,22 +14,7 @@
 #' those which average ground speed is lower than `thr_gs` km/h.
 #'
 #' The graph returned is a list of the edges of the graph containing:
-#' * `s`:   source node (index in the 3d grid lat-lon-stap),
-#' * `t`:   target node (index in the 3d grid lat-lon-stap),
-#' * `gs`:  average ground speed required to make that transition (km/h) as complex number
-#' representing the E-W as real and S-N as imaginary.
-#' * `obs`:   observation likelihood of each node,
-#' * `sz`:  size of the 3d grid lat-lon-stap,
-#' * `lat`: vector of the latitude in cell center,
-#' * `lon`: vector of the longitude in cell center,
-#' * `stap_model`: vector of the stationary period modeled,
-#' * `stap`: data.frame of all stationary periods,
-#' * `flight`: list of a data.frame of all flights included between subsequent stationary period,
-#' * `flight_duration`: vector of the total flights duration (in hours),
-#' * `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-sta),
-#' * `retrieval`: node(s) of the last stap (index in the 3d grid lat-lon-sta),
-#' * `extent`: vector of the geographical extent `c(xmin, xmax, ymin, ymax)`,
-#' * `mask_water`: logical matrix of water-land
+
 #'
 #' The [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph) provided an
@@ -44,7 +30,24 @@
 #' @param stap_model Vector of the stationary period to model.
 #' @param known Data.frame of the known positions. Need to includes a column `stap`, `lat` and
 #' `lon`.
-#' @return Graph as a list (see details).
+#' @return Graph as a list
+#' - `s`:   source node (index in the 3d grid lat-lon-stap),
+#' - `t`:   target node (index in the 3d grid lat-lon-stap),
+#' - `gs`:  average ground speed required to make that transition (km/h) as complex number
+#' representing the E-W as real and S-N as imaginary.
+#' - `obs`:   observation model, corresponding to the normalize likelihood in 3D matrix of size
+#' `sz`,
+#' - `sz`:  size of the 3d grid lat-lon-stap,
+#' - `lat`: vector of the latitude in cell center,
+#' - `lon`: vector of the longitude in cell center,
+#' - `stap_model`: vector of the stationary period modeled,
+#' - `stap`: data.frame of all stationary periods,
+#' - `flight`: list of a data.frame of all flights included between subsequent stationary period,
+#' - `flight_duration`: vector of the total flights duration (in hours),
+#' - `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-sta),
+#' - `retrieval`: node(s) of the last stap (index in the 3d grid lat-lon-sta),
+#' - `extent`: vector of the geographical extent `c(xmin, xmax, ymin, ymax)`,
+#' - `mask_water`: logical matrix of water-land
 #' @seealso [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph)
 #' @examples
@@ -345,12 +348,12 @@ graph_create <- function(likelihood,
           "edges, there are not any nodes left for the stationary period: ", stap_model[i_s]
         ))
       }
+      progress_bar(sum(nds_expend_sum[seq(1, i_s)]),
+                   max = sum(nds_expend_sum),
+                   text = paste0("| stap = ", i_s, "/", sz[3] - 1)
+      )
       return(grt)
     }, seed = TRUE)
-    progress_bar(sum(nds_expend_sum[seq(1, i)]),
-      max = sum(nds_expend_sum),
-      text = paste0("| stap = ", i, "/", sz[3] - 1)
-    )
   }
 
   # Retrieve the graph
@@ -400,7 +403,7 @@ graph_trim <- function(gr) {
 
   message("Trimming the graph:")
 
-  progress_bar(1, max = (length(gr) - 1) * 2)
+  progress_bar(1, max = (length(gr) - 1) * 2, text = "| forward 1 -> 2")
 
   # First, trim the graph from equipment to retrieval
   for (i_s in seq(2, length(gr))) {
@@ -418,7 +421,9 @@ graph_trim <- function(gr) {
         "Triming the graph killed it at stationary period ", i_s, " moving forward."
       ))
     }
-    progress_bar(i_s - 1, max = (length(gr) - 1) * 2)
+    progress_bar(i_s - 1,
+                 max = (length(gr) - 1) * 2,
+                 text = paste0("| forward ", i_s - 1, " -> ", i_s))
   }
   # Then, trim the graph from retrieval to equipment
   for (i_s in seq(length(gr) - 1, 1)) {
@@ -434,14 +439,16 @@ graph_trim <- function(gr) {
         "Triming the graph killed it at stationary period ", i_s, " moving backward."
       ))
     }
-    progress_bar(length(gr) * 2 - 1 - i_s, max = (length(gr) - 1) * 2)
+    progress_bar(length(gr) * 2 - 1 - i_s,
+                 max = (length(gr) - 1) * 2,
+                 text = paste0("| backward ", i_s, " -> ", i_s - 1))
   }
   return(gr)
 }
 
 #' Download wind data
 #'
-#'
+#' @description
 #' This function download the wind data from [ERA5 hourly pressure level](
 #' https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview)
 #' with the [Climate Data Store (CDS)](https://cds.climate.copernicus.eu) and through the [`ecmwfr`
@@ -563,6 +570,7 @@ graph_download_wind <- function(tag,
 
 #' Add windspeed and airspeed
 #'
+#' @description
 #' Read NetCDF file downloaded on your computer and add the average windspeed experienced by the
 #' bird and the corresponding airspeed for each edge of the graph.
 #'
@@ -966,13 +974,20 @@ graph_trans <- function(graph) {
 
 
 
-#' Marginal Probability Map
+#' Marginal probability map
 #'
-#' This function return the marginal probability map as raster from a graph.
+#' @description
+#' Compute the marginal probability map from a graph. The graph needs to have a movement model
+#' defined (see `graph_add_movement()`). The computation uses the forward-backward algorithm.
 #'
 #' @param graph graph constructed with [`graph_create()`]
-#' @return list of map of the marginal probability at each stationary period
-#' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
+#' #' @return A list for each stationary period in order 1, 2, ..., n containing:
+#' - `stap` stationary period. Needs to be in continuous
+#' - `start` POSIXct date time of the start of the stationary period
+#' - `end` POSIXct date time of the end of the stationary period and start of the flight
+#' - `marginal` matrix of the marginal map
+#' - `extent` vector length 4 of the extent of the map `c(xmin, xmax, ymin, ymax)`
+#' @seealso [`graph_create()`], [`graph_add_movement()`], [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map)
 #' @examples
 #' # See `geopressure_mismatch()` for generating pressure_mismatch
@@ -1043,7 +1058,7 @@ graph_marginal <- function(graph) {
     map_b <- trans_obs %*% map_b # Eq. 3 in Nussbaumer et al. (2023)
   }
   # add the retrieval and equipment at the end to finish it
-  map_f[1, graph$equipment] <- 1
+  map_f[1, graph$equipment] <- graph$obs[graph$equipment]
   map_b[graph$retrieval, 1] <- 1
 
   # combine the forward and backward
