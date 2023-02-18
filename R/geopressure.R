@@ -102,6 +102,9 @@ geopressure_mismatch <- function(tag,
                                  margin = 30,
                                  timeout = 60 * 5,
                                  workers = 90) {
+  # Compute stationary periods from tag$data
+  tag <- tag_stap(tag)
+
   # Check input
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))

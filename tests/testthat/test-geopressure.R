@@ -11,7 +11,6 @@ tag <- trainset_read(
   tag,
   directory = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
 )
-tag <- tag_stap(tag)
 pressure_mismatch <- geopressure_mismatch(tag,
   extent = c(-16, 23, 0, 50),
   scale = 1,
@@ -32,7 +31,6 @@ tag_sm$pressure <- data.frame(
   value = c(1000, 1000, 1000, 1000),
   label = c("", "", "", "")
 )
-tag_sm <- tag_stap(tag_sm)
 
 
 test_that("Check geopressure_mismatch() output", {
@@ -85,7 +83,6 @@ test_that("Check with elev_", {
     directory = system.file("extdata/1_pressure/labels/", package = "GeoPressureR"),
     filename = "18LX_act_pres-labeled_elev.csv"
   )
-  tag_tmp <- tag_stap(tag_tmp)
   mismatch <- geopressure_mismatch(tag_tmp,
     extent = c(-16, 23, 0, 50),
     scale = 1,

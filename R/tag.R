@@ -393,6 +393,12 @@ tag_stap <- function(tag) {
   if (assertthat::has_name(tag, "acceleration") &&
     assertthat::has_name(tag$acceleration, "label")) {
     sensor <- tag$acceleration
+    if("flight" %in% tag$pressure$label){
+      warning(paste0("The stationary periods will be estimated from acceleration data and the ",
+      "label 'flight' from pressure will be ignored. It is best practise to remove 'flight' in ",
+      "pressure data if you are using acceleration. Remove label column in acceleration data to ",
+      "use pressure label."))
+    }
   } else {
     sensor <- tag$pressure
   }
@@ -408,40 +414,18 @@ tag_stap <- function(tag) {
     end = do.call("c", lapply(split(sensor$date, tmp), max))
   )
 
-  # Assign to each pressure the stationary period to which it belong to.
-  if (assertthat::has_name(tag, "pressure")) {
-    assertthat::assert_that(is.data.frame(tag$pressure))
-    assertthat::assert_that(assertthat::has_name(tag$pressure, "date"))
-    tmp <- mapply(function(start, end) {
-      start <= tag$pressure$date & tag$pressure$date <= end
-    }, tag$stap$start, tag$stap$end)
-    tmp <- which(tmp, arr.ind = TRUE)
-    tag$pressure$stap <- 0
-    tag$pressure$stap[tmp[, 1]] <- tmp[, 2]
-  }
-
-  # Assign to each acceleration measurement the stationary period
-  if (assertthat::has_name(tag, "acceleration")) {
-    assertthat::assert_that(is.data.frame(tag$acceleration))
-    assertthat::assert_that(assertthat::has_name(tag$acceleration, "date"))
-    tmp <- mapply(function(start, end) {
-      start <= tag$acceleration$date & tag$acceleration$date <= end
-    }, tag$stap$start, tag$stap$end)
-    tmp <- which(tmp, arr.ind = TRUE)
-    tag$acceleration$stap <- 0
-    tag$acceleration$stap[tmp[, 1]] <- tmp[, 2]
-  }
-
-  # Assign to each light measurement the stationary period
-  if (assertthat::has_name(tag, "light")) {
-    assertthat::assert_that(is.data.frame(tag$light))
-    assertthat::assert_that(assertthat::has_name(tag$light, "date"))
-    tmp <- mapply(function(start, end) {
-      start <= tag$light$date & tag$light$date <= end
-    }, tag$stap$start, tag$stap$end)
-    tmp <- which(tmp, arr.ind = TRUE)
-    tag$light$stap <- 0
-    tag$light$stap[tmp[, 1]] <- tmp[, 2]
+  # Assign to each sensor the stationary period to which it belong to.
+  for (sensor_df in c("pressure", "acceleration", "light")){
+    if (assertthat::has_name(tag, sensor_df)) {
+      assertthat::assert_that(is.data.frame(tag[[sensor_df]]))
+      assertthat::assert_that(assertthat::has_name(tag[[sensor_df]], "date"))
+      tmp <- mapply(function(start, end) {
+        start <= tag[[sensor_df]]$date & tag[[sensor_df]]$date <= end
+      }, tag$stap$start, tag$stap$end)
+      tmp <- which(tmp, arr.ind = TRUE)
+      tag[[sensor_df]]$stap <- 0
+      tag[[sensor_df]]$stap[tmp[, 1]] <- tmp[, 2]
+    }
   }
 
   return(tag)
