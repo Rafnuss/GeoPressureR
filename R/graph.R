@@ -189,7 +189,10 @@ graph_create <- function(likelihood,
   nll <- sz[1] * sz[2]
 
   # Process likelihood map
-  likelihood_n <- lapply(likelihood[stap_model], function(x) {
+  # We use here the normalized likelihood assuming that the bird needs to be somewhere at each
+  # stationary period. The log-linear pooling (`geopressure_likelihood`) is supposed to account
+  # for the variation in stationary period duration.
+  likelihood_norm <- lapply(likelihood[stap_model], function(x) {
     l <- x$likelihood
 
     # replace empty map with 1 everywhere
@@ -205,7 +208,7 @@ graph_create <- function(likelihood,
   })
 
   # Check for invalid map
-  stap_0 <- sapply(likelihood_n, sum) == 0
+  stap_0 <- sapply(likelihood_norm, sum) == 0
   if (any(is.na(stap_0))) {
     stop(paste0(
       "likelihood is invalid for stationary period: ",
@@ -221,7 +224,7 @@ graph_create <- function(likelihood,
   }
 
   # find the pixels above to the percentile
-  nds <- lapply(likelihood_n, function(l) {
+  nds <- lapply(likelihood_norm, function(l) {
     # First, compute the threshold of prob corresponding to percentile
     ls <- sort(l)
     id_prob_percentile <- sum(cumsum(ls) <= (1 - thr_likelihood))
@@ -294,7 +297,7 @@ graph_create <- function(likelihood,
     i_s <- nds_sorted_idx[i]
     nds_i_s <- nds[[i_s]]
     nds_i_s_1 <- nds[[i_s + 1]]
-    likelihood_n_i_s_1 <- likelihood_n[[i_s + 1]]
+    likelihood_norm_i_s_1 <- likelihood_norm[[i_s + 1]]
     f[[i_s]] <- future::future(expr = {
       # find all the possible equipment and target based on nds and expand to all possible
       # combination
@@ -336,13 +339,6 @@ graph_create <- function(likelihood,
       grt$gs <- gs_abs[id] * cos(gs_arg * pi / 180) +
         1i * gs_abs[id] * sin(gs_arg * pi / 180)
 
-      # assign the observation model (i.e. likelihood) of the target node
-      # We use here the normalized likelihood assuming that the bird needs to be somewhere at each
-      # stationary period. The log-linear pooling (`geopressure_likelihood`) is supposed to account
-      # for the variation in stationary period duration.
-      # For un-normalized use likelihood[[i_s + 1]])
-      grt$obs <- likelihood_n_i_s_1[grt$t - i_s * nll]
-
       if (sum(id) == 0) {
         stop(paste0(
           "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
@@ -366,6 +362,10 @@ graph_create <- function(likelihood,
   # Convert gr to a graph list
   graph <- as.list(do.call("rbind", gr))
   attr(graph, "out.attrs") <- NULL
+
+  # Add observation model as matrix
+  graph$obs <- do.call( c, likelihood_norm )
+  dim(graph$obs) <- sz
 
   # Add metadata information
   graph$sz <- sz
@@ -1024,7 +1024,8 @@ graph_marginal <- function(graph) {
   n <- prod(graph$sz)
 
   # matrix of transition * observation
-  trans_obs <- Matrix::sparseMatrix(graph$s, graph$t, x = trans * graph$obs, dims = c(n, n))
+  trans_obs <- Matrix::sparseMatrix(graph$s, graph$t,
+                                    x = trans * graph$obs[graph$t], dims = c(n, n))
 
   # Initiate the forward probability vector (f_k^T in Nussbaumer et al. (2023) )
   map_f <- Matrix::sparseMatrix(1, 1, x = 0, dims = c(1, n))
@@ -1035,7 +1036,7 @@ graph_marginal <- function(graph) {
   # build iteratively the marginal probability backward and forward by re-using the mapping
   # computed for previous stationary period. Set the equipment and retrieval site in each loop
   for (i_s in seq_len(graph$sz[3] - 1)) {
-    map_f[1, graph$equipment] <- 1 # P_0^T O_0. WHy not graph$O ????
+    map_f[1, graph$equipment] <- graph$obs[graph$equipment] # P_0^T O_0
     map_f <- map_f %*% trans_obs # Eq. 3 in Nussbaumer et al. (2023)
 
     map_b[graph$retrieval, 1] <- 1 # equivalent to map_b[, 1] <- 1 but slower
@@ -1107,8 +1108,8 @@ graph_simulation <- function(graph,
     stop("The graph does not have a movement model. Make sure to call graph_add_movement() before.")
   }
 
-  trans <- graph_trans(graph)
-  trans_obs <- trans * graph$obs
+  # Compute the matrix TO
+  trans_obs <- graph_trans(graph) * graph$obs[graph$t]
 
   # number of nodes in the 3d grid
   n <- prod(graph$sz)

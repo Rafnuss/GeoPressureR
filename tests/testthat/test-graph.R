@@ -27,6 +27,7 @@ test_that("Check graph output", {
   expect_length(graph$s, length(graph$gs))
   expect_type(graph$gs, "complex")
   expect_length(graph$sz, 3)
+  expect_true(all(dim(graph$obs) == graph$sz))
   expect_true(all(graph$sz == c(200, 156, 5)))
   expect_length(graph$lat, 200)
   expect_length(graph$lon, 156)
