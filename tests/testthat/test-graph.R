@@ -109,3 +109,12 @@ test_that("Check graph_simulation()", {
   expect_true(all(c(10, 5) == dim(simulation$lat)))
   expect_true(all(c(10, 5) == dim(simulation$lon)))
 })
+
+test_that("Check graph_most_likely()", {
+  path <- graph_most_likely(graph)
+  expect_true(all(c("id", "lat", "lon", "stap") %in% names(path)))
+  expect_true(all(path$stap == graph$stap))
+
+  expect_true(all(c(10, 5) == dim(graph$lat)))
+  expect_true(all(c(10, 5) == dim(graph$lon)))
+})

@@ -1192,8 +1192,94 @@ graph_simulation <- function(graph,
     #
     path[, i_stap] <- ids + nll * (i_stap - 1)
 
+
+#' Most likely trajectory
+#'
+#' Compute the trajectory which maximize the overall probability using the [Viterbi algorithm](
+#' https://en.wikipedia.org/wiki/Viterbi_algorithm) on the graph structure. The graph needs to have
+#' a movement model defined (see `graph_add_movement()`).
+#'
+#' @param graph Graph constructed with [`graph_create()`].
+#' @return List of simulated paths:
+#' - `id` vector of index in the graph (graph$sz)
+#' - `lat` vector of latitude
+#' - `lon` vector of longitude
+#' - `stap` stationary period data.frame (same as `graph$stap` or `tag$stap`)
+#' @seealso [`graph_create()`], [GeoPressureManual | Basic graph](
+#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-3-simulate-path)
+#' @export
+graph_most_likely <- function(graph) {
+  assertthat::assert_that(is.list(graph))
+  assertthat::assert_that(assertthat::has_name(graph, c(
+    "s", "t", "obs", "sz", "lat", "lon", "stap_model", "stap", "equipment", "retrieval",
+    "mask_water", "extent"
+  )))
+  assertthat::assert_that(length(graph$s) > 0)
+  assertthat::assert_that(is.numeric(nj))
+  assertthat::assert_that(nj > 0)
+
+  # number of nodes in the 3d grid
+  n <- prod(graph$sz)
+
+  # Compute the matrix TO
+  trans_obs <- graph_trans(graph) * graph$obs[graph$t]
+
+  # Initiate the matrix providing for each node of the graph, the source id (index of the node)
+  # with the most likely path to get there.
+  path_s <- Matrix::sparseMatrix(
+    rep(1, length(graph$equipment)),
+    graph$equipment,
+    x = 1, dims = c(1, n)
+  )
+  # Initiate the same matrix providing the total probability of the current path so far
+  path_max <- Matrix::sparseMatrix(
+    rep(1, length(graph$equipment)),
+    graph$equipment,
+    x = graph$obs[graph$equipment], dims = c(1, n)
+  )
+
+  # Create a data.frame of all edges information
+  node <- data.frame(
+    s = graph$s,
+    t = graph$t,
+    to = trans_obs,
+    stap = arrayInd(graph$s, graph$sz)[, 3]
+  )
+
+  # Split this data.fram by stationary period (of the source)
+  node_stap <- split(node, node$stap)
+
+  n_edge <- sapply(node_stap, nrow)
+  i_s <- 0
+  progress_bar(sum(n_edge[1:i_s]), max = sum(n_edge))
+
+  for (node_i_s in node_stap) {
+    # compute the probability of all possible transition
+    node_i_s$p <- path_max[node_i_s$s] * node_i_s$to
+
+    # Find the value of the maximum possible transition for each target node
+    max_v <- sapply(split(node_i_s$p, node_i_s$t), max)
+    max_t <- as.numeric(names(max_v))
+    path_max[max_t] <- max_v
+
+    # Find the source node of the maximum possible transition for each target node
+    max_s <- sapply(split(node_i_s, node_i_s$t), function(x) {
+      x$s[which.max(x$p)]
+    })
+    path_s[max_t] <- max_s
+
     # Update progress bar
-    progress_bar(i_stap, max = graph$sz[3])
+    i_s <- i_s + 1
+    progress_bar(sum(n_edge[1:i_s]), max = sum(n_edge))
+  }
+
+  # Construct the most likely path from path_max and path_s
+  path <- c()
+  # Initiate the last position as the maximum of all retrieval node
+  path[graph$sz[3]] <- graph$retrieval[which.max(path_max[graph$retrieval])]
+  # Iteratively find the previous node of the path
+  for (i_s in (graph$sz[3] - 1):1) {
+    path[i_s] <- path_s[path[i_s + 1]]
   }
 
   return(graph_path2lonlat(path, graph))
