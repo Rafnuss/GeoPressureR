@@ -300,7 +300,6 @@ graph_create <- function(likelihood,
     i_s <- nds_sorted_idx[i]
     nds_i_s <- nds[[i_s]]
     nds_i_s_1 <- nds[[i_s + 1]]
-    likelihood_norm_i_s_1 <- likelihood_norm[[i_s + 1]]
     f[[i_s]] <- future::future(expr = {
       # find all the possible equipment and target based on nds and expand to all possible
       # combination
@@ -349,8 +348,8 @@ graph_create <- function(likelihood,
         ))
       }
       progress_bar(sum(nds_expend_sum[seq(1, i_s)]),
-                   max = sum(nds_expend_sum),
-                   text = paste0("| stap = ", i_s, "/", sz[3] - 1)
+        max = sum(nds_expend_sum),
+        text = paste0("| stap = ", i_s, "/", sz[3] - 1)
       )
       return(grt)
     }, seed = TRUE)
@@ -367,7 +366,7 @@ graph_create <- function(likelihood,
   attr(graph, "out.attrs") <- NULL
 
   # Add observation model as matrix
-  graph$obs <- do.call( c, likelihood_norm )
+  graph$obs <- do.call(c, likelihood_norm)
   dim(graph$obs) <- sz
 
   # Add metadata information
@@ -422,8 +421,9 @@ graph_trim <- function(gr) {
       ))
     }
     progress_bar(i_s - 1,
-                 max = (length(gr) - 1) * 2,
-                 text = paste0("| forward ", i_s - 1, " -> ", i_s))
+      max = (length(gr) - 1) * 2,
+      text = paste0("| forward ", i_s - 1, " -> ", i_s)
+    )
   }
   # Then, trim the graph from retrieval to equipment
   for (i_s in seq(length(gr) - 1, 1)) {
@@ -440,8 +440,9 @@ graph_trim <- function(gr) {
       ))
     }
     progress_bar(length(gr) * 2 - 1 - i_s,
-                 max = (length(gr) - 1) * 2,
-                 text = paste0("| backward ", i_s, " -> ", i_s - 1))
+      max = (length(gr) - 1) * 2,
+      text = paste0("| backward ", i_s, " -> ", i_s - 1)
+    )
   }
   return(gr)
 }
@@ -592,6 +593,7 @@ graph_download_wind <- function(tag,
 graph_add_wind <- function(graph,
                            pressure,
                            directory,
+                           filename_prefix = paste0(graph$id, "_"),
                            thr_as = Inf) {
   assertthat::assert_that(is.list(graph))
   assertthat::assert_that(assertthat::has_name(
@@ -603,7 +605,8 @@ graph_add_wind <- function(graph,
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
   assertthat::assert_that(is.numeric(pressure$value))
   assertthat::assert_that(is.character(directory))
-  assertthat::assert_that(file.exists(file.path(directory, "1.nc")))
+  assertthat::assert_that(is.character(filename_prefix))
+  assertthat::assert_that(file.exists(file.path(directory, paste0(filename_prefix, "1.nc"))))
   assertthat::assert_that(is.numeric(thr_as))
   assertthat::assert_that(length(thr_as) == 1)
   assertthat::assert_that(thr_as >= 0)
@@ -621,10 +624,11 @@ graph_add_wind <- function(graph,
     for (i2 in seq_len(length(fl_s$stap_s))) {
       i_s <- fl_s$stap_s[i2]
 
-      if (!file.exists(file.path(directory, i_s, ".nc"))) {
-        stop(paste0("No wind file: '", directory, i_s, ".nc'"))
+      full_path <- file.path(directory, paste0(filename_prefix, i_s, ".nc"))
+      if (!file.exists(full_path)) {
+        stop(paste0("No wind file: '", full_path))
       }
-      nc <- ncdf4::nc_open(file.path(directory, i_s, ".nc"))
+      nc <- ncdf4::nc_open(full_path)
 
       time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60, origin = "1900-01-01", tz = "UTC")
       t_s <- as.POSIXct(format(fl_s$start[i2], "%Y-%m-%d %H:00:00"), tz = "UTC")
@@ -901,7 +905,8 @@ graph_add_wind <- function(graph,
 #' @param type Groundspeed `"gs"` or airspeed `"as"`
 #' @return graph list with a new list `graph$movement` storing all the parameters needed to compute
 #' the transition probability
-#' @seealso [`graph_create()`], [`graph_tran()`], [`graph_create()`], [GeoPressureManual | Basic graph](
+#' @seealso [`graph_create()`], [`graph_tran()`], [`graph_create()`],
+#' [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map)
 #' @examples
 #' # See `geopressure_mismatch()` for generating pressure_mismatch
@@ -955,12 +960,16 @@ graph_add_movement <- function(graph,
 #' @noRd
 graph_trans <- function(graph) {
   assertthat::assert_that(is.list(graph))
+  if (!assertthat::has_name(graph, "movement")) {
+    stop("The graph does not have a movement model. Make sure to call graph_add_movement() before.")
+  }
   assertthat::assert_that(assertthat::has_name(graph, c("movement", "gs")))
 
   if ("trans" %in% names(graph)) {
     trans <- graph$trans
   } else {
     if (graph$movement$type == "as") {
+      assertthat::assert_that(assertthat::has_name(graph, c("ws")))
       trans <- do.call(flight_prob, c(graph$movement, list(speed = graph$gs - graph$ws)))
     } else if (graph$movement$type == "gs") {
       trans <- do.call(flight_prob, c(graph$movement, list(speed = graph$gs)))
@@ -1028,9 +1037,6 @@ graph_marginal <- function(graph) {
     "mask_water", "extent"
   )))
   assertthat::assert_that(length(graph$s) > 0)
-  if (!assertthat::has_name(graph, "movement")) {
-    stop("The graph does not have a movement model. Make sure to call graph_add_movement() before.")
-  }
 
   # Compute the transition matrix (movement model)
   trans <- graph_trans(graph)
@@ -1040,7 +1046,8 @@ graph_marginal <- function(graph) {
 
   # matrix of transition * observation
   trans_obs <- Matrix::sparseMatrix(graph$s, graph$t,
-                                    x = trans * graph$obs[graph$t], dims = c(n, n))
+    x = trans * graph$obs[graph$t], dims = c(n, n)
+  )
 
   # Initiate the forward probability vector (f_k^T in Nussbaumer et al. (2023) )
   map_f <- Matrix::sparseMatrix(1, 1, x = 0, dims = c(1, n))
@@ -1051,7 +1058,7 @@ graph_marginal <- function(graph) {
   # build iteratively the marginal probability backward and forward by re-using the mapping
   # computed for previous stationary period. Set the equipment and retrieval site in each loop
   for (i_s in seq_len(graph$sz[3] - 1)) {
-    map_f[1, graph$equipment] <- graph$obs[graph$equipment] # P_0^T O_0
+    map_f[1, graph$equipment] <- graph$obs[graph$equipment] # P_0^T O_0 with P_0=1
     map_f <- map_f %*% trans_obs # Eq. 3 in Nussbaumer et al. (2023)
 
     map_b[graph$retrieval, 1] <- 1 # equivalent to map_b[, 1] <- 1 but slower
@@ -1062,26 +1069,26 @@ graph_marginal <- function(graph) {
   map_b[graph$retrieval, 1] <- 1
 
   # combine the forward and backward
-  map <- map_f * Matrix::t(map_b) # Eq. 5 in Nussbaumer et al. (2023)
+  map_fb <- map_f * Matrix::t(map_b) # Eq. 5 in Nussbaumer et al. (2023)
 
   # reshape mapping as a full (non-sparce matrix of correct size)
-  map <- as.matrix(map)
-  dim(map) <- graph$sz
+  map_fb <- as.matrix(map_fb)
+  dim(map_fb) <- graph$sz
 
   # return as list
   marginal <- lapply(split(graph$stap, graph$stap$stap), function(m) {
     m <- as.list(m)
     i_s <- which(m$stap == graph$stap_model)
     if (length(i_s) > 0) {
-      tmp <- map[, , i_s]
-      tmp[graph$mask_water] <- NA
-      if (sum(tmp, na.rm = TRUE) == 0) {
+      map_fb_i <- map_fb[, , i_s]
+      map_fb_i[graph$mask_water] <- NA
+      if (sum(map_fb_i, na.rm = TRUE) == 0) {
         stop(
           "The probability of some transition are too small to find numerical solution. ",
           "Please check the data used to create the graph."
         )
       }
-      m$marginal <- tmp
+      m$marginal <- map_fb_i
       m$extent <- graph$extent
     }
     return(m)
@@ -1117,11 +1124,6 @@ graph_simulation <- function(graph,
     "mask_water", "extent"
   )))
   assertthat::assert_that(length(graph$s) > 0)
-  assertthat::assert_that(is.numeric(nj))
-  assertthat::assert_that(nj > 0)
-  if (!assertthat::has_name(graph, "movement")) {
-    stop("The graph does not have a movement model. Make sure to call graph_add_movement() before.")
-  }
 
   # Compute the matrix TO
   trans_obs <- graph_trans(graph) * graph$obs[graph$t]
@@ -1136,61 +1138,72 @@ graph_simulation <- function(graph,
 
   # As we will simulate in forward chronological order, we will be able to create map_f inside the
   # simulation. However, map_b needs to be computed for all stationary period in advance, starting
-  # by the last stationary period and moving backward in time as follow
+  # by the last stationary period and moving backward in time as follow.
+  # We store map_b as a list of vector of size lat x lon (instead of 3D with stap)
   map_b <- list()
-  map_b[[graph$sz[3]]] <- Matrix::sparseMatrix(rep(1, length(graph$retrieval)),
+
+  # Initiate map_b at the last stap with the retrieval node (b_n=1 in Nussbaumer et al. 2023)
+  map_b[[graph$sz[3]]] <- Matrix::sparseMatrix(
+    rep(1, length(graph$retrieval)),
     graph$retrieval,
     x = 1, dims = c(1, n)
   )
 
-  for (i_stap in (graph$sz[3] - 1):1) {
-    id <- s_id[, 3] == i_stap
-    map_b[[i_stap]] <- map_b[[i_stap + 1]] %*%
+  # Build all map_b in backward order
+  for (i_s in (graph$sz[3] - 1):1) {
+    id <- s_id[, 3] == i_s
+    map_b[[i_s]] <- map_b[[i_s + 1]] %*%
       Matrix::sparseMatrix(graph$t[id], graph$s[id], x = trans_obs[id], dims = c(n, n))
+    # Same as Eq. 3 in Nussbaumer et al. (2023) but with b_k transpose thus TO * b_k instead
+    # of b_k * TO
   }
 
   # Initialize the path
   path <- matrix(ncol = graph$sz[3], nrow = nj)
 
-  # Sample the first position with map_b assuming map_f to be uniform
-  map <- map_b[[1]][1:nll]
+  # Sample the first position with map_b and map_f as f_0 = P_0 * O_0
+  map_f_0 <- Matrix::sparseMatrix(1, 1, x = 0, dims = c(1, n))
+  map_f_0[graph$equipment] <- graph$obs[graph$equipment]
+  map_fb <- map_b[[1]][1:nll] * map_f_0[1:nll]
 
   for (i_j in seq_len(nj)) {
-    path[i_j, 1] <- sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
+    path[i_j, 1] <- sum(stats::runif(1) > cumsum(map_fb) / sum(map_fb)) + 1
   }
 
   # Loop through the simulation along chronological order
   progress_bar(1, max = graph$sz[3])
-  for (i_stap in seq(2, graph$sz[3])) {
+  for (i_s in seq(2, graph$sz[3])) {
     # find edges arriving to this stationary period
-    id <- s_id[, 3] == (i_stap - 1)
+    id <- s_id[, 3] == (i_s - 1)
 
-    # create the local trans_f (only edges from previous stap to this stap
-    trans_f <- Matrix::sparseMatrix(graph$s[id], graph$t[id],
-      x = trans_obs[id],
-      dims = c(n, n)
-    )
+    # create the local trans_obs (only edges from previous stap to this stap
+    trans_obs_l <- Matrix::sparseMatrix(graph$s[id], graph$t[id], x = trans_obs[id], dims = c(n, n))
 
     # build the forward mapping from the simulated nodes of the previous stationary period to the
-    # current one using trans_f
-    map_f <- Matrix::sparseMatrix(seq_len(nj), path[, i_stap - 1],
-      x = 1,
-      dims = c(nj, n)
-    ) %*% trans_f
+    # current one using trans_obs_l
+    map_f <- Matrix::sparseMatrix(seq_len(nj), path[, i_s - 1], x = 1, dims = c(nj, n)) %*%
+      trans_obs_l
 
     # Combine forward and backward and samples
     if (nj > 1) {
-      ids <- apply(map_f[, nll * (i_stap - 1) + (1:nll)], 1, function(x) {
-        map <- x * map_b[[i_stap]][nll * (i_stap - 1) + (1:nll)]
-        sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
+      ids <- apply(map_f[, nll * (i_s - 1) + (1:nll)], 1, function(map_f_i) {
+        map_fb <- map_f_i * map_b[[i_s]][nll * (i_s - 1) + (1:nll)]
+        sum(stats::runif(1) > cumsum(map_fb) / sum(map_fb)) + 1
       })
     } else {
-      map <- map_f[, nll * (i_stap - 1) + (1:nll)] * map_b[[i_stap]][nll * (i_stap - 1) + (1:nll)]
-      ids <- sum(stats::runif(1) > cumsum(map) / sum(map)) + 1
+      map_fb <- map_f[, nll * (i_s - 1) + (1:nll)] * map_b[[i_s]][nll * (i_s - 1) + (1:nll)]
+      ids <- sum(stats::runif(1) > cumsum(map_fb) / sum(map_fb)) + 1
     }
 
-    #
-    path[, i_stap] <- ids + nll * (i_stap - 1)
+    # Convert ids into 3D coordinates
+    path[, i_s] <- ids + nll * (i_s - 1)
+
+    # Update progress bar
+    progress_bar(i_s, max = graph$sz[3])
+  }
+
+  return(graph_path2lonlat(path, graph))
+}
 
 
 #' Most likely trajectory
@@ -1312,6 +1325,7 @@ graph_path2lonlat <- function(path_id,
   p$stap <- graph$stap
   return(p)
 }
+
 
 #' Find the edge index from a path index
 #'
