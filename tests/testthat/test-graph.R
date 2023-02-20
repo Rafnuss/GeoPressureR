@@ -1,5 +1,7 @@
 library(testthat)
 library(GeoPressureR)
+# Hide cli message
+options(cli.default_handler = function(...) { })
 
 # Load data needed for the test
 pressure_mismatch <- readRDS(

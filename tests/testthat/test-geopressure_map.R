@@ -1,5 +1,7 @@
 library(testthat)
 library(GeoPressureR)
+# Hide cli message
+options(cli.default_handler = function(...) { })
 
 # Small synthetic case
 tag_sm <- list()

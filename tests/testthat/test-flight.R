@@ -1,5 +1,7 @@
 library(testthat)
 library(GeoPressureR)
+# Hide cli message
+options(cli.default_handler = function(...) { })
 
 test_that("check build from avonet only", {
   expect_error(flight_bird())

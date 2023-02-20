@@ -1,6 +1,7 @@
 library(testthat)
 library(GeoPressureR)
-library(terra)
+# Hide cli message
+options(cli.default_handler = function(...) { })
 
 tag <- tag_read(
   directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR"),
