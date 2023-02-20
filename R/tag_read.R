@@ -93,121 +93,131 @@ tag_read <- function(directory,
     id <- basename(directory)
   }
 
-  # Initialize the tag list
+  # Read Pressure
+  pressure <- switch(tools::file_ext(pressure_path),
+    "pressure" = {
+      subset(tag_read_delim_dto(pressure_path), date >= crop_start & date < crop_end)
+    },
+    "deg" = {
+      # Check that it is a valid Migrate Technology file
+      assertthat::assert_that(grepl("Migrate Technology", readLines(pressure_path, n = 1)))
+      line2 <- readLines(pressure_path, n = 2)[2]
+      v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
+      if (v < 13) {
+        cli::cli_abort(
+          "The pressure file {.file {pressure_path}} is not compatible. Line 2 should \\
+             contains {.val Types:x}, with x>=13."
+        )
+      }
+
+      # find column index with pressure
+      col <- which(utils::read.delim(pressure_path,
+        skip = 19, nrow = 1, header = FALSE, sep = ""
+      ) == "P(Pa)")
+      if (!(col > 0)) {
+        cli::cli_abort(
+          "The pressure file {.file {pressure_path}} is not compatible. Line 20 \\
+            should contains {.val P(Pa)}"
+        )
+      }
+
+      # Read file
+      pres <- tag_read_delim_dto(pressure_path,
+        skip = 20, col = col,
+        date_format = "%d/%m/%Y %H:%M:%S"
+      )
+
+      # convert Pa in hPa
+      pres$value <- pres$value / 100
+
+      # Crop time
+      subset(pres, date >= crop_start & date < crop_end)
+    },
+    {
+      data.frame()
+    }
+  )
+
+  # Read light
+  light <- switch(tools::file_ext(light_path),
+    "glf" = {
+      subset(tag_read_delim_dto(light_path), date >= crop_start & date < crop_end)
+    },
+    "lux" = {
+      # find column index with light
+      col <- which(utils::read.delim(
+        light_path,
+        skip = 19, nrow = 1, header = FALSE, sep = ""
+      ) == "light(lux)")
+      if (!(col > 0)) {
+        cli::cli_abort(
+          "The light file {.file {light_path}} is not compatible. Line 20 \\
+            should contains {.val light(lux)}"
+        )
+      }
+
+      # Read file
+      light <- tag_read_delim_dto(light_path,
+        skip = 20, col = col,
+        date_format = "%d/%m/%Y %H:%M:%S"
+      )
+
+      subset(light, date >= crop_start & date < crop_end)
+    },
+    {
+      NA
+    }
+  )
+
+  # Read acceleration
+  acceleration <- switch(tools::file_ext(acceleration_path),
+    "acceleration" = {
+      subset(tag_read_delim_dto(acceleration_path, col = 4), date >= crop_start & date < crop_end)
+    },
+    "deg" = {
+      # Check that it is a valid Migrate Technology file
+      assertthat::assert_that(grepl("Migrate Technology", readLines(acceleration_path, n = 1)))
+      line2 <- readLines(acceleration_path, n = 2)[2]
+      v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
+      if (v < 13) {
+        cli::cli_abort(
+          "The acceleration file {.file {acceleration_path}} is not compatible. Line 2 should \\
+             contains {.val Types:x}, with x>=13."
+        )
+      }
+
+      # find column index with acceleration
+      col <- which(utils::read.delim(acceleration_path,
+        skip = 19, nrow = 1, header = FALSE, sep = ""
+      ) == "Zact")
+      if (!(col > 0)) {
+        cli::cli_abort(
+          "The light file {.file {acceleration_path}} is not compatible. Line 20 \\
+            should contains {.val Zact}"
+        )
+      }
+
+      # Read file
+      acc <- tag_read_delim_dto(acceleration_path,
+        skip = 20, col = col,
+        date_format = "%d/%m/%Y %H:%M:%S"
+      )
+      # Crop time
+      subset(acc, date >= crop_start & date < crop_end)
+    },
+    {
+      NA
+    }
+  )
+
   tag <- list(
     id = id,
-    pressure = switch(tools::file_ext(pressure_path),
-      "pressure" = {
-        subset(tag_read_delim_dto(pressure_path), date >= crop_start & date < crop_end)
-      },
-      "deg" = {
-        # Check that it is a valid Migrate Technology file
-        assertthat::assert_that(grepl("Migrate Technology", readLines(pressure_path, n = 1)))
-        line2 <- readLines(pressure_path, n = 2)[2]
-        v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
-        if (v >= 13) {
-          cli::cli_abort(
-            "The pressure file {.file {pressure_path}} is not compatible. Line 2 should \\
-             contains {.val Types:x}, with x>=13."
-          )
-        }
-
-        # find column index with pressure
-        col <- which(utils::read.delim(pressure_path,
-          skip = 19, nrow = 1, header = FALSE, sep = ""
-        ) == "P(Pa)")
-        if (col > 0) {
-          cli::cli_abort(
-            "The pressure file {.file {pressure_path}} is not compatible. Line 20 \\
-            should contains {.val P(Pa)}"
-          )
-        }
-
-        # Read file
-        pres <- tag_read_delim_dto(pressure_path,
-          skip = 20, col = col,
-          date_format = "%d/%m/%Y %H:%M:%S"
-        )
-
-        # convert Pa in hPa
-        pres$value <- pres$value / 100
-
-        # Crop time
-        subset(pres, date >= crop_start & date < crop_end)
-      },
-      {
-        data.frame()
-      }
-    ),
-    light = switch(tools::file_ext(light_path),
-      "glf" = {
-        subset(tag_read_delim_dto(light_path), date >= crop_start & date < crop_end)
-      },
-      "lux" = {
-        # find column index with light
-        col <- which(utils::read.delim(
-          light_path,
-          skip = 19, nrow = 1, header = FALSE, sep = ""
-        ) == "light(lux)")
-        if (col > 0) {
-          cli::cli_abort(
-            "The light file {.file {light_path}} is not compatible. Line 20 \\
-            should contains {.val light(lux)}"
-          )
-        }
-
-        # Read file
-        light <- tag_read_delim_dto(light_path,
-          skip = 20, col = col,
-          date_format = "%d/%m/%Y %H:%M:%S"
-        )
-
-        subset(light, date >= crop_start & date < crop_end)
-      },
-      {
-        data.frame()
-      }
-    ),
-    acceleration = switch(tools::file_ext(acceleration_path),
-      "acceleration" = {
-        subset(tag_read_delim_dto(acceleration_path, col = 4), date >= crop_start & date < crop_end)
-      },
-      "deg" = {
-        # Check that it is a valid Migrate Technology file
-        assertthat::assert_that(grepl("Migrate Technology", readLines(acceleration_path, n = 1)))
-        line2 <- readLines(acceleration_path, n = 2)[2]
-        v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
-        if (v >= 13) {
-          cli::cli_abort(
-            "The acceleration file {.file {acceleration_path}} is not compatible. Line 2 should \\
-             contains {.val Types:x}, with x>=13."
-          )
-        }
-
-        # find column index with acceleration
-        col <- which(utils::read.delim(acceleration_path,
-          skip = 19, nrow = 1, header = FALSE, sep = ""
-        ) == "Zact")
-        if (col > 0) {
-          cli::cli_abort(
-            "The light file {.file {acceleration_path}} is not compatible. Line 20 \\
-            should contains {.val Zact}"
-          )
-        }
-
-        # Read file
-        acc <- tag_read_delim_dto(acceleration_path,
-          skip = 20, col = col,
-          date_format = "%d/%m/%Y %H:%M:%S"
-        )
-        # Crop time
-        subset(acc, date >= crop_start & date < crop_end)
-      },
-      {
-        data.frame()
-      }
-    )
+    pressure = pressure
   )
+
+  # Add optional data
+  if (!all(is.na(light))) tag$light <- light
+  if (!all(is.na(acceleration))) tag$acceleration <- acceleration
 
   return(tag)
 }
