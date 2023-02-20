@@ -1331,7 +1331,7 @@ graph_path2lonlat <- function(path_id,
 #'
 #' Very inefficient way to find the edges...
 #'
-#' @param path_id list or matrix of node index (`nj x nstap`).
+#' @param path_id vector or matrix of node index (`nj x nstap`).
 #' @param graph graph constructed with [`graph_create()`].
 #' @return List or matrix of the edge `nj x (nstap-1)`.
 #' @seealso [`graph_create()`], [GeoPressureManual | Wind graph](
@@ -1343,39 +1343,44 @@ graph_path2edge <- function(path_id,
   assertthat::assert_that(assertthat::has_name(graph, c("s", "t")))
   assertthat::assert_that(length(graph$s) > 0)
   assertthat::assert_that(is.numeric(path_id))
-  assertthat::assert_that(all(path_id > 0 & path_id <= prod(graph$sz)))
-
-  if (is.matrix(path_id)) {
-    # Number of paths
-    nj <- dim(path_id)[1]
-    # number of stationary period
-    nstap <- dim(path_id)[2]
-    assertthat::assert_that(nstap == graph$sz[3])
-
-    # Get the source and target
-    path_s <- path_id[, 1:(nstap - 1)]
-    path_t <- path_id[, 2:nstap]
-
-    # put as vector
-    dim(path_s) <- (nstap - 1) * nj
-    dim(path_t) <- (nstap - 1) * nj
-  } else {
-    nstap <- length(path_id)
-    nj <- 1
-    assertthat::assert_that(nstap == graph$sz[3])
-
-    path_s <- path_id[1:(nstap - 1)]
-    path_t <- path_id[2:nstap]
+  assertthat::assert_that(all(path_id > 0))
+  assertthat::assert_that(all(path_id <= prod(graph$sz)))
+  if (!is.matrix(path_id)) {
+    path_id <- matrix(path_id, nrow = 1)
   }
+  # Number of paths
+  nj <- dim(path_id)[1]
+  # number of stationary period
+  nstap <- dim(path_id)[2]
+  assertthat::assert_that(nstap == graph$sz[3])
 
+  # construct the edge of the path as data.frame
+  path_st <- data.frame(
+    s = as.vector(utils::head(path_id, c(nj, -1))),
+    t = as.vector(utils::tail(path_id, c(nj, -1)))
+  )
 
-  # Use mapply to loop through each edge. THE WORST!
-  edge <- mapply(function(s, t) {
-    which(graph$s == s & graph$t == t)
-  }, path_s, path_t)
+  # Check that all sources and target exist in the graph
+  assertthat::assert_that(all(path_st$s %in% graph$s),
+    msg = "path_id is not compatible with the graph$s."
+  )
+  assertthat::assert_that(all(path_st$t %in% graph$t),
+    msg = "path_id is not compatible with the graph$f."
+  )
 
-  # reshape in original shapre
-  dim(edge) <- c(nj, (nstap - 1))
+  # Build data.frame of the graph
+  graph_st <- data.frame(
+    edge = seq_len(length(graph$s)),
+    s = graph$s,
+    t = graph$t
+  )
+
+  # Find index of edge
+  path_st <- merge(path_st, graph_st, all.x = TRUE, sort = FALSE)
+
+  # reshape in original shape
+  edge <- path_st$edge
+  dim(edge) <- c(nj, nstap - 1)
 
   return(edge)
 }
