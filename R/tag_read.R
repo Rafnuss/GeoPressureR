@@ -80,7 +80,9 @@ tag_read <- function(directory,
   pressure_path <- ifelse(is.na(pressure_filename), "",
     tag_read_check(directory, pressure_filename)
   )
-  light_path <- ifelse(is.na(light_filename), "", tag_read_check(directory, light_filename))
+  light_path <- ifelse(is.na(light_filename), "",
+                       tag_read_check(directory, light_filename)
+                       )
   acceleration_path <- ifelse(is.na(acceleration_filename), "",
     tag_read_check(directory, acceleration_filename)
   )
@@ -184,8 +186,6 @@ tag_read <- function(directory,
             20 + which(dtime != dtime[1]), "."
           ))
         }
-
-
         subset(light, date >= crop_start & date < crop_end)
       },
       {
@@ -278,12 +278,14 @@ tag_read_check <- function(directory, filename) {
 #' @seealso [`tag_read()`]
 #' @noRd
 tag_read_delim_dto <- function(full_path, skip = 6, col = 3, date_format = "%d.%m.%Y %H:%M") {
+  cli::cli_progress_step("Read {full_path}")
   data_raw <- utils::read.delim(full_path, skip = skip, sep = "", header = FALSE)
-  data.frame(
+  df <- data.frame(
     date = as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),
       tz = "UTC",
       format = date_format
     )),
     value = data_raw[, col]
   )
+  return(df)
 }

@@ -136,6 +136,7 @@ geopressure_mismatch <- function(tag,
   assertthat::assert_that(is.numeric(workers))
   assertthat::assert_that(workers > 0 & workers < 100)
 
+  cli::cli_progress_step("Prepare pressure data")
   pres <- tag$pressure
 
   if (length(unique(diff(pres$date))) > 1) {
@@ -262,7 +263,7 @@ geopressure_mismatch <- function(tag,
   )
 
   # Request URLS
-  message("Generate requests (on GeoPressureAPI):")
+  cli::cli_progress_step("Generate requests (on GeoPressureAPI)", spinner = TRUE)
   res <- httr::POST("https://glp.mgravey.com/GeoPressure/v1/map/",
     body = body_df,
     encode = "form",
@@ -304,19 +305,20 @@ geopressure_mismatch <- function(tag,
     labels <- labels[!is.na(urls)]
     urls <- urls[!is.na(urls)]
   }
-  message(
-    "Requests generated successfully for ", length(urls), " stationary periods (",
-    paste(labels, collapse = ", "), ")"
-  )
+
 
   # Perform the call in parallel
   # GEE allows up to 100 requests at the same time, so we set the workers a little bit below
   future::plan(future::multisession, workers = workers)
 
   f <- c()
-  message("Send requests:")
-  progress_bar(0, max = length(urls))
+  cli::cli_progress_step(
+    "Sending requests for {length(urls)} stationary periods: {labels}",
+    spinner = TRUE
+  )
+  cli::cli_progress_bar(total = length(urls), type = "task")
   for (i_u in seq_len(length(urls))) {
+    cli::cli_progress_update(force = TRUE)
     f[[i_u]] <- future::future(expr = {
       filename <- tempfile()
       res <- httr::GET(
@@ -330,20 +332,19 @@ geopressure_mismatch <- function(tag,
       }
       return(filename)
     }, seed = TRUE)
-    progress_bar(i_u, max = length(urls))
   }
 
   # Get maps
   filename <- c()
   map <- c()
-  message("Compute and download geotiff (GEE server):")
-  progress_bar(0, max = length(urls))
   tryCatch(
     expr = {
+      cli::cli_progress_step("Compute maps (on GEE server) and download geotiff")
+      cli::cli_progress_bar(total = length(urls), type = "tasks")
       for (i_u in seq_len(length(urls))) {
+        cli::cli_progress_update(force = TRUE)
         filename[i_u] <- future::value(f[[i_u]])
         map[[i_u]] <- terra::rast(filename[i_u])
-        progress_bar(i_u, max = length(urls))
       }
     },
     error = function(cond) {
@@ -360,6 +361,8 @@ geopressure_mismatch <- function(tag,
       ))
     }
   )
+
+  cli::cli_progress_step("Process maps")
 
   # Find the stap of each urls from labels (same order)
   labels_stap <- sub("\\|.*", "", labels)

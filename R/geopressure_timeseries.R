@@ -119,7 +119,7 @@ geopressure_timeseries <- function(lon,
     body_df$endTime <- as.numeric(as.POSIXct(end_time))
   }
 
-  if (verbose) message("Generate request (on GeoPressureAPI):")
+  if (verbose) cli::cli_progress_step("Generate request (on GeoPressureAPI)", spinner = TRUE)
   res <- httr::POST("https:///glp.mgravey.com/GeoPressure/v1/timeseries/",
                     body = body_df,
                     encode = "form",
@@ -149,14 +149,15 @@ geopressure_timeseries <- function(lon,
       "shore (https://www.google.com/maps/dir/", lat, ",", lon, "/", res_data$lat, ",",
       res_data$lon, ") located ", round(res_data$distInter / 1000), " km away). Sending request."
     )
-  } else {
-    if (verbose) message("Request generated successfully. Sending request.")
   }
 
   # Download the csv file
+  if (verbose) cli::cli_progress_step("Sending request", spinner = TRUE)
   res2 <- httr::GET(res_data$url, httr::timeout(timeout))
 
   # read csv
+  if (verbose) cli::cli_progress_step("Compute timeseries (on GEE server) and download csv",
+                                      spinner = TRUE)
   out <- as.data.frame(httr::content(res2,
                                      type = "text/csv",
                                      encoding = "UTF-8",
@@ -187,6 +188,7 @@ geopressure_timeseries <- function(lon,
 
   # Compute the ERA5 pressure normalized to the pressure level (i.e. altitude) of the bird
   if (!is.null(pressure)) {
+    if (verbose) cli::cli_progress_step("Compute normalized ERA5 pressure")
     if (nrow(out) != nrow(pressure)) {
       warning(
         "The returned data.frame is had a different number of element than the requested ",
@@ -240,7 +242,6 @@ geopressure_timeseries <- function(lon,
 #' for the flight before and after but not the stationary period). Note that next and previous
 #' flights are defined by the +/1 of the `stap` value (and not the previous/next `stap` value).
 #' @param workers number of parrellel request on GEE. Between 1 and 99.
-#' @param verbose Display (or not) the progress of the queries (logical).
 #' @return A data.frame containing:
 #' - `date` equivalent to `tag$date`
 #' - `pressure_tag`: equivalent to `tag$value`
@@ -284,8 +285,7 @@ geopressure_timeseries <- function(lon,
 geopressure_timeseries_path <- function(path,
                                         pressure,
                                         include_flight = FALSE,
-                                        workers = 90,
-                                        verbose = TRUE) {
+                                        workers = 90) {
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "stap")))
   assertthat::assert_that(inherits(pressure$date, "POSIXt"))
@@ -301,7 +301,6 @@ geopressure_timeseries_path <- function(path,
   }
   assertthat::assert_that(is.numeric(include_flight))
   assertthat::assert_that(all(include_flight %in% c(-1, 0, 1)))
-  assertthat::assert_that(is.logical(verbose))
   assertthat::assert_that(is.numeric(workers))
   assertthat::assert_that(workers > 0 & workers < 100)
 
@@ -318,14 +317,13 @@ geopressure_timeseries_path <- function(path,
   future::plan(future::multisession, workers = workers)
   f <- c()
 
-  if (verbose) {
-    message("Sending requests for ", nrow(path), " stationary periods:")
-    progress_bar(0, max = nrow(path))
-  }
-
+  cli::cli_progress_step(
+    "Generate requests (on GeoPressureAPI) for {nrow(path)} stationary periods",
+                         spinner = TRUE)
+  cli::cli_progress_bar(total = length(nrow(path)), type = "task")
   for (i_s in seq_len(nrow(path))) {
+    cli::cli_progress_update(force = TRUE)
     i_stap <- path$stap[i_s]
-    if (verbose) progress_bar(i_s, max = nrow(path), text = paste0("| stap = ", i_stap))
     # Subset the pressure of the stationary period
     id_q <- rep(NA, length(stap_interp))
     if (any(0 == include_flight)) {
@@ -347,11 +345,12 @@ geopressure_timeseries_path <- function(path,
   }
 
   pressure_timeseries <- list()
-  message("Compute and download the data (on GEE):")
-  progress_bar(0, max = nrow(path))
+  cli::cli_progress_step("Compute and download timeseries (on GEE server)",
+                         spinner = TRUE)
+  cli::cli_progress_bar(total = length(nrow(path)), type = "task")
   for (i_s in seq_len(length(f))) {
+    cli::cli_progress_update(force = TRUE)
     i_stap <- path$stap[i_s]
-    progress_bar(i_s, max = nrow(path), text = paste0("| stap = ", i_stap))
     tryCatch(
       expr = {
         pressure_timeseries[[i_s]] <- future::value(f[[i_s]])

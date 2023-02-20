@@ -98,6 +98,8 @@ graph_create <- function(likelihood,
   assertthat::assert_that(is.data.frame(known))
   assertthat::assert_that(assertthat::has_name(known, c("stap", "lat", "lon")))
 
+  cli::cli_progress_step("Check data input")
+
   # construct stap data.frame (same as tag$stap, but tag not available here)
   stap <- do.call(rbind, lapply(likelihood, function(l) {
     data.frame(
@@ -246,6 +248,7 @@ graph_create <- function(likelihood,
     ))
   }
 
+  cli::cli_progress_step("Create graph from maps")
   # filter the pixels which are not in reach of any location of the previous and next stationary
   # period
   for (i_s in seq_len(sz[3] - 1)) {
@@ -291,11 +294,14 @@ graph_create <- function(likelihood,
   future::plan(future::multisession, workers = future::availableCores() / 2)
   f <- list()
 
-  message(
-    "Computing the groundspeed for ", sum(nds_expend_sum), " edges for ",
-    length(nds_expend_sum), " stationary periods in parallel."
+  cli::cli_progress_step(
+    "Computing the groundspeed for {sum(nds_expend_sum)} edges for {length(nds_expend_sum)} \\
+    stationary periods",
+    spinner = TRUE
   )
-  progress_bar(0, max = sum(nds_expend_sum))
+  progressr::handlers(global = TRUE)
+  progressr::handlers("cli")
+  p <- progressr::progressor(sum(nds_expend_sum))
   for (i in seq_len(length(nds_sorted_idx))) {
     i_s <- nds_sorted_idx[i]
     nds_i_s <- nds[[i_s]]
@@ -347,10 +353,7 @@ graph_create <- function(likelihood,
           "edges, there are not any nodes left for the stationary period: ", stap_model[i_s]
         ))
       }
-      progress_bar(sum(nds_expend_sum[seq(1, i_s)]),
-        max = sum(nds_expend_sum),
-        text = paste0("| stap = ", i_s, "/", sz[3] - 1)
-      )
+      p(amount = nds_expend_sum[i])
       return(grt)
     }, seed = TRUE)
   }
@@ -359,7 +362,8 @@ graph_create <- function(likelihood,
   gr <- future::value(f)
 
   # Trim
-  gr <- graph_trim(gr)
+  cli::cli_progress_step("Trim graph")
+  # gr <- graph_trim(gr)
 
   # Convert gr to a graph list
   graph <- as.list(do.call("rbind", gr))
@@ -400,9 +404,7 @@ graph_trim <- function(gr) {
     return(gr)
   }
 
-  message("Trimming the graph:")
-
-  progress_bar(1, max = (length(gr) - 1) * 2, text = "| forward 1 -> 2")
+  cli::cli_progress_bar(total = (length(gr) - 1) * 2, type = "task")
 
   # First, trim the graph from equipment to retrieval
   for (i_s in seq(2, length(gr))) {
@@ -420,10 +422,7 @@ graph_trim <- function(gr) {
         "Triming the graph killed it at stationary period ", i_s, " moving forward."
       ))
     }
-    progress_bar(i_s - 1,
-      max = (length(gr) - 1) * 2,
-      text = paste0("| forward ", i_s - 1, " -> ", i_s)
-    )
+    cli::cli_progress_update(force = TRUE)
   }
   # Then, trim the graph from retrieval to equipment
   for (i_s in seq(length(gr) - 1, 1)) {
@@ -439,10 +438,7 @@ graph_trim <- function(gr) {
         "Triming the graph killed it at stationary period ", i_s, " moving backward."
       ))
     }
-    progress_bar(length(gr) * 2 - 1 - i_s,
-      max = (length(gr) - 1) * 2,
-      text = paste0("| backward ", i_s, " -> ", i_s - 1)
-    )
+    cli::cli_progress_update(force = TRUE)
   }
   return(gr)
 }
@@ -666,10 +662,7 @@ graph_add_wind <- function(graph,
 
   # Start progress bar
   nds_expend_sum <- table(s[, 3])
-  progress_bar(0,
-    max = sum(nds_expend_sum),
-    text = paste0("| stap = ", 0, "/", graph$sz[3] - 1)
-  )
+  cli::cli_progress_bar(0, total = sum(nds_expend_sum))
 
   # Loop through the stationary period kept in the graph
   for (i1 in seq_len(graph$sz[3] - 1)) {
@@ -857,10 +850,7 @@ graph_add_wind <- function(graph,
       u_sta[i2, ] <- colSums(u_int * w)
       v_sta[i2, ] <- colSums(v_int * w)
 
-      progress_bar(sum(nds_expend_sum[seq(1, i1)]),
-        max = sum(nds_expend_sum),
-        text = paste0("| stap = ", i1, "/", graph$sz[3] - 1)
-      )
+      cli::cli_progress_update(set = sum(nds_expend_sum[seq(1, i1)]))
     }
     # Compute the average  over all the flight of the transition accounting for the duration of the
     # flight.
@@ -1171,7 +1161,7 @@ graph_simulation <- function(graph,
   }
 
   # Loop through the simulation along chronological order
-  progress_bar(1, max = graph$sz[3])
+  cli::cli_progress_bar(total = graph$sz[3])
   for (i_s in seq(2, graph$sz[3])) {
     # find edges arriving to this stationary period
     id <- s_id[, 3] == (i_s - 1)
@@ -1199,7 +1189,7 @@ graph_simulation <- function(graph,
     path[, i_s] <- ids + nll * (i_s - 1)
 
     # Update progress bar
-    progress_bar(i_s, max = graph$sz[3])
+    cli::cli_progress_update(set = i_s, force = TRUE)
   }
 
   return(graph_path2lonlat(path, graph))
@@ -1263,8 +1253,9 @@ graph_most_likely <- function(graph) {
   node_stap <- split(node, node$stap)
 
   n_edge <- sapply(node_stap, nrow)
+
+  cli::cli_progress_bar(total = sum(n_edge))
   i_s <- 0
-  progress_bar(sum(n_edge[1:i_s]), max = sum(n_edge))
 
   for (node_i_s in node_stap) {
     # compute the probability of all possible transition
@@ -1283,7 +1274,7 @@ graph_most_likely <- function(graph) {
 
     # Update progress bar
     i_s <- i_s + 1
-    progress_bar(sum(n_edge[1:i_s]), max = sum(n_edge))
+    cli::cli_progress_update(set = sum(n_edge[1:i_s]), force = TRUE)
   }
 
   # Construct the most likely path from path_max and path_s
