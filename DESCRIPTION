@@ -15,6 +15,7 @@ BugReports: https://github.com/Rafnuss/GeoPressureR/issues
 Imports: 
     assertthat,
     EBImage,
+    cli,
     ecmwfr,
     future,
     geosphere,
