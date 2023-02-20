@@ -1,6 +1,6 @@
 server <- function(input, output, session) {
   session$onSessionEnded(function() {
-    stopApp()
+    cli::cli_abortApp()
   })
 
   ## Reactive variable ----
@@ -60,7 +60,7 @@ server <- function(input, output, session) {
       addLayersControl(baseGroups = c("Dark Matter", "Satellite", "Topography"), position = c("topleft"))
   })
   output$gdl_id <- renderUI({
-    return(HTML(paste0("<h3 style='margin:0;'>", .gdl_id, "</h3>")))
+    return(HTML(glue::glue("<h3 style='margin:0;'>", .gdl_id, "</h3>")))
   })
 
   output$fl_prev_info <- renderUI({
@@ -158,7 +158,7 @@ server <- function(input, output, session) {
     idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
     if (length(idx_sta_short) > 0) {
       tmp <- as.list(idx_sta_short)
-      names(tmp) <- paste0("#", .sta$sta_id[idx_sta_short], " (", round(.sta$duration[idx_sta_short], 1), "d.)")
+      names(tmp) <- glue::glue("#", .sta$sta_id[idx_sta_short], " (", round(.sta$duration[idx_sta_short], 1), "d.)")
     } else {
       tmp <- list()
     }
@@ -222,7 +222,7 @@ server <- function(input, output, session) {
         addPolylines(lng = path_thr$lon, lat = path_thr$lat, opacity = 1, color = "#FFF", weight = 3) %>%
         addCircles(
           lng = path_thr$lon, lat = path_thr$lat, opacity = 1, weight = sta_thr$duration^(0.3) * 10,
-          label = paste0("#", sta_thr$sta_id, ", ", round(sta_thr$duration, 1), " days"), color = sta_thr$col
+          label = glue::glue("#", sta_thr$sta_id, ", ", round(sta_thr$duration, 1), " days"), color = sta_thr$col
         ) %>%
         fitBounds(min(path_thr$lon), min(path_thr$lat), max(path_thr$lon), max(path_thr$lat), options = list(paddingBottomRight = c(300, 300)))
     } else {

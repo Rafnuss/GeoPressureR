@@ -34,22 +34,12 @@ flight_bird <- function(species_name,
     # Mass, wing length and secondary length are retrieve from the AVONET
     sp_id <- grep(species_name, avonet$species, ignore.case = TRUE)
     if (length(sp_id) == 0) {
-      tmp <- print(avonet[agrep(species_name,
-        avonet$species,
-        ignore.case = TRUE
-      ), ])
-      stop(
-        "No match for '", species_name,
-        "'. Please use the exact name. \nClosest matches are: \n",
-        paste(utils::capture.output(print(tmp)), collapse = "\n")
-      )
+      cli::cli_abort("No match for {.val species_name}. Please use the exact scientific name.
+                      Closest matches are:
+                      {avonet$species[agrep(species_name, avonet$species, ignore.case = TRUE)]}")
     } else if (length(sp_id) > 1) {
-      tmp <- print(avonet[sp_id, ])
-      stop(
-        "Multiple match for '", species_name,
-        "'. Please use the exact name. \n",
-        paste(utils::capture.output(print(tmp)), collapse = "\n")
-      )
+      cli::cli_abort("Multiple match for {.val species_name}. Please use the exact scientific name.
+      {avonet$species[sp_id]}")
     }
     b <- avonet[sp_id, ]
     b$mass <- b$mass / 1000 # g -> kg

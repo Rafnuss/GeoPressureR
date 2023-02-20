@@ -140,7 +140,7 @@ geopressure_mismatch <- function(tag,
   pres <- tag$pressure
 
   if (length(unique(diff(pres$date))) > 1) {
-    warning("The pressure data is not on a regular interval. This might caused issue later.")
+    cli::cli_warn("The pressure data is not on a regular interval. This might caused issue later.")
   }
 
   # remove flight and discard label
@@ -148,15 +148,14 @@ geopressure_mismatch <- function(tag,
 
   # check values
   if (min(pres$value, na.rm = TRUE) < 250 || 1100 < max(pres$value, na.rm = TRUE)) {
-    stop(paste0(
-      "Pressure observation should be between 250 hPa (~10000m) and 1100 hPa (sea level at 1013",
-      "hPa). Check unit returned by `tag_read()`"
-    ))
+    cli::cli_abort(c(
+    "x"="Pressure observation should be between 250 hPa (~10000m) and 1100 hPa (sea level at \\
+    1013hPa)",
+    "i" = "Check unit returned by {.fn tag_read}"))
   }
 
   # Create the stapelev of pressure to query: stationary period and elevation
-  pres$stapelev <- paste0(
-    pres$stap, "|",
+  pres$stapelev <- glue::glue( "{pres$stap}|",
     ifelse(startsWith(pres$label, "elev_"),
       gsub("^.*?elev_", "", pres$label),
       "0"
@@ -232,16 +231,15 @@ geopressure_mismatch <- function(tag,
     nrow(x)
   })
   if (any(nb_pres_stapelev_clean < 3)) {
-    warning(
-      "There is less than 3 datapoints used for the following stationary periods: ",
-      paste0(names(nb_pres_stapelev_clean)[nb_pres_stapelev_clean < 3], collapse = ", "), "."
-    )
+    cli::cli_warn(
+      "There is less than 3 datapoints used for the following stationary periods: \\
+      {.val {names(nb_pres_stapelev_clean)[nb_pres_stapelev_clean < 3]}}")
   }
 
   pres_query <- do.call("rbind", pres_stapelev_clean)
 
   if (nrow(pres_query) == 0) {
-    stop("No pressure to query. Check outlier and staID==0 (for flight).")
+    cli::cli_abort(c("x"="No pressure to query", "i"="Check outlier and stap==0 (for flight)."))
   }
 
   assertthat::assert_that(all(!is.na(pres_query$date)))
@@ -274,11 +272,11 @@ geopressure_mismatch <- function(tag,
     message(httr::content(res))
     temp_file <- tempfile("log_geopressure_mismatch_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
-    stop(paste0(
-      "Error with your request on https://glp.mgravey.com/GeoPressure/v1/map/. ",
-      "Please try again, and if the problem persists, file an issue on Github:",
-      "https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_map&labels=crash
-        with this log file located on your computer: ", temp_file
+    cli::cli_abort(c(
+    "x" = "Error with your request on {.url https://glp.mgravey.com/GeoPressure/v1/map/}.",
+    "i" = "Please try again, and if the problem persists, file an issue on Github: \\
+    {.url https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_map&labels=crash} \\
+     with this log file located on your computer: {.file {temp_file}}",
     ))
   }
 
@@ -290,13 +288,13 @@ geopressure_mismatch <- function(tag,
 
   # Check that the urls exist
   if (all(is.na(urls))) {
-    stop(
-      "There was no urls returned for all stationary periods. It is probably due to request(s) ",
-      "made for periods where no data are available. Note that ERA5 data is usually only ",
-      "available on GEE ~3-5 months after."
-    )
+    cli::cli_abort(c(
+      "x" =  "There was no urls returned for all stationary periods.",
+      "i" = "It is probably due to request(s)  made for periods where no data are \\
+             available. Note that ERA5 data is usually only available on GEE ~3-5 months after."
+    ))
   } else if (any(is.na(urls))) {
-    warning(
+    cli::cli_warn(
       "There was no urls returned for stationary periods: ",
       paste(labels[is.na(urls)], collapse = ", "), ". It is probably due to request(s) made ",
       "for periods where no data are available. Note that ERA5 data is usually only ",
@@ -348,10 +346,8 @@ geopressure_mismatch <- function(tag,
       }
     },
     error = function(cond) {
-      message(paste0(
-        "\nThere was an error during the downloading and reading of the file. ",
-        "Here is the original error: "
-      ))
+      cli::cli_alert_danger("There was an error during the downloading and reading of the file. \\
+      The original error is displayed below." )
       message(cond)
       return(list(
         urls = urls,

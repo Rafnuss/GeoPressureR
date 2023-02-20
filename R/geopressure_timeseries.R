@@ -131,11 +131,11 @@ geopressure_timeseries <- function(lon,
     message(httr::content(res))
     temp_file <- tempfile("log_geopressure_timeseries_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
-    stop(paste0(
-      "Error with youre request on https://glp.mgravey.com/GeoPressure/v1/timeseries/.",
-      "Please try again, and if the problem persists, file an issue on Github:
-      https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_timeseries&labels=crash
-      with this log file located on your computer: ", temp_file
+    cli::cli_abort(c(
+      "x"="Error with youre request on {.url https://glp.mgravey.com/GeoPressure/v1/timeseries/}.",
+      "i" = "Please try again, and if the problem persists, file an issue on Github \\
+      {.url https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_timeseries&labels=crash}
+      with this log file located on your computer: {.file {temp_file}}."
     ))
   }
 
@@ -144,11 +144,12 @@ geopressure_timeseries <- function(lon,
 
   # Check for change in position
   if (res_data$distInter > 0) {
-    warning(
-      "Requested position is on water. We will proceeed the request with the closet point to the ",
-      "shore (https://www.google.com/maps/dir/", lat, ",", lon, "/", res_data$lat, ",",
-      res_data$lon, ") located ", round(res_data$distInter / 1000), " km away). Sending request."
-    )
+    cli::cli_warn(c(
+      "!"= "Requested position is on water.",
+      "i"= "We will proceeed the request with the closet point to the shore ({.url
+      https://www.google.com/maps/dir/{lat},{lon}/{res_data$lat},{res_data$lon}}) located \\
+      {round(res_data$distInter / 1000)} km away."
+    )    )
   }
 
   # Download the csv file
@@ -168,9 +169,9 @@ geopressure_timeseries <- function(lon,
   if (nrow(out) == 0) {
     temp_file <- tempfile("log_geopressure_timeseries_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
-    stop(paste0(
-      "Returned csv file is empty. Check that the time range is none-empty. Log of your ",
-      "JSON request: ", temp_file
+    cli::cli_abort(c(
+      "x"="Returned csv file is empty.",
+      "i" = "Check that the time range is none-empty. Log of your  JSON request: {.file {temp_file}}"
     ))
   }
 
@@ -190,9 +191,8 @@ geopressure_timeseries <- function(lon,
   if (!is.null(pressure)) {
     if (verbose) cli::cli_progress_step("Compute normalized ERA5 pressure")
     if (nrow(out) != nrow(pressure)) {
-      warning(
-        "The returned data.frame is had a different number of element than the requested ",
-        "pressure."
+      cli::cli_warn(
+        "The returned data.frame is had a different number of element than the requested pressure."
       )
     }
 
@@ -292,9 +292,9 @@ geopressure_timeseries_path <- function(path,
   assertthat::assert_that(is.numeric(pressure$value))
   assertthat::assert_that(is.data.frame(path))
   assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "stap")))
-  if (nrow(path) == 0) warning("path is empty")
+  if (nrow(path) == 0) cli::cli_warn("path is empty")
   if (!all(path$stap %in% pressure$stap)) {
-    warning("Some path stap are not present in pressure")
+    cli::cli_warn("Some path stap are not present in pressure")
   }
   if (is.logical(include_flight)) {
     include_flight <- (if (include_flight) c(-1, 0, 1) else 0)
@@ -357,7 +357,8 @@ geopressure_timeseries_path <- function(path,
         pressure_timeseries[[i_s]]$stap_ref <- i_stap
       },
       error = function(cond) {
-        warning(paste0("Error for stap = ", path$stap[i_s], ".\n", cond))
+        cli::cli_warn("Error for stap {path$stap[i_s]}")
+        message(cond)
       }
     )
   }

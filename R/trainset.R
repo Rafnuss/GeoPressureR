@@ -21,7 +21,7 @@
 #' @export
 trainset_write <- function(tag,
                            directory = "data/1_pressure/labels/",
-                           filename = paste0(tag$id, "_act_pres.csv")) {
+                           filename = glue::glue(tag$id, "_act_pres.csv")) {
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
@@ -93,7 +93,7 @@ trainset_write <- function(tag,
 #' @export
 trainset_read <- function(tag,
                           directory = "data/1_pressure/labels/",
-                          filename = paste0(tag$id, "_act_pres-labeled.csv")) {
+                          filename = glue::glue(tag$id, "_act_pres-labeled.csv")) {
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
@@ -254,16 +254,16 @@ trainset_read_df <- function(df,
   # Find the corresponding time
   id_match <- match(as.numeric(df[[timestamp]]), as.numeric((csv$date)))
 
-  # use label only if not NA (missing, see below for warning message)
+  # use label only if not NA (missing, see below for cli::cli_warn message)
   df[[label]][!is.na(id_match)] <- csv$label[id_match[!is.na(id_match)]]
 
   missing_pres <- sum(is.na(id_match))
 
   if (missing_pres > 0) {
-    warning(paste0(
-      "The labelization file is missing ", missing_pres, " timesteps and includes ",
-      nrow(csv) - nrow(df) + missing_pres, " timestep which are not nedded. ",
-      "We assumed no migration and no outlier during the timestep missing."
+    cli::cli_warn(c(
+      "i" = "The labelization file is missing {missing_pres} timesteps and includes \\
+      {nrow(csv) - nrow(df) + missing_pres} timestep which are not nedded. ",
+      ">" = "We assumed no migration and no outlier during the timestep missing."
     ))
   }
 

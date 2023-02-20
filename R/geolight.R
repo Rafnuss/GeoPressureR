@@ -59,7 +59,7 @@ geolight_twilight <- function(light,
   # Find the first light
   id_sr <- apply(l, 2, which.max)
   if (sum(id_sr == 1) > 1) {
-    warning(
+    cli::cli_warn(
       "There is likely a problem with the shiftK, ", sum(id_sr == 1),
       " twilights set at midnight. shift_k=", shift_k
     )
@@ -69,7 +69,7 @@ geolight_twilight <- function(light,
 
   id_ss <- dim(l)[1] - apply(l[nrow(l):1, ], 2, which.max)
   if (sum(id_ss == 1) > 1) {
-    warning(
+    cli::cli_warn(
       "There is likely a problem with the shiftK, ", sum(id_ss == 1),
       " twilights set at midnight. shift_k=", shift_k
     )
@@ -282,7 +282,7 @@ geolight_light2mat <- function(light, shift_k = 0) {
 
   res <- difftime(utils::tail(light$date, -1), utils::head(light$date, -1), units = "secs")
   if (length(unique(res)) != 1) {
-    stop(
+    cli::cli_abort(
       "Temporal resolution of the light data is not constant. Use TwGeos::FindTwilight() ",
       "instead."
     )

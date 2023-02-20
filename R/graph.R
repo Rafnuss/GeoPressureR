@@ -215,16 +215,15 @@ graph_create <- function(likelihood,
   # Check for invalid map
   stap_0 <- sapply(likelihood_norm, sum) == 0
   if (any(is.na(stap_0))) {
-    stop(paste0(
-      "likelihood is invalid for stationary period: ",
-      paste(stap_model[which(is.na(stap_0))], collapse = ", "),
-      " (check that the probability map is not null/na)."
+    cli::cli_abort(c(
+      "x" = "{.val likelihood} is invalid for the stationary period: \\
+      {stap_model[which(is.na(stap_0))]}"
     ))
   }
   if (any(stap_0)) {
-    stop(paste0(
-      "The `likelihood` provided has an invalid probability map for the stationary period: ",
-      stap_model[which(stap_0)], "."
+    cli::cli_abort(c(
+      "x" = "Using the {.val likelihood}  provided has an invalid probability map for the \\
+      stationary period: {stap_model[which(stap_0)]}"
     ))
   }
 
@@ -242,9 +241,9 @@ graph_create <- function(likelihood,
   # Check that there are still values
   nds_0 <- unlist(lapply(nds, sum)) == 0
   if (any(nds_0)) {
-    stop(paste0(
-      "Using the `thr_likelihood` of ", thr_likelihood, " provided, there are not any ",
-      "nodes left for the stationary period: ", stap_model[which(nds_0)], "."
+    cli::cli_abort(c(
+      "x" = "Using the {.val thr_likelihood} of {thr_likelihood}, there are not any nodes left at \\
+      stationary period: {stap_model[which(nds_0)]}"
     ))
   }
 
@@ -255,10 +254,10 @@ graph_create <- function(likelihood,
     nds[[i_s + 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
       flight_duration[i_s] * thr_gs & nds[[i_s + 1]]
     if (sum(nds[[i_s + 1]]) == 0) {
-      stop(paste0(
-        "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
-        "there are not any nodes left at stationary period ", stap_model[i_s + 1],
-        " from stationary period ", stap_model[i_s], "."
+      cli::cli_abort(c(
+        "x" = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance \\
+          edges, there are not any nodes left at stationary period {stap_model[i_s + 1]} from\\
+        stationary period {stap_model[i_s]}"
       ))
     }
   }
@@ -267,10 +266,10 @@ graph_create <- function(likelihood,
     nds[[i_s - 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
       flight_duration[i_s - 1] * thr_gs & nds[[i_s - 1]]
     if (sum(nds[[i_s - 1]]) == 0) {
-      stop(paste0(
-        "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, ",
-        "there are not any nodes left at stationary period ", stap_model[i_s - 1],
-        " from stationary period ", stap_model[i_s], "."
+      cli::cli_abort(c(
+        "x" = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance \\
+          edges, there are not any nodes left at stationary period {stap_model[i_s - 1]} from\\
+        stationary period {stap_model[i_s]}"
       ))
     }
   }
@@ -278,9 +277,9 @@ graph_create <- function(likelihood,
   # Check that there are still pixel present
   tmp <- unlist(lapply(nds, sum)) == 0
   if (any(tmp)) {
-    stop(paste0(
-      "Using the `thr_gs` of ", thr_gs, " km/h provided with the binary distance, there are not ",
-      "any nodes left"
+    cli::cli_abort(c(
+      "x" = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance \\
+          edges, there are not any nodes left."
     ))
   }
 
@@ -327,9 +326,9 @@ graph_create <- function(likelihood,
       # filter the transition based on the groundspeed
       id <- gs_abs < thr_gs
       if (sum(id) == 0) {
-        stop(paste0(
-          "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
-          "edges, there are not any nodes left for the stationary period: ", stap_model[i_s]
+        cli::cli_abort(c(
+          "x" = "Using the {.val thr_g} of {thr_gs} km/h provided with the exact distance of \\
+          edges, there are not any nodes left for the stationary period: {stap_model[i_s]}"
         ))
       }
       grt <- grt[id, ]
@@ -348,9 +347,9 @@ graph_create <- function(likelihood,
         1i * gs_abs[id] * sin(gs_arg * pi / 180)
 
       if (sum(id) == 0) {
-        stop(paste0(
-          "Using the `thr_gs` of ", thr_gs, " km/h provided with the exact distance of ",
-          "edges, there are not any nodes left for the stationary period: ", stap_model[i_s]
+        cli::cli_abort(c(
+          "x" = "Using the {.val thr_g} of {thr_gs} km/h provided with the exact distance of \\
+          edges, there are not any nodes left for the stationary period: {stap_model[i_s]}"
         ))
       }
       p(amount = nds_expend_sum[i])
@@ -363,7 +362,7 @@ graph_create <- function(likelihood,
 
   # Trim
   cli::cli_progress_step("Trim graph")
-  # gr <- graph_trim(gr)
+  gr <- graph_trim(gr)
 
   # Convert gr to a graph list
   graph <- as.list(do.call("rbind", gr))
@@ -418,8 +417,9 @@ graph_trim <- function(gr) {
     gr[[i_s]] <- gr[[i_s]][id, ]
 
     if (nrow(gr[[i_s]]) == 0) {
-      stop(paste0(
-        "Triming the graph killed it at stationary period ", i_s, " moving forward."
+      cli::cli_abort(c(
+        "x" =
+          "Triming the graph killed it at stationary period {i_s} moving forward."
       ))
     }
     cli::cli_progress_update(force = TRUE)
@@ -434,8 +434,9 @@ graph_trim <- function(gr) {
     gr[[i_s]] <- gr[[i_s]][id, ]
 
     if (nrow(gr[[i_s]]) == 0) {
-      stop(paste0(
-        "Triming the graph killed it at stationary period ", i_s, " moving backward."
+      cli::cli_abort(c(
+        "x" =
+          "Triming the graph killed it at stationary period {i_s} moving backward"
       ))
     }
     cli::cli_progress_update(force = TRUE)
@@ -484,7 +485,7 @@ graph_download_wind <- function(tag,
                                 stap = seq_len(nrow(tag$stap) - 1),
                                 cds_key = Sys.getenv("cds_key"),
                                 cds_user = Sys.getenv("cds_user"),
-                                directory = paste0("data/5_wind_graph/", tag$id, "/")) {
+                                directory = file.path("data/5_wind_graph/", tag$id)) {
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
@@ -499,8 +500,11 @@ graph_download_wind <- function(tag,
   ecmwfr::wf_set_key(user = cds_user, key = cds_key, service = "cds")
 
   if (!file.exists(directory)) {
-    warning(paste0("The directory ", directory, " did not exist, so we created it."))
     dir.create(directory, showWarnings = FALSE)
+    cli::cli_warn(c(
+      "!" = "The directory {.file {directory}} did not exist.",
+      ">" = "We created the directory"
+    ))
   }
 
   # see https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Levellistings
@@ -551,7 +555,7 @@ graph_download_wind <- function(tag,
       day = sort(unique(format(flight_time, "%d"))),
       time = sort(unique(format(flight_time, "%H:%M"))),
       extent = c(extent[4], extent[1], extent[3], extent[2]), # N, W, S, E
-      target = paste0(tag$id, "_", i_s, ".nc")
+      target = glue::glue("{tag$id}_{i_s}.nc")
     )
   }
 
@@ -589,7 +593,7 @@ graph_download_wind <- function(tag,
 graph_add_wind <- function(graph,
                            pressure,
                            directory,
-                           filename_prefix = paste0(graph$id, "_"),
+                           filename_prefix = glue::glue("{graph$id}_"),
                            thr_as = Inf) {
   assertthat::assert_that(is.list(graph))
   assertthat::assert_that(assertthat::has_name(
@@ -602,7 +606,7 @@ graph_add_wind <- function(graph,
   assertthat::assert_that(is.numeric(pressure$value))
   assertthat::assert_that(is.character(directory))
   assertthat::assert_that(is.character(filename_prefix))
-  assertthat::assert_that(file.exists(file.path(directory, paste0(filename_prefix, "1.nc"))))
+  assertthat::assert_that(file.exists(file.path(directory, glue::glue("{filename_prefix}1.nc"))))
   assertthat::assert_that(is.numeric(thr_as))
   assertthat::assert_that(length(thr_as) == 1)
   assertthat::assert_that(thr_as >= 0)
@@ -620,9 +624,9 @@ graph_add_wind <- function(graph,
     for (i2 in seq_len(length(fl_s$stap_s))) {
       i_s <- fl_s$stap_s[i2]
 
-      full_path <- file.path(directory, paste0(filename_prefix, i_s, ".nc"))
+      full_path <- file.path(directory, glue::glue("{filename_prefix}{i_s}.nc"))
       if (!file.exists(full_path)) {
-        stop(paste0("No wind file: '", full_path))
+        cli::cli_abort(c("x" = "No wind file {.file {full_path}}"))
       }
       nc <- ncdf4::nc_open(full_path)
 
@@ -630,7 +634,7 @@ graph_add_wind <- function(graph,
       t_s <- as.POSIXct(format(fl_s$start[i2], "%Y-%m-%d %H:00:00"), tz = "UTC")
       t_e <- as.POSIXct(format(fl_s$end[i2] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
       if (!(min(time) <= t_e && max(time) >= t_s)) {
-        stop(paste0("Time not matching for for '", directory, i_s, ".nc'"))
+        cli::cli_abort(c("x" = "Time not matching for {.file {directory}{i_s}.nc}"))
       }
 
       pres <- ncdf4::ncvar_get(nc, "level")
@@ -639,7 +643,7 @@ graph_add_wind <- function(graph,
       if (length(pres_value) == 0 ||
         !(min(pres) <= min(pres_value) &&
           max(pres) >= min(1000, max(pres_value)))) {
-        stop(paste0("Pressure not matching for '", directory, i_s, ".nc'"))
+        cli::cli_abort(c("x" = "Pressure not matching for {.file {directory}{i_s}.nc}"))
       }
 
       # Check if spatial extend match
@@ -647,14 +651,14 @@ graph_add_wind <- function(graph,
       lon <- ncdf4::ncvar_get(nc, "longitude")
       if (min(graph$lat) < min(lat) || max(graph$lat) > max(lat) ||
         min(graph$lon) < min(lon) || max(graph$lon) > max(lon)) {
-        stop(paste0("Spatial extend not matching for '", directory, i_s, ".nc'"))
+        cli::cli_abort(c("x" = "Spatial extend not matching for {.file {directory}{i_s}.nc}"))
       }
 
       # Check if flight duration is
       if (fl_s$start[i2] >= fl_s$end[i2]) {
-        stop(paste0(
-          "Flight starting on stap ", fl_s$stap_s[i2], " has a start time equal or greater than ",
-          "the end time. Please review your labeling file."
+        cli::cli_abort(c(
+          "x" = "Flight starting on stap {fl_s$stap_s[i2]} has a start time equal or greater than \\
+                         the end time. Please review your labeling file."
         ))
       }
     }
@@ -679,11 +683,11 @@ graph_add_wind <- function(graph,
 
     # We are assuming that the bird flight as a straight line between the source and the target node
     # of each edge. If multiple flights happen during this transition, we assume that the bird flew
-    # with a constant groundspeed during each flight, thus considering its stop-over position to be
+    # with a constant groundspeed during each flight, thus considering its cli::cli_abort-over position to be
     # spread according to the flight duration. This does not account for habitat, so that it would
-    # assume a bird can stop over water. While we could improve this part of the code to assume
+    # assume a bird can cli::cli_abort over water. While we could improve this part of the code to assume
     # constant airspeed rather than groundspeed, we suggest to create the graph considering all
-    # stopovers.
+    # cli::cli_abortovers.
     ratio_stap <- as.matrix(c(0, cumsum(fl_s_dur) / sum(fl_s_dur)))
 
     # Prepare the u- and v- windspeed for each flight (row) and edge (col)
@@ -868,11 +872,11 @@ graph_add_wind <- function(graph,
   id <- abs(as) <= thr_as
   sta_pass <- which(!(seq_len(graph$sz[3] - 1) %in% unique(s[id, 3])))
   if (length(sta_pass) > 0) {
-    stop(paste0(
-      "Using the `thr_as` of ", thr_as,
-      " km/h provided with the exact distance of edges, there are ",
-      "not any nodes left for the stationary period: ", paste(sta_pass, collapse = ", "),
-      " with a minimum airspeed of ", min(abs(as[s[, 3] == sta_pass])), " km/h"
+    cli::cli_abort(c(
+      "x" =
+        "Using the {.val thr_as} of {thr_as} km/h provided with the exact distance of edges, there \\
+      are not any nodes left for the stationary period: {sta_pass} with a minimum airspeed of \\
+      {min(abs(as[s[, 3] == sta_pass]))} km/h."
     ))
   }
 
@@ -951,7 +955,10 @@ graph_add_movement <- function(graph,
 graph_trans <- function(graph) {
   assertthat::assert_that(is.list(graph))
   if (!assertthat::has_name(graph, "movement")) {
-    stop("The graph does not have a movement model. Make sure to call graph_add_movement() before.")
+    cli::cli_abort(c(
+      "x" = "The graph does not have a movement model.",
+      "i" = "Make sure to call {.fn graph_add_movement} before."
+    ))
   }
   assertthat::assert_that(assertthat::has_name(graph, c("movement", "gs")))
 
@@ -1073,7 +1080,7 @@ graph_marginal <- function(graph) {
       map_fb_i <- map_fb[, , i_s]
       map_fb_i[graph$mask_water] <- NA
       if (sum(map_fb_i, na.rm = TRUE) == 0) {
-        stop(
+        cli::cli_abort(
           "The probability of some transition are too small to find numerical solution. ",
           "Please check the data used to create the graph."
         )

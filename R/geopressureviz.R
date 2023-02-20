@@ -45,12 +45,7 @@
 #' }
 #' @export
 geopressureviz <- function(tag,
-                           static_likelihood,
-                           pressure_likelihood = NA,
-                           light_likelihood = NA,
-                           static_likelihood_marginal = NA,
-                           pressure_likelihood_thr = NA,
-                           pressure_likelihood_mismatch = NA,
+                           map,
                            pressure_timeserie = NA,
                            lauch_browser = TRUE) {
   # Add possible map to display

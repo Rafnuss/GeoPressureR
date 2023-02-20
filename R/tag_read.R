@@ -81,8 +81,8 @@ tag_read <- function(directory,
     tag_read_check(directory, pressure_filename)
   )
   light_path <- ifelse(is.na(light_filename), "",
-                       tag_read_check(directory, light_filename)
-                       )
+    tag_read_check(directory, light_filename)
+  )
   acceleration_path <- ifelse(is.na(acceleration_filename), "",
     tag_read_check(directory, acceleration_filename)
   )
@@ -105,42 +105,29 @@ tag_read <- function(directory,
         assertthat::assert_that(grepl("Migrate Technology", readLines(pressure_path, n = 1)))
         line2 <- readLines(pressure_path, n = 2)[2]
         v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
-        assertthat::assert_that(v >= 13,
-          msg = paste0(
-            "The pressure file (*.deg) is not compatible. Line 2 ",
-            "should contains 'Types:x', with x>=13."
+        if (v >= 13) {
+          cli::cli_abort(
+            "The pressure file {.file {pressure_path}} is not compatible. Line 2 should \\
+             contains {.val Types:x}, with x>=13."
           )
-        )
+        }
 
         # find column index with pressure
         col <- which(utils::read.delim(pressure_path,
           skip = 19, nrow = 1, header = FALSE, sep = ""
         ) == "P(Pa)")
-        assertthat::assert_that(col > 0,
-          msg = paste0(
-            "The pressure file (*.deg) is not compatible. Line 20 ",
-            "should contains 'P(Pa)'"
+        if (col > 0) {
+          cli::cli_abort(
+            "The pressure file {.file {pressure_path}} is not compatible. Line 20 \\
+            should contains {.val P(Pa)}"
           )
-        )
+        }
 
         # Read file
         pres <- tag_read_delim_dto(pressure_path,
           skip = 20, col = col,
           date_format = "%d/%m/%Y %H:%M:%S"
         )
-
-        # Check for error
-        if (any(is.na(pres$value))) {
-          stop(paste0("Invalid data in ", basename(pressure_path), " at line(s): ", 20 +
-            which(is.na(pres$value)), ". Check and fix the corresponding lines"))
-        }
-        if (length(unique(diff(pres$date))) > 1) {
-          dtime <- as.numeric(diff(pres$date))
-          warning(paste0(
-            "Irregular time spacing in ", basename(pressure_path), " at line(s): ",
-            20 + which(dtime != dtime[1]), "."
-          ))
-        }
 
         # convert Pa in hPa
         pres$value <- pres$value / 100
@@ -162,11 +149,12 @@ tag_read <- function(directory,
           light_path,
           skip = 19, nrow = 1, header = FALSE, sep = ""
         ) == "light(lux)")
-        assertthat::assert_that(col > 0,
-          msg = paste0(
-            "The light file (*.lux) is not compatible. Line 20 should contains 'light(lux)'"
+        if (col > 0) {
+          cli::cli_abort(
+            "The light file {.file {light_path}} is not compatible. Line 20 \\
+            should contains {.val light(lux)}"
           )
-        )
+        }
 
         # Read file
         light <- tag_read_delim_dto(light_path,
@@ -174,18 +162,6 @@ tag_read <- function(directory,
           date_format = "%d/%m/%Y %H:%M:%S"
         )
 
-        # Check for error
-        if (any(is.na(light$value))) {
-          stop(paste0("Invalid data in ", basename(light_path), " at line(s): ", 20 +
-            which(is.na(light$value)), ". Check and fix the corresponding lines"))
-        }
-        if (length(unique(diff(light$date))) > 1) {
-          dtime <- as.numeric(diff(light$date))
-          warning(paste0(
-            "Irregular time spacing in ", basename(light_path), " at line(s): ",
-            20 + which(dtime != dtime[1]), "."
-          ))
-        }
         subset(light, date >= crop_start & date < crop_end)
       },
       {
@@ -201,41 +177,29 @@ tag_read <- function(directory,
         assertthat::assert_that(grepl("Migrate Technology", readLines(acceleration_path, n = 1)))
         line2 <- readLines(acceleration_path, n = 2)[2]
         v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
-        assertthat::assert_that(v >= 13,
-          msg = paste0(
-            "The acceleration file (*.deg) is not compatible. Line 2  should contains 'Types:x', ",
-            "with x>=13."
+        if (v >= 13) {
+          cli::cli_abort(
+            "The acceleration file {.file {acceleration_path}} is not compatible. Line 2 should \\
+             contains {.val Types:x}, with x>=13."
           )
-        )
+        }
 
         # find column index with acceleration
         col <- which(utils::read.delim(acceleration_path,
           skip = 19, nrow = 1, header = FALSE, sep = ""
         ) == "Zact")
-        assertthat::assert_that(col > 0,
-          msg = paste0(
-            "The acceleration file (*.deg) is not compatible. Line 20 should contains 'Zact'"
+        if (col > 0) {
+          cli::cli_abort(
+            "The light file {.file {acceleration_path}} is not compatible. Line 20 \\
+            should contains {.val Zact}"
           )
-        )
+        }
 
         # Read file
         acc <- tag_read_delim_dto(acceleration_path,
           skip = 20, col = col,
           date_format = "%d/%m/%Y %H:%M:%S"
         )
-
-        # Check for error
-        if (any(is.na(acc$value))) {
-          stop(paste0("Invalid data in ", basename(acceleration_path), " at line(s): ", 20 +
-            which(is.na(acc$value)), ". Check and fix the corresponding lines"))
-        }
-        if (length(unique(diff(acc$date))) > 1) {
-          dtime <- as.numeric(diff(acc$date))
-          warning(paste0(
-            "Irregular time spacing in ", basename(acceleration_path), " at line(s): ",
-            20 + which(dtime != dtime[1]), "."
-          ))
-        }
         # Crop time
         subset(acc, date >= crop_start & date < crop_end)
       },
@@ -255,14 +219,14 @@ tag_read <- function(directory,
 #' @seealso [`tag_read()`]
 #' @noRd
 tag_read_check <- function(directory, filename) {
-  path <- list.files(directory, pattern = paste0(filename, "$"), full.names = TRUE)
+  path <- list.files(directory, pattern = glue::glue(filename, "$"), full.names = TRUE)
   if (length(path) == 0) {
-    warning(paste0("No file is matching '", filename, "'. This file will be ignored."))
+    cli::cli_warn(glue::glue("No file is matching '", filename, "'. This file will be ignored."))
     path <- ""
   } else if (length(path) > 1) {
-    warning(paste0(
-      "Multiple files matching '", filename, "': \n", paste(path, collapse = "\n"),
-      ". \nThe function will continue with the first one."
+    cli::cli_warn(c(
+      "!" = "Multiple files matching {.file {filename}}: {path}",
+      ">" = "The function will continue with the first one."
     ))
     path <- path[1]
   }
@@ -287,5 +251,18 @@ tag_read_delim_dto <- function(full_path, skip = 6, col = 3, date_format = "%d.%
     )),
     value = data_raw[, col]
   )
+
+  if (any(is.na(df$value))) {
+    cli::cli_abort(c(
+      "x" = "Invalid data in {.file {full_path)} at line(s): {20 + which(is.na(df$value))}",
+      "i" = "Check and fix the corresponding lines"
+    ))
+  }
+
+  if (length(unique(diff(df$date))) > 1) {
+    dtime <- as.numeric(diff(df$date))
+    line_pb <- 20 + which(dtime != dtime[1])
+    cli::cli_warn("Irregular time spacing in {.file {full_path}} at line(s): {line_pb}.")
+  }
   return(df)
 }

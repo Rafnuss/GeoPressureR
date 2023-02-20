@@ -37,12 +37,11 @@ tag_stap <- function(tag) {
       assertthat::has_name(tag$acceleration, "label")) {
     sensor <- tag$acceleration
     if ("flight" %in% tag$pressure$label) {
-      warning(paste0(
-        "The stationary periods will be estimated from acceleration data and the ",
-        "label 'flight' from pressure will be ignored. It is best practise to remove 'flight' in ",
-        "pressure data if you are using acceleration. Remove label column in acceleration data to ",
-        "use pressure label."
-      ))
+      cli::cli_warn("The stationary periods will be estimated from acceleration data and the \\
+        label {.val flight} from pressure will be ignored. It is best practise to remove
+        {.val flight} in  pressure data if you are using acceleration. Remove label column in
+        acceleration data to use pressure label."
+      )
     }
   } else {
     sensor <- tag$pressure

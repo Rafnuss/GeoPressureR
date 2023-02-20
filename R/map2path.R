@@ -94,9 +94,9 @@ map2path <- function(likelihood,
     # Enforce first and last stap constant
     if (any(id_interp[c(1, length(id_interp))])) {
       id_interp[c(1, length(id_interp))] <- FALSE
-      warning(paste0(
-        "First and last stap are shorter than ", interp, " days but cannot be ",
-        "interpolated. They will be kept as constant."
+      cli::cli_warn(c(
+        "!" = "First and last stap are shorter than {interp} days but cannot be interpolated.",
+        ">" = "They will be kept as constant."
       ))
     }
 
