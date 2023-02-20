@@ -393,11 +393,13 @@ tag_stap <- function(tag) {
   if (assertthat::has_name(tag, "acceleration") &&
     assertthat::has_name(tag$acceleration, "label")) {
     sensor <- tag$acceleration
-    if("flight" %in% tag$pressure$label){
-      warning(paste0("The stationary periods will be estimated from acceleration data and the ",
-      "label 'flight' from pressure will be ignored. It is best practise to remove 'flight' in ",
-      "pressure data if you are using acceleration. Remove label column in acceleration data to ",
-      "use pressure label."))
+    if ("flight" %in% tag$pressure$label) {
+      warning(paste0(
+        "The stationary periods will be estimated from acceleration data and the ",
+        "label 'flight' from pressure will be ignored. It is best practise to remove 'flight' in ",
+        "pressure data if you are using acceleration. Remove label column in acceleration data to ",
+        "use pressure label."
+      ))
     }
   } else {
     sensor <- tag$pressure
@@ -415,7 +417,7 @@ tag_stap <- function(tag) {
   )
 
   # Assign to each sensor the stationary period to which it belong to.
-  for (sensor_df in c("pressure", "acceleration", "light")){
+  for (sensor_df in c("pressure", "acceleration", "light")) {
     if (assertthat::has_name(tag, sensor_df)) {
       assertthat::assert_that(is.data.frame(tag[[sensor_df]]))
       assertthat::assert_that(assertthat::has_name(tag[[sensor_df]], "date"))
