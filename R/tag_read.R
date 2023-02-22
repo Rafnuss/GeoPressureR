@@ -63,13 +63,16 @@
 #' str(tag)
 #'
 #' @export
-tag_read <- function(directory,
-                     pressure_filename = "*.pressure",
-                     light_filename = "*.glf",
-                     acceleration_filename = "*.acceleration",
+tag_read <- function(id,
+                     directory = glue::glue("data/0_tag/{tag$id}/"),
+                     pressure_file = "*.pressure",
+                     light_file = "*.glf",
+                     acceleration_file = "*.acceleration",
                      crop_start = "1900-01-01",
                      crop_end = "2100-01-01",
-                     id = NA) {
+                     ) {
+  assertthat::assert_that(is.character(id))
+  assertthat::assert_that(is.character(directory))
   assertthat::assert_that(dir.exists(directory))
 
   # convert date to POSIXct date and check format
@@ -86,12 +89,6 @@ tag_read <- function(directory,
   acceleration_path <- ifelse(is.na(acceleration_filename), "",
     tag_read_check(directory, acceleration_filename)
   )
-
-  if (is.na(id)) {
-    id <- strsplit(basename(pressure_path), "_")[[1]][1]
-  } else if (id == "basename") {
-    id <- basename(directory)
-  }
 
   # Read Pressure
   pressure <- switch(tools::file_ext(pressure_path),
