@@ -238,7 +238,7 @@ find_twilights <- function(light,
     )
   }
   id_ss_s <- id_ss + (seq_len(dim(l)[2]) - 1) * dim(l)[1]
-  ss <- as.POSIXct(mat$date[id_ss_s], origin = "1970-01-01", tz = "UTC")
+  ss <- as.POSIXct(mat$date[id_ss_s+1], origin = "1970-01-01", tz = "UTC")
 
   out <- data.frame(
     twilight = c(ss, sr),
