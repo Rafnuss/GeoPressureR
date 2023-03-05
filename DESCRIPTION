@@ -12,6 +12,8 @@ License: GPL (>= 3)
 URL: https://github.com/Rafnuss/GeoPressureR,
     https://raphaelnussbaumer.com/GeoPressureR/
 BugReports: https://github.com/Rafnuss/GeoPressureR/issues
+Depends: 
+    R (>= 4.1.0)
 Imports: 
     assertthat,
     EBImage,
@@ -31,15 +33,15 @@ Imports:
     tools,
     utils
 Suggests: 
+    BiocManager,
     ggplot2,
-    igraph,
     knitr,
     leaflet,
     leaflet.extras,
     plotly,
+    raster,
     RColorBrewer,
-    testthat,
-    BiocManager,
+    testthat (>= 3.0.0),
     shinyjs,
     shiny,
     shinyWidgets,

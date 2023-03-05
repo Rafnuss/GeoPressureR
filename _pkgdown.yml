@@ -28,32 +28,69 @@ navbar:
 
 reference:
 - title: Tag
-  desc: Reading, crop, and basic operation for data logger.
+  desc: Reading and labelling the data logger.
   contents:
-  - starts_with("tag_")
-  - starts_with("trainset_")
+  - tag_read
+  - tag_label
+  - tag_label_classify
+  - tag_label_write
+  - tag_label_read
+  - tag_label_stap
+- title: GeoStap
+  desc: Defining the GEOgraphical grid and individual STAtionary Periods.
+  contents:
+  - geostap_create
+  - tag_label_update
 - title: GeoPressure
+  desc: Core functionality using the GeoPressureAPI
+- subtitle: GeoPressure Map
   desc: Geopositioning based on pressure data.
   contents:
-  - starts_with("geopressure_")
-- title: Graph
-  desc: Construct the Hidden-Markov Model with a graph and compute trajectories products.
+  - geopressure_map
+  - geopressure_map_mismatch
+  - geopressure_map_likelihood
+  - geopressure_map_preprocess
+- subtitle: GeoPressure timeseries
+  desc: Retrieving pressure and altitude at a given location.
   contents:
-  - starts_with("graph_")
-- title: Flight
-  desc: Building movement model converting groundspeed or airspeed to a likelihood function specific to a bird.
-  contents:
-  - starts_with("flight_")
-- title: GeoPressureViz
-  desc: Vizualize likelihood map and trajectory with a Shiny app.
-  contents:
-  - geopressureviz
+  - geopressure_timeseries
+  - geopressure_timeseries_latlon
 - title: GeoLight
   desc: Geopositioning based on light data.
   contents:
-  - starts_with("geolight_")
-- title: Utility
-  desc: GeoPressureR utilits functions
+  - starts_with("geolight")
+  - starts_with("twilight")
+- title: Graph
+  desc: Constructing the Hidden-Markov Model with a graph and computing trajectory products.
   contents:
-  - path2df
-  - map2path
+  - graph_create
+- subtitle: Graph wind
+  contents:
+  - graph_download_wind
+  - graph_add_wind
+- subtitle: Graph movement
+  contents:
+  - graph_add_movement
+  - graph_transition
+- subtitle: Graph products
+  contents:
+  - graph_most_likely
+  - graph_marginal
+  - graph_simulation
+- title: GeoPressure Vizualization
+  contents:
+  - geopressureviz
+  - geopressure_check2_plot
+  - geopressure_map_check
+  - geopressure_ts_check
+- title: Utility
+  desc: GeoPressureR utility functions.
+  contents:
+  - stap2flight
+  - geo_expand
+  - geostap2path
+  - ind2path
+  - bird_create
+  - speed2prob
+  - path2edge
+

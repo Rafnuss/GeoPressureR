@@ -1,7 +1,7 @@
 library(testthat)
 library(GeoPressureR)
 # Hide cli message
-options(cli.default_handler = function(...) { })
+# options(cli.default_handler = function(...) { })
 
 # Small synthetic case
 tag_sm <- list()
@@ -13,120 +13,111 @@ tag_sm$pressure <- data.frame(
   value = c(1000, 1000, 1000, 1000),
   label = c("", "", "", "")
 )
-tag_sm <- tag_stap(tag_sm)
+tag_sm <- tag_label_stap(tag_sm)
 path_pressure_sm <- data.frame(
   lat = 46,
   lon = 16,
-  stap = 1
+  stap_id = 1
 )
 
-test_that("geopressure_timeseries() | default output", {
-  pressure_timeserie <- geopressure_timeseries(
+test_that("geopressure_timeseries_latlon() | default output", {
+  pressure_timeseries <- geopressure_timeseries_latlon(
     lon = 6, lat = 46,
     start_time = as.POSIXct("2017-06-20 00:00:00", tz = "UTC"),
     end_time = as.POSIXct("2017-06-20 02:00:00", tz = "UTC")
   )
   expect_s3_class(pressure_timeserie, "data.frame")
-  expect_true(all(c("date", "pressure_era5", "lat", "lon") %in% names(pressure_timeserie)))
+  expect_true(all(c("date", "pressure_era5", "lat", "lon") %in% names(pressure_timeseries)))
 })
 
-test_that("geopressure_timeseries() | on water", {
+test_that("geopressure_timeseries_latlon() | on water", {
   # On water
-  expect_warning(geopressure_timeseries(
+  expect_warning(geopressure_timeseries_latlon(
     lon = 0, lat = 0,
     start_time = as.POSIXct("2017-06-20 00:00:00", tz = "UTC"),
     end_time = as.POSIXct("2017-06-20 02:00:00", tz = "UTC")
   ), "*water*")
 })
 
-test_that("geopressure_timeseries() | with lat, lon and pressure", {
-  pressure_timeserie <- geopressure_timeseries(lon = 6, lat = 46, pressure = tag_sm$pressure)
+test_that("geopressure_timeseries_latlon() | with lat, lon and pressure", {
+  pressure_timeseries <- geopressure_timeseries_latlon(lat = 46, lon = 6, pressure = tag_sm$pressure)
   expect_s3_class(pressure_timeserie, "data.frame")
-  expect_true(all(c("date", "pressure_era5") %in% names(pressure_timeserie)))
+  expect_true(all(c("date", "pressure_era5") %in% names(pressure_timeseries)))
 })
 
-test_that("geopressure_timeseries_path() | Default output", {
+test_that("geopressure_timeseries() | Default output", {
   # Check for incorrect input
-  expect_error(geopressure_timeseries_path(path_pressure_sm, "no_a_pressure"), "pressure is not a data frame")
-  expect_error(geopressure_timeseries_path("not_a_path", tag_sm$pressure))
-  expect_error(geopressure_timeseries_path(path_pressure_sm, tag_sm$pressure, include_flight = 2))
-  expect_error(geopressure_timeseries_path(path_pressure_sm, tag_sm$pressure, include_flight = NA))
-  expect_error(geopressure_timeseries_path(path_pressure_sm, tag_sm$pressure, include_flight = c(0, 10)))
+  expect_error(geopressure_timeseries(path_pressure_sm, "no_a_pressure"), "pressure is not a data frame")
+  expect_error(geopressure_timeseries("not_a_path", tag_sm$pressure))
+  expect_error(geopressure_timeseries(path_pressure_sm, tag_sm$pressure, include_flight = 2))
+  expect_error(geopressure_timeseries(path_pressure_sm, tag_sm$pressure, include_flight = NA))
+  expect_error(geopressure_timeseries(path_pressure_sm, tag_sm$pressure, include_flight = c(0, 10)))
 
-  expect_no_error(geopressure_timeseries_path(path_pressure_sm, tag_sm$pressure))
+  expect_no_error(geopressure_timeseries(path_pressure_sm, tag_sm$pressure))
 })
 
-test_that("geopressure_timeseries_path() | over water", {
+test_that("geopressure_timeseries() | over water", {
   path_pressure_sm$lon <- 0
   path_pressure_sm$lat <- 0
-  expect_warning(pressure_timeserie <- geopressure_timeseries_path(path_pressure_sm, tag_sm$pressure))
-  expect_true(pressure_timeserie$lat[1] != 0)
+  expect_warning(pressure_timeseries <- geopressure_timeseries(path_pressure_sm, tag_sm$pressure))
+  expect_true(pressure_timeseries$lat[1] != 0)
 })
+
+
 
 
 
 
 # Start by computing all the necessary file for the tests
-tag <- tag_read(
-  directory = system.file("extdata/0_tag/18LX", package = "GeoPressureR"),
-  crop_start = "2017-08-01", crop_end = "2017-10-01"
+tag <- tag_read("18LX") |> tag_label()
+stap <- tag$stap
+path <- data.frame(
+  stap_id = seq_len(5),
+  ind = c(1652, 1554, 1407, 1611, 1409),
+  lat = c(48.5, 46.5, 43.5, 39.5, 41.5),
+  lon = c(17.5, 15.5, 12.5, 16.5, 12.5),
+  model = c(T, T, T, T, T),
+  known = c(T, F, F, F, F)
 )
-tag <- trainset_read(
-  tag,
-  directory = system.file("extdata/1_pressure/labels", package = "GeoPressureR")
-)
-tag <- tag_stap(tag)
-pressure_mismatch <- readRDS(
-  system.file(
-    "extdata/1_pressure/18LX_pressure_mismatch.rds",
-    package = "GeoPressureR"
-  )
-)
-pressure_likelihood <- geopressure_likelihood(pressure_mismatch)
-path_pressure <- map2path(pressure_likelihood)
-
 
 i_s <- 4
 n <- c(16, 32, 10) # number of valid datapoint for stap=4
-path <- subset(path_pressure, stap == i_s)
-pressure <- subset(tag$pressure, stap == i_s)
+path_i <- subset(path, stap_id == i_s)
+pressure <- subset(tag$pressure, stap_id == i_s)
 
-testthat("geopressure_timeseries() | full example", {
-  pressure_timeserie <- geopressure_timeseries(path$lon, path$lat, pressure)
+test_that("geopressure_timeseries_latlon() | full example", {
+  path_pres <- geopressure_timeseries_latlon(path_i$lat, path_i$lon, pressure)
   expect_true(all(c(
     "date", "pressure_tag", "pressure_era5", "altitude", "pressure_era5_norm"
-  ) %in% names(pressure_timeserie)))
-  expect_equal(nrow(pressure_timeserie), n[2])
+  ) %in% names(path_pres)))
+  expect_equal(nrow(path_pres), n[2])
 })
 
-test_that("geopressure_timeseries_path() | full example", {
-  pressure_timeserie <- expect_no_error(geopressure_timeseries_path(path, pressure))
+test_that("geopressure_timeseries() | full example", {
+  path_pres <- expect_no_error(geopressure_timeseries(path_i, pressure))
   expect_true(all(c(
-    "date", "pressure_tag", "stap", "pressure_era5", "altitude", "pressure_era5_norm", "lat", "lon",
-    "stap_ref"
-  ) %in% names(pressure_timeserie)))
-  expect_equal(nrow(pressure_timeserie), n[2])
+    "date", "pressure_tag", "stap_id", "pressure_era5", "altitude", "pressure_era5_norm", "lat",
+    "stap_ref", "lon"
+  ) %in% names(path_pres)))
+  expect_equal(nrow(path_pres), n[2])
 })
 
-testthat("geopressure_timeseries() | include flight", {
+test_that("geopressure_timeseries_latlon() | include flight", {
   pressure <- subset(tag$pressure, stap == i_s | stap == 0)
-  pressure_timeserie <- geopressure_timeseries(path$lon, path$lat, pressure)
-  expect_equal(nrow(pressure_timeserie), 80)
+  path_pres <- geopressure_timeseries_latlon(path_i$lat, path_i$lon, pressure)
+  expect_equal(nrow(path_pres), 80)
 })
 
-testthat("geopressure_timeseries_path() | Flight single stap", {
-  pressure_timeserie <- geopressure_timeseries_path(path, tag$pressure, include_flight = TRUE)
-  expect_equal(nrow(pressure_timeserie), sum(n))
-  expect_equal(sum(pressure_timeserie$stap == i_s), n[2])
-  pressure_timeserie <- geopressure_timeseries_path(path, tag$pressure, include_flight = c(-1, 1))
-  expect_equal(nrow(pressure_timeserie), sum(n[c(1, 3)]))
+test_that("geopressure_timeseries() | Flight single stap", {
+  path_pres <- geopressure_timeseries(path_i, tag$pressure, include_flight = TRUE)
+  expect_equal(nrow(path_pres), sum(n))
+  expect_equal(sum(path_pres$stap_id == i_s), n[2])
+  path_pres <- geopressure_timeseries(path_i, tag$pressure, include_flight = c(-1, 1))
+  expect_equal(nrow(path_pres), sum(n[c(1, 3)]))
 })
 
-testthat("geopressure_timeseries_path() | Flight multiple stap", {
-  path <- path_pressure[c(3, 4), ]
-  pressure_timeserie <- geopressure_timeseries_path(path, tag$pressure)
-  expect_gt(nrow(pressure_timeserie), n[2])
-  expect_equal(sum(pressure_timeserie$stap == 4), n[2])
-  pressure_timeserie <- geopressure_timeseries_path(path, pressure, include_flight = c(-1, 0, 1))
-  expect_equal(sum(pressure_timeserie$stap_ref == 4), sum(n))
+test_that("geopressure_timeseries() | Flight multiple stap", {
+  path_i <- path[c(2, 4), ]
+  path_pres <- geopressure_timeseries(path, tag$pressure)
+  expect_equal(sum(path_pres$stap_id == 4), n[2])
 })

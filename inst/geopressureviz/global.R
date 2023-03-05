@@ -10,12 +10,10 @@ suppressMessages({
   library(shiny)
   library(leaflet)
   library(plotly)
-  library(rgdal)
+  #library(rgdal)
   library(leaflet.extras)
   library(raster)
   library(shinyWidgets)
   library(geosphere)
   library(RColorBrewer)
-  library(readr)
 })
-

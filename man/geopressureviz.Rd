@@ -4,65 +4,23 @@
 \alias{geopressureviz}
 \title{Start the GeoPressureViz shiny app}
 \usage{
-geopressureviz(
-  tag,
-  static_likelihood,
-  pressure_likelihood = NA,
-  light_likelihood = NA,
-  static_likelihood_marginal = NA,
-  pressure_likelihood_thr = NA,
-  pressure_likelihood_mismatch = NA,
-  pressure_timeserie = NA,
-  lauch_browser = TRUE
-)
+geopressureviz(geostap, path_pres = NA, launch_browser = TRUE)
 }
 \arguments{
-\item{tag}{data logger dataset list with \code{tag$sta} computed. See \code{\link[=tag_read]{tag_read()}} and \code{\link[=tag_stap]{tag_stap()}}.}
+\item{geostap}{List of the geographical and stationary period information. See
+\code{\link[=geostap_create]{geostap_create()}} for details.}
 
-\item{static_likelihood}{List of SpatRaster containing probability map of each stationary period. The
-metadata of \code{static_likelihood} needs to include the flight information to the next stationary period
-in the metadata \code{flight}. See \href{https://raphaelnussbaumer.com/GeoPressureManual/static-map.html#combine-pressure-and-light}{GeoPressureManual | Static map }.}
+\item{path_pres}{geopressure_timeseries}
 
-\item{pressure_likelihood}{List of SpatRaster containing probability map of each stationary period
-according to pressure data. See \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-probability-maps}{GeoPressureManual | Pressure map }.}
-
-\item{light_likelihood}{List of SpatRaster containing probability map of each stationary period according
-to light data. See \href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#compute-probability-map}{GeoPressureManual | Light map }.}
-
-\item{static_likelihood_marginal}{List of SpatRaster containing probability map of each stationary period
-according to the graph output. See \href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map}{GeoPressureManual | Basic graph }.}
-
-\item{pressure_likelihood_thr}{List of SpatRaster containing probability map of each stationary period
-according to the threshold of pressure data. See \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#computing-pressure-maps}{GeoPressureManual | Pressure map }.}
-
-\item{pressure_likelihood_mismatch}{List of raster containing probability map of each stationary period
-according to mismatch of pressure data. See \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#computing-pressure-maps}{GeoPressureManual | Pressure map }.}
-
-\item{pressure_timeserie}{List of data.frame containing at least \code{stap}, \code{date} and \code{pressure0}}
-
-\item{lauch_browser}{If true (default), the app run in your browser, otherwise on Rstudio}
+\item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on Rstudio.}
 }
 \value{
-The path modified in the app.
+The updated path visualized in the app.
 }
 \description{
-GeoPressureViz is a shiny app designed to helps you visualize the overall trajectory of the bird
+GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
 as well as each step-by-step move. Learn more about GeoPressureViz in the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual | GeoPressureViz} or with
-a \href{https://rafnuss.shinyapps.io/GeoPressureViz/}{demo of the Great Reed Warbler (18LX)}.
-}
-\examples{
-\dontrun{
-load("data/1_pressure/18LX_pressure_likelihood.Rdata")
-load("data/2_light/18LX_light_likelihood.Rdata")
-load("data/3_static/18LX_static_likelihood.Rdata")
-geopressureviz(
-  tag = tag,
-  static_likelihood = static_likelihood,
-  pressure_likelihood = pressure_likelihood,
-  light_likelihood = light_likelihood,
-  pressure_timeserie = static_timeserie
-)
-}
+this \href{https://rafnuss.shinyapps.io/GeoPressureViz/}{demo of the Great Reed Warbler (18LX)}.
 }
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual | GeoPressureViz }
