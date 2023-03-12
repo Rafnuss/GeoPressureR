@@ -74,7 +74,7 @@ test_that("workflow | Missing pressure value", {
 
 test_that("geopressure_mismach & likelihood | with elev_", {
   tag <- tag_read("18LX")
-  tag <- tag_label(tag, file = "data/1_labels/18LX-labeled-elev.csv")
+  tag <- tag_label(tag, file = "data/1-tag_label/18LX-labeled-elev.csv")
   geostap <- geostap_create(tag,
     extent = c(-16, 23, 0, 50),
     scale = 1

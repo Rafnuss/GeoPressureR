@@ -61,7 +61,7 @@
 #'
 #' @export
 tag_read <- function(id,
-                     directory = glue::glue("data/0_tag/{id}/"),
+                     directory = glue::glue("data/0-tag/{id}/"),
                      pressure_file = "*.pressure",
                      light_file = "*.glf",
                      acceleration_file = "*.acceleration",

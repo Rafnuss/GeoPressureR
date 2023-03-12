@@ -39,7 +39,7 @@
 #' @family tag_label
 #' @export
 tag_label <- function(tag,
-                      file = glue::glue("data/1_labels/{tag$id}-labeled.csv")) {
+                      file = glue::glue("data/1-tag_label/{tag$id}-labeled.csv")) {
   assertthat::assert_that(is.character(file))
 
   # Check if the label file exist
@@ -55,7 +55,7 @@ tag_label <- function(tag,
     }
 
     # Suggest to write the file
-    file_default <- glue::glue("data/1_labels/{tag$id}.csv")
+    file_default <- glue::glue("data/1-tag_label/{tag$id}.csv")
     choices <- c(
       "No",
       glue::glue("Yes, in `{file_default}` (default)"),

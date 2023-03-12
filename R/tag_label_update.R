@@ -21,7 +21,7 @@
 #'   geopressure_timeseries(tag$pressure)
 #'
 #' update <- tag_label_update(
-#'   file = "data/1_labels/18LX-labeled-modif.csv",
+#'   file = "data/1-tag_label/18LX-labeled-modif.csv",
 #'   tag,
 #'   geostap,
 #'   path_pres
@@ -30,7 +30,7 @@
 #' list2env(update, env = .GlobalEnv)
 #' @export
 tag_label_update <- function(tag,
-                             file = glue::glue("data/1_labels/{tag$id}-labeled.csv"),
+                             file = glue::glue("data/1-tag_label/{tag$id}-labeled.csv"),
                              geostap = NA,
                              path_pres = NA) {
   # check input

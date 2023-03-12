@@ -46,9 +46,12 @@
 #'  <https://doi.org/10.1111/2041-210X.14043>.}
 #' @family geopressure_map
 #' @examples
+#' temp_dir <- getwd()
+#' print(temp_dir)
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' tag <- tag_read("18LX") |>
 #'   tag_label()
+#' setwd(temp_dir)
 #'
 #' geostap <- geostap_create(tag,
 #'   extent = c(-16, 23, 0, 50),

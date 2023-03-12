@@ -80,9 +80,8 @@ reference:
 - title: GeoPressure Vizualization
   contents:
   - geopressureviz
-  - geopressure_check2_plot
-  - geopressure_map_check
-  - geopressure_ts_check
+  - plot_pressure_path
+  - plot_pressure_tag
 - title: Utility
   desc: GeoPressureR utility functions.
   contents:
@@ -93,4 +92,5 @@ reference:
   - bird_create
   - speed2prob
   - path2edge
+  - geopressure_export
 

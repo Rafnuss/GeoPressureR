@@ -54,7 +54,7 @@ test_that("tag_read() | no acceleration", {
     light_file = NA
   ))
   expect_no_error(tag <- tag_label_read(tag,
-    file = "data/1_labels/18LX-labeled-no_acc.csv"
+    file = "data/1-tag_label/18LX-labeled-no_acc.csv"
   ))
   expect_no_error(tag_label_stap(tag))
 })

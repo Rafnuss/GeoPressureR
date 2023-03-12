@@ -16,7 +16,7 @@
 #' @family tag_label
 #' @export
 tag_label_read <- function(tag,
-                           file = glue::glue("data/1_labels/{tag$id}-labeled.csv")) {
+                           file = glue::glue("data/1-tag_label/{tag$id}-labeled.csv")) {
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))

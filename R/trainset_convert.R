@@ -1,5 +1,5 @@
 trainset_convert <- function(tag,
-                             directory = "data/1_labels/",
+                             directory = "data/1-tag_label/",
                              file = glue::glue(tag$id, "_act_pres-labeled.csv"),
                              keep_acc = FALSE) {
   assertthat::assert_that(is.list(tag))

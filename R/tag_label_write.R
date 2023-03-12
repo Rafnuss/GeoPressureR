@@ -26,13 +26,13 @@
 #' # Writing labeled tag will use the existing labels
 #' tag <- tag_label(tag)
 #' file <- tag_label_write(tag,
-#'   file = glue::glue("data/1_labels/{tag$id}-v2.csv")
+#'   file = glue::glue("data/1-tag_label/{tag$id}-v2.csv")
 #' )
 #' str(read.csv(file))
 #' @family tag_label
 #' @export
 tag_label_write <- function(tag,
-                            file = glue::glue("data/1_labels/{tag$id}.csv")) {
+                            file = glue::glue("data/1-tag_label/{tag$id}.csv")) {
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
