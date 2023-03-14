@@ -1,8 +1,8 @@
 #' Create a `geostap`
 #'
 #' @description
-#' This function creates a `geostap` list, which defines all the essential information needed to construct the
-#' likelihood map and later create the graph.
+#' This function creates a `geostap` list, which defines all the essential information needed to
+#' construct the likelihood map and later create the graph.
 #'
 #' `geostap` stands for **geo**graphical and **sta**tionary **p**eriod, as these are the two
 #' key dimensions (space-time) which are defined here for the rest of the analysis.
@@ -113,12 +113,12 @@ geostap_create <- function(tag,
   }
 
   # Copy
-  geostap <- list(
+  geostap <- structure(list(
     id = tag$id,
     stap = stap,
     scale = scale,
     extent = extent
-  )
+  ), class="geostap")
 
   return(geostap)
 }

@@ -299,6 +299,7 @@ graph_create <- function(geostap,
   # Convert gr to a graph list
   graph <- as.list(do.call("rbind", gr))
   attr(graph, "out.attrs") <- NULL
+  graph <- structure(graph, class="graph")
 
   # Add observation model as matrix
   graph$obs <- do.call(c, lk_norm)

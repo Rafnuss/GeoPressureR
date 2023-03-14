@@ -96,9 +96,9 @@ tag_read <- function(id,
     return(path)
   })
 
-  tag <- list(
+  tag <- structure(list(
     id = id
-  )
+  ), class="tag")
 
   # Read Pressure
   tag$pressure <- switch(tools::file_ext(sensor_paths[1]),

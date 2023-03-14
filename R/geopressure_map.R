@@ -109,7 +109,7 @@ geopressure_map <- function(geostap,
 
   # remove intermediate maps computed by geopressure_map_mismatch()
   if (!keep_mse_mask) {
-    geostap <- geostap[!(names(geostap) %in% c("mse", "mask"))]
+    geostap[names(geostap) %in% c("mse", "mask")] <- NULL
     geostap$stap <- geostap$stap[names(geostap$stap) != "nb_sample"]
   }
 
