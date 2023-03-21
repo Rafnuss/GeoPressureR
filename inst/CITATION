@@ -1,7 +1,7 @@
 citHeader("To cite GeoPressureR in publications use the following according to your need (nussbaumer2022a for the method, nussbaumer2022b for the R code")
 
 citEntry(
-  entry   = "misc",
+  entry   = "article",
   textVersion = "nussbaumer2022a",
   title   = "Global positioning with animal-borne pressure sensors",
   author  = personList(
@@ -17,7 +17,7 @@ citEntry(
 )
 
 citEntry(
-  entry   = "misc",
+  entry   = "article",
   textVersion = "nussbaumer2022b",
   title   = "Reconstructing bird trajectories from pressure and wind data using a highly optimised hidden Markov model",
   author  = personList(
@@ -27,10 +27,10 @@ citEntry(
     person("Felix", "Liechti", email = "felix.liechti@vogelwarte.ch", comment = c(ORCID = "0000-0001-9473-0837")),
     person("Daniel", "Sheldon", comment = c(ORCID = "0000-0002-4257-2432"))
   ),
-  doi     = "10.21203/rs.3.rs-1693751/v2",
-  url     = "https://doi.org/10.21203/rs.3.rs-1693751/v2",
-  pages   = "1--32",
-  year    = "2022"
+  doi     = "10.1111/2041-210X.14082",
+  url     = "https://doi.org/10.1111/2041-210X.14082",
+  pages   = "1--12",
+  year    = "2023"
 )
 
 
@@ -43,5 +43,6 @@ citEntry(
     person("Mathieu", "Gravey", email = "mathieu@mgravey.com", comment = c(ORCID = "0000-0002-0871-1507"))
   ),
   url     = "https://github.com/Rafnuss/GeoPressureR",
+  doi     = "10.5281/zenodo.7754457",
   year    = "2022"
 )

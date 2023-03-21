@@ -5,6 +5,7 @@
 
 <!-- badges: start -->
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7754457.svg)](https://doi.org/10.5281/zenodo.7754457)
 [![R-CMD-check](https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions)
 [![pkgdown](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml)
 [![Codecov test
