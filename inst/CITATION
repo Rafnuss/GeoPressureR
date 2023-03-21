@@ -13,7 +13,8 @@ citEntry(
   doi     = "10.1111/2041-210X.14043",
   url     = "https://doi.org/10.1111/2041-210X.14043",
   pages   = "1--14",
-  year    = "2023"
+  year    = "2023",
+  journal = "Methods in Ecology and Evolution"
 )
 
 citEntry(
@@ -30,7 +31,8 @@ citEntry(
   doi     = "10.1111/2041-210X.14082",
   url     = "https://doi.org/10.1111/2041-210X.14082",
   pages   = "1--12",
-  year    = "2023"
+  year    = "2023",
+  journal = "Methods in Ecology and Evolution"
 )
 
 
