@@ -5,7 +5,7 @@
 #' @param tag A tag list
 #'
 #' @return `tag` is returned invisibly and unchanged
-#' @seealso tag_read
+#' @family tag
 #' @export
 print.tag <- function(tag){
   cli::cli_text("Data logger of {.field {tag$id}}")
@@ -20,17 +20,18 @@ print.tag <- function(tag){
     cli::cli_li("{.field light}: {nrow(tag$light)} datapoints")
   }
   cli::cli_text("Status:")
-  if ("label" %in% names(tag$pressure)){
-    cli::cli_alert_success("Labeled!")
-    if ("stap" %in% names(tag)){
-      cli::cli_alert_success("{nrow(tag$stap)} stationary periods computed!")
-    } else {
-      cli::cli_alert_danger("No stationary periods computed. Use {.fun tag_stap}")
-    }
+  if ("stap" %in% names(tag)){
+    cli::cli_alert_success("{nrow(tag$stap)} stationary periods computed!")
   } else {
-    cli::cli_alert_danger("Not yet labeled. Use {.fun tag_label}")
+    cli::cli_alert_danger("Not yet labeled. Use {.fun tag_write} and/or {.fun tag_read}")
+    invisible(tag)
   }
-  invisible(tag)
+  if ("stap" %in% names(tag)){
+    cli::cli_alert_success("{nrow(tag$stap)} stationary periods computed!")
+  } else {
+    cli::cli_alert_danger("Not yet labeled. Use {.fun tag_write} and/or {.fun tag_read}")
+    invisible(tag)
+  }
 }
 
 #' Print geostap

@@ -2,7 +2,8 @@
 #'
 #' @description
 #' This function writes the csv file of labelled activity and pressure which can
-#' be read with [TRAINSET](https://trainset.geocene.com/).
+#' be read with [TRAINSET](https://trainset.geocene.com/). If no label data exist, it will first
+#' initialise the label data.
 #'
 #' Optionally, it can also export a reference dataset for pressure `tag$pressure$ref` as another
 #' series to be visualized on TRAINSET, but without impacting the labelling process.
@@ -32,28 +33,38 @@
 #' @family tag_label
 #' @export
 tag_label_write <- function(tag,
-                            file = glue::glue("data/1-tag_label/{tag$id}.csv")) {
-  assertthat::assert_that(is.list(tag))
+                            file = glue::glue("data/1-tag_label/{tag$id}.csv")
+                            ) {
+  assertthat::assert_that(inherits(tag,"tag"))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
   assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "value")))
 
-  common_column <- c("date", "value", "label", "series")
-
   # Create empty label if it doesn't exit
   if (!assertthat::has_name(tag$pressure, "label")) {
+    cli::cli_inform(c(
+      "i" = "No pressure label data.",
+      ">" = "Initialize empty pressure label."
+    ))
     tag$pressure$label <- ""
   }
 
-  # Add series name
+  # Add series name for TRAINSET
   tag$pressure$series <- "pressure"
+
+  # Select only the column needed
+  common_column <- c("date", "value", "label", "series")
   df <- tag$pressure[common_column]
 
   # Add acceleration label if available
   if (assertthat::has_name(tag, "acceleration")) {
     if (!assertthat::has_name(tag$acceleration, "label")) {
-      tag$acceleration$label <- ""
+      cli::cli_inform(c(
+        "i" = "No acceleration label data.",
+        ">" = "Initialize acceleration label with default {.fn tag_label_acc_kmean}"
+      ))
     }
+    tag <- tag_label_acc_kmean(tag)
     tag$acceleration$series <- "acceleration"
     df <- rbind(df[common_column], tag$acceleration[common_column])
   }

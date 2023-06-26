@@ -29,7 +29,7 @@
 twilight_create <- function(tag,
                             twl_thr = NA,
                             twl_offset = NA) {
-  assertthat::assert_that(is.list(tag))
+  assertthat::assert_that(inherits(tag,"tag"))
   light <- tag$light
   assertthat::assert_that(is.data.frame(light))
   assertthat::assert_that(assertthat::has_name(light, c("date", "value")))

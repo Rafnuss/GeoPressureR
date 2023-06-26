@@ -17,6 +17,7 @@ geopressureviz <- function(geostap,
   if (all(c("map_pressure", "map_light") %in% names(geostap))) {
     geostap$map_preslight <- mapply(\(p, l) p * l, geostap$map_pressure, geostap$map_light, SIMPLIFY = FALSE)
   }
+  stopifnot(require("shiny"), msg="")
 
   # Add possible map to display
   maps_choices <- c("Light", "Pres. MSE", "Pres. mask", "Pressure", "Pres.&Light", "Marginal")

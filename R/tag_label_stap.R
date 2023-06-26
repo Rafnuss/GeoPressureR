@@ -28,7 +28,7 @@
 #' @export
 tag_label_stap <- function(tag) {
   # Perform test
-  assertthat::assert_that(is.list(tag))
+  assertthat::assert_that(inherits(tag, "tag"))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
   assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "label")))

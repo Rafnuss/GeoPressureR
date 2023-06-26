@@ -68,7 +68,7 @@ geostap_create <- function(tag,
                              known_lon = double()
                            ),
                            stap_include = tag$stap$stap_id) {
-  assertthat::assert_that(is.list(tag))
+  assertthat::assert_that(inherits(tag,"tag"))
   assertthat::assert_that(assertthat::has_name(tag, "id"))
   if (!("stap" %in% names(tag))) {
     cli::cli_abort(c(

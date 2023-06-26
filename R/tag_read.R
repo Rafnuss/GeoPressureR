@@ -31,6 +31,7 @@
 #' - `pressure` data.frame with column `date` and `value`
 #' - `light` (optional) same structure as pressure
 #' - `acceleration` (optional) same structure as pressure
+#' @family tag
 #' @seealso [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#read-geolocator-data)
 #' @examples
@@ -98,7 +99,7 @@ tag_read <- function(id,
 
   tag <- structure(list(
     id = id
-  ), class="tag")
+  ), class = "tag")
 
   # Read Pressure
   tag$pressure <- switch(tools::file_ext(sensor_paths[1]),
@@ -227,7 +228,7 @@ tag_read <- function(id,
 #' @param skip Number of lines of the data file to skip before beginning to read data.
 #' @param colIndex of the column of the data to take as observation.
 #' @param date_format Format of the date (see [`strptime()`]).
-#' @seealso [`tag_read()`]
+#' @family tag
 #' @noRd
 tag_read_dto <- function(sensor_path, skip = 6, col = 3, date_format = "%d.%m.%Y %H:%M") {
   data_raw <- utils::read.delim(sensor_path, skip = skip, sep = "", header = FALSE)

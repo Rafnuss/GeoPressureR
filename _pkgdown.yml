@@ -30,17 +30,16 @@ reference:
 - title: Tag
   desc: Reading and labelling the data logger.
   contents:
-  - tag_read
-  - tag_label
-  - tag_label_classify
-  - tag_label_write
-  - tag_label_read
-  - tag_label_stap
+  - tag_create
+  - tag_geo
+- subtitle: Label tag
+  desc: Labelling data
+  contents:
+  - start_with("tag_label")
 - title: GeoStap
   desc: Defining the GEOgraphical grid and individual STAtionary Periods.
   contents:
   - geostap_create
-  - tag_label_update
 - title: GeoPressure
   desc: Core functionality using the GeoPressureAPI
 - subtitle: GeoPressure Map
