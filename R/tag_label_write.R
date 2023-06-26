@@ -20,7 +20,7 @@
 #' str(read.csv(file))
 #'
 #' # Writing unlabeled tag will initialize the labelling for trainset
-#' tag <- tag_label_classify(tag)
+#' tag <- tag_label_auto(tag)
 #' file <- tag_label_write(tag)
 #' str(read.csv(file))
 #'
@@ -42,11 +42,11 @@ tag_label_write <- function(tag,
 
   # Create empty label if it doesn't exit
   if (!assertthat::has_name(tag$pressure, "label")) {
+    tag <- tag_label_auto(tag)
     cli::cli_inform(c(
-      "i" = "No pressure label data.",
-      ">" = "Initialize empty pressure label."
+      "i" = "No label data.",
+      ">" = "Initialize automatically label using {.fn tag_label_auto}"
     ))
-    tag$pressure$label <- ""
   }
 
   # Add series name for TRAINSET
@@ -59,12 +59,12 @@ tag_label_write <- function(tag,
   # Add acceleration label if available
   if (assertthat::has_name(tag, "acceleration")) {
     if (!assertthat::has_name(tag$acceleration, "label")) {
+      tag <- tag_label_auto(tag)
       cli::cli_inform(c(
         "i" = "No acceleration label data.",
-        ">" = "Initialize acceleration label with default {.fn tag_label_classify}"
+        ">" = "Initialize acceleration label with default {.fn tag_label_auto}"
       ))
     }
-    tag <- tag_label_classify(tag)
     tag$acceleration$series <- "acceleration"
     df <- rbind(df[common_column], tag$acceleration[common_column])
   }

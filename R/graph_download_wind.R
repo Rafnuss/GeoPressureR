@@ -7,7 +7,7 @@
 #' R package](https://bluegreen-labs.github.io/ecmwfr/index.html).
 #'
 #' The flights are determined from the stationary periods classified `tag$sta`
-#' (see `tag_label_classify()`). It request a single file for each flight using the exact time
+#' (see `tag_label_auto()`). It request a single file for each flight using the exact time
 #' (hourly basis) and pressure (altitude). To make the download more efficient,
 #' [`wf_request_batch()`](
 #' https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests)

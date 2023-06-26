@@ -12,9 +12,9 @@ tag <- tag_create(
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
 
-tag_classified <- tag_label_classify(tag)
-test_that("tag_label_classify() | default", {
-  expect_error(tag_label_classify("not a tag"))
+tag_classified <- tag_label_auto(tag)
+test_that("tag_label_auto() | default", {
+  expect_error(tag_label_auto("not a tag"))
   expect_true(c("label") %in% names(tag_classified$acceleration))
   expect_type(tag_classified$acceleration$label, "character")
 })

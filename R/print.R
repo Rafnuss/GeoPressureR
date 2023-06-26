@@ -23,20 +23,20 @@ print.tag <- function(tag){
   }
 
   # Stationary periods
-  cli::cli_h3("Statiionary periods")
+  cli::cli_h3("Stationary periods")
   if (! ("stap" %in% names(tag))){
-    cli::cli_alert_danger("Not yet labeled. Use {.fun tag_label}")
+    cli::cli_alert_danger("Not yet labeled. Use {.fun tag_label} to define the stationary periods")
     return(invisible(tag))
   } else {
-    cli::cli_h3("Stationary periods {.field stap}")
+
     cli::cli_text("{.val {nrow(tag$stap)}} stationary periods")
     print(head(tag$stap))
   }
 
   # Geographical
-  cli::cli_h3("Geographical {.field geo}")
+  cli::cli_h3("Geographical parameters")
   if (! ("extent" %in% names(tag) & "scale" %in% names(tag))){
-    cli::cli_alert_danger("No geographical parameter defined yet. Use {.fun tag_geo}")
+    cli::cli_alert_danger("No geographical parameters defined yet. Use {.fun tag_geo}")
     return(invisible(tag))
   } else {
     geo <- geo_expand(tag$extent, tag$scale)

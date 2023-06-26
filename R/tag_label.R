@@ -9,7 +9,7 @@
 #' on all sensors data.frame with [`tag_label_stap()`]
 #'
 #' If the label file does not exist, the function will suggest to create it with
-#' [`tag_label_write()`] and use [`tag_label_classify()`] if acceleration data exists.
+#' [`tag_label_write()`] and use [`tag_label_auto()`] if acceleration data exists.
 #'
 #' @param tag List containing the data logger dataset, this needs to contain at least a `pressure`
 #' data.frame, but can also have a `light` and `acceleration` data.frame (see [`tag_create()`]).
