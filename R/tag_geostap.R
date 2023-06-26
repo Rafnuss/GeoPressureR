@@ -2,19 +2,16 @@
 #'
 #' @description
 #' This function adds the parameters defining the 3D grid of the maps. The spatial parameters
-#' (`extent` and `scale`) defines the GEOgraphical dimension, while the temporal parameters are
-#' defined with the stationary periods build from the label.
-#'
-#' These parameters are checked and added to the `tag` object.
+#' (`extent` and `scale`) defines the GEOgraphical dimension. The temporal dimension is
+#' defined based on the stationary periods build from the label. `include_stap_id` and
+#' `include_min_duration` can be used to limit which stationary periods are computed and model in
+#' the rest of the analysis. By default, all stationary periods are included.
 #'
 #' In addition, `tag` also includes the ability to define `known` locations (e.g., equipment or
 #' retrieval site). These can only be defined at the level of a stationary period (i.e., assuming
 #' constant position during the whole stationary period) but you can define as many known stationary
 #' periods as you wish. No likelihood map will be computed for these stationary periods, thus saving
 #' computational time.
-#'
-#' Furthermore, it is possible to compute (and later model) a subset of the stationary periods.
-#' This is done with `stap_include`. By default, `stap_include` includes all stationary periods.
 #'
 #' @param tag Data logger list with label information. See [`tag_label()`] for the required input.
 #' @param extent Geographical extent of the map on which the likelihood and graph model will be
@@ -23,11 +20,12 @@
 #' resolution of 0.1° (~10km) and `scale=4` for a resolution of 0.25° (~30km). To avoid
 #' interpolating the ERA5 data, the scale should be smaller than 10. Read more about scale on the [Google
 #' earth Engine documentation](https://developers.google.com/earth-engine/guides/scale).
+#' @param include_stap_id Vector of `stap_id` defining which stationary period to model, that is,
+#' to compute in the likelihood map and use in the graph.
+#' @param include_min_duration Numeric defining the minimum threshold of stationary periods duration
+#' (in hours) to includes.
 #' @param known Data.frame containing the known positions of the bird (e.g., equipment or retrieval
 #' site). This information can only be attached at the level of a stationary period.
-#' @param stap_include "all", Numeric or Vector defining which stationary period to model, that is,
-#' to compute in the likelihood map and use in the graph. If numeric, define a threshold of
-#' stationary periods duration (in hours) to includes. If vector, specify the `stap_id` to includes.
 #' @return A `tag` object with:
 #' - `stap`: Data.frame of all stationary periods with three new columns: `known_lat` and
 #' `known_lon` define the known position during these stationary periods, and `model` defines
@@ -41,33 +39,33 @@
 #'   tag_label()
 #'
 #' # Default tag
-#' tag <- tag_create(tag, c(-16, 23, 0, 50))
+#' tag <- tag_geostap(tag, c(-16, 23, 0, 50))
 #' str(tag)
 #'
 #' # Customized tag, with coarse grid scale, known position for the first stationary period and
 #' # considering only the stationary periods lasting more than 20hours.
-#' tag <- tag_create(tag,
+#' tag <- tag_geostap(tag,
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 1,
+#'   include_min_duration = 20,
 #'   known = data.frame(
 #'     stap_id = 1,
 #'     known_lon = 17.05,
 #'     known_lat = 48.9
-#'   ),
-#'   stap_include = which(difftime(tag$stap$end, tag$stap$start, units = "hours") > 20)
+#'   ))
 #' )
 #' str(tag)
 #' @export
 tag_geostap <- function(tag,
                            extent,
                            scale = 10,
-                           known = data.frame(
-                             stap_id = integer(),
-                             known_lat = double(),
-                             known_lon = double()
-                           ),
                            include_stap_id = NA,
-                           include_duration = NA) {
+                           include_min_duration = NA,
+                        known = data.frame(
+                          stap_id = integer(),
+                          known_lat = double(),
+                          known_lon = double()
+                        ),) {
   assertthat::assert_that(inherits(tag,"tag"))
   assertthat::assert_that(assertthat::has_name(tag, "id"))
   if (!("stap" %in% names(tag))) {
@@ -108,15 +106,15 @@ tag_geostap <- function(tag,
   }
   assertthat::assert_that(all(include_stap_id %in% tag$stap$stap_id))
 
-  if (is.na(include_duration)){
-    include_duration <- 0
+  if (is.na(include_min_duration)){
+    include_min_duration <- 0
   }
-  assertthat::assert_that(is.numeric(include_duration))
-  include_duration_id <- which(difftime(tag$stap$end, tag$stap$start, units = "hours")
-                               > include_duration)
+  assertthat::assert_that(is.numeric(include_min_duration))
+  include_min_duration_id <- which(difftime(tag$stap$end, tag$stap$start, units = "hours")
+                               > include_min_duration)
 
   # Include stap which are matching both include constrains
-  stap$include[include_stap_id & include_duration_id] <- TRUE
+  stap$include[include_stap_id & include_min_duration_id] <- TRUE
 
   # Display warning
   if (any(!stap$include)) {

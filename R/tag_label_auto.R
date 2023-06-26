@@ -25,7 +25,7 @@
 #'
 #' @export
 tag_label_auto <- function(tag,
-                          min_duration = 30) {
+                           min_duration = 30) {
   assertthat::assert_that(is.list(tag))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
@@ -34,7 +34,7 @@ tag_label_auto <- function(tag,
     tag$pressure$label <- ""
   }
 
-  if (assertthat::has_name(tag, "acceleration")){
+  if (assertthat::has_name(tag, "acceleration")) {
     assertthat::assert_that(is.data.frame(tag$acceleration))
     assertthat::assert_that(assertthat::has_name(tag$acceleration, c("value", "date")))
     assertthat::assert_that(is.numeric(min_duration))

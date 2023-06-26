@@ -26,7 +26,7 @@ plot_pressure_tag <- function(tag,
                                 known_lat = double(),
                                 known_lon = double()
                               ),
-                              stap_include = tag$stap$stap_id,
+                              include_stap_id = tag$stap$stap_id,
                               pressure_diff_danger = 5,
                               pressure_diff_warning = 3,
                               stap_length_danger = 6,
@@ -36,10 +36,10 @@ plot_pressure_tag <- function(tag,
     tag = tag,
     extent = c(-180, 180, -90, 90),
     known = known,
-    stap_include = stap_include
+    include_stap_id = include_stap_id
   )
 
-  # extract stap for convininece
+  # extract stap for convenience
   stap <- tag$stap
 
   # compute the pressure at the hourly scale

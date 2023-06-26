@@ -40,7 +40,7 @@ graph_download_wind <- function(tag,
                                 cds_key = Sys.getenv("cds_key"),
                                 cds_user = Sys.getenv("cds_user"),
                                 directory = glue::glue("data/5_wind_graph/{graph$id}/")) {
-  assertthat::assert_that(inherits(tag,"tag"))
+  assertthat::assert_that(inherits(tag, "tag"))
   assertthat::assert_that(assertthat::has_name(tag, "pressure"))
   assertthat::assert_that(is.data.frame(tag$pressure))
   assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "value")))

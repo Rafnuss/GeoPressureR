@@ -17,7 +17,7 @@ geopressureviz <- function(tag,
   if (all(c("map_pressure", "map_light") %in% names(tag))) {
     tag$map_preslight <- mapply(\(p, l) p * l, tag$map_pressure, tag$map_light, SIMPLIFY = FALSE)
   }
-  stopifnot(require("shiny"), msg="")
+  stopifnot(require("shiny"), msg = "")
 
   # Add possible map to display
   maps_choices <- c("Light", "Pres. MSE", "Pres. mask", "Pressure", "Pres.&Light", "Marginal")

@@ -70,14 +70,13 @@ tag_label_update <- function(tag,
     new_stap_include_exclude <- stap_new$stap_id[stap_new$old_stap_id %in% init_stap_include_exclude]
 
     # Build the new stap_id by taking the one that have change (i.e. NA) and remove the initial exclude
-    stap_include <- stap_id_recompute[!(stap_id_recompute %in% new_stap_include_exclude)]
+    stap_id_include <- stap_id_recompute[!(stap_id_recompute %in% new_stap_include_exclude)]
 
-    stap_include <- stap_id_recompute[!(stap_id_recompute %in% new_stap_include_exclude)]
     tag_new <- tag_geostap(tag_new,
       extent = tag$extent,
       scale = tag$scale,
       known = known,
-      stap_include = stap_include
+      include_stap_id = stap_id_include
     )
 
     tag_new <- geopressure_map(tag_new,
@@ -100,8 +99,7 @@ tag_label_update <- function(tag,
   # Only update path_pres if provided
   if (!all(is.na(path_pres))) {
     # Compute the new bext path
-    path <- tag_new |>
-      map2path()
+    path <- map2path(tag_new)
 
     # Filter the path to only keep the stap_id to be recomputed
     path <- path[path$stap_id %in% stap_id_recompute, ]

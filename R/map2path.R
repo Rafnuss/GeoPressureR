@@ -36,8 +36,8 @@
 #' Pressure Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude)
 #' @export
 map2path <- function(tag,
-                         likelihood = NA,
-                         interp = -1) {
+                     likelihood = NA,
+                     interp = -1) {
   assertthat::assert_that(is.list(tag))
 
   # Construct the likelihood map

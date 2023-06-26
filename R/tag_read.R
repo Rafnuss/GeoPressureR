@@ -62,12 +62,12 @@
 #'
 #' @export
 tag_create <- function(id,
-                     directory = glue::glue("data/0-tag/{id}/"),
-                     pressure_file = "*.pressure",
-                     light_file = "*.glf",
-                     acceleration_file = "*.acceleration",
-                     crop_start = "1900-01-01",
-                     crop_end = "2100-01-01") {
+                       directory = glue::glue("data/0-tag/{id}/"),
+                       pressure_file = "*.pressure",
+                       light_file = "*.glf",
+                       acceleration_file = "*.acceleration",
+                       crop_start = "1900-01-01",
+                       crop_end = "2100-01-01") {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(assertthat::is.dir(directory))
 
