@@ -1,7 +1,11 @@
-#' Define geographical settings
+#' Define grid for the trajectory
 #'
 #' @description
-#' This function adds the `extent` and `scale` parameters to a `tag` object.
+#' This function adds the parameters defining the 3D grid of the maps. The spatial parameters
+#' (`extent` and `scale`) defines the GEOgraphical dimension, while the temporal parameters are
+#' defined with the stationary periods build from the label.
+#'
+#' These parameters are checked and added to the `tag` object.
 #'
 #' In addition, `tag` also includes the ability to define `known` locations (e.g., equipment or
 #' retrieval site). These can only be defined at the level of a stationary period (i.e., assuming
@@ -21,8 +25,9 @@
 #' earth Engine documentation](https://developers.google.com/earth-engine/guides/scale).
 #' @param known Data.frame containing the known positions of the bird (e.g., equipment or retrieval
 #' site). This information can only be attached at the level of a stationary period.
-#' @param stap_include Vector of the stationary period to model, that is, to compute in the likelihood
-#' map and use in the graph.
+#' @param stap_include "all", Numeric or Vector defining which stationary period to model, that is,
+#' to compute in the likelihood map and use in the graph. If numeric, define a threshold of
+#' stationary periods duration (in hours) to includes. If vector, specify the `stap_id` to includes.
 #' @return A `tag` object with:
 #' - `stap`: Data.frame of all stationary periods with three new columns: `known_lat` and
 #' `known_lon` define the known position during these stationary periods, and `model` defines
@@ -53,7 +58,7 @@
 #' )
 #' str(tag)
 #' @export
-tag_geo <- function(tag,
+tag_geostap <- function(tag,
                            extent,
                            scale = 10,
                            known = data.frame(
@@ -61,7 +66,8 @@ tag_geo <- function(tag,
                              known_lat = double(),
                              known_lon = double()
                            ),
-                           stap_include = tag$stap$stap_id) {
+                           include_stap_id = NA,
+                           include_duration = NA) {
   assertthat::assert_that(inherits(tag,"tag"))
   assertthat::assert_that(assertthat::has_name(tag, "id"))
   if (!("stap" %in% names(tag))) {
@@ -94,11 +100,25 @@ tag_geo <- function(tag,
   # Add known to stap
   stap <- merge(stap, known, by = "stap_id", all.x = TRUE)
 
-  # Check stap_include
-  assertthat::assert_that(all(stap_include %in% tag$stap$stap_id))
-  # Add stap_id to stap
+  # Define which stationary periods to include
   stap$include <- FALSE
-  stap$include[stap_include] <- TRUE
+
+  if (is.na(include_stap_id)){
+    include_stap_id <- tag$stap$stap_id
+  }
+  assertthat::assert_that(all(include_stap_id %in% tag$stap$stap_id))
+
+  if (is.na(include_duration)){
+    include_duration <- 0
+  }
+  assertthat::assert_that(is.numeric(include_duration))
+  include_duration_id <- which(difftime(tag$stap$end, tag$stap$start, units = "hours")
+                               > include_duration)
+
+  # Include stap which are matching both include constrains
+  stap$include[include_stap_id & include_duration_id] <- TRUE
+
+  # Display warning
   if (any(!stap$include)) {
     cli::cli_warn(c(
       "!" = "The {.var tag} is setup to model {.val {sum(stap$include)}} out of \\

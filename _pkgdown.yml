@@ -31,7 +31,7 @@ reference:
   desc: Reading and labelling the data logger.
   contents:
   - tag_create
-  - tag_geo
+  - tag_geostap
 - subtitle: Label tag
   desc: Labelling data
   contents:

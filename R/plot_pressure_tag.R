@@ -32,7 +32,7 @@ plot_pressure_tag <- function(tag,
                               stap_length_danger = 6,
                               stap_length_warning = 12) {
   # Create a "fake" tag
-  tag <- tag_geo(
+  tag <- tag_geostap(
     tag = tag,
     extent = c(-180, 180, -90, 90),
     known = known,

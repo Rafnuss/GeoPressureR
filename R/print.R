@@ -36,7 +36,7 @@ print.tag <- function(tag){
   # Geographical
   cli::cli_h3("Geographical parameters")
   if (! ("extent" %in% names(tag) & "scale" %in% names(tag))){
-    cli::cli_alert_danger("No geographical parameters defined yet. Use {.fun tag_geo}")
+    cli::cli_alert_danger("No geographical parameters defined yet. Use {.fun tag_geostap}")
     return(invisible(tag))
   } else {
     geo <- geo_expand(tag$extent, tag$scale)

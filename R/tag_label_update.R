@@ -73,7 +73,7 @@ tag_label_update <- function(tag,
     stap_include <- stap_id_recompute[!(stap_id_recompute %in% new_stap_include_exclude)]
 
     stap_include <- stap_id_recompute[!(stap_id_recompute %in% new_stap_include_exclude)]
-    tag_new <- tag_geo(tag_new,
+    tag_new <- tag_geostap(tag_new,
       extent = tag$extent,
       scale = tag$scale,
       known = known,
