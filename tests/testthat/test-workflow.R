@@ -8,7 +8,7 @@ library(GeoPressureR)
 setwd(system.file("extdata/", package = "GeoPressureR"))
 
 test_that("workflow | full", {
-  tag <- tag_read("18LX")
+  tag <- tag_create("18LX")
   tag <- tag_label(tag)
 
   tag <- twilight_create(tag)
@@ -44,7 +44,7 @@ test_that("workflow | full", {
 })
 
 test_that("workflow | Missing pressure value", {
-  tag <- tag_read("18LX")
+  tag <- tag_create("18LX")
   # tag$pressure <- tag$pressure[200:300, ]
   tag <- tag_label(tag)
   tag$pressure <- subset(tag$pressure, stap_id == 3 | stap_id == 4)
@@ -73,7 +73,7 @@ test_that("workflow | Missing pressure value", {
 
 
 test_that("geopressure_mismach & likelihood | with elev_", {
-  tag <- tag_read("18LX")
+  tag <- tag_create("18LX")
   tag <- tag_label(tag, file = "data/1-tag_label/18LX-labeled-elev.csv")
   geostap <- geostap_create(tag,
     extent = c(-16, 23, 0, 50),
@@ -92,7 +92,7 @@ test_that("geopressure_mismach & likelihood | with elev_", {
 
 
 test_that("workflow | modeled fewer", {
-  tag <- tag_read("18LX") |> tag_label()
+  tag <- tag_create("18LX") |> tag_label()
   expect_warning(geostap <- geostap_create(tag,
     extent = c(-16, 23, 0, 50),
     scale = 1,

@@ -37,14 +37,14 @@
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #'
-#' tag <- tag_read("18LX")
+#' tag <- tag_create("18LX")
 #' str(tag)
 #'
-#' tag <- tag_read("18LX", crop_start = "2017-08-01", crop_end = "2017-08-05")
+#' tag <- tag_create("18LX", crop_start = "2017-08-01", crop_end = "2017-08-05")
 #' str(tag)
 #'
 #' # For Migrate Technology file, use
-#' tag <- tag_read("CB621",
+#' tag <- tag_create("CB621",
 #'   pressure_file = "*.deg",
 #'   light_file = "*.lux",
 #'   acceleration_file = NA
@@ -53,7 +53,7 @@
 #'
 #' # You can also specify exactly the file in case multiple file with the same
 #' # extension exist in your directory
-#' tag <- tag_read("CB621",
+#' tag <- tag_create("CB621",
 #'   pressure_file = "CB621_BAR.deg",
 #'   light_file = NA,
 #'   acceleration_file = NA
@@ -61,7 +61,7 @@
 #' str(tag)
 #'
 #' @export
-tag_read <- function(id,
+tag_create <- function(id,
                      directory = glue::glue("data/0-tag/{id}/"),
                      pressure_file = "*.pressure",
                      light_file = "*.glf",
@@ -104,7 +104,7 @@ tag_read <- function(id,
   # Read Pressure
   tag$pressure <- switch(tools::file_ext(sensor_paths[1]),
     "pressure" = {
-      subset(tag_read_dto(sensor_paths[1]), date >= crop_start & date < crop_end)
+      subset(tag_create_dto(sensor_paths[1]), date >= crop_start & date < crop_end)
     },
     "deg" = {
       # Check that it is a valid Migrate Technology file
@@ -130,7 +130,7 @@ tag_read <- function(id,
       }
 
       # Read file
-      pres <- tag_read_dto(sensor_paths[1],
+      pres <- tag_create_dto(sensor_paths[1],
         skip = 20, col = col,
         date_format = "%d/%m/%Y %H:%M:%S"
       )
@@ -153,7 +153,7 @@ tag_read <- function(id,
   if (!is.na(sensor_paths[2])) {
     tag$light <- switch(tools::file_ext(sensor_paths[2]),
       "glf" = {
-        subset(tag_read_dto(sensor_paths[2]), date >= crop_start & date < crop_end)
+        subset(tag_create_dto(sensor_paths[2]), date >= crop_start & date < crop_end)
       },
       "lux" = {
         # find column index with light
@@ -169,7 +169,7 @@ tag_read <- function(id,
         }
 
         # Read file
-        light <- tag_read_dto(sensor_paths[2],
+        light <- tag_create_dto(sensor_paths[2],
           skip = 20, col = col,
           date_format = "%d/%m/%Y %H:%M:%S"
         )
@@ -183,7 +183,7 @@ tag_read <- function(id,
   if (!is.na(sensor_paths[3])) {
     tag$acceleration <- switch(tools::file_ext(sensor_paths[3]),
       "acceleration" = {
-        subset(tag_read_dto(sensor_paths[3], col = 4), date >= crop_start & date < crop_end)
+        subset(tag_create_dto(sensor_paths[3], col = 4), date >= crop_start & date < crop_end)
       },
       "deg" = {
         # Check that it is a valid Migrate Technology file
@@ -209,7 +209,7 @@ tag_read <- function(id,
         }
 
         # Read file
-        acc <- tag_read_dto(sensor_paths[3],
+        acc <- tag_create_dto(sensor_paths[3],
           skip = 20, col = col,
           date_format = "%d/%m/%Y %H:%M:%S"
         )
@@ -230,7 +230,7 @@ tag_read <- function(id,
 #' @param date_format Format of the date (see [`strptime()`]).
 #' @family tag
 #' @noRd
-tag_read_dto <- function(sensor_path, skip = 6, col = 3, date_format = "%d.%m.%Y %H:%M") {
+tag_create_dto <- function(sensor_path, skip = 6, col = 3, date_format = "%d.%m.%Y %H:%M") {
   data_raw <- utils::read.delim(sensor_path, skip = skip, sep = "", header = FALSE)
   df <- data.frame(
     date = as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),

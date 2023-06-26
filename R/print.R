@@ -23,13 +23,13 @@ print.tag <- function(tag){
   if ("stap" %in% names(tag)){
     cli::cli_alert_success("{nrow(tag$stap)} stationary periods computed!")
   } else {
-    cli::cli_alert_danger("Not yet labeled. Use {.fun tag_write} and/or {.fun tag_read}")
+    cli::cli_alert_danger("Not yet labeled. Use {.fun tag_write} and/or {.fun tag_create}")
     invisible(tag)
   }
   if ("stap" %in% names(tag)){
     cli::cli_alert_success("{nrow(tag$stap)} stationary periods computed!")
   } else {
-    cli::cli_alert_danger("Not yet labeled. Use {.fun tag_write} and/or {.fun tag_read}")
+    cli::cli_alert_danger("Not yet labeled. Use {.fun tag_write} and/or {.fun tag_create}")
     invisible(tag)
   }
 }

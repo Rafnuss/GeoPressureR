@@ -33,7 +33,7 @@
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' # Read geolocator data and build twilight
-#' tag <- tag_read("18LX") |> tag_label()
+#' tag <- tag_create("18LX") |> tag_label()
 #' tag <- twilight_create(tag) |> twilight_label_read()
 #' # Initiate the geostap structure
 #' geostap <- geostap_create(tag,

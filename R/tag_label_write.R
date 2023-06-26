@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX")
+#' tag <- tag_create("18LX")
 #'
 #' # Writing unlabeled tag will initialize the labelling for trainset
 #' file <- tag_label_write(tag)

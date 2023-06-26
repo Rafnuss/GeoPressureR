@@ -4,7 +4,7 @@ library(GeoPressureR)
 # set working directory to load the file
 setwd(system.file("extdata/", package = "GeoPressureR"))
 
-tag <- tag_read("18LX") |>
+tag <- tag_create("18LX") |>
   tag_label()
 
 geostap <- tag |>

@@ -25,7 +25,7 @@
 #' The value in brackets are only for the data.frame
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX") |>
+#' tag <- tag_create("18LX") |>
 #'   tag_label()
 #'
 #' str(stap2flight(tag$stap))

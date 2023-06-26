@@ -9,7 +9,7 @@
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX")
+#' tag <- tag_create("18LX")
 #'
 #' tag <- tag_label_read(tag)
 #' str(tag)

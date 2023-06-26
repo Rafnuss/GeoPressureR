@@ -16,14 +16,14 @@
 #' `tag$stap` and (2) a new column `stap_id` for each sensor data.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX") |>
+#' tag <- tag_create("18LX") |>
 #'   tag_label_read()
 #'
 #' tag <- tag_label_stap(tag)
 #' str(tag)
 #' str(tag$stap)
 #'
-#' @seealso [`tag_read()`], [`tag_label()`], [`tag_label_read()`], [GeoPressureManual | Pressure Map
+#' @seealso [`tag_create()`], [`tag_label()`], [`tag_label_read()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods)
 #' @export
 tag_label_stap <- function(tag) {

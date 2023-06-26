@@ -19,7 +19,7 @@
 #' [GeoPressureManual | Wind graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)).
 #'
-#' @param tag data logger dataset list with `tag$sta` computed. See [`tag_read()`] and
+#' @param tag data logger dataset list with `tag$sta` computed. See [`tag_create()`] and
 #' [`tag_label_stap()`].
 #' @param extent Geographical extent of the map on which the likelihood will be computed.
 #' Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.

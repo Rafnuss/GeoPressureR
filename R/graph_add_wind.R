@@ -10,7 +10,7 @@
 #'
 #' @param graph graph constructed with [`graph_create()`]
 #' @param pressure pressure data from a data logger. This data.frame needs to contain `date` as
-#' POSIXt and `value` in hPa. It is good practice to use [`tag_read()`] and [`tag_label_stap()`] to build
+#' POSIXt and `value` in hPa. It is good practice to use [`tag_create()`] and [`tag_label_stap()`] to build
 #' this data.frame.
 #' @param directory Character of the path where the netCDF files can be found.
 #' @param thr_as Threshold of airspeed (km/h).

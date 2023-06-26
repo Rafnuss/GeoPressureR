@@ -4,12 +4,12 @@
 #' TRAINSET <https://trainset.geocene.com/>.
 #'
 #' @inheritParams twilight_create
-#' @param tag List containing the data logger dataset (see [`tag_read()`]) It needs to contain
+#' @param tag List containing the data logger dataset (see [`tag_create()`]) It needs to contain
 #' a `twilight` data.frame created with [`twilight_create()`].
 #' @param file Name of the twilight label file to be saved.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX") |> tag_label()
+#' tag <- tag_create("18LX") |> tag_label()
 #' tag <- twilight_create(tag)
 #'
 #' label_file <- twilight_label_write(twilight)

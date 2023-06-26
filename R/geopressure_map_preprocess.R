@@ -14,7 +14,7 @@
 #' @return Pressure data.frame without flight and discarded values, on a 1hr resolution.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX") |>
+#' tag <- tag_create("18LX") |>
 #'   tag_label()
 #'
 #' pressure_processed <- geopressure_map_preprocess(tag$pressure, tag$stap)
@@ -60,7 +60,7 @@ geopressure_map_preprocess <- function(pressure, stap) {
 
   if (min(pressure$value, na.rm = TRUE) < 250 || 1100 < max(pressure$value, na.rm = TRUE)) {
     cli::cli_warn("Pressure observation should be between 250 hPa (~10000m) and 1100 hPa \\
-    (sea level at 1013hPa). Check unit returned by {.fun tag_read}.")
+    (sea level at 1013hPa). Check unit returned by {.fun tag_create}.")
   }
 
   # Create the stapelev of pressure to query: stationary period and elevation

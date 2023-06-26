@@ -12,7 +12,7 @@
 #' [`tag_label_write()`] and use [`tag_label_classify()`] if acceleration data exists.
 #'
 #' @param tag List containing the data logger dataset, this needs to contain at least a `pressure`
-#' data.frame, but can also have a `light` and `acceleration` data.frame (see [`tag_read()`]).
+#' data.frame, but can also have a `light` and `acceleration` data.frame (see [`tag_create()`]).
 #' @param file Absolute or relative path of the label file.
 #' @return Same `tag` list with
 #'
@@ -29,12 +29,12 @@
 #' - `stap_id` stationary period of the measurement matching the `tag$stap`.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX")
+#' tag <- tag_create("18LX")
 #'
 #' tag <- tag_label(tag)
 #' str(tag)
 #'
-#' @seealso [`tag_read()`], [GeoPressureManual | Pressure Map
+#' @seealso [`tag_create()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset)
 #' @family tag_label
 #' @export

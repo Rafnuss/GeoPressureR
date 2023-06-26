@@ -8,15 +8,15 @@ options(cli.default_handler = function(...) { })
 setwd(system.file("extdata/", package = "GeoPressureR"))
 
 
-tag <- tag_read(
+tag <- tag_create(
   id = "18LX",
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
 
-test_that("tag_read() | default", {
+test_that("tag_create() | default", {
   # Check for error with incorrect input
-  expect_error(tag_read(id = 23))
-  expect_error(tag_read(id = "18LX", file = "not a file"))
+  expect_error(tag_create(id = 23))
+  expect_error(tag_create(id = "18LX", file = "not a file"))
 
   # Check that the return tag is correct
   expect_type(tag, "list")
@@ -25,18 +25,18 @@ test_that("tag_read() | default", {
   expect_gt(nrow(tag$light), 0)
   expect_gt(nrow(tag$acceleration), 0)
 
-  expect_error(expect_warning(tag_read("18LX",
+  expect_error(expect_warning(tag_create("18LX",
     pressure_file = "wrong_file"
   )))
 
   # Check crop
-  expect_true(nrow(tag_read("18LX",
+  expect_true(nrow(tag_create("18LX",
     crop_start = "2019-06-20", crop_end = "2018-05-02"
   )$pressure) == 0)
 })
 
-test_that("tag_read() | Migrate Technology", {
-  tag <- tag_read("CB621",
+test_that("tag_create() | Migrate Technology", {
+  tag <- tag_create("CB621",
     pressure_file = ".deg",
     light_file = ".lux",
     acceleration_file = NA
@@ -47,8 +47,8 @@ test_that("tag_read() | Migrate Technology", {
 })
 
 
-test_that("tag_read() | no acceleration", {
-  expect_no_error(tag <- tag_read(
+test_that("tag_create() | no acceleration", {
+  expect_no_error(tag <- tag_create(
     id = "18LX",
     acceleration_file = NA,
     light_file = NA

@@ -7,7 +7,7 @@ options(cli.default_handler = function(...) { })
 # Set working directory
 setwd(system.file("extdata/", package = "GeoPressureR"))
 
-tag <- tag_read(
+tag <- tag_create(
   id = "18LX",
   crop_start = "2017-06-20", crop_end = "2018-05-02"
 )
@@ -89,7 +89,7 @@ test_that("tag_label_stap() | for elev", {
 
 
 test_that("tag_label_read() | no acceleration", {
-  expect_no_error(tag <- tag_read(
+  expect_no_error(tag <- tag_create(
     id = "18LX",
     acceleration_file = NA,
     light_file = NA

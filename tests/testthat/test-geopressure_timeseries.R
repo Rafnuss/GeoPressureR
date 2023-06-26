@@ -69,7 +69,7 @@ test_that("geopressure_timeseries() | over water", {
 
 
 # Start by computing all the necessary file for the tests
-tag <- tag_read("18LX") |> tag_label()
+tag <- tag_create("18LX") |> tag_label()
 stap <- tag$stap
 path <- data.frame(
   stap_id = seq_len(5),
