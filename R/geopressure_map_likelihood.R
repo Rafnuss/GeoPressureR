@@ -22,21 +22,21 @@
 #'  <https://doi.org/10.1111/2041-210X.14043>.}
 #' @family geopressure_map
 #' @export
-geopressure_map_likelihood <- function(geostap,
+geopressure_map_likelihood <- function(tag,
                                        sd = 1,
                                        thr_mask = 0.9,
                                        log_linear_pooling_weight = \(n) log(n) / n) {
-  assertthat::assert_that(is.list(geostap))
-  assertthat::assert_that(assertthat::has_name(geostap, "stap"))
-  assertthat::assert_that(assertthat::has_name(geostap, "scale"))
-  assertthat::assert_that(assertthat::has_name(geostap, "extent"))
-  assertthat::assert_that(assertthat::has_name(geostap, "mse"))
-  assertthat::assert_that(assertthat::has_name(geostap, "mask"))
-  assertthat::assert_that(is.data.frame(geostap$stap))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "stap_id"))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "known_lat"))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "known_lon"))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "nb_sample"))
+  assertthat::assert_that(is.list(tag))
+  assertthat::assert_that(assertthat::has_name(tag, "stap"))
+  assertthat::assert_that(assertthat::has_name(tag, "scale"))
+  assertthat::assert_that(assertthat::has_name(tag, "extent"))
+  assertthat::assert_that(assertthat::has_name(tag, "mse"))
+  assertthat::assert_that(assertthat::has_name(tag, "mask"))
+  assertthat::assert_that(is.data.frame(tag$stap))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "stap_id"))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "known_lat"))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "known_lon"))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "nb_sample"))
 
   assertthat::assert_that(is.numeric(sd))
   assertthat::assert_that(sd >= 0)
@@ -44,17 +44,17 @@ geopressure_map_likelihood <- function(geostap,
   assertthat::assert_that(thr_mask >= 0 & thr_mask <= 1)
   assertthat::assert_that(is.function(log_linear_pooling_weight))
 
-  geostap$map_pressure <- vector("list", nrow(geostap$stap))
+  tag$map_pressure <- vector("list", nrow(tag$stap))
 
-  for (istap in which(!sapply(geostap$mse, is.null))) {
+  for (istap in which(!sapply(tag$mse, is.null))) {
     # Number of sample
-    n <- geostap$stap$nb_sample[istap]
+    n <- tag$stap$nb_sample[istap]
 
     # Log-linear pooling weight
     w <- log_linear_pooling_weight(n)
 
     # get MSE layer
-    mse <- geostap$mse[[istap]]
+    mse <- tag$mse[[istap]]
     # change 0 (water) in NA
     mse[mse == 0] <- NA
 
@@ -62,31 +62,31 @@ geopressure_map_likelihood <- function(geostap,
     likelihood <- (1 / (2 * pi * sd^2))^(n * w / 2) * exp(-w * n / 2 / (sd^2) * mse)
 
     # mask value of threshold
-    geostap$map_pressure[[istap]] <- likelihood * (geostap$mask[[istap]] >= thr_mask)
+    tag$map_pressure[[istap]] <- likelihood * (tag$mask[[istap]] >= thr_mask)
   }
 
   # Find water mask
   # Define the mask of water
-  geostap$mask_water <- is.na(geostap$map_pressure[[which(!sapply(geostap$mse, is.null))[1]]])
+  tag$mask_water <- is.na(tag$map_pressure[[which(!sapply(tag$mse, is.null))[1]]])
 
   # Add known location
   # compute latitude, longitude and dimension
-  g <- geo_expand(geostap$extent, geostap$scale)
-  for (stap_id in which(!is.na(geostap$stap$known_lat))) {
+  g <- geo_expand(tag$extent, tag$scale)
+  for (stap_id in which(!is.na(tag$stap$known_lat))) {
     # Initiate an empty map
-    geostap$map_pressure[[stap_id]] <- matrix(0, nrow = g$dim[1], ncol = g$dim[2])
-    geostap$map_pressure[[stap_id]][geostap$mask_water] <- NA
+    tag$map_pressure[[stap_id]] <- matrix(0, nrow = g$dim[1], ncol = g$dim[2])
+    tag$map_pressure[[stap_id]][tag$mask_water] <- NA
     # Compute the index of the known position
-    known_lon_id <- which.min(abs(geostap$stap$known_lon[stap_id] - g$lon))
-    known_lat_id <- which.min(abs(geostap$stap$known_lat[stap_id] - g$lat))
+    known_lon_id <- which.min(abs(tag$stap$known_lon[stap_id] - g$lon))
+    known_lat_id <- which.min(abs(tag$stap$known_lat[stap_id] - g$lat))
     # Assign a likelihood of 1 for that position
-    geostap$map_pressure[[stap_id]][known_lat_id, known_lon_id] <- 1
+    tag$map_pressure[[stap_id]][known_lat_id, known_lon_id] <- 1
   }
 
-  geostap$param$sd <- sd
-  geostap$param$thr_mask <- thr_mask
-  geostap$param$log_linear_pooling_weight <- log_linear_pooling_weight
-  attr(geostap$param$log_linear_pooling_weight, "srcref") <- NULL
+  tag$param$sd <- sd
+  tag$param$thr_mask <- thr_mask
+  tag$param$log_linear_pooling_weight <- log_linear_pooling_weight
+  attr(tag$param$log_linear_pooling_weight, "srcref") <- NULL
 
-  return(geostap)
+  return(tag)
 }

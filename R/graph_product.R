@@ -6,7 +6,7 @@
 #'
 #' @param graph graph constructed with [`graph_create()`].
 #' @return A list of the marginal maps for each stationary period (even those not modelled). Best to
-#' include within `geostap`.
+#' include within `tag`.
 #' @seealso [`graph_create()`], [`graph_add_movement()`], [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map)
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel

@@ -39,7 +39,7 @@
 #' `stap_id = 0` and `stap_id>0` is to the stationary period of the position used from the path).
 #'
 #' See [`geopressure_timeseries_latlon()`] for more details
-#' @seealso [`geopressure_timeseries_latlon()`], [`geostap2path()`], [GeoPressureManual | Pressure
+#' @seealso [`geopressure_timeseries_latlon()`], [`map2path()`], [GeoPressureManual | Pressure
 #' Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))

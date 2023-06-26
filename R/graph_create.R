@@ -12,7 +12,7 @@
 #' @inheritParams geopressure_map
 #' @param thr_likelihood Threshold of percentile (see details).
 #' @param thr_gs Threshold of groundspeed (km/h)  (see details).
-#' @param likelihood Field of the `geostap` list containing the likelihood map (character). Default
+#' @param likelihood Field of the `tag` list containing the likelihood map (character). Default
 #' `NA` is to take the product of `map_pressure` and `map_light` if available.
 #' @return Graph as a list
 #' - `s`:   source node (index in the 3d grid lat-lon-stap)
@@ -25,8 +25,8 @@
 #' - `stap`: data.frame of all stationary periods
 #' - `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-sta)
 #' - `retrieval`: node(s) of the last stap (index in the 3d grid lat-lon-sta)
-#' - `extent`: same as `geostap$extent`
-#' - `scale`: same as `geostap$scale`
+#' - `extent`: same as `tag$extent`
+#' - `scale`: same as `tag$scale`
 #' - `mask_water`: logical matrix of water-land
 #' - `param`: parameter used to create the graph, including `thr_likelihood` and `thr_gs`
 #' @seealso [GeoPressureManual | Basic graph](
@@ -36,21 +36,21 @@
 #' optimized hidden Markov model.” *Methods in Ecology and Evolution*.
 #' <https://doi.org/10.1111/2041-210X.14082>.}
 #' @export
-graph_create <- function(geostap,
+graph_create <- function(tag,
                          thr_likelihood = .99,
                          thr_gs = 150,
                          likelihood = NA) {
   # Check input
-  assertthat::assert_that(is.list(geostap))
-  assertthat::assert_that(assertthat::has_name(geostap, "stap"))
-  assertthat::assert_that(is.data.frame(geostap$stap))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "stap_id"))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "start"))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "end"))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "known_lat"))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "known_lon"))
-  assertthat::assert_that(assertthat::has_name(geostap, "scale"))
-  assertthat::assert_that(assertthat::has_name(geostap, "extent"))
+  assertthat::assert_that(is.list(tag))
+  assertthat::assert_that(assertthat::has_name(tag, "stap"))
+  assertthat::assert_that(is.data.frame(tag$stap))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "stap_id"))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "start"))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "end"))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "known_lat"))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "known_lon"))
+  assertthat::assert_that(assertthat::has_name(tag, "scale"))
+  assertthat::assert_that(assertthat::has_name(tag, "extent"))
 
   assertthat::assert_that(is.numeric(thr_likelihood))
   assertthat::assert_that(length(thr_likelihood) == 1)
@@ -61,14 +61,14 @@ graph_create <- function(geostap,
 
   cli::cli_progress_step("Check data input")
 
-  # Extract info from geostap for simplicity
-  stap <- geostap$stap
+  # Extract info from tag for simplicity
+  stap <- tag$stap
   stap_model <- which(stap$include)
 
   # Construct the likelihood map
   if (all(is.na(likelihood))) {
     likelihood <- c("map_pressure", "map_light")
-    tmp <- likelihood %in% names(geostap)
+    tmp <- likelihood %in% names(tag)
     if (all(tmp)) {
       lk <- mapply(\(p, l) {
         if (is.null(p) | is.null(l)) {
@@ -76,19 +76,19 @@ graph_create <- function(geostap,
         } else {
           return(p * l)
         }
-      }, geostap$map_pressure, geostap$map_light, SIMPLIFY = FALSE)
+      }, tag$map_pressure, tag$map_light, SIMPLIFY = FALSE)
     } else if (any(tmp)) {
       likelihood <- likelihood[tmp]
-      lk <- geostap[[likelihood]]
+      lk <- tag[[likelihood]]
     } else {
       cli::cli_abort(c(
-        x = "None of {.field {likelihood}} are present in {.var geostap}",
+        x = "None of {.field {likelihood}} are present in {.var tag}",
         i = "Make sure you've run {.fun geopressure_map} and/or {.fun geolight_map}"
       ))
     }
   } else {
-    assertthat::assert_that(assertthat::has_name(geostap, likelihood))
-    lk <- geostap[[likelihood]]
+    assertthat::assert_that(assertthat::has_name(tag, likelihood))
+    lk <- tag[[likelihood]]
   }
 
   # Select only the map for the stap to model
@@ -97,7 +97,7 @@ graph_create <- function(geostap,
   tmp <- sapply(lk, is.null)
   if (any(tmp)) {
     cli::cli_abort(c(
-      x = "The {.field {likelihood}} in {.var geostap} is/are null for stationary periods \\
+      x = "The {.field {likelihood}} in {.var tag} is/are null for stationary periods \\
        {.var {stap_model[tmp]}}  while those stationary period are required in {.var stap$include}",
       i = "Check your input and re-run {.fun geopressure_map} if necessary."
     ))
@@ -111,7 +111,7 @@ graph_create <- function(geostap,
     ))
   }
 
-  g <- geo_expand(geostap$extent, geostap$scale)
+  g <- geo_expand(tag$extent, tag$scale)
 
   # Approximate resolution of the grid from ° to in km
   # Assume uniform grid in lat-lon
@@ -306,14 +306,14 @@ graph_create <- function(geostap,
   dim(graph$obs) <- sz
 
   # Add metadata information
-  graph$id <- geostap$id
+  graph$id <- tag$id
   graph$sz <- sz
-  graph$stap <- geostap$stap
+  graph$stap <- tag$stap
   graph$equipment <- which(nds[[1]] == TRUE)
   graph$retrieval <- as.integer(which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll)
-  graph$mask_water <- geostap$mask_water
-  graph$extent <- geostap$extent
-  graph$scale <- geostap$scale
+  graph$mask_water <- tag$mask_water
+  graph$extent <- tag$extent
+  graph$scale <- tag$scale
   graph$param <- list(
     thr_likelihood = thr_likelihood,
     thr_gs = thr_gs

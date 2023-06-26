@@ -11,23 +11,23 @@
 #' @seealso [GeoPressureManual | GeoPressureViz
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
 #' @export
-geopressureviz <- function(geostap,
+geopressureviz <- function(tag,
                            path_pres = NA,
                            launch_browser = TRUE) {
-  if (all(c("map_pressure", "map_light") %in% names(geostap))) {
-    geostap$map_preslight <- mapply(\(p, l) p * l, geostap$map_pressure, geostap$map_light, SIMPLIFY = FALSE)
+  if (all(c("map_pressure", "map_light") %in% names(tag))) {
+    tag$map_preslight <- mapply(\(p, l) p * l, tag$map_pressure, tag$map_light, SIMPLIFY = FALSE)
   }
   stopifnot(require("shiny"), msg="")
 
   # Add possible map to display
   maps_choices <- c("Light", "Pres. MSE", "Pres. mask", "Pressure", "Pres.&Light", "Marginal")
   maps_field <- c("map_light", "mse", "mask", "map_pressure", "map_preslight", "map_marginal")
-  tmp <- maps_field %in% names(geostap)
-  maps <- geostap[maps_field[tmp]]
+  tmp <- maps_field %in% names(tag)
+  maps <- tag[maps_field[tmp]]
   names(maps) <- maps_choices[tmp]
 
   # Get stationary period information
-  stap <- geostap$stap
+  stap <- tag$stap
 
   # Set color of each stationary period
   col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(nrow(stap) / 8))
@@ -44,17 +44,17 @@ geopressureviz <- function(geostap,
     ts0 <- list()
 
     # Set the initial path to the most likely from static prob
-    path0 <- geostap2path(geostap)
+    path0 <- map2path(tag)
   }
 
 
 
   # PEROSENVIR <- new.env(parent=emptyenv())
-  .GlobalEnv$.tag_id <- geostap$id
+  .GlobalEnv$.tag_id <- tag$id
   .GlobalEnv$.stap <- stap
   .GlobalEnv$.pressure <- pressure
   .GlobalEnv$.maps <- maps
-  .GlobalEnv$.extent <- geostap$extent
+  .GlobalEnv$.extent <- tag$extent
   .GlobalEnv$.ts0 <- ts0
   .GlobalEnv$.path0 <- path0
 

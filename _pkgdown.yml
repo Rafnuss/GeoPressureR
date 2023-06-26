@@ -36,10 +36,6 @@ reference:
   desc: Labelling data
   contents:
   - start_with("tag_label")
-- title: GeoStap
-  desc: Defining the GEOgraphical grid and individual STAtionary Periods.
-  contents:
-  - geostap_create
 - title: GeoPressure
   desc: Core functionality using the GeoPressureAPI
 - subtitle: GeoPressure Map
@@ -86,7 +82,7 @@ reference:
   contents:
   - stap2flight
   - geo_expand
-  - geostap2path
+  - map2path
   - ind2path
   - bird_create
   - speed2prob

@@ -61,10 +61,10 @@ tag_label_write <- function(tag,
     if (!assertthat::has_name(tag$acceleration, "label")) {
       cli::cli_inform(c(
         "i" = "No acceleration label data.",
-        ">" = "Initialize acceleration label with default {.fn tag_label_acc_kmean}"
+        ">" = "Initialize acceleration label with default {.fn tag_label_classify}"
       ))
     }
-    tag <- tag_label_acc_kmean(tag)
+    tag <- tag_label_classify(tag)
     tag$acceleration$series <- "acceleration"
     df <- rbind(df[common_column], tag$acceleration[common_column])
   }

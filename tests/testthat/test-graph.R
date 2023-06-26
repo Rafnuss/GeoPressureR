@@ -9,7 +9,7 @@ setwd(system.file("extdata/", package = "GeoPressureR"))
 tag <- tag_create("18LX") |>
   tag_label()
 
-geostap <- geostap_create(tag,
+tag <- tag_create(tag,
   extent = c(-16, 23, 0, 50),
   scale = 1,
   known = data.frame(
@@ -20,7 +20,7 @@ geostap <- geostap_create(tag,
 ) |>
   geopressure_map(tag$pressure)
 
-graph <- graph_create(geostap)
+graph <- graph_create(tag)
 
 test_that("Check graph output", {
   expect_length(graph$s, length(graph$t))
@@ -38,14 +38,14 @@ test_that("Check graph output", {
 
 test_that("Check create_graph() for likelihood", {
   # map of prob 0 are fill up with 1
-  geostap_tmp <- geostap
-  geostap_tmp$likelihood[[2]][TRUE] <- 0
-  expect_no_error(graph_create(geostap_tmp))
+  tag_tmp <- tag
+  tag_tmp$likelihood[[2]][TRUE] <- 0
+  expect_no_error(graph_create(tag_tmp))
 
   # map of prob NA or NULL return an error
-  geostap_tmp <- geostap
-  geostap_tmp$likelihood[[2]][TRUE] <- NA
-  expect_error(graph_create(geostap_tmp), "*is invalid for the stationary *")
+  tag_tmp <- tag
+  tag_tmp$likelihood[[2]][TRUE] <- NA
+  expect_error(graph_create(tag_tmp), "*is invalid for the stationary *")
 })
 
 

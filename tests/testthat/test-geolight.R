@@ -15,7 +15,7 @@ test_that("Check twilight_create()", {
 
 
 tag <- tag_label(tag)
-geostap <- geostap_create(tag,
+tag <- tag_create(tag,
   extent = c(-16, 23, 0, 50),
   scale = 4,
   known = data.frame(
@@ -30,9 +30,9 @@ twilight$label <- ""
 
 
 test_that("Check geolight_map() with sta", {
-  geostap <- geolight_map(geostap, tag$twilight)
-  expect_type(geostap$map_pressure_light, "list")
-  expect_equal(length(dim(geostap$map_pressure_light[[1]])), 2)
+  tag <- geolight_map(tag, tag$twilight)
+  expect_type(tag$map_pressure_light, "list")
+  expect_equal(length(dim(tag$map_pressure_light[[1]])), 2)
 })
 
 

@@ -14,7 +14,7 @@
 #' which is included and not known.
 #'
 #' @return Return `TRUE` if no danger were raised (warning is ok).
-#' @inheritParams geostap_create
+#' @inheritParams tag_create
 #' @param stap_length_danger Threshold number of pressure datapoints flagged as ️danger (hourly).
 #' @param stap_length_warning Threshold number of pressure datapoints flagged as ️warning (hourly).
 #' @param pressure_diff_danger Threshold of pressure hourly difference marking as ️danger (hPa)
@@ -31,8 +31,8 @@ plot_pressure_tag <- function(tag,
                               pressure_diff_warning = 3,
                               stap_length_danger = 6,
                               stap_length_warning = 12) {
-  # Create a "fake" geostap
-  geostap <- geostap_create(
+  # Create a "fake" tag
+  tag <- tag_geo(
     tag = tag,
     extent = c(-180, 180, -90, 90),
     known = known,
@@ -40,7 +40,7 @@ plot_pressure_tag <- function(tag,
   )
 
   # extract stap for convininece
-  stap <- geostap$stap
+  stap <- tag$stap
 
   # compute the pressure at the hourly scale
   pres <- geopressure_map_preprocess(tag$pressure, stap)

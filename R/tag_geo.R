@@ -1,13 +1,9 @@
-#' Create a `geostap`
+#' Define geographical settings
 #'
 #' @description
-#' This function creates a `geostap` list, which defines all the essential information needed to
-#' construct the likelihood map and later create the graph.
+#' This function adds the `extent` and `scale` parameters to a `tag` object.
 #'
-#' `geostap` stands for **geo**graphical and **sta**tionary **p**eriod, as these are the two
-#' key dimensions (space-time) which are defined here for the rest of the analysis.
-#'
-#' In addition, `geostap` also includes the ability to define `known` locations (e.g., equipment or
+#' In addition, `tag` also includes the ability to define `known` locations (e.g., equipment or
 #' retrieval site). These can only be defined at the level of a stationary period (i.e., assuming
 #' constant position during the whole stationary period) but you can define as many known stationary
 #' periods as you wish. No likelihood map will be computed for these stationary periods, thus saving
@@ -15,7 +11,6 @@
 #'
 #' Furthermore, it is possible to compute (and later model) a subset of the stationary periods.
 #' This is done with `stap_include`. By default, `stap_include` includes all stationary periods.
-#'
 #'
 #' @param tag Data logger list with label information. See [`tag_label()`] for the required input.
 #' @param extent Geographical extent of the map on which the likelihood and graph model will be
@@ -28,26 +23,25 @@
 #' site). This information can only be attached at the level of a stationary period.
 #' @param stap_include Vector of the stationary period to model, that is, to compute in the likelihood
 #' map and use in the graph.
-#' @return List of the misfit map for each stationary period, containing:
-#' - `ìd`: Tag identifier, same as `tag$id`
-#' - `stap`: Data.frame of all stationary periods. Same as `tag$stap` but with three new columns:
-#' `known_lat` and `known_lon` define the known position during these stationary periods, and `model`
-#' defines whether the likelihood map of this stationary period should be computed and
-#' later used in the graph.
-#' - `extent` same as parameter `extent`
-#' - `scale` same as parameter `scale`
+#' @return A `tag` object with:
+#' - `stap`: Data.frame of all stationary periods with three new columns: `known_lat` and
+#' `known_lon` define the known position during these stationary periods, and `model` defines
+#' whether the likelihood map of this stationary period should be computed and later used in the
+#' graph.
+#' - `extent` same as input parameter `extent`
+#' - `scale` same as input parameter `scale`
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' tag <- tag_create("18LX") |>
 #'   tag_label()
 #'
-#' # Default geostap
-#' geostap <- geostap_create(tag, c(-16, 23, 0, 50))
-#' str(geostap)
+#' # Default tag
+#' tag <- tag_create(tag, c(-16, 23, 0, 50))
+#' str(tag)
 #'
-#' # Customized geostap, with coarse grid scale, known position for the first stationary period and
+#' # Customized tag, with coarse grid scale, known position for the first stationary period and
 #' # considering only the stationary periods lasting more than 20hours.
-#' geostap <- geostap_create(tag,
+#' tag <- tag_create(tag,
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 1,
 #'   known = data.frame(
@@ -57,9 +51,9 @@
 #'   ),
 #'   stap_include = which(difftime(tag$stap$end, tag$stap$start, units = "hours") > 20)
 #' )
-#' str(geostap)
+#' str(tag)
 #' @export
-geostap_create <- function(tag,
+tag_geo <- function(tag,
                            extent,
                            scale = 10,
                            known = data.frame(
@@ -73,7 +67,7 @@ geostap_create <- function(tag,
   if (!("stap" %in% names(tag))) {
     cli::cli_abort(c(
       x = "{.var tag} does not contains {.var stap}",
-      i = "Make sure to run {.fn tag_label} or {.fn tag_label_stap} before using {.fn geostap_create}"
+      i = "Make sure to run {.fn tag_label} or {.fn tag_label_stap} before using {.fn tag_create}"
     ))
   }
   stap <- tag$stap
@@ -107,18 +101,15 @@ geostap_create <- function(tag,
   stap$include[stap_include] <- TRUE
   if (any(!stap$include)) {
     cli::cli_warn(c(
-      "!" = "The {.var geostap} is setup to model {.val {sum(stap$include)}} out of \\
+      "!" = "The {.var tag} is setup to model {.val {sum(stap$include)}} out of \\
       {.val {nrow(stap)}} stationary periods: {.var {stap$stap_id[stap$include]}}."
     ))
   }
 
-  # Copy
-  geostap <- structure(list(
-    id = tag$id,
-    stap = stap,
-    scale = scale,
-    extent = extent
-  ), class="geostap")
+  # Add parameters
+  tag$stap <- stap
+  tag$scale <- scale
+  tag$extent <- extent
 
-  return(geostap)
+  return(tag)
 }

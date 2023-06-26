@@ -1,9 +1,9 @@
 #' Compute grid from `extent` and `scale`
 #'
-#' Take the two GEOgraphic parameters used to define the grid in `geostap` and `graph` and return
+#' Take the two GEOgraphic parameters used to define the grid in `tag` and `graph` and return
 #' all variable of interest for the spatial grid (e.g., grid dimension, latitude and longitude...)
 #'
-#' @inheritParams geostap_create
+#' @inheritParams tag_create
 #' @return A list containing:
 #' - `extent` same as input
 #' - `scale` same as input

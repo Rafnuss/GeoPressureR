@@ -1,10 +1,10 @@
 #' Compute likelihood map from twilight
 #'
 #' @description
-#' This functions uses a `geostap` and a data.frame of twilight to estimate a likelihood map
+#' This functions uses a `tag` and a data.frame of twilight to estimate a likelihood map
 #' for each stationary period. The functions performs the following steps:
 #'
-#' 1. Perform a calibration on the known stationary period `geostap$stap$known_l**`.
+#' 1. Perform a calibration on the known stationary period `tag$stap$known_l**`.
 #' 2. Compute a likelihood map for each twilight using the calibration
 #' 3. Combine all likelihood maps of the same calibration period using the stationary period dates
 #'
@@ -24,19 +24,19 @@
 #' https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html#probability-aggregation-1)
 #' for more information on probability aggregation using log-linear pooling.
 #'
-#' @param geostap Data
+#' @param tag Data
 #' @param twilight A data.frame with columns `twilight` (date-time of twilights) and `discard`
 #' (see [`twilight_create()`])
 #' @param twl_calib_adjust Smoothing parameter for the kernel density (see [`stats::kernel()`]).
 #' @param twl_llp Log-linear pooling aggregation weight.
-#' @return a `geostap` with the likelihood of light as `map_light`
+#' @return a `tag` with the likelihood of light as `map_light`
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' # Read geolocator data and build twilight
 #' tag <- tag_create("18LX") |> tag_label()
 #' tag <- twilight_create(tag) |> twilight_label_read()
-#' # Initiate the geostap structure
-#' geostap <- geostap_create(tag,
+#' # Initiate the tag structure
+#' tag <- tag_create(tag,
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 10,
 #'   known = data.frame(
@@ -47,38 +47,38 @@
 #' )
 #'
 #' # Compute likelihood map
-#' geostap <- geolight_map(
-#'   geostap,
+#' tag <- geolight_map(
+#'   tag,
 #'   tag$twilight
 #' )
 #'
 #' terra::plot(
-#'   terra::rast(geostap$map_light[[1]],
-#'     extent = geostap$extent
+#'   terra::rast(tag$map_light[[1]],
+#'     extent = tag$extent
 #'   ),
 #'   main = "Likelihood"
 #' )
 #' @export
-geolight_map <- function(geostap,
+geolight_map <- function(tag,
                          twilight,
                          twl_calib_adjust = 1.4,
                          twl_llp = \(n) 0.1) {
-  # Check geostap
-  assertthat::assert_that(is.list(geostap))
-  assertthat::assert_that(assertthat::has_name(geostap, "stap"))
-  assertthat::assert_that(assertthat::has_name(geostap, "scale"))
-  assertthat::assert_that(assertthat::has_name(geostap, "extent"))
-  assertthat::assert_that(is.data.frame(geostap$stap))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "stap_id"))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "known_lat"))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "known_lon"))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "start"))
-  assertthat::assert_that(assertthat::has_name(geostap$stap, "end"))
-  if (all(is.na(geostap$stap$known_lat))) {
+  # Check tag
+  assertthat::assert_that(is.list(tag))
+  assertthat::assert_that(assertthat::has_name(tag, "stap"))
+  assertthat::assert_that(assertthat::has_name(tag, "scale"))
+  assertthat::assert_that(assertthat::has_name(tag, "extent"))
+  assertthat::assert_that(is.data.frame(tag$stap))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "stap_id"))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "known_lat"))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "known_lon"))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "start"))
+  assertthat::assert_that(assertthat::has_name(tag$stap, "end"))
+  if (all(is.na(tag$stap$known_lat))) {
     cli::cli_abort(c(
-      x = "There are no known location on which to calibrate in {.var geostap$stap$known_lat}.",
-      i = "Add a the calibration stationary period {.var known} when creating {.var geostap} \\
-      with {.fun geostap_create}."
+      x = "There are no known location on which to calibrate in {.var tag$stap$known_lat}.",
+      i = "Add a the calibration stationary period {.var known} when creating {.var tag} \\
+      with {.fun tag_create}."
     ))
   }
   # Check twilight
@@ -88,7 +88,7 @@ geolight_map <- function(geostap,
   if ("stap_id" %in% names(twilight)) {
     tmp <- mapply(function(start, end) {
       start <= twilight$twilight & twilight$twilight <= end
-    }, geostap$stap$start, geostap$stap$end)
+    }, tag$stap$start, tag$stap$end)
     tmp <- which(tmp, arr.ind = TRUE)
     twilight$stap_id <- 0
     twilight$stap_id[tmp[, 1]] <- tmp[, 2]
@@ -104,14 +104,14 @@ geolight_map <- function(geostap,
 
   # Calibrate the twilight in term of zenith angle with a kernel density.
   z_calib <- c()
-  for (istap in which(!is.na(geostap$stap$known_lat))) {
+  for (istap in which(!is.na(tag$stap$known_lat))) {
     sun_calib <- geolight_solar(twilight$twilight[twilight$stap_id == istap])
     z_calib <- c(
       z_calib,
       geolight_refracted(geolight_zenith(
         sun_calib,
-        geostap$stap$known_lon[istap],
-        geostap$stap$known_lat[istap]
+        tag$stap$known_lon[istap],
+        tag$stap$known_lat[istap]
       ))
     )
   }
@@ -125,7 +125,7 @@ geolight_map <- function(geostap,
 
   # construct the grid of latitude and longitude on cell centered
   # call new function
-  g <- geo_expand(geostap$extent, geostap$scale)
+  g <- geo_expand(tag$extent, tag$scale)
   m <- data.frame(
     lon = rep(g$lon, each = g$dim[1]),
     lat = rep(g$lat, times = g$dim[2]),
@@ -138,7 +138,7 @@ geolight_map <- function(geostap,
   })
 
   # Initialize the likelihood list from stap to make sure all stap are present
-  lk <- vector("list", nrow(geostap$stap))
+  lk <- vector("list", nrow(tag$stap))
 
   for (stap_id in seq_len(length(lk))) {
     # find all twilights from this stap
@@ -156,25 +156,25 @@ geolight_map <- function(geostap,
 
   # Add known location
   if (FALSE) {
-    for (stap_id in which(!is.na(geostap$stap$known_lat))) {
+    for (stap_id in which(!is.na(tag$stap$known_lat))) {
       # Initiate an empty map
       lk[[stap_id]] <- matrix(0, nrow = g$dim[1], ncol = g$dim[2])
       # Compute the index of the known position
-      known_lon_id <- which.min(abs(geostap$stap$known_lon[stap_id] - g$lon))
-      known_lat_id <- which.min(abs(geostap$stap$known_lat[stap_id] - g$lat))
+      known_lon_id <- which.min(abs(tag$stap$known_lon[stap_id] - g$lon))
+      known_lat_id <- which.min(abs(tag$stap$known_lat[stap_id] - g$lat))
       # Assign a likelihood of 1 for that position
       lk[[stap_id]][known_lat_id, known_lon_id] <- 1
     }
   }
 
-  geostap$map_light <- lk
+  tag$map_light <- lk
 
   # Add parameters
-  geostap$param$twl_calib_adjust <- twl_calib_adjust
-  geostap$param$twl_llp <- twl_llp
-  geostap$param$twl_calib <- twl_calib
+  tag$param$twl_calib_adjust <- twl_calib_adjust
+  tag$param$twl_llp <- twl_llp
+  tag$param$twl_calib <- twl_calib
 
-  return(geostap)
+  return(tag)
 }
 
 

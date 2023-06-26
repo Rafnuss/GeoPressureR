@@ -15,7 +15,7 @@ test_that("workflow | full", {
   twilight_label_write(tag)
   tag <- twilight_label_read(tag)
 
-  geostap <- geostap_create(tag,
+  tag <- tag_create(tag,
     extent = c(-16, 23, 0, 50),
     scale = 1,
     known = data.frame(
@@ -27,18 +27,18 @@ test_that("workflow | full", {
     geopressure_map(tag$pressure) |>
     geolight_map(tag$twilight)
 
-  graph <- geostap |>
+  graph <- tag |>
     graph_create() |>
     graph_add_movement()
 
-  geostap$marginal <- graph_marginal(graph)
+  tag$marginal <- graph_marginal(graph)
   path <- graph_most_likely(graph)
   sim <- graph_simulation(graph)
 
   edge <- path2edge(path, graph)
   edge_sim <- path2edge(sim, graph)
 
-  path <- geostap2path(geostap)
+  path <- map2path(tag)
 
   expect_warning(path_pres <- geopressure_timeseries(path, tag$pressure))
 })
@@ -57,33 +57,33 @@ test_that("workflow | Missing pressure value", {
     "*have less than 3 datapoints to be used*"
   )
 
-  geostap <- geostap_create(tag, extent = c(-16, 23, 0, 50), scale = 1)
+  tag <- tag_create(tag, extent = c(-16, 23, 0, 50), scale = 1)
   expect_warning(expect_warning(
-    geostap <- geopressure_map(geostap, tag$pressure),
+    tag <- geopressure_map(tag, tag$pressure),
     "*have less than 3 datapoints to be used*"
   ))
 
-  expect_equal(sapply(geostap$map_pressure, is.null), c(T, T, F, F, T))
+  expect_equal(sapply(tag$map_pressure, is.null), c(T, T, F, F, T))
 
-  expect_no_error(geostap2path(geostap))
+  expect_no_error(map2path(tag))
   # expect_no_error(map2path(likelihood, interp = 0.2))
 
-  expect_error(graph <- graph_create(geostap))
+  expect_error(graph <- graph_create(tag))
 })
 
 
 test_that("geopressure_mismach & likelihood | with elev_", {
   tag <- tag_create("18LX")
   tag <- tag_label(tag, file = "data/1-tag_label/18LX-labeled-elev.csv")
-  geostap <- geostap_create(tag,
+  tag <- tag_create(tag,
     extent = c(-16, 23, 0, 50),
     scale = 1
   )
-  expect_message(geostap <- geopressure_map(geostap, tag$pressure), "*1|2*")
-  expect_equal(length(geostap$map_pressure), nrow(geostap$stap))
+  expect_message(tag <- geopressure_map(tag, tag$pressure), "*1|2*")
+  expect_equal(length(tag$map_pressure), nrow(tag$stap))
 
   # Check path_pres
-  path <- geostap2path(geostap)
+  path <- map2path(tag)
   path_pres <- geopressure_timeseries_latlon(
     lat = path$lat[1], lon = path$lon[1], pressure = tag$pressure[tag$pressure$stap_id == 1, ]
   )
@@ -93,16 +93,16 @@ test_that("geopressure_mismach & likelihood | with elev_", {
 
 test_that("workflow | modeled fewer", {
   tag <- tag_create("18LX") |> tag_label()
-  expect_warning(geostap <- geostap_create(tag,
+  expect_warning(tag <- tag_create(tag,
     extent = c(-16, 23, 0, 50),
     scale = 1,
     stap_include = c(2, 4, 5)
   ))
-  geostap <- geopressure_map(geostap, tag$pressure)
+  tag <- geopressure_map(tag, tag$pressure)
 
-  path <- geostap2path(geostap)
+  path <- map2path(tag)
 
-  graph <- graph_create(geostap)
+  graph <- graph_create(tag)
   graph <- graph_add_movement(graph)
 
 

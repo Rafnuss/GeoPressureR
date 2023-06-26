@@ -23,27 +23,27 @@
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' tag <- tag_create("18LX") |>
 #'   tag_label()
-#' geostap <- geostap_create(tag,
+#' tag <- tag_create(tag,
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 2,
 #' ) |>
 #'   geopressure_map(tag$pressure)
 #'
 #' # Compute the path
-#' path <- geostap2path(geostap)
+#' path <- map2path(tag)
 #'
 #' @seealso [`geopressure_map_likelihood()`], [`geopressure_timeseries()`], [GeoPressureManual |
 #' Pressure Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude)
 #' @export
-geostap2path <- function(geostap,
+map2path <- function(tag,
                          likelihood = NA,
                          interp = -1) {
-  assertthat::assert_that(is.list(geostap))
+  assertthat::assert_that(is.list(tag))
 
   # Construct the likelihood map
   if (all(is.na(likelihood))) {
     likelihood <- c("map_pressure", "map_light")
-    tmp <- likelihood %in% names(geostap)
+    tmp <- likelihood %in% names(tag)
     if (all(tmp)) {
       lk <- mapply(\(p, l) {
         if (is.null(p) | is.null(l)) {
@@ -51,19 +51,19 @@ geostap2path <- function(geostap,
         } else {
           return(p * l)
         }
-      }, geostap$map_pressure, geostap$map_light, SIMPLIFY = FALSE)
+      }, tag$map_pressure, tag$map_light, SIMPLIFY = FALSE)
     } else if (any(tmp)) {
       likelihood <- likelihood[tmp]
-      lk <- geostap[[likelihood]]
+      lk <- tag[[likelihood]]
     } else {
       cli::cli_abort(c(
-        x = "None of {.field {likelihood}} are present in {.var geostap}",
+        x = "None of {.field {likelihood}} are present in {.var tag}",
         i = "Make sure you've run {.fun geopressure_map} and/or {.fun geolight_map}"
       ))
     }
   } else {
-    assertthat::assert_that(assertthat::has_name(geostap, likelihood))
-    lk <- geostap[[likelihood]]
+    assertthat::assert_that(assertthat::has_name(tag, likelihood))
+    lk <- tag[[likelihood]]
   }
 
   # find the index in the 2D grid
@@ -74,7 +74,7 @@ geostap2path <- function(geostap,
   # Interpolation for short stationary period is only performed if interp>0
   if (interp > 0) {
     # Compute the grid information
-    g <- geo_expand(geostap$extent, geostap$scale)
+    g <- geo_expand(tag$extent, tag$scale)
 
     # Compute the latitude and longitude for not known stap
     lat_ind <- arrayInd(ind, g$dim)[, 1]
@@ -92,13 +92,13 @@ geostap2path <- function(geostap,
       if (all(!is.na(lat_ind[fal]))) {
         cli::cli_abort(c(
           x = "First and last modeled stationary periods {.val {path$stap_id[fal]}} need to be \\
-          have a map in {.var geostap${field}} or be known."
+          have a map in {.var tag${field}} or be known."
         ))
       }
     }
 
     # Compute flight duration of the
-    flight <- stap2flight(geostap$stap)
+    flight <- stap2flight(tag$stap)
 
     # Cumulate the flight duration to get a proxy of the over distance covered
     w <- numeric(c(0, flight$duration))
@@ -117,7 +117,7 @@ geostap2path <- function(geostap,
   }
 
   # Convert the index of the path in a path data.frame
-  path <- ind2path(ind, geostap)
+  path <- ind2path(ind, tag)
 
   return(path)
 }

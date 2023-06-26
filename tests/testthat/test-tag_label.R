@@ -21,7 +21,7 @@ test_that("tag_label_classify() | default", {
 
 
 test_that("tag_label_write() | default", {
-  expect_error(tag_label_write("not a tag"), "*tag is not a list*")
+  expect_error(tag_label_write("not a tag"), "*tag does not inherit from class tag*")
 
   # Work under normal condition
   file_labeled <- tag_label_write(tag_classified, file = "data/1-tag_label/18LX-test.csv")

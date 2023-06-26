@@ -2,15 +2,17 @@
 #'
 #' This function display the basic information on a tag list
 #
-#' @param tag A tag list
+#' @param tag A tag object
 #'
 #' @return `tag` is returned invisibly and unchanged
 #' @family tag
 #' @export
 print.tag <- function(tag){
-  cli::cli_text("Data logger of {.field {tag$id}}")
+
+  cli::cli_text("Tag data logger of {.field {tag$id}}")
+
   cli::cli_text("Date range: {tag$pressure$date[1]} to {tail(tag$pressure$date,1)}")
-  cli::cli_text("Sensor data.frame:")
+  cli::cli_text("Sensors data.frame:")
   cli::cli_ul()
   cli::cli_li("{.field pressure}: {nrow(tag$pressure)} datapoints")
   if ("acceleration" %in% names(tag)){
@@ -19,57 +21,48 @@ print.tag <- function(tag){
   if ("light" %in% names(tag)){
     cli::cli_li("{.field light}: {nrow(tag$light)} datapoints")
   }
-  cli::cli_text("Status:")
-  if ("stap" %in% names(tag)){
-    cli::cli_alert_success("{nrow(tag$stap)} stationary periods computed!")
-  } else {
-    cli::cli_alert_danger("Not yet labeled. Use {.fun tag_write} and/or {.fun tag_create}")
-    invisible(tag)
-  }
-  if ("stap" %in% names(tag)){
-    cli::cli_alert_success("{nrow(tag$stap)} stationary periods computed!")
-  } else {
-    cli::cli_alert_danger("Not yet labeled. Use {.fun tag_write} and/or {.fun tag_create}")
-    invisible(tag)
-  }
-}
 
-#' Print geostap
-#'
-#' This function display the basic information on a `geostap` list.
-#
-#' @param geostap A geostap list
-#'
-#' @return `geostap` is returned invisibly and unchanged
-#' @seealso geostap_create
-#' @export
-print.geostap <- function(geostap){
-  cli::cli_text("Definition of the geographical and stationary periods of {.field {geostap$id}}")
-  cli::cli_h3("Stationary periods {.field stap}")
-  cli::cli_text("{.val {nrow(geostap$stap)}} stationary periods")
-  print(head(geostap$stap))
+  # Stationary periods
+  cli::cli_h3("Statiionary periods")
+  if (! ("stap" %in% names(tag))){
+    cli::cli_alert_danger("Not yet labeled. Use {.fun tag_label}")
+    return(invisible(tag))
+  } else {
+    cli::cli_h3("Stationary periods {.field stap}")
+    cli::cli_text("{.val {nrow(tag$stap)}} stationary periods")
+    print(head(tag$stap))
+  }
 
+  # Geographical
   cli::cli_h3("Geographical {.field geo}")
-  geo <- geo_expand(geostap$extent, geostap$scale)
-  cli::cli_text("Extent W-E: {.val {geostap$extent[1]}}° to {.val {geostap$extent[2]}}°")
-  cli::cli_text("Extent S-N: {.val {geostap$extent[3]}}° to {.val {geostap$extent[4]}}°")
-  cli::cli_text("Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}°")
-  cli::cli_text("Resolution lat-lon: {.val {1/geostap$scale}}°")
+  if (! ("extent" %in% names(tag) & "scale" %in% names(tag))){
+    cli::cli_alert_danger("No geographical parameter defined yet. Use {.fun tag_geo}")
+    return(invisible(tag))
+  } else {
+    geo <- geo_expand(tag$extent, tag$scale)
+    cli::cli_text("Extent W-E: {.val {tag$extent[1]}}° to {.val {tag$extent[2]}}°")
+    cli::cli_text("Extent S-N: {.val {tag$extent[3]}}° to {.val {tag$extent[4]}}°")
+    cli::cli_text("Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}°")
+    cli::cli_text("Resolution lat-lon: {.val {1/tag$scale}}°")
 
+  }
+
+  # Likelihhood
   cli::cli_h3("Likelihood")
-  if ("map_pressure" %in% names(geostap)){
+  if ("map_pressure" %in% names(tag)){
     cli::cli_alert_success("Pressure likelihood computed!")
   } else {
-    if ("mse" %in% names(geostap)){
+    if ("mse" %in% names(tag)){
       cli::cli_alert_warning("Pressure mismatched computed, but not likelihood. Use {.fun geopressure_map_likelihood}.")
     } else {
       cli::cli_alert_danger("No pressure likelihood computed. Use {.fun geopressure_map}.")
     }
   }
-  if ("map_light" %in% names(geostap)){
+  if ("map_light" %in% names(tag)){
     cli::cli_alert_success("Light likelihood computed!")
   }
-  invisible(geostap)
+
+  return(invisible(tag))
 }
 
 
@@ -85,7 +78,7 @@ print.geostap <- function(geostap){
 print.graph <- function(graph){
   cli::cli_text("Graph of {.field {graph$id}}")
   cli::cli_h3("Stationary periods {.field stap}")
-  cli::cli_text("{.val {nrow(geostap$stap)}} stationary periods")
+  cli::cli_text("{.val {nrow(tag$stap)}} stationary periods")
   print(head(graph$stap))
 
   cli::cli_h3("Geographical {.field geo}")
