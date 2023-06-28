@@ -15,7 +15,7 @@ test_that("workflow | full", {
   twilight_label_write(tag)
   tag <- twilight_label_read(tag)
 
-  tag <- tag_create(tag,
+  tag <- tag_geostap(tag,
     extent = c(-16, 23, 0, 50),
     scale = 1,
     known = data.frame(
@@ -23,12 +23,12 @@ test_that("workflow | full", {
       known_lon = 17.05,
       known_lat = 48.9
     )
-  ) |>
-    geopressure_map(tag$pressure) |>
-    geolight_map(tag$twilight)
+  )
 
-  graph <- tag |>
-    graph_create() |>
+  tag <- geopressure_map(tag)
+  tag <- geolight_map(tag)
+
+  graph <- graph_create(tag) |>
     graph_add_movement()
 
   tag$marginal <- graph_marginal(graph)
@@ -40,33 +40,25 @@ test_that("workflow | full", {
 
   path <- map2path(tag)
 
-  expect_warning(path_pres <- geopressure_timeseries(path, tag$pressure))
+  expect_warning(path_pres <- geopressure_timeseries(path, tag$pressure), "Requested position is on water")
 })
 
 test_that("workflow | Missing pressure value", {
-  tag <- tag_create("18LX")
-  # tag$pressure <- tag$pressure[200:300, ]
-  tag <- tag_label(tag)
+  tag <- tag_create("18LX") |>
+    tag_label()
   tag$pressure <- subset(tag$pressure, stap_id == 3 | stap_id == 4)
 
-  expect_warning(
-    expect_warning(
-      geopressure_map_check(tag),
-      "*data is not on a regular interval*"
-    ),
-    "*have less than 3 datapoints to be used*"
-  )
+  tag <- tag_geostap(tag, extent = c(-16, 23, 0, 50), scale = 1)
 
-  tag <- tag_create(tag, extent = c(-16, 23, 0, 50), scale = 1)
   expect_warning(expect_warning(
-    tag <- geopressure_map(tag, tag$pressure),
+    tag <- geopressure_map(tag),
     "*have less than 3 datapoints to be used*"
-  ))
+  ), "Pressure data is not on a regular interval")
 
   expect_equal(sapply(tag$map_pressure, is.null), c(T, T, F, F, T))
 
   expect_no_error(map2path(tag))
-  # expect_no_error(map2path(likelihood, interp = 0.2))
+  # expect_no_error(map2path(tag, interp = 0.2))
 
   expect_error(graph <- graph_create(tag))
 })

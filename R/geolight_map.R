@@ -60,7 +60,6 @@
 #' )
 #' @export
 geolight_map <- function(tag,
-                         twilight,
                          twl_calib_adjust = 1.4,
                          twl_llp = \(n) 0.1) {
   # Check tag
@@ -82,6 +81,7 @@ geolight_map <- function(tag,
     ))
   }
   # Check twilight
+  twilight <- tag$twilight
   assertthat::assert_that(is.data.frame(twilight))
   assertthat::assert_that(assertthat::has_name(twilight, c("twilight", "label")))
   # Add stap_id if missing

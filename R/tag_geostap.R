@@ -52,21 +52,21 @@
 #'     stap_id = 1,
 #'     known_lon = 17.05,
 #'     known_lat = 48.9
-#'   ))
+#'   )
 #' )
 #' str(tag)
 #' @export
 tag_geostap <- function(tag,
-                           extent,
-                           scale = 10,
-                           include_stap_id = NA,
-                           include_min_duration = NA,
+                        extent,
+                        scale = 10,
+                        include_stap_id = NA,
+                        include_min_duration = NA,
                         known = data.frame(
                           stap_id = integer(),
                           known_lat = double(),
                           known_lon = double()
-                        ),) {
-  assertthat::assert_that(inherits(tag,"tag"))
+                        )) {
+  assertthat::assert_that(inherits(tag, "tag"))
   assertthat::assert_that(assertthat::has_name(tag, "id"))
   if (!("stap" %in% names(tag))) {
     cli::cli_abort(c(
@@ -74,6 +74,7 @@ tag_geostap <- function(tag,
       i = "Make sure to run {.fn tag_label} or {.fn tag_label_stap} before using {.fn tag_create}"
     ))
   }
+  # define stap for convinience
   stap <- tag$stap
   assertthat::assert_that(is.data.frame(stap))
   assertthat::assert_that(all(stap$stap_id == seq_len(nrow(stap))))
@@ -95,32 +96,52 @@ tag_geostap <- function(tag,
   }
   assertthat::assert_that(all(known$stap_id %in% stap$stap_id))
   assertthat::assert_that(all(unique(known$stap_id) == known$stap_id))
+  # Check if known already present
+  if ("known_lat" %in% names(stap)) {
+    if (!all(stap$known_lon[known$stap_id] == known$known_lon)){
+      cli::cli_warn(c(
+        x = "The known latitude and longitude are already defined in {.var tag}",
+        ">" = "The known latitude and longitude will be overwitten."
+      ))
+    }
+    stap <- stap[ , -which(names(stap) %in% c("known_lat", "known_lon"))]
+  }
   # Add known to stap
   stap <- merge(stap, known, by = "stap_id", all.x = TRUE)
 
   # Define which stationary periods to include
+  old_stap_include <- stap$include
   stap$include <- FALSE
 
-  if (is.na(include_stap_id)){
+
+  if (is.na(include_stap_id)) {
     include_stap_id <- tag$stap$stap_id
   }
   assertthat::assert_that(all(include_stap_id %in% tag$stap$stap_id))
 
-  if (is.na(include_min_duration)){
+  if (is.na(include_min_duration)) {
     include_min_duration <- 0
   }
   assertthat::assert_that(is.numeric(include_min_duration))
   include_min_duration_id <- which(difftime(tag$stap$end, tag$stap$start, units = "hours")
-                               > include_min_duration)
+  > include_min_duration)
 
   # Include stap which are matching both include constrains
-  stap$include[include_stap_id & include_min_duration_id] <- TRUE
+  stap$include[intersect(include_stap_id, include_min_duration_id)] <- TRUE
+
+  if (!all(old_stap_include == stap$include)) {
+    cli::cli_warn(c(
+      x = "The stationary periods to be included are already defined in {.var tag}",
+      i = "The previous include will be overwitten based on the input {.var include_min_duration}
+      and {.var include_stap_id}."
+    ))
+  }
 
   # Display warning
   if (any(!stap$include)) {
     cli::cli_warn(c(
-      "!" = "The {.var tag} is setup to model {.val {sum(stap$include)}} out of \\
-      {.val {nrow(stap)}} stationary periods: {.var {stap$stap_id[stap$include]}}."
+      "!" = "The {.var tag} is setup to model the stationary periods: \\
+      {.val {stap$stap_id[stap$include]}}."
     ))
   }
 

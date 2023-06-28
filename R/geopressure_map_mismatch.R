@@ -41,7 +41,6 @@
 #' @family geopressure_map
 #' @export
 geopressure_map_mismatch <- function(tag,
-                                     pressure,
                                      max_sample = 250,
                                      margin = 30,
                                      timeout = 60 * 5,
@@ -63,7 +62,7 @@ geopressure_map_mismatch <- function(tag,
 
   cli::cli_progress_step("Prepare pressure data")
   # Prepare data
-  pres <- geopressure_map_preprocess(pressure, tag$stap)
+  pres <- geopressure_map_preprocess(tag$pressure, tag$stap)
 
   body_df <- list(
     time = jsonlite::toJSON(as.numeric(as.POSIXct(pres$date))),

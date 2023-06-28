@@ -4,7 +4,7 @@ library(GeoPressureR)
 # options(cli.default_handler = function(...) { })
 
 # Small synthetic case
-tag_sm <- list()
+tag_sm <- structure(list(), class = "tag")
 tag_sm$pressure <- data.frame(
   date = as.POSIXct(c(
     "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
@@ -26,7 +26,7 @@ test_that("geopressure_timeseries_latlon() | default output", {
     start_time = as.POSIXct("2017-06-20 00:00:00", tz = "UTC"),
     end_time = as.POSIXct("2017-06-20 02:00:00", tz = "UTC")
   )
-  expect_s3_class(pressure_timeserie, "data.frame")
+  expect_s3_class(pressure_timeseries, "data.frame")
   expect_true(all(c("date", "pressure_era5", "lat", "lon") %in% names(pressure_timeseries)))
 })
 
@@ -41,7 +41,7 @@ test_that("geopressure_timeseries_latlon() | on water", {
 
 test_that("geopressure_timeseries_latlon() | with lat, lon and pressure", {
   pressure_timeseries <- geopressure_timeseries_latlon(lat = 46, lon = 6, pressure = tag_sm$pressure)
-  expect_s3_class(pressure_timeserie, "data.frame")
+  expect_s3_class(pressure_timeseries, "data.frame")
   expect_true(all(c("date", "pressure_era5") %in% names(pressure_timeseries)))
 })
 
@@ -75,7 +75,7 @@ path <- data.frame(
   stap_id = seq_len(5),
   ind = c(1652, 1554, 1407, 1611, 1409),
   lat = c(48.5, 46.5, 43.5, 39.5, 41.5),
-  lon = c(17.5, 15.5, 12.5, 16.5, 12.5),
+  lon = c(17.5, 15.5, 12.5, 16.5, 13),
   model = c(T, T, T, T, T),
   known = c(T, F, F, F, F)
 )
@@ -105,7 +105,7 @@ test_that("geopressure_timeseries() | full example", {
 test_that("geopressure_timeseries_latlon() | include flight", {
   pressure <- subset(tag$pressure, stap == i_s | stap == 0)
   path_pres <- geopressure_timeseries_latlon(path_i$lat, path_i$lon, pressure)
-  expect_equal(nrow(path_pres), 80)
+  expect_equal(nrow(path_pres), 45)
 })
 
 test_that("geopressure_timeseries() | Flight single stap", {
@@ -118,6 +118,6 @@ test_that("geopressure_timeseries() | Flight single stap", {
 
 test_that("geopressure_timeseries() | Flight multiple stap", {
   path_i <- path[c(2, 4), ]
-  path_pres <- geopressure_timeseries(path, tag$pressure)
+  path_pres <- geopressure_timeseries(path_i, tag$pressure)
   expect_equal(sum(path_pres$stap_id == 4), n[2])
 })

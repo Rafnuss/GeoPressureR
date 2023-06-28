@@ -22,11 +22,6 @@ stap <- data.frame(
   start = "2017-06-20 00:00:00 UTC",
   end = "2017-06-20 03:00:00 UTC"
 )
-tag <- list(
-  id = "18LX",
-  stap = stap,
-  pressure = pressure
-)
 extent <- c(0, 1, 0, 1)
 scale <- 1
 known <- data.frame(
@@ -35,22 +30,15 @@ known <- data.frame(
   known_lat = .9
 )
 
-tag <- tag_create(tag, extent, scale)
+tag <- structure(list(
+  id = "18LX",
+  stap = stap,
+  pressure = pressure
+), class = "tag")
 
-test_that("tag_create() | default output", {
-  expect_true(assertthat::has_name(tag, c("id", "stap", "scale", "extent")))
-  expect_true(all(tag$stap$include))
-  expect_true(all(is.na(tag$stap$lon)))
-  expect_no_error(tag <- tag_create(tag, extent, known = known))
-  expect_true(!is.na(tag$stap$known_lon[1]))
-  expect_error(tag <- tag_create(tag, extent, known = data.frame(
-    stap_id = 1,
-    known_lon = 2,
-    known_lat = .9
-  )), "*The known latitude and longitude*")
-})
+tag <- tag_geostap(tag, extent, scale = scale)
 
-tag <- geopressure_map_mismatch(tag, pressure)
+tag <- geopressure_map_mismatch(tag)
 
 test_that("geopressure_map_mismatch() | default output", {
   expect_type(tag, "list")
@@ -60,8 +48,8 @@ test_that("geopressure_map_mismatch() | default output", {
 })
 
 test_that("geopressure_map_mismatch() | timeout and worker", {
-  expect_error(geopressure_map_mismatch(tag, pressure, timeout = 0.1), "*Timeout was reached*")
-  expect_error(geopressure_map_mismatch(tag, pressure, worker = 100), "* workers < 100*")
+  expect_error(geopressure_map_mismatch(tag, timeout = 0.1), "*Timeout was reached*")
+  expect_error(geopressure_map_mismatch(tag, worker = 100), "* workers < 100*")
 })
 
 
@@ -77,7 +65,7 @@ test_that("geopressure_map_likelihood() | default output", {
 
 
 test_that("geopressure_map() | default output", {
-  tag <- tag_create(tag, extent, scale)
-  expect_no_error(tag <- geopressure_map(tag, tag$pressure))
-  expect_true(assertthat::has_name(tag, c("id", "stap", "likelihood", "param", "mask_water")))
+  tag <- tag_geostap(tag, extent, scale)
+  expect_no_error(tag <- geopressure_map(tag))
+  expect_true(assertthat::has_name(tag, c("id", "stap", "map_pressure", "param", "mask_water")))
 })

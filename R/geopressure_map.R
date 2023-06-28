@@ -60,7 +60,6 @@
 #' )
 #'
 #' tag <- geopressure_map(tag,
-#'   tag$pressure,
 #'   max_sample = 50,
 #'   sd = 0.7,
 #'   keep_mse_mask = TRUE
@@ -84,7 +83,6 @@
 #' )
 #' @export
 geopressure_map <- function(tag,
-                            pressure,
                             max_sample = 250,
                             margin = 30,
                             timeout = 60 * 5,
@@ -94,7 +92,6 @@ geopressure_map <- function(tag,
                             log_linear_pooling_weight = \(n) log(n) / n,
                             keep_mse_mask = FALSE) {
   tag <- geopressure_map_mismatch(tag,
-    pressure,
     max_sample = max_sample,
     margin = margin,
     timeout = timeout,
