@@ -48,8 +48,8 @@ reference:
 - subtitle: GeoPressure timeseries
   desc: Retrieving pressure and altitude at a given location.
   contents:
+  - pressurepath_create
   - geopressure_timeseries
-  - geopressure_timeseries_latlon
 - title: GeoLight
   desc: Geopositioning based on light data.
   contents:

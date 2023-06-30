@@ -32,7 +32,7 @@
 #' # Compute the path
 #' path <- map2path(tag)
 #'
-#' @seealso [`geopressure_map_likelihood()`], [`geopressure_timeseries()`], [GeoPressureManual |
+#' @seealso [`geopressure_map_likelihood()`], [`pressurepath_create()`], [GeoPressureManual |
 #' Pressure Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude)
 #' @export
 map2path <- function(tag,
@@ -110,7 +110,7 @@ map2path <- function(tag,
       round(stats::approx(w[!path$interp], lat_ind[!path$interp], w[path$interp])$y)
 
     # Account for water position
-    # Not implemented as done by geopressure_timeseries_latlon
+    # Not implemented as done by geopressure_timeseries
 
     #
     ind <- (lon_ind - 1) * g$dim[1] + lat_ind

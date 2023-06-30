@@ -65,12 +65,12 @@ ind2path <- function(ind,
   ind_lon <- (ind - ind_lat) / g$dim[1] + 1
 
   # Create the data.frame with all information
-  path0 <- data.frame(
+  path0 <- structure(data.frame(
     stap_id = rep(stap$stap_id, each = dim(ind)[1]),
     ind = as.vector(ind),
     lat = g$lat[ind_lat],
     lon = g$lon[ind_lon]
-  )
+  ), class = "path")
 
   # Combine with stap
   path <- merge(path0, stap, by = "stap_id", all.x = TRUE)

@@ -277,7 +277,7 @@ server <- function(input, output, session) {
   observeEvent(input$query_position, {
     sta_id <- .stap$sta_id[as.numeric(input$i_stap)]
     pam_pressure_sta <- .pressure[.pressure$sta_id == sta_id, ]
-    ts <- geopressure_timeseries_latlon(
+    ts <- geopressure_timeseries(
       reactVal$path$lat[as.numeric(input$i_stap)],
       reactVal$path$lon[as.numeric(input$i_stap)],
       pressure = pam_pressure_sta
