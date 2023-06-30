@@ -114,7 +114,7 @@ tag_geostap <- function(tag,
   stap$include <- FALSE
 
 
-  if (is.na(include_stap_id)) {
+  if (any(is.na(include_stap_id))) {
     include_stap_id <- tag$stap$stap_id
   }
   assertthat::assert_that(all(include_stap_id %in% tag$stap$stap_id))
