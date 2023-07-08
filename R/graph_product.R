@@ -15,7 +15,7 @@
 #' <https://doi.org/10.1111/2041-210X.14082>.}
 #' @export
 graph_marginal <- function(graph) {
-  assertthat::assert_that(is.list(graph))
+  assertthat::assert_that(is.graph(graph))
   assertthat::assert_that(assertthat::has_name(graph, c(
     "s", "t", "obs", "sz", "stap", "equipment", "retrieval", "mask_water", "extent", "scale"
   )))
@@ -95,7 +95,7 @@ graph_marginal <- function(graph) {
 #' @export
 graph_simulation <- function(graph,
                              nj = 10) {
-  assertthat::assert_that(is.list(graph))
+  assertthat::assert_that(is.graph(graph))
   assertthat::assert_that(assertthat::has_name(graph, c(
     "s", "t", "obs", "sz", "stap", "equipment", "retrieval", "mask_water", "extent", "scale"
   )))
@@ -211,7 +211,7 @@ graph_simulation <- function(graph,
 #' <https://doi.org/10.1111/2041-210X.14082>.}
 #' @export
 graph_most_likely <- function(graph) {
-  assertthat::assert_that(is.list(graph))
+  assertthat::assert_that(is.graph(graph))
   assertthat::assert_that(assertthat::has_name(graph, c(
     "s", "t", "obs", "sz", "stap", "equipment", "retrieval", "mask_water", "extent", "scale"
   )))

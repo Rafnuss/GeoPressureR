@@ -23,6 +23,7 @@
 #' # Import your own bird. You will need mass, and at least two of wing_span,
 #' # wing_aspect or wing_area.
 #' bird_create("custum_bird", mass = 1, wing_span = 1, wing_aspect = 4)
+#' @family bird
 #' @export
 bird_create <- function(species_name,
                         mass = NA,
@@ -96,13 +97,14 @@ bird_create <- function(species_name,
   assertthat::assert_that(wing_span > 0 & wing_span < 10)
   assertthat::assert_that(is.numeric(wing_aspect))
   assertthat::assert_that(wing_aspect > 1 & wing_aspect < 100)
-  return(list(
+
+  return(structure(list(
     species_name = species_name,
     mass = mass,
     body_frontal_area = body_frontal_area,
     wing_span = wing_span,
     wing_aspect = wing_aspect
-  ))
+  ), class = "bird"))
 }
 
 

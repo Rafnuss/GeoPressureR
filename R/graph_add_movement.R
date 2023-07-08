@@ -14,7 +14,7 @@
 graph_add_movement <- function(graph,
                                type = ifelse("ws" %in% names(graph), "as", "gs"),
                                ...) {
-  assertthat::assert_that(is.list(graph))
+  assertthat::assert_that(is.graph(graph))
   assertthat::assert_that(type == "as" | type == "gs")
 
   graph$movement <- list(

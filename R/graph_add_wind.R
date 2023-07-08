@@ -23,7 +23,7 @@ graph_add_wind <- function(graph,
                            pressure,
                            directory = glue::glue("data/5_wind_graph/{graph$id}/"),
                            thr_as = Inf) {
-  assertthat::assert_that(is.list(graph))
+  assertthat::assert_that(is.graph(graph))
   assertthat::assert_that(assertthat::has_name(
     graph, c("s", "t", "gs", "sz", "lat", "lon", "flight")
   ))

@@ -18,7 +18,7 @@
 #' @seealso [`graph_create()`], [`graph_add_movement()`]
 #' @export
 graph_transition <- function(graph) {
-  assertthat::assert_that(is.list(graph))
+  assertthat::assert_that(is.graph(graph))
   if (!assertthat::has_name(graph, "movement")) {
     cli::cli_abort(c(
       x = "The graph does not have a movement model.",

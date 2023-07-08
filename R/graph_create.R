@@ -13,7 +13,8 @@
 #' @param thr_likelihood Threshold of percentile (see details).
 #' @param thr_gs Threshold of groundspeed (km/h)  (see details).
 #' @param likelihood Field of the `tag` list containing the likelihood map (character). Default
-#' `NA` is to take the product of `map_pressure` and `map_light` if available.
+#' `NA` is to take the product of `map_pressure` and `map_light`, or only `map_pressure` if
+#' `map_light` is not available.
 #' @return Graph as a list
 #' - `s`:   source node (index in the 3d grid lat-lon-stap)
 #' - `t`:   target node (index in the 3d grid lat-lon-stap)
@@ -41,7 +42,7 @@ graph_create <- function(tag,
                          thr_gs = 150,
                          likelihood = NA) {
   # Check input
-  assertthat::assert_that(is.list(tag))
+  assertthat::assert_that(is.tag(tag))
   assertthat::assert_that(assertthat::has_name(tag, "stap"))
   assertthat::assert_that(is.data.frame(tag$stap))
   assertthat::assert_that(assertthat::has_name(tag$stap, "stap_id"))
@@ -66,6 +67,7 @@ graph_create <- function(tag,
   stap_model <- which(stap$include)
 
   # Construct the likelihood map
+  # Same code used in `map2path`. Update simultaneously.
   if (all(is.na(likelihood))) {
     likelihood <- c("map_pressure", "map_light")
     tmp <- likelihood %in% names(tag)
