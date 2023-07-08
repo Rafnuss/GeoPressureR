@@ -14,6 +14,10 @@
 #' @inheritParams graph_create
 #' @param interp The position of the stationary period shorter than `interp` will be
 #' replace by a linear average from other position (in days) .
+#' @param .use_known If true, enforce the known position defined in `tag` in the path created. Known
+#' position are not interpolated (even if shorter than `interp`) and used in the interpolation. In
+#' most (all?) case, the likelihood map was computed using known, and therefore will result in the
+#' same position (approx. to the map resolution).
 #' @return A path data.frame
 #' - `stap_id` stationary period
 #' - `ind` indices of the coordinate in the 2D grid. Useful to retrieve map or graph information.
@@ -37,10 +41,12 @@
 #' @export
 map2path <- function(tag,
                      likelihood = NA,
-                     interp = -1) {
   assertthat::assert_that(is.list(tag))
+                     interp = -1,
+                     .use_known = TRUE) {
 
   # Construct the likelihood map
+  # Same code used in `map2path`. Update simultaneously.
   if (all(is.na(likelihood))) {
     likelihood <- c("map_pressure", "map_light")
     tmp <- likelihood %in% names(tag)
@@ -73,26 +79,32 @@ map2path <- function(tag,
 
   # Interpolation for short stationary period is only performed if interp>0
   if (interp > 0) {
-    # Compute the grid information
+    # Find the stap to be interpolated
+    path_interp <- difftime(tag$stap$end,tag$stap$start, units = "days") <= interp
+
+    # If known, the stap will not be interpolated
+    path_interp[!is.na(tag$stap$known_lon) & .use_known] <- FALSE
+
+    # Compute the grid information used for known or interp
     g <- geo_expand(tag$extent, tag$scale)
 
-    # Compute the latitude and longitude for not known stap
+    # Compute the latitude and longitude ind
     lat_ind <- arrayInd(ind, g$dim)[, 1]
     lon_ind <- arrayInd(ind, g$dim)[, 2]
 
     # Enforce first and last stap constant
-    fal <- c(1, length(ind))
-    if (any(path$interp[fal])) {
+    fal <- c(1, length(path_interp))
+    if (any(path_interp[fal])) {
       cli::cli_warn(c(
-        "!" = "First and last modeled stationary periods ({.val path$stap_id[fal]} are shorter \\
-         than {interp} day{?s} but cannot be interpolated.",
-        ">" = "They will be kept as constant."
+        "!" = "First and last modeled stationary periods ({.val {tag$stap$stap_id[fal]}}) are \\
+         shorter than {interp} day{?s} but cannot be interpolated.",
+        ">" = "They will not be interpolated."
       ))
-      path$interp[fal] <- FALSE
+      path_interp[fal] <- FALSE
       if (all(!is.na(lat_ind[fal]))) {
         cli::cli_abort(c(
-          x = "First and last modeled stationary periods {.val {path$stap_id[fal]}} need to be \\
-          have a map in {.var tag${field}} or be known."
+          x = "First and last modeled stationary periods ({.val {tag$stap$stap_id[fal]}}) need \\
+          to be have a map in {.var tag${field}} or be known."
         ))
       }
     }
@@ -100,24 +112,29 @@ map2path <- function(tag,
     # Compute flight duration of the
     flight <- stap2flight(tag$stap)
 
-    # Cumulate the flight duration to get a proxy of the over distance covered
-    w <- numeric(c(0, flight$duration))
+    # Cummulate the flight duration to get a proxy of the over distance covered
+    total_flight <- cumsum(as.numeric(c(0, flight$duration)))
 
-    # interpolate in between
-    lon_ind[path$interp] <-
-      round(stats::approx(w[!path$interp], lon_ind[!path$interp], w[path$interp])$y)
-    lat_ind[path$interp] <-
-      round(stats::approx(w[!path$interp], lat_ind[!path$interp], w[path$interp])$y)
+    # Interpolate the lat and lon indices separately using `total_flight` as a spacing between
+    # position
+    lon_ind[path_interp] <- round(stats::approx(
+      total_flight[!path_interp], lon_ind[!path_interp], total_flight[path_interp])$y)
+    lat_ind[path_interp] <- round(stats::approx(
+      total_flight[!path_interp], lat_ind[!path_interp], total_flight[path_interp])$y)
 
     # Account for water position
     # Not implemented as done by geopressure_timeseries
 
-    #
-    ind <- (lon_ind - 1) * g$dim[1] + lat_ind
+    # Update in
+    ind[path_interp] <- (lon_ind[path_interp] - 1) * g$dim[1] + lat_ind[path_interp]
+  } else {
+    path_interp <- F
   }
 
   # Convert the index of the path in a path data.frame
-  path <- ind2path(ind, tag)
+  path <- ind2path(ind, tag, .use_known = .use_known)
+
+  path$interp <- path_interp
 
   return(path)
 }

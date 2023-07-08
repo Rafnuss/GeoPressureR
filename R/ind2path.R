@@ -6,6 +6,8 @@
 #' @param ind index in the 2D map (vector or matrix)
 #' @param tag_graph either a `tag` or a `graph` which contains both `stap`, `extent` and
 #' `scale`.
+#' @param .use_known If true, enforce the known position in the path created
+#' (approx. to the map resolution).
 #' @return A path data.frame
 #' - `stap_id` stationary period
 #' - `ind` indices of the coordinate in the 2D grid. Useful to retrieve map or graph information.
@@ -65,15 +67,26 @@ ind2path <- function(ind,
   ind_lon <- (ind - ind_lat) / g$dim[1] + 1
 
   # Create the data.frame with all information
-  path0 <- structure(data.frame(
+  path0 <- data.frame(
     stap_id = rep(stap$stap_id, each = dim(ind)[1]),
     ind = as.vector(ind),
     lat = g$lat[ind_lat],
     lon = g$lon[ind_lon]
-  ), class = "path")
+  )
 
   # Combine with stap
   path <- merge(path0, stap, by = "stap_id", all.x = TRUE)
+
+  # Enforce known position in path
+  if (.use_known){
+
+    path$lon[stap$known] <- stap$known_lon[stap$known]
+    path$lat[stap$known] <- stap$known_lat[stap$known]
+
+    lon_ind_known <- which.min(abs(g$lon - path$lon[stap$known]))
+    lat_ind_known <- which.min(abs(g$lat - path$lat[stap$known]))
+    path$ind[stap$known] <- (lon_ind_known - 1) * g$dim[1] + lat_ind_known
+  }
 
   return(path)
 }
