@@ -64,7 +64,8 @@
 #' @export
 geolight_map <- function(tag,
                          twl_calib_adjust = 1.4,
-                         twl_llp = \(n) 0.1) {
+                         twl_llp = \(n) 0.1,
+                         compute_known = FALSE) {
   # Check tag
   tag_assert(tag, "geostap")
   if (all(is.na(tag$stap$known_lat))) {
@@ -78,7 +79,7 @@ geolight_map <- function(tag,
   tag_assert(tag, "twilight")
 
   # Add stap_id if missing
-  if ("stap_id" %in% names(twilight)) {
+  if (!("stap_id" %in% names(twilight))) {
     tmp <- mapply(function(start, end) {
       start <= twilight$twilight & twilight$twilight <= end
     }, tag$stap$start, tag$stap$end)
@@ -98,7 +99,7 @@ geolight_map <- function(tag,
   # Calibrate the twilight in term of zenith angle with a kernel density.
   z_calib <- c()
   for (istap in which(!is.na(tag$stap$known_lat))) {
-    sun_calib <- geolight_solar(twilight$twilight[twilight$stap_id == istap])
+    sun_calib <- geolight_solar(twilight_clean$twilight[twilight$stap_id == istap])
     z_calib <- c(
       z_calib,
       geolight_refracted(geolight_zenith(
@@ -113,43 +114,60 @@ geolight_map <- function(tag,
   # compute the likelihood of observing the zenith angle of each twilight using the calibrated
   # error function for each grid cell.
 
-  # Compute the sun angle
-  sun <- geolight_solar(twilight_clean$twilight)
-
-  # construct the grid of latitude and longitude on cell centered
-  # call new function
-  g <- geo_expand(tag$extent, tag$scale)
-  m <- data.frame(
-    lon = rep(g$lon, each = g$dim[1]),
-    lat = rep(g$lat, times = g$dim[2]),
-    likelihood = 1
-  )
-
-  pgz <- apply(m, 1, function(x) {
-    z <- geolight_refracted(geolight_zenith(sun, x[1], x[2]))
-    stats::approx(twl_calib$x, twl_calib$y, z, yleft = 0, yright = 0)$y
-  })
-
-  # Initialize the likelihood list from stap to make sure all stap are present
-  lk <- vector("list", nrow(tag$stap))
-
-  for (stap_id in seq_len(length(lk))) {
-    # find all twilights from this stap
-    id <- twilight_clean$stap_id == stap_id
-    if (sum(id) > 1) {
-      l <- exp(colSums(twl_llp(sum(id)) * log(pgz[id, ]))) # Log-linear equation express in log
-    } else if (sum(id) == 1) {
-      l <- pgz[id, ]
-    } else {
-      l <- 1
-    }
-    l <- matrix(l, nrow = g$dim[1], ncol = g$dim[2])
-    lk[[stap_id]] <- l
+  # Only select twilight that we are intrested of: not known and/or not in flight (stap_id == 0)
+  if (compute_known) {
+    twilight_clean_comp <- twilight_clean[twilight_clean$stap_id %in% tag$stap$stap_id[is.na(tag$stap$known_lat)], ]
+  } else {
+    twilight_clean_comp <- twilight_clean[twilight_clean$stap_id %in% tag$stap$stap_id, ]
   }
 
+  # Compute the sun angle
+  sun <- geolight_solar(twilight_clean_comp$twilight)
+
+  # Get grid information
+  g <- geo_expand(tag$extent, tag$scale)
+
+  # construct the grid of latitude and longitude on cell centered
+  m <- expand.grid(lat = g$lat, lon = g$lon)
+  ml <- split(m, seq(nrow(m)))
+
+  # Loop through each grid cell (location lat, lon) and compute the likelihood for all twilight
+  pgz <- lapply(cli::cli_progress_along(ml, name = "Compute a map for each twilight"), function(i) {
+    z <- geolight_refracted(geolight_zenith(sun, ml[[i]]$lon, ml[[i]]$lat))
+    stats::approx(twl_calib$x, twl_calib$y, z, yleft = 0, yright = 0)$y
+  })
+  pgz <- do.call(rbind, pgz)
+
+
+  # Group twilight by stap
+  twl_id_stap_id <- split(seq_along(twilight_clean_comp$stap_id), twilight_clean_comp$stap_id)
+
+  # Compute the number of twilight per stap
+  ntwl <- unlist(lapply(twl_id_stap_id, length))
+  stopifnot(ntwl > 0)
+
+  # Initialize the likelihood list from stap to make sure all stap are present
+  lk <- replicate(nrow(tag$stap), matrix(1, nrow = g$dim[1], ncol = g$dim[2]), simplify = FALSE)
+
+  cli::cli_progress_bar(name = "Combine maps per stationary periods", total = sum(ntwl))
+  for (i in seq_len(length(twl_id_stap_id))) {
+    # find all twilights from this stap
+    id <- twl_id_stap_id[[i]]
+
+    # Combine with a Log-linear equation express in log
+    if (length(id) > 1) {
+      l <- exp(rowSums(twl_llp(length(id)) * log(pgz[, id])))
+    } else if (length(id) == 1) {
+      l <- pgz[, id]
+    }
+    lk[[as.numeric(names(twl_id_stap_id[i]))]] <- matrix(l, nrow = g$dim[1], ncol = g$dim[2])
+    cli::cli_progress_update(inc = ntwl[[i]])
+  }
+  cli::cli_progress_done()
+
   # Add known location
-  if (FALSE) {
-    for (stap_id in which(!is.na(tag$stap$known_lat))) {
+  if (compute_known) {
+    for (stap_id in tag$stap$stap_id[!is.na(tag$stap$known_lat)]) {
       # Initiate an empty map
       lk[[stap_id]] <- matrix(0, nrow = g$dim[1], ncol = g$dim[2])
       # Compute the index of the known position
