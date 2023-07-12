@@ -10,8 +10,8 @@
 #' In addition, `tag` also includes the ability to define `known` locations (e.g., equipment or
 #' retrieval site). These can only be defined at the level of a stationary period (i.e., assuming
 #' constant position during the whole stationary period) but you can define as many known stationary
-#' periods as you wish. No likelihood map will be computed for these stationary periods, thus saving
-#' computational time.
+#' periods as you wish. No likelihood map will be computed for these stationary periods and the
+#' trajectory model will be more constrain, thus saving significant computational time.
 #'
 #' @param tag Data logger list with label information. See [`tag_label()`] for the required input.
 #' @param extent Geographical extent of the map on which the likelihood and graph model will be
@@ -25,7 +25,7 @@
 #' @param include_min_duration Numeric defining the minimum threshold of stationary periods duration
 #' (in hours) to includes.
 #' @param known Data.frame containing the known positions of the bird (e.g., equipment or retrieval
-#' site). This information can only be attached at the level of a stationary period.
+#' site).
 #' @return A `tag` object with:
 #' - `stap`: Data.frame of all stationary periods with three new columns: `known_lat` and
 #' `known_lon` define the known position during these stationary periods, and `model` defines
@@ -90,24 +90,9 @@ tag_geostap <- function(tag,
   }
   assertthat::assert_that(all(known$stap_id %in% stap$stap_id))
   assertthat::assert_that(all(unique(known$stap_id) == known$stap_id))
-  # Check if known already present
-  if ("known_lat" %in% names(stap)) {
-    if (!all(stap$known_lon[known$stap_id] == known$known_lon)){
-      cli::cli_warn(c(
-        x = "The known latitude and longitude are already defined in {.var tag}",
-        ">" = "The known latitude and longitude will be overwitten."
-      ))
-    }
-    stap <- stap[ , -which(names(stap) %in% c("known_lat", "known_lon"))]
-  }
-  # Add known to stap
-  stap <- merge(stap, known, by = "stap_id", all.x = TRUE)
+
 
   # Define which stationary periods to include
-  old_stap_include <- stap$include
-  stap$include <- FALSE
-
-
   if (any(is.na(include_stap_id))) {
     include_stap_id <- tag$stap$stap_id
   }
@@ -118,28 +103,80 @@ tag_geostap <- function(tag,
   }
   assertthat::assert_that(is.numeric(include_min_duration))
   include_min_duration_id <- which(difftime(tag$stap$end, tag$stap$start, units = "hours")
-  > include_min_duration)
+                                   > include_min_duration)
 
   # Include stap which are matching both include constrains
-  stap$include[intersect(include_stap_id, include_min_duration_id)] <- TRUE
+  stap_include <- stap$include
+  stap_include <- FALSE
+  stap_include[intersect(include_stap_id, include_min_duration_id)] <- TRUE
 
-  if (!all(old_stap_include == stap$include)) {
-    cli::cli_warn(c(
-      x = "The stationary periods to be included are already defined in {.var tag}",
-      i = "The previous include will be overwitten based on the input {.var include_min_duration}
-      and {.var include_stap_id}."
-    ))
+  # Check if value are already defined and if they are changing
+  # Check if geostap has already been run before (all these condition should always be the same)
+  if ("extent" %in% names(tag) | "known_lat" %in% names(stap) |
+      "scale" %in% names(tag) | "include" %in% names(stap)){
+
+    # Check if value are changing
+    chg_known = any(stap$known_lon[known$stap_id] != known$known_lon)
+    chg_include = any(stap$include != stap_include)
+    chg_extent = any(extent != tag$extent)
+    chg_scale = scale != tag$scale
+
+    # Check if known has changed
+    if ( chg_known | chg_extent | chg_scale | chg_include ){
+
+      # Only provide option to stop the process if map are already defined
+      if (any(c("map_pressure", "map_light") %in% names(tag))){
+        cli::cli_inform(c(
+          "!" = "{.fun geostap} has already been run on this {.var tag} object, the input \\
+          parameters ({.var scale}, {.var extent}, {.var tag$known} or {.var tag$include}) are \\
+          different and the likelihood map ({.var map_pressure} and/or {.var map_light}) \\
+          have already been computed."
+        ))
+        res <- utils::askYesNo(
+          "Do you want to overwrite the parameters and delete the likelihood maps?")
+        if (res){
+          # If yes, remove existing likelihood map and carry on the overwrite of parameter
+          tag$map_pressure <- NULL
+          tag$map_light <- NULL
+          tag$mask_water <- NULL
+          tag$param <- NULL
+          cli::cli_warn(c(
+            "!" = "The old parameters have been overwitten with the new ones and the likelihood \\
+            map have been deleted.",
+            ">" = "Run {.fun geopressure_map} and/or {.fun geolight_map} again to create the new \\
+            likelihood maps"
+          ))
+        } else {
+          cli::cli_warn(c(
+            "x" = "No modification were made.",
+            ">" = "This function return the original (unmodified) {.var tag}."
+          ))
+          # If no, stop and return the existing tag
+          return(tag)
+        }
+      } else {
+        cli::cli_warn(c(
+          "!" = "{.fun geostap} has already been run on this {.var tag} object and the input \\
+          parameters are different.",
+          ">" = "The old parameters ({.var scale}, {.var extent}, {.var tag$known} or \\
+          {.var tag$include}) will be overwitten with the new ones."
+        ))
+      }
+    } else {
+      # Nothing has changed, return the same
+      return(tag)
+    }
   }
 
-  # Display warning
-  if (any(!stap$include)) {
-    cli::cli_warn(c(
-      "!" = "The {.var tag} is setup to model the stationary periods: \\
-      {.val {stap$stap_id[stap$include]}}."
-    ))
-  }
+  # Add known to stap
+  # remove first known_lat and lon if they exist to be able to merge the table without duplicate
+  stap <- stap[ , !(names(stap) %in% c("known_lat", "known_lon"))]
+  stap <- merge(stap, known, by = "stap_id", all.x = TRUE)
 
-  # Add parameters
+  # Add the vector of stap to include
+  stap$include <- stap_include
+
+  # Add parameters to stap
   tag$stap <- stap
   tag$scale <- scale
   tag$extent <- extent
