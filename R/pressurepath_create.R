@@ -52,23 +52,23 @@
 #'   lon = c(17.5, 13.5, 16.5, 21.5, 12.7)
 #' )
 #'
-#' path_pres <- pressurepath_create(path, tag$pressure)
+#' pressurepath <- pressurepath_create(path, tag$pressure)
 #'
-#' str(path_pres)
+#' str(pressurepath)
 #'
-#' plot(path_pres$date, path_pres$pressure_tag,
-#'   col = path_pres$stap_id,
+#' plot(pressurepath$date, pressurepath$pressure_tag,
+#'   col = pressurepath$stap_id,
 #'   ylab = "Pressure (hPa)", xlab = "Datetime"
 #' )
-#' lines(path_pres$date, path_pres$pressure_era5_norm, col = "red")
+#' lines(pressurepath$date, pressurepath$pressure_era5_norm, col = "red")
 #'
 #'
-#' path_pres <- pressurepath_create(
+#' pressurepath <- pressurepath_create(
 #'   path[c(2, 3, 4), ], tag$pressure,
 #'   include_flight = TRUE
 #' )
 #'
-#' plot(path_pres$date, path_pres$altitude,
+#' plot(pressurepath$date, pressurepath$altitude,
 #'   type = "l", ylab = "Pressure (hPa)", xlab = "Datetime"
 #' )
 #' @export

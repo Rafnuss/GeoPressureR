@@ -37,7 +37,7 @@ geopressure_map_likelihood <- function(tag,
 
   tag$map_pressure <- vector("list", nrow(tag$stap))
 
-  for (istap in which(!sapply(tag$mse, is.null))) {
+  for (istap in which(!sapply(tag$map_pressure_mse, is.null))) {
     # Number of sample
     n <- tag$stap$nb_sample[istap]
 
@@ -45,7 +45,7 @@ geopressure_map_likelihood <- function(tag,
     w <- log_linear_pooling_weight(n)
 
     # get MSE layer
-    mse <- tag$mse[[istap]]
+    mse <- tag$map_pressure_mse[[istap]]
     # change 0 (water) in NA
     mse[mse == 0] <- NA
 
@@ -53,12 +53,12 @@ geopressure_map_likelihood <- function(tag,
     likelihood <- (1 / (2 * pi * sd^2))^(n * w / 2) * exp(-w * n / 2 / (sd^2) * mse)
 
     # mask value of threshold
-    tag$map_pressure[[istap]] <- likelihood * (tag$mask[[istap]] >= thr_mask)
+    tag$map_pressure[[istap]] <- likelihood * (tag$map_pressure_mask[[istap]] >= thr_mask)
   }
 
   # Find water mask
   # Define the mask of water
-  tag$mask_water <- is.na(tag$map_pressure[[which(!sapply(tag$mse, is.null))[1]]])
+  tag$mask_water <- is.na(tag$map_pressure[[which(!sapply(tag$map_pressure_mse, is.null))[1]]])
 
   # Add known location
   # compute latitude, longitude and dimension

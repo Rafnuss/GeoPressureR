@@ -3,7 +3,7 @@
 #' Take the two GEOgraphic parameters used to define the grid in `tag` and `graph` and return
 #' all variable of interest for the spatial grid (e.g., grid dimension, latitude and longitude...)
 #'
-#' @inheritParams tag_create
+#' @inheritParams tag_geostap
 #' @return A list containing:
 #' - `extent` same as input
 #' - `scale` same as input

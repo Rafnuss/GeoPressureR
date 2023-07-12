@@ -1,21 +1,24 @@
 #' Compute likelihood map from twilight
 #'
 #' @description
-#' This functions uses a `tag` and a data.frame of twilight to estimate a likelihood map
-#' for each stationary period. The functions performs the following steps:
+#' This functions estimate a likelihood map for each stationary period from light and twilight data.
+#' The functions performs the following steps:
 #'
-#' 1. Perform a calibration on the known stationary period `tag$stap$known_l**`.
+#' 1. Perform a calibration on the known stationary period.
 #' 2. Compute a likelihood map for each twilight using the calibration
 #' 3. Combine all likelihood maps of the same calibration period using the stationary period dates
 #'
 #' # Calibration
 #'
+#' Calibration requires to have a known position for a least one stationary periods. Use
+#' [`tag_geostap`] to define the known position.
+#'
 #' Instead of calibrating the twilight errors in terms of duration, we directly model the zenith
-#' angle error.
-#' The `twl_calib_adjust` parameter allows to manually set how smooth you want the fit to be.
-#' Because the zenith angle error model is fitted with data from the calibration site only, and
-#' we are using it for all locations of the bird’s journey, it is safer to assume a broader/smoother
-#' distribution.
+#' angle error. We use a kernel distribution to fit the zenith angle during the known stationary
+#' period(s). The `twl_calib_adjust` parameter allows to manually adjust how smooth you want the
+#' fit of the zenith angle to be. Because the zenith angle error model is fitted with data from the
+#' calibration site only, and we are using it for all locations of the bird’s journey, it is safer
+#' to assume a broader/smoother distribution.
 #'
 #' # Log-linear pooling of the twilight likelihood map
 #'
@@ -24,12 +27,12 @@
 #' https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html#probability-aggregation-1)
 #' for more information on probability aggregation using log-linear pooling.
 #'
-#' @param tag Data
-#' @param twilight A data.frame with columns `twilight` (date-time of twilights) and `discard`
-#' (see [`twilight_create()`])
+#' @inheritParams tag_label
 #' @param twl_calib_adjust Smoothing parameter for the kernel density (see [`stats::kernel()`]).
 #' @param twl_llp Log-linear pooling aggregation weight.
-#' @return a `tag` with the likelihood of light as `map_light`
+#' @param compute_known Logical defining if the map(s) for known stationary period should be
+#' estimated based on twilight or hard defined by the known location `tag$stap$known_l**`
+#' @return a `tag` with the likelihood of light as `tag$map_light`
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' # Read geolocator data and build twilight

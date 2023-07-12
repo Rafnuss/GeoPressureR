@@ -9,7 +9,7 @@
 #' @family bird
 #' @method print bird
 #' @export
-print.tag <- function(x,...) {
+print.bird <- function(x,...) {
   bird <- x
   cli::cli_text("GeoPressure bird")
   print(bird)

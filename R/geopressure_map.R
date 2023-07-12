@@ -17,7 +17,6 @@
 #'
 #' @param tag List of the geographical and stationary period information. See
 #' [`tag_create()`] for details.
-#' @param pressure Data.frame of the pressure measurements, usually `tag$pressure`.
 #' @param max_sample The computation of the maps is only performed on `max_sample` datapoints of
 #' pressure to reduce computational time. The samples are randomly (uniformly) selected on the
 #' timeseries.
@@ -70,8 +69,8 @@
 #' # Plot the matrix as a terra Rast
 #' terra::plot(
 #'   c(
-#'     terra::rast(tag$mse[[1]], extent = tag$extent),
-#'     terra::rast(tag$mask[[1]], extent = tag$extent)
+#'     terra::rast(tag$map_pressure_mse[[1]], extent = tag$extent),
+#'     terra::rast(tag$map_pressure_mask[[1]], extent = tag$extent)
 #'   ),
 #'   main = c("Mean Square Error", "Mask")
 #' )
@@ -91,6 +90,8 @@ geopressure_map <- function(tag,
                             thr_mask = 0.9,
                             log_linear_pooling_weight = \(n) log(n) / n,
                             keep_mse_mask = FALSE) {
+
+  # Compute mean square error maps
   tag <- geopressure_map_mismatch(tag,
     max_sample = max_sample,
     margin = margin,
@@ -98,6 +99,7 @@ geopressure_map <- function(tag,
     workers = workers
   )
 
+  # Compute likelihood maps from the MSE maps
   tag <- geopressure_map_likelihood(tag,
     sd = sd,
     thr_mask = thr_mask,
@@ -106,7 +108,7 @@ geopressure_map <- function(tag,
 
   # remove intermediate maps computed by geopressure_map_mismatch()
   if (!keep_mse_mask) {
-    tag[names(tag) %in% c("mse", "mask")] <- NULL
+    tag[names(tag) %in% c("map_pressure_mse", "map_pressure_mask")] <- NULL
     tag$stap <- tag$stap[names(tag$stap) != "nb_sample"]
   }
 

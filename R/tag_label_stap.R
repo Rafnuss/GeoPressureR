@@ -82,15 +82,15 @@ tag_label_stap <- function(tag) {
   }
 
   stap$duration <- difftime(stap$end, stap$start, units = "hours")
-  if (any(stap$duration <= stap_duration_warning)) {
+  if (any(as.numeric(stap$duration, units="hours") <= stap_duration_warning)) {
     for (i in seq_len(nrow(stap))) {
-      stap <- stap[i, ]
-      if (stap$duration <= stap_duration_danger) {
-        cli::cli_alert_danger("Stap {stap$stap} ({stap$start} - {stap$end}) : \\
-                              {prettyunits::pretty_dt(stap$duration)}")
-      } else if (stap$duration <= stap_duration_warning) {
-        cli::cli_alert_warning("Stap {stap$stap} ({stap$start} - {stap$end}) : \\
-                               {prettyunits::pretty_dt(stap$duration)}")
+      stap_i <- stap[i, ]
+      if (any(stap_i$duration <= stap_duration_danger)) {
+        cli::cli_alert_danger("Stap {stap_i$stap} ({stap_i$start} - {stap_i$end}) : \\
+                              {prettyunits::pretty_dt(stap_i$duration)}")
+      } else if (stap_i$duration <= stap_duration_warning) {
+        cli::cli_alert_warning("Stap {stap_i$stap} ({stap_i$start} - {stap_i$end}) : \\
+                               {prettyunits::pretty_dt(stap_i$duration)}")
       }
     }
   } else {

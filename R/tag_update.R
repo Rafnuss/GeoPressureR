@@ -2,7 +2,7 @@
 #'
 #' When updating the labelling file of a tag, often, only a few stationary periods are changing. To
 #' avoid recomputing the entire workflow, this function figure out which stationary period have
-#' been changing on only update those in `tag$map_pressure` and `path_pres`.
+#' been changing on only update those in `tag$map_pressure` and `pressurepath`.
 #'
 #'
 #' @inheritParams tag_label

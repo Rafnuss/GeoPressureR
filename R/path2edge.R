@@ -17,7 +17,7 @@
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#energy)
 #' @export
 path2edge <- function(path, graph) {
-  assertthat::assert_that(is.list(graph))
+  assertthat::assert_that(is.graph(graph))
   assertthat::assert_that(assertthat::has_name(graph, c("s", "t")))
   assertthat::assert_that(length(graph$s) > 0)
 

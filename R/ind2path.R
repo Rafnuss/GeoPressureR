@@ -35,24 +35,15 @@
 #' str(path)
 #' @export
 ind2path <- function(ind,
-                     tag_graph) {
-  assertthat::assert_that(is.list(tag_graph))
-  assertthat::assert_that(assertthat::has_name(tag_graph, "stap"))
-  stap <- tag_graph$stap
-  assertthat::assert_that(is.data.frame(stap))
-  assertthat::assert_that(assertthat::has_name(stap, "stap_id"))
-  assertthat::assert_that(assertthat::has_name(stap, "known_lat"))
-  assertthat::assert_that(assertthat::has_name(stap, "known_lon"))
-  assertthat::assert_that(assertthat::has_name(stap, "include"))
+                     tag_graph,
+                     .use_known = TRUE) {
+  assertthat::assert_that(is.tag(tag_graph) | is.graph(tag_graph))
 
   stap$known <- !is.na(stap$known_lat)
   stap <- stap[, -which(names(stap) %in% c("known_lat", "known_lon"))]
 
   # Compute the grid information
-  assertthat::assert_that(assertthat::has_name(tag_graph, "scale"))
-  assertthat::assert_that(assertthat::has_name(tag_graph, "extent"))
   g <- geo_expand(tag_graph$extent, tag_graph$scale)
-
 
   # Check path
   assertthat::assert_that(is.numeric(ind))

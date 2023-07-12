@@ -11,9 +11,9 @@
 #' with columns `date` and `value` and optionally `stap_id` (see [`tag_create()`]).
 #' @param twl_thr Light threshold that defines twilight. By default, it uses the smallest
 #' value of light (i.e, first and last light of day).
-#' @param twl_offset Shift of the middle of the night compared to 00:00 UTC (in seconds). If not
+#' @param twl_offset Shift of the middle of the night compared to 00:00 UTC (in hours). If not
 #' provided, it uses the middle of all nights.
-#' @return A `tag` list contianing a new data.frame `twilight` with columns:
+#' @return A `tag` list containing a new data.frame `twilight` with columns:
 #' - `twilight` (date-time of twilight)
 #' - `rise` (logical) indicating sunrise (`TRUE`) or sunset (`FALSE`).
 #' - `stap_id` if `stap_id` is present in `light`.
@@ -44,16 +44,16 @@ twilight_create <- function(tag,
 
   # add padding of time to center if night are not at 00:00 UTC
   if (is.na(twl_offset)) {
-    mat <- geolight_light2mat(light, twl_offset = 0)
-    res <- as.numeric(difftime(mat$date[2], mat$date[1], units = "secs"))
+    mat <- light2mat(light, twl_offset = 0)
     l <- mat$value >= twl_thr
     tmp <- rowMeans(l, na.rm = TRUE)
     offset_id <- round(sum(tmp * seq_len(dim(mat$value)[1])) / sum(tmp))
-    twl_offset <- res * offset_id - 60 * 60 * 12
+    twl_offset <- (mat$res * offset_id - 60 * 60 * 12)  / 60 / 60
   }
 
-  # Use geolight_light2mat() to reshape light into a matrix
-  mat <- geolight_light2mat(light, twl_offset)
+  # Use light2mat() to reshape light into a matrix
+  mat <- light2mat(light, twl_offset)
+  # image(mat$value)
 
   # Compute exceed of light
   l <- mat$value >= twl_thr
@@ -99,10 +99,12 @@ twilight_create <- function(tag,
 
   # Add stap_id if present
   if ("stap_id" %in% names(light)) {
-    twilight$stap_id <- stats::approx(light$date[light$stap_id > 0], light$stap_id[light$stap_id > 0], twilight$twilight)$y
+    twilight$stap_id <- stats::approx(light$date[light$stap_id > 0], light$stap_id[light$stap_id > 0], twilight$twilight, method = "constant")$y
   }
 
   tag$twilight <- twilight
+  tag$param$twl_offset <- twl_offset
+  tag$param$twl_thr <- twl_thr
 
   return(tag)
 }

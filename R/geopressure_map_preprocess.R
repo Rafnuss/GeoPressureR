@@ -16,10 +16,10 @@
 #' tag <- tag_create("18LX") |>
 #'   tag_label()
 #'
-#' pressure_processed <- geopressure_map_preprocess(tag$pressure, tag$stap)
+#' pressure_processed <- geopressure_map_preprocess(tag)
 #' str(pressure_processed)
 #' @export
-geopressure_map_preprocess <- function(pressure, stap) {
+geopressure_map_preprocess <- function(tag) {
   tag_assert(tag)
   pressure <- tag$pressure
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "label", "stap_id")))
@@ -28,6 +28,7 @@ geopressure_map_preprocess <- function(pressure, stap) {
   assertthat::assert_that(nrow(pressure) >= 3)
   assertthat::assert_that(min(diff(as.numeric(pressure$date))) / 60 / 60 <= 1)
 
+  stap <- tag$stap
   assertthat::assert_that(is.data.frame(stap))
   assertthat::assert_that(assertthat::has_name(stap, "stap_id"))
   assertthat::assert_that(assertthat::has_name(stap, "include"))

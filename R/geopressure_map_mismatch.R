@@ -59,7 +59,7 @@ geopressure_map_mismatch <- function(tag,
 
   cli::cli_progress_step("Prepare pressure data")
   # Prepare data
-  pres <- geopressure_map_preprocess(tag$pressure, tag$stap)
+  pres <- geopressure_map_preprocess(tag)
 
   body_df <- list(
     time = jsonlite::toJSON(as.numeric(as.POSIXct(pres$date))),
@@ -155,7 +155,7 @@ geopressure_map_mismatch <- function(tag,
         cli::cli_progress_update(force = TRUE)
         file[i_u] <- future::value(f[[i_u]])
         map[[i_u]] <- terra::rast(file[i_u])
-        names(map[[i_u]]) <- c("mse", "mask")
+        names(map[[i_u]]) <- c("map_pressure_mse", "map_pressure_mask")
       }
     },
     error = function(cond) {
@@ -182,11 +182,11 @@ geopressure_map_mismatch <- function(tag,
   })))
 
   # Initialize the return list from tag$stap to make sure all stap are present
-  if (!("mse" %in% names(tag)) | length(tag$mse) == nrow(tag$stap)) {
-    tag$mse <- vector("list", nrow(tag$stap))
+  if (!("map_pressure_mse" %in% names(tag)) | length(tag$mse) == nrow(tag$stap)) {
+    tag$map_pressure_mse <- vector("list", nrow(tag$stap))
   }
-  if (!("mask" %in% names(tag)) | length(tag$mask) == nrow(tag$stap)) {
-    tag$mask <- vector("list", nrow(tag$stap))
+  if (!("map_pressure_mask" %in% names(tag)) | length(tag$mask) == nrow(tag$stap)) {
+    tag$map_pressure_mask <- vector("list", nrow(tag$stap))
   }
   if (!("nb_sample" %in% tag & length(tag$mask) == nrow(tag$stap))) {
     tag$stap$nb_sample <- 0
@@ -205,8 +205,8 @@ geopressure_map_mismatch <- function(tag,
     }, map[i_label], nb_sample[i_label])) / sum(nb_sample[i_label])
 
     # Extract the two map
-    tag$mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE) / 100 / 100 # convert MSE from Pa to hPa
-    tag$mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
+    tag$map_pressure_mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE) / 100 / 100 # convert MSE from Pa to hPa
+    tag$map_pressure_mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
   }
 
   # keep parameters used
