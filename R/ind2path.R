@@ -39,8 +39,7 @@ ind2path <- function(ind,
                      .use_known = TRUE) {
   assertthat::assert_that(is.tag(tag_graph) | is.graph(tag_graph))
 
-  stap$known <- !is.na(stap$known_lat)
-  stap <- stap[, -which(names(stap) %in% c("known_lat", "known_lon"))]
+  stap <- tag_graph$stap
 
   # Compute the grid information
   g <- geo_expand(tag_graph$extent, tag_graph$scale)
@@ -54,8 +53,8 @@ ind2path <- function(ind,
   assertthat::assert_that(dim(ind)[2] == nrow(stap))
 
   # Convert the index in 2D grid into 1D lat and lon coordinate
-  ind_lat <- ind %% g$dim[1]
-  ind_lon <- (ind - ind_lat) / g$dim[1] + 1
+  ind_lat <- (ind %% g$dim[1]) + 1
+  ind_lon <- (ind - (ind %% g$dim[1])) / g$dim[1] + 1
 
   # Create the data.frame with all information
   path0 <- data.frame(
@@ -64,6 +63,8 @@ ind2path <- function(ind,
     lat = g$lat[ind_lat],
     lon = g$lon[ind_lon]
   )
+
+  stap$known <- !is.na(stap$known_lat)
 
   # Combine with stap
   path <- merge(path0, stap, by = "stap_id", all.x = TRUE)
@@ -78,6 +79,11 @@ ind2path <- function(ind,
     lat_ind_known <- which.min(abs(g$lat - path$lat[stap$known]))
     path$ind[stap$known] <- (lon_ind_known - 1) * g$dim[1] + lat_ind_known
   }
+
+  # Remove known_lat and known_lon
+  path <- path[, -which(names(path) %in% c("known_lat", "known_lon"))]
+
+
 
   return(path)
 }
