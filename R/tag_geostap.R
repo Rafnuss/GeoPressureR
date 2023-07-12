@@ -66,15 +66,9 @@ tag_geostap <- function(tag,
                           known_lat = double(),
                           known_lon = double()
                         )) {
-  assertthat::assert_that(inherits(tag, "tag"))
-  assertthat::assert_that(assertthat::has_name(tag, "id"))
-  if (!("stap" %in% names(tag))) {
-    cli::cli_abort(c(
-      x = "{.var tag} does not contains {.var stap}",
-      i = "Make sure to run {.fn tag_label} or {.fn tag_label_stap} before using {.fn tag_create}"
-    ))
-  }
-  # define stap for convinience
+  tag_assert(tag, "stap")
+
+  # define stap for convenience
   stap <- tag$stap
   assertthat::assert_that(is.data.frame(stap))
   assertthat::assert_that(all(stap$stap_id == seq_len(nrow(stap))))

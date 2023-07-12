@@ -40,7 +40,7 @@
 #' @export
 tag_label <- function(tag,
                       file = glue::glue("data/1-tag_label/{tag$id}-labeled.csv")) {
-  assertthat::assert_that(inherits(tag, "tag"))
+  tag_assert(tag)
   assertthat::assert_that(is.character(file))
 
   # Check if the label file exist

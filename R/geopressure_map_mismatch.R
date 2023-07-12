@@ -46,10 +46,7 @@ geopressure_map_mismatch <- function(tag,
                                      timeout = 60 * 5,
                                      workers = 90) {
   # Check tag
-  assertthat::assert_that(is.list(tag))
-  assertthat::assert_that(assertthat::has_name(tag, "stap"))
-  assertthat::assert_that(assertthat::has_name(tag, "scale"))
-  assertthat::assert_that(assertthat::has_name(tag, "extent"))
+  tag_assert(tag, "geostap")
 
   # Format query
   assertthat::assert_that(is.numeric(max_sample))

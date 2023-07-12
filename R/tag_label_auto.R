@@ -26,10 +26,7 @@
 #' @export
 tag_label_auto <- function(tag,
                            min_duration = 30) {
-  assertthat::assert_that(is.list(tag))
-  assertthat::assert_that(assertthat::has_name(tag, "pressure"))
-  assertthat::assert_that(is.data.frame(tag$pressure))
-  assertthat::assert_that(assertthat::has_name(tag$pressure, c("value", "date")))
+  tag_assert(tag)
   if (!assertthat::has_name(tag$pressure, "label")) {
     tag$pressure$label <- ""
   }

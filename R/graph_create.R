@@ -10,11 +10,9 @@
 #'
 #'
 #' @inheritParams geopressure_map
+#' @inheritParams tag2likelihood
 #' @param thr_likelihood Threshold of percentile (see details).
 #' @param thr_gs Threshold of groundspeed (km/h)  (see details).
-#' @param likelihood Field of the `tag` list containing the likelihood map (character). Default
-#' `NA` is to take the product of `map_pressure` and `map_light`, or only `map_pressure` if
-#' `map_light` is not available.
 #' @return Graph as a list
 #' - `s`:   source node (index in the 3d grid lat-lon-stap)
 #' - `t`:   target node (index in the 3d grid lat-lon-stap)
@@ -41,17 +39,6 @@ graph_create <- function(tag,
                          thr_likelihood = .99,
                          thr_gs = 150,
                          likelihood = NA) {
-  # Check input
-  assertthat::assert_that(is.tag(tag))
-  assertthat::assert_that(assertthat::has_name(tag, "stap"))
-  assertthat::assert_that(is.data.frame(tag$stap))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "stap_id"))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "start"))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "end"))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "known_lat"))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "known_lon"))
-  assertthat::assert_that(assertthat::has_name(tag, "scale"))
-  assertthat::assert_that(assertthat::has_name(tag, "extent"))
 
   # Construct the likelihood map
   lk <- tag2likelihood(tag, likelihood = likelihood)

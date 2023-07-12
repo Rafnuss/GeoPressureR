@@ -19,10 +19,8 @@
 twilight_label_write <- function(tag,
                                  file = glue::glue("data/2-twl_label/{tag$id}.csv"),
                                  twl_offset = 0) {
-  assertthat::assert_that(inherits(tag, "tag"))
-  twilight <- tag$twilight
-  assertthat::assert_that(is.data.frame(twilight))
-  assertthat::assert_that(assertthat::has_name(twilight, c("twilight", "rise")))
+  # Check twilight
+  tag_assert(tag, "twilight")
 
   # Adapt variable
   twilight$series <- ifelse(twilight$rise, "Rise", "Set")

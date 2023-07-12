@@ -10,7 +10,6 @@
 #' This function is used within [`geopressure_map_mismatch()`] but can be useful to check the
 #' pressure data sent to the GeoPressureAPI.
 #' @inheritParams geopressure_map
-#' @param stap Stationary period information (typically `tag$stap` or `tag$stap`).
 #' @return Pressure data.frame without flight and discarded values, on a 1hr resolution.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
@@ -21,7 +20,8 @@
 #' str(pressure_processed)
 #' @export
 geopressure_map_preprocess <- function(pressure, stap) {
-  assertthat::assert_that(is.data.frame(pressure))
+  tag_assert(tag)
+  pressure <- tag$pressure
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "label", "stap_id")))
   assertthat::assert_that(assertthat::is.time(pressure$date))
   assertthat::assert_that(is.numeric(pressure$value))

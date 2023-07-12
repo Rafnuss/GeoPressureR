@@ -17,10 +17,7 @@
 #' @export
 tag_label_read <- function(tag,
                            file = glue::glue("data/1-tag_label/{tag$id}-labeled.csv")) {
-  assertthat::assert_that(is.list(tag))
-  assertthat::assert_that(assertthat::has_name(tag, "pressure"))
-  assertthat::assert_that(is.data.frame(tag$pressure))
-  assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "value")))
+  tag_assert(tag)
 
   tag$pressure <- trainset_read(tag$pressure,
     file = file,

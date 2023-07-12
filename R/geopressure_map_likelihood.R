@@ -26,17 +26,8 @@ geopressure_map_likelihood <- function(tag,
                                        sd = 1,
                                        thr_mask = 0.9,
                                        log_linear_pooling_weight = \(n) log(n) / n) {
-  assertthat::assert_that(is.list(tag))
-  assertthat::assert_that(assertthat::has_name(tag, "stap"))
-  assertthat::assert_that(assertthat::has_name(tag, "scale"))
-  assertthat::assert_that(assertthat::has_name(tag, "extent"))
-  assertthat::assert_that(assertthat::has_name(tag, "mse"))
-  assertthat::assert_that(assertthat::has_name(tag, "mask"))
-  assertthat::assert_that(is.data.frame(tag$stap))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "stap_id"))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "known_lat"))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "known_lon"))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "nb_sample"))
+  # Check tag status
+  tag_assert(tag, "map_pressure_mismatch")
 
   assertthat::assert_that(is.numeric(sd))
   assertthat::assert_that(sd >= 0)

@@ -35,21 +35,18 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)
 #' @export
 graph_download_wind <- function(tag,
-                                extent,
+                                extent = tag$extent,
                                 stap_id_s = utils::head(tag$stap$stap_id, -1),
                                 cds_key = Sys.getenv("cds_key"),
                                 cds_user = Sys.getenv("cds_user"),
                                 directory = glue::glue("data/5_wind_graph/{graph$id}/")) {
-  assertthat::assert_that(inherits(tag, "tag"))
-  assertthat::assert_that(assertthat::has_name(tag, "pressure"))
-  assertthat::assert_that(is.data.frame(tag$pressure))
-  assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "value")))
-  assertthat::assert_that(assertthat::has_name(tag, "stap"))
-  assertthat::assert_that(is.data.frame(tag$stap))
-  assertthat::assert_that(assertthat::has_name(tag$stap, c("end", "start")))
+
+  assert_tag(tag, "geostap")
+
   assertthat::assert_that(length(extent) == 4)
   assertthat::assert_that(is.numeric(stap_id_s))
   assertthat::assert_that(all(stap_id_s %in% tag$stap$stap_id))
+
   # remove the last stap_id if it was added by mistake
   if (utils::tail(tag$stap$stap_id, 1) %in% stap_id_s) {
     stap_id_s <- utils::head(sort(stap_id_s), -1)

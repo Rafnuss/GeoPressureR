@@ -28,10 +28,7 @@
 #' @export
 tag_label_stap <- function(tag) {
   # Perform test
-  assertthat::assert_that(inherits(tag, "tag"))
-  assertthat::assert_that(assertthat::has_name(tag, "pressure"))
-  assertthat::assert_that(is.data.frame(tag$pressure))
-  assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "label")))
+  tag_assert(tag)
 
   # If acceleration is present, use acceleration, otherwise pressure
   if (assertthat::has_name(tag, "acceleration") &&

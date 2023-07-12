@@ -18,9 +18,7 @@
 #' @export
 twilight_label_read <- function(tag,
                                 file = glue::glue("data/2-twl_label/{tag$id}-labeled.csv")) {
-  assertthat::assert_that(inherits(tag, "tag"))
-  assertthat::assert_that(is.data.frame(tag$twilight))
-  assertthat::assert_that(assertthat::has_name(tag$twilight, c("twilight", "rise")))
+  tag_assert(tag, "twilight")
 
   tag$twilight <- trainset_read(tag$twilight,
     file = file,

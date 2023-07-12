@@ -63,16 +63,7 @@ geolight_map <- function(tag,
                          twl_calib_adjust = 1.4,
                          twl_llp = \(n) 0.1) {
   # Check tag
-  assertthat::assert_that(is.list(tag))
-  assertthat::assert_that(assertthat::has_name(tag, "stap"))
-  assertthat::assert_that(assertthat::has_name(tag, "scale"))
-  assertthat::assert_that(assertthat::has_name(tag, "extent"))
-  assertthat::assert_that(is.data.frame(tag$stap))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "stap_id"))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "known_lat"))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "known_lon"))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "start"))
-  assertthat::assert_that(assertthat::has_name(tag$stap, "end"))
+  tag_assert(tag, "geostap")
   if (all(is.na(tag$stap$known_lat))) {
     cli::cli_abort(c(
       x = "There are no known location on which to calibrate in {.var tag$stap$known_lat}.",
@@ -81,9 +72,8 @@ geolight_map <- function(tag,
     ))
   }
   # Check twilight
-  twilight <- tag$twilight
-  assertthat::assert_that(is.data.frame(twilight))
-  assertthat::assert_that(assertthat::has_name(twilight, c("twilight", "label")))
+  tag_assert(tag, "twilight")
+
   # Add stap_id if missing
   if ("stap_id" %in% names(twilight)) {
     tmp <- mapply(function(start, end) {

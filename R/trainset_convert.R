@@ -2,12 +2,7 @@ trainset_convert <- function(tag,
                              directory = "data/1-tag_label/",
                              file = glue::glue(tag$id, "_act_pres-labeled.csv"),
                              keep_acc = FALSE) {
-  assertthat::assert_that(inherits(tag, "tag"))
-  assertthat::assert_that(assertthat::has_name(tag, c("pressure", "acceleration")))
-  assertthat::assert_that(is.data.frame(tag$pressure))
-  assertthat::assert_that(assertthat::has_name(tag$pressure, c("date", "value")))
-  assertthat::assert_that(is.data.frame(tag$acceleration))
-  assertthat::assert_that(assertthat::has_name(tag$acceleration, c("date", "value")))
+  tag_assert(tag)
   assertthat::assert_that(is.character(directory))
   assertthat::assert_that(is.character(file))
   assertthat::assert_that(assertthat::is.dir(directory))
