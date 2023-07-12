@@ -11,7 +11,7 @@
 #' period can be safely estimated from the probability map.
 #'
 #' @inheritParams geopressure_map
-#' @inheritParams graph_create
+#' @inheritParams tag2likelihood
 #' @param interp The position of the stationary period shorter than `interp` will be
 #' replace by a linear average from other position (in days) .
 #' @param .use_known If true, enforce the known position defined in `tag` in the path created. Known
@@ -41,36 +41,11 @@
 #' @export
 map2path <- function(tag,
                      likelihood = NA,
-  assertthat::assert_that(is.list(tag))
                      interp = -1,
                      .use_known = TRUE) {
 
   # Construct the likelihood map
-  # Same code used in `map2path`. Update simultaneously.
-  if (all(is.na(likelihood))) {
-    likelihood <- c("map_pressure", "map_light")
-    tmp <- likelihood %in% names(tag)
-    if (all(tmp)) {
-      lk <- mapply(\(p, l) {
-        if (is.null(p) | is.null(l)) {
-          return(NULL)
-        } else {
-          return(p * l)
-        }
-      }, tag$map_pressure, tag$map_light, SIMPLIFY = FALSE)
-    } else if (any(tmp)) {
-      likelihood <- likelihood[tmp]
-      lk <- tag[[likelihood]]
-    } else {
-      cli::cli_abort(c(
-        x = "None of {.field {likelihood}} are present in {.var tag}",
-        i = "Make sure you've run {.fun geopressure_map} and/or {.fun geolight_map}"
-      ))
-    }
-  } else {
-    assertthat::assert_that(assertthat::has_name(tag, likelihood))
-    lk <- tag[[likelihood]]
-  }
+  lk <- tag2likelihood(tag, likelihood = likelihood)
 
   # find the index in the 2D grid
   ind <- rep(NA, length(lk))
@@ -128,7 +103,7 @@ map2path <- function(tag,
     # Update in
     ind[path_interp] <- (lon_ind[path_interp] - 1) * g$dim[1] + lat_ind[path_interp]
   } else {
-    path_interp <- F
+    path_interp <- FALSE
   }
 
   # Convert the index of the path in a path data.frame

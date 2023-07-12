@@ -53,6 +53,9 @@ graph_create <- function(tag,
   assertthat::assert_that(assertthat::has_name(tag, "scale"))
   assertthat::assert_that(assertthat::has_name(tag, "extent"))
 
+  # Construct the likelihood map
+  lk <- tag2likelihood(tag, likelihood = likelihood)
+
   assertthat::assert_that(is.numeric(thr_likelihood))
   assertthat::assert_that(length(thr_likelihood) == 1)
   assertthat::assert_that(thr_likelihood >= 0 & thr_likelihood <= 1)
@@ -66,32 +69,7 @@ graph_create <- function(tag,
   stap <- tag$stap
   stap_model <- which(stap$include)
 
-  # Construct the likelihood map
-  # Same code used in `map2path`. Update simultaneously.
-  if (all(is.na(likelihood))) {
-    likelihood <- c("map_pressure", "map_light")
-    tmp <- likelihood %in% names(tag)
-    if (all(tmp)) {
-      lk <- mapply(\(p, l) {
-        if (is.null(p) | is.null(l)) {
-          return(NULL)
-        } else {
-          return(p * l)
-        }
-      }, tag$map_pressure, tag$map_light, SIMPLIFY = FALSE)
-    } else if (any(tmp)) {
-      likelihood <- likelihood[tmp]
-      lk <- tag[[likelihood]]
-    } else {
-      cli::cli_abort(c(
-        x = "None of {.field {likelihood}} are present in {.var tag}",
-        i = "Make sure you've run {.fun geopressure_map} and/or {.fun geolight_map}"
-      ))
-    }
-  } else {
-    assertthat::assert_that(assertthat::has_name(tag, likelihood))
-    lk <- tag[[likelihood]]
-  }
+
 
   # Select only the map for the stap to model
   lk <- lk[stap_model]
