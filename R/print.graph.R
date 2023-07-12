@@ -1,11 +1,13 @@
 #' Print `graph`
 #'
-#' This function display the basic information on a `graph` list.
+#' This function display the basic information on a `graph` object.
 #
 #' @param x A `graph` list
+#' @param ... arguments passed from other methods
 #'
 #' @return `graph` is returned invisibly and unchanged
-#' @seealso graph_create
+#' @family graph
+#' @method print graph
 #' @export
 print.graph <- function(x,...) {
   graph <- x
@@ -39,17 +41,8 @@ print.graph <- function(x,...) {
     cli::cli_alert_danger("No movement model defined. Use {.fun graph_add_movement}")
   }
 
-  invisible(graph)
+  return(invisible(graph))
 }
 
 
-#' Check if an object is of class `graph`
-#'
-#' @param x A `graph` object.
-#'
-#' @return `TRUE` for an object of class `graph`, otherwise `FALSE`.
-#'
-#' @export
-is.graph <- function(x) {
-  inherits(x, "graph")
-}
+
