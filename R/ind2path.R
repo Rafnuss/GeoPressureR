@@ -1,7 +1,7 @@
 #' Create a path from indices of coordinate
 #'
 #' Convert the 2D coordinate index of a map and produce a path data.frame. This function is used by
-#' `map2path`, `graph_most_likely`, `graph_simulation` and `geopressureviz`.
+#' `tag2path`, `graph_most_likely`, `graph_simulation` and `geopressureviz`.
 #'
 #' @param ind index in the 2D map (vector or matrix)
 #' @param tag_graph either a `tag` or a `graph` which contains both `stap`, `extent` and
@@ -37,7 +37,7 @@
 ind2path <- function(ind,
                      tag_graph,
                      .use_known = TRUE) {
-  assertthat::assert_that(is.tag(tag_graph) | is.graph(tag_graph))
+  assertthat::assert_that(inherits(tag_graph, "tag") | inherits(tag_graph, "graph"))
 
   stap <- tag_graph$stap
 
@@ -53,12 +53,13 @@ ind2path <- function(ind,
   assertthat::assert_that(dim(ind)[2] == nrow(stap))
 
   # Convert the index in 2D grid into 1D lat and lon coordinate
-  ind_lat <- (ind %% g$dim[1]) + 1
-  ind_lon <- (ind - (ind %% g$dim[1])) / g$dim[1] + 1
+  ind_lat <- (ind %% g$dim[1])
+  ind_lon <- (ind - ind_lat) / g$dim[1] + 1
 
   # Create the data.frame with all information
   path0 <- data.frame(
     stap_id = rep(stap$stap_id, each = dim(ind)[1]),
+    j = rep(seq_len(dim(ind)[1]), times = dim(ind)[2]),
     ind = as.vector(ind),
     lat = g$lat[ind_lat],
     lon = g$lon[ind_lon]
@@ -70,20 +71,17 @@ ind2path <- function(ind,
   path <- merge(path0, stap, by = "stap_id", all.x = TRUE)
 
   # Enforce known position in path
-  if (.use_known){
+  if (.use_known & any(path$known)){
+    path$lon[path$known] <- path$known_lon[path$known]
+    path$lat[path$known] <- path$known_lat[path$known]
 
-    path$lon[stap$known] <- stap$known_lon[stap$known]
-    path$lat[stap$known] <- stap$known_lat[stap$known]
-
-    lon_ind_known <- which.min(abs(g$lon - path$lon[stap$known]))
-    lat_ind_known <- which.min(abs(g$lat - path$lat[stap$known]))
-    path$ind[stap$known] <- (lon_ind_known - 1) * g$dim[1] + lat_ind_known
+    lon_ind_known <- sapply(path$known_lon[path$known], \(x) which.min(abs(g$lon - x)))
+    lat_ind_known <- sapply(path$known_lat[path$known], \(x) which.min(abs(g$lat - x)))
+    path$ind[path$known] <- (lon_ind_known - 1) * g$dim[1] + lat_ind_known
   }
 
   # Remove known_lat and known_lon
   path <- path[, -which(names(path) %in% c("known_lat", "known_lon"))]
-
-
 
   return(path)
 }

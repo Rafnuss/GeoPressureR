@@ -1,6 +1,6 @@
 #' Check if an object is of class `tag`
 #'
-#' @param x A `tag` object.
+#' @param x A GeoPressureR `tag` object
 #'
 #' @return `TRUE` for an object of class `tag`, otherwise `FALSE`.
 #' @family tag
