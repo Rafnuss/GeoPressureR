@@ -16,7 +16,7 @@
 #' @family tag_label
 #' @export
 tag_label_read <- function(tag,
-                           file = glue::glue("data/1-tag_label/{tag$id}-labeled.csv")) {
+                           file = glue::glue("./data/tag-label/{tag$id}-labeled.csv")) {
   tag_assert(tag)
 
   tag$pressure <- trainset_read(tag$pressure,

@@ -18,7 +18,7 @@
 #' @export
 geopressure_export <- function(tag = NA,
                                path = NA,
-                               directory = glue::glue("data/export/{tag$id}")) {
+                               directory = glue::glue("./data/processed/{tag$id}")) {
   assertthat::assert_that(assertthat::is.dir(directory))
 
   if (!is.na(tag)) {

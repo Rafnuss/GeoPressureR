@@ -27,13 +27,13 @@
 #' # Writing labeled tag will use the existing labels
 #' tag <- tag_label(tag)
 #' file <- tag_label_write(tag,
-#'   file = glue::glue("data/1-tag_label/{tag$id}-v2.csv")
+#'   file = glue::glue("./data/tag-label/{tag$id}-v2.csv")
 #' )
 #' str(read.csv(file))
 #' @family tag_label
 #' @export
 tag_label_write <- function(tag,
-                            file = glue::glue("data/1-tag_label/{tag$id}.csv")) {
+                            file = glue::glue("./data/tag-label/{tag$id}.csv")) {
   tag_assert(tag)
 
   # Create empty label if it doesn't exit

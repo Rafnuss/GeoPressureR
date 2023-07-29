@@ -17,10 +17,13 @@
 #' @family twilight
 #' @export
 twilight_label_write <- function(tag,
-                                 file = glue::glue("data/2-twl_label/{tag$id}.csv"),
+                                 file = glue::glue("./data/twilight-label/{tag$id}.csv"),
                                  twl_offset = 0) {
   # Check twilight
   tag_assert(tag, "twilight")
+
+  # Extract twilight to convinience
+  twilight <- tag$twilight
 
   # Adapt variable
   twilight$series <- ifelse(twilight$rise, "Rise", "Set")
