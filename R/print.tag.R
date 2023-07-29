@@ -2,7 +2,7 @@
 #'
 #' This function display the basic information on a `tag`
 #
-#' @param x A `tag` object
+#' @param x A GeoPressureR `tag` object
 #' @param ... arguments passed from other methods
 #'
 #' @return `tag` is returned invisibly and unchanged
@@ -11,31 +11,34 @@
 #' @export
 print.tag <- function(x,...) {
   tag <- x
-  cli::cli_text("`tag` of {.field {tag$id}}")
+  cli::cli_h1("GeoPressureR `tag` object for {.field id}={.val {tag$id}}")
 
   cli::cli_text("Date range: {tag$pressure$date[1]} to {tail(tag$pressure$date,1)}")
-  cli::cli_text("Sensors data.frame:")
-  cli::cli_ul()
-  cli::cli_li("{.field pressure}: {nrow(tag$pressure)} datapoints")
+
+  cli::cli_h3("Sensors data")
+  cli::cli_bullets("{.field pressure}: {nrow(tag$pressure)} datapoints")
   if ("acceleration" %in% names(tag)) {
-    cli::cli_li("{.field acceleration}: {nrow(tag$acceleration)} datapoints")
+    cli::cli_bullets("{.field acceleration}: {nrow(tag$acceleration)} datapoints")
   }
   if ("light" %in% names(tag)) {
-    cli::cli_li("{.field light}: {nrow(tag$light)} datapoints")
+    cli::cli_bullets("{.field light}: {nrow(tag$light)} datapoints")
   }
 
   # Stationary periods
-  cli::cli_h3("Stationary periods")
+  cli::cli_h3("Stationary periods {.field stap}")
   if (!("stap" %in% names(tag))) {
-    cli::cli_alert_danger("Not yet labeled. Use {.fun tag_label} to define the stationary periods")
+    cli::cli_alert_danger("Not stationary periods defined yet labeled. Use {.fun tag_label}")
     return(invisible(tag))
   } else {
     cli::cli_text("{.val {nrow(tag$stap)}} stationary periods")
     print(head(tag$stap))
+    if (nrow(tag$stap)>6){
+      cli::cli_text("Run {.code tag$stap} to display full table")
+    }
   }
 
   # Geographical
-  cli::cli_h3("Geographical parameters")
+  cli::cli_h3("Geographical parameters ({.field scale} and {.field extent})")
   if (!("extent" %in% names(tag) & "scale" %in% names(tag))) {
     cli::cli_alert_danger("No geographical parameters defined yet. Use {.fun tag_geostap}")
     return(invisible(tag))
@@ -47,20 +50,24 @@ print.tag <- function(x,...) {
     cli::cli_text("Resolution lat-lon: {.val {1/tag$scale}}\u00b0")
   }
 
-  # Likelihood
-  cli::cli_h3("Likelihood")
+  # Map
+  cli::cli_h3("Map")
   if ("map_pressure" %in% names(tag)) {
-    cli::cli_alert_success("Pressure likelihood computed!")
+    cli::cli_alert_success("Pressure likelihood map {.field map_pressure} computed!")
   } else {
-    if ("mse" %in% names(tag)) {
-      cli::cli_alert_warning("Pressure mismatched computed, but not likelihood. Use {.fun geopressure_map_likelihood}.")
+    if ("map_pressure_mse" %in% names(tag)) {
+      cli::cli_alert_warning("Pressure mismatched map {.field map_pressure_mse} computed, but not the likelihood map. Use {.fun geopressure_map_likelihood}.")
     } else {
       cli::cli_alert_danger("No pressure likelihood computed. Use {.fun geopressure_map}.")
     }
   }
   if ("map_light" %in% names(tag)) {
-    cli::cli_alert_success("Light likelihood computed!")
+    cli::cli_alert_success("Light likelihood {.field map_light} computed!")
   }
+
+  # Param
+  # cli::cli_h3("Parameter {.field param}")
+  # str(tag$param)
 
   return(invisible(tag))
 }
