@@ -19,39 +19,43 @@
 #' [GeoPressureManual | Wind graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)).
 #'
-#' @param tag data logger dataset list with `tag$sta` computed. See [`tag_create()`] and
-#' [`tag_label_stap()`].
+#' @param tag A GeoPressureR `tag` object.
 #' @param extent Geographical extent of the map on which the likelihood will be computed.
 #' Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.
-#' @param stap_id_s Stationary period identifier of the start of the flight to query as defined in
-#' `tag$stap`. Be default, download for all the flights.
+#' @param stap_id Stationary period identifier of the start of the flight to download. Be default,
+#' download for all flights.
 #' @param cds_key User (email address) used to sign up for the ECMWF data service. See
 #' [`wf_set_key()`].
 #' @param cds_user Token provided by ECMWF. See [`wf_set_key()`].
 #' @param directory Folder to which the data will be downloaded.
+#' @param file Absolute or relative path of the ERA5 wind data file to be downloaded. Function
+#' taking as single argument the stationary period identifier.
 #' @return The folder with the downloaded file (same as the directory).
+#'
 #' @seealso [`wf_request()`](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),
 #' [GeoPressureManual | Wind graph
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)
 #' @export
-graph_download_wind <- function(tag,
-                                extent = tag$extent,
-                                stap_id_s = utils::head(tag$stap$stap_id, -1),
-                                cds_key = Sys.getenv("cds_key"),
-                                cds_user = Sys.getenv("cds_user"),
-                                directory = glue::glue("data/5_wind_graph/{graph$id}/")) {
+tag_download_wind <- function(tag,
+                              extent = tag$extent,
+                              stap_id = utils::head(tag$stap$stap_id, -1),
+                              cds_key = Sys.getenv("cds_key"),
+                              cds_user = Sys.getenv("cds_user"),
+                              file = \(stap_id) glue::glue("./data/wind/{tag$id}/{tag$id}_{stap_id}.nc")) {
 
-  assert_tag(tag, "geostap")
+  tag_assert(tag, "geostap")
+
+  stap <- tag$stap
 
   assertthat::assert_that(length(extent) == 4)
-  assertthat::assert_that(is.numeric(stap_id_s))
-  assertthat::assert_that(all(stap_id_s %in% tag$stap$stap_id))
+  assertthat::assert_that(is.numeric(stap_id))
+  assertthat::assert_that(all(stap_id %in% stap$stap_id))
 
   # remove the last stap_id if it was added by mistake
-  if (utils::tail(tag$stap$stap_id, 1) %in% stap_id_s) {
-    stap_id_s <- utils::head(sort(stap_id_s), -1)
+  if (utils::tail(tag$stap$stap_id, 1) %in% stap_id) {
+    stap_id <- utils::head(sort(stap_id), -1)
     cli::cli_warn(c(
-      "!" = "{.var stap_id_s} included the last stationarp period for which no wind can be \\
+      "!" = "{.var stap_id} included the last stationarp period for which no wind can be \\
       computed.",
       ">" = "We removed this stationary period."
     ))
@@ -75,11 +79,11 @@ graph_download_wind <- function(tag,
   # create list of request
   request_list <- list()
 
-  for (i_s in seq_len(nrow(tag$stap))) {
+  for (i_s in stap_id) {
     # Get the timeserie of the flight on a 1 hour resolution
-    flight_time <- seq(round.POSIXt(tag$stap$end[i_s] - 30 * 60, units = "hours"),
-      round.POSIXt(tag$stap$start[i_s + 1] + 30 * 60, units = "hours"),
-      by = 60 * 60
+    flight_time <- seq(round.POSIXt(stap$end[i_s] - 30 * 60, units = "hours"),
+                       round.POSIXt(stap$start[i_s + 1] + 30 * 60, units = "hours"),
+                       by = 60 * 60
     )
 
     # Find the pressure level needed during this flight
@@ -110,8 +114,8 @@ graph_download_wind <- function(tag,
       month = sort(unique(format(flight_time, "%m"))),
       day = sort(unique(format(flight_time, "%d"))),
       time = sort(unique(format(flight_time, "%H:%M"))),
-      extent = c(extent[4], extent[1], extent[3], extent[2]), # N, W, S, E
-      target = glue::glue("{tag$id}_{i_s}.nc")
+      area = c(extent[4], extent[1], extent[3], extent[2]), # N, W, S, E
+      target = file(i_s)
     )
   }
 
