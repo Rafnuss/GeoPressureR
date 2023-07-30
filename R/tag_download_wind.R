@@ -42,7 +42,6 @@ tag_download_wind <- function(tag,
                               cds_key = Sys.getenv("cds_key"),
                               cds_user = Sys.getenv("cds_user"),
                               file = \(stap_id) glue::glue("./data/wind/{tag$id}/{tag$id}_{stap_id}.nc")) {
-
   tag_assert(tag, "geostap")
 
   stap <- tag$stap
@@ -82,8 +81,8 @@ tag_download_wind <- function(tag,
   for (i_s in stap_id) {
     # Get the timeserie of the flight on a 1 hour resolution
     flight_time <- seq(round.POSIXt(stap$end[i_s] - 30 * 60, units = "hours"),
-                       round.POSIXt(stap$start[i_s + 1] + 30 * 60, units = "hours"),
-                       by = 60 * 60
+      round.POSIXt(stap$start[i_s + 1] + 30 * 60, units = "hours"),
+      by = 60 * 60
     )
 
     # Find the pressure level needed during this flight

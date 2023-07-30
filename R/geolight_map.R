@@ -23,7 +23,7 @@
 #' # Log-linear pooling of the twilight likelihood map
 #'
 #' The twilight maps are aggregated by stationary period according to the date and time defined in
-#' `tag$stap` and twilight. See [GeoPressureManual | Probability aggregation](
+#' `stap` and twilight. See [GeoPressureManual | Probability aggregation](
 #' https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html#probability-aggregation-1)
 #' for more information on probability aggregation using log-linear pooling.
 #'
@@ -31,7 +31,7 @@
 #' @param twl_calib_adjust Smoothing parameter for the kernel density (see [`stats::kernel()`]).
 #' @param twl_llp Log-linear pooling aggregation weight.
 #' @param compute_known Logical defining if the map(s) for known stationary period should be
-#' estimated based on twilight or hard defined by the known location `tag$stap$known_l**`
+#' estimated based on twilight or hard defined by the known location `stap$known_l**`
 #' @return a `tag` with the likelihood of light as `tag$map_light`
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
@@ -65,47 +65,62 @@
 geolight_map <- function(tag,
                          twl_calib_adjust = 1.4,
                          twl_llp = \(n) 0.1,
-                         compute_known = FALSE) {
+                         .compute_known = FALSE) {
   # Check tag
   tag_assert(tag, "geostap")
-  if (all(is.na(tag$stap$known_lat))) {
+
+  # extract for convenience
+  stap <- tag$stap
+
+  if (all(is.na(stap$known_lat))) {
     cli::cli_abort(c(
-      x = "There are no known location on which to calibrate in {.var tag$stap$known_lat}.",
-      i = "Add a the calibration stationary period {.var known} when creating {.var tag} \\
+      x = "There are no known location on which to calibrate in {.var stap$known_lat}.",
+      ">" = "Add a the calibration stationary period {.var known} when creating {.var tag} \\
       with {.fun tag_create}."
     ))
   }
+
   # Check twilight
   tag_assert(tag, "twilight")
 
+  # extract for convenience
+  twl <- tag$twilight
+
   # Add stap_id if missing
-  if (!("stap_id" %in% names(twilight))) {
+  if (!("stap_id" %in% names(twl))) {
     tmp <- mapply(function(start, end) {
-      start <= twilight$twilight & twilight$twilight <= end
-    }, tag$stap$start, tag$stap$end)
+      start <= twl$twilight & twl$twilight <= end
+    }, stap$start, stap$end)
     tmp <- which(tmp, arr.ind = TRUE)
-    twilight$stap_id <- 0
-    twilight$stap_id[tmp[, 1]] <- tmp[, 2]
+    twl$stap_id <- 0
+    twl$stap_id[tmp[, 1]] <- tmp[, 2]
   }
-  assertthat::assert_that(inherits(twilight$twilight, "POSIXt"))
-  assertthat::assert_that(is.character(twilight$label))
+
   # check other
   assertthat::assert_that(is.numeric(twl_calib_adjust))
   assertthat::assert_that(is.function(twl_llp))
 
+  # Check if labeled
+  if (!("label" %in% names(twl))) {
+    cli::cli_abort(c(
+      x = "There are no {.field label} in {.var tag$twilight}.",
+      ">" = "Make sure to label the twilight with {.fun twilight_label_read}."
+    ))
+  }
+
   # Remove outlier
-  twilight_clean <- twilight[twilight$label != "discard", ]
+  twl_clean <- twl[twl$label != "discard", ]
 
   # Calibrate the twilight in term of zenith angle with a kernel density.
   z_calib <- c()
-  for (istap in which(!is.na(tag$stap$known_lat))) {
-    sun_calib <- geolight_solar(twilight_clean$twilight[twilight$stap_id == istap])
+  for (istap in which(!is.na(stap$known_lat))) {
+    sun_calib <- geolight_solar(twl_clean$twilight[twl_clean$stap_id == istap])
     z_calib <- c(
       z_calib,
       geolight_refracted(geolight_zenith(
         sun_calib,
-        tag$stap$known_lon[istap],
-        tag$stap$known_lat[istap]
+        stap$known_lon[istap],
+        stap$known_lat[istap]
       ))
     )
   }
@@ -114,15 +129,15 @@ geolight_map <- function(tag,
   # compute the likelihood of observing the zenith angle of each twilight using the calibrated
   # error function for each grid cell.
 
-  # Only select twilight that we are intrested of: not known and/or not in flight (stap_id == 0)
-  if (compute_known) {
-    twilight_clean_comp <- twilight_clean[twilight_clean$stap_id %in% tag$stap$stap_id[is.na(tag$stap$known_lat)], ]
+  # Only select twilight that we are interested of: not known and/or not in flight (stap_id == 0)
+  if (.compute_known) {
+    twl_clean_comp <- twl_clean[twl_clean$stap_id %in% stap$stap_id[is.na(stap$known_lat)], ]
   } else {
-    twilight_clean_comp <- twilight_clean[twilight_clean$stap_id %in% tag$stap$stap_id, ]
+    twl_clean_comp <- twl_clean[twl_clean$stap_id %in% stap$stap_id, ]
   }
 
   # Compute the sun angle
-  sun <- geolight_solar(twilight_clean_comp$twilight)
+  sun <- geolight_solar(twl_clean_comp$twilight)
 
   # Get grid information
   g <- geo_expand(tag$extent, tag$scale)
@@ -140,18 +155,18 @@ geolight_map <- function(tag,
 
 
   # Group twilight by stap
-  twl_id_stap_id <- split(seq_along(twilight_clean_comp$stap_id), twilight_clean_comp$stap_id)
+  twl_id_stap_id <- split(seq_along(twl_clean_comp$stap_id), twl_clean_comp$stap_id)
 
   # Compute the number of twilight per stap
   ntwl <- unlist(lapply(twl_id_stap_id, length))
   stopifnot(ntwl > 0)
 
   # Initialize the likelihood list from stap to make sure all stap are present
-  lk <- replicate(nrow(tag$stap), matrix(1, nrow = g$dim[1], ncol = g$dim[2]), simplify = FALSE)
+  lk <- replicate(nrow(stap), matrix(1, nrow = g$dim[1], ncol = g$dim[2]), simplify = FALSE)
 
   cli::cli_progress_bar(name = "Combine maps per stationary periods", total = sum(ntwl))
   for (i in seq_len(length(twl_id_stap_id))) {
-    # find all twilights from this stap
+    # find all twilight from this stap
     id <- twl_id_stap_id[[i]]
 
     # Combine with a Log-linear equation express in log
@@ -166,17 +181,23 @@ geolight_map <- function(tag,
   cli::cli_progress_done()
 
   # Add known location
-  if (compute_known) {
-    for (stap_id in tag$stap$stap_id[!is.na(tag$stap$known_lat)]) {
+  if (!.compute_known) {
+    for (stap_id in stap$stap_id[!is.na(stap$known_lat)]) {
       # Initiate an empty map
       lk[[stap_id]] <- matrix(0, nrow = g$dim[1], ncol = g$dim[2])
       # Compute the index of the known position
-      known_lon_id <- which.min(abs(tag$stap$known_lon[stap_id] - g$lon))
-      known_lat_id <- which.min(abs(tag$stap$known_lat[stap_id] - g$lat))
+      known_lon_id <- which.min(abs(stap$known_lon[stap_id] - g$lon))
+      known_lat_id <- which.min(abs(stap$known_lat[stap_id] - g$lat))
       # Assign a likelihood of 1 for that position
       lk[[stap_id]][known_lat_id, known_lon_id] <- 1
     }
   }
+
+  # Add attribute
+  attr(lk, "id") <- tag$id
+  attr(lk, "extent") <- tag$extent
+  attr(lk, "scale") <- tag$scale
+  attr(lk, "stap") <- tag$stap
 
   tag$map_light <- lk
 

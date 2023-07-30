@@ -9,7 +9,7 @@
 #' @family graph
 #' @method print graph
 #' @export
-print.graph <- function(x,...) {
+print.graph <- function(x, ...) {
   graph <- x
   cli::cli_h1("GeoPressureR `graph` object for {.field id}={.val {graph$id}}")
 
@@ -17,7 +17,7 @@ print.graph <- function(x,...) {
   cli::cli_h3("Stationary periods {.field stap}")
   cli::cli_text("{.val {nrow(tag$stap)}} stationary period{?s}")
   print(head(graph$stap))
-  if (nrow(tag$stap)>6){
+  if (nrow(tag$stap) > 6) {
     cli::cli_text("Run {.code tag$stap} to display full table")
   }
 
@@ -49,6 +49,3 @@ print.graph <- function(x,...) {
 
   return(invisible(graph))
 }
-
-
-

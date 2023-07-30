@@ -2,8 +2,7 @@
 #'
 #' Return the flight information of the edges composing a given path.
 #'
-#' @param path Data.frame containing at least `stap_id` and `ind`.
-#' @param graph graph constructed with [`graph_create()`].
+#' @inheritParams pressurepath_create
 #' @return Data.frame of the edge containing:
 #' - `stap_s` : stationary period of the origin (source).
 #' - `stap_t` : stationary period of the destination (target).
@@ -17,12 +16,8 @@
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#energy)
 #' @export
 path2edge <- function(path, graph) {
-  assertthat::assert_that(is.graph(graph))
-  assertthat::assert_that(assertthat::has_name(graph, c("s", "t")))
-  assertthat::assert_that(length(graph$s) > 0)
+  graph_assert(graph)
 
-  assertthat::assert_that(assertthat::has_name(graph, "scale"))
-  assertthat::assert_that(assertthat::has_name(graph, "extent"))
   g <- geo_expand(graph$extent, graph$scale)
   nll <- prod(g$dim)
 
@@ -60,7 +55,7 @@ path2edge <- function(path, graph) {
     msg = "path_id is not compatible with the graph$s."
   )
   assertthat::assert_that(all(path_st$t %in% graph$t),
-    msg = "path_id is not compatible with the graph$f."
+    msg = "path_id is not compatible with the graph$t."
   )
 
   # Build data.frame of the graph

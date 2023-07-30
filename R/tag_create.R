@@ -220,7 +220,7 @@ tag_create <- function(id,
   }
 
   # Add package version
-  attr(tag,"GeoPressureR_version") <- utils::packageVersion("GeoPressureR")
+  attr(tag, "GeoPressureR_version") <- utils::packageVersion("GeoPressureR")
 
   return(tag)
 }

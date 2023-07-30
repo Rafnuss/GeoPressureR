@@ -1,26 +1,32 @@
 #' Create graph
 #'
 #' @description
-#' This function returns a graph representing the trajectory of a bird based on filtering and
-#' trimming the likelihood maps provided.
+#' This function returns a trellis graph representing the trajectory of a bird based on filtering and
+#' prunning the likelihood maps provided.
 #'
-#' In the final graph, we only keep the most likely nodes (position in time) defined as (1) those
-#' whose cumulative probability reaches up to `thr_likelihood` for each stationary period and (2)
-#' those which are connected to edges whose average ground speed is lower than `thr_gs` km/h.
+#' In the final graph, we only keep the most likely nodes (i.e., position of the bird at each
+#' stationary periods) defined as (1) those whose likelihood value are within the threshold of
+#' percentile `thr_likelihood` of the total likelihood map and (2) those which are connected to
+#' at least one edge of the previous and next stationary periods requireing an average ground speed
+#' lower than `thr_gs` (in km/h).
 #'
+#' For more details and illustration, see Section 2.2 of @Nussbaumer2022b and
+#' [GeoPressureManual | Basic graph](
+#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph)
 #'
-#' @inheritParams geopressure_map
-#' @inheritParams tag2likelihood
+#' @param tag A GeoPressureR `tag` object.
 #' @param thr_likelihood Threshold of percentile (see details).
 #' @param thr_gs Threshold of groundspeed (km/h)  (see details).
+#' @inheritParams tag2map
 #' @return Graph as a list
-#' - `s`:   source node (index in the 3d grid lat-lon-stap)
-#' - `t`:   target node (index in the 3d grid lat-lon-stap)
-#' - `gs`:  average ground speed required to make that transition (km/h) as complex number
+#' - `id`:
+#' - `s`: source node (index in the 3d grid lat-lon-stap)
+#' - `t`: target node (index in the 3d grid lat-lon-stap)
+#' - `gs`: average ground speed required to make that transition (km/h) as complex number
 #' representing the E-W as real and S-N as imaginary
-#' - `obs`:   observation model, corresponding to the normalized likelihood in a 3D matrix of size
+#' - `obs`: observation model, corresponding to the normalized likelihood in a 3D matrix of size
 #' `sz`
-#' - `sz`:  size of the 3d grid lat-lon-stap
+#' - `sz`: size of the 3d grid lat-lon-stap
 #' - `stap`: data.frame of all stationary periods
 #' - `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-sta)
 #' - `retrieval`: node(s) of the last stap (index in the 3d grid lat-lon-sta)
@@ -30,6 +36,7 @@
 #' - `param`: parameter used to create the graph, including `thr_likelihood` and `thr_gs`
 #' @seealso [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph)
+#' @family graph
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. “Reconstructing bird trajectories from pressure and wind data using a highly
 #' optimized hidden Markov model.” *Methods in Ecology and Evolution*.
@@ -40,7 +47,7 @@ graph_create <- function(tag,
                          thr_gs = 150,
                          likelihood = NULL) {
   # Construct the likelihood map
-  lk <- tag2likelihood(tag, likelihood = likelihood)
+  lk <- tag2map(tag, likelihood = likelihood)
 
   assertthat::assert_that(is.numeric(thr_likelihood))
   assertthat::assert_that(length(thr_likelihood) == 1)
@@ -62,7 +69,7 @@ graph_create <- function(tag,
   if (any(tmp)) {
     cli::cli_abort(c(
       x = "The {.field {likelihood}} in {.var tag} is/are null for stationary periods \\
-       {.var {stap_model[tmp]}}  while those stationary period are required in {.var stap$include}",
+       {.var {stap_model[tmp]}} while those stationary period are required in {.var stap$include}",
       i = "Check your input and re-run {.fun geopressure_map} if necessary."
     ))
   }
@@ -256,9 +263,9 @@ graph_create <- function(tag,
   # Retrieve the graph
   gr <- future::value(f)
 
-  # Trim
-  cli::cli_progress_step("Trim graph")
-  gr <- graph_create_trim(gr)
+  # Prune
+  cli::cli_progress_step("Prune graph")
+  gr <- graph_create_prune(gr)
 
   # Convert gr to a graph list
   graph <- as.list(do.call("rbind", gr))
@@ -291,16 +298,16 @@ graph_create <- function(tag,
 
 
 
-#' Trim a graph
+#' Prune a graph
 #'
-#' Trimming consists in removing "dead branch" of a graph, that is removing the edges which are not
+#' Pruning consists in removing "dead branch" of a graph, that is removing the edges which are not
 #' connected to both the source (i.e, equipment) or sink (i.e. retrieval site).
 #'
 #' @param gr graph constructed with [`graph_create()`].
-#' @return graph trimmed
-#' @seealso [`graph_create()`]
+#' @return graph prunned
+#' @family graph
 #' @noRd
-graph_create_trim <- function(gr) {
+graph_create_prune <- function(gr) {
   if (length(gr) < 2) {
     return(gr)
   }

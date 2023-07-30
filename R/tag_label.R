@@ -14,6 +14,7 @@
 #' @param tag List containing the data logger dataset, this needs to contain at least a `pressure`
 #' data.frame, but can also have a `light` and `acceleration` data.frame (see [`tag_create()`]).
 #' @param file Absolute or relative path of the label file.
+#' @inheritDotParams tag_label_stap
 #' @return Same `tag` list with
 #'
 #' (1) a `stap` data.frame describing the STAtionary Period:
@@ -78,11 +79,16 @@ tag_label <- function(tag,
       ">" = "Return the original {.var tag} unmodified."
     ))
   } else {
-    # If the file exist, read it
-    tag <- tag_label_read(tag, file)
+    # Check if label has already been labeled
+    if ("label" %in% tag_status(tag)) {
+      tag <- tag_label_update(tag, file)
+    } else {
+      # If the file exist, read it
+      tag <- tag_label_read(tag, file)
 
-    # Add the stationary periods
-    tag <- tag_label_stap(tag)
+      # Add the stationary periods
+      tag <- tag_label_stap(tag, ...)
+    }
   }
   return(invisible(tag))
 }

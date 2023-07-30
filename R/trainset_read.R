@@ -1,4 +1,3 @@
-
 #' Read trainset csv file and update a data.frame
 #'
 #' This function read an exported csv file from [trainset](https://trainset.geocene.com/) and update

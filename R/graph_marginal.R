@@ -27,7 +27,7 @@ graph_marginal <- function(graph) {
 
   # matrix of transition * observation
   trans_obs <- Matrix::sparseMatrix(graph$s, graph$t,
-                                    x = transition * graph$obs[graph$t], dims = c(n, n)
+    x = transition * graph$obs[graph$t], dims = c(n, n)
   )
 
   # Initiate the forward probability vector (f_k^T in Nussbaumer et al. (2023) )

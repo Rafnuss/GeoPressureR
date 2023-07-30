@@ -60,5 +60,3 @@ trainset_write <- function(df,
   cli::cli_alert_success("{.file {file}} written successfully.")
   return(file)
 }
-
-

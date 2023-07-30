@@ -1,12 +1,11 @@
 #' Convert light data in matrix format
 #'
 #' @inheritParams twilight_create
-#' @param twl_offset Shift of the middle of the night compared to 00:00 UTC (in seconds). If not
-#' provided, it uses the middle of all nights.
-#' @return A dataframe with columns `date` and `value`.
+#' @param light data.frame of a `tag`, containing at least `date` and `value`.
+#' @return A data.frame with columns `date` and `value`.
+#' @family twilight
 #' @export
 light2mat <- function(light, twl_offset = 0) {
-  assertthat::assert_that(is.data.frame(light))
   assertthat::assert_that(is.data.frame(light))
   assertthat::assert_that(assertthat::has_name(light, c("date", "value")))
   assertthat::assert_that(assertthat::is.time(light$date))
@@ -26,7 +25,7 @@ light2mat <- function(light, twl_offset = 0) {
   date <- seq(
     from = as.POSIXct(format(light$date[1] - twl_offset * 60 * 60, "%Y-%m-%d"), tz = "UTC"),
     to = as.POSIXct(format(light$date[length(light$date)] - twl_offset * 60 * 60, "%Y-%m-%d"),
-                    tz = "UTC"
+      tz = "UTC"
     ) + 60 * 60 * 24 - res,
     by = res
   )
@@ -51,7 +50,7 @@ light2mat <- function(light, twl_offset = 0) {
 
   # image(mat$value)
   mat$day <- as.Date(as.POSIXct(colMeans(mat$date), origin = "1970-01-01", tz = "UTC"))
-  mat$time <- format(as.POSIXct(mat$date[,1], origin = "1970-01-01", tz = "UTC"), "%H:%M")
+  mat$time <- format(as.POSIXct(mat$date[, 1], origin = "1970-01-01", tz = "UTC"), "%H:%M")
 
   return(mat)
 }

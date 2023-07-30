@@ -9,7 +9,7 @@
 #' @family tag
 #' @method print tag
 #' @export
-print.tag <- function(x,...) {
+print.tag <- function(x, ...) {
   tag <- x
   cli::cli_h1("GeoPressureR `tag` object for {.field id}={.val {tag$id}}")
 
@@ -32,7 +32,7 @@ print.tag <- function(x,...) {
   } else {
     cli::cli_text("{.val {nrow(tag$stap)}} stationary periods")
     print(head(tag$stap))
-    if (nrow(tag$stap)>6){
+    if (nrow(tag$stap) > 6) {
       cli::cli_text("Run {.code tag$stap} to display full table")
     }
   }

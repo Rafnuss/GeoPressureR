@@ -9,7 +9,7 @@
 #' @family bird
 #' @method print bird
 #' @export
-print.bird <- function(x,...) {
+print.bird <- function(x, ...) {
   bird <- x
   cli::cli_h1("GeoPressureR `bird` object")
   cli::cli_bullets(c("*" = "Species: {bird$species_name}"))

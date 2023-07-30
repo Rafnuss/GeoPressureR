@@ -39,11 +39,9 @@ speed2prob <- function(speed, movemement) {
   if (movemement$method == "gamma") {
     norm <- sum(stats::dgamma(norm_speed, shape = movemement$shape, scale = movemement$scale))
     prob <- stats::dgamma(speed, shape = movemement$shape, scale = movemement$scale) / norm
-
   } else if (movemement$method == "logis") {
     norm <- sum(stats::plogis(norm_speed, location = movemement$location, scale = movemement$scale, lower.tail = FALSE))
     prob <- stats::plogis(speed, location = movemement$location, scale = movemement$scale, lower.tail = FALSE) / norm
-
   } else if (movemement$method == "power") {
     # `speed2power` is defined in m/s (SI), but the rest of your code is using km/h. This is where
     # we need to convert.
@@ -79,8 +77,10 @@ speed2power <- function(as, bird) {
   assertthat::assert_that(is.numeric(as))
   assertthat::assert_that(all(as >= 0))
   assertthat::assert_that(inherits(bird, "bird"))
-  assertthat::assert_that(assertthat::has_name(bird, c("mass", "wing_span", "body_frontal_area",
-                                                       "wing_aspect")))
+  assertthat::assert_that(assertthat::has_name(bird, c(
+    "mass", "wing_span", "body_frontal_area",
+    "wing_aspect"
+  )))
 
   # Constant of gravity [ms-2]
   g <- 9.80665

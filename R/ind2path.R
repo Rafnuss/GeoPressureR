@@ -71,7 +71,7 @@ ind2path <- function(ind,
   path <- merge(path0, stap, by = "stap_id", all.x = TRUE)
 
   # Enforce known position in path
-  if (.use_known & any(path$known)){
+  if (.use_known & any(path$known)) {
     path$lon[path$known] <- path$known_lon[path$known]
     path$lat[path$known] <- path$known_lat[path$known]
 

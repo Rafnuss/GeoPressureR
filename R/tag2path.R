@@ -43,7 +43,6 @@ tag2path <- function(tag,
                      likelihood = NULL,
                      interp = FALSE,
                      .use_known = TRUE) {
-
   # Construct the likelihood map
   map <- tag2map(tag, likelihood = likelihood)
 
@@ -55,9 +54,9 @@ tag2path <- function(tag,
   # Interpolation for short stationary period is only performed if interp>0
 
   if (interp) {
-    if (!is.numeric(interp)){
+    if (!is.numeric(interp)) {
       cli::cli_abort(c(
-        x="{.var interp} needs to be a numeric or {.val {FALSE}}.",
+        x = "{.var interp} needs to be a numeric or {.val {FALSE}}.",
         ">" = "Indicate the maximum duration of stationary periods for which the position is \\
         interpolated"
       ))
@@ -103,9 +102,11 @@ tag2path <- function(tag,
     # Interpolate the lat and lon indices separately using `total_flight` as a spacing between
     # position
     lon_ind[path_interp] <- round(stats::approx(
-      total_flight[!path_interp], lon_ind[!path_interp], total_flight[path_interp])$y)
+      total_flight[!path_interp], lon_ind[!path_interp], total_flight[path_interp]
+    )$y)
     lat_ind[path_interp] <- round(stats::approx(
-      total_flight[!path_interp], lat_ind[!path_interp], total_flight[path_interp])$y)
+      total_flight[!path_interp], lat_ind[!path_interp], total_flight[path_interp]
+    )$y)
 
     # Move to the closest non-water position
     # Find the index of lat-lon for all non-water position
@@ -113,9 +114,9 @@ tag2path <- function(tag,
     mask_water_ind_lat <- (mask_water_ind2 %% g$dim[1])
     mask_water_ind_lon <- (mask_water_ind2 - mask_water_ind_lat) / g$dim[1] + 1
 
-    for (i in seq_len(length(lat_ind))){
+    for (i in seq_len(length(lat_ind))) {
       # if following over water
-      if (tag$mask_water[lat_ind[i], lon_ind[i]]){
+      if (tag$mask_water[lat_ind[i], lon_ind[i]]) {
         # Find the closest non-water
         closest_ind2 <- which.min((mask_water_ind_lat - lat_ind[i])^2 + (mask_water_ind_lon - lon_ind[i])^2)
         # Assign the index in lat lon

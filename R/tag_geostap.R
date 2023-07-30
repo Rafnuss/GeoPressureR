@@ -82,7 +82,7 @@ tag_geostap <- function(tag,
   assertthat::assert_that(assertthat::has_name(known, "known_lat"))
   assertthat::assert_that(assertthat::has_name(known, "known_lon"))
   if (!all(known$known_lon >= extent[1] & known$known_lon <= extent[2] &
-           known$known_lat >= extent[3] & known$known_lat <= extent[4])) {
+    known$known_lat >= extent[3] & known$known_lat <= extent[4])) {
     cli::cli_abort(c(
       x = "The known latitude and longitude are not inside the extent of the map",
       i = "Modify {.var extent} or {.var known} to match this requirement."
@@ -103,19 +103,17 @@ tag_geostap <- function(tag,
   # Check if value are already defined and if they are changing
   # Check if geostap has already been run before (all these condition should always be the same)
   if ("extent" %in% names(tag) | "known_lat" %in% names(stap) |
-      "scale" %in% names(tag) | "include" %in% names(stap)){
-
+    "scale" %in% names(tag) | "include" %in% names(stap)) {
     # Check if value are changing
-    chg_known = any(stap$known_lon[known$stap_id] != known$known_lon)
-    chg_include = any(stap$include != stap_include)
-    chg_extent = any(extent != tag$extent)
-    chg_scale = scale != tag$scale
+    chg_known <- any(stap$known_lon[known$stap_id] != known$known_lon)
+    chg_include <- any(stap$include != stap_include)
+    chg_extent <- any(extent != tag$extent)
+    chg_scale <- scale != tag$scale
 
     # Check if known has changed
-    if ( chg_known | chg_extent | chg_scale | chg_include ){
-
+    if (chg_known | chg_extent | chg_scale | chg_include) {
       # Only provide option to stop the process if map are already defined
-      if (any(c("map_pressure", "map_light") %in% names(tag))){
+      if (any(c("map_pressure", "map_light") %in% names(tag))) {
         cli::cli_inform(c(
           "!" = "{.fun geostap} has already been run on this {.var tag} object, the input \\
           parameters ({.var scale}, {.var extent}, {.var tag$known} or {.var tag$include}) are \\
@@ -123,8 +121,9 @@ tag_geostap <- function(tag,
           have already been computed."
         ))
         res <- utils::askYesNo(
-          "Do you want to overwrite the parameters and delete the likelihood maps?")
-        if (res){
+          "Do you want to overwrite the parameters and delete the likelihood maps?"
+        )
+        if (res) {
           # If yes, remove existing likelihood map and carry on the overwrite of parameter
           tag$map_pressure <- NULL
           tag$map_light <- NULL
@@ -157,7 +156,7 @@ tag_geostap <- function(tag,
 
   # Add known to stap
   # remove first known_lat and lon if they exist to be able to merge the table without duplicate
-  stap <- stap[ , !(names(stap) %in% c("known_lat", "known_lon"))]
+  stap <- stap[, !(names(stap) %in% c("known_lat", "known_lon"))]
   stap <- merge(stap, known, by = "stap_id", all.x = TRUE)
 
   # Add the vector of stap to include
