@@ -26,9 +26,12 @@
 #' @seealso [`tag_create()`], [`tag_label()`], [`tag_label_read()`], [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods)
 #' @export
-tag_label_stap <- function(tag) {
+tag_label_stap <- function(tag,
+                           display_check = TRUE,
+                           flight_duration_warning = 2,
+                           stap_duration_warning = 6) {
   # Perform test
-  tag_assert(tag)
+  tag_assert(tag, "label")
 
   # If acceleration is present, use acceleration, otherwise pressure
   if (assertthat::has_name(tag, "acceleration") &&
@@ -69,55 +72,50 @@ tag_label_stap <- function(tag) {
     }
   }
 
-  # Display warning and danger based on stap duration
-  stap <- tag$stap
-  stap_duration_warning <- 6
-  stap_duration_danger <- 2
-  if (nrow(stap) == 1) {
-    cli::cli_alert_warning(c(
-      "!" = "There is only a single stationary period.",
-      i = "Check that you are using {.val flight} in the label file and labelling the correct \\
-      series ({.field pressure} or {.field acceleration})."
-    ))
-  }
-
-  stap$duration <- difftime(stap$end, stap$start, units = "hours")
-  if (any(as.numeric(stap$duration, units="hours") <= stap_duration_warning)) {
-    for (i in seq_len(nrow(stap))) {
-      stap_i <- stap[i, ]
-      if (any(stap_i$duration <= stap_duration_danger)) {
-        cli::cli_alert_danger("Stap {stap_i$stap} ({stap_i$start} - {stap_i$end}) : \\
-                              {prettyunits::pretty_dt(stap_i$duration)}")
-      } else if (stap_i$duration <= stap_duration_warning) {
-        cli::cli_alert_warning("Stap {stap_i$stap} ({stap_i$start} - {stap_i$end}) : \\
-                               {prettyunits::pretty_dt(stap_i$duration)}")
-      }
+  if (display_check) {
+    # Display warning based on stap duration
+    stap <- tag$stap
+    if (nrow(stap) == 1) {
+      cli::cli_warn(c(
+        "!" = "There is only a single stationary period.",
+        i = "Check that you are using {.val flight} in the label file and labelling the correct \\
+        series ({.field pressure} or {.field acceleration})."
+      ))
     }
-  } else {
-    cli::cli_alert_success("All {nrow(stap)} stationary period{?s} duration are above \\
-                           {stap_duration_warning} hour{?s}.")
-  }
 
-  # cli::cli_rule("Flight duration")
-  flight_duration_warning <- 2
-  flight_duration_danger <- 1
-  flight <- stap2flight(stap)
-  if (any(flight$duration <= flight_duration_warning)) {
-    for (i in seq_len(nrow(flight))) {
-      flight_i <- flight[i, ]
-      if (flight_i$duration <= flight_duration_danger) {
-        cli::cli_alert_danger("Flight {flight_i$stap_s} -> {flight_i$stap_t} ({flight_i$start} - \\
-                              {flight_i$end}) : {prettyunits::pretty_dt(flight_i$duration)}")
-        pass <- FALSE
-      } else if (flight_i$duration <= flight_duration_warning) {
-        cli::cli_alert_warning("Flight {flight_i$stap_s} -> {flight_i$stap_t} ({flight_i$start} - \\
-                               {flight_i$end}) : {prettyunits::pretty_dt(flight_i$duration)}")
+    stap$duration_num <- stap2duration(stap, units = "hours")
+    stap$duration_time <- stap2duration(stap, numeric = FALSE)
+
+    stap_warning <- stap[stap$duration_num <= stap_duration_warning, ]
+    cli::cli_h3("Short stationary periods:")
+    if (nrow(stap_warning) > 0) {
+      for (i in seq_len(nrow(stap_warning))) {
+        s <- stap_warning[i, ]
+        cli::cli_alert_warning(
+          "Stap {s$stap} ({s$start} - {s$end}) : {prettyunits::pretty_dt(s$duration_time)}"
+        )
       }
+    } else {
+      cli::cli_alert_success("All {nrow(stap)} stationary period{?s} duration are above \\
+                             {stap_duration_warning} hour{?s}.")
     }
-  } else {
-    cli::cli_alert_success("All {nrow(flight)} flight{?s} duration are above \\
-                            {flight_duration_warning} hour{?s}.")
-  }
 
+    # Flight
+    flight <- stap2flight(stap, units = "hours", numeric = FALSE)
+    flight_warning <- flight[as.numeric(flight$duration, units = "hours") <= flight_duration_warning, ]
+    cli::cli_h3("Short flights:")
+    if (nrow(flight_warning) > 0) {
+      for (i in seq_len(nrow(flight_warning))) {
+        f <- flight_warning[i, ]
+        cli::cli_alert_warning(
+          "Flight {f$stap_s} -> {f$stap_t} ({f$start} - {f$end}) : \\
+          {prettyunits::pretty_dt(as.difftime(f$duration, units = 'hours'))}"
+        )
+      }
+    } else {
+      cli::cli_alert_success("All {nrow(flight)} flight{?s} duration are above \\
+                              {flight_duration_warning} hour{?s}.")
+    }
+  }
   return(tag)
 }
