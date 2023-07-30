@@ -26,7 +26,7 @@
 #' (in hours) to includes.
 #' @param known Data.frame containing the known positions of the bird (e.g., equipment or retrieval
 #' site).
-#' @return A `tag` object with:
+#' @return A GeoPressureR `tag` object with:
 #' - `stap`: Data.frame of all stationary periods with three new columns: `known_lat` and
 #' `known_lon` define the known position during these stationary periods, and `model` defines
 #' whether the likelihood map of this stationary period should be computed and later used in the
@@ -59,13 +59,13 @@
 tag_geostap <- function(tag,
                         extent,
                         scale = 10,
-                        include_stap_id = NA,
-                        include_min_duration = NA,
                         known = data.frame(
                           stap_id = integer(),
                           known_lat = double(),
                           known_lon = double()
-                        )) {
+                        ),
+                        include_stap_id = tag$stap$stap_id,
+                        include_min_duration = 0) {
   tag_assert(tag, "stap")
 
   # define stap for convenience
@@ -82,7 +82,7 @@ tag_geostap <- function(tag,
   assertthat::assert_that(assertthat::has_name(known, "known_lat"))
   assertthat::assert_that(assertthat::has_name(known, "known_lon"))
   if (!all(known$known_lon >= extent[1] & known$known_lon <= extent[2] &
-    known$known_lat >= extent[3] & known$known_lat <= extent[4])) {
+           known$known_lat >= extent[3] & known$known_lat <= extent[4])) {
     cli::cli_abort(c(
       x = "The known latitude and longitude are not inside the extent of the map",
       i = "Modify {.var extent} or {.var known} to match this requirement."
@@ -91,23 +91,13 @@ tag_geostap <- function(tag,
   assertthat::assert_that(all(known$stap_id %in% stap$stap_id))
   assertthat::assert_that(all(unique(known$stap_id) == known$stap_id))
 
-
   # Define which stationary periods to include
-  if (any(is.na(include_stap_id))) {
-    include_stap_id <- tag$stap$stap_id
-  }
-  assertthat::assert_that(all(include_stap_id %in% tag$stap$stap_id))
-
-  if (is.na(include_min_duration)) {
-    include_min_duration <- 0
-  }
+  assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
   assertthat::assert_that(is.numeric(include_min_duration))
-  include_min_duration_id <- which(difftime(tag$stap$end, tag$stap$start, units = "hours")
-                                   > include_min_duration)
+  include_min_duration_id <- stap$stap_id[stap2duration(stap, units = "hours") > include_min_duration]
 
-  # Include stap which are matching both include constrains
-  stap_include <- stap$include
-  stap_include <- FALSE
+  # Include stap which are matching the three include constrains
+  stap_include <- rep(FALSE, nrow(stap))
   stap_include[intersect(include_stap_id, include_min_duration_id)] <- TRUE
 
   # Check if value are already defined and if they are changing
@@ -162,9 +152,6 @@ tag_geostap <- function(tag,
           {.var tag$include}) will be overwitten with the new ones."
         ))
       }
-    } else {
-      # Nothing has changed, return the same
-      return(tag)
     }
   }
 
