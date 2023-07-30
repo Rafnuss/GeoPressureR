@@ -5,26 +5,45 @@
 #' GeoPressureViz](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
 #' this [demo of the Great Reed Warbler (18LX)](https://rafnuss.shinyapps.io/GeoPressureViz/).
 #'
-#' @inheritParams tag_label_update
+#' @param tag a `tag` object
+#' @param pressurepath a pressure path computed with `create_pressurepath()`
+#' @param marginal map of the marginal probability computed with `graph_marginal()`
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on Rstudio.
 #' @return The updated path visualized in the app.
+#'
 #' @seealso [GeoPressureManual | GeoPressureViz
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
 #' @export
 geopressureviz <- function(tag,
-                           path_pres = NA,
+                           pressurepath = NULL,
+                           marginal = NULL,
                            launch_browser = TRUE) {
+  tag_assert(tag, "geostap")
+
   if (all(c("map_pressure", "map_light") %in% names(tag))) {
     tag$map_preslight <- mapply(\(p, l) p * l, tag$map_pressure, tag$map_light, SIMPLIFY = FALSE)
   }
-  stopifnot(require("shiny"), msg = "")
+
+  if (!is.null(marginal)) {
+    tag$map_marginal <- marginal
+  }
 
   # Add possible map to display
-  maps_choices <- c("Light", "Pres. MSE", "Pres. mask", "Pressure", "Pres.&Light", "Marginal")
-  maps_field <- c("map_light", "mse", "mask", "map_pressure", "map_preslight", "map_marginal")
-  tmp <- maps_field %in% names(tag)
-  maps <- tag[maps_field[tmp]]
-  names(maps) <- maps_choices[tmp]
+  maps_choices <- list(
+    "Pres. MSE" = "map_pressure_mse",
+    "Pres. mask" = "map_pressure_mask",
+    "Pressure" = "map_pressure",
+    "Light" = "map_light",
+    "Pres.&Light" = c("map_pressure", "map_light"),
+    "Marginal" = "map_marginal"
+  )
+  maps_is_available <- sapply(maps_choices, \(x) all(x %in% names(tag)))
+
+  maps <- lapply(maps_choices[maps_is_available], \(likelihood){
+    map2rast(tag2map(tag, likelihood = likelihood))
+  })
+
+  names(maps) <- names(maps_choices[maps_is_available])
 
   # Get stationary period information
   stap <- tag$stap
@@ -32,39 +51,36 @@ geopressureviz <- function(tag,
   # Set color of each stationary period
   col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(nrow(stap) / 8))
   stap$col <- col[stap$stap_id]
-  stap$duration <- as.numeric(difftime(stap$end, stap$start, units = "days"))
+  stap$duration <- stap2duration(stap)
 
 
   # Get the pressure timeserie
-  if (any(!is.na(path_pres))) {
-    path0 <- path_pres[, c("stap_id", "lat", "lon")]
+  if (is.null(pressurepath)) {
+    pressurepath <- list()
 
-    ts0 <- path_pres
+    # Set the initial path with tag2path
+    path <- tag2path(tag)
   } else {
-    ts0 <- list()
-
-    # Set the initial path to the most likely from static prob
-    path0 <- map2path(tag)
+    path <- unique(pressurepath[, c("stap_id", "lat", "lon")])
   }
-
 
 
   # PEROSENVIR <- new.env(parent=emptyenv())
   .GlobalEnv$.tag_id <- tag$id
   .GlobalEnv$.stap <- stap
-  .GlobalEnv$.pressure <- pressure
+  .GlobalEnv$.pressure <- tag$pressure
   .GlobalEnv$.maps <- maps
   .GlobalEnv$.extent <- tag$extent
-  .GlobalEnv$.ts0 <- ts0
-  .GlobalEnv$.path0 <- path0
+  .GlobalEnv$.pressurepath <- pressurepath
+  .GlobalEnv$.path <- path
 
   # delete variable when removed
-  on.exit(
-    rm(
-      list = c(".map_choices", ".maps", ".stap", ".pressure", ".ts0", ".path0", ".tag_id"),
-      envir = .GlobalEnv
-    )
-  )
+  # on.exit(
+  #   rm(
+  #     list = c(".tag_id",".stap", ".pressure", ".maps", ".extent", ".ts0", ".path0"),
+  #     envir = .GlobalEnv
+  #  )
+  # )
 
   if (launch_browser) {
     launch_browser <- getOption("browser")
