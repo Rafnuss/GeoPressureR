@@ -14,7 +14,7 @@
 #' @param stap_include Vecto of the stationary period `stap_id` to consider in the flight. Default
 #' is to use `stap$stap_id[stap$include]` or `stap$stap_id` if `model` is not available in `stap`.
 #' @param format Character to return a list `"list"` or a data.frame `"df"` (see description)
-#' @param units Units in which the results are desired. see [`difftime()`]
+#' @inheritParams stap2duration
 #' @return A list or a data.frame (see description) containing
 #' - `start`: Start time of the (first) flight
 #' - `end`: End time of the (last) flight
@@ -38,7 +38,8 @@
 stap2flight <- function(stap,
                         stap_include = NULL,
                         format = "df",
-                        units = "hours") {
+                        units = "hours",
+                        numeric = TRUE) {
   assertthat::assert_that(is.data.frame(stap))
   assertthat::assert_that(assertthat::has_name(stap, "stap_id"))
   assertthat::assert_that(assertthat::has_name(stap, "start"))
@@ -68,7 +69,7 @@ stap2flight <- function(stap,
     stap_s = utils::head(stap$stap_id, -1),
     stap_t = utils::tail(stap$stap_id, -1)
   )
-  flight_all$duration <- difftime(flight_all$end, flight_all$start, units = units)
+  flight_all$duration <- stap2duration(flight_all, units = units, numeric = numeric)
 
   # Filter flight_all to remove flight before the first stap_include or after the last stap_include
   flight_all <- flight_all[
