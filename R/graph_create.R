@@ -285,6 +285,10 @@ graph_create <- function(tag,
     thr_likelihood = thr_likelihood,
     thr_gs = thr_gs
   )
+
+  # Add package version
+  attr(graph, "GeoPressureR_version") <- utils::packageVersion("GeoPressureR")
+
   return(graph)
 }
 
