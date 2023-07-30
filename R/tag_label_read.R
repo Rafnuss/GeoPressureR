@@ -19,6 +19,13 @@ tag_label_read <- function(tag,
                            file = glue::glue("./data/tag-label/{tag$id}-labeled.csv")) {
   tag_assert(tag)
 
+  if ("label" %in% tag_status(tag)){
+      cli::cli_abort(c(
+        "x" = "{.var tag} has already been labeled.",
+        ">" = "It is best practice to start from your raw data again using {.fun tag_create}.",
+        "i" = "You can also use {.fun tag_update} to only change the what needs to be updated in {.var tag}."))
+  }
+
   tag$pressure <- trainset_read(tag$pressure,
     file = file,
     series = "pressure"
