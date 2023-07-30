@@ -1,43 +1,49 @@
 #' Add windspeed and airspeed
 #'
 #' @description
-#' Reads the NetCDF files downloaded in `directory` and adds the average windspeed experienced by the
-#' bird, and the corresponding airspeed for each edge of the graph.
+#' Reads the NetCDF files downloaded and interpolate the average windspeed experienced by the
+#' bird on each possible edge, as well as the corresponding airspeed.
 #'
-#' See the [GeoPressureManual | Wind graph](
-#' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data) for
-#' explanations and an example on how to download the `NetCDF` files from ERA-5.
+#' In addition, the graph can be further pruned based on a threashold of airspeed `thr_as`.
 #'
-#' @param graph graph constructed with [`graph_create()`]
-#' @param pressure pressure data from a data logger. This data.frame needs to contain `date` as
-#' POSIXt and `value` in hPa. It is good practice to use [`tag_create()`] and [`tag_label_stap()`] to build
-#' this data.frame.
-#' @param directory Character of the path where the netCDF files can be found.
+#' See section 2.2.4 in Nussbaumer (2023) for more details.
+#'
+#' @param graph A GeoPressureR graph object.
+#' @param pressure pressure measurement of the associated `tag` data used to estimate the pressure
+#' level (i.e., altitude) of the bird during the flights. This data.frame needs to contain `date` as
+#' POSIXt and `value` in hPa.
 #' @param thr_as Threshold of airspeed (km/h).
+#' @inheritParams tag_download_wind
 #' @return Graph as a list with windspeed and airspeed as `ws` and `as` respectively (see
 #' [`graph_create()`] for more details on the graph returned).
-#' @seealso [`graph_create()`], [GeoPressureManual | Wind graph](
+#'
+#' @family graph
+#' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
+#' Sheldon. 2023. “Reconstructing bird trajectories from pressure and wind data using a highly
+#' optimized hidden Markov model.” *Methods in Ecology and Evolution*.
+#' <https://doi.org/10.1111/2041-210X.14082>.}
+#' @seealso [GeoPressureManual | Wind graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph)
 #' @export
 graph_add_wind <- function(graph,
                            pressure,
-                           directory = glue::glue("data/5_wind_graph/{graph$id}/"),
-                           thr_as = Inf) {
-  assertthat::assert_that(is.graph(graph))
-  assertthat::assert_that(assertthat::has_name(
-    graph, c("s", "t", "gs", "sz", "lat", "lon", "flight")
-  ))
-  assertthat::assert_that(length(graph$s) > 0)
+                           thr_as = Inf,
+                           file = \(stap_id) glue::glue("./data/wind/{graph$id}/{graph$id}_{stap_id}.nc")) {
+  graph_assert(graph, "full")
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value")))
   assertthat::assert_that(assertthat::is.time(pressure$date))
   assertthat::assert_that(is.numeric(pressure$value))
-  assertthat::assert_that(is.character(directory))
-  file_prefix <- glue::glue("{graph$id}_")
-  assertthat::assert_that(file.exists(file.path(directory, glue::glue("{file_prefix}1.nc"))))
+  assertthat::assert_that(is.function(file))
   assertthat::assert_that(is.numeric(thr_as))
   assertthat::assert_that(length(thr_as) == 1)
   assertthat::assert_that(thr_as >= 0)
+
+  # Compute flight from stap
+  flight <- stap2flight(graph$stap, format = "list")
+
+  # Compute lat-lon coordinate of the grid
+  g <- geo_expand(graph$extent, graph$scale)
 
   # Extract the index in lat, lon, stap from the source and target of all edges
   s <- arrayInd(graph$s, graph$sz)
@@ -48,21 +54,20 @@ graph_add_wind <- function(graph,
 
   # Check that all the files of wind_speed exist and match the data request
   for (i1 in seq_len(graph$sz[3] - 1)) {
-    fl_s <- graph$flight[[i1]]
+    fl_s <- flight[[i1]]
     for (i2 in seq_len(length(fl_s$stap_s))) {
       i_s <- fl_s$stap_s[i2]
 
-      full_path <- file.path(directory, glue::glue("{file_prefix}{i_s}.nc"))
-      if (!file.exists(full_path)) {
-        cli::cli_abort(c(x = "No wind file {.file {full_path}}"))
+      if (!file.exists(file(i_s))) {
+        cli::cli_abort(c(x = "No wind file {.file {file(i_s)}}"))
       }
-      nc <- ncdf4::nc_open(full_path)
+      nc <- ncdf4::nc_open(file(i_s))
 
       time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60, origin = "1900-01-01", tz = "UTC")
       t_s <- as.POSIXct(format(fl_s$start[i2], "%Y-%m-%d %H:00:00"), tz = "UTC")
       t_e <- as.POSIXct(format(fl_s$end[i2] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
       if (!(min(time) <= t_e && max(time) >= t_s)) {
-        cli::cli_abort(c(x = "Time not matching for {.file {directory}{i_s}.nc}"))
+        cli::cli_abort(c(x = "Time not matching for {.file {file(i_s)}}"))
       }
 
       pres <- ncdf4::ncvar_get(nc, "level")
@@ -71,15 +76,15 @@ graph_add_wind <- function(graph,
       if (length(pres_value) == 0 ||
         !(min(pres) <= min(pres_value) &&
           max(pres) >= min(1000, max(pres_value)))) {
-        cli::cli_abort(c(x = "Pressure not matching for {.file {directory}{i_s}.nc}"))
+        cli::cli_abort(c(x = "Pressure not matching for {.file {file(i_s)}}"))
       }
 
       # Check if spatial extend match
       lat <- ncdf4::ncvar_get(nc, "latitude")
       lon <- ncdf4::ncvar_get(nc, "longitude")
-      if (min(graph$lat) < min(lat) || max(graph$lat) > max(lat) ||
-        min(graph$lon) < min(lon) || max(graph$lon) > max(lon)) {
-        cli::cli_abort(c(x = "Spatial extend not matching for {.file {directory}{i_s}.nc}"))
+      if (min(g$lat) < min(lat) || max(g$lat) > max(lat) ||
+        min(g$lon) < min(lon) || max(g$lon) > max(lon)) {
+        cli::cli_abort(c(x = "Spatial extend not matching for {.file {file(i_s)}}"))
       }
 
       # Check if flight duration is
@@ -101,10 +106,10 @@ graph_add_wind <- function(graph,
     # Extract the flight information from the current stap to the next one considered in the graph.
     # It can be the next, or if some stap are skipped at construction, it can contains multiples
     # flights
-    fl_s <- graph$flight[[i1]]
+    fl_s <- flight[[i1]]
 
     # Extract the duration of each flights.
-    fl_s_dur <- as.numeric(difftime(fl_s$end, fl_s$start, units = "hours"))
+    fl_s_dur <- stap2duration(fl_s, units = "hours")
 
     # Determine the id of edges of the graph corresponding to this/these flight(s).
     st_id <- which(s[, 3] == i1)
@@ -128,7 +133,7 @@ graph_add_wind <- function(graph,
       i_s <- fl_s$stap_s[i2]
 
       # Read the netCDF file
-      nc <- ncdf4::nc_open(file.path(directory, i_s, ".nc"))
+      nc <- ncdf4::nc_open(file(i_s))
 
       # Read data from netCDF file and convert the time of data to posixt
       time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60,
@@ -139,14 +144,14 @@ graph_add_wind <- function(graph,
       lon <- ncdf4::ncvar_get(nc, "longitude")
 
       # Find the start and end latitude and longitude of each edge
-      lat_s <- graph$lat[s[st_id, 1]] +
-        ratio_stap[i2] * (graph$lat[t[st_id, 1]] - graph$lat[s[st_id, 1]])
-      lon_s <- graph$lon[s[st_id, 2]] +
-        ratio_stap[i2] * (graph$lon[t[st_id, 2]] - graph$lon[s[st_id, 2]])
-      lat_e <- graph$lat[s[st_id, 1]] +
-        ratio_stap[i2 + 1] * (graph$lat[t[st_id, 1]] - graph$lat[s[st_id, 1]])
-      lon_e <- graph$lon[s[st_id, 2]] +
-        ratio_stap[i2 + 1] * (graph$lon[t[st_id, 2]] - graph$lon[s[st_id, 2]])
+      lat_s <- g$lat[s[st_id, 1]] +
+        ratio_stap[i2] * (g$lat[t[st_id, 1]] - g$lat[s[st_id, 1]])
+      lon_s <- g$lon[s[st_id, 2]] +
+        ratio_stap[i2] * (g$lon[t[st_id, 2]] - g$lon[s[st_id, 2]])
+      lat_e <- g$lat[s[st_id, 1]] +
+        ratio_stap[i2 + 1] * (g$lat[t[st_id, 1]] - g$lat[s[st_id, 1]])
+      lon_e <- g$lon[s[st_id, 2]] +
+        ratio_stap[i2 + 1] * (g$lon[t[st_id, 2]] - g$lon[s[st_id, 2]])
 
       # As ERA5 data is available every hour, we build a one hour resolution timeserie including the
       # start and end time of the flight. Thus, we first round the start end end time.
@@ -163,7 +168,7 @@ graph_add_wind <- function(graph,
       # on `t_q`. Extrapolation outside (before the bird departure or after he arrived) is with a
       # nearest neighbor.
 
-      dt <- as.numeric(difftime(fl_s$end[i2], fl_s$start[i2], units = "hours"))
+      dt <- fl_s_dur[i2] # old code not tested replaceent as.numeric(difftime(fl_s$end[i2], fl_s$start[i2], units = "hours"))
       dlat <- (lat_e - lat_s) / dt
       dlon <- (lon_e - lon_s) / dt
       w <- pmax(pmin(as.numeric(
@@ -279,8 +284,8 @@ graph_add_wind <- function(graph,
         v_int[i3, ] <- tmp[id_uniq]
       }
       # Compute the average wind component of the flight accounting for the weighting scheme
-      u_sta[i2, ] <- colSums(u_int * w)
-      v_sta[i2, ] <- colSums(v_int * w)
+      u_stap[i2, ] <- colSums(u_int * w)
+      v_stap[i2, ] <- colSums(v_int * w)
 
       cli::cli_progress_update(set = sum(nds_expend_sum[seq(1, i1)]))
     }
@@ -312,7 +317,6 @@ graph_add_wind <- function(graph,
   graph$t <- graph$t[id]
   graph$gs <- graph$gs[id]
   graph$ws <- graph$ws[id]
-  graph$obs <- graph$obs[id]
   graph$param$thr_as <- thr_as
 
   return(graph)

@@ -11,34 +11,27 @@
 #' To create a generic function, we define `speed2prob` which converts the speed of an edge into the
 #' transition probability.
 #'
-#'
 #' @param graph Graph constructed with `graph_create()` and with a movement (see
 #' `graph_add_movement()`).
 #' @return Vector of transition probability for each edge.
-#' @seealso [`graph_create()`], [`graph_add_movement()`]
+#'
+#' @family graph
 #' @export
 graph_transition <- function(graph) {
-  assertthat::assert_that(is.graph(graph))
-  if (!assertthat::has_name(graph, "movement")) {
-    cli::cli_abort(c(
-      x = "The graph does not have a movement model.",
-      i = "Make sure to call {.fn graph_add_movement} before."
-    ))
-  }
-  assertthat::assert_that(assertthat::has_name(graph, c("movement", "gs")))
+  graph_assert(graph)
 
+  # The full transition vector can be specify manually as graph$transition
   if ("transition" %in% names(graph)) {
-    transition <- graph$trans
-  } else {
-    speed2prob_param <- graph$movement[!(names(graph$movement) == "type")]
-    if (graph$movement$type == "as") {
-      assertthat::assert_that(assertthat::has_name(graph, c("ws")))
-      transition <- do.call(speed2prob, c(speed2prob_param, list(speed = graph$gs - graph$ws)))
-    } else if (graph$movement$type == "gs") {
-      transition <- do.call(speed2prob, c(speed2prob_param, list(speed = graph$gs)))
-    } else {
-      cli::cli_abort("Invalid movement type : {.val {graph$movement$type}}")
-    }
-    return(transition)
+    return(graph$transition)
   }
+
+
+  graph_assert(graph, "movement")
+  if (graph$movement$type == "as") {
+    transition <- speed2prob(graph$gs - graph$ws, graph$movement)
+  } else if (graph$movement$type == "gs") {
+    transition <- speed2prob(graph$gs, graph$movement)
+  }
+
+  return(transition)
 }
