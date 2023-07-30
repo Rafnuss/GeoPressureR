@@ -39,7 +39,7 @@
 #' `stap_id = 0` and `stap_id>0` is to the stationary period of the position used from the path).
 #'
 #' See [`geopressure_timeseries()`] for more details
-#' @seealso [`geopressure_timeseries()`], [`map2path()`], [GeoPressureManual | Pressure
+#' @seealso [`geopressure_timeseries()`], [`tag2path()`], [GeoPressureManual | Pressure
 #' Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
@@ -71,29 +71,47 @@
 #' plot(pressurepath$date, pressurepath$altitude,
 #'   type = "l", ylab = "Pressure (hPa)", xlab = "Datetime"
 #' )
+#' @family pressurepath
 #' @export
-pressurepath_create <- function(path,
-                                   pressure,
-                                   include_flight = FALSE,
-                                   workers = 90) {
-  assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "stap_id")))
-  assertthat::assert_that(assertthat::is.time(pressure$date))
-  assertthat::assert_that(is.numeric(pressure$value))
+pressurepath_create <- function(tag,
+                                path = tag2path(tag),
+                                include_flight = FALSE,
+                                workers = "auto",
+                                .preprocess = FALSE) {
+  # Assert tag
+  tag_assert(tag, cond = "stap")
 
+  # Assert preprocess
+  assertthat::assert_that(is.logical(.preprocess))
+  if (.preprocess) {
+    pressure <- geopressure_map_preprocess(tag)
+  } else {
+    pressure <- tag$pressure
+  }
+
+  # Assert path
   assertthat::assert_that(is.data.frame(path))
   assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "stap_id")))
-  if (nrow(path) == 0) cli::cli_warn("path is empty")
+  if (nrow(path) == 0) {
+    cli::cli_abort("Path is empty")
+  }
   if (!all(path$stap_id %in% pressure$stap_id)) {
     cli::cli_warn("Some path stap_id are not present in pressure")
   }
+
+  # Assert include_flight
   if (is.logical(include_flight)) {
-    include_flight <- (if (include_flight) c(-1, 0, 1) else 0)
+    if (include_flight) {
+      include_flight <- c(-1, 0, 1)
+    } else {
+      include_flight <- 0
+    }
   }
   assertthat::assert_that(is.numeric(include_flight))
   assertthat::assert_that(all(include_flight %in% c(-1, 0, 1)))
-  assertthat::assert_that(is.numeric(workers))
-  assertthat::assert_that(workers > 0 & workers < 100)
+
+  # Assert worker
+  assertthat::assert_that(is.numeric(workers) | workers == "auto")
 
   # Interpolate stap_id for flight period so that, a flight between stap_id 2 and 3 will have a
   # `stap_interp` between 2 and 3.
@@ -105,6 +123,11 @@ pressurepath_create <- function(path,
   )$y
 
   # Define the number of parallel workers (Google Earth Engine allowance is currently 100)
+  if (workers == "auto") {
+    workers <- min(90, nrow(path))
+  } else {
+    assertthat::assert_that(workers > 0 & workers < 100)
+  }
   future::plan(future::multisession, workers = workers)
   f <- c()
 
@@ -112,6 +135,7 @@ pressurepath_create <- function(path,
     "Generate requests (on GeoPressureAPI) for {nrow(path)} stationary periods",
     spinner = TRUE
   )
+  cli::cli_progress_bar(total = nrow(path), type = "task")
   for (i_s in seq_len(nrow(path))) {
     i_stap <- path$stap_id[i_s]
     # Subset the pressure of the stationary period
@@ -132,18 +156,21 @@ pressurepath_create <- function(path,
         quiet = TRUE
       )
     })
+    cli::cli_progress_update(force = TRUE)
   }
 
   pressure_timeseries <- list()
   cli::cli_progress_step("Compute and download timeseries (on GEE server)",
     spinner = TRUE
   )
+  cli::cli_progress_bar(total = length(f), type = "task")
   for (i_s in seq_len(length(f))) {
     i_stap <- path$stap_id[i_s]
     tryCatch(
       expr = {
         pressure_timeseries[[i_s]] <- future::value(f[[i_s]])
         pressure_timeseries[[i_s]]$stap_ref <- i_stap
+        cli::cli_progress_update(force = TRUE)
       },
       error = function(cond) {
         cli::cli_warn("Error for stap {path$stap_id[i_s]}")
@@ -152,7 +179,7 @@ pressurepath_create <- function(path,
     )
   }
 
-  pressure_timeseries_df <- do.call("rbind", pressure_timeseries)
+  pressurepath <- do.call("rbind", pressure_timeseries)
 
-  return(pressure_timeseries_df)
+  return(pressurepath)
 }

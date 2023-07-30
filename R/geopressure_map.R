@@ -22,7 +22,7 @@
 #' timeseries.
 #' @param margin The margin is used in the mask map to accept measurement errors, small-scale
 #' topography, and vertical movements of the bird (unit in meters, 1hPa~10m).
-#' @param sd Standard deviation of the pressure error.
+#' @param sd Standard deviation of the pressure error . numeric of lenght 1 or number of stationary periods.
 #' @param thr_mask Threshold of the percentage of data points outside the elevation range to be considered
 #' not possible.
 #' @param log_linear_pooling_weight Weighting function of the log-linear pooling, taking the number of samples of the
@@ -85,18 +85,19 @@ geopressure_map <- function(tag,
                             max_sample = 250,
                             margin = 30,
                             timeout = 60 * 5,
-                            workers = 90,
+                            workers = "auto",
                             sd = 1,
                             thr_mask = 0.9,
                             log_linear_pooling_weight = \(n) log(n) / n,
-                            keep_mse_mask = FALSE) {
-
+                            keep_mse_mask = FALSE,
+                            .compute_known = FALSE) {
   # Compute mean square error maps
   tag <- geopressure_map_mismatch(tag,
     max_sample = max_sample,
     margin = margin,
     timeout = timeout,
-    workers = workers
+    workers = workers,
+    .compute_known = .compute_known
   )
 
   # Compute likelihood maps from the MSE maps

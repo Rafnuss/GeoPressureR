@@ -44,7 +44,8 @@ geopressure_map_mismatch <- function(tag,
                                      max_sample = 250,
                                      margin = 30,
                                      timeout = 60 * 5,
-                                     workers = 90) {
+                                     workers = "auto",
+                                     .compute_known = FALSE) {
   # Check tag
   tag_assert(tag, "geostap")
 
@@ -54,12 +55,11 @@ geopressure_map_mismatch <- function(tag,
   assertthat::assert_that(is.numeric(margin))
   assertthat::assert_that(0 < margin)
   assertthat::assert_that(is.numeric(timeout))
-  assertthat::assert_that(is.numeric(workers))
-  assertthat::assert_that(workers > 0 & workers < 100)
+  assertthat::assert_that(is.numeric(workers) | workers == "auto")
 
   cli::cli_progress_step("Prepare pressure data")
   # Prepare data
-  pres <- geopressure_map_preprocess(tag)
+  pres <- geopressure_map_preprocess(tag, .compute_known = .compute_known)
 
   body_df <- list(
     time = jsonlite::toJSON(as.numeric(as.POSIXct(pres$date))),
@@ -80,6 +80,7 @@ geopressure_map_mismatch <- function(tag,
     body = body_df,
     encode = "form",
     httr::timeout(timeout)
+    # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
   )
 
   if (httr::http_error(res)) {
@@ -119,6 +120,11 @@ geopressure_map_mismatch <- function(tag,
 
   # Perform the call in parallel
   # GEE allows up to 100 requests at the same time, so we set the workers a little bit below
+  if (workers == "auto") {
+    workers <- min(90, length(urls))
+  } else {
+    assertthat::assert_that(workers > 0 & workers < 100)
+  }
   future::plan(future::multisession, workers = workers)
 
   f <- c()
@@ -135,6 +141,7 @@ geopressure_map_mismatch <- function(tag,
         urls[i_u],
         httr::write_disk(file),
         httr::timeout(timeout)
+        # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
       )
       if (httr::http_error(res)) {
         httr::warn_for_status(res, task = "download GEE data")
@@ -208,6 +215,16 @@ geopressure_map_mismatch <- function(tag,
     tag$map_pressure_mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE) / 100 / 100 # convert MSE from Pa to hPa
     tag$map_pressure_mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
   }
+
+  # Add attribute
+  attr(tag$map_pressure_mse, "id") <- tag$id
+  attr(tag$map_pressure_mse, "extent") <- tag$extent
+  attr(tag$map_pressure_mse, "scale") <- tag$scale
+  attr(tag$map_pressure_mse, "stap") <- tag$stap
+  attr(tag$map_pressure_mask, "id") <- tag$id
+  attr(tag$map_pressure_mask, "extent") <- tag$extent
+  attr(tag$map_pressure_mask, "scale") <- tag$scale
+  attr(tag$map_pressure_mask, "stap") <- tag$stap
 
   # keep parameters used
   tag$param$max_sample <- max_sample

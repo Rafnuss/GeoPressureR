@@ -29,13 +29,29 @@ geopressure_map_likelihood <- function(tag,
   # Check tag status
   tag_assert(tag, "map_pressure_mismatch")
 
+  # Check sd
   assertthat::assert_that(is.numeric(sd))
-  assertthat::assert_that(sd >= 0)
+  if (length(sd) == 1) {
+    sd <- rep(sd, times = nrow(tag$stap))
+  } else if (length(sd) != nrow(tag$stap)) {
+    cli::cli_abort(c(
+      "x" = "{.var sd} is of length {.val {length(sd)}}.",
+      ">" = "{.var sd} needs to be of length {.val {1}} or {.val {nrow(tag$stap)}} ({.code nrow(tag$stap)})."
+    ))
+  }
+  assertthat::assert_that(all(sd >= 0))
+  if (any(sd < 0.3) | any(sd > 5)) {
+    cli::cli_warn(c(
+      "!" = "{.var sd} has values {.val {unique(sd)}}.",
+      "i" = "It is generally not recommended to have a standard deviation between {.val {0.3}} \\
+      and {.val {5}}."
+    ))
+  }
   assertthat::assert_that(is.numeric(thr_mask))
   assertthat::assert_that(thr_mask >= 0 & thr_mask <= 1)
   assertthat::assert_that(is.function(log_linear_pooling_weight))
 
-  tag$map_pressure <- vector("list", nrow(tag$stap))
+  map_pressure <- vector("list", nrow(tag$stap))
 
   for (istap in which(!sapply(tag$map_pressure_mse, is.null))) {
     # Number of sample
@@ -50,30 +66,37 @@ geopressure_map_likelihood <- function(tag,
     mse[mse == 0] <- NA
 
     # compute likelihood assume gaussian error distribution
-    likelihood <- (1 / (2 * pi * sd^2))^(n * w / 2) * exp(-w * n / 2 / (sd^2) * mse)
+    likelihood <- (1 / (2 * pi * sd[istap]^2))^(n * w / 2) * exp(-w * n / 2 / (sd[istap]^2) * mse)
 
     # mask value of threshold
-    tag$map_pressure[[istap]] <- likelihood * (tag$map_pressure_mask[[istap]] >= thr_mask)
+    map_pressure[[istap]] <- likelihood * (tag$map_pressure_mask[[istap]] >= thr_mask)
   }
 
   # Find water mask
   # Define the mask of water
-  tag$mask_water <- is.na(tag$map_pressure[[which(!sapply(tag$map_pressure_mse, is.null))[1]]])
+  tag$mask_water <- is.na(map_pressure[[which(!sapply(tag$map_pressure_mse, is.null))[1]]])
 
   # Add known location
   # compute latitude, longitude and dimension
   g <- geo_expand(tag$extent, tag$scale)
-  for (stap_id in which(!is.na(tag$stap$known_lat))) {
+  # Add known location only if map_pressure_mse is null (ie., if .known_compute = TRUE in geopressure_map_mse)
+  for (stap_id in which(!is.na(tag$stap$known_lat) & sapply(tag$map_pressure_mse, is.null))) {
     # Initiate an empty map
-    tag$map_pressure[[stap_id]] <- matrix(0, nrow = g$dim[1], ncol = g$dim[2])
-    tag$map_pressure[[stap_id]][tag$mask_water] <- NA
+    map_pressure[[stap_id]] <- matrix(0, nrow = g$dim[1], ncol = g$dim[2])
+    map_pressure[[stap_id]][tag$mask_water] <- NA
     # Compute the index of the known position
     known_lon_id <- which.min(abs(tag$stap$known_lon[stap_id] - g$lon))
     known_lat_id <- which.min(abs(tag$stap$known_lat[stap_id] - g$lat))
     # Assign a likelihood of 1 for that position
-    tag$map_pressure[[stap_id]][known_lat_id, known_lon_id] <- 1
+    map_pressure[[stap_id]][known_lat_id, known_lon_id] <- 1
   }
 
+  attr(map_pressure, "id") <- tag$id
+  attr(map_pressure, "extent") <- tag$extent
+  attr(map_pressure, "scale") <- tag$scale
+  attr(map_pressure, "stap") <- tag$stap
+
+  tag$map_pressure <- map_pressure
   tag$param$sd <- sd
   tag$param$thr_mask <- thr_mask
   tag$param$log_linear_pooling_weight <- log_linear_pooling_weight

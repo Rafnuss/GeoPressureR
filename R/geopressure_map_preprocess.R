@@ -19,32 +19,37 @@
 #' pressure_processed <- geopressure_map_preprocess(tag)
 #' str(pressure_processed)
 #' @export
-geopressure_map_preprocess <- function(tag) {
-  tag_assert(tag)
-  pressure <- tag$pressure
-  assertthat::assert_that(assertthat::has_name(pressure, c("date", "value", "label", "stap_id")))
-  assertthat::assert_that(assertthat::is.time(pressure$date))
-  assertthat::assert_that(is.numeric(pressure$value))
-  assertthat::assert_that(nrow(pressure) >= 3)
-  assertthat::assert_that(min(diff(as.numeric(pressure$date))) / 60 / 60 <= 1)
-
+geopressure_map_preprocess <- function(tag, .compute_known = FALSE) {
+  tag_assert(tag, "label")
   stap <- tag$stap
-  assertthat::assert_that(is.data.frame(stap))
-  assertthat::assert_that(assertthat::has_name(stap, "stap_id"))
-  assertthat::assert_that(assertthat::has_name(stap, "include"))
+  pressure <- tag$pressure
+
+  if (nrow(pressure) < 3) {
+    cli::cli_abort(c(
+      "x" = "Pressure data has less than {.val {3}} datapoints.",
+      "!" = "At least {.val {3}} datapoints of pressure are required."
+    ))
+  }
+
+  if (min(diff(as.numeric(pressure$date))) / 60 / 60 > 1) {
+    cli::cli_abort(c(
+      "x" = "The temporal resolution of pressure is greater than {.val {1}} hour.",
+      "!" = "A maximal resolution of {.val {1}} hour is required."
+    ))
+  }
 
   if (length(unique(diff(pressure$date))) > 1) {
     cli::cli_warn("Pressure data is not on a regular interval.The code should still
     technically work, but it might be the cause of an error later.")
   }
 
+  # Filter stap to model
   if ("include" %in% names(stap)) {
-    # Filter stap to model
     pressure <- pressure[pressure$stap_id %in% stap$stap_id[stap$include], ]
   }
 
-  if ("known_lat" %in% names(stap)) {
-    # Filter stap which are known (i.e, doesn't have lat, lon)
+  # Filter stap which are known
+  if (!.compute_known & "known_lat" %in% names(stap)) {
     pressure <- pressure[pressure$stap_id %in% stap$stap_id[is.na(stap$known_lat)], ]
   }
 
@@ -75,6 +80,12 @@ geopressure_map_preprocess <- function(tag) {
 
   # Split the data.frame per stapelev
   pressure_stapelev <- split(pressure, pressure$stapelev)
+
+  pressure_stapelev_nrow <- lapply(pressure_stapelev, nrow)
+  if (any(pressure_stapelev_nrow <= 1)) {
+    cli::cli_abort("There are not enough datapoint in stationary periods {.val \\
+                   {names(pressure_stapelev_nrow)[pressure_stapelev_nrow <= 1]}}.")
+  }
 
   # Smooth and downscale each stapelev
   pressure_stapelev_clean <- lapply(pressure_stapelev, function(pgi) {
@@ -141,6 +152,10 @@ geopressure_map_preprocess <- function(tag) {
   # Combine into a single data.frame
   pressure <- do.call("rbind", pressure_stapelev_clean)
 
+  # Make sure pressure is sorted by date (`pressure_stapelev_clean` uses stap_id as string and does
+  # not insure the correct order when exceeding 10).
+  pressure <- pressure[order(pressure$date), ]
+
   if (nrow(pressure) == 0) {
     cli::cli_abort(c(
       x = "There are no pressure data to match.",
@@ -150,9 +165,9 @@ geopressure_map_preprocess <- function(tag) {
   assertthat::assert_that(all(!is.na(pressure$date)))
   assertthat::assert_that(all(!is.na(pressure$value)))
   assertthat::assert_that(all(pressure$stapelev != ""))
-  if ("include" %in% names(stap)) {
-    stap <- stap[stap$include & is.na(stap$known_lat), ]
-  }
+
+  # Check number of datapoint per stationary period
+  stap <- stap[stap$include & is.na(stap$known_lat), ]
   stap <- merge(stap,
     as.data.frame(table(pressure$stap_id)),
     by.x = "stap_id", by.y = "Var1", all.x = TRUE
@@ -160,9 +175,10 @@ geopressure_map_preprocess <- function(tag) {
   stap$Freq[is.na(stap$Freq)] <- 0
 
   if (any(stap$Freq < 3)) {
-    cli::cli_warn("The following stationary period {.var {stap$stap_id[stap$Freq<3]}} have less \\
-                  than 3 datapoints to be used")
+    cli::cli_warn("The stationary period{?s} {.var {stap$stap_id[stap$Freq<3]}} have less \\
+                  than 3 datapoints to be used.")
   }
 
+  rownames(pressure) <- NULL
   return(pressure)
 }
