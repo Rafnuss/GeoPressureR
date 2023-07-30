@@ -36,7 +36,7 @@
 #'
 #' @export
 stap2flight <- function(stap,
-                        stap_include = NA,
+                        stap_include = NULL,
                         format = "df",
                         units = "hours") {
   assertthat::assert_that(is.data.frame(stap))
@@ -44,7 +44,7 @@ stap2flight <- function(stap,
   assertthat::assert_that(assertthat::has_name(stap, "start"))
   assertthat::assert_that(assertthat::has_name(stap, "end"))
   assertthat::assert_that(all(stap$stap_id == seq_len(nrow(stap))))
-  if (any(is.na(stap_include))) {
+  if (is.null(stap_include)) {
     if ("include" %in% names(stap)) {
       stap_include <- stap$stap_id[stap$include]
     } else {

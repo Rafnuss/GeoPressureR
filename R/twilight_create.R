@@ -27,8 +27,8 @@
 #' str(twilight)
 #' @export
 twilight_create <- function(tag,
-                            twl_thr = NA,
-                            twl_offset = NA) {
+                            twl_thr = NULL,
+                            twl_offset = NULL) {
   tag_assert(tag)
 
   light <- tag$light
@@ -37,18 +37,18 @@ twilight_create <- function(tag,
   assertthat::assert_that(assertthat::is.time(light$date))
   assertthat::assert_that(is.numeric(light$value))
 
-  if (is.na(twl_thr)) {
+  if (is.null(twl_thr)) {
     twl_thr <- min(light$value[light$value > 0])
   }
   assertthat::assert_that(is.numeric(twl_thr))
 
   # add padding of time to center if night are not at 00:00 UTC
-  if (is.na(twl_offset)) {
+  if (is.null(twl_offset)) {
     mat <- light2mat(light, twl_offset = 0)
     l <- mat$value >= twl_thr
     tmp <- rowMeans(l, na.rm = TRUE)
     offset_id <- round(sum(tmp * seq_len(dim(mat$value)[1])) / sum(tmp))
-    twl_offset <- (mat$res * offset_id - 60 * 60 * 12)  / 60 / 60
+    twl_offset <- (mat$res * offset_id - 60 * 60 * 12) / 60 / 60
   }
 
   # Use light2mat() to reshape light into a matrix

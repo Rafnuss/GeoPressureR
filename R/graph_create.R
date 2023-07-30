@@ -38,8 +38,7 @@
 graph_create <- function(tag,
                          thr_likelihood = .99,
                          thr_gs = 150,
-                         likelihood = NA) {
-
+                         likelihood = NULL) {
   # Construct the likelihood map
   lk <- tag2likelihood(tag, likelihood = likelihood)
 
@@ -55,8 +54,6 @@ graph_create <- function(tag,
   # Extract info from tag for simplicity
   stap <- tag$stap
   stap_model <- which(stap$include)
-
-
 
   # Select only the map for the stap to model
   lk <- lk[stap_model]

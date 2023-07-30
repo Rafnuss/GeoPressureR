@@ -26,13 +26,12 @@
 #' @family bird
 #' @export
 bird_create <- function(species_name,
-                        mass = NA,
-                        wing_span = NA,
-                        wing_aspect = NA,
-                        wing_area = NA,
-                        body_frontal_area = NA) {
-  if (is.na(mass) || (is.na(wing_aspect) + is.na(wing_area) +
-    is.na(wing_span) > 1)) {
+                        mass = NULL,
+                        wing_span = NULL,
+                        wing_aspect = NULL,
+                        wing_area = NULL,
+                        body_frontal_area = NULL) {
+  if (is.null(mass) || (is.null(wing_aspect) + is.null(wing_area) + is.null(wing_span) > 1)) {
     # Mass, wing length and secondary length are retrieve from the AVONET
     sp_id <- grep(species_name, avonet$species, ignore.case = TRUE)
     if (length(sp_id) == 0) {
@@ -50,12 +49,12 @@ bird_create <- function(species_name,
   }
 
   # Mass
-  if (is.na(mass)) {
+  if (is.null(mass)) {
     mass <- b$mass
   }
 
   # Body frontal area
-  if (is.na(body_frontal_area)) {
+  if (is.null(body_frontal_area)) {
     # Assuming that the bird is a passerine, [Hedenström and Rosén (2003)]
     # (https://doi.org/10.1034/j.1600-048X.2003.03145.x) is used with
     body_frontal_area <- 0.0129 * mass^(0.614)
@@ -64,21 +63,21 @@ bird_create <- function(species_name,
   }
 
   # Combination of wing area, span and aspect ratio
-  if (!is.na(wing_area) && is.na(wing_span) && !is.na(wing_aspect)) {
+  if (!is.null(wing_area) && is.null(wing_span) && !is.null(wing_aspect)) {
     wing_span <- sqrt(wing_aspect * wing_area)
-  } else if (!is.na(wing_area) && !is.na(wing_span) && is.na(wing_aspect)) {
+  } else if (!is.null(wing_area) && !is.null(wing_span) && is.null(wing_aspect)) {
     wing_aspect <- wing_span^2 / wing_area
   }
 
   # Wing span alone
-  if (is.na(wing_span)) {
+  if (is.null(wing_span)) {
     # From [Duncan (1990)](https://doi.org/10.2307/4088014)
     wing_span <- 2 * (1.32 * b$wing_length * 1000 - 4.80) / 1000
   }
 
   # Wing aspect ratio
-  if (is.na(wing_aspect)) {
-    if (!is.na(wing_area)) {
+  if (is.null(wing_aspect)) {
+    if (!is.null(wing_area)) {
       wing_aspect <- wing_span^2 / wing_area
     } else {
       # assume that mean chord length is equal to half of the secondary
