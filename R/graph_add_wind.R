@@ -28,7 +28,7 @@
 graph_add_wind <- function(graph,
                            pressure,
                            thr_as = Inf,
-                           file = \(stap_id) glue::glue("./data/wind/{graph$id}/{graph$id}_{stap_id}.nc")) {
+                           file = \(stap_id) glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc")) {
   graph_assert(graph, "full")
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value")))

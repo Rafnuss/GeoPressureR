@@ -91,7 +91,7 @@ geopressure_map_likelihood <- function(tag,
     map_pressure[[stap_id]][known_lat_id, known_lon_id] <- 1
   }
 
-  attr(map_pressure, "id") <- tag$id
+  attr(map_pressure, "id") <- tag$param$id
   attr(map_pressure, "extent") <- tag$extent
   attr(map_pressure, "scale") <- tag$scale
   attr(map_pressure, "stap") <- tag$stap

@@ -194,7 +194,7 @@ geolight_map <- function(tag,
   }
 
   # Add attribute
-  attr(lk, "id") <- tag$id
+  attr(lk, "id") <- tag$param$id
   attr(lk, "extent") <- tag$extent
   attr(lk, "scale") <- tag$scale
   attr(lk, "stap") <- tag$stap

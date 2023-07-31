@@ -63,10 +63,12 @@ geopressureviz <- function(tag,
   } else {
     path <- unique(pressurepath[, c("stap_id", "lat", "lon")])
   }
+  pressurepath$linetype = 1
+  pressurepath <- merge(pressurepath, stap[,names(stap) %in% c("stap_id", "col")], by="stap_id")
 
 
   # PEROSENVIR <- new.env(parent=emptyenv())
-  .GlobalEnv$.tag_id <- tag$id
+  .GlobalEnv$.tag_id <- tag$param$id
   .GlobalEnv$.stap <- stap
   .GlobalEnv$.pressure <- tag$pressure
   .GlobalEnv$.maps <- maps

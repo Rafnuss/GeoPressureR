@@ -11,7 +11,7 @@
 #' @export
 print.tag <- function(x, ...) {
   tag <- x
-  cli::cli_h1("GeoPressureR `tag` object for {.field id}={.val {tag$id}}")
+  cli::cli_h1("GeoPressureR `tag` object for {.field id}={.val {tag$param$id}}")
 
   cli::cli_text("Date range: {tag$pressure$date[1]} to {tail(tag$pressure$date,1)}")
 

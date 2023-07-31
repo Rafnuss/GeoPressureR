@@ -40,7 +40,7 @@
 #' @family tag_label
 #' @export
 tag_label <- function(tag,
-                      file = glue::glue("./data/tag-label/{tag$id}-labeled.csv"),
+                      file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
                       ...) {
   tag_assert(tag)
   assertthat::assert_that(is.character(file))
@@ -48,7 +48,7 @@ tag_label <- function(tag,
   # Check if the label file exist
   if (!file.exists(file)) {
     # Check if the exported file already exist, in which case it hasn't been edited on trainset
-    file_input <- file.path(dirname(file), glue::glue("{tag$id}.csv"))
+    file_input <- file.path(dirname(file), glue::glue("{tag$param$id}.csv"))
     if (file.exists(file_input)) {
       cli::cli_abort(c(
         "!" = "The label file {.file {file}} does not exist but {.file {file_input}} exist.",
@@ -58,13 +58,13 @@ tag_label <- function(tag,
     }
 
     # Suggest to write the file
-    file_default <- glue::glue("./data/tag-label/{tag$id}.csv")
     choices <- c(
       "No",
       glue::glue("Yes, in `{file_default}` (default)"),
       glue::glue("Yes, in `{file_input}` (in input file directory)"),
       "No, I'll create it myself with `tag_label_write()`."
     )
+    file_default <- glue::glue("./data/tag-label/{tag$param$id}.csv")
     cli::cli_alert_warning("The label file {.file {file}} does not exist.")
     res <- utils::select.list(choices, title = "Do you want to create it?")
     if (file_default %in% res) {

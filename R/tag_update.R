@@ -20,8 +20,8 @@
 #' tag
 #' @export
 tag_update <- function(tag,
-                             file = glue::glue("data/1-tag_label/{tag$id}-labeled.csv")) {
   # check input
+                       file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
 
   # read the new file
   tag_new <- tag_label(tag, file)

@@ -11,7 +11,7 @@
 #' @export
 print.graph <- function(x, ...) {
   graph <- x
-  cli::cli_h1("GeoPressureR `graph` object for {.field id}={.val {graph$id}}")
+  cli::cli_h1("GeoPressureR `graph` object for {.field id}={.val {graph$param$id}}")
 
 
   cli::cli_h3("Stationary periods {.field stap}")

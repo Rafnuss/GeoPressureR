@@ -47,7 +47,7 @@ graph_status <- function(graph) {
   assertthat::assert_that(inherits(graph, "graph"))
 
   assertthat::assert_that(assertthat::has_name(graph, c(
-    "id", "s", "t", "gs", "obs", "sz", "stap",
+    "s", "t", "gs", "obs", "sz", "stap",
     "equipment", "retrieval", "extent", "scale",
     "mask_water"
   )))

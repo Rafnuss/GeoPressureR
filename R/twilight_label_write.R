@@ -17,7 +17,7 @@
 #' @family twilight
 #' @export
 twilight_label_write <- function(tag,
-                                 file = glue::glue("./data/twilight-label/{tag$id}.csv"),
+                                 file = glue::glue("./data/twilight-label/{tag$param$id}.csv"),
                                  twl_offset = 0) {
   # Check twilight
   tag_assert(tag, "twilight")

@@ -30,7 +30,7 @@ tag2map <- function(tag, likelihood = NULL) {
   }
 
   # Add attribute
-  attr(map, "id") <- tag$id
+  attr(map, "id") <- tag$param$id
   attr(map, "extent") <- tag$extent
   attr(map, "scale") <- tag$scale
   attr(map, "stap") <- tag$stap

@@ -72,7 +72,7 @@ graph_marginal <- function(graph) {
   }
 
   # Add attribute
-  attr(marginal, "id") <- graph$id
+  attr(marginal, "id") <- graph$param$id
   attr(marginal, "extent") <- graph$extent
   attr(marginal, "scale") <- graph$scale
   attr(marginal, "stap") <- graph$stap

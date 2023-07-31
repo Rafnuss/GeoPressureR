@@ -217,11 +217,11 @@ geopressure_map_mismatch <- function(tag,
   }
 
   # Add attribute
-  attr(tag$map_pressure_mse, "id") <- tag$id
+  attr(tag$map_pressure_mse, "id") <- tag$param$id
   attr(tag$map_pressure_mse, "extent") <- tag$extent
   attr(tag$map_pressure_mse, "scale") <- tag$scale
   attr(tag$map_pressure_mse, "stap") <- tag$stap
-  attr(tag$map_pressure_mask, "id") <- tag$id
+  attr(tag$map_pressure_mask, "id") <- tag$param$id
   attr(tag$map_pressure_mask, "extent") <- tag$extent
   attr(tag$map_pressure_mask, "scale") <- tag$scale
   attr(tag$map_pressure_mask, "stap") <- tag$stap

@@ -277,7 +277,7 @@ graph_create <- function(tag,
   dim(graph$obs) <- sz
 
   # Add metadata information
-  graph$id <- tag$id
+
   graph$sz <- sz
   graph$stap <- tag$stap
   graph$equipment <- which(nds[[1]] == TRUE)
@@ -286,6 +286,7 @@ graph_create <- function(tag,
   graph$extent <- tag$extent
   graph$scale <- tag$scale
   graph$param <- list(
+    id = tag$param$id,
     thr_likelihood = thr_likelihood,
     thr_gs = thr_gs
   )
