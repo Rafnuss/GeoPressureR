@@ -19,9 +19,9 @@ tag_label_read <- function(tag,
                            file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv")) {
   tag_assert(tag)
 
-  if ("label" %in% tag_status(tag)) {
+  if ("geostap" %in% tag_status(tag)) {
     cli::cli_abort(c(
-      "x" = "{.var tag} has already been labeled.",
+      "x" = "{.fun geostap} has already been run on this {.var tag}.",
       ">" = "It is best practice to start from your raw data again using {.fun tag_create}.",
       "i" = "You can also use {.fun tag_update} to only change the what needs to be updated in {.var tag}."
     ))
@@ -67,5 +67,6 @@ tag_label_read <- function(tag,
     }
   }
 
+  tag$param$label_file <- file
   return(tag)
 }

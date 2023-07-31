@@ -30,6 +30,15 @@ tag_label_stap <- function(tag,
                            display_check = TRUE,
                            flight_duration_warning = 2,
                            stap_duration_warning = 6) {
+
+  if ("geostap" %in% tag_status(tag)) {
+    cli::cli_abort(c(
+      "x" = "{.fun geostap} has already been run on this {.var tag}.",
+      ">" = "It is best practice to start from your raw data again using {.fun tag_create}.",
+      "i" = "You can also use {.fun tag_update} to only change the what needs to be updated in {.var tag}."
+    ))
+  }
+
   # Perform test
   tag_assert(tag, "label")
 
@@ -72,7 +81,7 @@ tag_label_stap <- function(tag,
     }
   }
 
-  if (display_check) {
+  if (!.quiet) {
     # Display warning based on stap duration
     stap <- tag$stap
     if (nrow(stap) == 1) {

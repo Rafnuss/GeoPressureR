@@ -114,12 +114,9 @@ tag_geostap <- function(tag,
     if (chg_known | chg_extent | chg_scale | chg_include) {
       # Only provide option to stop the process if map are already defined
       if (any(c("map_pressure", "map_light") %in% names(tag))) {
-        cli::cli_inform(c(
-          "!" = "{.fun geostap} has already been run on this {.var tag} object, the input \\
-          parameters ({.var scale}, {.var extent}, {.var tag$known} or {.var tag$include}) are \\
-          different and the likelihood map ({.var map_pressure} and/or {.var map_light}) \\
-          have already been computed."
-        ))
+        cli::cli_alert_warning("The likelihood map ({.var map_pressure} and/or {.var map_light}) \\
+          have already been computed on this {.var tag} object with different geostap parameters \\
+          ({.var scale}, {.var extent}, {.var tag$known} or {.var tag$include}).")
         res <- utils::askYesNo(
           "Do you want to overwrite the parameters and delete the likelihood maps?"
         )
