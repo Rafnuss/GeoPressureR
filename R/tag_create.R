@@ -67,9 +67,12 @@ tag_create <- function(id,
                        light_file = "*.glf",
                        acceleration_file = "*.acceleration",
                        crop_start = "1900-01-01",
-                       crop_end = "2100-01-01") {
+                       crop_end = "2100-01-01",
+                       .quiet = FALSE) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(assertthat::is.dir(directory))
+
+
 
   # convert date to POSIXct date and check format
   crop_start <- as.POSIXct(crop_start, tz = "UTC")
@@ -77,8 +80,11 @@ tag_create <- function(id,
 
   # Find the exact filename
   sensor_paths <- sapply(c(pressure_file, light_file, acceleration_file), function(f) {
-    if (is.na(f)) {
-      return(NA)
+    if (is.null(f)) {
+      return(NULL)
+    }
+    if (file.exists(f)){
+      return(f)
     }
     path <- list.files(directory, pattern = glue::glue(f, "$"), full.names = TRUE)
     if (length(path) == 0) {
@@ -86,25 +92,24 @@ tag_create <- function(id,
         "!" = glue::glue("No file is matching '", f, "'."),
         ">" = "This file will be ignored."
       ))
-      path <- ""
-    } else if (length(path) > 1) {
+      return(NULL)
+    }
+    if (length(path) > 1) {
       cli::cli_warn(c(
         "!" = "Multiple files matching {.file {f}}: {path}",
         ">" = "The function will continue with the first one."
       ))
-      path <- path[1]
+      return(path[1])
     }
     return(path)
   })
 
-  tag <- structure(list(
-    id = id
-  ), class = "tag")
+  tag <- structure(list(), class = "tag")
 
   # Read Pressure
   tag$pressure <- switch(tools::file_ext(sensor_paths[1]),
     "pressure" = {
-      subset(tag_create_dto(sensor_paths[1]), date >= crop_start & date < crop_end)
+      subset(tag_create_dto(sensor_paths[1], .quiet = .quiet), date >= crop_start & date < crop_end)
     },
     "deg" = {
       # Check that it is a valid Migrate Technology file
@@ -132,7 +137,8 @@ tag_create <- function(id,
       # Read file
       pres <- tag_create_dto(sensor_paths[1],
         skip = 20, col = col,
-        date_format = "%d/%m/%Y %H:%M:%S"
+        date_format = "%d/%m/%Y %H:%M:%S",
+        .quiet = .quiet
       )
 
       # convert Pa in hPa
@@ -150,10 +156,10 @@ tag_create <- function(id,
   )
 
   # Read light
-  if (!is.na(sensor_paths[2])) {
+  if (!is.null(sensor_paths[2])) {
     tag$light <- switch(tools::file_ext(sensor_paths[2]),
       "glf" = {
-        subset(tag_create_dto(sensor_paths[2]), date >= crop_start & date < crop_end)
+        subset(tag_create_dto(sensor_paths[2], .quiet = .quiet), date >= crop_start & date < crop_end)
       },
       "lux" = {
         # find column index with light
@@ -171,7 +177,8 @@ tag_create <- function(id,
         # Read file
         light <- tag_create_dto(sensor_paths[2],
           skip = 20, col = col,
-          date_format = "%d/%m/%Y %H:%M:%S"
+          date_format = "%d/%m/%Y %H:%M:%S",
+          .quiet = .quiet
         )
 
         subset(light, date >= crop_start & date < crop_end)
@@ -180,10 +187,10 @@ tag_create <- function(id,
   }
 
   # Read acceleration
-  if (!is.na(sensor_paths[3])) {
+  if (!is.null(sensor_paths[3])) {
     tag$acceleration <- switch(tools::file_ext(sensor_paths[3]),
       "acceleration" = {
-        subset(tag_create_dto(sensor_paths[3], col = 4), date >= crop_start & date < crop_end)
+        subset(tag_create_dto(sensor_paths[3], col = 4, .quiet = .quiet), date >= crop_start & date < crop_end)
       },
       "deg" = {
         # Check that it is a valid Migrate Technology file
@@ -211,7 +218,8 @@ tag_create <- function(id,
         # Read file
         acc <- tag_create_dto(sensor_paths[3],
           skip = 20, col = col,
-          date_format = "%d/%m/%Y %H:%M:%S"
+          date_format = "%d/%m/%Y %H:%M:%S",
+          .quiet = .quiet
         )
         # Crop time
         subset(acc, date >= crop_start & date < crop_end)
@@ -219,8 +227,12 @@ tag_create <- function(id,
     )
   }
 
-  # Add package version
-  attr(tag, "GeoPressureR_version") <- utils::packageVersion("GeoPressureR")
+  # Add parameter information
+  tag$param$GeoPressureR_version <- utils::packageVersion("GeoPressureR")
+  tag$param$id <- id
+  tag$param$sensor_paths <- sensor_paths
+  tag$param$create_crop_start <- crop_start
+  tag$param$create_crop_end <- crop_end
 
   return(tag)
 }
@@ -233,7 +245,7 @@ tag_create <- function(id,
 #' @param date_format Format of the date (see [`strptime()`]).
 #' @family tag
 #' @noRd
-tag_create_dto <- function(sensor_path, skip = 6, col = 3, date_format = "%d.%m.%Y %H:%M") {
+tag_create_dto <- function(sensor_path, skip = 6, col = 3, date_format = "%d.%m.%Y %H:%M", .quiet = FALSE) {
   data_raw <- utils::read.delim(sensor_path, skip = skip, sep = "", header = FALSE)
   df <- data.frame(
     date = as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),
@@ -255,6 +267,8 @@ tag_create_dto <- function(sensor_path, skip = 6, col = 3, date_format = "%d.%m.
     cli::cli_warn("Irregular time spacing in {.file {sensor_path}} at line(s): \\
                   {20 + which(dtime != dtime[1])}.")
   }
-  cli::cli_alert_success("Read {sensor_path}")
+  if(!.quiet){
+    cli::cli_alert_success("Read {sensor_path}")
+  }
   return(df)
 }
