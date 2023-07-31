@@ -84,7 +84,7 @@ plot.tag <- function(x, type = NULL, palette = NULL, ...) {
 #' @export
 plot_tag_pressure <- function(tag,
                               plot_plotly = TRUE,
-                              display_check = TRUE,
+                              .quiet = FALSE,
                               pressure_diff_warning = 3,
                               stap_length_warning = 12,
                               ...) {
@@ -112,14 +112,14 @@ plot_tag_pressure <- function(tag,
 
     # Compute number of datapoint per stationary period
     pressure_length <- merge(stap[stap$include & is.na(stap$known_lat), ],
-      data.frame(table(pres$stap_id)),
-      by.x = "stap_id", by.y = "Var1", all.x = TRUE
+                             data.frame(table(pres$stap_id)),
+                             by.x = "stap_id", by.y = "Var1", all.x = TRUE
     )
     pressure_length$Freq[is.na(pressure_length$Freq)] <- 0
 
-    id_length <- pressure_length$stap_id[pressure_length$Freq <= stap_length_warning]
-    if (display_check) {
-      cli::cli_h3("Stationary periods")
+    id_length <- which(pressure_length$Freq <= stap_length_warning)
+    if (!.quiet) {
+      cli::cli_h3("Pre-processed pressure data length")
       if (length(id_length) > 0) {
         for (i in seq_len(length(id_length))) {
           cli::cli_alert_warning("There are only {.val {pressure_length$Freq[id_length[i]]}} \\
@@ -150,21 +150,21 @@ plot_tag_pressure <- function(tag,
 
     pressure_diff_max_display <- 10
 
-    if (display_check) {
+    if (!.quiet) {
       cli::cli_h3("Pressure difference")
       if (nrow(pres_diff) > 0) {
-        cli::cli_alert("{.val {nrow(pres_diff)}} timestamps show excessive hourly change in \\
-                            pressure (i.e., {.val >{pressure_diff_warning}}hPa): ")
+        cli::cli_alert("{.val {nrow(pres_diff)}} timestamp{?s} show{?s/} abnormal hourly change \\
+                            in pressure (i.e., >{.val {pressure_diff_warning}}hPa): ")
         for (i in seq_len(min(nrow(pres_diff), pressure_diff_max_display))) {
           cli::cli_alert_warning("{pres_diff$date[i]} | stap: {pres_diff$stap_id[i]} | \\
                                   {.val {round(pres_diff$value[i],1)}} hPa ")
         }
         if (nrow(pres_diff) > pressure_diff_max_display) {
           cli::cli_alert("{.val {nrow(pres_diff)-pressure_diff_max_display}} more \\
-                             timestamps are exceeding the threshold.")
+                             timestamp{?s} {?is/are} exceeding the threshold.")
         }
       } else {
-        cli::cli_alert_success("All hourly change in pressure are below \\
+        cli::cli_alert_success("All hourly changes in pressure are below \\
                                {.val {pressure_diff_warning}} hPa.")
       }
     }
@@ -219,20 +219,19 @@ plot_tag_acceleration <- function(tag,
     ggplot2::geom_line(
       data = tag$acceleration,
       ggplot2::aes(x = date, y = value),
-      color = "grey"
+      color = "black"
     ) +
     ggplot2::theme_bw() +
     ggplot2::scale_y_continuous(name = "Acceleration") +
     ggplot2::theme(legend.position = "none")
 
   if ("label" %in% names(tag$acceleration)) {
-    p2 <- p +
+    p <- p +
       ggplot2::geom_point(
         data = tag$acceleration[tag$acceleration$label == "flight", ],
         ggplot2::aes(x = date, y = value),
         fill = "red", shape = 23, size = 2,
       )
-    plotly::ggplotly(p2, dynamicTicks = TRUE)
   }
 
   if (plot_plotly) {
@@ -315,12 +314,12 @@ plot_tag_twilight <- function(tag, transform_light = TRUE, plot_plotly = FALSE) 
   names(df) <- mat$day
   df$time <- factor(mat$time, levels = mat$time)
   df_long <- reshape(df,
-    direction = "long",
-    varying = list(head(names(df), -1)),
-    v.names = "light",
-    idvar = "time",
-    timevar = "date",
-    times = head(names(df), -1)
+                     direction = "long",
+                     varying = list(head(names(df), -1)),
+                     v.names = "light",
+                     idvar = "time",
+                     timevar = "date",
+                     times = head(names(df), -1)
   )
   df_long$date <- as.Date(df_long$date)
 

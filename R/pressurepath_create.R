@@ -93,10 +93,10 @@ pressurepath_create <- function(tag,
   assertthat::assert_that(is.data.frame(path))
   assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "stap_id")))
   if (nrow(path) == 0) {
-    cli::cli_abort("Path is empty")
+    cli::cli_abort("{.var path} is empty.")
   }
   if (!all(path$stap_id %in% pressure$stap_id)) {
-    cli::cli_warn("Some path stap_id are not present in pressure")
+    cli::cli_warn("Some {.field stap_id} of {.var path} are not present in {.var tag$pressure}.")
   }
 
   # Assert include_flight
@@ -181,5 +181,7 @@ pressurepath_create <- function(tag,
 
   pressurepath <- do.call("rbind", pressure_timeseries)
 
+  attr(pressurepath, ".preprocess") <- .preprocess
+  attr(pressurepath, "include_flight") <- include_flight
   return(pressurepath)
 }

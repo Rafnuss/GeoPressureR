@@ -67,7 +67,10 @@ graph_add_wind <- function(graph,
       t_s <- as.POSIXct(format(fl_s$start[i2], "%Y-%m-%d %H:00:00"), tz = "UTC")
       t_e <- as.POSIXct(format(fl_s$end[i2] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
       if (!(min(time) <= t_e && max(time) >= t_s)) {
-        cli::cli_abort(c(x = "Time not matching for {.file {file(i_s)}}"))
+        cli::cli_abort(c(
+          x = "Time between graph data and the wind file ({.file {file(i_s)}}) are not matching.",
+          "!" = "You might have modified your stationary periods without updating your wind file? ",
+          ">" = "If so, run {.run tag_download_wind(tag)}"))
       }
 
       pres <- ncdf4::ncvar_get(nc, "level")
@@ -76,7 +79,10 @@ graph_add_wind <- function(graph,
       if (length(pres_value) == 0 ||
         !(min(pres) <= min(pres_value) &&
           max(pres) >= min(1000, max(pres_value)))) {
-        cli::cli_abort(c(x = "Pressure not matching for {.file {file(i_s)}}"))
+        cli::cli_abort(c(
+          x = "Time between graph data and the wind file ({.file {file(i_s)}}) are not matching.",
+          "!" = "You might have modified your stationary periods without updating your wind file? ",
+          ">" = "If so, run {.run tag_download_wind(tag)}"))
       }
 
       # Check if spatial extend match

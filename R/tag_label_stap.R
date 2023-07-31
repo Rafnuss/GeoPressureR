@@ -27,9 +27,9 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods)
 #' @export
 tag_label_stap <- function(tag,
-                           display_check = TRUE,
                            flight_duration_warning = 2,
-                           stap_duration_warning = 6) {
+                           stap_duration_warning = 6,
+                           .quiet = FALSE) {
 
   if ("geostap" %in% tag_status(tag)) {
     cli::cli_abort(c(
