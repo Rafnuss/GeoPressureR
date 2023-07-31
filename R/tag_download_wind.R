@@ -42,6 +42,7 @@ tag_download_wind <- function(tag,
                               cds_key = Sys.getenv("cds_key"),
                               cds_user = Sys.getenv("cds_user"),
                               file = \(stap_id) glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
+                              .overwrite = FALSE) {
   tag_assert(tag, "geostap")
 
   stap <- tag$stap
@@ -62,11 +63,19 @@ tag_download_wind <- function(tag,
 
   ecmwfr::wf_set_key(user = cds_user, key = cds_key, service = "cds")
 
+  directory <- dirname(file(1))
   if (!file.exists(directory)) {
     dir.create(directory, showWarnings = FALSE)
     cli::cli_warn(c(
       "!" = "The directory {.file {directory}} did not exist.",
-      ">" = "We created the directory"
+      ">" = "We created the directory."
+    ))
+  }
+  if (any(file.exists(file(stap_id))) & !.overwrite){
+    tmp <- file.exists(file(stap_id))
+    cli::cli_abort(c(
+      "x" = "There are already wind data file for stationary periods {.var {stap_id[tmp]}}",
+      ">" = "Delete the corresponding file or use the arguement {.code .overwrite = TRUE}."
     ))
   }
 
@@ -114,7 +123,7 @@ tag_download_wind <- function(tag,
       day = sort(unique(format(flight_time, "%d"))),
       time = sort(unique(format(flight_time, "%H:%M"))),
       area = c(extent[4], extent[1], extent[3], extent[2]), # N, W, S, E
-      target = file(i_s)
+      target = basename(file(i_s))
     )
   }
 
