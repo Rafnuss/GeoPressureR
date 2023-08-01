@@ -108,7 +108,10 @@ plot_pressurepath <- function(pressurepath,
 
 
   } else if (type == "altitude") {
-    p <- ggplot2::ggplot(pp, ggplot2::aes_string(x = "date")) +
+
+    pp_alt <- pressurepath2altitude(pp)
+
+    p <- ggplot2::ggplot(pp_alt, ggplot2::aes_string(x = "date")) +
       ggplot2::geom_line(
         ggplot2::aes_string(y = "altitude"),
         color = "grey"
