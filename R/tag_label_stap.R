@@ -29,7 +29,7 @@
 tag_label_stap <- function(tag,
                            flight_duration_warning = 2,
                            stap_duration_warning = 6,
-                           .quiet = FALSE) {
+                           quiet = FALSE) {
 
   if ("geostap" %in% tag_status(tag)) {
     cli::cli_abort(c(
@@ -81,7 +81,7 @@ tag_label_stap <- function(tag,
     }
   }
 
-  if (!.quiet) {
+  if (!quiet) {
     # Display warning based on stap duration
     stap <- tag$stap
     if (nrow(stap) == 1) {

@@ -90,14 +90,14 @@ geopressure_map <- function(tag,
                             thr_mask = 0.9,
                             log_linear_pooling_weight = \(n) log(n) / n,
                             keep_mse_mask = FALSE,
-                            .compute_known = FALSE) {
+                            compute_known = FALSE) {
   # Compute mean square error maps
   tag <- geopressure_map_mismatch(tag,
     max_sample = max_sample,
     margin = margin,
     timeout = timeout,
     workers = workers,
-    .compute_known = .compute_known
+    compute_known = compute_known
   )
 
   # Compute likelihood maps from the MSE maps

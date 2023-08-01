@@ -9,13 +9,17 @@
 #' @export
 plot_pressurepath <- function(pressurepath,
                               type = "ts",
-                              error_warning = \(err, error_sd, stap_id) (abs(err) / tag$param$sd[stap_id]) >= 3,
+                              sd = attr(pressurepath, "sd"),
+                              error_warning_thr = 3,
                               plot_plotly = TRUE) {
 
   assertthat::assert_that(is.data.frame(pressurepath))
   assertthat::assert_that(assertthat::has_name(
     pressurepath, c("date", "pressure_tag", "label", "stap_id", "pressure_era5", "altitude", "lat",
                     "lon", "pressure_era5_norm", "stap_ref")))
+
+  if (is.null(sd))
+    sd <- rep(1, times = length(unique(pressurepath$stap_id)))
 
   pp <- pressurepath
 
@@ -44,28 +48,28 @@ plot_pressurepath <- function(pressurepath,
 
   if ("ts" == type) {
 
-    pp$warning <- error_warning(pp$error, pp$error_sd, pp$stap_id)
+    pp$warning <- (abs(pp$error) / pp$error_sd[pp$stap_id]) >= error_warning_thr
 
     # convert stapelev to factor for color
     pp$stap_id <- factor(pp$stap_id)
 
-    p <- ggplot2::ggplot(pp, ggplot2::aes(x = date)) +
+    p <- ggplot2::ggplot(pp, ggplot2::aes_string(x = "date")) +
       ggplot2::geom_line(
-        ggplot2::aes(y = pressure_tag),
+        ggplot2::aes_string(y = "pressure_tag"),
         color = "grey"
       ) +
       ggplot2::geom_point(
         data = pp[pp$label == "discard", ],
-        ggplot2::aes(y = pressure_tag),
+        ggplot2::aes_string(y = "pressure_tag"),
         colour = "black"
       ) +
       ggplot2::geom_line(
         data = pp[pp$stap_id != 0, ],
-        ggplot2::aes(y = pressure_era5_norm, color = stap_id)
+        ggplot2::aes_string(y = "pressure_era5_norm", color = "stap_id")
       ) +
       ggplot2::geom_point(
         data = pp[pp$warning & pp$label != "discard", ],
-        ggplot2::aes(y = pressure_tag),
+        ggplot2::aes_string(y = "pressure_tag"),
         fill = "orange", shape = 24, size = 3
       ) +
       ggplot2::theme_bw() +
@@ -74,38 +78,39 @@ plot_pressurepath <- function(pressurepath,
   } else if ("hist" == type) {
     # Check if the empirical sd is greater than the sd used in the computation of the map
 
-    pp$sd_param <- tag$param$sd[pp$stap_id]
-    pp$sd_ok <- pp$error_sd > tag$param$sd[pp$stap_id]
-
+    pp$sd_param <- sd[pp$stap_id]
+    pp$sd_ok <- pp$error_sd > pp$sd_param
     pp$stapelev <- factor(pp$stapelev, levels = tag_era5$stapelev)
+    pp$warning_p <- sd_param * error_warning_thr
+    pp$warning_m <- - sd_param * error_warning_thr
 
     lab <- ggplot2::as_labeller(stats::setNames(
       glue::glue("{tag_era5$stapelev} - SD: {tag_era5$error_sd}"),
       tag_era5$stapelev
     ))
 
-    p <- ggplot2::ggplot(pp[pp$label == "", ], ggplot2::aes(x = error)) +
+    p <- ggplot2::ggplot(pp[pp$label == "", ], ggplot2::aes_string(x = "error")) +
       ggplot2::geom_histogram(
-        ggplot2::aes(
-          y = (ggplot2::after_stat(count)) / tapply(ggplot2::after_stat(count), ggplot2::after_stat(PANEL), sum)[ggplot2::after_stat(PANEL)],
-          fill = !sd_ok
+        ggplot2::aes_string(
+          y = (ggplot2::after_stat("count")) / tapply(ggplot2::after_stat("count"), ggplot2::after_stat("PANEL"), sum)[ggplot2::after_stat("PANEL")],
+          fill = "sd_ok"
         ),
         binwidth = .4
       ) +
-      ggplot2::geom_vline(ggplot2::aes(xintercept = sd_param * 3), linetype = "dashed", colour = "red") +
-      ggplot2::geom_vline(ggplot2::aes(xintercept = -sd_param * 3), linetype = "dashed", colour = "red") +
-      ggplot2::facet_wrap(ggplot2::vars(stapelev), scale = "free", labeller = lab) +
+      ggplot2::geom_vline(ggplot2::aes_string(xintercept = "warning_m"), linetype = "dashed", colour = "red") +
+      ggplot2::geom_vline(ggplot2::aes_string(xintercept = "warning_p"), linetype = "dashed", colour = "red") +
+      ggplot2::facet_wrap(ggplot2::vars("stapelev"), scale = "free", labeller = lab) +
       ggplot2::scale_x_continuous(name = "Difference of pressure tag - ERA5 (hPa)") +
       ggplot2::scale_y_continuous(name = "Normalized histogram") +
-      scale_fill_manual(values = c("TRUE" = 'black', "FALSE" = 'red')) +
+      ggplot2::scale_fill_manual(values = c("TRUE" = 'red', "FALSE" = 'black')) +
       ggplot2::theme_bw() +
-      ggplot2::theme(legend.position = "none", axis.text.y = element_blank())
+      ggplot2::theme(legend.position = "none", axis.text.y = ggplot2::element_blank())
 
 
   } else if (type == "altitude") {
-    p <- ggplot2::ggplot(pp, ggplot2::aes(x = date)) +
+    p <- ggplot2::ggplot(pp, ggplot2::aes_string(x = "date")) +
       ggplot2::geom_line(
-        ggplot2::aes(y = altitude),
+        ggplot2::aes_string(y = "altitude"),
         color = "grey"
       ) +
       ggplot2::theme_bw() +

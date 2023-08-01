@@ -15,10 +15,10 @@ print.graph <- function(x, ...) {
 
 
   cli::cli_h3("Stationary periods {.field stap}")
-  cli::cli_text("{.val {nrow(tag$stap)}} stationary period{?s}")
-  print(head(graph$stap))
-  if (nrow(tag$stap) > 6) {
-    cli::cli_text("Run {.code tag$stap} to display full table")
+  cli::cli_text("{.val {nrow(graph$stap)}} stationary period{?s}")
+  print(utils::head(graph$stap))
+  if (nrow(graph$stap) > 6) {
+    cli::cli_text("Run {.code graph$stap} to display full table")
   }
 
   cli::cli_h3("Geographical parameters ({.field scale} and {.field extent})")

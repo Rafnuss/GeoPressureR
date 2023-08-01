@@ -84,7 +84,7 @@ plot.tag <- function(x, type = NULL, palette = NULL, ...) {
 #' @export
 plot_tag_pressure <- function(tag,
                               plot_plotly = TRUE,
-                              .quiet = FALSE,
+                              quiet = FALSE,
                               pressure_diff_warning = 3,
                               stap_length_warning = 12,
                               ...) {
@@ -92,7 +92,7 @@ plot_tag_pressure <- function(tag,
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
       data = tag$pressure,
-      ggplot2::aes(x = date, y = value),
+      ggplot2::aes_string(x = "date", y = "value"),
       color = "grey"
     ) +
     ggplot2::theme_bw() +
@@ -118,7 +118,7 @@ plot_tag_pressure <- function(tag,
     pressure_length$Freq[is.na(pressure_length$Freq)] <- 0
 
     id_length <- which(pressure_length$Freq <= stap_length_warning)
-    if (!.quiet) {
+    if (!quiet) {
       cli::cli_h3("Pre-processed pressure data length")
       if (length(id_length) > 0) {
         for (i in seq_len(length(id_length))) {
@@ -150,7 +150,7 @@ plot_tag_pressure <- function(tag,
 
     pressure_diff_max_display <- 10
 
-    if (!.quiet) {
+    if (!quiet) {
       cli::cli_h3("Pressure difference")
       if (nrow(pres_diff) > 0) {
         cli::cli_alert("{.val {nrow(pres_diff)}} timestamp{?s} show{?s/} abnormal hourly change \\
@@ -172,16 +172,16 @@ plot_tag_pressure <- function(tag,
     p <- p +
       ggplot2::geom_point(
         data = tag$pressure[tag$pressure$label == "discard", ],
-        ggplot2::aes(x = date, y = value),
+        ggplot2::aes_string(x = "date", y = "value"),
         colour = "black"
       ) +
       ggplot2::geom_line(
         data = pres,
-        ggplot2::aes(x = date, y = value, color = stapelev)
+        ggplot2::aes_string(x = "date", y = "value", color = "stapelev")
       ) +
       ggplot2::geom_point(
         data = pres_diff,
-        ggplot2::aes(x = date, y = value_avg),
+        ggplot2::aes_string(x = "date", y = "value_avg"),
         fill = "orange", shape = 24, size = 2
       )
   }
@@ -218,7 +218,7 @@ plot_tag_acceleration <- function(tag,
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
       data = tag$acceleration,
-      ggplot2::aes(x = date, y = value),
+      ggplot2::aes_string(x = "date", y = "value"),
       color = "black"
     ) +
     ggplot2::theme_bw() +
@@ -229,7 +229,7 @@ plot_tag_acceleration <- function(tag,
     p <- p +
       ggplot2::geom_point(
         data = tag$acceleration[tag$acceleration$label == "flight", ],
-        ggplot2::aes(x = date, y = value),
+        ggplot2::aes_string(x = "date", y = "value"),
         fill = "red", shape = 23, size = 2,
       )
   }
@@ -263,7 +263,7 @@ plot_tag_light <- function(tag,
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
       data = l,
-      ggplot2::aes(x = date, y = value),
+      ggplot2::aes_string(x = "date", y = "value"),
       color = "grey"
     ) +
     ggplot2::theme_bw() +
@@ -279,7 +279,7 @@ plot_tag_light <- function(tag,
     p <- p +
       ggplot2::geom_vline(
         data = twl,
-        ggplot2::aes(xintercept = datetime, color = twilight)
+        ggplot2::aes_string(xintercept = "datetime", color = "twilight")
       ) +
       ggplot2::scale_color_manual(values = c("sunrise" = "#FFD700", "sunset" = "#FF4500"))
   }
@@ -313,20 +313,20 @@ plot_tag_twilight <- function(tag, transform_light = TRUE, plot_plotly = FALSE) 
   df <- as.data.frame(mat$value)
   names(df) <- mat$day
   df$time <- factor(mat$time, levels = mat$time)
-  df_long <- reshape(df,
+  df_long <- stats::reshape(df,
                      direction = "long",
-                     varying = list(head(names(df), -1)),
+                     varying = list(utils::head(names(df), -1)),
                      v.names = "light",
                      idvar = "time",
                      timevar = "date",
-                     times = head(names(df), -1)
+                     times = utils::head(names(df), -1)
   )
   df_long$date <- as.Date(df_long$date)
 
   p <- ggplot2::ggplot() +
     ggplot2::geom_raster(
       data = df_long,
-      ggplot2::aes(x = date, y = time, fill = light)
+      ggplot2::aes_string(x = "date", y = "time", fill = "light")
     ) +
     ggplot2::theme_bw() +
     ggplot2::scale_fill_gradient(low = "black", high = "white") +
@@ -348,7 +348,7 @@ plot_tag_twilight <- function(tag, transform_light = TRUE, plot_plotly = FALSE) 
       p <- p +
         ggplot2::geom_point(
           data = twl,
-          ggplot2::aes(x = date, y = time),
+          ggplot2::aes_string(x = "date", y = "time"),
           colour = "red",
           size = 2,
           shape = 16
@@ -357,7 +357,7 @@ plot_tag_twilight <- function(tag, transform_light = TRUE, plot_plotly = FALSE) 
       p <- p +
         ggplot2::geom_point(
           data = twl,
-          ggplot2::aes(x = date, y = time, colour = stap_id),
+          ggplot2::aes_string(x = "date", y = "time", colour = "stap_id"),
           size = 2,
           shape = 16
         )
@@ -365,7 +365,7 @@ plot_tag_twilight <- function(tag, transform_light = TRUE, plot_plotly = FALSE) 
     p <- p +
       ggplot2::geom_point(
         data = twl[twl$discard, ],
-        ggplot2::aes(x = date, y = time),
+        ggplot2::aes_string(x = "date", y = "time"),
         size = 3,
         shape = 4,
         stroke = 2,

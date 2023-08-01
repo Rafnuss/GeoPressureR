@@ -63,7 +63,7 @@ tag_label <- function(tag,
     choices <- list(
       "1" = "No",
       "2" = glue::glue("Yes, in `{file_default}` (default)"),
-      "3" = glue::glue("Yes, in `{file_input}` (in input file directory)"),
+      "3" = glue::glue("Yes, in `{file_input}` (in input file directory)")
     )
     res <- as.numeric(names(utils::select.list(choices, title = "Do you want to create it?")))
 
@@ -105,7 +105,7 @@ tag_label <- function(tag,
                           acceleration_file = tag$param$sensor_paths[3],
                           crop_start = tag$param$create_crop_start,
                           crop_end = tag$param$create_crop_end,
-                          .quiet = TRUE)
+                          quiet = TRUE)
       }
     }
 

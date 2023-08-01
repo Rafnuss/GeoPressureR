@@ -324,6 +324,7 @@ graph_add_wind <- function(graph,
   graph$gs <- graph$gs[id]
   graph$ws <- graph$ws[id]
   graph$param$thr_as <- thr_as
+  graph$param$wind_file <- file
 
   return(graph)
 }

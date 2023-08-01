@@ -42,7 +42,7 @@ tag_download_wind <- function(tag,
                               cds_key = Sys.getenv("cds_key"),
                               cds_user = Sys.getenv("cds_user"),
                               file = \(stap_id) glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
-                              .overwrite = FALSE) {
+                              overwrite = FALSE) {
   tag_assert(tag, "geostap")
 
   stap <- tag$stap
@@ -71,11 +71,11 @@ tag_download_wind <- function(tag,
       ">" = "We created the directory."
     ))
   }
-  if (any(file.exists(file(stap_id))) & !.overwrite){
+  if (any(file.exists(file(stap_id))) & !overwrite){
     tmp <- file.exists(file(stap_id))
     cli::cli_abort(c(
       "x" = "There are already wind data file for stationary periods {.var {stap_id[tmp]}}",
-      ">" = "Delete the corresponding file or use the arguement {.code .overwrite = TRUE}."
+      ">" = "Delete the corresponding file or use the arguement {.code overwrite = TRUE}."
     ))
   }
 

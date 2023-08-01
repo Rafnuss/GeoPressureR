@@ -181,7 +181,9 @@ pressurepath_create <- function(tag,
 
   pressurepath <- do.call("rbind", pressure_timeseries)
 
+  attr(pressurepath, "id") <- tag$param$id
   attr(pressurepath, ".preprocess") <- .preprocess
   attr(pressurepath, "include_flight") <- include_flight
+  attr(pressurepath, "sd") <- tag$param$sd
   return(pressurepath)
 }

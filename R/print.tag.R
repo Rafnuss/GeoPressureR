@@ -31,7 +31,7 @@ print.tag <- function(x, ...) {
     return(invisible(tag))
   } else {
     cli::cli_text("{.val {nrow(tag$stap)}} stationary periods")
-    print(head(tag$stap))
+    print(utils::head(tag$stap))
     if (nrow(tag$stap) > 6) {
       cli::cli_text("Run {.code tag$stap} to display full table")
     }
@@ -54,9 +54,12 @@ print.tag <- function(x, ...) {
   cli::cli_h3("Map")
   if ("map_pressure" %in% names(tag)) {
     cli::cli_alert_success("Pressure likelihood map {.field map_pressure} computed!")
+    if ("map_pressure_mse" %in% names(tag)) {
+      cli::cli_alert_info("Pressure mismatched maps {.field map_pressure_mse} and {.field map_pressure_mask} are also available.")
+    }
   } else {
     if ("map_pressure_mse" %in% names(tag)) {
-      cli::cli_alert_warning("Pressure mismatched map {.field map_pressure_mse} computed, but not the likelihood map. Use {.fun geopressure_map_likelihood}.")
+      cli::cli_alert_warning("Pressure mismatched maps {.field map_pressure_mse} computed and {.field map_pressure_mask}, but not the likelihood map. Use {.fun geopressure_map_likelihood}.")
     } else {
       cli::cli_alert_danger("No pressure likelihood computed. Use {.fun geopressure_map}.")
     }

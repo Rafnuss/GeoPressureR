@@ -142,7 +142,7 @@ geopressure_timeseries <- function(lat,
 
   # Check for change in position
   if (res_data$distInter > 0) {
-    cli::cli_warn(c(
+    cli::cli_alert_warning(c(
       "!" = "Requested position is on water.",
       i = "We will proceeed the request with the closet point to the shore ({.url
       https://www.google.com/maps/dir/{lat},{lon}/{res_data$lat},{res_data$lon}}) located \\

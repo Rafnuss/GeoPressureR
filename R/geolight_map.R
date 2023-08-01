@@ -65,7 +65,7 @@
 geolight_map <- function(tag,
                          twl_calib_adjust = 1.4,
                          twl_llp = \(n) 0.1,
-                         .compute_known = FALSE) {
+                         compute_known = FALSE) {
   # Check tag
   tag_assert(tag, "geostap")
 
@@ -130,7 +130,7 @@ geolight_map <- function(tag,
   # error function for each grid cell.
 
   # Only select twilight that we are interested of: not known and/or not in flight (stap_id == 0)
-  if (.compute_known) {
+  if (compute_known) {
     twl_clean_comp <- twl_clean[twl_clean$stap_id %in% stap$stap_id[is.na(stap$known_lat)], ]
   } else {
     twl_clean_comp <- twl_clean[twl_clean$stap_id %in% stap$stap_id, ]
@@ -181,7 +181,7 @@ geolight_map <- function(tag,
   cli::cli_progress_done()
 
   # Add known location
-  if (!.compute_known) {
+  if (!compute_known) {
     for (stap_id in stap$stap_id[!is.na(stap$known_lat)]) {
       # Initiate an empty map
       lk[[stap_id]] <- matrix(0, nrow = g$dim[1], ncol = g$dim[2])

@@ -40,7 +40,12 @@ pressurepath_update <- function(pressurepath,
 
   # Check tag and pressure
   tag_assert(tag, "geostap")
-  if (attr(pressurepath,".preprocess")){
+  if (assertthat::has_attr(pressurepath, ".preprocess")){
+    .preprocess <- attr(pressurepath, ".preprocess")
+  } else {
+    .preprocess <- FALSE
+  }
+  if (.preprocess){
     pressure <- geopressure_map_preprocess(tag)
   } else {
     pressure <- tag$pressure
@@ -75,10 +80,17 @@ pressurepath_update <- function(pressurepath,
   stap_id_recompute <- intersect(stap_id_recompute_path, stap_id_recompute_pres)
 
   if (length(stap_id_recompute) > 0){
+
+    if (assertthat::has_attr(pressurepath, "include_flight")){
+      include_flight <- attr(pressurepath, "include_flight")
+    } else {
+      include_flight <- any(pressurepath$stap_id == 0)
+    }
+
     pressurepath_diff <- pressurepath_create(tag,
                                              path = path[path$stap_id %in% stap_id_recompute,],
-                                             include_flight = attr(pressurepath, "include_flight"),
-                                             .preprocess = attr(pressurepath,".preprocess"))
+                                             include_flight = include_flight,
+                                             .preprocess = .preprocess)
 
     pressurepath_new <- rbind(
       pressurepath[!(pressurepath$stap_ref %in% stap_id_recompute), ],

@@ -16,7 +16,11 @@ plot_graph_movement <- function(graph,
   # Check that graph is correct
   graph_assert(graph, "movement")
 
-  prob <- speed2prob(speed, graph$movement)
+  d <- data.frame(
+    speed = speed,
+    prob = speed2prob(speed, graph$movement)
+    )
+  lsf <- data.frame(low_speed_fix = graph$movement$low_speed_fix)
 
   if (assertthat::has_name(graph, c("ws"))) {
     xlab <- "Airspeed [km/h]"
@@ -26,13 +30,13 @@ plot_graph_movement <- function(graph,
 
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
-      data = data.frame(x = speed, y = prob),
-      ggplot2::aes(x = x, y = y),
+      data = d,
+      ggplot2::aes_string(x = "speed", y = "prob"),
       color = "grey"
     ) +
     ggplot2::geom_vline(
-      data = data.frame(xintercept = graph$movement$low_speed_fix),
-      ggplot2::aes(xintercept = xintercept),
+      data = lsf,
+      ggplot2::aes_string(xintercept = "low_speed_fix"),
       color = "red"
     ) +
     ggplot2::theme_bw() +

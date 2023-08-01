@@ -33,11 +33,11 @@ tag_update <- function(tag,
                         acceleration_file = tag$param$sensor_paths[3],
                         crop_start = tag$param$create_crop_start,
                         crop_end = tag$param$create_crop_end,
-                        .quiet = TRUE)
+                        quiet = TRUE)
 
   # Read the new file and compute the stationary period
   tag_new <- tag_label_read(tag_new, file = file)
-  tag_new <- tag_label_stap(tag_new, .quiet = TRUE)
+  tag_new <- tag_label_stap(tag_new, quiet = TRUE)
 
   # Find stap which have change, and those tha have not
   # 1. find the stationary period match based on start and end date

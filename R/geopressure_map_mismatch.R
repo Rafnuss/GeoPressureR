@@ -45,7 +45,8 @@ geopressure_map_mismatch <- function(tag,
                                      margin = 30,
                                      timeout = 60 * 5,
                                      workers = "auto",
-                                     .compute_known = FALSE) {
+                                     compute_known = FALSE,
+                                     .debug = FALSE) {
   # Check tag
   tag_assert(tag, "geostap")
 
@@ -59,7 +60,7 @@ geopressure_map_mismatch <- function(tag,
 
   cli::cli_progress_step("Prepare pressure data")
   # Prepare data
-  pres <- geopressure_map_preprocess(tag, .compute_known = .compute_known)
+  pres <- geopressure_map_preprocess(tag, compute_known = compute_known)
 
   body_df <- list(
     time = jsonlite::toJSON(as.numeric(as.POSIXct(pres$date))),
@@ -74,13 +75,22 @@ geopressure_map_mismatch <- function(tag,
     margin = margin
   )
 
+  if (.debug){
+    temp_file <- tempfile("log_geopressure_map_mismatch_", fileext = ".json")
+    write(jsonlite::toJSON(body_df), temp_file)
+    cli::cli_text("Body request file: {.file {temp_file}}"
+    )
+  }
+
   # Request URLS
-  cli::cli_progress_step("Generate requests (on GeoPressureAPI)", spinner = TRUE)
+  cli::cli_progress_step("Generate requests for {.val {length(unique(pres$stapelev))}} stapelev (on GeoPressureAPI)", spinner = TRUE)
   res <- httr::POST("https://glp.mgravey.com/GeoPressure/v1/map/",
     body = body_df,
     encode = "form",
-    httr::timeout(timeout)
-    # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
+    httr::config(
+      timeout = timeout,
+      verbose = ifelse(.debug, httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE), FALSE)
+    )
   )
 
   if (httr::http_error(res)) {
@@ -100,6 +110,13 @@ geopressure_map_mismatch <- function(tag,
   urls[sapply(urls, is.null)] <- NA
   urls <- unlist(urls)
   labels <- unlist(httr::content(res)$data$labels)
+
+  if (.debug){
+    cli::cli_text("urls: ")
+    print(urls)
+    cli::cli_text("Labels: ")
+    print(labels)
+  }
 
   # Check that the urls exist
   if (all(is.na(urls))) {
