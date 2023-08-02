@@ -2,14 +2,13 @@
 #'
 #' This function return a [`terra::SpatRaster`] with each stationary periods as a different layer.
 #'
-#' @inheritParams tag_label
-#' @inheritParams tag2map
-#' @param time time of the SpatRaster layers. Default is to take the starting date of the stationary
-#' period. See [`terra::time`].
-#' @param names names of the SpatRaster layers. See [`terra::names`].
-#' @inheritDotParams terra::rast
+#' @param map A GeoPressureR `map` object
+#' @param names names of the SpatRaster layers created (see [`terra::names`]).
+#' @param ... Additional parameters for `terra::rast`
 #' @export
-map2rast <- function(map, names = glue::glue("#{seq_len(length(map))}"), ...) {
+map2rast <- function(map,
+                     names = glue::glue("#{seq_len(length(map))}"),
+                     ...) {
   assertthat::assert_that(assertthat::has_attr(map, "extent"))
   assertthat::assert_that(assertthat::has_attr(map, "scale"))
 

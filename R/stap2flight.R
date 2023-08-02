@@ -25,21 +25,23 @@
 #' The value in brackets are only for the data.frame
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX") |>
-#'   tag_label()
+#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
 #'
-#' str(stap2flight(tag$stap))
+#' # By default, return a data.frame of all individual flights
+#' knitr::kable(stap2flight(tag$stap))
 #'
-#' str(stap2flight(tag$stap, stap_include = c(1, 3, 5)))
+#' # Compute the total flight between stap 1,3 and 5. Sum flight duration in between.
+#' knitr::kable(stap2flight(tag$stap, stap_include = c(1, 3, 5)))
 #'
-#' str(stap2flight(tag$stap, stap_include = c(2, 3, 5), format = "list", units = "secs"))
+#' # Can also return as a list of data.frame to access individual flights information.
+#' knitr::kable(stap2flight(tag$stap, stap_include = c(1, 3, 5), format = "list", units = "secs"))
 #'
 #' @export
 stap2flight <- function(stap,
                         stap_include = NULL,
                         format = "df",
                         units = "hours",
-                        numeric = TRUE) {
+                        return_numeric = TRUE) {
   assertthat::assert_that(is.data.frame(stap))
   assertthat::assert_that(assertthat::has_name(stap, "stap_id"))
   assertthat::assert_that(assertthat::has_name(stap, "start"))
@@ -69,7 +71,7 @@ stap2flight <- function(stap,
     stap_s = utils::head(stap$stap_id, -1),
     stap_t = utils::tail(stap$stap_id, -1)
   )
-  flight_all$duration <- stap2duration(flight_all, units = units, numeric = numeric)
+  flight_all$duration <- stap2duration(flight_all, units = units, return_numeric = return_numeric)
 
   # Filter flight_all to remove flight before the first stap_include or after the last stap_include
   flight_all <- flight_all[

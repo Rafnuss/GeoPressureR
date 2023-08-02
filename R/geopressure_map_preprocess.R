@@ -13,8 +13,7 @@
 #' @return Pressure data.frame without flight and discarded values, on a 1hr resolution.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX") |>
-#'   tag_label()
+#' tag <- tag_create("18LX") |> tag_label()
 #'
 #' pressure_processed <- geopressure_map_preprocess(tag)
 #' str(pressure_processed)
@@ -175,7 +174,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   stap$Freq[is.na(stap$Freq)] <- 0
 
   if (any(stap$Freq < 3)) {
-    cli::cli_warn("The stationary period{?s} {.var {stap$stap_id[stap$Freq<3]}} have less \\
+    cli::cli_warn("The stationary period {.var {stap$stap_id[stap$Freq<3]}} have less \\
                   than 3 datapoints to be used.")
   }
 

@@ -26,16 +26,16 @@
 #' \deqn{ P_{ERA5,0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\right) -
 #' \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\boldsymbol{x})[i]-P_{gl}[i] \right).}
 #'
-#' @inheritParams geopressure_map
 #' @param lon Longitude to query (-180° to 180°).
 #' @param lat Latitude to query (0° to 90°).
+#' @param pressure A data.frame of pressure timeseries, containing at least a `"date"` and `"value"`
+#' column.
 #' @param start_time If `pressure` is not provided, `start_time` defines the start time of
 #' the timeseries as POSIXlt.
 #' @param end_time If `pressure` is not provided, `end_time` defines the end time of
 #' the timeseries as POSIXlt.
-#' @param timeout Duration (sec) before the code is interrupted both for the request on
-#' GeoPressureAPI and GEE. See [`httr::timeout()`].
-#' @param quiet Hides the progress of the query (logical).
+#' @inheritParams geopressure_map
+#' @param quiet Logical to hide messages about the progress
 #' @return A data.frame containing
 #' - `date` POSIXct date time
 #' - `pressure_era5` pressure (hPa)
@@ -142,12 +142,9 @@ geopressure_timeseries <- function(lat,
 
   # Check for change in position
   if (res_data$distInter > 0) {
-    cli::cli_alert_warning(c(
-      "!" = "Requested position is on water.",
-      i = "We will proceeed the request with the closet point to the shore ({.url
-      https://www.google.com/maps/dir/{lat},{lon}/{res_data$lat},{res_data$lon}}) located \\
-      {round(res_data$distInter / 1000)} km away."
-    ))
+    cli::cli_alert_warning("Requested position is on water and will be move to the closet point \\
+      on shore ({.url https://www.google.com/maps/dir/{lat},{lon}/{res_data$lat},{res_data$lon}}) \\
+      located {round(res_data$distInter / 1000)} km away.")
   }
 
   # Download the csv file

@@ -3,9 +3,9 @@
 #' Converts a speed (airspeed or ground speed) to a probability using different parametric functions.
 #'
 #' @param speed airspeed or ground speed in km/h
+#' @param movement a list of the movement model parameter defined with `graph_add_movement`
 #'
 #' @return Probability values corresponding to the speed provided.
-#' @seealso [`bird_create()`]
 #' @examples
 #' speed <- seq(1, 120)
 #' low_speed_fix <- 20 # minimum speed allowed
@@ -21,6 +21,7 @@
 #' bird <- bird_create("Acrocephalus arundinaceus")
 #' prob <- speed2prob(speed, method = "power", bird = bird)
 #' plot(speed, prob, type = "l", xlab = "Airspeed [km/h]", ylab = "Probability")
+#' @family movement
 #' @export
 speed2prob <- function(speed, movemement) {
   if (is.complex(speed)) {

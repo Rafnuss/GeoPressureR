@@ -1,17 +1,21 @@
-#' Update tag label and recompute tag
+#' Update a `tag` object
 #'
-#' When updating the labelling file of a tag, often, only a few stationary periods are changing. To
+#' When updating the labeling file of a tag, often, only a few stationary periods are changing. To
 #' avoid recomputing the entire workflow, this function figure out which stationary period have
 #' been changing on only update those in `tag$map_pressure` and `pressurepath`.
 #'
+#' @param tag A GeoPressureR `tag` object
+#' @param file Absolute or relative path of the label file.
+#' @param known Data.frame containing the known positions of the bird (e.g., equipment or retrieval
+#' site). Default is to use `tag$stap`, which assumes that the `stap_id` has not changed for the
+#' known stationary periods.
 #'
-#' @inheritParams tag_label
-#' @return a list containing the new `tag`
+#' @return the updated `tag` object
 #' @examples
-#' tag <- tag_create("18LX") |>
-#'   tag_label() |>
+#' tag <- tag_create("18LX", quiet = T) |>
+#'   tag_label(quiet = T) |>
 #'   tag_geostap(extent = c(-16, 23, 0, 50), scale = 1) |>
-#'   geopressure_map(tag$pressure)
+#'   geopressure_map()
 #'
 #' tag
 #'
@@ -19,6 +23,7 @@
 #'   file = "././data/tag-label/18LX-labeled-modif.csv"
 #' )
 #' tag
+#' @family tag
 #' @export
 tag_update <- function(tag,
                        file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),

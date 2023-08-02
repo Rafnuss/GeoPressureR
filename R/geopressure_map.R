@@ -33,6 +33,8 @@
 #' @param timeout Duration before the code is interrupted both for the request on
 #' GeoPressureAPI and GEE (in seconds, see [`httr::timeout()`]).
 #' @param workers Number of parallel requests on GEE. Integer between 1 and 99.
+#' @param compute_known Logical defining if the map(s) for known stationary period should be
+#' estimated based on twilight or hard defined by the known location `stap$known_l**`
 #' @return Same list as parameter `tag` but with a `likelihood` field containing a list of maps
 #' for each stationary period stored as matrix. Note that stationary periods not marked as model in
 #' `tag$stap$include` will be included with a `NULL`value in `likelihood`.
@@ -48,14 +50,12 @@
 #' temp_dir <- getwd()
 #' print(temp_dir)
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX") |>
-#'   tag_label()
-#' setwd(temp_dir)
-#'
-#' tag <- tag_create(tag,
+#' tag <- tag_create("18LX", quiet = T) |>
+#' tag_label(quiet = T) |>
+#' tag_geostap(
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 4,
-#'   stap_include = 1
+#'   include_stap_id = 1
 #' )
 #'
 #' tag <- geopressure_map(tag,
@@ -64,22 +64,8 @@
 #'   keep_mse_mask = TRUE
 #' )
 #'
-#' str(tag)
-#'
-#' # Plot the matrix as a terra Rast
-#' terra::plot(
-#'   c(
-#'     terra::rast(tag$map_pressure_mse[[1]], extent = tag$extent),
-#'     terra::rast(tag$map_pressure_mask[[1]], extent = tag$extent)
-#'   ),
-#'   main = c("Mean Square Error", "Mask")
-#' )
-#'
-#' terra::plot(
-#'   terra::rast(tag$mask[[1]], extent = tag$extent),
-#'   main = "Pressure likelihood",
-#'   xlim = c(5, 20), ylim = c(42, 50)
-#' )
+#' plot(tag, type = "map_pressure_mse", plot_leaflet = F)
+#' plot(tag, type = "map_pressure_mask", plot_leaflet = F)
 #' @export
 geopressure_map <- function(tag,
                             max_sample = 250,

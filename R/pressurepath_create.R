@@ -14,9 +14,8 @@
 #'
 #' Read more about how this is computed with [`geopressure_timeseries()`]
 #'
-#' @param path A data.frame of the position containing latitude (`lat`), longitude  (`lon`), and the
-#' stationary period id (`stap`) as columns.
-#' @param pressure Pressure data.frame from data logger.
+#' @param tag A GeoPressureR `tag` object
+#' @param path A GeoPressureR `path` data.frame
 #' @param include_flight Extend request to also query the pressure and altitude during the previous
 #' and/or next flight. Flights are defined by a `stap_id = 0`. Accept Logical or vector of -1 (
 #' previous flight), 0 (stationary) and/or 1 (next flight). (e.g. `include_flight = c(-1, 1)` will
@@ -24,8 +23,8 @@
 #' previous flights are defined by the +/1 of the `stap_id` value (and not the previous/next
 #' `stap_id` value).
 #' @param workers Number of parallel requests on GEE. Between 1 and 99.
-#' @return A data.frame containing the row bind of the data.frames of each stationary period
-#' computed with `geopressure_timeseries()`:
+#' @param preprocess Logical to use `geopressure_map_preprocess`
+#' @return A GeoPressureR `pressurepath`, consisting of a data.frame with columns:
 #' - `date` same as `pressure$date`
 #' - `pressure_tag`: same as `pressure$value`
 #' - `label` same as `pressure$label`
@@ -43,8 +42,7 @@
 #' Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX") |>
-#'   tag_label()
+#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
 #'
 #' path <- data.frame(
 #'   stap_id = tag$stap$stap_id,
@@ -52,38 +50,32 @@
 #'   lon = c(17.5, 13.5, 16.5, 21.5, 12.7)
 #' )
 #'
-#' pressurepath <- pressurepath_create(path, tag$pressure)
+#' pressurepath <- pressurepath_create(tag, path = path)
 #'
 #' str(pressurepath)
 #'
-#' plot(pressurepath$date, pressurepath$pressure_tag,
-#'   col = pressurepath$stap_id,
-#'   ylab = "Pressure (hPa)", xlab = "Datetime"
-#' )
-#' lines(pressurepath$date, pressurepath$pressure_era5_norm, col = "red")
-#'
+#' plot_pressurepath(pressurepath)
 #'
 #' pressurepath <- pressurepath_create(
-#'   path[c(2, 3, 4), ], tag$pressure,
+#'   tag,
+#'   path[c(2, 3, 4), ],
 #'   include_flight = TRUE
 #' )
 #'
-#' plot(pressurepath$date, pressurepath$altitude,
-#'   type = "l", ylab = "Pressure (hPa)", xlab = "Datetime"
-#' )
+#' plot_pressurepath(pressurepath)
 #' @family pressurepath
 #' @export
 pressurepath_create <- function(tag,
                                 path = tag2path(tag),
                                 include_flight = FALSE,
                                 workers = "auto",
-                                .preprocess = FALSE) {
+                                preprocess = FALSE) {
   # Assert tag
-  tag_assert(tag, cond = "stap")
+  tag_assert(tag, "stap")
 
   # Assert preprocess
-  assertthat::assert_that(is.logical(.preprocess))
-  if (.preprocess) {
+  assertthat::assert_that(is.logical(preprocess))
+  if (preprocess) {
     pressure <- geopressure_map_preprocess(tag)
   } else {
     pressure <- tag$pressure
@@ -182,7 +174,7 @@ pressurepath_create <- function(tag,
   pressurepath <- do.call("rbind", pressure_timeseries)
 
   attr(pressurepath, "id") <- tag$param$id
-  attr(pressurepath, ".preprocess") <- .preprocess
+  attr(pressurepath, "preprocess") <- preprocess
   attr(pressurepath, "include_flight") <- include_flight
   attr(pressurepath, "sd") <- tag$param$sd
   return(pressurepath)

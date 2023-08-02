@@ -1,20 +1,21 @@
 #' Read label file of light
 #'
-#' This function read an exported csv file from TRAINSET <https://trainset.geocene.com/> and update
-#' the data.frame twilight.
+#' This function read an exported csv file from TRAINSET <https://trainset.raphaelnussbaumer.com/>
+#' and update the twilight data `tag$twilight`.
 #'
-#' @param tag List containing the data logger dataset (see [`tag_create()`]) It needs to contain
-#' a `twilight` data.frame created with [`twilight_create()`].
+#' @param tag A GeoPressureR `tag` object
 #' @param file csv file of the labels to be read.
-#' @return Same twilight data.frame as input, updated with the labels `tag$twilight$label`.
+#' @return Same `tag` object, updated with the labels `tag$twilight$label`.
 #' @family twilight
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX") |> tag_label()
-#' tag <- twilight_create(tag)
 #'
-#' twilight <- twilight_label_read(twilight)
-#' str(twilight)
+#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T) |> twilight_create()
+#' plot(tag, type="twilight", plot_plotly = F) + ggplot2::ggtitle("Before label")
+#'
+#' tag <- twilight_label_read(tag)
+#' str(tag$twilight)
+#' plot(tag, type="twilight", plot_plotly = F) + ggplot2::ggtitle("After label")
 #' @export
 twilight_label_read <- function(tag,
                                 file = glue::glue("./data/twilight-label/{tag$param$id}-labeled.csv")) {

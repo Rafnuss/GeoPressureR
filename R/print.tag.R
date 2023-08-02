@@ -1,11 +1,17 @@
-#' Print `tag`
+#' Plot `tag`
 #'
-#' This function display the basic information on a `tag`
+#' This function plot a `tag`.
 #
 #' @param x A GeoPressureR `tag` object
 #' @param ... arguments passed from other methods
 #'
 #' @return `tag` is returned invisibly and unchanged
+#'
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX")
+#' print(tag)
+#'
 #' @family tag
 #' @method print tag
 #' @export

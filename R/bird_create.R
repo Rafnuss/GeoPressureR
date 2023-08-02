@@ -24,6 +24,7 @@
 #' # wing_aspect or wing_area.
 #' bird_create("custum_bird", mass = 1, wing_span = 1, wing_aspect = 4)
 #' @family bird
+#' @family movement
 #' @export
 bird_create <- function(species_name,
                         mass = NULL,

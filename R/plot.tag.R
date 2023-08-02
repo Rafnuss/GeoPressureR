@@ -1,20 +1,15 @@
 #' Plot `tag`
 #'
 #' This function display the basic information on a tag list
-#
+#'
+#' @param x A GeoPressureR `tag` object.
 #' @param type type of the plot to display. One of "pressure", "acceleration", "light", "twilight"
 #' "map", "map_pressure", "map_light", "map_pressure_mse", "map_pressure_mask", "mask_water"
-#' @param plot_plotly Logical to display interactive plot with `plotly`
-#' @inheritParams tag_create
-#' @inheritDotParams plot_tag_pressure
-#' @inheritDotParams plot_tag_acceleration
-#' @inheritDotParams plot_tag_light
-#' @inheritDotParams plot_tag_twilight
-#' @inheritDotParams plot_map
+#' @inheritParams leaflet::colorNumeric
+#' @param ... Additional parameters
 #'
 #' @return `tag` is returned invisibly and unchanged
 #' @family tag
-#' @rdname plot.tag
 #' @export
 plot.tag <- function(x, type = NULL, palette = NULL, ...) {
   tag <- x
@@ -77,17 +72,17 @@ plot.tag <- function(x, type = NULL, palette = NULL, ...) {
 #'
 #' This function display a plot of pressure timeseries recorded by a tag
 #
-#' @inheritParams tag_create
-#' @inheritParams plot.tag
-#' @param stap_length_warning Threshold number of pressure datapoints flagged as ️warning (hourly).
-#' @param pressure_diff_warning Threshold of pressure hourly difference marking as ️warning (hPa)
+#' @param tag A GeoPressureR `tag` object
+#' @param plot_plotly Logical to use `plotly`
+#' @param quiet Logical to hide warning message about labeling
+#' @param warning_stap_length Threshold number of pressure datapoints flagged as ️warning (hourly.
+#' @param warning_pressure_diff Threshold of pressure hourly difference marking as ️warning (hPa)
 #' @export
 plot_tag_pressure <- function(tag,
                               plot_plotly = TRUE,
                               quiet = FALSE,
-                              pressure_diff_warning = 3,
-                              stap_length_warning = 12,
-                              ...) {
+                              warning_pressure_diff = 3,
+                              warning_stap_length = 12) {
   tag_assert(tag)
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
@@ -117,7 +112,7 @@ plot_tag_pressure <- function(tag,
     )
     pressure_length$Freq[is.na(pressure_length$Freq)] <- 0
 
-    id_length <- which(pressure_length$Freq <= stap_length_warning)
+    id_length <- which(pressure_length$Freq <= warning_stap_length)
     if (!quiet) {
       cli::cli_h3("Pre-processed pressure data length")
       if (length(id_length) > 0) {
@@ -127,7 +122,7 @@ plot_tag_pressure <- function(tag,
         }
       } else {
         cli::cli_alert_success("All stationary periods have more than \\
-                              {.val {stap_length_warning}} datapoints.")
+                              {.val {warning_stap_length}} datapoints.")
       }
     }
 
@@ -144,7 +139,7 @@ plot_tag_pressure <- function(tag,
     # Remove diff overlapping between stationary periods/flight
     pres_diff <- pres_diff[(pres_diff$stap_id %% 1) == 0 & pres_diff$stap_id != 0, ]
     # Only keep difference which are above warning limit
-    pres_diff <- pres_diff[pres_diff$value >= pressure_diff_warning, ]
+    pres_diff <- pres_diff[pres_diff$value >= warning_pressure_diff, ]
     # Sort data.frame for displaying top 10 max
     pres_diff <- pres_diff[order(pres_diff$value, decreasing = TRUE), ]
 
@@ -154,7 +149,7 @@ plot_tag_pressure <- function(tag,
       cli::cli_h3("Pressure difference")
       if (nrow(pres_diff) > 0) {
         cli::cli_alert("{.val {nrow(pres_diff)}} timestamp{?s} show{?s/} abnormal hourly change \\
-                            in pressure (i.e., >{.val {pressure_diff_warning}}hPa): ")
+                            in pressure (i.e., >{.val {warning_pressure_diff}}hPa): ")
         for (i in seq_len(min(nrow(pres_diff), pressure_diff_max_display))) {
           cli::cli_alert_warning("{pres_diff$date[i]} | stap: {pres_diff$stap_id[i]} | \\
                                   {.val {round(pres_diff$value[i],1)}} hPa ")
@@ -165,7 +160,7 @@ plot_tag_pressure <- function(tag,
         }
       } else {
         cli::cli_alert_success("All hourly changes in pressure are below \\
-                               {.val {pressure_diff_warning}} hPa.")
+                               {.val {warning_pressure_diff}} hPa.")
       }
     }
 
@@ -197,8 +192,8 @@ plot_tag_pressure <- function(tag,
 #'
 #' This function display a plot of acceleration timeseries recorded by a tag
 #'
-#' @inheritParams tag_create
-#' @inheritParams plot.tag
+#' @param tag A GeoPressureR `tag` object
+#' @param plot_plotly Logical to use `plotly`
 #' @param label_auto Logical to compute and plot the flight label using `tag_label_auto()`. Only if
 #' labels are not already present on tag$acceleration$label
 #' @inheritParams tag_label_auto
@@ -246,8 +241,9 @@ plot_tag_acceleration <- function(tag,
 #'
 #' This function display a plot of light timeseries recorded by a tag
 #'
-#' @inheritParams tag_create
-#' @inheritParams plot.tag
+#' @param tag A GeoPressureR `tag` object
+#' @param plot_plotly Logical to use `plotly`
+#' @param transform_light Logical to display a log transformation of light
 #' @export
 plot_tag_light <- function(tag,
                            transform_light = TRUE,
@@ -295,10 +291,13 @@ plot_tag_light <- function(tag,
 #'
 #' This function display a plot of twilight timeseries recorded by a tag
 #'
-#' @inheritParams tag_create
-#' @inheritParams plot.tag
+#' @param tag A GeoPressureR `tag` object
+#' @param plot_plotly Logical to use `plotly`
+#' @param transform_light Logical to display a log transformation of light
 #' @export
-plot_tag_twilight <- function(tag, transform_light = TRUE, plot_plotly = FALSE) {
+plot_tag_twilight <- function(tag,
+                              transform_light = TRUE,
+                              plot_plotly = FALSE) {
   tag_assert(tag, "twilight")
 
   l <- tag$light

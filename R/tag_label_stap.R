@@ -12,24 +12,29 @@
 #' The function also adds the corresponding `stap_id` column to each sensor data.
 #'
 #' @inheritParams tag_label
+#' @param warning_flight_duration Threshold of flight duration to display warning for (hours)
+#' @param warning_stap_duration Threshold of stationary period duration to display warning for
+#' (hours)
+#' @param quiet  Logical to display warning
 #' @return Same data logger list as input `tag` but with (1) a new data.frame of stationary periods
 #' `tag$stap` and (2) a new column `stap_id` for each sensor data.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX") |>
+#' tag <- tag_create("18LX", quiet = T) |>
 #'   tag_label_read()
 #'
 #' tag <- tag_label_stap(tag)
-#' str(tag)
+#' tag
 #' str(tag$stap)
 #'
-#' @seealso [`tag_create()`], [`tag_label()`], [`tag_label_read()`], [GeoPressureManual | Pressure Map
+#' @family tag_label
+#' @seealso  [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods)
 #' @export
 tag_label_stap <- function(tag,
-                           flight_duration_warning = 2,
-                           stap_duration_warning = 6,
-                           quiet = FALSE) {
+                           quiet = FALSE,
+                           warning_flight_duration = 2,
+                           warning_stap_duration = 6) {
 
   if ("geostap" %in% tag_status(tag)) {
     cli::cli_abort(c(
@@ -93,9 +98,9 @@ tag_label_stap <- function(tag,
     }
 
     stap$duration_num <- stap2duration(stap, units = "hours")
-    stap$duration_time <- stap2duration(stap, numeric = FALSE)
+    stap$duration_time <- stap2duration(stap, return_numeric = FALSE)
 
-    stap_warning <- stap[stap$duration_num <= stap_duration_warning, ]
+    stap_warning <- stap[stap$duration_num <= warning_stap_duration, ]
     cli::cli_h3("Short stationary periods:")
     if (nrow(stap_warning) > 0) {
       for (i in seq_len(nrow(stap_warning))) {
@@ -106,12 +111,12 @@ tag_label_stap <- function(tag,
       }
     } else {
       cli::cli_alert_success("All {nrow(stap)} stationary period{?s} duration are above \\
-                             {stap_duration_warning} hour{?s}.")
+                             {warning_stap_duration} hour{?s}.")
     }
 
     # Flight
-    flight <- stap2flight(stap, units = "hours", numeric = FALSE)
-    flight_warning <- flight[as.numeric(flight$duration, units = "hours") <= flight_duration_warning, ]
+    flight <- stap2flight(stap, units = "hours", return_numeric = FALSE)
+    flight_warning <- flight[as.numeric(flight$duration, units = "hours") <= warning_flight_duration, ]
     cli::cli_h3("Short flights:")
     if (nrow(flight_warning) > 0) {
       for (i in seq_len(nrow(flight_warning))) {
@@ -123,7 +128,7 @@ tag_label_stap <- function(tag,
       }
     } else {
       cli::cli_alert_success("All {nrow(flight)} flight{?s} duration are above \\
-                              {flight_duration_warning} hour{?s}.")
+                              {warning_flight_duration} hour{?s}.")
     }
   }
   return(tag)

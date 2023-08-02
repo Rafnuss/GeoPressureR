@@ -6,6 +6,11 @@
 #' @param ... arguments passed from other methods
 #'
 #' @return `bird` is returned invisibly and unchanged
+#'
+#' @examples
+#' # Using AVONET dataset
+#' bird_create("Acrocephalus arundinaceus")
+#'
 #' @family bird
 #' @method print bird
 #' @export

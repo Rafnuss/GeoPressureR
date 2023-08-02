@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX")
+#' tag <- tag_create("18LX", quiet = T)
 #'
 #' # Writing unlabeled tag will initialize the labelling for trainset
 #' file <- tag_label_write(tag)
@@ -30,6 +30,7 @@
 #'   file = glue::glue("./data/tag-label/{tag$param$id}-v2.csv")
 #' )
 #' str(read.csv(file))
+#'
 #' @family tag_label
 #' @export
 tag_label_write <- function(tag,

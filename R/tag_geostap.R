@@ -1,4 +1,4 @@
-#' Define grid for the trajectory
+#' Define grid for `tag`
 #'
 #' @description
 #' This function adds the parameters defining the 3D grid of the maps. The spatial parameters
@@ -35,12 +35,11 @@
 #' - `scale` same as input parameter `scale`
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX") |>
-#'   tag_label()
+#' tag <- tag_create("18LX") |> tag_label()
 #'
 #' # Default tag
 #' tag <- tag_geostap(tag, c(-16, 23, 0, 50))
-#' str(tag)
+#' tag
 #'
 #' # Customized tag, with coarse grid scale, known position for the first stationary period and
 #' # considering only the stationary periods lasting more than 20hours.
@@ -54,7 +53,7 @@
 #'     known_lat = 48.9
 #'   )
 #' )
-#' str(tag)
+#' tag
 #' @export
 tag_geostap <- function(tag,
                         extent,

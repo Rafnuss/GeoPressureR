@@ -27,11 +27,12 @@
 #' @param cds_key User (email address) used to sign up for the ECMWF data service. See
 #' [`wf_set_key()`].
 #' @param cds_user Token provided by ECMWF. See [`wf_set_key()`].
-#' @param directory Folder to which the data will be downloaded.
 #' @param file Absolute or relative path of the ERA5 wind data file to be downloaded. Function
 #' taking as single argument the stationary period identifier.
+#' @param overwrite logical. If `TRUE`, file is overwritten.
 #' @return The folder with the downloaded file (same as the directory).
 #'
+#' @family movement
 #' @seealso [`wf_request()`](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),
 #' [GeoPressureManual | Wind graph
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)

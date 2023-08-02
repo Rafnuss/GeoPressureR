@@ -2,23 +2,23 @@
 #'
 #' This function display a plot of twilight timeseries recorded by a tag
 #'
-#' @inheritParams tag_create
-#' @param plot_leaflet Logical defining if the plot is an interactive `leaflet` map or a static
-#' `terra::plot` map.
-#' @inheritParams tag2map
+#' @param map A GeoPressureR `map` matrix
+#' @param stap A stationary period data.frame. By default, use the `stap` attached to `map`, but
+#' can be overwritten
+#' @param plot_leaflet Logical to use an interactive `leaflet` map instead of `terra::plot`
+#' @param path A GeoPressureR `path` data.frame
 #' @inheritParams leaflet::addProviderTiles
 #' @inheritParams leaflet::colorNumeric
 #' @inheritParams leaflet::addRasterImage
 #' @inheritParams terra::plot
-#' @inheritDotParams terra::plot
 #' @export
 plot_map <- function(map,
                      stap = NULL,
+                     path = NULL,
                      plot_leaflet = TRUE,
                      provider = "Stamen.TerrainBackground",
                      palette = "OrRd",
                      opacity = 0.8,
-                     path = NULL,
                      legend = FALSE,
                      ...) {
   if (inherits(map, "SpatRaster")) {

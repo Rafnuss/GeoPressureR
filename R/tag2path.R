@@ -14,7 +14,7 @@
 #' @inheritParams tag2map
 #' @param interp The position of the stationary period shorter than `interp` will be
 #' replace by a linear average from other position accounting for flight duration (in days) .
-#' @param .use_known If true, enforce the known position defined in `tag` in the path created. Known
+#' @param use_known If true, enforce the known position defined in `tag` in the path created. Known
 #' position are not interpolated (even if shorter than `interp`) and used in the interpolation. In
 #' most (all?) case, the likelihood map was computed using known, and therefore will result in the
 #' same position (approx. to the map resolution).
@@ -25,9 +25,8 @@
 #' - `lon` longitude
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX") |>
-#'   tag_label()
-#' tag <- tag_create(tag,
+#' tag <- tag_create("18LX") |> tag_label()
+#' tag <- tag_geostap(tag,
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 2,
 #' ) |>
@@ -42,7 +41,7 @@
 tag2path <- function(tag,
                      likelihood = NULL,
                      interp = FALSE,
-                     .use_known = TRUE) {
+                     use_known = TRUE) {
   # Construct the likelihood map
   map <- tag2map(tag, likelihood = likelihood)
 
@@ -66,7 +65,7 @@ tag2path <- function(tag,
     path_interp <- stap2duration(tag$stap) <= interp
 
     # If known, the stap will not be interpolated
-    path_interp[!is.na(tag$stap$known_lon) & .use_known] <- FALSE
+    path_interp[!is.na(tag$stap$known_lon) & use_known] <- FALSE
 
     # Compute the grid information used for known or interp
     g <- geo_expand(tag$extent, tag$scale)
@@ -132,7 +131,7 @@ tag2path <- function(tag,
   }
 
   # Convert the index of the path in a path data.frame
-  path <- ind2path(ind, tag, .use_known = .use_known)
+  path <- ind2path(ind, tag, use_known = use_known)
 
   path$interp <- path_interp
 

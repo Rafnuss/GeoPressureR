@@ -4,56 +4,56 @@
 #'
 #'
 #' @param tag a `tag` object
-#' @param cond condition to assert `tag` for. One of "tag" (default), "label", "stap", "geostap",
+#' @param condition conditionition to assert `tag` for. One of "tag" (default), "label", "stap", "geostap",
 #' "pressure_map" and "map_pressure_mismatch", "twilight"
 #'
 #' @return logical indicating the `tag` object has the relevant element
 #' @export
-tag_assert <- function(tag, cond = "tag") {
+tag_assert <- function(tag, condition = "tag") {
   status <- tag_status(tag)
 
-  if (cond == "tag") {
+  if (condition == "tag") {
     return(TRUE)
-  } else if (cond == "label") {
+  } else if (condition == "label") {
     msg <- c(
       "x" = "The `tag` object has not yet been labeled.",
       ">" = "Use {.fun tag_label} to define the stationary periods."
     )
-  } else if (cond == "stap") {
+  } else if (condition == "stap") {
     msg <- c(
       "x" = "The stationary period have not yet been computed for `tag`.",
       ">" = "Use {.fun tag_label} to define the stationary periods."
     )
-  } else if (cond == "geostap") {
+  } else if (condition == "geostap") {
     msg <- c(
       "x" = "The parameters for the geographical and stationary period have not been yet been defined in `tag`.",
       ">" = "Use {.fun tag_geostap} to define them."
     )
-  } else if (cond == "map_pressure") {
+  } else if (condition == "map_pressure") {
     msg <- c(
       "x" = "The pressure likelihood map has not yet been computed for `tag`.",
       ">" = "Use {.fun geopressure_map} to compute the maps."
     )
-  } else if (cond == "map_pressure_mismatch") {
+  } else if (condition == "map_pressure_mismatch") {
     msg <- c(
       "x" = "The pressure mean square error map has not yet been computed for `tag`.",
       ">" = "Use {.fun geopressure_map_mismatch} to compute the maps."
     )
-  } else if (cond == "twilight") {
+  } else if (condition == "twilight") {
     msg <- c(
       "x" = "The twilight has not yet been computed for `tag`",
       ">" = "Use {.fun twilight_create} to compute the twilight"
     )
-  } else if (cond == "map_light") {
+  } else if (condition == "map_light") {
     msg <- c(
       "x" = "The light likelihood map has not yet been computed for `tag`.",
       ">" = "Use {.fun geolight_map} to compute the maps."
     )
   } else {
-    stop(glue::glue("Condition {.var {cond}} is unknown"))
+    stop(glue::glue("conditionition {.var {condition}} is unknown"))
   }
 
-  if (cond %in% status) {
+  if (condition %in% status) {
     return(TRUE)
   }
 

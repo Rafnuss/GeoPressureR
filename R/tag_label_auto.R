@@ -15,7 +15,7 @@
 #' @seealso [flapping chapter of the tagLr
 #' manual](https://kiranlda.github.io/tagLrManual/flapping.html), [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#automatic-classification-of-activity)
-#' @family tag_label
+#'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' tag <- tag_create("18LX")
@@ -23,6 +23,7 @@
 #' tag <- tag_label_auto(tag, min_duration = 15)
 #' str(tag$acceleration)
 #'
+#' @family tag_label
 #' @export
 tag_label_auto <- function(tag,
                            min_duration = 30) {

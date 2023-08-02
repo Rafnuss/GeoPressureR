@@ -1,32 +1,39 @@
-#' Read tag data
+#' Create `tag` object
 #'
 #' @description
-#' Imports multi-sensor logger data from a folder (`directory`) and optionally crops at specific
+#' Imports multi-sensor logger data from the folder `directory` and optionally crops at specific
 #' date. The `*_file` arguments are matched using a regex expression (e.g., `"*.pressure"`
 #' matches any file with the extension `pressure`).
 #'
 #' The current implementation can read the files from:
 #' - [Swiss Ornithological Institute (SOI)
 #' ](https://www.vogelwarte.ch/en/projects/bird-migration/tracking-devices-miniaturized-geolocators)
-#'  (default) with `pressure_file = "*.pressure"`, `light_file = "*.glf"` and
-#'  `acceleration_file = "*.acceleration"`
-#' - [Migrate Technology](http://www.migratetech.co.uk/) with `pressure_file = "*.deg"`,
-#' `light_file = "*.lux"` and `acceleration_file = "*.deg"`
+#'  (default)
+#'    - `pressure_file = "*.pressure"`
+#'    - `light_file = "*.glf"`
+#'    - `acceleration_file = "*.acceleration"`
+#' - [Migrate Technology](http://www.migratetech.co.uk/):
+#'    - `pressure_file = "*.deg"`
+#'    - `light_file = "*.lux"`
+#'    - `acceleration_file = "*.deg"`
 #'
-#' Please create [an issue on Github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you have data
-#' in a format not supported yet.
+#'  Use `NULL` to hide the message warning about the absence of a sensor file.
 #'
-#' @param id Unique identifier of the tag (character)
+#' Please create [an issue on Github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you
+#' have data in a format not supported yet.
+#'
+#' @param id Unique identifier of a tag.
 #' @param directory Path of the directory where the tag files can be read
 #' @param pressure_file Name of the file with pressure data. Extension must be `.pressure` or
 #' `.deg` (required).
-#' @param light_file Name of the file with light data. Extension must be `.glf`, `.lux` (or `NA`
+#' @param light_file Name of the file with light data. Extension must be `.glf`, `.lux` (or `NULL`
 #' to ignore).
 #' @param acceleration_file Name of the file with acceleration data. Extension must be
-#' `.acceleration`, `.deg` (or `NA` to ignore).
+#' `.acceleration`, `.deg` (or `NULL` to ignore).
 #' @param crop_start Remove all data before this date (POSIXct or character in UTC).
 #' @param crop_end Remove all data after this date (POSIXct or character in UTC).
-#' @return A list containing
+#' @param quiet Logical to hide the file name read. Default is `FALSE`.
+#' @return A GeoPressureR `tag` object containing
 #' - `id` character of the unique identifier of the tag
 #' - `pressure` data.frame with column `date` and `value`
 #' - `light` (optional) same structure as pressure
@@ -37,28 +44,24 @@
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #'
-#' tag <- tag_create("18LX")
-#' str(tag)
+#' tag_create("18LX")
 #'
-#' tag <- tag_create("18LX", crop_start = "2017-08-01", crop_end = "2017-08-05")
-#' str(tag)
+#' tag_create("18LX", crop_start = "2017-08-01", crop_end = "2017-08-05")
 #'
 #' # For Migrate Technology file, use
-#' tag <- tag_create("CB621",
+#' tag_create("CB621",
 #'   pressure_file = "*.deg",
 #'   light_file = "*.lux",
-#'   acceleration_file = NA
+#'   acceleration_file = NULL
 #' )
-#' str(tag)
 #'
 #' # You can also specify exactly the file in case multiple file with the same
 #' # extension exist in your directory
-#' tag <- tag_create("CB621",
+#' tag_create("CB621",
 #'   pressure_file = "CB621_BAR.deg",
-#'   light_file = NA,
-#'   acceleration_file = NA
+#'   light_file = NULL,
+#'   acceleration_file = NULL
 #' )
-#' str(tag)
 #'
 #' @export
 tag_create <- function(id,

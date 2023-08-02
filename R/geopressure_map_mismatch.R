@@ -35,6 +35,7 @@
 #' the [GeoPressure API documentation](https://raphaelnussbaumer.com/GeoPressureAPI/).
 #'
 #' @inheritParams geopressure_map
+#' @param debug Logical to display additional information to debug a request
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
 #' “Global Positioning with Animal‐borne Pressure Sensors.” *Methods in Ecology and Evolution*.
 #'  <https://doi.org/10.1111/2041-210X.14043>.}
@@ -46,7 +47,7 @@ geopressure_map_mismatch <- function(tag,
                                      timeout = 60 * 5,
                                      workers = "auto",
                                      compute_known = FALSE,
-                                     .debug = FALSE) {
+                                     debug = FALSE) {
   # Check tag
   tag_assert(tag, "geostap")
 
@@ -75,7 +76,7 @@ geopressure_map_mismatch <- function(tag,
     margin = margin
   )
 
-  if (.debug){
+  if (debug){
     temp_file <- tempfile("log_geopressure_map_mismatch_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
     cli::cli_text("Body request file: {.file {temp_file}}"
@@ -89,7 +90,7 @@ geopressure_map_mismatch <- function(tag,
     encode = "form",
     httr::config(
       timeout = timeout,
-      verbose = ifelse(.debug, httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE), FALSE)
+      verbose = ifelse(debug, httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE), FALSE)
     )
   )
 
@@ -111,7 +112,7 @@ geopressure_map_mismatch <- function(tag,
   urls <- unlist(urls)
   labels <- unlist(httr::content(res)$data$labels)
 
-  if (.debug){
+  if (debug){
     cli::cli_text("urls: ")
     print(urls)
     cli::cli_text("Labels: ")
@@ -146,7 +147,7 @@ geopressure_map_mismatch <- function(tag,
 
   f <- c()
   cli::cli_progress_step(
-    "Sending requests for {length(urls)} stationary periods: {labels}",
+    "Sending requests for {.val {length(urls)}} stationary periods: {field {labels}}",
     spinner = TRUE
   )
   cli::cli_progress_bar(total = length(urls), type = "task")
@@ -173,7 +174,7 @@ geopressure_map_mismatch <- function(tag,
   map <- c()
   tryCatch(
     expr = {
-      cli::cli_progress_step("Compute maps (on GEE server) and download geotiff")
+      cli::cli_progress_step("Compute maps (on GEE server) and download .geotiff")
       cli::cli_progress_bar(total = length(urls), type = "tasks")
       for (i_u in seq_len(length(urls))) {
         cli::cli_progress_update(force = TRUE)

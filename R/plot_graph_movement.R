@@ -2,17 +2,13 @@
 #'
 #' This function display a plot of pressure timeseries recorded by a tag
 #
-#' @param graph graph constructed with [`graph_create()`]
-#' @inheritParams plot.tag
-#' @param stap_length_danger Threshold number of pressure datapoints flagged as ️danger (hourly).
-#' @param stap_length_warning Threshold number of pressure datapoints flagged as ️warning (hourly).
-#' @param pressure_diff_danger Threshold of pressure hourly difference marking as ️danger (hPa)
-#' @param pressure_diff_warning Threshold of pressure hourly difference marking as ️warning (hPa)
+#' @param graph A GeoPressureR graph object
+#' @param speed Vector of speed value (km/h) used on the x-axis
+#' @param plot_plotly Logical to use `plotly`
 #' @export
 plot_graph_movement <- function(graph,
                                 speed = seq(1, 120),
-                                plot_plotly = FALSE,
-                                ...) {
+                                plot_plotly = FALSE) {
   # Check that graph is correct
   graph_assert(graph, "movement")
 

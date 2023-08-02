@@ -27,7 +27,7 @@
 #' https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html#probability-aggregation-1)
 #' for more information on probability aggregation using log-linear pooling.
 #'
-#' @inheritParams tag_label
+#' @param tag A GeoPressureR `tag` object with geostap status.
 #' @param twl_calib_adjust Smoothing parameter for the kernel density (see [`stats::kernel()`]).
 #' @param twl_llp Log-linear pooling aggregation weight.
 #' @param compute_known Logical defining if the map(s) for known stationary period should be
@@ -36,10 +36,9 @@
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' # Read geolocator data and build twilight
-#' tag <- tag_create("18LX") |> tag_label()
-#' tag <- twilight_create(tag) |> twilight_label_read()
-#' # Initiate the tag structure
-#' tag <- tag_create(tag,
+#' tag <- tag_create("18LX", quiet = T) |>
+#' tag_label(quiet = T) |>
+#' tag_geostap(
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 10,
 #'   known = data.frame(
@@ -49,18 +48,13 @@
 #'   )
 #' )
 #'
-#' # Compute likelihood map
-#' tag <- geolight_map(
-#'   tag,
-#'   tag$twilight
-#' )
+#' # Compute the twilight
+#' tag <- twilight_create(tag) |> twilight_label_read()
 #'
-#' terra::plot(
-#'   terra::rast(tag$map_light[[1]],
-#'     extent = tag$extent
-#'   ),
-#'   main = "Likelihood"
-#' )
+#' # Compute likelihood map
+#' tag <- geolight_map(tag)
+#'
+#' plot(tag, type = "map_light")
 #' @export
 geolight_map <- function(tag,
                          twl_calib_adjust = 1.4,

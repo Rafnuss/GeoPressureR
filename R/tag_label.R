@@ -11,10 +11,10 @@
 #' If the label file does not exist, the function will suggest to create it with
 #' [`tag_label_write()`] and use [`tag_label_auto()`] if acceleration data exists.
 #'
-#' @param tag List containing the data logger dataset, this needs to contain at least a `pressure`
-#' data.frame, but can also have a `light` and `acceleration` data.frame (see [`tag_create()`]).
+#' @param tag A GeoPressure `tag` object
 #' @param file Absolute or relative path of the label file.
-#' @inheritDotParams tag_label_stap
+#' @inheritDotParams tag_label_stap warning_flight_duration warning_stap_duration quiet
+#'
 #' @return Same `tag` list with
 #'
 #' (1) a `stap` data.frame describing the STAtionary Period:
@@ -33,11 +33,11 @@
 #' tag <- tag_create("18LX")
 #'
 #' tag <- tag_label(tag)
-#' str(tag)
+#' tag
 #'
-#' @seealso [`tag_create()`], [GeoPressureManual | Pressure Map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset)
 #' @family tag_label
+#' @seealso [GeoPressureManual | Pressure Map
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset)
 #' @export
 tag_label <- function(tag,
                       file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),

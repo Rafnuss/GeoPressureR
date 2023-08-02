@@ -2,9 +2,10 @@
 #'
 #' This function plot a map with a `path`.
 #
-#' @inheritParams plot_map
-#' @inheritParams pressurepath_create
-#' @inheritDotParams plot_path_leaflet
+#' @param path A GeoPressureR `path` data.frame
+#' @param plot_leaflet Logical defining if the plot is an interactive `leaflet` map or a static
+#' `terra::plot` map.
+#' @inherit leaflet::addProviderTiles
 #'
 #' @export
 plot_path <- function(path,
@@ -20,12 +21,8 @@ plot_path <- function(path,
   }
 }
 
-#' Plot `path` with leaflet
-#'
-#' This function plot a leaflet map with a `path`
-#
-#' @param path A `path` list
-#'
+
+#' @noRd
 plot_path_leaflet <- function(map,
                               path,
                               polyline = list(

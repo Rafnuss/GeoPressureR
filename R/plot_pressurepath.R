@@ -1,16 +1,21 @@
-#' Plot pressure pressurepath
+#' Plot `pressurepath`
 #'
-#' description of check
+#' Display a `pressurepath` data.frame as a timeseries or histogram
 #'
-#' @param pressurepath rerer
-#' @param type `"ts"` or `"hist"`
-#' @param error_warning Threshold of pressure difference marking as ️warning (hPa)
+#' @param pressurepath A GeoPressureR `pressurepath` data.frame
+#' @param type Timeseries `"ts"` or histogram `"hist"`
+#' @inheritParams geopressure_map
+#' @param warning_std_thr Threshold of outliar, coefficient of the [z-score](
+#' https://en.wikipedia.org/wiki/Standard_score)
+#' @param plot_plotly Logical to use `plotly`
+#'
+#'
 #' @family pressurepath
 #' @export
 plot_pressurepath <- function(pressurepath,
                               type = "ts",
                               sd = attr(pressurepath, "sd"),
-                              error_warning_thr = 3,
+                              warning_std_thr = 3,
                               plot_plotly = TRUE) {
 
   assertthat::assert_that(is.data.frame(pressurepath))
@@ -48,7 +53,7 @@ plot_pressurepath <- function(pressurepath,
 
   if ("ts" == type) {
 
-    pp$warning <- (abs(pp$error) / pp$error_sd[pp$stap_id]) >= error_warning_thr
+    pp$warning <- (abs(pp$error) / pp$error_sd[pp$stap_id]) >= warning_std_thr
 
     # convert stapelev to factor for color
     pp$stap_id <- factor(pp$stap_id)
@@ -81,8 +86,8 @@ plot_pressurepath <- function(pressurepath,
     pp$sd_param <- sd[pp$stap_id]
     pp$sd_ok <- pp$error_sd > pp$sd_param
     pp$stapelev <- factor(pp$stapelev, levels = tag_era5$stapelev)
-    pp$warning_p <- sd_param * error_warning_thr
-    pp$warning_m <- - sd_param * error_warning_thr
+    pp$warning_p <- pp$sd_param * warning_std_thr
+    pp$warning_m <- - pp$sd_param * warning_std_thr
 
     lab <- ggplot2::as_labeller(stats::setNames(
       glue::glue("{tag_era5$stapelev} - SD: {tag_era5$error_sd}"),

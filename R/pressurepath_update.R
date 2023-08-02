@@ -4,9 +4,8 @@
 #' avoid recomputing the entire workflow, this function figure out which stationary period have
 #' been changing on only update those in `tag$map_pressure` and `pressurepath`.
 #'
-#'
-#' @inheritParams tag_label
-#' @param pressurepath pressurepath_create
+#' @param pressurepath A GeoPressureR `pressurepath` data.frame
+#' @inheritParams pressurepath_create
 #' @return a list containing the new `tag` and `pressurepath`.
 #' @examples
 #' tag <- tag_label(tag)
@@ -40,12 +39,12 @@ pressurepath_update <- function(pressurepath,
 
   # Check tag and pressure
   tag_assert(tag, "geostap")
-  if (assertthat::has_attr(pressurepath, ".preprocess")){
-    .preprocess <- attr(pressurepath, ".preprocess")
+  if (assertthat::has_attr(pressurepath, "preprocess")){
+    preprocess <- attr(pressurepath, "preprocess")
   } else {
-    .preprocess <- FALSE
+    preprocess <- FALSE
   }
-  if (.preprocess){
+  if (preprocess){
     pressure <- geopressure_map_preprocess(tag)
   } else {
     pressure <- tag$pressure
@@ -90,7 +89,7 @@ pressurepath_update <- function(pressurepath,
     pressurepath_diff <- pressurepath_create(tag,
                                              path = path[path$stap_id %in% stap_id_recompute,],
                                              include_flight = include_flight,
-                                             .preprocess = .preprocess)
+                                             preprocess = preprocess)
 
     pressurepath_new <- rbind(
       pressurepath[!(pressurepath$stap_ref %in% stap_id_recompute), ],

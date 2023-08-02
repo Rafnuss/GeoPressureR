@@ -40,10 +40,10 @@ tag2map <- function(tag, likelihood = NULL) {
 
 #' Return a valid likelihood map name
 #
-#' @param A GeoPressureR `tag` object.
 #' @inheritParams tag2map
 #'
 #' @return likelihood map name
+#' @noRd
 tag2likelihood <- function(tag, likelihood = NULL) {
   tag_assert(tag)
 

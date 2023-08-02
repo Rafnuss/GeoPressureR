@@ -2,7 +2,8 @@
 #'
 #' Return the flight information of the edges composing a given path.
 #'
-#' @inheritParams pressurepath_create
+#' @param path A GeoPressureR `path` object
+#' @param graph A GeoPressureR `graph` object
 #' @return Data.frame of the edge containing:
 #' - `stap_s` : stationary period of the origin (source).
 #' - `stap_t` : stationary period of the destination (target).

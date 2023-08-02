@@ -5,7 +5,8 @@
 #' GeoPressureViz](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
 #' this [demo of the Great Reed Warbler (18LX)](https://rafnuss.shinyapps.io/GeoPressureViz/).
 #'
-#' @param tag a `tag` object
+#' @param tag a GeoPressureR `tag` object.
+#' @param id Unique identifier of a tag.
 #' @param pressurepath a pressure path computed with `create_pressurepath()`
 #' @param marginal map of the marginal probability computed with `graph_marginal()`
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on Rstudio.

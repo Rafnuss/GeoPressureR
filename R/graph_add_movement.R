@@ -2,20 +2,21 @@
 #'
 #' Define the movement model used later by storing the parameters needed to build [`speed2prob()`].
 #'
-#' @param graph graph constructed with [`graph_create()`]
+#' @param graph A GeoPressureR `graph` object.
 #' @param type Ground speed `"gs"` or airspeed `"as"`
 #' @param method method used to convert the speed to probability ("gamma", "logis" or "power")
 #' @param shape parameter of the gamma distribution
 #' @param scale  parameter of the gamma and logistic distribution
 #' @param location parameter for the logistic distribution
-#' @param bird list of basic morphological traits necessary: mass, wing span, wing aspect ratio, and
-#'   body frontal area. It is good practice to create a bird with [`bird_create()`].
+#' @param bird A GeoPressureR `bird` object containing the basic morphological traits necessary:
+#'  mass, wing span, wing aspect ratio, and body frontal area. See [`bird_create()`].
 #' @param power2prob function taking power as a single argument and returning a probability
 #' @param low_speed_fix speed below which the probability remains the same. This parameter is used
 #'   to allow short flights covering small distances.
 #' @return Graph list with a new list `graph$movement` storing all the parameters needed to compute
 #' the transition probability
 #' @family graph
+#' @family movement
 #' @seealso [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map)
 #' @export
