@@ -7,25 +7,6 @@
 #' @param pressurepath A GeoPressureR `pressurepath` data.frame
 #' @inheritParams pressurepath_create
 #' @return a list containing the new `tag` and `pressurepath`.
-#' @examples
-#' tag <- tag_label(tag)
-#'
-#' tag <- tag |>
-#'   tag_create(extent = c(-16, 23, 0, 50), scale = 1) |>
-#'   geopressure_map(tag$pressure)
-#'
-#' pressurepath <- tag |>
-#'   tag2path() |>
-#'   pressurepath_create(tag$pressure)
-#'
-#' update <- tag_update(
-#'   file = "./data/tag-label/18LX-labeled-modif.csv",
-#'   tag,
-#'   tag,
-#'   pressurepath
-#' )
-#'
-#' list2env(update, env = .GlobalEnv)
 #' @family pressurepath
 #' @export
 pressurepath_update <- function(pressurepath,
@@ -38,7 +19,7 @@ pressurepath_update <- function(pressurepath,
                     "lon", "pressure_era5_norm", "stap_ref")))
 
   # Check tag and pressure
-  tag_assert(tag, "geostap")
+  tag_assert(tag, "setmap")
   if (assertthat::has_attr(pressurepath, "preprocess")){
     preprocess <- attr(pressurepath, "preprocess")
   } else {

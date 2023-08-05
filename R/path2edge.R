@@ -19,7 +19,7 @@
 path2edge <- function(path, graph) {
   graph_assert(graph)
 
-  g <- geo_expand(graph$extent, graph$scale)
+  g <- map_expand(graph$extent, graph$scale)
   nll <- prod(g$dim)
 
   assertthat::assert_that(is.data.frame(path))

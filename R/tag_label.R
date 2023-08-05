@@ -30,7 +30,7 @@
 #' - `stap_id` stationary period of the measurement matching the `tag$stap`.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX")
+#' tag <- tag_read("18LX")
 #'
 #' tag <- tag_label(tag)
 #' tag
@@ -81,13 +81,13 @@ tag_label <- function(tag,
     return(tag)
 
   } else {
-    # Check if label has already been geostap
-    if ("geostap" %in% tag_status(tag)) {
-      cli::cli_alert_warning("The geostap has already been defined for {.var tag}.")
+    # Check if label has already been setmap
+    if ("setmap" %in% tag_status(tag)) {
+      cli::cli_alert_warning("The setmap has already been defined for {.var tag}.")
       choices <- list(
         "1" = glue::glue("No, return the original `tag`"),
         "2" = glue::glue("Yes, read the new label, but start `tag` from scratch"),
-        "3" = glue::glue("Yes, use `tag_update()` to keep the geostap parameters and re-run likelihood maps.")
+        "3" = glue::glue("Yes, use `tag_update()` to keep the setmap parameters and re-run likelihood maps.")
       )
       res <- as.numeric(names(utils::select.list(choices, title = "How to you want to proceed with the new label file?")))
 
@@ -99,7 +99,7 @@ tag_label <- function(tag,
         return(tag)
 
       } else if (res == 2) {
-        tag <- tag_create(id = tag$param$id,
+        tag <- tag_read(id = tag$param$id,
                           pressure_file = tag$param$sensor_paths[1],
                           light_file = tag$param$sensor_paths[2],
                           acceleration_file = tag$param$sensor_paths[3],

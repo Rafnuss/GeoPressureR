@@ -3,17 +3,17 @@
 #' This function display a plot of twilight timeseries recorded by a tag
 #'
 #' @param map A GeoPressureR `map` matrix
-#' @param stap A stationary period data.frame. By default, use the `stap` attached to `map`, but
-#' can be overwritten
 #' @param plot_leaflet Logical to use an interactive `leaflet` map instead of `terra::plot`
 #' @param path A GeoPressureR `path` data.frame
 #' @inheritParams leaflet::addProviderTiles
 #' @inheritParams leaflet::colorNumeric
 #' @inheritParams leaflet::addRasterImage
 #' @inheritParams terra::plot
+#'
+#' @family map
+#' @method plot map
 #' @export
-plot_map <- function(map,
-                     stap = NULL,
+plot.map <- function(map,
                      path = NULL,
                      plot_leaflet = TRUE,
                      provider = "Stamen.TerrainBackground",
@@ -21,12 +21,8 @@ plot_map <- function(map,
                      opacity = 0.8,
                      legend = FALSE,
                      ...) {
-  if (inherits(map, "SpatRaster")) {
-    r <- map
-  } else {
-    # Compute the raster from the map
-    r <- map2rast(map)
-  }
+  # Convert map into rast
+  r <- rast(map)
 
   # If r is very small, the plot is not working, this is a small trick to solve it.
   r <- r / max(terra::minmax(r)[2, ], na.rm = TRUE)
@@ -34,19 +30,10 @@ plot_map <- function(map,
   if (plot_leaflet) {
     require("terra") # require to attach has.RGB which has missing dependancy
 
-    if (is.null(stap) & assertthat::has_attr(map, "stap")) {
-      stap <- attr(map, "stap")
-    }
-
-    if (is.null(stap)) {
-      grp <- glue::glue("#{seq_len(length(map))}")
-    } else {
-      grp <- glue::glue("#{stap$stap_id} | {format(stap$start , format = '%d %b %H:%M')} - {format(stap$end , format = '%d %b %H:%M')}")
-    }
+    grp <- glue::glue("#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - {format(map$stap$end , format = '%d %b %H:%M')}")
 
     lmap <- leaflet::leaflet(width = "100%") |>
       leaflet::addProviderTiles(provider = provider)
-
 
     for (i in seq_len(dim(r)[3])) {
       lmap <- leaflet::addRasterImage(
@@ -65,19 +52,17 @@ plot_map <- function(map,
     }
 
     # Known location
-    if (!is.null(stap)) {
-      id_known <- which(!is.na(stap$known_lat))
-      for (i in seq_len(length(id_known))) {
-        lmap <- leaflet::addCircleMarkers(
-          lmap,
-          lng = stap$known_lon[id_known[i]],
-          lat = stap$known_lat[id_known[i]],
-          fillOpacity = 1,
-          weight = 2,
-          color = "white",
-          fillColor = "red"
-        )
-      }
+    id_known <- which(!is.na(map$stap$known_lat))
+    for (i in seq_len(length(id_known))) {
+      lmap <- leaflet::addCircleMarkers(
+        lmap,
+        lng = map$stap$known_lon[id_known[i]],
+        lat = map$stap$known_lat[id_known[i]],
+        fillOpacity = 1,
+        weight = 2,
+        color = "white",
+        fillColor = "red"
+      )
     }
 
     # path

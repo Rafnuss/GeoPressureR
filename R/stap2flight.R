@@ -10,7 +10,7 @@
 #' You can return the flight as a data.frame or as a list if you want to retrieve the information
 #' of all individual flight between the `stap_include`.
 #'
-#' @param stap Stationary period structure (see [`tag_label_stap()`]).
+#' @param stap A stationary period data.frame (see [`tag_label_stap()`]).
 #' @param stap_include Vecto of the stationary period `stap_id` to consider in the flight. Default
 #' is to use `stap$stap_id[stap$include]` or `stap$stap_id` if `model` is not available in `stap`.
 #' @param format Character to return a list `"list"` or a data.frame `"df"` (see description)
@@ -25,7 +25,7 @@
 #' The value in brackets are only for the data.frame
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
+#' tag <- tag_read("18LX", quiet = T) |> tag_label(quiet = T)
 #'
 #' # By default, return a data.frame of all individual flights
 #' knitr::kable(stap2flight(tag$stap))

@@ -53,7 +53,7 @@ geopressure_map_likelihood <- function(tag,
 
   map_pressure <- vector("list", nrow(tag$stap))
 
-  for (istap in which(!sapply(tag$map_pressure_mse, is.null))) {
+  for (istap in which(!sapply(tag$map_pressure_mse$data, is.null))) {
     # Number of sample
     n <- tag$stap$nb_sample[istap]
 
@@ -61,7 +61,7 @@ geopressure_map_likelihood <- function(tag,
     w <- log_linear_pooling_weight(n)
 
     # get MSE layer
-    mse <- tag$map_pressure_mse[[istap]]
+    mse <- tag$map_pressure_mse$data[[istap]]
     # change 0 (water) in NA
     mse[mse == 0] <- NA
 
@@ -69,18 +69,18 @@ geopressure_map_likelihood <- function(tag,
     likelihood <- (1 / (2 * pi * sd[istap]^2))^(n * w / 2) * exp(-w * n / 2 / (sd[istap]^2) * mse)
 
     # mask value of threshold
-    map_pressure[[istap]] <- likelihood * (tag$map_pressure_mask[[istap]] >= thr_mask)
+    map_pressure[[istap]] <- likelihood * (tag$map_pressure_mask$data[[istap]] >= thr_mask)
   }
 
   # Find water mask
   # Define the mask of water
-  tag$mask_water <- is.na(map_pressure[[which(!sapply(tag$map_pressure_mse, is.null))[1]]])
+  tag$mask_water <- is.na(map_pressure[[which(!sapply(tag$map_pressure_mse$data, is.null))[1]]])
 
   # Add known location
   # compute latitude, longitude and dimension
-  g <- geo_expand(tag$extent, tag$scale)
+  g <- map_expand(tag$param$extent, tag$param$scale)
   # Add known location only if map_pressure_mse is null (ie., if .known_compute = TRUE in geopressure_map_mse)
-  for (stap_id in which(!is.na(tag$stap$known_lat) & sapply(tag$map_pressure_mse, is.null))) {
+  for (stap_id in which(!is.na(tag$stap$known_lat) & sapply(tag$map_pressure_mse$data, is.null))) {
     # Initiate an empty map
     map_pressure[[stap_id]] <- matrix(0, nrow = g$dim[1], ncol = g$dim[2])
     map_pressure[[stap_id]][tag$mask_water] <- NA
@@ -91,12 +91,14 @@ geopressure_map_likelihood <- function(tag,
     map_pressure[[stap_id]][known_lat_id, known_lon_id] <- 1
   }
 
-  attr(map_pressure, "id") <- tag$param$id
-  attr(map_pressure, "extent") <- tag$extent
-  attr(map_pressure, "scale") <- tag$scale
-  attr(map_pressure, "stap") <- tag$stap
+  # Create map object
+  tag$map_pressure <- map_create(data = map_pressure,
+                                     extent = tag$param$extent,
+                                     scale = tag$param$scale,
+                                     stap = tag$stap,
+                                     id = tag$param$id,
+                                     type = "pressure")
 
-  tag$map_pressure <- map_pressure
   tag$param$sd <- sd
   tag$param$thr_mask <- thr_mask
   tag$param$log_linear_pooling_weight <- log_linear_pooling_weight

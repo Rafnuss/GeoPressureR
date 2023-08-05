@@ -42,7 +42,7 @@
 #' Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
+#' tag <- tag_read("18LX", quiet = T) |> tag_label(quiet = T)
 #'
 #' path <- data.frame(
 #'   stap_id = tag$stap$stap_id,

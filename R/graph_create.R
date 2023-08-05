@@ -30,8 +30,8 @@
 #' - `stap`: data.frame of all stationary periods
 #' - `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-sta)
 #' - `retrieval`: node(s) of the last stap (index in the 3d grid lat-lon-sta)
-#' - `extent`: same as `tag$extent`
-#' - `scale`: same as `tag$scale`
+#' - `extent`: same as `tag$param$extent`
+#' - `scale`: same as `tag$param$scale`
 #' - `mask_water`: logical matrix of water-land
 #' - `param`: parameter used to create the graph, including `thr_likelihood` and `thr_gs`
 #' @seealso [GeoPressureManual | Basic graph](
@@ -82,7 +82,7 @@ graph_create <- function(tag,
     ))
   }
 
-  g <- geo_expand(tag$extent, tag$scale)
+  g <- map_expand(tag$param$extent, tag$param$scale)
 
   # Approximate resolution of the grid from ° to in km
   # Assume uniform grid in lat-lon
@@ -283,16 +283,13 @@ graph_create <- function(tag,
   graph$equipment <- which(nds[[1]] == TRUE)
   graph$retrieval <- as.integer(which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll)
   graph$mask_water <- tag$mask_water
-  graph$extent <- tag$extent
-  graph$scale <- tag$scale
-  graph$param <- list(
-    id = tag$param$id,
-    thr_likelihood = thr_likelihood,
-    thr_gs = thr_gs
-  )
+  graph$extent <- tag$param$extent
+  graph$scale <- tag$param$scale
 
-  # Add package version
-  attr(graph, "GeoPressureR_version") <- utils::packageVersion("GeoPressureR")
+  # Create the param from tag
+  graph$param <- tag$param
+  graph$param$thr_likelihood <- thr_likelihood
+  graph$param$thr_gs <- thr_gs
 
   return(graph)
 }

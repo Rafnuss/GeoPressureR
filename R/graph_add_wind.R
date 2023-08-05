@@ -44,7 +44,7 @@ graph_add_wind <- function(graph,
   flight <- stap2flight(graph$stap, format = "list")
 
   # Compute lat-lon coordinate of the grid
-  g <- geo_expand(graph$extent, graph$scale)
+  g <- map_expand(graph$extent, graph$scale)
 
   # Extract the index in lat, lon, stap from the source and target of all edges
   s <- arrayInd(graph$s, graph$sz)

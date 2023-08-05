@@ -22,14 +22,14 @@ print.graph <- function(x, ...) {
   }
 
   cli::cli_h3("Geographical parameters ({.field scale} and {.field extent})")
-  geo <- geo_expand(graph$extent, graph$scale)
+  geo <- map_expand(graph$extent, graph$scale)
   cli::cli_text("Extent W-E: {.val {graph$extent[1]}}\u00b0 to {.val {graph$extent[2]}}\u00b0")
   cli::cli_text("Extent S-N: {.val {graph$extent[3]}}\u00b0 to {.val {graph$extent[4]}}\u00b0")
   cli::cli_text("Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}\u00b0")
   cli::cli_text("Resolution lat-lon: {.val {1/graph$scale}}\u00b0")
 
   cli::cli_h3("Graph size")
-  geo <- geo_expand(graph$extent, graph$scale)
+  geo <- map_expand(graph$extent, graph$scale)
   cli::cli_li("{.val {length(graph$s)}} edge{?s}")
   cli::cli_li("{.val {length(graph$equipment)}} equipement node{?s}")
   cli::cli_li("{.val {length(graph$retrieval)}} retrieval node{?s}")

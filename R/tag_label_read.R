@@ -9,7 +9,7 @@
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = T)
+#' tag <- tag_read("18LX", quiet = T)
 #'
 #' tag <- tag_label_read(tag)
 #' tag
@@ -19,10 +19,10 @@ tag_label_read <- function(tag,
                            file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv")) {
   tag_assert(tag)
 
-  if ("geostap" %in% tag_status(tag)) {
+  if ("setmap" %in% tag_status(tag)) {
     cli::cli_abort(c(
-      "x" = "{.fun geostap} has already been run on this {.var tag}.",
-      ">" = "It is best practice to start from your raw data again using {.fun tag_create}.",
+      "x" = "{.fun setmap} has already been run on this {.var tag}.",
+      ">" = "It is best practice to start from your raw data again using {.fun tag_read}.",
       "i" = "You can also use {.fun tag_update} to only change the what needs to be updated in {.var tag}."
     ))
   }

@@ -15,8 +15,7 @@
 #' For more background and details on the method behind these functions, please refer to the [associated scientific
 #' publication]( https://doi.org/10.1111/2041-210X.14043).
 #'
-#' @param tag List of the geographical and stationary period information. See
-#' [`tag_create()`] for details.
+#' @param tag A GeoPressureR `tag` object
 #' @param max_sample The computation of the maps is only performed on `max_sample` datapoints of
 #' pressure to reduce computational time. The samples are randomly (uniformly) selected on the
 #' timeseries.
@@ -50,9 +49,9 @@
 #' temp_dir <- getwd()
 #' print(temp_dir)
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = T) |>
+#' tag <- tag_read("18LX", quiet = T) |>
 #' tag_label(quiet = T) |>
-#' tag_geostap(
+#' tag_setmap(
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 4,
 #'   include_stap_id = 1

@@ -16,25 +16,10 @@ tag2map <- function(tag, likelihood = NULL) {
 
   # Deal with multiple likelihood
   if (length(likelihood) > 1) {
-    fn <- \(p, l) {
-      if (is.null(p) | is.null(l)) {
-        return(NULL)
-      } else {
-        return(p * l)
-      }
-    }
-
     for (i in seq(2, length(likelihood))) {
-      map <- mapply(fn, map, tag[[likelihood[i]]], SIMPLIFY = FALSE)
+      map <- map * tag[[likelihood[i]]]
     }
   }
-
-  # Add attribute
-  attr(map, "id") <- tag$param$id
-  attr(map, "extent") <- tag$extent
-  attr(map, "scale") <- tag$scale
-  attr(map, "stap") <- tag$stap
-
   return(map)
 }
 

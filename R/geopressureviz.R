@@ -27,10 +27,10 @@ geopressureviz <- function(tag = NULL,
       cli::cli_abort("{.var tag} or {.var id} needs to be provided")
     }
   }
-  tag_assert(tag, "geostap")
+  tag_assert(tag, "setmap")
 
   if (all(c("map_pressure", "map_light") %in% names(tag))) {
-    tag$map_preslight <- mapply(\(p, l) p * l, tag$map_pressure, tag$map_light, SIMPLIFY = FALSE)
+    tag$map_preslight <- tag$map_pressure * tag$map_light
   }
 
   if (is.null(marginal)) {
@@ -85,7 +85,7 @@ pressurepath <- merge(pressurepath, stap[,names(stap) %in% c("stap_id", "col")],
 .GlobalEnv$.stap <- stap
 .GlobalEnv$.pressure <- tag$pressure
 .GlobalEnv$.maps <- maps
-.GlobalEnv$.extent <- tag$extent
+.GlobalEnv$.extent <- tag$param$extent
 .GlobalEnv$.pressurepath <- pressurepath
 .GlobalEnv$.path <- path
 

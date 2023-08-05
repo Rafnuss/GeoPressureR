@@ -25,8 +25,8 @@
 #' - `lon` longitude
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX") |> tag_label()
-#' tag <- tag_geostap(tag,
+#' tag <- tag_read("18LX") |> tag_label()
+#' tag <- tag_setmap(tag,
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 2,
 #' ) |>
@@ -47,7 +47,7 @@ tag2path <- function(tag,
 
   # find the index in the 2D grid
   ind <- rep(NA, length(map))
-  stap_id <- which(!sapply(map, is.null))
+  stap_id <- which(!sapply(map$data, is.null))
   ind[stap_id] <- sapply(map[stap_id], which.max)
 
   # Interpolation for short stationary period is only performed if interp>0
@@ -68,7 +68,7 @@ tag2path <- function(tag,
     path_interp[!is.na(tag$stap$known_lon) & use_known] <- FALSE
 
     # Compute the grid information used for known or interp
-    g <- geo_expand(tag$extent, tag$scale)
+    g <- map_expand(tag$param$extent, tag$param$scale)
 
     # Compute the latitude and longitude ind
     lat_ind <- arrayInd(ind, g$dim)[, 1]

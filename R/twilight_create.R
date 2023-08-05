@@ -7,8 +7,7 @@
 #' Function inspired from [`TwGeos::findTwilights()`](
 #' https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html).
 #'
-#' @param tag List containing the data logger dataset, this needs to contain a `light`data.frame
-#' with columns `date` and `value` and optionally `stap_id` (see [`tag_create()`]).
+#' @param tag A GeoPressureR `tag` object
 #' @param twl_thr Light threshold that defines twilight. By default, it uses the smallest
 #' value of light (i.e, first and last light of day).
 #' @param twl_offset Shift of the middle of the night compared to 00:00 UTC (in hours). If not
@@ -22,7 +21,7 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html)
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
+#' tag <- tag_read("18LX", quiet = T) |> tag_label(quiet = T)
 #'
 #' # Create twilight data.frame
 #' tag <- twilight_create(tag)

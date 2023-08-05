@@ -38,13 +38,13 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)
 #' @export
 tag_download_wind <- function(tag,
-                              extent = tag$extent,
+                              extent = tag$param$extent,
                               stap_id = utils::head(tag$stap$stap_id, -1),
                               cds_key = Sys.getenv("cds_key"),
                               cds_user = Sys.getenv("cds_user"),
                               file = \(stap_id) glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
                               overwrite = FALSE) {
-  tag_assert(tag, "geostap")
+  tag_assert(tag, "setmap")
 
   stap <- tag$stap
 

@@ -49,7 +49,7 @@ geopressure_map_mismatch <- function(tag,
                                      compute_known = FALSE,
                                      debug = FALSE) {
   # Check tag
-  tag_assert(tag, "geostap")
+  tag_assert(tag, "setmap")
 
   # Format query
   assertthat::assert_that(is.numeric(max_sample))
@@ -67,11 +67,11 @@ geopressure_map_mismatch <- function(tag,
     time = jsonlite::toJSON(as.numeric(as.POSIXct(pres$date))),
     label = jsonlite::toJSON(pres$stapelev),
     pressure = jsonlite::toJSON(round(pres$value * 100)), # convert from hPa to Pa
-    W = tag$extent[1],
-    E = tag$extent[2],
-    S = tag$extent[3],
-    N = tag$extent[4],
-    scale = tag$scale,
+    W = tag$param$extent[1],
+    E = tag$param$extent[2],
+    S = tag$param$extent[3],
+    N = tag$param$extent[4],
+    scale = tag$param$scale,
     max_sample = max_sample,
     margin = margin
   )
@@ -147,7 +147,7 @@ geopressure_map_mismatch <- function(tag,
 
   f <- c()
   cli::cli_progress_step(
-    "Sending requests for {.val {length(urls)}} stationary periods: {field {labels}}",
+    "Sending requests for {.val {length(urls)}} stationary periods: {.field {labels}}",
     spinner = TRUE
   )
   cli::cli_progress_bar(total = length(urls), type = "task")
@@ -207,15 +207,9 @@ geopressure_map_mismatch <- function(tag,
   })))
 
   # Initialize the return list from tag$stap to make sure all stap are present
-  if (!("map_pressure_mse" %in% names(tag)) | length(tag$mse) == nrow(tag$stap)) {
-    tag$map_pressure_mse <- vector("list", nrow(tag$stap))
-  }
-  if (!("map_pressure_mask" %in% names(tag)) | length(tag$mask) == nrow(tag$stap)) {
-    tag$map_pressure_mask <- vector("list", nrow(tag$stap))
-  }
-  if (!("nb_sample" %in% tag & length(tag$mask) == nrow(tag$stap))) {
-    tag$stap$nb_sample <- 0
-  }
+  mse <- vector("list", nrow(tag$stap))
+  mask <- vector("list", nrow(tag$stap))
+  tag$stap$nb_sample <- 0
 
   for (i_stap in unique(labels_stap)) {
     # Find all stapelevs that belong to this stap
@@ -230,19 +224,23 @@ geopressure_map_mismatch <- function(tag,
     }, map[i_label], nb_sample[i_label])) / sum(nb_sample[i_label])
 
     # Extract the two map
-    tag$map_pressure_mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE) / 100 / 100 # convert MSE from Pa to hPa
-    tag$map_pressure_mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
+    mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE) / 100 / 100 # convert MSE from Pa to hPa
+    mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
   }
 
   # Add attribute
-  attr(tag$map_pressure_mse, "id") <- tag$param$id
-  attr(tag$map_pressure_mse, "extent") <- tag$extent
-  attr(tag$map_pressure_mse, "scale") <- tag$scale
-  attr(tag$map_pressure_mse, "stap") <- tag$stap
-  attr(tag$map_pressure_mask, "id") <- tag$param$id
-  attr(tag$map_pressure_mask, "extent") <- tag$extent
-  attr(tag$map_pressure_mask, "scale") <- tag$scale
-  attr(tag$map_pressure_mask, "stap") <- tag$stap
+  tag$map_pressure_mask <- map_create(data = mask,
+                                      extent = tag$param$extent,
+                                      scale = tag$param$scale,
+                                      stap = tag$stap,
+                                      id = tag$param$id,
+                                      type = "pressure_mask")
+  tag$map_pressure_mse <- map_create(data = mse,
+                                      extent = tag$param$extent,
+                                      scale = tag$param$scale,
+                                      stap = tag$stap,
+                                      id = tag$param$id,
+                                      type = "pressure_mse")
 
   # keep parameters used
   tag$param$max_sample <- max_sample

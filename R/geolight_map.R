@@ -11,7 +11,7 @@
 #' # Calibration
 #'
 #' Calibration requires to have a known position for a least one stationary periods. Use
-#' [`tag_geostap`] to define the known position.
+#' [`tag_setmap`] to define the known position.
 #'
 #' Instead of calibrating the twilight errors in terms of duration, we directly model the zenith
 #' angle error. We use a kernel distribution to fit the zenith angle during the known stationary
@@ -27,7 +27,7 @@
 #' https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html#probability-aggregation-1)
 #' for more information on probability aggregation using log-linear pooling.
 #'
-#' @param tag A GeoPressureR `tag` object with geostap status.
+#' @param tag A GeoPressureR `tag` object with setmap status.
 #' @param twl_calib_adjust Smoothing parameter for the kernel density (see [`stats::kernel()`]).
 #' @param twl_llp Log-linear pooling aggregation weight.
 #' @param compute_known Logical defining if the map(s) for known stationary period should be
@@ -36,9 +36,9 @@
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' # Read geolocator data and build twilight
-#' tag <- tag_create("18LX", quiet = T) |>
+#' tag <- tag_read("18LX", quiet = T) |>
 #' tag_label(quiet = T) |>
-#' tag_geostap(
+#' tag_setmap(
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 10,
 #'   known = data.frame(
@@ -61,7 +61,7 @@ geolight_map <- function(tag,
                          twl_llp = \(n) 0.1,
                          compute_known = FALSE) {
   # Check tag
-  tag_assert(tag, "geostap")
+  tag_assert(tag, "setmap")
 
   # extract for convenience
   stap <- tag$stap
@@ -69,8 +69,7 @@ geolight_map <- function(tag,
   if (all(is.na(stap$known_lat))) {
     cli::cli_abort(c(
       x = "There are no known location on which to calibrate in {.var stap$known_lat}.",
-      ">" = "Add a the calibration stationary period {.var known} when creating {.var tag} \\
-      with {.fun tag_create}."
+      ">" = "Add a the calibration stationary period {.var known} with {.fun tag_param}."
     ))
   }
 
@@ -134,7 +133,7 @@ geolight_map <- function(tag,
   sun <- geolight_solar(twl_clean_comp$twilight)
 
   # Get grid information
-  g <- geo_expand(tag$extent, tag$scale)
+  g <- map_expand(tag$param$extent, tag$param$scale)
 
   # construct the grid of latitude and longitude on cell centered
   m <- expand.grid(lat = g$lat, lon = g$lon)
@@ -187,13 +186,13 @@ geolight_map <- function(tag,
     }
   }
 
-  # Add attribute
-  attr(lk, "id") <- tag$param$id
-  attr(lk, "extent") <- tag$extent
-  attr(lk, "scale") <- tag$scale
-  attr(lk, "stap") <- tag$stap
-
-  tag$map_light <- lk
+  # Create map object
+  tag$map_light <- map_create(data = lk,
+                              extent = tag$param$extent,
+                              scale = tag$param$scale,
+                              stap = tag$stap,
+                              id = tag$param$id,
+                              type = "light")
 
   # Add parameters
   tag$param$twl_calib_adjust <- twl_calib_adjust

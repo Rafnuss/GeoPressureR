@@ -3,7 +3,7 @@
 #' These functions return logical about the contents of a `graph` object.
 #'
 #' @param graph a GeoPressureR `graph` object
-#' @param condition conditionition to assert `tag` for. One of "tag" (default), "label", "stap", "geostap",
+#' @param condition condition to assert `tag` for. One of "tag" (default), "label", "stap", "setmap",
 #' "pressure_map" and "map_pressure_mismatch", "twilight"
 #'
 #' @return logical indicating the `tag` object has the relevant element
@@ -24,7 +24,7 @@ graph_assert <- function(graph, condition = "graph") {
       ">" = "Check the input and run {.fun graph_create} again."
     )
   } else {
-    stop(glue::glue("conditionition {.var {condition}} is unknown"))
+    stop(glue::glue("condition {.var {condition}} is unknown"))
   }
 
   if (condition %in% status) {

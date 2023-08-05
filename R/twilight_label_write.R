@@ -7,7 +7,7 @@
 #' @param file Name of the twilight label file to be saved.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T) |> twilight_create()
+#' tag <- tag_read("18LX", quiet = T) |> tag_label(quiet = T) |> twilight_create()
 #'
 #' label_file <- twilight_label_write(tag)
 #' str(read.csv(label_file))

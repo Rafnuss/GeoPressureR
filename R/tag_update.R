@@ -12,9 +12,9 @@
 #'
 #' @return the updated `tag` object
 #' @examples
-#' tag <- tag_create("18LX", quiet = T) |>
+#' tag <- tag_read("18LX", quiet = T) |>
 #'   tag_label(quiet = T) |>
-#'   tag_geostap(extent = c(-16, 23, 0, 50), scale = 1) |>
+#'   tag_setmap(extent = c(-16, 23, 0, 50), scale = 1) |>
 #'   geopressure_map()
 #'
 #' tag
@@ -32,7 +32,7 @@ tag_update <- function(tag,
   tag_assert(tag, "map_pressure")
 
   # Re-create the original tag before label
-  tag_new <- tag_create(id = tag$param$id,
+  tag_new <- tag_read(id = tag$param$id,
                         pressure_file = tag$param$sensor_paths[1],
                         light_file = tag$param$sensor_paths[2],
                         acceleration_file = tag$param$sensor_paths[3],
@@ -78,10 +78,10 @@ tag_update <- function(tag,
   # Build the include to be used in the modeling, but not for geopressure and geolight
   stap_new$include <- !(stap_new$old_stap_id %in% old_stap_include_exclude)
 
-  # Build the geostapof stap_id to recompute and the one included
-  tag_new <- tag_geostap(tag_new,
-                         extent = tag$extent,
-                         scale = tag$scale,
+  # Build the setmapof stap_id to recompute and the one included
+  tag_new <- tag_setmap(tag_new,
+                         extent = tag$param$extent,
+                         scale = tag$param$scale,
                          known = known,
                          include_stap_id = stap_new$stap_id[stap_new$include]
   )

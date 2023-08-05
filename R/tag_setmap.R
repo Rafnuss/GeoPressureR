@@ -35,15 +35,15 @@
 #' - `scale` same as input parameter `scale`
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX") |> tag_label()
+#' tag <- tag_read("18LX") |> tag_label()
 #'
 #' # Default tag
-#' tag <- tag_geostap(tag, c(-16, 23, 0, 50))
+#' tag <- tag_setmap(tag, c(-16, 23, 0, 50))
 #' tag
 #'
 #' # Customized tag, with coarse grid scale, known position for the first stationary period and
 #' # considering only the stationary periods lasting more than 20hours.
-#' tag <- tag_geostap(tag,
+#' tag <- tag_setmap(tag,
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 1,
 #'   include_min_duration = 20,
@@ -55,7 +55,7 @@
 #' )
 #' tag
 #' @export
-tag_geostap <- function(tag,
+tag_setmap <- function(tag,
                         extent,
                         scale = 10,
                         known = data.frame(
@@ -73,7 +73,7 @@ tag_geostap <- function(tag,
   assertthat::assert_that(all(stap$stap_id == seq_len(nrow(stap))))
 
   # Check extent and scale
-  geo_expand(extent, scale)
+  map_expand(extent, scale)
 
   # Check known
   assertthat::assert_that(is.data.frame(known))
@@ -100,21 +100,21 @@ tag_geostap <- function(tag,
   stap_include[intersect(include_stap_id, include_min_duration_id)] <- TRUE
 
   # Check if value are already defined and if they are changing
-  # Check if geostap has already been run before (all these condition should always be the same)
+  # Check if setmap has already been run before (all these condition should always be the same)
   if ("extent" %in% names(tag) | "known_lat" %in% names(stap) |
     "scale" %in% names(tag) | "include" %in% names(stap)) {
     # Check if value are changing
     chg_known <- any(stap$known_lon[known$stap_id] != known$known_lon)
     chg_include <- any(stap$include != stap_include)
-    chg_extent <- any(extent != tag$extent)
-    chg_scale <- scale != tag$scale
+    chg_extent <- any(extent != tag$param$extent)
+    chg_scale <- scale != tag$param$scale
 
     # Check if known has changed
     if (chg_known | chg_extent | chg_scale | chg_include) {
       # Only provide option to stop the process if map are already defined
       if (any(c("map_pressure", "map_light") %in% names(tag))) {
         cli::cli_alert_warning("The likelihood map ({.var map_pressure} and/or {.var map_light}) \\
-          have already been computed on this {.var tag} object with different geostap parameters \\
+          have already been computed on this {.var tag} object with different setmap parameters \\
           ({.var scale}, {.var extent}, {.var tag$known} or {.var tag$include}).")
         res <- utils::askYesNo(
           "Do you want to overwrite the parameters and delete the likelihood maps?"
@@ -141,7 +141,7 @@ tag_geostap <- function(tag,
         }
       } else {
         cli::cli_warn(c(
-          "!" = "{.fun geostap} has already been run on this {.var tag} object and the input \\
+          "!" = "{.fun setmap} has already been run on this {.var tag} object and the input \\
           parameters are different.",
           ">" = "The old parameters ({.var scale}, {.var extent}, {.var tag$known} or \\
           {.var tag$include}) will be overwitten with the new ones."
@@ -160,8 +160,8 @@ tag_geostap <- function(tag,
 
   # Add parameters to stap
   tag$stap <- stap
-  tag$scale <- scale
-  tag$extent <- extent
+  tag$param$scale <- scale
+  tag$param$extent <- extent
 
   return(tag)
 }

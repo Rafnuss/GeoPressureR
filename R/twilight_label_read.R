@@ -10,7 +10,7 @@
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #'
-#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T) |> twilight_create()
+#' tag <- tag_read("18LX", quiet = T) |> tag_label(quiet = T) |> twilight_create()
 #' plot(tag, type="twilight", plot_plotly = F) + ggplot2::ggtitle("Before label")
 #'
 #' tag <- twilight_label_read(tag)
@@ -25,6 +25,7 @@ twilight_label_read <- function(tag,
     file = file,
     timestamp = "twilight"
   )
+
   tag$param$twilight_file <- file
 
   return(tag)
