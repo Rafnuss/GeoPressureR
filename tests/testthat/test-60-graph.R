@@ -6,9 +6,9 @@ library(GeoPressureR)
 # Set working directory
 setwd(system.file("extdata/", package = "GeoPressureR"))
 
-tag <- tag_create("18LX") |>
+tag <- tag_read("18LX") |>
   tag_label() |>
-  tag_geostap(
+  tag_setmap(
     extent = c(-16, 23, 0, 50),
     scale = 1,
     known = data.frame(
@@ -19,7 +19,7 @@ tag <- tag_create("18LX") |>
   ) |>
   geopressure_map()
 
-graph <-  graph_create(tag)
+graph <- graph_create(tag)
 
 test_that("Check graph output", {
   expect_length(graph$s, length(graph$t))
@@ -38,7 +38,8 @@ test_that("Check graph output", {
 test_that("Check create_graph() for map_pressure", {
   # map of prob 0 are fill up with 1
   tag_tmp <- tag
-  tag_tmp$map_pressure[[2]][TRUE] <- 0
+  tag_tmp$map_pressure$data[[2]] <- matrix(0, nrow = dim(tag$map_pressure)[1],
+                                      ncol = dim(tag$map_pressure)[2])
   expect_no_error(graph_create(tag_tmp))
 
   # map of prob NA or NULL return an error

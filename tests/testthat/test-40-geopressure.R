@@ -36,14 +36,14 @@ tag <- structure(list(
   pressure = pressure
 ), class = "tag")
 
-tag <- tag_geostap(tag, extent, scale = scale)
+tag <- tag_setmap(tag, extent, scale = scale)
 
 tag <- geopressure_map_mismatch(tag)
 
 test_that("geopressure_map_mismatch() | default output", {
   expect_type(tag, "list")
-  expect_equal(length(dim(tag$mse[[1]])), 2)
-  expect_equal(length(dim(tag$mask[[1]])), 2)
+  expect_equal(length(dim(tag$map_pressure_mse[[1]])), 2)
+  expect_equal(length(dim(tag$map_pressure_mask[[1]])), 2)
   expect_true(tag$stap$nb_sample == 4)
 })
 
@@ -65,7 +65,7 @@ test_that("geopressure_map_likelihood() | default output", {
 
 
 test_that("geopressure_map() | default output", {
-  tag <- tag_geostap(tag, extent, scale)
+  tag <- tag_setmap(tag, extent, scale)
   expect_no_error(tag <- geopressure_map(tag))
   expect_true(assertthat::has_name(tag, c("id", "stap", "map_pressure", "param", "mask_water")))
 })

@@ -30,39 +30,37 @@ known <- data.frame(
   known_lat = .9
 )
 
-tag <- structure(list(
-  id = "18LX",
-  stap = stap,
-  pressure = pressure
-), class = "tag")
+tag <- tag_create(id = "18LX")
+tag$stap = stap
+tag$pressure = pressure
 
 
 
-test_that("tag_geostap() | no known", {
-  tag_no_known <- tag_geostap(tag, extent, scale)
-  expect_true(assertthat::has_name(tag_no_known, c("id", "stap", "scale", "extent")))
+test_that("tag_setmap() | no known", {
+  tag_no_known <- tag_setmap(tag, extent, scale)
+  expect_true(assertthat::has_name(tag_no_known$param, c("id", "scale", "extent")))
   expect_true(all(tag_no_known$stap$include))
   expect_true(all(is.na(tag_no_known$stap$known_lat)))
 })
 
-test_that("tag_geostap() | with known", {
-  tag_with_known <- tag_geostap(tag, extent, scale, known = known)
+test_that("tag_setmap() | with known", {
+  tag_with_known <- tag_setmap(tag, extent, scale, known = known)
   expect_equal(tag_with_known$stap$known_lon[1], known$known_lon)
   known_overwrite <- data.frame(
     stap_id = 1,
     known_lon = .8,
     known_lat = .9
   )
-  expect_warning(tag_overwrite <- tag_geostap(tag_with_known, extent, known = known_overwrite), "*The known latitude and longitude*")
+  expect_warning(tag_overwrite <- tag_setmap(tag_with_known, extent, known = known_overwrite))
   expect_equal(tag_overwrite$stap$known_lon[1], known_overwrite$known_lon)
 })
 
-test_that("tag_geostap() | with include", {
-  expect_error(tag_geostap(tag, extent, include_stap_id = 99))
+test_that("tag_setmap() | with include", {
+  expect_error(tag_setmap(tag, extent, include_stap_id = 99))
 
-  expect_warning(tag_include <- tag_geostap(tag, extent, include_stap_id = 2))
-  expect_equal(tag_include$stap$include, c(F,T))
+  tag_include <- tag_setmap(tag, extent, include_stap_id = 2)
+  expect_equal(tag_include$stap$include, c(F, T))
 
-  expect_warning(tag_include <- tag_geostap(tag, extent, include_min_duration = 12))
-  expect_equal(tag_include$stap$include, c(F,T))
+  tag_include <- tag_setmap(tag, extent, include_min_duration = 12)
+  expect_equal(tag_include$stap$include, c(F, T))
 })
