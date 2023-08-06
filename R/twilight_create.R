@@ -21,7 +21,7 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html)
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX", quiet = T) |> tag_label(quiet = T)
+#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
 #'
 #' # Create twilight data.frame
 #' tag <- twilight_create(tag)

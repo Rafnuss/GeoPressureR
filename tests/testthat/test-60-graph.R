@@ -6,7 +6,7 @@ library(GeoPressureR)
 # Set working directory
 setwd(system.file("extdata/", package = "GeoPressureR"))
 
-tag <- tag_read("18LX") |>
+tag <- tag_create("18LX") |>
   tag_label() |>
   tag_setmap(
     extent = c(-16, 23, 0, 50),

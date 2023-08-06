@@ -30,7 +30,7 @@
 #' - `stap_id` stationary period of the measurement matching the `tag$stap`.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX")
+#' tag <- tag_create("18LX")
 #'
 #' tag <- tag_label(tag)
 #' tag
@@ -99,7 +99,7 @@ tag_label <- function(tag,
         return(tag)
 
       } else if (res == 2) {
-        tag <- tag_read(id = tag$param$id,
+        tag <- tag_create(id = tag$param$id,
                           pressure_file = tag$param$sensor_paths[1],
                           light_file = tag$param$sensor_paths[2],
                           acceleration_file = tag$param$sensor_paths[3],

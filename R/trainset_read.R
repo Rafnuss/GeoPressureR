@@ -16,6 +16,7 @@ trainset_read <- function(df,
                           timestamp = "date",
                           label = "label") {
   assertthat::assert_that(is.data.frame(df))
+  assertthat::assert_that(nrow(df)>0)
   assertthat::assert_that(is.character(timestamp))
   assertthat::assert_that(is.character(label))
   assertthat::assert_that(assertthat::has_name(df, timestamp))

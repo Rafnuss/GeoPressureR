@@ -12,7 +12,7 @@
 #'
 #' @return the updated `tag` object
 #' @examples
-#' tag <- tag_read("18LX", quiet = T) |>
+#' tag <- tag_create("18LX", quiet = T) |>
 #'   tag_label(quiet = T) |>
 #'   tag_setmap(extent = c(-16, 23, 0, 50), scale = 1) |>
 #'   geopressure_map()
@@ -32,7 +32,7 @@ tag_update <- function(tag,
   tag_assert(tag, "map_pressure")
 
   # Re-create the original tag before label
-  tag_new <- tag_read(id = tag$param$id,
+  tag_new <- tag_create(id = tag$param$id,
                         pressure_file = tag$param$sensor_paths[1],
                         light_file = tag$param$sensor_paths[2],
                         acceleration_file = tag$param$sensor_paths[3],

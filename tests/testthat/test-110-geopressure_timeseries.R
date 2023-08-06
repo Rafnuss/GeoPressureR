@@ -54,7 +54,7 @@ test_that("pressurepath_create() | Default output", {
 
 
 # Start by computing all the necessary file for the tests
-tag <- tag_read("18LX", quiet = T) |> tag_label(quiet = T)
+tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
 stap <- tag$stap
 path <- data.frame(
   stap_id = seq_len(5),

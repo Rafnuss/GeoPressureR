@@ -25,7 +25,7 @@
 #' - `lon` longitude
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX") |> tag_label()
+#' tag <- tag_create("18LX") |> tag_label()
 #' tag <- tag_setmap(tag,
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 2,

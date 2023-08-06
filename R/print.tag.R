@@ -9,7 +9,7 @@
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX")
+#' tag <- tag_create("18LX")
 #' print(tag)
 #'
 #' @family tag
@@ -22,7 +22,7 @@ print.tag <- function(x, ...) {
   status <- GeoPressureR:::tag_status(tag)
 
   if (! ("read" %in% status)){
-    cli::cli_alert_danger("Sensors data not yet read. Use {.fun tag_read}")
+    cli::cli_alert_danger("Sensors data not yet read. Use {.fun tag_create}")
     return(invisible(tag))
   }
 

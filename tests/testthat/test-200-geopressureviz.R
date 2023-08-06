@@ -9,7 +9,7 @@ skip("skip geopressureviz")
 # Set working directory
 setwd(system.file("extdata/", package = "GeoPressureR"))
 
-tag <- tag_read("18LX")
+tag <- tag_create("18LX")
 tag <- tag_label(tag)
 expect_error(geopressureviz(tag))
 tag <- tag_setmap(tag,

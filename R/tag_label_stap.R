@@ -20,7 +20,7 @@
 #' `tag$stap` and (2) a new column `stap_id` for each sensor data.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX", quiet = T) |>
+#' tag <- tag_create("18LX", quiet = T) |>
 #'   tag_label_read()
 #'
 #' tag <- tag_label_stap(tag)
@@ -39,7 +39,7 @@ tag_label_stap <- function(tag,
   if ("setmap" %in% tag_status(tag)) {
     cli::cli_abort(c(
       "x" = "{.fun setmap} has already been run on this {.var tag}.",
-      ">" = "It is best practice to start from your raw data again using {.fun tag_read}.",
+      ">" = "It is best practice to start from your raw data again using {.fun tag_create}.",
       "i" = "You can also use {.fun tag_update} to only change the what needs to be updated in {.var tag}."
     ))
   }

@@ -25,7 +25,7 @@
 #' The value in brackets are only for the data.frame
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX", quiet = T) |> tag_label(quiet = T)
+#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
 #'
 #' # By default, return a data.frame of all individual flights
 #' knitr::kable(stap2flight(tag$stap))

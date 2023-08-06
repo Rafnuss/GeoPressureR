@@ -18,7 +18,7 @@
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX")
+#' tag <- tag_create("18LX")
 #'
 #' tag <- tag_label_auto(tag, min_duration = 15)
 #' str(tag$acceleration)

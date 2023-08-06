@@ -4,7 +4,7 @@ library(GeoPressureR)
 # Set working directory
 setwd(system.file("extdata/", package = "GeoPressureR"))
 
-tag <- tag_read("18LX")
+tag <- tag_create("18LX")
 tag <- twilight_create(tag, twl_offset = 0)
 
 test_that("Check twilight_create()", {

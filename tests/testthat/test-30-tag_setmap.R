@@ -30,9 +30,10 @@ known <- data.frame(
   known_lat = .9
 )
 
-tag <- tag_create(id = "18LX")
-tag$stap = stap
-tag$pressure = pressure
+tag <- structure(list(
+  param = param_create(id = "18LX"),
+  stap = stap,
+  pressure = pressure), class="tag")
 
 
 

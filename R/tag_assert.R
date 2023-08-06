@@ -16,11 +16,6 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
 
   if (condition == "tag") {
     msg <- c("x" = "tag is not a `tag` object.")
-  } else if (condition == "read") {
-    msg <- c(
-      "x" = "The `tag` object has no data.",
-      ">" = "Use {.fun tag_read} to add data."
-    )
   } else if (condition == "pressure") {
     msg <- c(
       "x" = "The `tag` object does not have `pressure` data."
@@ -137,27 +132,3 @@ tag_status <- function(tag) {
 
   return(status)
 }
-
-#' Status to factor
-#'
-#' These functions return a vector of the status of `tag`.
-#'
-#'
-#' @param tag a `tag` object
-#'
-#' @return logical indicating the `tag` object has the relevant element
-#' @noRd
-status2factor <- function(status) {
-  factor(status, levels = c("tag", ""))
-}
-
-
-# status = list(
-#     name = "tag",
-#     condition = \(tag) assertthat::has_name(tag, "map_light"),
-#     msg = c(
-#       "x" = "The light likelihood map has not yet been computed for `tag`.",
-#       ">" = "Use {.fun geolight_map} to compute the maps."
-#     )
-#   )
-# )

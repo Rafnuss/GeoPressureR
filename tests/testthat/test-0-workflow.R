@@ -45,7 +45,7 @@ test_that("workflow | full", {
 })
 
 test_that("workflow | Missing pressure value", {
-  tag <- tag_read("18LX", quiet = T) |> tag_label(quiet = T)
+  tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
   tag$pressure <- subset(tag$pressure, stap_id == 3 | stap_id == 4)
 
   tag <- tag_setmap(tag, extent = c(-16, 23, 0, 50), scale = 1)
@@ -67,7 +67,7 @@ test_that("workflow | Missing pressure value", {
 
 
 test_that("workflow | with elev_", {
-  tag <- tag_read("18LX", quiet = T)
+  tag <- tag_create("18LX", quiet = T)
   tag <- tag_label(tag, file = "./data/tag-label/18LX-labeled-elev.csv", quiet = T)
   tag <- tag_setmap(tag,
     extent = c(-16, 23, 0, 50),
@@ -87,7 +87,7 @@ test_that("workflow | with elev_", {
 
 
 test_that("workflow | modeled fewer", {
-  tag <- tag_read("18LX", quiet = T) |> tag_label(quiet = T)
+  tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
   tag <- tag_setmap(tag,
     extent = c(-16, 23, 0, 50),
     scale = 1,

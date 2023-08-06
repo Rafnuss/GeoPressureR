@@ -35,7 +35,7 @@
 #' - `scale` same as input parameter `scale`
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX") |> tag_label()
+#' tag <- tag_create("18LX") |> tag_label()
 #'
 #' # Default tag
 #' tag <- tag_setmap(tag, c(-16, 23, 0, 50))
@@ -157,6 +157,13 @@ tag_setmap <- function(tag,
 
   # Add the vector of stap to include
   stap$include <- stap_include
+
+  if (all(!stap$include)){
+    cli::cli_warn(c(
+      "x" = "All stationary periods have been excluded from the computation",
+      ">" = "Check {.var include_stap_id} {.var include_min_duration}."
+    ))
+  }
 
   # Add parameters to stap
   tag$stap <- stap

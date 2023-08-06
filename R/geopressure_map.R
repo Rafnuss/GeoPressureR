@@ -49,7 +49,7 @@
 #' temp_dir <- getwd()
 #' print(temp_dir)
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_read("18LX", quiet = T) |>
+#' tag <- tag_create("18LX", quiet = T) |>
 #' tag_label(quiet = T) |>
 #' tag_setmap(
 #'   extent = c(-16, 23, 0, 50),
