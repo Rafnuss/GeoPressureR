@@ -72,8 +72,8 @@ tag_read <- function(id = NULL,
                      pressure_file = "*.pressure",
                      light_file = "*.glf",
                      acceleration_file = "*.acceleration",
-                     crop_start = "1900-01-01",
-                     crop_end = "2100-01-01",
+                     crop_start = NULL,
+                     crop_end = NULL,
                      quiet = FALSE) {
   # If id is provided but not tag, the tag is created empty
   if (is.null(tag) & !is.null(id)){
@@ -97,15 +97,7 @@ tag_read <- function(id = NULL,
 
   tag_assert(tag)
 
-
-  # Overwrite argument with param if missing from function, but presents in tag$param
-  if (missing(pressure_file) & "pressure_file" %in% names(tag$param))
-    pressure_file = tag$param$pressure_file
-  if (missing(pressure_file) & "pressure_file" %in% names(tag$param))
-    pressure_file = tag$param$pressure_file
-  if (missing(pressure_file) & "pressure_file" %in% names(tag$param))
-    pressure_file = tag$param$pressure_file
-
+  # Fix NA vs NULL, so that both would work
   if (is.null(pressure_file))
     pressure_file <- NA
   if (is.null(acceleration_file))
@@ -152,7 +144,7 @@ tag_read <- function(id = NULL,
       "!" = "Pressure file are required")
     )
   } else if (tools::file_ext(sensor_paths[[1]]) == "pressure"){
-    tag$pressure <- subset(tag_read_dto(sensor_paths[[1]], quiet = quiet), date >= crop_start & date < crop_end)
+    tag$pressure <- tag_read_dto(sensor_paths[[1]], quiet = quiet)
   } else if ( tools::file_ext(sensor_paths[[1]]) == "deg"){
     # Check that it is a valid Migrate Technology file
     assertthat::assert_that(grepl("Migrate Technology", readLines(sensor_paths[[1]], n = 1)))
@@ -186,14 +178,28 @@ tag_read <- function(id = NULL,
     # convert Pa in hPa
     pres$value <- pres$value / 100
 
-    # Crop time
-    tag$pressure <- subset(pres, date >= crop_start & date < crop_end)
+    tag$pressure <- pres
+
   } else {
     cli::cli_abort(
       "The pressure file {.val {sensor_paths[[1]]}} should have the extension {.val .pressure} \\
         or {.val .deg}"
     )
-    }
+   }
+
+  # Crop time
+  if (!is.null(crop_start))
+    tag$pressure <- subset(pres, date >= crop_start)
+  if (!is.null(crop_end))
+    tag$pressure <- subset(pres, date < crop_end)
+
+  if (nrow(tag$pressure)==0) {
+    cli::cli_abort(c(
+      "!" = "Empty {.field pressure} sensor dataset from {.file {sensor_paths[[1]]}}",
+      ">" = "Check crop date."
+    ))
+  }
+
 
   # Read light
   if (!is.na(sensor_paths[[2]])) {
@@ -221,7 +227,13 @@ tag_read <- function(id = NULL,
           quiet = quiet
         )
 
-        subset(light, date >= crop_start & date < crop_end)
+        # Crop time
+        if (!is.null(crop_start))
+          light <- subset(light, date >= crop_start)
+        if (!is.null(crop_end))
+          light <- subset(light, date < crop_end)
+
+        return(light)
       }
     )
   }
@@ -261,8 +273,14 @@ tag_read <- function(id = NULL,
           date_format = "%d/%m/%Y %H:%M:%S",
           quiet = quiet
         )
+
         # Crop time
-        subset(acc, date >= crop_start & date < crop_end)
+        if (!is.null(crop_start))
+          acc <- subset(acc, date >= crop_start)
+        if (!is.null(crop_end))
+          acc <- subset(acc, date < crop_end)
+
+        return(acc)
       }
     )
   }
