@@ -134,7 +134,7 @@ graph_create <- function(tag,
   nds <- lapply(lk_norm, function(l) {
     # First, compute the threshold of prob corresponding to percentile
     ls <- sort(l)
-    id_prob_percentile <- sum(cumsum(ls) <= (1 - thr_likelihood))
+    id_prob_percentile <- sum(cumsum(ls) < (1 - thr_likelihood))
     thr_prob <- ls[id_prob_percentile + 1]
 
     # return matrix if the values are above the threshold
