@@ -14,18 +14,36 @@
 #' @method plot map
 #' @export
 plot.map <- function(map,
+                     thr_likelihood = 1,
                      path = NULL,
                      plot_leaflet = TRUE,
                      provider = "Stamen.TerrainBackground",
-                     palette = "OrRd",
+                     palette = "auto",
                      opacity = 0.8,
                      legend = FALSE,
                      ...) {
+
+  # Eliminate unlikely pixel, same as in the creation of graph
+  map$data <- lapply(map$data, function(m) {
+
+    # Normalize
+    m <- m / sum(m, na.rm = TRUE)
+
+    ms <- sort(m)
+    id_prob_percentile <- sum(cumsum(ms) < (1 - thr_likelihood))
+    thr_prob <- ms[id_prob_percentile + 1]
+
+    m[m < thr_prob] <- NA
+
+    return(m)
+  })
+
   # Convert map into rast
   r <- rast(map)
 
   # If r is very small, the plot is not working, this is a small trick to solve it.
-  r <- r / max(terra::minmax(r)[2, ], na.rm = TRUE)
+  # r <- r / max(terra::minmax(r)[2, ], na.rm = TRUE)
+
 
   if (plot_leaflet) {
     require("terra") # require to attach has.RGB which has missing dependancy
@@ -34,6 +52,24 @@ plot.map <- function(map,
 
     lmap <- leaflet::leaflet(width = "100%") |>
       leaflet::addProviderTiles(provider = provider)
+
+    if (palette == "auto") {
+      if ("pressure" == map$type) {
+        palette <- "GnBu"
+      } else if ("light" == map$type) {
+        palette <- "OrRd"
+      } else if ("pressure_mse" == map$type) {
+        palette <- "BuPu"
+      } else if ("pressure_mask" == map$type) {
+        palette <- "YlOrBr"
+      } else if ("mask_water" == map$type) {
+        palette <- "Greys"
+      } else if ("marginal" == map$type) {
+        palette <- "plasma"
+      }else {
+        palette <- "plasma"
+      }
+    }
 
     for (i in seq_len(dim(r)[3])) {
       lmap <- leaflet::addRasterImage(

@@ -69,7 +69,7 @@ geolight_map <- function(tag,
   if (all(is.na(stap$known_lat))) {
     cli::cli_abort(c(
       x = "There are no known location on which to calibrate in {.var stap$known_lat}.",
-      ">" = "Add a the calibration stationary period {.var known} with {.fun tag_param}."
+      ">" = "Add a the calibration stationary period {.var known} with {.fun tag_setmap}."
     ))
   }
 

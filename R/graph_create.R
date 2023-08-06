@@ -65,11 +65,11 @@ graph_create <- function(tag,
   # Select only the map for the stap to model
   lk <- lk[stap_model]
 
-  tmp <- sapply(lk, is.null)
-  if (any(tmp)) {
+  lk_null <- sapply(lk, is.null)
+  if (any(lk_null)) {
     cli::cli_abort(c(
       x = "The {.field {likelihood}} in {.var tag} is/are null for stationary periods \\
-       {.var {stap_model[tmp]}} while those stationary period are required in {.var stap$include}",
+       {.var {stap_model[lk_null]}} while those stationary period are required in {.var stap$include}",
       i = "Check your input and re-run {.fun geopressure_map} if necessary."
     ))
   }
@@ -178,8 +178,7 @@ graph_create <- function(tag,
   }
 
   # Check that there are still pixel present
-  tmp <- unlist(lapply(nds, sum)) == 0
-  if (any(tmp)) {
+  if (any(unlist(lapply(nds, sum)) == 0)) {
     cli::cli_abort(c(
       x = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance \\
           edges, there are not any nodes left."

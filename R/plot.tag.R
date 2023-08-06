@@ -5,13 +5,12 @@
 #' @param x A GeoPressureR `tag` object.
 #' @param type type of the plot to display. One of "pressure", "acceleration", "light", "twilight"
 #' "map", "map_pressure", "map_light", "map_pressure_mse", "map_pressure_mask", "mask_water"
-#' @inheritParams leaflet::colorNumeric
 #' @param ... Additional parameters
 #'
 #' @return `tag` is returned invisibly and unchanged
 #' @family tag
 #' @export
-plot.tag <- function(x, type = NULL, palette = NULL, ...) {
+plot.tag <- function(x, type = NULL, ...) {
   tag <- x
 
   # Define default
@@ -34,21 +33,7 @@ plot.tag <- function(x, type = NULL, palette = NULL, ...) {
     plot_tag_twilight(tag, ...)
   } else if (grepl("map", type)) {
     # Define optimal color palete base on the type of variable shown
-    if (is.null(palette)) {
-      if ("map_pressure" == type) {
-        palette <- "PuBu"
-      } else if ("map_light" == type) {
-        palette <- "YlOrBr"
-      } else if ("map_pressure_mse" == type) {
-        palette <- "BuPu"
-      } else if ("map_pressure_mask" == type) {
-        palette <- "PuRd"
-      } else if ("mask_water" == type) {
-        palette <- "Greys"
-      } else {
-        palette <- "OrRd"
-      }
-    }
+
     # Accept type="map" for default map determined by `tag2map` with likelihood = NA
     if (type == "map") {
       type <- NULL
@@ -58,7 +43,7 @@ plot.tag <- function(x, type = NULL, palette = NULL, ...) {
     map <- tag2map(tag, likelihood = type)
 
     # plot the map
-    plot.map(map, stap = tag$stap, palette = palette, ...)
+    plot.map(map, stap = tag$stap, ...)
   } else {
     cli::cli_abort(c(
       "x" = "The type {.val {type}} is not known",
