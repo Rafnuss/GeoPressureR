@@ -92,8 +92,8 @@ plot_tag_pressure <- function(tag,
 
     # Compute number of datapoint per stationary period
     pressure_length <- merge(stap[stap$include & is.na(stap$known_lat), ],
-                             data.frame(table(pres$stap_id)),
-                             by.x = "stap_id", by.y = "Var1", all.x = TRUE
+      data.frame(table(pres$stap_id)),
+      by.x = "stap_id", by.y = "Var1", all.x = TRUE
     )
     pressure_length$Freq[is.na(pressure_length$Freq)] <- 0
 
@@ -102,23 +102,23 @@ plot_tag_pressure <- function(tag,
       cli::cli_h3("Pre-processed pressure data length")
       if (length(id_length) > 0) {
         for (i in seq_len(length(id_length))) {
-          cli::cli_alert_warning("There are only {.val {pressure_length$Freq[id_length[i]]}} \\
-            datapoint{?s} for the stationary period {.val {pressure_length$stap_id[id_length[i]]}}")
+          cli::cli_inform(c("!" = "There are only {.val {pressure_length$Freq[id_length[i]]}} \\
+            datapoint{?s} for the stationary period \\
+                            {.val {pressure_length$stap_id[id_length[i]]}}\f"))
         }
       } else {
-        cli::cli_alert_success("All stationary periods have more than \\
-                              {.val {warning_stap_length}} datapoints.")
+        cli::cli_inform(c("v" = "All stationary periods have more than \\
+                              {.val {warning_stap_length}} datapoints.\f"))
       }
     }
 
     # Pressure difference
-    id_diff_1hr <-
-      pres_diff <- data.frame(
-        value = abs(diff(pres$value)),
-        value_avg = utils::head(pres$value, -1) + diff(pres$value) / 2,
-        date = utils::head(pres$date, -1) + diff(pres$date) / 2,
-        stap_id = (utils::tail(pres$stap_id, -1) + utils::head(pres$stap_id, -1)) / 2
-      )
+    pres_diff <- data.frame(
+      value = abs(diff(pres$value)),
+      value_avg = utils::head(pres$value, -1) + diff(pres$value) / 2,
+      date = utils::head(pres$date, -1) + diff(pres$date) / 2,
+      stap_id = (utils::tail(pres$stap_id, -1) + utils::head(pres$stap_id, -1)) / 2
+    )
     # Only keep the 1 hours difference
     pres_diff <- pres_diff[as.numeric(diff(pres$date), units = "hours") == 1, ]
     # Remove diff overlapping between stationary periods/flight
@@ -133,19 +133,19 @@ plot_tag_pressure <- function(tag,
     if (!quiet) {
       cli::cli_h3("Pressure difference")
       if (nrow(pres_diff) > 0) {
-        cli::cli_alert("{.val {nrow(pres_diff)}} timestamp{?s} show{?s/} abnormal hourly change \\
-                            in pressure (i.e., >{.val {warning_pressure_diff}}hPa): ")
+        cli::cli_inform(c(">" = "{.val {nrow(pres_diff)}} timestamp{?s} show{?s/} abnormal hourly \\
+                            change in pressure (i.e., >{.val {warning_pressure_diff}}hPa): \f"))
         for (i in seq_len(min(nrow(pres_diff), pressure_diff_max_display))) {
-          cli::cli_alert_warning("{pres_diff$date[i]} | stap: {pres_diff$stap_id[i]} | \\
-                                  {.val {round(pres_diff$value[i],1)}} hPa ")
+          cli::cli_inform(c("!" = "{pres_diff$date[i]} | stap: {pres_diff$stap_id[i]} | \\
+                                  {.val {round(pres_diff$value[i],1)}} hPa \f"))
         }
         if (nrow(pres_diff) > pressure_diff_max_display) {
-          cli::cli_alert("{.val {nrow(pres_diff)-pressure_diff_max_display}} more \\
-                             timestamp{?s} {?is/are} exceeding the threshold.")
+          cli::cli_inform(c(">" = "{.val {nrow(pres_diff)-pressure_diff_max_display}} more \\
+                             timestamp{?s} {?is/are} exceeding the threshold.\f"))
         }
       } else {
-        cli::cli_alert_success("All hourly changes in pressure are below \\
-                               {.val {warning_pressure_diff}} hPa.")
+        cli::cli_inform(c("v" = "All hourly changes in pressure are below \\
+                               {.val {warning_pressure_diff}} hPa.\f"))
       }
     }
 
@@ -298,12 +298,12 @@ plot_tag_twilight <- function(tag,
   names(df) <- mat$day
   df$time <- factor(mat$time, levels = mat$time)
   df_long <- stats::reshape(df,
-                     direction = "long",
-                     varying = list(utils::head(names(df), -1)),
-                     v.names = "light",
-                     idvar = "time",
-                     timevar = "date",
-                     times = utils::head(names(df), -1)
+    direction = "long",
+    varying = list(utils::head(names(df), -1)),
+    v.names = "light",
+    idvar = "time",
+    timevar = "date",
+    times = utils::head(names(df), -1)
   )
   df_long$date <- as.Date(df_long$date)
 
@@ -362,7 +362,13 @@ plot_tag_twilight <- function(tag,
   } else {
     # Setting the breaks seems to mess up plotly
     p <- p +
-      ggplot2::scale_y_discrete(name = "Time", breaks = format(seq(as.POSIXct("2015-1-1 0:00"), as.POSIXct("2015-1-1 23:00"), by = "hour"), "%H:%M"))
+      ggplot2::scale_y_discrete(
+        name = "Time",
+        breaks = format(
+          seq(as.POSIXct("2015-1-1 0:00"), as.POSIXct("2015-1-1 23:00"), by = "hour"),
+          "%H:%M"
+        )
+      )
     return(p)
   }
 }

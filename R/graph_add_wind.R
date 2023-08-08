@@ -71,7 +71,8 @@ graph_add_wind <- function(graph,
         cli::cli_abort(c(
           x = "Time between graph data and the wind file ({.file {file(i_s)}}) are not matching.",
           "!" = "You might have modified your stationary periods without updating your wind file? ",
-          ">" = "If so, run {.run tag_download_wind(tag)}"))
+          ">" = "If so, run {.run tag_download_wind(tag)}"
+        ))
       }
 
       pres <- ncdf4::ncvar_get(nc, "level")
@@ -83,7 +84,8 @@ graph_add_wind <- function(graph,
         cli::cli_abort(c(
           x = "Time between graph data and the wind file ({.file {file(i_s)}}) are not matching.",
           "!" = "You might have modified your stationary periods without updating your wind file? ",
-          ">" = "If so, run {.run tag_download_wind(tag)}"))
+          ">" = "If so, run {.run tag_download_wind(tag)}"
+        ))
       }
 
       # Check if spatial extend match
@@ -313,10 +315,9 @@ graph_add_wind <- function(graph,
   sta_pass <- which(!(seq_len(graph$sz[3] - 1) %in% unique(s[id, 3])))
   if (length(sta_pass) > 0) {
     cli::cli_abort(c(
-      x =
-        "Using the {.val thr_as} of {thr_as} km/h provided with the exact distance of edges, there \\
-      are not any nodes left for the stationary period: {sta_pass} with a minimum airspeed of \\
-      {min(abs(as[s[, 3] == sta_pass]))} km/h."
+      x = "Using the {.val thr_as} of {thr_as} km/h provided with the exact distance of edges, \\
+      there are not any nodes left for the stationary period: {sta_pass} with a minimum airspeed \\
+      of {min(abs(as[s[, 3] == sta_pass]))} km/h."
     ))
   }
 

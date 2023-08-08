@@ -15,7 +15,7 @@ plot_graph_movement <- function(graph,
   d <- data.frame(
     speed = speed,
     prob = speed2prob(speed, graph$movement)
-    )
+  )
   lsf <- data.frame(low_speed_fix = graph$movement$low_speed_fix)
 
   if (assertthat::has_name(graph, c("ws"))) {

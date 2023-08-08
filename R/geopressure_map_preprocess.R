@@ -48,7 +48,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   }
 
   # Filter stap which are known
-  if (!compute_known & "known_lat" %in% names(stap)) {
+  if (!compute_known && "known_lat" %in% names(stap)) {
     pressure <- pressure[pressure$stap_id %in% stap$stap_id[is.na(stap$known_lat)], ]
   }
 

@@ -37,7 +37,8 @@ test_that("check speed2power()", {
 test_that("check graph_add_movement() with groundspeed/gamma", {
   speed <- seq(0, 100)
   graph <- structure(list(
-    id = NULL, s = NULL, t = NULL, gs = 1, obs = NULL, sz = NULL, stap = NULL, equipment = NULL, retrieval = NULL, extent = NULL, scale = NULL, mask_water = NULL
+    id = NULL, s = NULL, t = NULL, gs = 1, obs = NULL, sz = NULL, stap = NULL, equipment = NULL,
+    retrieval = NULL, extent = NULL, scale = NULL, mask_water = NULL
   ), class = "graph")
   graph <- graph_add_movement(graph)
   expect_no_error(speed2prob(speed, graph$movement))
@@ -50,7 +51,8 @@ test_that("check graph_add_movement() with groundspeed/gamma", {
 test_that("check speed2prob() with groundspeed/logis", {
   speed <- seq(0, 100)
   graph <- structure(list(
-    id = NULL, s = NULL, t = NULL, gs = 1, obs = NULL, sz = NULL, stap = NULL, equipment = NULL, retrieval = NULL, extent = NULL, scale = NULL, mask_water = NULL
+    id = NULL, s = NULL, t = NULL, gs = 1, obs = NULL, sz = NULL, stap = NULL, equipment = NULL,
+    retrieval = NULL, extent = NULL, scale = NULL, mask_water = NULL
   ), class = "graph")
 
   expect_no_error(graph_add_movement(graph, method = "logis"))
@@ -60,7 +62,8 @@ test_that("check speed2prob() with groundspeed/logis", {
 
 test_that("check speed2prob() with airspeed/bird", {
   graph <- structure(list(
-    id = NULL, s = NULL, t = NULL, gs = 1, ws = 1, obs = NULL, sz = NULL, stap = NULL, equipment = NULL, retrieval = NULL, extent = NULL, scale = NULL, mask_water = NULL
+    id = NULL, s = NULL, t = NULL, gs = 1, ws = 1, obs = NULL, sz = NULL, stap = NULL,
+    equipment = NULL, retrieval = NULL, extent = NULL, scale = NULL, mask_water = NULL
   ), class = "graph")
   bird <- bird_create("Acrocephalus arundinaceus")
   expect_no_error(graph_add_movement(graph, bird = bird))

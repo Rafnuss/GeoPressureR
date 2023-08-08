@@ -41,7 +41,7 @@ trainset_write <- function(df,
   # Check if folder exist
   dir_file <- dirname(file)
   if (!dir.exists(dir_file)) {
-    cli::cli_alert_warning("The directory {.file {file.path(getwd(), dir_file)}} does not exists.")
+    cli::cli_inform(c("!" = "The directory {.file {file.path(getwd(), dir_file)}} does not exists.\f"))
     res <- utils::askYesNo("Do you want to create it?")
     if (res) {
       dir.create(dir_file)
@@ -57,6 +57,6 @@ trainset_write <- function(df,
     row.names = FALSE
   )
 
-  cli::cli_alert_success("{.file {file}} written successfully.")
+  cli::cli_inform(c("v" = "{.file {file}} written successfully.\f"))
   return(file)
 }

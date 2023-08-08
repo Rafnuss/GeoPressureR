@@ -23,26 +23,27 @@ plot_path <- function(path,
 
 
 #' @noRd
-plot_path_leaflet <- function(map,
-                              path,
-                              polyline = list(
-                                stroke = TRUE,
-                                color = "black",
-                                weight = 5,
-                                opacity = 0.7,
-                                dashArray = NULL
-                              ),
-                              circle = list(
-                                radius = stap2duration(path)^(0.25) * 6,
-                                stroke = TRUE,
-                                color = "white",
-                                weight = 2,
-                                opacity = 1,
-                                fill = ifelse(is.null(path$interp), TRUE, !path$interp),
-                                fillColor = "grey",
-                                fillOpacity = 0.8,
-                                label = glue::glue("#{path$stap_id}, {round(stap2duration(path), 1)} days")
-                              )) {
+plot_path_leaflet <- function(
+    map,
+    path,
+    polyline = list(
+      stroke = TRUE,
+      color = "black",
+      weight = 5,
+      opacity = 0.7,
+      dashArray = NULL
+    ),
+    circle = list(
+      radius = stap2duration(path)^(0.25) * 6,
+      stroke = TRUE,
+      color = "white",
+      weight = 2,
+      opacity = 1,
+      fill = ifelse(is.null(path$interp), TRUE, !path$interp),
+      fillColor = "grey",
+      fillOpacity = 0.8,
+      label = glue::glue("#{path$stap_id}, {round(stap2duration(path), 1)} days")
+    )) {
   map <- do.call(leaflet::addPolylines, c(
     list(
       map = map,

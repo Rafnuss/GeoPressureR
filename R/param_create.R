@@ -4,14 +4,16 @@
 #'
 #' @param id Unique identifier of a tag.
 #' @param default Logical to initiate param with default value of the package.
+#' @param ... arguments passed from other methods
+#'
 #' @return A GeoPressureR `param` list
 #'
 #' @family param
 #' @export
-param_create <- function(id , default = FALSE, ...){
+param_create <- function(id, default = FALSE, ...) {
   assertthat::assert_that(is.character(id))
 
-  if (default){
+  if (default) {
     param <- list(
       id = id,
       sensor_file_directory = formals(tag_create)$directory,
@@ -52,7 +54,7 @@ param_create <- function(id , default = FALSE, ...){
       GeoPressureR_version = utils::packageVersion("GeoPressureR")
     )
   } else {
-    param <-list(
+    param <- list(
       id = id
     )
   }
@@ -60,10 +62,9 @@ param_create <- function(id , default = FALSE, ...){
   # Overwrite default value with input value
   param_overwrite <- list(...)
   common_names <- intersect(names(param), names(param_overwrite))
-  for(name in common_names) {
+  for (name in common_names) {
     param[[name]] <- param_overwrite[[name]]
   }
 
   return(param)
 }
-

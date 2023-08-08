@@ -42,7 +42,7 @@ tag2likelihood <- function(tag, likelihood = NULL) {
     pst <- authorized_lk %in% names(tag)
 
     # Priority 1: pressure x light
-    if (pst[1] & pst[2]) {
+    if (pst[1] && pst[2]) {
       likelihood <- authorized_lk[c(1, 2)]
     } else {
       # Priority 2: in the order of authorized_lk

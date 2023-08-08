@@ -61,8 +61,8 @@ path <- data.frame(
   ind = c(1652, 1554, 1407, 1611, 1409),
   lat = c(48.5, 46.5, 43.5, 39.5, 41.5),
   lon = c(17.5, 15.5, 12.5, 16.5, 13),
-  model = c(T, T, T, T, T),
-  known = c(T, F, F, F, F)
+  model = c(TRUE, TRUE, TRUE, TRUE, TRUE),
+  known = c(TRUE, FALSE, FALSE, FALSE, FALSE)
 )
 
 i_s <- 4

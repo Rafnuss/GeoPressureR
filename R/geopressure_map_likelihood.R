@@ -40,7 +40,7 @@ geopressure_map_likelihood <- function(tag,
     ))
   }
   assertthat::assert_that(all(sd >= 0))
-  if (any(sd < 0.3) | any(sd > 5)) {
+  if (any(sd < 0.3) || any(sd > 5)) {
     cli::cli_warn(c(
       "!" = "{.var sd} has values {.val {unique(sd)}}.",
       "i" = "It is generally not recommended to have a standard deviation between {.val {0.3}} \\
@@ -92,12 +92,14 @@ geopressure_map_likelihood <- function(tag,
   }
 
   # Create map object
-  tag$map_pressure <- map_create(data = map_pressure,
-                                     extent = tag$param$extent,
-                                     scale = tag$param$scale,
-                                     stap = tag$stap,
-                                     id = tag$param$id,
-                                     type = "pressure")
+  tag$map_pressure <- map_create(
+    data = map_pressure,
+    extent = tag$param$extent,
+    scale = tag$param$scale,
+    stap = tag$stap,
+    id = tag$param$id,
+    type = "pressure"
+  )
 
   tag$param$sd <- sd
   tag$param$thr_mask <- thr_mask

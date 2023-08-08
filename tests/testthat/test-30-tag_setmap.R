@@ -33,7 +33,8 @@ known <- data.frame(
 tag <- structure(list(
   param = param_create(id = "18LX"),
   stap = stap,
-  pressure = pressure), class="tag")
+  pressure = pressure
+), class = "tag")
 
 
 
@@ -60,8 +61,8 @@ test_that("tag_setmap() | with include", {
   expect_error(tag_setmap(tag, extent, include_stap_id = 99))
 
   tag_include <- tag_setmap(tag, extent, include_stap_id = 2)
-  expect_equal(tag_include$stap$include, c(F, T))
+  expect_equal(tag_include$stap$include, c(FALSE, TRUE))
 
   tag_include <- tag_setmap(tag, extent, include_min_duration = 12)
-  expect_equal(tag_include$stap$include, c(F, T))
+  expect_equal(tag_include$stap$include, c(FALSE, TRUE))
 })

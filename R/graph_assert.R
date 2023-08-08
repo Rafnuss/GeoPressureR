@@ -3,8 +3,8 @@
 #' These functions return logical about the contents of a `graph` object.
 #'
 #' @param graph a GeoPressureR `graph` object
-#' @param condition condition to assert `tag` for. One of "tag" (default), "label", "stap", "setmap",
-#' "pressure_map" and "map_pressure_mismatch", "twilight"
+#' @param condition condition to assert `tag` for. One of "tag" (default), "label", "stap",
+#' "setmap", "pressure_map" and "map_pressure_mismatch", "twilight"
 #'
 #' @return logical indicating the `tag` object has the relevant element
 #' @export

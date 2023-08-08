@@ -20,11 +20,11 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
     msg <- c(
       "x" = "The `tag` object does not have `pressure` data."
     )
-  }else if (condition == "light") {
+  } else if (condition == "light") {
     msg <- c(
       "x" = "The `tag` object does not have `light` data."
     )
-  }else if (condition == "acceleration") {
+  } else if (condition == "acceleration") {
     msg <- c(
       "x" = "The `tag` object does not have `acceleration` data."
     )
@@ -40,7 +40,8 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
     )
   } else if (condition == "setmap") {
     msg <- c(
-      "x" = "The parameters for the geographical and stationary period have not been yet been defined in `tag`.",
+      "x" = "The parameters for the geographical and stationary period have not been yet been \\
+      defined in `tag`.",
       ">" = "Use {.fun tag_setmap} to define them."
     )
   } else if (condition == "map_pressure") {
@@ -71,14 +72,13 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
     return(TRUE)
   }
 
-  if (type == "inform"){
+  if (type == "inform") {
     cli::cli_inform(msg)
-  }else if (type == "warn"){
+  } else if (type == "warn") {
     cli::cli_warn(msg)
-  }else {
+  } else {
     cli::cli_abort(msg)
   }
-
 }
 
 #' Return status of a `tag`
@@ -91,8 +91,7 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
 #' @return logical indicating the `tag` object has the relevant element
 #' @noRd
 tag_status <- function(tag) {
-
-  if (!inherits(tag, "tag")){
+  if (!inherits(tag, "tag")) {
     return(c())
   }
   status <- c("tag")
@@ -109,11 +108,11 @@ tag_status <- function(tag) {
   if (assertthat::has_name(tag$pressure, "label")) {
     status <- append(status, "label")
   }
-  if (assertthat::has_name(tag, "stap") &
+  if (assertthat::has_name(tag, "stap") &&
     assertthat::has_name(tag$stap, "stap_id")) {
     status <- append(status, "stap")
   }
-  if (assertthat::has_name(tag$param, c("extent", "scale")) &
+  if (assertthat::has_name(tag$param, c("extent", "scale")) &&
     assertthat::has_name(tag$stap, c("known_lat", "known_lon", "include"))) {
     status <- append(status, "setmap")
   }

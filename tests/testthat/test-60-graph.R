@@ -38,8 +38,10 @@ test_that("Check graph output", {
 test_that("Check create_graph() for map_pressure", {
   # map of prob 0 are fill up with 1
   tag_tmp <- tag
-  tag_tmp$map_pressure$data[[2]] <- matrix(0, nrow = dim(tag$map_pressure)[1],
-                                      ncol = dim(tag$map_pressure)[2])
+  tag_tmp$map_pressure$data[[2]] <- matrix(0,
+    nrow = dim(tag$map_pressure)[1],
+    ncol = dim(tag$map_pressure)[2]
+  )
   expect_no_error(graph_create(tag_tmp))
 
   # map of prob NA or NULL return an error

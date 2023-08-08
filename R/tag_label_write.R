@@ -42,7 +42,7 @@ tag_label_write <- function(tag,
     tag <- tag_label_auto(tag)
     cli::cli_inform(c(
       "i" = "No label data.",
-      ">" = "Initialize automatically label using {.fn tag_label_auto}"
+      ">" = "Initialize automatically label using {.fn tag_label_auto}\f"
     ))
   }
 
@@ -59,7 +59,7 @@ tag_label_write <- function(tag,
       tag <- tag_label_auto(tag)
       cli::cli_inform(c(
         "i" = "No acceleration label data.",
-        ">" = "Initialize acceleration label with default {.fn tag_label_auto}"
+        ">" = "Initialize acceleration label with default {.fn tag_label_auto}\f"
       ))
     }
     tag$acceleration$series <- "acceleration"

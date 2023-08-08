@@ -20,22 +20,28 @@ map_expand <- function(extent, scale) {
   assertthat::assert_that(length(extent) == 4)
   assertthat::assert_that(
     extent[1] >= -180 & extent[1] <= 180,
-    msg = "extent[1] needs to be between -180 and 180. Make sure extent follows `c(W, E, S, N)`.")
+    msg = "extent[1] needs to be between -180 and 180. Make sure extent follows `c(W, E, S, N)`."
+  )
   assertthat::assert_that(
     extent[2] >= -180 & extent[2] <= 180,
-    msg = "extent[2] needs to be between -180 and 180. Make sure extent follows `c(W, E, S, N)`.")
+    msg = "extent[2] needs to be between -180 and 180. Make sure extent follows `c(W, E, S, N)`."
+  )
   assertthat::assert_that(
     extent[3] >= -90 & extent[3] <= 90,
-    msg = "extent[3] needs to be between -90 and 90. Make sure extent follows `c(W, E, S, N)`.")
+    msg = "extent[3] needs to be between -90 and 90. Make sure extent follows `c(W, E, S, N)`."
+  )
   assertthat::assert_that(
     extent[4] >= -90 & extent[4] <= 90,
-    msg = "extent[4] needs to be between -90 and 90. Make sure extent follows `c(W, E, S, N)`.")
+    msg = "extent[4] needs to be between -90 and 90. Make sure extent follows `c(W, E, S, N)`."
+  )
   assertthat::assert_that(
     extent[1] < extent[2],
-    msg = "extent[1] needs to be smaller than extent[2]. Make sure extent follows `c(W, E, S, N)`.")
+    msg = "extent[1] needs to be smaller than extent[2]. Make sure extent follows `c(W, E, S, N)`."
+  )
   assertthat::assert_that(
     extent[3] < extent[4],
-    msg = "extent[3] needs to be smaller than extent[4]. Make sure extent follows `c(W, E, S, N)`.")
+    msg = "extent[3] needs to be smaller than extent[4]. Make sure extent follows `c(W, E, S, N)`."
+  )
   assertthat::assert_that(is.numeric(scale))
   assertthat::assert_that(0 < scale)
   assertthat::assert_that(scale <= 10)

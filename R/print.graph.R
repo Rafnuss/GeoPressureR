@@ -36,15 +36,15 @@ print.graph <- function(x, ...) {
 
   cli::cli_h3("Movement model")
   if ("ws" %in% names(graph)) {
-    cli::cli_alert_success("Windspeed computed!")
+    cli::cli_inform(c("v" = "Windspeed computed!\f"))
   } else {
-    cli::cli_alert_warning("Windspeed not computed. Use {.fun graph_add_wind}")
+    cli::cli_inform(c("!" = "Windspeed not computed. Use {.fun graph_add_wind}\f"))
   }
 
   if ("movement" %in% names(graph)) {
-    cli::cli_alert_success("Movement model defined for {.field {graph$movement$type}}")
+    cli::cli_inform(c("v" = "Movement model defined for {.field {graph$movement$type}}\f"))
   } else {
-    cli::cli_alert_danger("No movement model defined. Use {.fun graph_add_movement}")
+    cli::cli_inform(c("x" = "No movement model defined. Use {.fun graph_add_movement}\f"))
   }
 
   return(invisible(graph))

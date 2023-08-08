@@ -56,15 +56,15 @@
 #' tag
 #' @export
 tag_setmap <- function(tag,
-                        extent,
-                        scale = 10,
-                        known = data.frame(
-                          stap_id = integer(),
-                          known_lat = double(),
-                          known_lon = double()
-                        ),
-                        include_stap_id = tag$stap$stap_id,
-                        include_min_duration = 0) {
+                       extent,
+                       scale = 10,
+                       known = data.frame(
+                         stap_id = integer(),
+                         known_lat = double(),
+                         known_lon = double()
+                       ),
+                       include_stap_id = tag$stap$stap_id,
+                       include_min_duration = 0) {
   tag_assert(tag, "stap")
 
   # define stap for convenience
@@ -101,8 +101,8 @@ tag_setmap <- function(tag,
 
   # Check if value are already defined and if they are changing
   # Check if setmap has already been run before (all these condition should always be the same)
-  if ("extent" %in% names(tag) | "known_lat" %in% names(stap) |
-    "scale" %in% names(tag) | "include" %in% names(stap)) {
+  if ("extent" %in% names(tag) || "known_lat" %in% names(stap) || "scale" %in% names(tag) ||
+    "include" %in% names(stap)) {
     # Check if value are changing
     chg_known <- any(stap$known_lon[known$stap_id] != known$known_lon)
     chg_include <- any(stap$include != stap_include)
@@ -110,12 +110,12 @@ tag_setmap <- function(tag,
     chg_scale <- scale != tag$param$scale
 
     # Check if known has changed
-    if (chg_known | chg_extent | chg_scale | chg_include) {
+    if (chg_known || chg_extent || chg_scale || chg_include) {
       # Only provide option to stop the process if map are already defined
       if (any(c("map_pressure", "map_light") %in% names(tag))) {
-        cli::cli_alert_warning("The likelihood map ({.var map_pressure} and/or {.var map_light}) \\
+        cli::cli_inform(c("!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) \\
           have already been computed on this {.var tag} object with different setmap parameters \\
-          ({.var scale}, {.var extent}, {.var tag$known} or {.var tag$include}).")
+          ({.var scale}, {.var extent}, {.var tag$known} or {.var tag$include}).\f"))
         res <- utils::askYesNo(
           "Do you want to overwrite the parameters and delete the likelihood maps?"
         )
@@ -158,7 +158,7 @@ tag_setmap <- function(tag,
   # Add the vector of stap to include
   stap$include <- stap_include
 
-  if (all(!stap$include)){
+  if (all(!stap$include)) {
     cli::cli_warn(c(
       "x" = "All stationary periods have been excluded from the computation",
       ">" = "Check {.var include_stap_id} {.var include_min_duration}."

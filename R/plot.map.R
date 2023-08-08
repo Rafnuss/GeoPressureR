@@ -9,11 +9,12 @@
 #' @inheritParams leaflet::colorNumeric
 #' @inheritParams leaflet::addRasterImage
 #' @inheritParams terra::plot
+#' @inheritParams graph_create
 #'
 #' @family map
 #' @method plot map
 #' @export
-plot.map <- function(map,
+plot.map <- function(x,
                      thr_likelihood = 1,
                      path = NULL,
                      plot_leaflet = TRUE,
@@ -23,9 +24,10 @@ plot.map <- function(map,
                      legend = FALSE,
                      ...) {
 
+  map <- x
+
   # Eliminate unlikely pixel, same as in the creation of graph
   map$data <- lapply(map$data, function(m) {
-
     # Normalize
     m <- m / sum(m, na.rm = TRUE)
 
@@ -46,9 +48,10 @@ plot.map <- function(map,
 
 
   if (plot_leaflet) {
-    require("terra") # require to attach has.RGB which has missing dependancy
+    #require("terra") required to attach has.RGB which has missing dependancy
 
-    grp <- glue::glue("#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - {format(map$stap$end , format = '%d %b %H:%M')}")
+    grp <- glue::glue("#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - \\
+                      {format(map$stap$end , format = '%d %b %H:%M')}")
 
     lmap <- leaflet::leaflet(width = "100%") |>
       leaflet::addProviderTiles(provider = provider)
@@ -66,7 +69,7 @@ plot.map <- function(map,
         palette <- "Greys"
       } else if ("marginal" == map$type) {
         palette <- "plasma"
-      }else {
+      } else {
         palette <- "plasma"
       }
     }

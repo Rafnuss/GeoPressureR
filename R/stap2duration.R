@@ -11,7 +11,7 @@
 #' @examples
 #' # Create fake stap
 #' stap <- data.frame(
-#' start = seq(as.POSIXct("1990-01-01"), as.POSIXct("1991-01-01"), length.out = 13)
+#'   start = seq(as.POSIXct("1990-01-01"), as.POSIXct("1991-01-01"), length.out = 13)
 #' )
 #' stap$end <- stap$start + 60 * 60 * 24 * 30
 #' stap$stap_id <- seq_len(nrow(stap))

@@ -7,7 +7,9 @@
 #' @param file Name of the twilight label file to be saved.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T) |> twilight_create()
+#' tag <- tag_create("18LX", quiet = T) |>
+#'   tag_label(quiet = T) |>
+#'   twilight_create()
 #'
 #' label_file <- twilight_label_write(tag)
 #' str(read.csv(label_file))
@@ -24,7 +26,8 @@ twilight_label_write <- function(tag,
   # Adapt variable
   twilight$series <- ifelse(twilight$rise, "Rise", "Set")
   twilight$value <- (as.numeric(format(twilight$twilight, "%H")) * 60 +
-    as.numeric(format(twilight$twilight, "%M")) - tag$param$twl_offset / 60 + 60 * 12) %% (60 * 24)
+    as.numeric(format(twilight$twilight, "%M")) - tag$param$twl_offset
+      / 60 + 60 * 12) %% (60 * 24)
 
   if (!assertthat::has_name(twilight, "label")) {
     if (assertthat::has_name(twilight, "stap_id")) {

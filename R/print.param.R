@@ -44,7 +44,8 @@ print.param <- function(x, ...) {
   cli::cli_bullets("{.field margin}: {.val {param$margin}}")
   cli::cli_bullets("{.field sd}: {.val {param$sd}}")
   cli::cli_bullets("{.field thr_mask}: {.val {param$thr_mask}}")
-  cli::cli_bullets("{.field log_linear_pooling_weight}: {.val {call2deparse(param$log_linear_pooling_weight)}}")
+  cli::cli_bullets("{.field log_linear_pooling_weight}: \\
+                   {.val {call2deparse(param$log_linear_pooling_weight)}}")
 
   cli::cli_h3("Twilight & Geolight{.fun twilight_create}")
   cli::cli_bullets("{.field twl_thr}: {.val {param$twl_thr}}")
@@ -74,10 +75,9 @@ print.param <- function(x, ...) {
 }
 
 call2deparse <- function(x) {
-  if (is.call(x)){
+  if (is.call(x)) {
     deparse(x)
   } else {
     x
   }
 }
-

@@ -76,11 +76,10 @@ geopressure_map_mismatch <- function(tag,
     margin = margin
   )
 
-  if (debug){
+  if (debug) {
     temp_file <- tempfile("log_geopressure_map_mismatch_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
-    cli::cli_text("Body request file: {.file {temp_file}}"
-    )
+    cli::cli_text("Body request file: {.file {temp_file}}")
   }
 
   # Request URLS
@@ -112,7 +111,7 @@ geopressure_map_mismatch <- function(tag,
   urls <- unlist(urls)
   labels <- unlist(httr::content(res)$data$labels)
 
-  if (debug){
+  if (debug) {
     cli::cli_text("urls: ")
     print(urls)
     cli::cli_text("Labels: ")
@@ -184,8 +183,8 @@ geopressure_map_mismatch <- function(tag,
       }
     },
     error = function(cond) {
-      cli::cli_alert_danger("There was an error during the downloading and reading of the file. \\
-      The original error is displayed below.")
+      cli::cli_inform(c("x" = "There was an error during the downloading and reading of the file. \\
+      The original error is displayed below.\f"))
       message(cond)
       return(list(
         urls = urls,
@@ -229,18 +228,22 @@ geopressure_map_mismatch <- function(tag,
   }
 
   # Add attribute
-  tag$map_pressure_mask <- map_create(data = mask,
-                                      extent = tag$param$extent,
-                                      scale = tag$param$scale,
-                                      stap = tag$stap,
-                                      id = tag$param$id,
-                                      type = "pressure_mask")
-  tag$map_pressure_mse <- map_create(data = mse,
-                                      extent = tag$param$extent,
-                                      scale = tag$param$scale,
-                                      stap = tag$stap,
-                                      id = tag$param$id,
-                                      type = "pressure_mse")
+  tag$map_pressure_mask <- map_create(
+    data = mask,
+    extent = tag$param$extent,
+    scale = tag$param$scale,
+    stap = tag$stap,
+    id = tag$param$id,
+    type = "pressure_mask"
+  )
+  tag$map_pressure_mse <- map_create(
+    data = mse,
+    extent = tag$param$extent,
+    scale = tag$param$scale,
+    stap = tag$stap,
+    id = tag$param$id,
+    type = "pressure_mse"
+  )
 
   # keep parameters used
   tag$param$max_sample <- max_sample

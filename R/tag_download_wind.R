@@ -72,7 +72,7 @@ tag_download_wind <- function(tag,
       ">" = "We created the directory."
     ))
   }
-  if (any(file.exists(file(stap_id))) & !overwrite){
+  if (any(file.exists(file(stap_id))) & !overwrite) {
     tmp <- file.exists(file(stap_id))
     cli::cli_abort(c(
       "x" = "There are already wind data file for stationary periods {.var {stap_id[tmp]}}",

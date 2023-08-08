@@ -59,7 +59,7 @@ tag_label <- function(tag,
 
     # Suggest to write the file
     file_default <- glue::glue("./data/tag-label/{tag$param$id}.csv")
-    cli::cli_alert_warning("The label file {.file {file}} does not exist.")
+    cli::cli_inform(c("!" = "The label file {.file {file}} does not exist.\f"))
     choices <- list(
       "1" = "No",
       "2" = glue::glue("Yes, in `{file_default}` (default)"),
@@ -79,11 +79,10 @@ tag_label <- function(tag,
       ">" = "Return the original {.var tag} unmodified."
     ))
     return(tag)
-
   } else {
     # Check if label has already been setmap
     if ("setmap" %in% tag_status(tag)) {
-      cli::cli_alert_warning("The setmap has already been defined for {.var tag}.")
+      cli::cli_inform(c("!" = "The setmap has already been defined for {.var tag}.\f"))
       choices <- list(
         "1" = glue::glue("No, return the original `tag`"),
         "2" = glue::glue("Yes, read the new label, but start `tag` from scratch"),
@@ -91,21 +90,21 @@ tag_label <- function(tag,
       )
       res <- as.numeric(names(utils::select.list(choices, title = "How to you want to proceed with the new label file?")))
 
-      if (res == 1){
+      if (res == 1) {
         return(tag)
-
-      } else if (res == 3){
+      } else if (res == 3) {
         tag <- tag_update(tag, file)
         return(tag)
-
       } else if (res == 2) {
-        tag <- tag_create(id = tag$param$id,
-                          pressure_file = tag$param$sensor_paths[1],
-                          light_file = tag$param$sensor_paths[2],
-                          acceleration_file = tag$param$sensor_paths[3],
-                          crop_start = tag$param$create_crop_start,
-                          crop_end = tag$param$create_crop_end,
-                          quiet = TRUE)
+        tag <- tag_create(
+          id = tag$param$id,
+          pressure_file = tag$param$sensor_paths[1],
+          light_file = tag$param$sensor_paths[2],
+          acceleration_file = tag$param$sensor_paths[3],
+          crop_start = tag$param$create_crop_start,
+          crop_end = tag$param$create_crop_end,
+          quiet = TRUE
+        )
       }
     }
 

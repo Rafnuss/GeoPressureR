@@ -50,12 +50,12 @@
 #' print(temp_dir)
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = T) |>
-#' tag_label(quiet = T) |>
-#' tag_setmap(
-#'   extent = c(-16, 23, 0, 50),
-#'   scale = 4,
-#'   include_stap_id = 1
-#' )
+#'   tag_label(quiet = T) |>
+#'   tag_setmap(
+#'     extent = c(-16, 23, 0, 50),
+#'     scale = 4,
+#'     include_stap_id = 1
+#'   )
 #'
 #' tag <- geopressure_map(tag,
 #'   max_sample = 50,

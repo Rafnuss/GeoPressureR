@@ -35,7 +35,6 @@ tag_label_stap <- function(tag,
                            quiet = FALSE,
                            warning_flight_duration = 2,
                            warning_stap_duration = 6) {
-
   if ("setmap" %in% tag_status(tag)) {
     cli::cli_abort(c(
       "x" = "{.fun setmap} has already been run on this {.var tag}.",
@@ -105,13 +104,14 @@ tag_label_stap <- function(tag,
     if (nrow(stap_warning) > 0) {
       for (i in seq_len(nrow(stap_warning))) {
         s <- stap_warning[i, ]
-        cli::cli_alert_warning(
-          "Stap {s$stap} ({s$start} - {s$end}) : {prettyunits::pretty_dt(s$duration_time)}"
-        )
+        cli::cli_inform(c(
+          "!" =
+            "Stap {s$stap} ({s$start} - {s$end}) : {prettyunits::pretty_dt(s$duration_time)}\f"
+        ))
       }
     } else {
-      cli::cli_alert_success("All {nrow(stap)} stationary period{?s} duration are above \\
-                             {warning_stap_duration} hour{?s}.")
+      cli::cli_inform(c("v" = "All {nrow(stap)} stationary period{?s} duration are above \\
+                             {warning_stap_duration} hour{?s}.\f"))
     }
 
     # Flight
@@ -121,14 +121,15 @@ tag_label_stap <- function(tag,
     if (nrow(flight_warning) > 0) {
       for (i in seq_len(nrow(flight_warning))) {
         f <- flight_warning[i, ]
-        cli::cli_alert_warning(
-          "Flight {f$stap_s} -> {f$stap_t} ({f$start} - {f$end}) : \\
-          {prettyunits::pretty_dt(as.difftime(f$duration, units = 'hours'))}"
-        )
+        cli::cli_inform(c(
+          "!" =
+            "Flight {f$stap_s} -> {f$stap_t} ({f$start} - {f$end}) : \\
+          {prettyunits::pretty_dt(as.difftime(f$duration, units = 'hours'))}\f"
+        ))
       }
     } else {
-      cli::cli_alert_success("All {nrow(flight)} flight{?s} duration are above \\
-                              {warning_flight_duration} hour{?s}.")
+      cli::cli_inform(c("v" = "All {nrow(flight)} flight{?s} duration are above \\
+                              {warning_flight_duration} hour{?s}.\f"))
     }
   }
   return(tag)

@@ -69,15 +69,16 @@ graph_create <- function(tag,
   if (any(lk_null)) {
     cli::cli_abort(c(
       x = "The {.field {likelihood}} in {.var tag} is/are null for stationary periods \\
-       {.var {stap_model[lk_null]}} while those stationary period are required in {.var stap$include}",
+       {.var {stap_model[lk_null]}} while those stationary period are required in \\
+      {.var stap$include}",
       i = "Check your input and re-run {.fun geopressure_map} if necessary."
     ))
   }
 
   if (length(stap_model) < 2) {
     cli::cli_abort(c(
-      x = "There are only {.var {length(stap_model)}} stationary period{?s} to be modeled according \\
-      to {.var stap$include}.",
+      x = "There are only {.var {length(stap_model)}} stationary period{?s} to be modeled \\
+      according to {.var stap$include}.",
       i = "You need at least 3 stationary periods."
     ))
   }

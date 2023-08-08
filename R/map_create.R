@@ -3,26 +3,30 @@
 #' This function create a GeoPressureR `map` object
 #
 #' @param data List of matrices of the same size, one for each stationary period
+#' @param x A GeoPressureR `map` object
+#' @param y A GeoPressureR `map` object
+#' @param i indices specifying elements to extract
 #' @inheritParams tag_setmap
 #' @param stap A stationary period data.frame (see [`tag_label_stap()`])
 #' @inheritParams tag_create
 #' @param type Type of data one of "unknown","pressure", "light", "pressure_mse", "water_mask",
 #' "pressure_mask", "marginal"
+#' @param ... arguments passed from other methods
 #'
 #' @return A GeoPressure `map` object is returned
 #'
 #' @family map
 #' @export
 map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
-
   g <- map_expand(extent, scale)
 
   assertthat::assert_that(is.list(data))
   stap_id_null <- sapply(data, is.null)
   lapply(data[!stap_id_null], \(x) assertthat::assert_that(is.matrix(x)))
   data_dim <- sapply(data[!stap_id_null], \(x) dim(x))
-  assertthat::assert_that(length(unique(data_dim[1,])) == 1 & length(unique(data_dim[2,])) == 1,
-                          msg = "All matrices of data don't have the same size")
+  assertthat::assert_that(length(unique(data_dim[1, ])) == 1 & length(unique(data_dim[2, ])) == 1,
+    msg = "All matrices of data don't have the same size"
+  )
   assertthat::assert_that(assertthat::are_equal(length(g$lat), data_dim[1]))
   assertthat::assert_that(assertthat::are_equal(length(g$lon), data_dim[2]))
   assertthat::assert_that(is.data.frame(stap))
@@ -30,8 +34,10 @@ map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
   assertthat::assert_that(assertthat::are_equal(nrow(stap), length(data)))
 
   assertthat::assert_that(is.character(type))
-  assertthat::assert_that(type %in% c("unknown","pressure", "light", "pressure_mse", "water_mask",
-                                      "pressure_mask", "marginal"))
+  assertthat::assert_that(type %in% c(
+    "unknown", "pressure", "light", "pressure_mse", "water_mask",
+    "pressure_mask", "marginal"
+  ))
 
   map <- structure(list(
     id = id,
@@ -41,7 +47,8 @@ map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
     lat = g$lat,
     lon = g$lon,
     stap = stap,
-    type = type), class ="map")
+    type = type
+  ), class = "map")
 
   return(map)
 }
@@ -86,7 +93,7 @@ dim.map <- function(x) {
 
   x$stap <- merge(x$stap, y$stap)
 
-  x$type = glue::glue("{x$type} x {y$type}")
+  x$type <- glue::glue("{x$type} x {y$type}")
 
   return(x)
 }

@@ -8,7 +8,7 @@ library(GeoPressureR)
 setwd(system.file("extdata/", package = "GeoPressureR"))
 
 test_that("workflow | full", {
-  tag <- tag_read("18LX")
+  tag <- tag_create("18LX")
   tag <- tag_label(tag)
 
   tag <- twilight_create(tag)
@@ -45,7 +45,7 @@ test_that("workflow | full", {
 })
 
 test_that("workflow | Missing pressure value", {
-  tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
+  tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
   tag$pressure <- subset(tag$pressure, stap_id == 3 | stap_id == 4)
 
   tag <- tag_setmap(tag, extent = c(-16, 23, 0, 50), scale = 1)
@@ -55,13 +55,13 @@ test_that("workflow | Missing pressure value", {
     "*have less than 3 datapoints to be used*"
   ), "Pressure data is not on a regular interval")
 
-  expect_equal(sapply(tag$map_pressure$data, is.null), c(T, T, F, F, T))
+  expect_equal(sapply(tag$map_pressure$data, is.null), c(TRUE, TRUE, FALSE, FALSE, TRUE))
 
   expect_no_error(tag2path(tag))
 
   expect_error(graph <- graph_create(tag))
 
-  tag$stap$include <- c(F, F, T, T, F)
+  tag$stap$include <- c(FALSE, FALSE, TRUE, TRUE, FALSE)
   expect_no_error(graph <- graph_create(tag))
 })
 
@@ -87,7 +87,7 @@ test_that("workflow | with elev_", {
 
 
 test_that("workflow | modeled fewer", {
-  tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
+  tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = TRUE)
   tag <- tag_setmap(tag,
     extent = c(-16, 23, 0, 50),
     scale = 1,

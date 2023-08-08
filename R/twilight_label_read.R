@@ -10,15 +10,18 @@
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #'
-#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T) |> twilight_create()
-#' plot(tag, type="twilight", plot_plotly = F) + ggplot2::ggtitle("Before label")
+#' tag <- tag_create("18LX", quiet = T) |>
+#'   tag_label(quiet = T) |>
+#'   twilight_create()
+#' plot(tag, type = "twilight", plot_plotly = F) + ggplot2::ggtitle("Before label")
 #'
 #' tag <- twilight_label_read(tag)
 #' str(tag$twilight)
-#' plot(tag, type="twilight", plot_plotly = F) + ggplot2::ggtitle("After label")
+#' plot(tag, type = "twilight", plot_plotly = F) + ggplot2::ggtitle("After label")
 #' @export
-twilight_label_read <- function(tag,
-                                file = glue::glue("./data/twilight-label/{tag$param$id}-labeled.csv")) {
+twilight_label_read <- function(
+    tag,
+    file = glue::glue("./data/twilight-label/{tag$param$id}-labeled.csv")) {
   tag_assert(tag, "twilight")
 
   tag$twilight <- trainset_read(tag$twilight,

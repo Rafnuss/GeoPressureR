@@ -13,4 +13,3 @@
 #' @docType package
 #' @name GeoPressureR
 "_PACKAGE"
-

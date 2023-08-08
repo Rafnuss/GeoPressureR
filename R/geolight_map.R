@@ -37,16 +37,16 @@
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' # Read geolocator data and build twilight
 #' tag <- tag_create("18LX", quiet = T) |>
-#' tag_label(quiet = T) |>
-#' tag_setmap(
-#'   extent = c(-16, 23, 0, 50),
-#'   scale = 10,
-#'   known = data.frame(
-#'     stap_id = 1,
-#'     known_lon = 17.05,
-#'     known_lat = 48.9
+#'   tag_label(quiet = T) |>
+#'   tag_setmap(
+#'     extent = c(-16, 23, 0, 50),
+#'     scale = 10,
+#'     known = data.frame(
+#'       stap_id = 1,
+#'       known_lon = 17.05,
+#'       known_lat = 48.9
+#'     )
 #'   )
-#' )
 #'
 #' # Compute the twilight
 #' tag <- twilight_create(tag) |> twilight_label_read()
@@ -187,12 +187,14 @@ geolight_map <- function(tag,
   }
 
   # Create map object
-  tag$map_light <- map_create(data = lk,
-                              extent = tag$param$extent,
-                              scale = tag$param$scale,
-                              stap = tag$stap,
-                              id = tag$param$id,
-                              type = "light")
+  tag$map_light <- map_create(
+    data = lk,
+    extent = tag$param$extent,
+    scale = tag$param$scale,
+    stap = tag$stap,
+    id = tag$param$id,
+    type = "light"
+  )
 
   # Add parameters
   tag$param$twl_calib_adjust <- twl_calib_adjust

@@ -61,38 +61,40 @@
 #'   acceleration_file = NA
 #' )
 #'
-#'
 #' @family tag
 #' @seealso [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#read-geolocator-data)
 #' @export
 tag_create <- function(id,
-                     directory = glue::glue("./data/raw-tag/{id}/"),
-                     pressure_file = "*.pressure",
-                     light_file = "*.glf",
-                     acceleration_file = "*.acceleration",
-                     crop_start = NULL,
-                     crop_end = NULL,
-                     quiet = FALSE) {
+                       directory = glue::glue("./data/raw-tag/{id}/"),
+                       pressure_file = "*.pressure",
+                       light_file = "*.glf",
+                       acceleration_file = "*.acceleration",
+                       crop_start = NULL,
+                       crop_end = NULL,
+                       quiet = FALSE) {
   # Create tag
-  tag = structure(list(
+  tag <- structure(list(
     param = param_create(id = id)
-  ), class="tag")
+  ), class = "tag")
 
   # Fix NA vs NULL, so that both would work
-  if (is.null(pressure_file))
+  if (is.null(pressure_file)) {
     pressure_file <- NA
-  if (is.null(acceleration_file))
+  }
+  if (is.null(acceleration_file)) {
     acceleration_file <- NA
-  if (is.null(light_file))
+  }
+  if (is.null(light_file)) {
     light_file <- NA
+  }
 
   # Find the exact filename
   sensor_paths <- sapply(c(pressure_file, light_file, acceleration_file), function(f) {
     if (is.na(f)) {
       return(NA)
     }
-    if (file.exists(f)){
+    if (file.exists(f)) {
       return(f)
     }
     assertthat::assert_that(assertthat::is.dir(directory))
@@ -115,15 +117,14 @@ tag_create <- function(id,
   })
 
   # Read Pressure
-  if (is.na(sensor_paths[[1]])){
+  if (is.na(sensor_paths[[1]])) {
     cli::cli_abort(c(
       "x" = "There are no pressure file {.val {names(sensor_paths[1])}}",
-      "!" = "Pressure file are required")
-    )
-  } else if (tools::file_ext(sensor_paths[[1]]) == "pressure"){
+      "!" = "Pressure file are required"
+    ))
+  } else if (tools::file_ext(sensor_paths[[1]]) == "pressure") {
     tag$pressure <- tag_create_dto(sensor_paths[[1]], quiet = quiet)
-
-  } else if ( tools::file_ext(sensor_paths[[1]]) == "deg"){
+  } else if (tools::file_ext(sensor_paths[[1]]) == "deg") {
     # Check that it is a valid Migrate Technology file
     assertthat::assert_that(grepl("Migrate Technology", readLines(sensor_paths[[1]], n = 1)))
     line2 <- readLines(sensor_paths[[1]], n = 2)[[2]]
@@ -137,7 +138,7 @@ tag_create <- function(id,
 
     # find column index with pressure
     col <- which(utils::read.delim(sensor_paths[[1]],
-                                   skip = 19, nrow = 1, header = FALSE, sep = ""
+      skip = 19, nrow = 1, header = FALSE, sep = ""
     ) == "P(Pa)")
     if (!(col > 0)) {
       cli::cli_abort(
@@ -148,15 +149,14 @@ tag_create <- function(id,
 
     # Read file
     pres <- tag_create_dto(sensor_paths[[1]],
-                         skip = 20, col = col,
-                         date_format = "%d/%m/%Y %H:%M:%S",
-                         quiet = quiet
+      skip = 20, col = col,
+      date_format = "%d/%m/%Y %H:%M:%S",
+      quiet = quiet
     )
 
     # convert Pa in hPa
     pres$value <- pres$value / 100
     tag$pressure <- pres
-
   } else {
     cli::cli_abort(
       "The pressure file {.val {sensor_paths[[1]]}} should have the extension {.val .pressure} \\
@@ -165,17 +165,17 @@ tag_create <- function(id,
   }
 
   # Crop time
-  if (!is.null(crop_start)){
+  if (!is.null(crop_start)) {
     # convert date to POSIXct date and check format
     crop_start <- as.POSIXct(crop_start, tz = "UTC")
     tag$pressure <- subset(tag$pressure, date >= crop_start)
   }
-  if (!is.null(crop_end)){
+  if (!is.null(crop_end)) {
     crop_end <- as.POSIXct(crop_end, tz = "UTC")
     tag$pressure <- subset(tag$pressure, date < crop_end)
   }
 
-  if (nrow(tag$pressure)==0) {
+  if (nrow(tag$pressure) == 0) {
     cli::cli_abort(c(
       "!" = "Empty {.field pressure} sensor dataset from {.file {sensor_paths[[1]]}}",
       ">" = "Check crop date."
@@ -212,11 +212,12 @@ tag_create <- function(id,
     )
 
     # Crop time
-    if (!is.null(crop_start))
+    if (!is.null(crop_start)) {
       tag$light <- subset(tag$light, date >= crop_start)
-    if (!is.null(crop_end))
+    }
+    if (!is.null(crop_end)) {
       tag$light <- subset(tag$light, date < crop_end)
-
+    }
   }
 
   # Read acceleration
@@ -258,16 +259,18 @@ tag_create <- function(id,
     )
 
     # Crop time
-    if (!is.null(crop_start))
+    if (!is.null(crop_start)) {
       tag$acceleration <- subset(tag$acceleration, date >= crop_start)
-    if (!is.null(crop_end))
+    }
+    if (!is.null(crop_end)) {
       tag$acceleration <- subset(tag$acceleration, date < crop_end)
+    }
   }
 
   # Add parameter information
-  tag$param$pressure_file = sensor_paths[[1]]
-  tag$param$light_file = sensor_paths[[2]]
-  tag$param$acceleration_file = sensor_paths[[3]]
+  tag$param$pressure_file <- sensor_paths[[1]]
+  tag$param$light_file <- sensor_paths[[2]]
+  tag$param$acceleration_file <- sensor_paths[[3]]
   tag$param$crop_start <- crop_start
   tag$param$crop_end <- crop_end
 
@@ -304,8 +307,8 @@ tag_create_dto <- function(sensor_path, skip = 6, col = 3, date_format = "%d.%m.
     cli::cli_warn("Irregular time spacing in {.file {sensor_path}} at line(s): \\
                   {20 + which(dtime != dtime[1])}.")
   }
-  if(!quiet){
-    cli::cli_alert_success("Read {sensor_path}")
+  if (!quiet) {
+    cli::cli_inform(c("v" = "Read {sensor_path}\f"))
   }
   return(df)
 }

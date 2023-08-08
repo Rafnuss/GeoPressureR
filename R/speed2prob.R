@@ -23,7 +23,7 @@
 #' plot(speed, prob, type = "l", xlab = "Airspeed [km/h]", ylab = "Probability")
 #' @family movement
 #' @export
-speed2prob <- function(speed, movemement) {
+speed2prob <- function(speed, movement) {
   if (is.complex(speed)) {
     speed <- abs(speed)
   }
@@ -33,25 +33,31 @@ speed2prob <- function(speed, movemement) {
 
   # We use a normalization so that methods are comparable to each other.
   # The normalization is computed as the sum of probability with a 1km/h unit grid
-  norm_speed <- pmax(seq(0, 150), movemement$low_speed_fix)
+  norm_speed <- pmax(seq(0, 150), movement$low_speed_fix)
 
-  speed <- pmax(speed, movemement$low_speed_fix)
+  speed <- pmax(speed, movement$low_speed_fix)
 
-  if (movemement$method == "gamma") {
-    norm <- sum(stats::dgamma(norm_speed, shape = movemement$shape, scale = movemement$scale))
-    prob <- stats::dgamma(speed, shape = movemement$shape, scale = movemement$scale) / norm
-  } else if (movemement$method == "logis") {
-    norm <- sum(stats::plogis(norm_speed, location = movemement$location, scale = movemement$scale, lower.tail = FALSE))
-    prob <- stats::plogis(speed, location = movemement$location, scale = movemement$scale, lower.tail = FALSE) / norm
-  } else if (movemement$method == "power") {
+  if (movement$method == "gamma") {
+    norm <- sum(stats::dgamma(norm_speed, shape = movement$shape, scale = movement$scale))
+    prob <- stats::dgamma(speed, shape = movement$shape, scale = movement$scale) / norm
+  } else if (movement$method == "logis") {
+    norm <- sum(stats::plogis(norm_speed,
+      location = movement$location, scale = movement$scale,
+      lower.tail = FALSE
+    ))
+    prob <- stats::plogis(speed,
+      location = movement$location, scale = movement$scale,
+      lower.tail = FALSE
+    ) / norm
+  } else if (movement$method == "power") {
     # `speed2power` is defined in m/s (SI), but the rest of your code is using km/h. This is where
     # we need to convert.
     as <- speed * 1000 / 60 / 60
 
     # We normalize the probability computed by `power2prob`
-    norm <- sum(movemement$power2prob(speed2power(norm_speed * 1000 / 60 / 60, movemement$bird)))
+    norm <- sum(movement$power2prob(speed2power(norm_speed * 1000 / 60 / 60, movement$bird)))
 
-    prob <- movemement$power2prob(speed2power(as, movemement$bird)) / norm
+    prob <- movement$power2prob(speed2power(as, movement$bird)) / norm
   }
 
   return(prob)

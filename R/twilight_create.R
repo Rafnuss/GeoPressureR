@@ -1,8 +1,8 @@
 #' Estimate twilight from continuous light data
 #'
 #' @description
-#' Search for the time of sunset and sunrise, corresponding to the first time light exceeds or falls below
-#' a given light threshold.
+#' Search for the time of sunset and sunrise, corresponding to the first time light exceeds or
+#' falls below a given light threshold.
 #'
 #' Function inspired from [`TwGeos::findTwilights()`](
 #' https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html).
@@ -101,7 +101,12 @@ twilight_create <- function(tag,
 
   # Add stap_id if present
   if ("stap_id" %in% names(light)) {
-    twilight$stap_id <- stats::approx(light$date[light$stap_id > 0], light$stap_id[light$stap_id > 0], twilight$twilight, method = "constant")$y
+    twilight$stap_id <- stats::approx(
+      light$date[light$stap_id > 0],
+      light$stap_id[light$stap_id > 0],
+      twilight$twilight,
+      method = "constant"
+    )$y
   }
 
   tag$twilight <- twilight

@@ -16,7 +16,7 @@ trainset_read <- function(df,
                           timestamp = "date",
                           label = "label") {
   assertthat::assert_that(is.data.frame(df))
-  assertthat::assert_that(nrow(df)>0)
+  assertthat::assert_that(nrow(df) > 0)
   assertthat::assert_that(is.character(timestamp))
   assertthat::assert_that(is.character(label))
   assertthat::assert_that(assertthat::has_name(df, timestamp))
@@ -42,7 +42,7 @@ trainset_read <- function(df,
   if (nrow(csv) == 0) {
     cli::cli_warn(c(
       i = "The labelization file does not contains label for {series}. ",
-      ">" = "No labels are added to {series}."
+      ">" = "No labels are added to {series}.\f"
     ))
     return(df)
   }
@@ -64,7 +64,7 @@ trainset_read <- function(df,
     cli::cli_warn(c(
       i = "The labelization file{series_name} is missing {missing_pres} timesteps and includes
       {nrow(csv) - nrow(df) + missing_pres} timestep which are not nedded. ",
-      ">" = "We assumed no discard during the timestep missing."
+      ">" = "We assumed no discard during the timestep missing.\f"
     ))
   }
 

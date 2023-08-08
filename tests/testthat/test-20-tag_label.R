@@ -62,9 +62,10 @@ test_that("tag_label_read() | default", {
   expect_error(tag_label_read("not a tag"))
 
   # Test with different labeled file size
-  expect_warning(ta_labeled <- tag_label_read(tag,
-    file = "./data/tag-label/18LX-labeled-diffsize.csv"
-  ), "*The labelization file of pressure is missing*")
+  expect_warning(
+    tag_label_read(tag, file = "./data/tag-label/18LX-labeled-diffsize.csv"),
+    "*The labelization file of pressure is missing*"
+  )
 })
 
 tag_labeled <- tag_label_stap(tag_labeled)
@@ -94,9 +95,7 @@ test_that("tag_label_read() | no acceleration", {
     acceleration_file = NA,
     light_file = NA
   ))
-  expect_no_error(tag <- tag_label_read(tag,
-    file = "./data/tag-label/18LX-labeled-no_acc.csv"
-  ))
+  expect_no_error(tag <- tag_label_read(tag, file = "./data/tag-label/18LX-labeled-no_acc.csv"))
   expect_no_error(tag_label_stap(tag))
 })
 
@@ -114,9 +113,7 @@ test_that("tag_label_stap() | default", {
 
 
 test_that("tag_label_stap() | for elev", {
-  tag_elev <- tag_label_read(tag,
-    file = "./data/tag-label/18LX-labeled-elev.csv"
-  )
+  tag_elev <- tag_label_read(tag, file = "./data/tag-label/18LX-labeled-elev.csv")
   expect_true(all(c("elev_1", "elev_2") %in% unique(tag_elev$pressure$label)))
   tag_label_stap <- tag_label_stap(tag_elev)
   expect_true(all(c("elev_1", "elev_2") %in% unique(tag_elev$pressure$label)))
@@ -124,9 +121,10 @@ test_that("tag_label_stap() | for elev", {
 
 
 test_that("tag_label_stap() | no acceleration", {
-  expect_warning(tag_labeled <- tag_label_read(tag,
-    file = "./data/tag-label/18LX-labeled-no_acc.csv"
-  ), "The labelization file does not contains label for acceleration.")
+  expect_warning(
+    tag_labeled <- tag_label_read(tag, file = "./data/tag-label/18LX-labeled-no_acc.csv"),
+    "The labelization file does not contains label for acceleration."
+  )
   expect_no_error(tag_label_stap(tag_labeled))
 })
 

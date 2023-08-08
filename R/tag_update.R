@@ -32,13 +32,15 @@ tag_update <- function(tag,
   tag_assert(tag, "map_pressure")
 
   # Re-create the original tag before label
-  tag_new <- tag_create(id = tag$param$id,
-                        pressure_file = tag$param$sensor_paths[1],
-                        light_file = tag$param$sensor_paths[2],
-                        acceleration_file = tag$param$sensor_paths[3],
-                        crop_start = tag$param$create_crop_start,
-                        crop_end = tag$param$create_crop_end,
-                        quiet = TRUE)
+  tag_new <- tag_create(
+    id = tag$param$id,
+    pressure_file = tag$param$sensor_paths[1],
+    light_file = tag$param$sensor_paths[2],
+    acceleration_file = tag$param$sensor_paths[3],
+    crop_start = tag$param$create_crop_start,
+    crop_end = tag$param$create_crop_end,
+    quiet = TRUE
+  )
 
   # Read the new file and compute the stationary period
   tag_new <- tag_label_read(tag_new, file = file)
@@ -70,7 +72,7 @@ tag_update <- function(tag,
   if (!all(old_stap_include_exclude %in% stap_new$old_stap_id)) {
     tmp <- old_stap_include_exclude[!(old_stap_include_exclude %in% stap_new$old_stap_id)]
     cli::cli_warn(c(
-      "!" = "Stationary period{?s} {.val tmp} were excluded ({.code include = FALSE}) from the \\
+      "!" = "Stationary period{?s} {.val {tmp}} were excluded ({.code include = FALSE}) from the \\
         original {.var tag} but are not present in the new {.var tag}",
       ">" = "We will assume that the same stap_id excluded should again be excluded."
     ))
@@ -80,10 +82,10 @@ tag_update <- function(tag,
 
   # Build the setmapof stap_id to recompute and the one included
   tag_new <- tag_setmap(tag_new,
-                         extent = tag$param$extent,
-                         scale = tag$param$scale,
-                         known = known,
-                         include_stap_id = stap_new$stap_id[stap_new$include]
+    extent = tag$param$extent,
+    scale = tag$param$scale,
+    known = known,
+    include_stap_id = stap_new$stap_id[stap_new$include]
   )
 
 
@@ -91,7 +93,7 @@ tag_update <- function(tag,
   # we don't care about flight label change because they have already impacted the merge of the new stap, only pressure outliar are important at this stage
   discard_label_chg <- (tag_new$pressure$label == "discard" | tag$pressure$label == "discard") &
     (tag_new$pressure$label != tag$pressure$label)
-  stap_new$recompute <- F
+  stap_new$recompute <- FALSE
   stap_new$recompute[tag_new$pressure$stap_id[discard_label_chg]] <- TRUE
 
   # Acutally not needed
@@ -109,7 +111,7 @@ tag_update <- function(tag,
   tag_new$stap$include <- stap_new$include & stap_new$recompute
 
   # Check if nothing had changed
-  if (all(!tag_new$stap$include)){
+  if (all(!tag_new$stap$include)) {
     cli::cli_warn(c(
       "!" = "There are no changes with the new label file",
       ">" = "the original {.var tag} will be returned."
@@ -119,15 +121,13 @@ tag_update <- function(tag,
 
   # Build the new map
   tag_new <- geopressure_map(tag_new,
-                             max_sample = tag$param$max_sample,
-                             margin = tag$param$margin,
-                             sd = tag$param$sd,
-                             thr_mask = tag$param$thr_mask,
-                             log_linear_pooling_weight = tag$param$log_linear_pooling_weight,
-                             keep_mse_mask = "map_pressure_mse" %in% names(tag)
+    max_sample = tag$param$max_sample,
+    margin = tag$param$margin,
+    sd = tag$param$sd,
+    thr_mask = tag$param$thr_mask,
+    log_linear_pooling_weight = tag$param$log_linear_pooling_weight,
+    keep_mse_mask = "map_pressure_mse" %in% names(tag)
   )
-
-  tag_new_arch <- tag_new
 
   # Add the likelihood which have not changed
   tag_new$map_pressure[stap_new$stap_id[!stap_new$recompute]] <- tag$map_pressure[stap_new$old_stap_id[!stap_new$recompute]]
