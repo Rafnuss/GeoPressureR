@@ -12,32 +12,29 @@ param_create <- function(id , default = FALSE, ...){
   assertthat::assert_that(is.character(id))
 
   if (default){
-    param0 <- list(
+    param <- list(
       id = id,
-      pressure_file = formals(tag_read)$pressure_file,
-      light_file = formals(tag_read)$light_file,
-      acceleration_file = formals(tag_read)$acceleration_file,
-      crop_start = formals(tag_read)$crop_start,
-      crop_end = formals(tag_read)$crop_end,
+      sensor_file_directory = formals(tag_create)$directory,
+      pressure_file = formals(tag_create)$pressure_file,
+      light_file = formals(tag_create)$light_file,
+      acceleration_file = formals(tag_create)$acceleration_file,
+      crop_start = formals(tag_create)$crop_start,
+      crop_end = formals(tag_create)$crop_end,
       label_file = formals(tag_label)$file,
       extent = NULL,
-      scale = 5,
-      known = data.frame(
-        stap_id = integer(),
-        known_lat = double(),
-        known_lon = double()
-      ),
-      exclude_stap_id = NA,
-      include_min_duration = 0,
+      scale = formals(tag_setmap)$scale,
+      known = formals(tag_setmap)$known,
+      include_stap_id = formals(tag_setmap)$include_stap_id,
+      include_min_duration = formals(tag_setmap)$include_min_duration,
       max_sample = formals(geopressure_map)$max_sample,
       margin = formals(geopressure_map)$margin,
       sd = formals(geopressure_map)$sd,
       thr_mask = formals(geopressure_map)$thr_mask,
-      log_linear_pooling_weight = formals(geopressure_map)$thr_mask,
+      log_linear_pooling_weight = formals(geopressure_map)$log_linear_pooling_weight,
       compute_known = formals(geopressure_map)$compute_known,
       twl_thr = formals(twilight_create)$twl_thr,
       twl_offset = formals(twilight_create)$twl_offset,
-      twilight_file = formals(twilight_label_read)$twilight_file,
+      twilight_file = formals(twilight_label_read)$file,
       twl_calib_adjust = formals(geolight_map)$twl_calib_adjust,
       twl_llp = formals(geolight_map)$twl_llp,
       thr_likelihood = formals(graph_create)$thr_likelihood,
@@ -55,22 +52,18 @@ param_create <- function(id , default = FALSE, ...){
       GeoPressureR_version = utils::packageVersion("GeoPressureR")
     )
   } else {
-    param0 <-list(
+    param <-list(
       id = id
     )
   }
 
   # Overwrite default value with input value
-  param <- structure(utils::modifyList(param0, list(...), keep.null = TRUE), class="param")
+  param_overwrite <- list(...)
+  common_names <- intersect(names(param), names(param_overwrite))
+  for(name in common_names) {
+    param[[name]] <- param_overwrite[[name]]
+  }
 
   return(param)
 }
 
-
-param_write <- function(param, file, ...){
-  write(jsonlite::toJSON(param, ...), file = file)
-}
-
-param_read <- function(file,...){
-  return(structure(jsonlite::fromJSON(file),...), class="param")
-}
