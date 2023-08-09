@@ -104,10 +104,7 @@ plot_pressurepath <- function(pressurepath,
 
     p <- ggplot2::ggplot(pp[pp$label == "", ], ggplot2::aes_string(x = "error")) +
       ggplot2::geom_histogram(
-        ggplot2::aes_string(
-          y = (ggplot2::after_stat("count")) / tapply(ggplot2::after_stat("count"), ggplot2::after_stat("PANEL"), sum)[ggplot2::after_stat("PANEL")],
-          fill = "sd_ok"
-        ),
+        ggplot2::aes_string(fill = "sd_ok"),
         binwidth = .4
       ) +
       ggplot2::geom_vline(
@@ -118,7 +115,7 @@ plot_pressurepath <- function(pressurepath,
         ggplot2::aes_string(xintercept = "warning_p"),
         linetype = "dashed", colour = "red"
       ) +
-      ggplot2::facet_wrap(ggplot2::vars("stapelev"), scale = "free", labeller = lab) +
+      ggplot2::facet_wrap(~stapelev, scale = "free_y", labeller = lab) +
       ggplot2::scale_x_continuous(name = "Difference of pressure tag - ERA5 (hPa)") +
       ggplot2::scale_y_continuous(name = "Normalized histogram") +
       ggplot2::scale_fill_manual(values = c("TRUE" = "red", "FALSE" = "black")) +
