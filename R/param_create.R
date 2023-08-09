@@ -66,5 +66,5 @@ param_create <- function(id, default = FALSE, ...) {
     param[[name]] <- param_overwrite[[name]]
   }
 
-  return(param)
+  return(structure(param, class="param"))
 }
