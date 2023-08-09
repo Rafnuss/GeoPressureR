@@ -28,24 +28,24 @@ plot.map <- function(x,
 
   # Eliminate unlikely pixel, same as in the creation of graph
   map$data <- lapply(map$data, function(m) {
-    # Normalize
-    m <- m / sum(m, na.rm = TRUE)
+    if (!is.null(m)){
+      # Normalize
+      m <- m / sum(m, na.rm = TRUE)
 
-    ms <- sort(m)
-    id_prob_percentile <- sum(cumsum(ms) < (1 - thr_likelihood))
-    thr_prob <- ms[id_prob_percentile + 1]
+      # Find threashold of precentile
+      ms <- sort(m)
+      id_prob_percentile <- sum(cumsum(ms) < (1 - thr_likelihood))
+      thr_prob <- ms[id_prob_percentile + 1]
 
-    m[m < thr_prob] <- NA
+      # Set to NA all value below this threashold
+      m[m < thr_prob] <- NA
 
+    }
     return(m)
   })
 
   # Convert map into rast
-  r <- rast(map)
-
-  # If r is very small, the plot is not working, this is a small trick to solve it.
-  # r <- r / max(terra::minmax(r)[2, ], na.rm = TRUE)
-
+  r <- rast.map(map)
 
   if (plot_leaflet) {
     #require("terra") required to attach has.RGB which has missing dependancy
