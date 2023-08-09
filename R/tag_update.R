@@ -34,11 +34,11 @@ tag_update <- function(tag,
   # Re-create the original tag before label
   tag_new <- tag_create(
     id = tag$param$id,
-    pressure_file = tag$param$sensor_paths[1],
-    light_file = tag$param$sensor_paths[2],
-    acceleration_file = tag$param$sensor_paths[3],
-    crop_start = tag$param$create_crop_start,
-    crop_end = tag$param$create_crop_end,
+    pressure_file = tag$param$pressure_file,
+    light_file = tag$param$light_file,
+    acceleration_file = tag$param$acceleration_file,
+    crop_start = tag$param$crop_start,
+    crop_end = tag$param$crop_end,
     quiet = TRUE
   )
 
@@ -59,7 +59,7 @@ tag_update <- function(tag,
     # Use the exact same known as provided
     known <- tag$stap[!is.na(tag$stap$known_lat), names(tag$stap) %in% c("stap_id", "known_lat", "known_lon")]
     # Check that the old_stap_id is the same as the new ones for the known stap_id
-    if (!stap_new$stap_id[stap_new$old_stap_id == known$stap_id] == known$stap_id) {
+    if (stap_new$stap_id[which(stap_new$old_stap_id == known$stap_id)] != known$stap_id) {
       cli::cli_abort(c(
         "x" = "Known position were defined at stationary period{?s} {.val {known$stap_id}}, yet these stationary period have changed because you changed {.val flight} label before or after them.",
         ">" = "In such case, you need start again from the raw data or provide an updated {.var known} arguement."
@@ -90,9 +90,9 @@ tag_update <- function(tag,
 
 
   # 2. Check which stap_id have a discard pressure label which has changed
-  # we don't care about flight label change because they have already impacted the merge of the new stap, only pressure outliar are important at this stage
-  discard_label_chg <- (tag_new$pressure$label == "discard" | tag$pressure$label == "discard") &
-    (tag_new$pressure$label != tag$pressure$label)
+  # we don't care about flight label change because they have already impacted the merge of the new stap, only pressure outliar and stap_elev are important at this stage
+  discard_label_chg <- (tag_new$pressure$label != tag$pressure$label) & (tag_new$pressure$label != "flight" | tag$pressure$label != "flight")
+
   stap_new$recompute <- FALSE
   stap_new$recompute[tag_new$pressure$stap_id[discard_label_chg]] <- TRUE
 
@@ -108,7 +108,7 @@ tag_update <- function(tag,
   #  ))
   # }
 
-  tag_new$stap$include <- stap_new$include & stap_new$recompute
+  tag_new$stap$include <- stap_new$include & (stap_new$recompute | is.na(stap_new$old_stap_id))
 
   # Check if nothing had changed
   if (all(!tag_new$stap$include)) {
@@ -130,10 +130,10 @@ tag_update <- function(tag,
   )
 
   # Add the likelihood which have not changed
-  tag_new$map_pressure[stap_new$stap_id[!stap_new$recompute]] <- tag$map_pressure[stap_new$old_stap_id[!stap_new$recompute]]
+  tag_new$map_pressure$data[stap_new$stap_id[!tag_new$stap$include]] <- tag$map_pressure$data[stap_new$old_stap_id[!tag_new$stap$include]]
   if ("map_pressure_mse" %in% names(tag)) {
-    tag_new$map_pressure_mse[stap_new$stap_id[!stap_new$recompute]] <- tag$map_pressure_mse[stap_new$old_stap_id[!stap_new$recompute]]
-    tag_new$map_pressure_thr[stap_new$stap_id[!stap_new$recompute]] <- tag$map_pressure_thr[stap_new$old_stap_id[!stap_new$recompute]]
+    tag_new$map_pressure_mse$data[stap_new$stap_id[!tag_new$stap$include]] <- tag$map_pressure_mse$data[stap_new$old_stap_id[!tag_new$stap$include]]
+    tag_new$map_pressure_thr$data[stap_new$stap_id[!tag_new$stap$include]] <- tag$map_pressure_thr$data[stap_new$old_stap_id[!tag_new$stap$include]]
   }
 
   # Overwrite the model and keep the initial stap_id excluded
@@ -141,14 +141,14 @@ tag_update <- function(tag,
 
 
   if ("map_light" %in% names(tag)) {
-    if (all(stap_new$stap_id == stap_new$old_stap_id)) {
-      # No stap have changed, we can keep the original light map
-      tag_new$twilight <- tag$twilight
-      tag_new$map_light <- tag$map_light
-    } else {
+    if (any(is.na(stap_new$old_stap_id)) | any(stap_new$stap_id != stap_new$old_stap_id)) {
       cli::cli_warn("Light maps needs to be recomputed as some stationay periods have changed.")
       tag_new$map_light <- NULL
       tag_new$twilight <- NULL
+    } else {
+      # No stap have changed, we can keep the original light map
+      tag_new$twilight <- tag$twilight
+      tag_new$map_light <- tag$map_light
     }
   }
 

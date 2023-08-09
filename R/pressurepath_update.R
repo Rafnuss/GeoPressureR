@@ -6,7 +6,7 @@
 #'
 #' @param pressurepath A GeoPressureR `pressurepath` data.frame
 #' @inheritParams pressurepath_create
-#' @return a list containing the new `tag` and `pressurepath`.
+#' @return a list containing the new `pressurepath`.
 #' @family pressurepath
 #' @export
 pressurepath_update <- function(pressurepath,
@@ -53,7 +53,7 @@ pressurepath_update <- function(pressurepath,
     ),
     by = "date"
   )
-  stap_id_recompute_pres <- unique(tmp[tmp$stap_id != tmp$stap, ]$stap_id)
+  stap_id_recompute_pres <- unique(tmp[tmp$stap_id != tmp$stap_id_old, ]$stap_id)
 
   # Find the new stap_id for which the corresponding path which has a different old stap_id
   pp_path <- unique(pressurepath[, names(pressurepath) %in% names(path)])
@@ -63,7 +63,7 @@ pressurepath_update <- function(pressurepath,
   stap_id_recompute_path <- tmp$stap_id[tmp$lat_old != tmp$lat | tmp$lon_old != tmp$lon |
     is.na(tmp$lon_old)]
 
-  stap_id_recompute <- intersect(stap_id_recompute_path, stap_id_recompute_pres)
+  stap_id_recompute <- union(stap_id_recompute_path, stap_id_recompute_pres)
 
   if (length(stap_id_recompute) > 0) {
     if (assertthat::has_attr(pressurepath, "include_flight")) {
