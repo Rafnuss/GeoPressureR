@@ -57,7 +57,7 @@ graph_marginal <- function(graph) {
   dim(map_fb) <- graph$sz
 
   # return as list
-  marginal <- vector("list", nrow(graph$stap))
+  marginal_data <- vector("list", nrow(graph$stap))
   stap_includeed <- graph$stap$stap_id[graph$stap$include]
   for (i_s in seq_len(graph$sz[3])) {
     map_fb_i <- map_fb[, , i_s]
@@ -68,14 +68,17 @@ graph_marginal <- function(graph) {
         i = "Please check the data used to create the graph."
       ))
     }
-    marginal[[stap_includeed[i_s]]] <- map_fb_i
+    marginal_data[[stap_includeed[i_s]]] <- map_fb_i
   }
 
-  # Add attribute
-  attr(marginal, "id") <- graph$param$id
-  attr(marginal, "extent") <- graph$extent
-  attr(marginal, "scale") <- graph$scale
-  attr(marginal, "stap") <- graph$stap
+  marginal <- map_create(
+    data = marginal_data,
+    extent = graph$param$extent,
+    scale = graph$param$scale,
+    stap = graph$stap,
+    id = graph$param$id,
+    type = "marginal"
+  )
 
   return(marginal)
 }
