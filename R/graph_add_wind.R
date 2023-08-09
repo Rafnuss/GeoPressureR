@@ -270,23 +270,33 @@ graph_add_wind <- function(graph,
 
         # Interpolation the u- and v- component at the interpolated position at the current time
         # step.
-        ll_int <- round(cbind(lat_int[, i3], lon_int[, i3]), 1)
-        ll_int_uniq <- unique(ll_int)
-        id_uniq <- match(
-          ll_int[, 1] * 1000 + ll_int[, 2],
-          ll_int_uniq[, 1] * 1000 + ll_int_uniq[, 2]
-        )
+        # Because lat_int and lon_int are so big, we round their value and only interpolate on the
+        # unique value that are needed. Then, we give the interpolated value back to all the lat_int
+        # lon_int dimension
+        # Convert the coordinate to 1d to have a more efficient unique.
+        ll_int_1D <- (round(lat_int[, i3], 1) + 90) * 10 * 10000 + (round(lon_int[, i3], 1) + 180) * 10 + 1
+        ll_int_1D_uniq <- unique(ll_int_1D)
+
+        lat_int_uniq <- ((ll_int_1D_uniq - 1) %/% 10000) / 10 - 90
+        lon_int_uniq <- ((ll_int_1D_uniq - 1) %% 10000) / 10 - 180
+        # CHeck that the transofmration is correct with
+        # cbind((round(lat_int[, i3], 1)+90)*10, (ll_int_1D - 1) %/% 10000)
+        # cbind((round(lon_int[, i3],1)+180)*10, (ll_int_1D - 1) %% 10000)
+        # cbind(lat_int_uniq, lon_int_uniq, lat_int[, i3], lon_int[, i3])
+
+        id_uniq <- match(ll_int_1D, ll_int_1D_uniq)
 
         tmp <- pracma::interp2(rev(lat[id_lat]), lon[id_lon],
           u[, rev(seq_len(ncol(u)))],
-          ll_int_uniq[, 1], ll_int_uniq[, 2],
+          lat_int_uniq, lon_int_uniq,
           method = "linear"
         )
+
         assertthat::assert_that(all(!is.na(tmp)))
         u_int[i3, ] <- tmp[id_uniq]
         tmp <- pracma::interp2(rev(lat[id_lat]), lon[id_lon],
           v[, rev(seq_len(ncol(u)))],
-          ll_int_uniq[, 1], ll_int_uniq[, 2],
+          lat_int_uniq, lon_int_uniq,
           method = "linear"
         )
         assertthat::assert_that(all(!is.na(tmp)))
