@@ -53,3 +53,9 @@ test_that("tag_create() | no acceleration", {
   expect_no_error(tag <- tag_label_read(tag, file = "./data/tag-label/18LX-labeled-no_acc.csv"))
   expect_no_error(tag_label_stap(tag))
 })
+
+test_that("param_create() | default", {
+  expect_no_error(param_create(id = "18LX", extent = c(0, 0, 1, 1)))
+  expect_no_error(param_create(id = "18LX", default = TRUE))
+})
+

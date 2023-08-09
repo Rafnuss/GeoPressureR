@@ -42,7 +42,32 @@ test_that("workflow | full", {
   edge_sim <- path2edge(sim, graph)
 
   pressurepath <- pressurepath_create(tag, path)
-})
+
+  expect_no_error(print(tag))
+  expect_no_error(print(graph))
+  expect_no_error(print(graph$param))
+
+  expect_no_error(plot(tag, type = "pressure"))
+  expect_no_error(plot(tag, type = "light"))
+  expect_no_error(plot(tag, type = "acceleration"))
+  expect_no_error(plot(tag, type = "twilight"))
+  expect_no_error(plot(tag, type = "map_pressure"))
+  expect_no_error(plot(tag, type = "map_light"))
+  expect_no_error(plot(tag, type = "map"))
+
+  expect_no_error(plot_pressurepath(pressurepath, type = "ts"))
+  expect_no_error(plot_pressurepath(pressurepath, type = "altitude"))
+  expect_no_error(plot_pressurepath(pressurepath, type = "hist"))
+
+  expect_no_error(plot_graph_movement(graph))
+
+  expect_no_error(plot_path(path))
+
+  expect_no_error(geopressureviz(tag = tag,
+                                 pressurepath = pressurepath,
+                                 marginal = marginal))
+
+  })
 
 test_that("workflow | Missing pressure value", {
   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
