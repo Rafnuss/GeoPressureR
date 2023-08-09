@@ -41,5 +41,9 @@ rast.map <- function(x,
 #  UseMethod("rast")
 #}
 
+#  setOldClass("map") allows S4 dispatch on S3 map objects.
+methods::setOldClass("map")
+
+
 methods::setMethod(rast, "map", rast.map)
 # #' @importMethodsFrom terra rast
