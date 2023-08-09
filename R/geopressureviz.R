@@ -16,17 +16,26 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
 #' @export
 geopressureviz <- function(tag = NULL,
-                           id = NULL,
                            pressurepath = NULL,
                            marginal = NULL,
+                           id = NULL,
                            launch_browser = TRUE) {
-  if (is.null(tag)) {
-    if (!is.null(id)) {
-      # load tag from id
-    } else {
-      cli::cli_abort("{.var tag} or {.var id} needs to be provided")
-    }
+  if (!is.null(id)) {
+    # Make of copy of the arguement so that they don't get overwritten
+    tag0 <- tag
+    pressurepath0 <- pressurepath
+    marginal0 <- marginal
+    # Load interim
+    load(glue::glue("./data/interim/{id}.RData"))
+    # Overwrite loaded variable with arguments if provided
+    if (!is.null(tag0))
+      tag <- tag0
+    if (!is.null(pressurepath0))
+      pressurepath <- pressurepath0
+    if (!is.null(marginal0))
+      marginal <- marginal0
   }
+
   tag_assert(tag, "setmap")
 
   if (all(c("map_pressure", "map_light") %in% names(tag))) {
@@ -76,7 +85,7 @@ geopressureviz <- function(tag = NULL,
   } else {
     path <- unique(pressurepath[, c("stap_id", "lat", "lon")])
   }
-  pressurepath$linetype <- 1
+  pressurepath$linetype <- as.factor(1)
   pressurepath <- merge(pressurepath, stap[, names(stap) %in% c("stap_id", "col")], by = "stap_id")
 
 
