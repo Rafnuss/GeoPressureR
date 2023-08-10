@@ -1,8 +1,8 @@
-citHeader("To cite GeoPressureR in publications use the following according to your need (nussbaumer2022a for the method, nussbaumer2022b for the R code")
+citHeader("To cite GeoPressureR in publications use the following (nussbaumer2023a and nussbaumer2023b for the method and nussbaumer2022 for the R code")
 
 citEntry(
-  entry   = "misc",
-  textVersion = "nussbaumer2022a",
+  entry   = "Article",
+  textVersion = "nussbaumer2023a",
   title   = "Global positioning with animal-borne pressure sensors",
   author  = personList(
   person("Raphael", "Nussbaumer", email = "rafnuss@gmail.com", comment = c(ORCID = "0000-0002-8185-1020")),
@@ -12,13 +12,16 @@ citEntry(
   ),
   doi     = "10.1111/2041-210X.14043",
   url     = "https://doi.org/10.1111/2041-210X.14043",
-  pages   = "1--14",
-  year    = "2023"
+  year    = "2023",
+  journal = "Methods in Ecology and Evolution",
+  volume  = "14",
+  number  = "4",
+  pages   = "1104-1117",
 )
 
 citEntry(
-  entry   = "misc",
-  textVersion = "nussbaumer2022b",
+  entry   = "Article",
+  textVersion = "nussbaumer2023b",
   title   = "Reconstructing bird trajectories from pressure and wind data using a highly optimised hidden Markov model",
   author  = personList(
   person("Raphael", "Nussbaumer", email = "rafnuss@gmail.com", comment = c(ORCID = "0000-0002-8185-1020")),
@@ -27,16 +30,20 @@ citEntry(
     person("Felix", "Liechti", email = "felix.liechti@vogelwarte.ch", comment = c(ORCID = "0000-0001-9473-0837")),
     person("Daniel", "Sheldon", comment = c(ORCID = "0000-0002-4257-2432"))
   ),
-  doi     = "10.21203/rs.3.rs-1693751/v2",
-  url     = "https://doi.org/10.21203/rs.3.rs-1693751/v2",
+  doi     = "10.1111/2041-210X.14082",
+  url     = "https://doi.org/10.1111/2041-210X.14082",
   pages   = "1--32",
-  year    = "2022"
+  year    = "2023"
+  journal = "Methods in Ecology and Evolution",
+  volume  = "14",
+  number  = "4",
+  pages   = "1108-1129",
 )
 
 
 citEntry(
   entry   = "manual",
-  textVersion = "nussbaumer2022c",
+  textVersion = "nussbaumer2022",
   title   = "GeoPressureR: Global positioning by atmospheric pressure",
   author  = personList(
   person("Raphael", "Nussbaumer", email = "rafnuss@gmail.com", comment = c(ORCID = "0000-0002-8185-1020")),
