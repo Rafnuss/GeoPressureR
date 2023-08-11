@@ -33,7 +33,7 @@ citEntry(
   doi     = "10.1111/2041-210X.14082",
   url     = "https://doi.org/10.1111/2041-210X.14082",
   pages   = "1--32",
-  year    = "2023"
+  year    = "2023",
   journal = "Methods in Ecology and Evolution",
   volume  = "14",
   number  = "4",

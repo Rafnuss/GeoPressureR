@@ -22,9 +22,13 @@ Imports:
     future,
     geosphere,
     glue,
+    ggplot2,
     httr,
+    leaflet,
+    plotly,
     jsonlite,
     Matrix,
+    methods,
     ncdf4,
     pracma,
     progressr,
@@ -34,16 +38,12 @@ Imports:
     utils
 Suggests: 
     BiocManager,
-    ggplot2,
     knitr,
-    leaflet,
-    leaflet.extras,
-    plotly,
-    raster,
-    RColorBrewer,
     testthat (>= 3.0.0),
+    leaflet.extras,
     shinyjs,
     shiny,
+    RColorBrewer,
     shinyWidgets,
     covr
 biocViews:

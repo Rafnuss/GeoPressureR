@@ -28,17 +28,37 @@ navbar:
 
 reference:
 - title: Tag
-  desc: Reading and labelling the data logger.
+  desc: Core functions related to a `tag` object.
   contents:
   - tag_create
-  - tag_geostap
-- subtitle: Label tag
-  desc: Labelling data
+  - tag_set_map
+  - tag_update
+- subtitle: Visualize tag
+  desc: Print and plot a `tag` object.
   contents:
-  - start_with("tag_label")
+  - print.tag
+  - plot.tag
+  - plot_tag_pressure
+  - plot_tag_light
+  - plot_tag_twilight
+  - plot_tag_acceleration
+- subtitle: Label tag
+  desc: Core functions related to labelling a `tag` object.
+  contents:
+  - tag_label
+  - tag_label_auto
+  - tag_label_write
+  - tag_label_read
+  - tag_label_stap
+- subtitle: Tag utilities
+  desc: Various utility functions related to a `tag` object.
+  contents:
+  - tag_assert
+  - tag2path
+  - tag2map
 - title: GeoPressure
-  desc: Core functionality using the GeoPressureAPI
-- subtitle: GeoPressure Map
+  desc: Core functions of the [GeoPressureAPI](https://github.com/Rafnuss/GeoPressureAPI).
+- subtitle: GeoPressure map
   desc: Geopositioning based on pressure data.
   contents:
   - geopressure_map
@@ -46,46 +66,75 @@ reference:
   - geopressure_map_likelihood
   - geopressure_map_preprocess
 - subtitle: GeoPressure timeseries
-  desc: Retrieving pressure and altitude at a given location.
+  desc: Retrieving timeseries pressure at a given location.
   contents:
-  - pressurepath_create
   - geopressure_timeseries
 - title: GeoLight
   desc: Geopositioning based on light data.
   contents:
-  - starts_with("geolight")
-  - starts_with("twilight")
+  - geolight_map
+  - twilight_create
+  - twilight_label_write
+  - twilight_label_read
+  - light2mat
 - title: Graph
-  desc: Constructing the Hidden-Markov Model with a graph and computing trajectory products.
+  desc: Constructing the Hidden-Markov model with a `graph` and computing trajectory products.
   contents:
   - graph_create
-- subtitle: Graph wind
-  contents:
-  - graph_download_wind
-  - graph_add_wind
 - subtitle: Graph movement
+  desc: Defining the movement model, optionally using wind data and bird morphology.
   contents:
-  - graph_add_movement
+  - graph_set_movement
   - graph_transition
+  - tag_download_wind
+  - graph_add_wind
+  - bird_create
+  - print.bird
+  - speed2prob
+  - plot_graph_movement
 - subtitle: Graph products
+  desc: Compute the three main products of the Hidden-Markov model.
   contents:
   - graph_most_likely
   - graph_marginal
   - graph_simulation
-- title: GeoPressure Vizualization
+- subtitle: Graph utilities
+  desc: Utility functions for a `graph` object
   contents:
-  - geopressureviz
-  - plot_pressure_path
-  - plot_pressure_tag
-- title: Utility
-  desc: GeoPressureR utility functions.
+  - graph_assert
+  - print.graph
+- title: Map
+  desc: Container for spatio-temporal (stationary periods) data.
+  contents:
+  - map_create
+  - print.map
+  - plot.map
+  - rast.map
+  - map_expand
+- title: Path
+  desc: Data.frame of positions defining a bird trajectory.
+  contents:
+  - ind2path
+  - path2edge
+  - plot_path
+- title: Pressurepath
+  desc: Data.frame of pressure timeseries along a path.
+  contents:
+  - pressurepath_create
+  - pressurepath_update
+  - plot_pressurepath
+  - pressurepath2altitude
+- title: Param
+  desc: List of parameters used in `tag` and `graph`.
+  contents:
+  - param_create
+  - print.param
+- title: GeoPressureR utilities
+  desc: General utility functions of the package.
   contents:
   - stap2flight
-  - geo_expand
-  - map2path
-  - ind2path
-  - bird_create
-  - speed2prob
-  - path2edge
-  - geopressure_export
+  - stap2duration
+  - geopressureviz
+  - GeoPressureR
+
 
