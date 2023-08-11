@@ -2,47 +2,47 @@
 % Please edit documentation in R/tag_label_write.R
 \name{tag_label_write}
 \alias{tag_label_write}
-\title{Export csv label file}
+\title{Write a tag label file}
 \usage{
-tag_label_write(tag, file = glue::glue("data/1_labels/{tag$id}.csv"))
+tag_label_write(tag, file = glue::glue("./data/tag-label/{tag$param$id}.csv"))
 }
 \arguments{
-\item{tag}{List containing the data logger dataset, this needs to contain at least a \code{pressure}
-data.frame, but can also have a \code{light} and \code{acceleration} data.frame (see \code{\link[=tag_read]{tag_read()}}).}
+\item{tag}{a GeoPressure \code{tag} object.}
 
 \item{file}{Absolute or relative path of the label file to be saved.}
 }
 \description{
 This function writes the csv file of labelled activity and pressure which can
-be read with \href{https://trainset.geocene.com/}{TRAINSET}.
+be read with \href{https://trainset.geocene.com/}{TRAINSET}. If no label data exist, it will first
+initialise the label data.
 
 Optionally, it can also export a reference dataset for pressure \code{tag$pressure$ref} as another
 series to be visualized on TRAINSET, but without impacting the labelling process.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
-tag <- tag_read("18LX")
+tag <- tag_create("18LX", quiet = TRUE)
 
 # Writing unlabeled tag will initialize the labelling for trainset
 file <- tag_label_write(tag)
 str(read.csv(file))
 
 # Writing unlabeled tag will initialize the labelling for trainset
-tag <- tag_label_classify(tag)
+tag <- tag_label_auto(tag)
 file <- tag_label_write(tag)
 str(read.csv(file))
 
 # Writing labeled tag will use the existing labels
 tag <- tag_label(tag)
-file <- tag_label_write(tag,
-  file = glue::glue("data/1_labels/{tag$id}-v2.csv")
-)
+file <- tag_label_write(tag)
 str(read.csv(file))
+
 }
 \seealso{
 Other tag_label: 
-\code{\link{tag_label_classify}()},
+\code{\link{tag_label_auto}()},
 \code{\link{tag_label_read}()},
+\code{\link{tag_label_stap}()},
 \code{\link{tag_label}()}
 }
 \concept{tag_label}

@@ -1,10 +1,13 @@
-#' Plot pressure data of a `tag`
+#' Plot movement model of a `graph`
 #'
 #' This function display a plot of pressure timeseries recorded by a tag
 #
-#' @param graph A GeoPressureR graph object
-#' @param speed Vector of speed value (km/h) used on the x-axis
-#' @param plot_plotly Logical to use `plotly`
+#' @param graph a GeoPressureR `graph` object.
+#' @param speed Vector of speed value (km/h) used on the x-axis.
+#' @param plot_plotly logical to use `plotly`
+#'
+#'
+#' @family movement
 #' @export
 plot_graph_movement <- function(graph,
                                 speed = seq(1, 120),
@@ -14,9 +17,9 @@ plot_graph_movement <- function(graph,
 
   d <- data.frame(
     speed = speed,
-    prob = speed2prob(speed, graph$movement)
+    prob = speed2prob(speed, graph$param$movement)
   )
-  lsf <- data.frame(low_speed_fix = graph$movement$low_speed_fix)
+  lsf <- data.frame(low_speed_fix = graph$param$movement$low_speed_fix)
 
   if (assertthat::has_name(graph, c("ws"))) {
     xlab <- "Airspeed [km/h]"
@@ -27,12 +30,12 @@ plot_graph_movement <- function(graph,
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
       data = d,
-      ggplot2::aes_string(x = "speed", y = "prob"),
+      ggplot2::aes(x = .data$speed, y = .data$prob),
       color = "grey"
     ) +
     ggplot2::geom_vline(
       data = lsf,
-      ggplot2::aes_string(xintercept = "low_speed_fix"),
+      ggplot2::aes(xintercept = .data$low_speed_fix),
       color = "red"
     ) +
     ggplot2::theme_bw() +

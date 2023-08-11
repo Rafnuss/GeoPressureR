@@ -1,11 +1,24 @@
-#' Plot `map`
+#' Print a `map` object
 #'
-#' This function plot a `map`.
+#' This function displays the information of a `map` object.
 #
-#' @param x A GeoPressureR `map` object
-#' @param ... arguments passed from other methods
+#' @param x a GeoPressureR `map` object
+#' @param ... arguments passed to other methods
 #'
 #' @return `map` is returned invisibly and unchanged
+#'
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE) |>
+#'   tag_label(quiet = TRUE) |>
+#'   tag_label(quiet = TRUE) |>
+#'   tag_set_map(
+#'     extent = c(-16, 23, 0, 50),
+#'     scale = 4
+#'   ) |>
+#'   geopressure_map(quiet = TRUE)
+#'
+#' print(tag$map_pressure)
 #'
 #' @family map
 #' @method print map

@@ -1,71 +1,81 @@
-#' Assert status of a `tag`
+#' Assert the status of a `tag`
 #'
-#' These functions return logical about the contents of a `tag` object.
+#' This function check the condition of a `tag` object.
 #'
-#'
-#' @param tag a `tag` object
-#' @param condition condition to assert `tag` for. One of "tag" (default), "read", "pressure",
-#' "light", "acceleration", "label", "stap", "setmap", "pressure_map" and "map_pressure_mismatch",
-#' "twilight"
-#' @param type Message type to display. One of "abort" (default), "warn" or "inform"
+#' @param tag a GeoPressureR `tag` object.
+#' @param condition condition to assert `tag` for. One of `"tag"` (default), `"pressure"`,
+#' `"light"`, `"acceleration"`, `"label"`, `"stap"`, `"setmap"`, `"map_pressure"`, `"map_light"`
+#' `"map_pressure_mismatch"` and `"twilight"`
+#' @param type Message type to display. One of `"abort"` (default), `"warn"` or `"inform"`
 #'
 #' @return logical indicating the `tag` object has the relevant element
+#'
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE) |>  tag_label(quiet = TRUE)
+#'
+#' tag_assert(tag)
+#'
+#' tag_assert(tag, "read", type = "inform")
+#'
+#' tag_assert(tag, "map_pressure", type = "inform")
+#'
 #' @export
 tag_assert <- function(tag, condition = "tag", type = "abort") {
   status <- tag_status(tag)
 
   if (condition == "tag") {
-    msg <- c("x" = "tag is not a `tag` object.")
+    msg <- c("x" = "tag is not a {.var field} object.")
   } else if (condition == "pressure") {
     msg <- c(
-      "x" = "The `tag` object does not have `pressure` data."
+      "x" = "The {.var field} object does not have {.field pressure} data."
     )
   } else if (condition == "light") {
     msg <- c(
-      "x" = "The `tag` object does not have `light` data."
+      "x" = "The {.var field} object does not have {.field light} data."
     )
   } else if (condition == "acceleration") {
     msg <- c(
-      "x" = "The `tag` object does not have `acceleration` data."
+      "x" = "The {.var field} object does not have {.field acceleration} data."
     )
   } else if (condition == "label") {
     msg <- c(
-      "x" = "The `tag` object has not yet been labeled.",
+      "x" = "The {.var field} object has not yet been labeled.",
       ">" = "Use {.fun tag_label} to define the stationary periods."
     )
   } else if (condition == "stap") {
     msg <- c(
-      "x" = "The stationary period have not yet been computed for `tag`.",
+      "x" = "The stationary period have not yet been computed for {.var field}.",
       ">" = "Use {.fun tag_label} to define the stationary periods."
     )
   } else if (condition == "setmap") {
     msg <- c(
       "x" = "The parameters for the geographical and stationary period have not been yet been \\
-      defined in `tag`.",
-      ">" = "Use {.fun tag_setmap} to define them."
+      defined in {.var field}.",
+      ">" = "Use {.fun tag_set_map} to define them."
     )
   } else if (condition == "map_pressure") {
     msg <- c(
-      "x" = "The pressure likelihood map has not yet been computed for `tag`.",
+      "x" = "The pressure likelihood map has not yet been computed for {.var field}.",
       ">" = "Use {.fun geopressure_map} to compute the maps."
     )
   } else if (condition == "map_pressure_mismatch") {
     msg <- c(
-      "x" = "The pressure mean square error map has not yet been computed for `tag`.",
+      "x" = "The pressure mean square error map has not yet been computed for {.var field}.",
       ">" = "Use {.fun geopressure_map_mismatch} to compute the maps."
     )
   } else if (condition == "twilight") {
     msg <- c(
-      "x" = "The twilight has not yet been computed for `tag`",
+      "x" = "The twilight has not yet been computed for {.var field}",
       ">" = "Use {.fun twilight_create} to compute the twilight"
     )
   } else if (condition == "map_light") {
     msg <- c(
-      "x" = "The light likelihood map has not yet been computed for `tag`.",
+      "x" = "The light likelihood map has not yet been computed for {.var field}.",
       ">" = "Use {.fun geolight_map} to compute the maps."
     )
   } else {
-    stop(glue::glue("condition {.var {condition}} is unknown"))
+    stop(glue::glue("condition {.var condition} is unknown"))
   }
 
   if (condition %in% status) {
@@ -81,14 +91,6 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
   }
 }
 
-#' Return status of a `tag`
-#'
-#' These functions return a vector of the status of `tag`.
-#'
-#'
-#' @param tag a `tag` object
-#'
-#' @return logical indicating the `tag` object has the relevant element
 #' @noRd
 tag_status <- function(tag) {
   if (!inherits(tag, "tag")) {

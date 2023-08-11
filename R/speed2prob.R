@@ -1,9 +1,9 @@
-#' Probability of flight
+#' Compute probability of a bird speed
 #'
-#' Converts a speed (airspeed or ground speed) to a probability using different parametric functions.
+#' Converts a speed (airspeed or ground speed) to a probability based on the movement model.
 #'
 #' @param speed airspeed or ground speed in km/h
-#' @param movement a list of the movement model parameter defined with `graph_add_movement`
+#' @param movement a list of the movement model parameter defined with `graph_set_movement`
 #'
 #' @return Probability values corresponding to the speed provided.
 #' @examples

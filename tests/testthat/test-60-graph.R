@@ -8,7 +8,7 @@ setwd(system.file("extdata/", package = "GeoPressureR"))
 
 tag <- tag_create("18LX") |>
   tag_label() |>
-  tag_setmap(
+  tag_set_map(
     extent = c(-16, 23, 0, 50),
     scale = 1,
     known = data.frame(
@@ -51,12 +51,12 @@ test_that("Check create_graph() for map_pressure", {
 })
 
 
-graph <- graph_add_movement(graph)
+graph <- graph_set_movement(graph)
 
-test_that("Check graph_add_movement()", {
-  expect_equal(graph$movement$type, "gs")
-  graph <- graph_add_movement(graph, method = "logis")
-  expect_equal(graph$movement$method, "logis")
+test_that("Check graph_set_movement()", {
+  expect_equal(graph$param$movement$type, "gs")
+  graph <- graph_set_movement(graph, method = "logis")
+  expect_equal(graph$param$movement$method, "logis")
 })
 
 

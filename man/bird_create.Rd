@@ -6,11 +6,11 @@
 \usage{
 bird_create(
   species_name,
-  mass = NA,
-  wing_span = NA,
-  wing_aspect = NA,
-  wing_area = NA,
-  body_frontal_area = NA
+  mass = NULL,
+  wing_span = NULL,
+  wing_aspect = NULL,
+  wing_area = NULL,
+  body_frontal_area = NULL
 )
 }
 \arguments{
@@ -46,3 +46,17 @@ bird_create("Acrocephalus arundinaceus", wing_aspect = 8)
 # wing_aspect or wing_area.
 bird_create("custum_bird", mass = 1, wing_span = 1, wing_aspect = 4)
 }
+\seealso{
+Other bird: 
+\code{\link{print.bird}()}
+
+Other movement: 
+\code{\link{graph_add_wind}()},
+\code{\link{graph_set_movement}()},
+\code{\link{graph_transition}()},
+\code{\link{plot_graph_movement}()},
+\code{\link{speed2prob}()},
+\code{\link{tag_download_wind}()}
+}
+\concept{bird}
+\concept{movement}

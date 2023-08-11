@@ -2,43 +2,20 @@
 % Please edit documentation in R/speed2prob.R
 \name{speed2prob}
 \alias{speed2prob}
-\title{Probability of flight}
+\title{Compute probability of a bird speed}
 \usage{
-speed2prob(
-  speed,
-  method = "gamma",
-  shape = 7,
-  scale = 7,
-  location = 40,
-  bird = NA,
-  power2prob = function(power) (1/power)^3,
-  low_speed_fix = 15
-)
+speed2prob(speed, movement)
 }
 \arguments{
 \item{speed}{airspeed or ground speed in km/h}
 
-\item{method}{method used to convert the speed to probability ("gamma", "logis" or "power")}
-
-\item{shape}{parameter of the gamma distribution}
-
-\item{scale}{parameter of the gamma and logistic distribution}
-
-\item{location}{parameter for the logistic distribution}
-
-\item{bird}{list of basic morphological traits necessary: mass, wing span, wing aspect ratio, and
-body frontal area. It is good practice to create a bird with \code{\link[=bird_create]{bird_create()}}.}
-
-\item{power2prob}{function taking power as a single argument and returning a probability}
-
-\item{low_speed_fix}{speed below which the probability remains the same. This parameter is used
-to allow short flights covering small distances.}
+\item{movement}{a list of the movement model parameter defined with \code{graph_set_movement}}
 }
 \value{
 Probability values corresponding to the speed provided.
 }
 \description{
-Converts a speed (airspeed or ground speed) to a probability using different parametric functions.
+Converts a speed (airspeed or ground speed) to a probability based on the movement model.
 }
 \examples{
 speed <- seq(1, 120)
@@ -57,5 +34,12 @@ prob <- speed2prob(speed, method = "power", bird = bird)
 plot(speed, prob, type = "l", xlab = "Airspeed [km/h]", ylab = "Probability")
 }
 \seealso{
-\code{\link[=bird_create]{bird_create()}}
+Other movement: 
+\code{\link{bird_create}()},
+\code{\link{graph_add_wind}()},
+\code{\link{graph_set_movement}()},
+\code{\link{graph_transition}()},
+\code{\link{plot_graph_movement}()},
+\code{\link{tag_download_wind}()}
 }
+\concept{movement}

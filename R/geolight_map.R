@@ -1,17 +1,20 @@
 #' Compute likelihood map from twilight
 #'
 #' @description
-#' This functions estimate a likelihood map for each stationary period from light and twilight data.
+#' This functions estimate a likelihood map for each stationary period based on twilight data.
 #' The functions performs the following steps:
 #'
-#' 1. Perform a calibration on the known stationary period.
-#' 2. Compute a likelihood map for each twilight using the calibration
-#' 3. Combine all likelihood maps of the same calibration period using the stationary period dates
+#' 1. Perform a calibration on the known stationary period. See below for details
+#' 2. Compute a likelihood map for each twilight using the calibration.
+#' 3. Combine the likelihood maps of all twilights belonging to the same stationary periods with a
+#' log-linear pooling. See [GeoPressureManual | Probability aggregation](
+#' https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html)
+#' for more information on probability aggregation using log-linear pooling.
 #'
 #' # Calibration
 #'
 #' Calibration requires to have a known position for a least one stationary periods. Use
-#' [`tag_setmap`] to define the known position.
+#' `tag_set_map()` to define the known position.
 #'
 #' Instead of calibrating the twilight errors in terms of duration, we directly model the zenith
 #' angle error. We use a kernel distribution to fit the zenith angle during the known stationary
@@ -20,25 +23,21 @@
 #' calibration site only, and we are using it for all locations of the bird’s journey, it is safer
 #' to assume a broader/smoother distribution.
 #'
-#' # Log-linear pooling of the twilight likelihood map
-#'
-#' The twilight maps are aggregated by stationary period according to the date and time defined in
-#' `stap` and twilight. See [GeoPressureManual | Probability aggregation](
-#' https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html#probability-aggregation-1)
-#' for more information on probability aggregation using log-linear pooling.
-#'
-#' @param tag A GeoPressureR `tag` object with setmap status.
-#' @param twl_calib_adjust Smoothing parameter for the kernel density (see [`stats::kernel()`]).
-#' @param twl_llp Log-linear pooling aggregation weight.
-#' @param compute_known Logical defining if the map(s) for known stationary period should be
+#' @param tag a GeoPressureR `tag` object.
+#' @param twl_calib_adjust smoothing parameter for the kernel density (see [`stats::kernel()`]).
+#' @param twl_llp log-linear pooling aggregation weight.
+#' @param compute_known logical defining if the map(s) for known stationary period should be
 #' estimated based on twilight or hard defined by the known location `stap$known_l**`
+#' @param quiet logical to hide messages about the progress
+#'
 #' @return a `tag` with the likelihood of light as `tag$map_light`
+#'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' # Read geolocator data and build twilight
-#' tag <- tag_create("18LX", quiet = T) |>
-#'   tag_label(quiet = T) |>
-#'   tag_setmap(
+#' tag <- tag_create("18LX", quiet = TRUE) |>
+#'   tag_label(quiet = TRUE) |>
+#'   tag_set_map(
 #'     extent = c(-16, 23, 0, 50),
 #'     scale = 10,
 #'     known = data.frame(
@@ -52,14 +51,15 @@
 #' tag <- twilight_create(tag) |> twilight_label_read()
 #'
 #' # Compute likelihood map
-#' tag <- geolight_map(tag)
+#' tag <- geolight_map(tag, quiet = TRUE)
 #'
 #' plot(tag, type = "map_light")
 #' @export
 geolight_map <- function(tag,
                          twl_calib_adjust = 1.4,
                          twl_llp = \(n) 0.1,
-                         compute_known = FALSE) {
+                         compute_known = FALSE,
+                         quiet = FALSE) {
   # Check tag
   tag_assert(tag, "setmap")
 
@@ -69,7 +69,7 @@ geolight_map <- function(tag,
   if (all(is.na(stap$known_lat))) {
     cli::cli_abort(c(
       x = "There are no known location on which to calibrate in {.var stap$known_lat}.",
-      ">" = "Add a the calibration stationary period {.var known} with {.fun tag_setmap}."
+      ">" = "Add a the calibration stationary period {.var known} with {.fun tag_set_map}."
     ))
   }
 
@@ -140,10 +140,19 @@ geolight_map <- function(tag,
   ml <- split(m, seq(nrow(m)))
 
   # Loop through each grid cell (location lat, lon) and compute the likelihood for all twilight
-  pgz <- lapply(cli::cli_progress_along(ml, name = "Compute a map for each twilight"), function(i) {
-    z <- geolight_refracted(geolight_zenith(sun, ml[[i]]$lon, ml[[i]]$lat))
-    stats::approx(twl_calib$x, twl_calib$y, z, yleft = 0, yright = 0)$y
-  })
+  if (!quiet) {
+    pgz <- lapply(cli::cli_progress_along(ml, name = "Compute a map for each twilight"), function(i) {
+      z <- geolight_refracted(geolight_zenith(sun, ml[[i]]$lon, ml[[i]]$lat))
+      stats::approx(twl_calib$x, twl_calib$y, z, yleft = 0, yright = 0)$y
+    })
+  } else {
+    pgz <- lapply(ml, function(i) {
+      z <- geolight_refracted(geolight_zenith(sun, i$lon, i$lat))
+      stats::approx(twl_calib$x, twl_calib$y, z, yleft = 0, yright = 0)$y
+    })
+  }
+
+
   pgz <- do.call(rbind, pgz)
 
 
@@ -157,7 +166,9 @@ geolight_map <- function(tag,
   # Initialize the likelihood list from stap to make sure all stap are present
   lk <- replicate(nrow(stap), matrix(1, nrow = g$dim[1], ncol = g$dim[2]), simplify = FALSE)
 
-  cli::cli_progress_bar(name = "Combine maps per stationary periods", total = sum(ntwl))
+  if (!quiet) {
+    cli::cli_progress_bar(name = "Combine maps per stationary periods", total = sum(ntwl))
+  }
   for (i in seq_len(length(twl_id_stap_id))) {
     # find all twilight from this stap
     id <- twl_id_stap_id[[i]]
@@ -169,9 +180,13 @@ geolight_map <- function(tag,
       l <- pgz[, id]
     }
     lk[[as.numeric(names(twl_id_stap_id[i]))]] <- matrix(l, nrow = g$dim[1], ncol = g$dim[2])
-    cli::cli_progress_update(inc = ntwl[[i]])
+    if (!quiet) {
+      cli::cli_progress_update(inc = ntwl[[i]])
+    }
   }
-  cli::cli_progress_done()
+  if (!quiet) {
+    cli::cli_progress_done()
+  }
 
   # Add known location
   if (!compute_known) {

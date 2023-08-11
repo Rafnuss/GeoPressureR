@@ -2,22 +2,21 @@
 % Please edit documentation in R/twilight_create.R
 \name{twilight_create}
 \alias{twilight_create}
-\title{Estimate twilight from continuous light data}
+\title{Estimate twilight from light data}
 \usage{
-twilight_create(tag, twl_thr = NA, twl_offset = NA)
+twilight_create(tag, twl_thr = NULL, twl_offset = NULL)
 }
 \arguments{
-\item{tag}{List containing the data logger dataset, this needs to contain a \code{light}data.frame
-with columns \code{date} and \code{value} and optionally \code{stap_id} (see \code{\link[=tag_read]{tag_read()}}).}
+\item{tag}{a GeoPressureR \code{tag} object}
 
-\item{twl_thr}{Light threshold that defines twilight. By default, it uses the smallest
+\item{twl_thr}{Light threshold that defines twilight. By default (\code{NULL}), it uses the smallest
 value of light (i.e, first and last light of day).}
 
-\item{twl_offset}{Shift of the middle of the night compared to 00:00 UTC (in seconds). If not
+\item{twl_offset}{Shift of the middle of the night compared to 00:00 UTC (in hours). If not
 provided, it uses the middle of all nights.}
 }
 \value{
-A \code{tag} list contianing a new data.frame \code{twilight} with columns:
+a \code{tag} list containing a new data.frame \code{twilight} with columns:
 \itemize{
 \item \code{twilight} (date-time of twilight)
 \item \code{rise} (logical) indicating sunrise (\code{TRUE}) or sunset (\code{FALSE}).
@@ -25,21 +24,24 @@ A \code{tag} list contianing a new data.frame \code{twilight} with columns:
 }
 }
 \description{
-Search for the time of sunset and sunrise, corresponding to the first time light exceeds or falls below
-a given light threshold.
-
-Function inspired from \href{https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html}{\code{TwGeos::findTwilights()}}.
+This function estimate twilight (i.e., datetime of sunrise and sunset) by searching for the first
+and last light of the day which is defined by the light exceeds or
+falls below the light threshold \code{twl_thr}.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
-tag <- tag_read("18LX") |> tag_label()
+tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+
+# Create twilight data.frame
 tag <- twilight_create(tag)
-str(twilight)
+str(tag$twilight)
+plot(tag, type = "twilight")
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html}{GeoPressureManual | Light Map }
+\href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html}{GeoPressureManual | Light Map }, \href{https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html}{\code{TwGeos::findTwilights()}}
 
 Other twilight: 
+\code{\link{light2mat}()},
 \code{\link{twilight_label_read}()},
 \code{\link{twilight_label_write}()}
 }

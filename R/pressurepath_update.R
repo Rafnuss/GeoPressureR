@@ -1,10 +1,10 @@
-#' Update tag label and recompute tag
+#' Update a `pressurepath`
 #'
 #' When updating the labelling file of a tag, often, only a few stationary periods are changing. To
 #' avoid recomputing the entire workflow, this function figure out which stationary period have
 #' been changing on only update those in `tag$map_pressure` and `pressurepath`.
 #'
-#' @param pressurepath A GeoPressureR `pressurepath` data.frame
+#' @param pressurepath a GeoPressureR `pressurepath` data.frame
 #' @inheritParams pressurepath_create
 #' @return a list containing the new `pressurepath`.
 #' @family pressurepath

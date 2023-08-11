@@ -9,14 +9,15 @@ setwd(system.file("extdata/", package = "GeoPressureR"))
 
 tag <- tag_create("18LX") |>
   tag_label() |>
-  tag_setmap(extent = c(-16, 23, 0, 50),
-                  scale = 1,
-                  known = data.frame(
-                    stap_id = 1,
-                    known_lon = 17.05,
-                    known_lat = 48.9
-                  )
-)
+  tag_set_map(
+    extent = c(-16, 23, 0, 50),
+    scale = 1,
+    known = data.frame(
+      stap_id = 1,
+      known_lon = 17.05,
+      known_lat = 48.9
+    )
+  )
 
 tag <- geopressure_map(tag)
 tag_old <- tag
@@ -35,5 +36,5 @@ pressurepath <- pressurepath_create(tag_old)
 pressurepath_new <- pressurepath_update(pressurepath, tag_new)
 
 test_that("tag_update() | default", {
-  expect_equal(pressurepath$pressure_era5[pressurepath$stap_id==5], pressurepath_new$pressure_era5[pressurepath_new$stap_id==5])
+  expect_equal(pressurepath$pressure_era5[pressurepath$stap_id == 5], pressurepath_new$pressure_era5[pressurepath_new$stap_id == 5])
 })

@@ -2,13 +2,24 @@
 % Please edit documentation in R/tag_label_stap.R
 \name{tag_label_stap}
 \alias{tag_label_stap}
-\title{Create stationary periods from tag label}
+\title{Create stationary periods from a tag label}
 \usage{
-tag_label_stap(tag)
+tag_label_stap(
+  tag,
+  quiet = FALSE,
+  warning_flight_duration = 2,
+  warning_stap_duration = 6
+)
 }
 \arguments{
-\item{tag}{List containing the data logger dataset, this needs to contain at least a \code{pressure}
-data.frame, but can also have a \code{light} and \code{acceleration} data.frame (see \code{\link[=tag_read]{tag_read()}}).}
+\item{tag}{a GeoPressure \code{tag} object.}
+
+\item{quiet}{logical to display warning message.}
+
+\item{warning_flight_duration}{Threshold of flight duration to display warning for (hours)}
+
+\item{warning_stap_duration}{Threshold of stationary period duration to display warning for
+(hours)}
 }
 \value{
 Same data logger list as input \code{tag} but with (1) a new data.frame of stationary periods
@@ -27,14 +38,22 @@ The function also adds the corresponding \code{stap_id} column to each sensor da
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
-tag <- tag_read("18LX") |>
+tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label_read()
 
 tag <- tag_label_stap(tag)
-str(tag)
-str(tag$stap)
 
+str(tag)
+
+str(tag$stap)
 }
 \seealso{
-\code{\link[=tag_read]{tag_read()}}, \code{\link[=tag_label]{tag_label()}}, \code{\link[=tag_label_read]{tag_label_read()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods}{GeoPressureManual | Pressure Map }
+\href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods}{GeoPressureManual | Pressure Map }
+
+Other tag_label: 
+\code{\link{tag_label_auto}()},
+\code{\link{tag_label_read}()},
+\code{\link{tag_label_write}()},
+\code{\link{tag_label}()}
 }
+\concept{tag_label}

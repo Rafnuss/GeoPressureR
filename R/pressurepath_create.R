@@ -1,48 +1,51 @@
-#' Download ERA5 pressure timeseries along a path
+#' Create a `pressurepath`
 #'
 #' @description
-#' This function downloads the ERA5 pressure timeseries matching geolocator pressure data along a
-#' path. The function essentially splits the pressure of the geolocator into stationary periods and
-#' downloads the ERA5 timeseries of pressure for the corresponding location of the path by calling
-#' `geopressure_timeseries()`. The computation is optimized by paralleling the call of
-#' each stationary period.
+#' A `pressurepath` is a data.frame representing a timeseries of ERA5 reanalysis pressure along a
+#' `path` (position over time). It can be thought as the equivalent of the hypothetical measurement
+#' of a pressure sensor equiped on a bird moving along a specific `path`.
 #'
-#' The location of the path is matched with the geolocator pressure using `stap_id`.
+#' `pressurepath` are useful for labeling tag data by allowing a direct comparison of the actual
+#' pressure measured by the sensor to the one equivalent to the best estimate of the path.
 #'
 #' You can include previous and/or next flight period in each query, for instance to estimate
 #' flight altitude.
 #'
-#' Read more about how this is computed with [`geopressure_timeseries()`]
+#' The function essentially splits the pressure of the geolocator into stationary periods and
+#' downloads the ERA5 timeseries of pressure for the corresponding location of the path by calling
+#' `geopressure_timeseries()` at each stationary period. The computation is optimized by
+#' paralleling the call of each stationary period.
 #'
-#' @param tag A GeoPressureR `tag` object
-#' @param path A GeoPressureR `path` data.frame
+#' @param tag a GeoPressureR `tag` object.
+#' @param path a GeoPressureR `path` data.frame.
 #' @param include_flight Extend request to also query the pressure and altitude during the previous
-#' and/or next flight. Flights are defined by a `stap_id = 0`. Accept Logical or vector of -1 (
+#' and/or next flight. Flights are defined by a `stap_id = 0`. Accept logical or vector of -1 (
 #' previous flight), 0 (stationary) and/or 1 (next flight). (e.g. `include_flight = c(-1, 1)` will
 #' only search for the flight before and after but not the stationary period). Note that next and
 #' previous flights are defined by the +/1 of the `stap_id` value (and not the previous/next
 #' `stap_id` value).
-#' @param workers Number of parallel requests on GEE. Between 1 and 99.
-#' @param preprocess Logical to use `geopressure_map_preprocess`
-#' @return A GeoPressureR `pressurepath`, consisting of a data.frame with columns:
+#' @param workers Number of parallel requests on GEE. Between 1 and 99. `"auto"` adjust the number
+#' of workers to the number of `stap_elev` to query.
+#' @param preprocess logical to use `geopressure_map_preprocess`.
+#' @param quiet logical to hide messages about the progress
+#'
+#' @return A GeoPressureR `pressurepath` data.frame with columns:
 #' - `date` same as `pressure$date`
 #' - `pressure_tag`: same as `pressure$value`
 #' - `label` same as `pressure$label`
 #' - `stap_id` same as `pressure$stap_id` (i.e., including 0)
-#' - `pressure_era5`
-#' - `altitude`
-#' - `lat`
-#' - `lon`
-#' - `pressure_era5_norm`
+#' - `pressure_era5` pressure retrieved from ERA5.
+#' - `altitude` Altitude computed
+#' - `lat` same as `path$lat`
+#' - `lon` same as `path$lon`
+#' - `pressure_era5_norm` pressure retrieved from ERA5 normalized to the average of `pressure_tag`
+#' over the stationary period.
 #' - `stap_ref` stap_id grouping of the requests (same as `stap_id` except for flights where
-#' `stap_id = 0` and `stap_id>0` is to the stationary period of the position used from the path).
+#' `stap_id = 0` and `stap_ref` is to the stationary period of the position used from the path).
 #'
-#' See [`geopressure_timeseries()`] for more details
-#' @seealso [`geopressure_timeseries()`], [`tag2path()`], [GeoPressureManual | Pressure
-#' Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
+#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 #'
 #' path <- data.frame(
 #'   stap_id = tag$stap$stap_id,
@@ -50,7 +53,7 @@
 #'   lon = c(17.5, 13.5, 16.5, 21.5, 12.7)
 #' )
 #'
-#' pressurepath <- pressurepath_create(tag, path = path)
+#' pressurepath <- pressurepath_create(tag, path = path, quiet = TRUE)
 #'
 #' str(pressurepath)
 #'
@@ -59,17 +62,21 @@
 #' pressurepath <- pressurepath_create(
 #'   tag,
 #'   path[c(2, 3, 4), ],
-#'   include_flight = TRUE
+#'   include_flight = TRUE,
+#'   quiet = T
 #' )
 #'
 #' plot_pressurepath(pressurepath)
 #' @family pressurepath
+#' @seealso [GeoPressureManual | Pressure
+#' Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @export
 pressurepath_create <- function(tag,
                                 path = tag2path(tag),
                                 include_flight = FALSE,
                                 workers = "auto",
-                                preprocess = FALSE) {
+                                preprocess = FALSE,
+                                quiet = FALSE) {
   # Assert tag
   tag_assert(tag, "stap")
 
@@ -123,11 +130,13 @@ pressurepath_create <- function(tag,
   future::plan(future::multisession, workers = workers)
   f <- c()
 
-  cli::cli_progress_step(
-    "Generate requests (on GeoPressureAPI) for {nrow(path)} stationary periods",
-    spinner = TRUE
-  )
-  cli::cli_progress_bar(total = nrow(path), type = "task")
+  if (!quiet) {
+    cli::cli_progress_step(
+      "Generate requests (on GeoPressureAPI) for {nrow(path)} stationary periods",
+      spinner = TRUE
+    )
+    cli::cli_progress_bar(total = nrow(path), type = "task")
+  }
   for (i_s in seq_len(nrow(path))) {
     i_stap <- path$stap_id[i_s]
     # Subset the pressure of the stationary period
@@ -148,21 +157,27 @@ pressurepath_create <- function(tag,
         quiet = TRUE
       )
     })
-    cli::cli_progress_update(force = TRUE)
+    if (!quiet) {
+      cli::cli_progress_update(force = TRUE)
+    }
   }
 
   pressure_timeseries <- list()
-  cli::cli_progress_step("Compute and download timeseries (on GEE server)",
-    spinner = TRUE
-  )
-  cli::cli_progress_bar(total = length(f), type = "task")
+  if (!quiet) {
+    cli::cli_progress_step("Compute and download timeseries (on GEE server)",
+      spinner = TRUE
+    )
+    cli::cli_progress_bar(total = length(f), type = "task")
+  }
   for (i_s in seq_len(length(f))) {
     i_stap <- path$stap_id[i_s]
     tryCatch(
       expr = {
         pressure_timeseries[[i_s]] <- future::value(f[[i_s]])
         pressure_timeseries[[i_s]]$stap_ref <- i_stap
-        cli::cli_progress_update(force = TRUE)
+        if (!quiet) {
+          cli::cli_progress_update(force = TRUE)
+        }
       },
       error = function(cond) {
         cli::cli_warn("Error for stap {path$stap_id[i_s]}")

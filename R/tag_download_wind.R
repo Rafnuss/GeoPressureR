@@ -19,7 +19,7 @@
 #' [GeoPressureManual | Wind graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)).
 #'
-#' @param tag A GeoPressureR `tag` object.
+#' @param tag a GeoPressureR `tag` object.
 #' @param extent Geographical extent of the map on which the likelihood will be computed.
 #' Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.
 #' @param stap_id Stationary period identifier of the start of the flight to download. Be default,

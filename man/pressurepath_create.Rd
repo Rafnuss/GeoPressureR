@@ -2,62 +2,72 @@
 % Please edit documentation in R/pressurepath_create.R
 \name{pressurepath_create}
 \alias{pressurepath_create}
-\title{Download ERA5 pressure timeseries along a path}
+\title{Create a \code{pressurepath}}
 \usage{
-pressurepath_create(path, pressure, include_flight = FALSE, workers = 90)
+pressurepath_create(
+  tag,
+  path = tag2path(tag),
+  include_flight = FALSE,
+  workers = "auto",
+  preprocess = FALSE,
+  quiet = FALSE
+)
 }
 \arguments{
-\item{path}{A data.frame of the position containing latitude (\code{lat}), longitude  (\code{lon}), and the
-stationary period id (\code{stap}) as columns.}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
-\item{pressure}{Pressure data.frame from data logger.}
+\item{path}{a GeoPressureR \code{path} data.frame.}
 
 \item{include_flight}{Extend request to also query the pressure and altitude during the previous
-and/or next flight. Flights are defined by a \code{stap_id = 0}. Accept Logical or vector of -1 (
+and/or next flight. Flights are defined by a \code{stap_id = 0}. Accept logical or vector of -1 (
 previous flight), 0 (stationary) and/or 1 (next flight). (e.g. \code{include_flight = c(-1, 1)} will
 only search for the flight before and after but not the stationary period). Note that next and
 previous flights are defined by the +/1 of the \code{stap_id} value (and not the previous/next
 \code{stap_id} value).}
 
-\item{workers}{Number of parallel requests on GEE. Between 1 and 99.}
+\item{workers}{Number of parallel requests on GEE. Between 1 and 99. \code{"auto"} adjust the number
+of workers to the number of \code{stap_elev} to query.}
+
+\item{preprocess}{logical to use \code{geopressure_map_preprocess}.}
+
+\item{quiet}{logical to hide messages about the progress}
 }
 \value{
-A data.frame containing the row bind of the data.frames of each stationary period
-computed with \code{geopressure_timeseries()}:
+A GeoPressureR \code{pressurepath} data.frame with columns:
 \itemize{
 \item \code{date} same as \code{pressure$date}
 \item \code{pressure_tag}: same as \code{pressure$value}
 \item \code{label} same as \code{pressure$label}
 \item \code{stap_id} same as \code{pressure$stap_id} (i.e., including 0)
-\item \code{pressure_era5}
-\item \code{altitude}
-\item \code{lat}
-\item \code{lon}
-\item \code{pressure_era5_norm}
+\item \code{pressure_era5} pressure retrieved from ERA5.
+\item \code{altitude} Altitude computed
+\item \code{lat} same as \code{path$lat}
+\item \code{lon} same as \code{path$lon}
+\item \code{pressure_era5_norm} pressure retrieved from ERA5 normalized to the average of \code{pressure_tag}
+over the stationary period.
 \item \code{stap_ref} stap_id grouping of the requests (same as \code{stap_id} except for flights where
-\code{stap_id = 0} and \code{stap_id>0} is to the stationary period of the position used from the path).
+\code{stap_id = 0} and \code{stap_ref} is to the stationary period of the position used from the path).
 }
-
-See \code{\link[=geopressure_timeseries]{geopressure_timeseries()}} for more details
 }
 \description{
-This function downloads the ERA5 pressure timeseries matching geolocator pressure data along a
-path. The function essentially splits the pressure of the geolocator into stationary periods and
-downloads the ERA5 timeseries of pressure for the corresponding location of the path by calling
-\code{geopressure_timeseries()}. The computation is optimized by paralleling the call of
-each stationary period.
+A \code{pressurepath} is a data.frame representing a timeseries of ERA5 reanalysis pressure along a
+\code{path} (position over time). It can be thought as the equivalent of the hypothetical measurement
+of a pressure sensor equiped on a bird moving along a specific \code{path}.
 
-The location of the path is matched with the geolocator pressure using \code{stap_id}.
+\code{pressurepath} are useful for labeling tag data by allowing a direct comparison of the actual
+pressure measured by the sensor to the one equivalent to the best estimate of the path.
 
 You can include previous and/or next flight period in each query, for instance to estimate
 flight altitude.
 
-Read more about how this is computed with \code{\link[=geopressure_timeseries]{geopressure_timeseries()}}
+The function essentially splits the pressure of the geolocator into stationary periods and
+downloads the ERA5 timeseries of pressure for the corresponding location of the path by calling
+\code{geopressure_timeseries()} at each stationary period. The computation is optimized by
+paralleling the call of each stationary period.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
-tag <- tag_create("18LX") |>
-  tag_label()
+tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 
 path <- data.frame(
   stap_id = tag$stap$stap_id,
@@ -65,26 +75,28 @@ path <- data.frame(
   lon = c(17.5, 13.5, 16.5, 21.5, 12.7)
 )
 
-path_pres <- pressurepath_create(path, tag$pressure)
+pressurepath <- pressurepath_create(tag, path = path, quiet = TRUE)
 
-str(path_pres)
+str(pressurepath)
 
-plot(path_pres$date, path_pres$pressure_tag,
-  col = path_pres$stap_id,
-  ylab = "Pressure (hPa)", xlab = "Datetime"
-)
-lines(path_pres$date, path_pres$pressure_era5_norm, col = "red")
+plot_pressurepath(pressurepath)
 
-
-path_pres <- pressurepath_create(
-  path[c(2, 3, 4), ], tag$pressure,
-  include_flight = TRUE
+pressurepath <- pressurepath_create(
+  tag,
+  path[c(2, 3, 4), ],
+  include_flight = TRUE,
+  quiet = T
 )
 
-plot(path_pres$date, path_pres$altitude,
-  type = "l", ylab = "Pressure (hPa)", xlab = "Datetime"
-)
+plot_pressurepath(pressurepath)
 }
 \seealso{
-\code{\link[=geopressure_timeseries]{geopressure_timeseries()}}, \code{\link[=map2path]{map2path()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map}
+\href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map}
+
+Other pressurepath: 
+\code{\link{geopressure_timeseries}()},
+\code{\link{plot_pressurepath}()},
+\code{\link{pressurepath2altitude}()},
+\code{\link{pressurepath_update}()}
 }
+\concept{pressurepath}

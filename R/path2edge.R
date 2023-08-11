@@ -1,25 +1,28 @@
-#' Edges flight info from path
+#' Extract the edges of a `path` from a `graph`
 #'
-#' Return the flight information of the edges composing a given path.
+#' @description
+#' Retrieve the edges in a `graph` corresponding to the flight transition defined by a `path`. These
+#' edges can be useful to extract flight information specific to a path.
 #'
-#' @param path A GeoPressureR `path` object
-#' @param graph A GeoPressureR `graph` object
+#' @param path a GeoPressureR `path` data.frame
+#' @param graph a GeoPressureR `graph` object
 #' @return Data.frame of the edge containing:
 #' - `stap_s` : stationary period of the origin (source).
 #' - `stap_t` : stationary period of the destination (target).
 #' - `gs` : groundspeed vector expressed as a complex number. You can compute the groundspeed value
 #' (km/h) with `abs(gs)`, the W-E and S-N component of the flight with `Re(gs)` and `Im(gs)`, and
 #'  the angle/direction with `Arg(gs)`.
-#' - `dist` : Distance (in km) of the flight.
+#' - `distance` : Distance (in km) of the flight.
 #' - `ws`: if computed with `graph_add_wind()`, same value as `gs`. Airspeed is computed with
 #' `as = gs - ws` in complex number to keep the vectorial additive properties.
-#' @seealso [`graph_create()`], [GeoPressureManual | Wind graph](
+#' @family path
+#' @seealso [GeoPressureManual | Wind graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#energy)
 #' @export
 path2edge <- function(path, graph) {
   graph_assert(graph)
 
-  g <- map_expand(graph$extent, graph$scale)
+  g <- map_expand(graph$param$extent, graph$param$scale)
   nll <- prod(g$dim)
 
   assertthat::assert_that(is.data.frame(path))
@@ -73,7 +76,7 @@ path2edge <- function(path, graph) {
     stap_s = ceiling(e$s / prod(graph$sz[c(1, 2)])),
     stap_t = ceiling(e$t / prod(graph$sz[c(1, 2)])),
     gs = graph$gs[e$edge],
-    dist = geosphere::distGeo(cbind(e$lon_s, e$lat_s), cbind(e$lon_t, e$lat_t)) / 1000
+    distance = geosphere::distGeo(cbind(e$lon_s, e$lat_s), cbind(e$lon_t, e$lat_t)) / 1000
   )
 
   if ("ws" %in% names(graph)) {

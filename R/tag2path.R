@@ -1,4 +1,4 @@
-#' Return the path from a likelihood map
+#' Extract a `path` from a `tag`
 #'
 #' Find the position of the highest value in a map, typically most probable value in a likelihood
 #' map.
@@ -25,15 +25,20 @@
 #' - `lon` longitude
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX") |> tag_label()
-#' tag <- tag_setmap(tag,
+#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+#' tag <- tag_set_map(tag,
 #'   extent = c(-16, 23, 0, 50),
-#'   scale = 2,
+#'   scale = 2
 #' ) |>
-#'   geopressure_map(tag$pressure)
+#'   geopressure_map(quiet = TRUE)
 #'
-#' # Compute the path
+#' # Extract a path from pressure map
 #' path <- tag2path(tag)
+#' plot_path(path, plot_leaflet = F)
+#'
+#' # Short stationary periods can be unreliably estimated, so interpolating them might be better
+#' path <- tag2path(tag, interp = 1)
+#' plot_path(path, plot_leaflet = F)
 #'
 #' @seealso [`geopressure_map_likelihood()`], [`pressurepath_create()`], [GeoPressureManual |
 #' Pressure Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude)

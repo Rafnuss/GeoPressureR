@@ -15,9 +15,9 @@ test_that("workflow | full", {
   twilight_label_write(tag)
   tag <- twilight_label_read(tag)
 
-  tag <- tag_setmap(tag,
+  tag <- tag_set_map(tag,
     extent = c(-16, 23, 0, 50),
-    scale = 4,
+    scale = 1,
     known = data.frame(
       stap_id = 1,
       known_lon = 17.05,
@@ -32,7 +32,7 @@ test_that("workflow | full", {
   expect_no_error(tag2path(tag, interp = 0.7))
 
   graph <- graph_create(tag) |>
-    graph_add_movement()
+    graph_set_movement()
 
   marginal <- graph_marginal(graph)
   path <- graph_most_likely(graph)
@@ -63,17 +63,17 @@ test_that("workflow | full", {
 
   expect_no_error(plot_path(path))
 
-  expect_no_error(geopressureviz(tag = tag,
-                                 pressurepath = pressurepath,
-                                 marginal = marginal))
-
-  })
+  expect_no_error(geopressureviz(tag,
+    pressurepath = pressurepath,
+    marginal = marginal
+  ))
+})
 
 test_that("workflow | Missing pressure value", {
   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
   tag$pressure <- subset(tag$pressure, stap_id == 3 | stap_id == 4)
 
-  tag <- tag_setmap(tag, extent = c(-16, 23, 0, 50), scale = 1)
+  tag <- tag_set_map(tag, extent = c(-16, 23, 0, 50), scale = 1)
 
   expect_warning(expect_warning(
     tag <- geopressure_map(tag),
@@ -92,9 +92,9 @@ test_that("workflow | Missing pressure value", {
 
 
 test_that("workflow | with elev_", {
-  tag <- tag_create("18LX", quiet = T)
-  tag <- tag_label(tag, file = "./data/tag-label/18LX-labeled-elev.csv", quiet = T)
-  tag <- tag_setmap(tag,
+  tag <- tag_create("18LX", quiet = TRUE)
+  tag <- tag_label(tag, file = "./data/tag-label/18LX-labeled-elev.csv", quiet = TRUE)
+  tag <- tag_set_map(tag,
     extent = c(-16, 23, 0, 50),
     scale = 1
   )
@@ -112,8 +112,8 @@ test_that("workflow | with elev_", {
 
 
 test_that("workflow | modeled fewer", {
-  tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = TRUE)
-  tag <- tag_setmap(tag,
+  tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+  tag <- tag_set_map(tag,
     extent = c(-16, 23, 0, 50),
     scale = 1,
     include_stap_id = c(2, 4, 5)
@@ -123,7 +123,7 @@ test_that("workflow | modeled fewer", {
   path <- tag2path(tag)
 
   graph <- graph_create(tag)
-  graph <- graph_add_movement(graph)
+  graph <- graph_set_movement(graph)
 
 
   marginal <- graph_marginal(graph)

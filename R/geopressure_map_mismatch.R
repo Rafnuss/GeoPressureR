@@ -1,4 +1,4 @@
-#' Request and download mismatch maps from pressure
+#' Request and download mismatch maps from pressure data
 #'
 #' This function returns, for each stationary period, two maps of mismatch between the pressure
 #' measured by the geolocator and the ERA5 pressure database.
@@ -26,7 +26,7 @@
 #'
 #' It is possible to indicate different elevation levels when the bird was spending time at
 #' locations with different elevations within a general area (~10km), and thus within the same stationary
-#' period. This can be done by using `tag$label="elev_*n*"`for all measurements of the same
+#' period. This can be done by using `tag$label="elev_n"`for all measurements of the same
 #' elevation level *n*. See example in [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html).
 #'
@@ -35,9 +35,9 @@
 #' the [GeoPressure API documentation](https://raphaelnussbaumer.com/GeoPressureAPI/).
 #'
 #' @inheritParams geopressure_map
-#' @param debug Logical to display additional information to debug a request
+#' @param debug logical to display additional information to debug a request
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-#' “Global Positioning with Animal‐borne Pressure Sensors.” *Methods in Ecology and Evolution*.
+#' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14, 1118–1129
 #'  <https://doi.org/10.1111/2041-210X.14043>.}
 #' @family geopressure_map
 #' @export
@@ -47,7 +47,8 @@ geopressure_map_mismatch <- function(tag,
                                      timeout = 60 * 5,
                                      workers = "auto",
                                      compute_known = FALSE,
-                                     debug = FALSE) {
+                                     debug = FALSE,
+                                     quiet = FALSE) {
   # Check tag
   tag_assert(tag, "setmap")
 
@@ -59,7 +60,9 @@ geopressure_map_mismatch <- function(tag,
   assertthat::assert_that(is.numeric(timeout))
   assertthat::assert_that(is.numeric(workers) | workers == "auto")
 
-  cli::cli_progress_step("Prepare pressure data")
+  if (!quiet) {
+    cli::cli_progress_step("Pre-process pressure data")
+  }
   # Prepare data
   pres <- geopressure_map_preprocess(tag, compute_known = compute_known)
 
@@ -83,7 +86,9 @@ geopressure_map_mismatch <- function(tag,
   }
 
   # Request URLS
-  cli::cli_progress_step("Generate requests for {.val {length(unique(pres$stapelev))}} stapelev (on GeoPressureAPI)", spinner = TRUE)
+  if (!quiet) {
+    cli::cli_progress_step("Generate requests for {.val {length(unique(pres$stapelev))}} stapelev (on GeoPressureAPI)", spinner = TRUE)
+  }
   res <- httr::POST("https://glp.mgravey.com/GeoPressure/v1/map/",
     body = body_df,
     encode = "form",
@@ -145,13 +150,22 @@ geopressure_map_mismatch <- function(tag,
   future::plan(future::multisession, workers = workers)
 
   f <- c()
-  cli::cli_progress_step(
-    "Sending requests for {.val {length(urls)}} stationary periods: {.field {labels}}",
-    spinner = TRUE
-  )
-  cli::cli_progress_bar(total = length(urls), type = "task")
+  labels_ordered <- labels[order(as.numeric(gsub("|", ".", labels, fixed = TRUE)))]
+
+
+  if (!quiet) {
+    cli::cli_progress_step(
+      "Sending requests for {.val {length(urls)}} stationary periods: {.field {labels_ordered}}",
+      spinner = TRUE
+    )
+  }
+  if (!quiet) {
+    cli::cli_progress_bar(total = length(urls), type = "task")
+  }
   for (i_u in seq_len(length(urls))) {
-    cli::cli_progress_update(force = TRUE)
+    if (!quiet) {
+      cli::cli_progress_update(force = TRUE)
+    }
     f[[i_u]] <- future::future(expr = {
       file <- tempfile()
       res <- httr::GET(
@@ -173,10 +187,14 @@ geopressure_map_mismatch <- function(tag,
   map <- c()
   tryCatch(
     expr = {
-      cli::cli_progress_step("Compute maps (on GEE server) and download .geotiff")
-      cli::cli_progress_bar(total = length(urls), type = "tasks")
+      if (!quiet) {
+        cli::cli_progress_step("Compute maps (on GEE server) and download .geotiff")
+        cli::cli_progress_bar(total = length(urls), type = "tasks")
+      }
       for (i_u in seq_len(length(urls))) {
-        cli::cli_progress_update(force = TRUE)
+        if (!quiet) {
+          cli::cli_progress_update(force = TRUE)
+        }
         file[i_u] <- future::value(f[[i_u]])
         map[[i_u]] <- terra::rast(file[i_u])
         names(map[[i_u]]) <- c("map_pressure_mse", "map_pressure_mask")
@@ -195,7 +213,9 @@ geopressure_map_mismatch <- function(tag,
     }
   )
 
-  cli::cli_progress_step("Process maps")
+  if (!quiet) {
+    cli::cli_progress_step("Process maps")
+  }
 
   # Find the stap of each urls from labels (same order)
   labels_stap <- as.numeric(sub("\\|.*", "", labels))

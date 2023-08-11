@@ -38,31 +38,31 @@ tag <- structure(list(
 
 
 
-test_that("tag_setmap() | no known", {
-  tag_no_known <- tag_setmap(tag, extent, scale)
+test_that("tag_set_map() | no known", {
+  tag_no_known <- tag_set_map(tag, extent, scale)
   expect_true(assertthat::has_name(tag_no_known$param, c("id", "scale", "extent")))
   expect_true(all(tag_no_known$stap$include))
   expect_true(all(is.na(tag_no_known$stap$known_lat)))
 })
 
-test_that("tag_setmap() | with known", {
-  tag_with_known <- tag_setmap(tag, extent, scale, known = known)
+test_that("tag_set_map() | with known", {
+  tag_with_known <- tag_set_map(tag, extent, scale, known = known)
   expect_equal(tag_with_known$stap$known_lon[1], known$known_lon)
   known_overwrite <- data.frame(
     stap_id = 1,
     known_lon = .8,
     known_lat = .9
   )
-  expect_warning(tag_overwrite <- tag_setmap(tag_with_known, extent, known = known_overwrite))
+  expect_warning(tag_overwrite <- tag_set_map(tag_with_known, extent, known = known_overwrite))
   expect_equal(tag_overwrite$stap$known_lon[1], known_overwrite$known_lon)
 })
 
-test_that("tag_setmap() | with include", {
-  expect_error(tag_setmap(tag, extent, include_stap_id = 99))
+test_that("tag_set_map() | with include", {
+  expect_error(tag_set_map(tag, extent, include_stap_id = 99))
 
-  tag_include <- tag_setmap(tag, extent, include_stap_id = 2)
+  tag_include <- tag_set_map(tag, extent, include_stap_id = 2)
   expect_equal(tag_include$stap$include, c(FALSE, TRUE))
 
-  tag_include <- tag_setmap(tag, extent, include_min_duration = 12)
+  tag_include <- tag_set_map(tag, extent, include_min_duration = 12)
   expect_equal(tag_include$stap$include, c(FALSE, TRUE))
 })

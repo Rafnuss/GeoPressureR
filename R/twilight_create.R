@@ -1,31 +1,32 @@
-#' Estimate twilight from continuous light data
+#' Estimate twilight from light data
 #'
 #' @description
-#' Search for the time of sunset and sunrise, corresponding to the first time light exceeds or
-#' falls below a given light threshold.
+#' This function estimate twilight (i.e., datetime of sunrise and sunset) by searching for the first
+#' and last light of the day which is defined by the light exceeds or
+#' falls below the light threshold `twl_thr`.
 #'
-#' Function inspired from [`TwGeos::findTwilights()`](
-#' https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html).
-#'
-#' @param tag A GeoPressureR `tag` object
-#' @param twl_thr Light threshold that defines twilight. By default, it uses the smallest
+#' @param tag a GeoPressureR `tag` object
+#' @param twl_thr Light threshold that defines twilight. By default (`NULL`), it uses the smallest
 #' value of light (i.e, first and last light of day).
 #' @param twl_offset Shift of the middle of the night compared to 00:00 UTC (in hours). If not
 #' provided, it uses the middle of all nights.
-#' @return A `tag` list containing a new data.frame `twilight` with columns:
+#' @return a `tag` list containing a new data.frame `twilight` with columns:
 #' - `twilight` (date-time of twilight)
 #' - `rise` (logical) indicating sunrise (`TRUE`) or sunset (`FALSE`).
 #' - `stap_id` if `stap_id` is present in `light`.
 #' @family twilight
 #' @seealso [GeoPressureManual | Light Map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html)
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html), [`TwGeos::findTwilights()`](
+#' https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html)
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = T) |> tag_label(quiet = T)
+#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 #'
 #' # Create twilight data.frame
 #' tag <- twilight_create(tag)
+#'
 #' str(tag$twilight)
+#'
 #' plot(tag, type = "twilight")
 #' @export
 twilight_create <- function(tag,

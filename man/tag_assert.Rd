@@ -2,16 +2,33 @@
 % Please edit documentation in R/tag_assert.R
 \name{tag_assert}
 \alias{tag_assert}
-\title{Assert status of a \code{tag}}
+\title{Assert the status of a \code{tag}}
 \usage{
-tag_assert(tag, cond = "tag")
+tag_assert(tag, condition = "tag", type = "abort")
 }
 \arguments{
-\item{tag}{a \code{tag} object}
+\item{tag}{a GeoPressureR \code{tag} object.}
+
+\item{condition}{condition to assert \code{tag} for. One of \code{"tag"} (default), \code{"pressure"},
+\code{"light"}, \code{"acceleration"}, \code{"label"}, \code{"stap"}, \code{"setmap"}, \code{"map_pressure"}, \code{"map_light"}
+\code{"map_pressure_mismatch"} and \code{"twilight"}}
+
+\item{type}{Message type to display. One of \code{"abort"} (default), \code{"warn"} or \code{"inform"}}
 }
 \value{
 logical indicating the \code{tag} object has the relevant element
 }
 \description{
-These functions return logical about the contents of a \code{tag} object.
+This function check the condition of a \code{tag} object.
+}
+\examples{
+setwd(system.file("extdata/", package = "GeoPressureR"))
+tag <- tag_create("18LX", quiet = TRUE) |>  tag_label(quiet = TRUE)
+
+tag_assert(tag)
+
+tag_assert(tag, "read", type = "inform")
+
+tag_assert(tag, "map_pressure", type = "inform")
+
 }

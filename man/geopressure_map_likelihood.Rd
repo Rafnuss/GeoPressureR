@@ -5,17 +5,16 @@
 \title{Convert mismatch map into likelihood map}
 \usage{
 geopressure_map_likelihood(
-  geostap,
+  tag,
   sd = 1,
   thr_mask = 0.9,
   log_linear_pooling_weight = function(n) log(n)/n
 )
 }
 \arguments{
-\item{geostap}{List of the geographical and stationary period information. See
-\code{\link[=geostap_create]{geostap_create()}} for details.}
+\item{tag}{a GeoPressureR \code{tag} object}
 
-\item{sd}{Standard deviation of the pressure error.}
+\item{sd}{Standard deviation of the pressure error . numeric of lenght 1 or number of stationary periods.}
 
 \item{thr_mask}{Threshold of the percentage of data points outside the elevation range to be considered
 not possible.}
@@ -43,7 +42,7 @@ For more background and details on the algorithm, please read the \href{https://
 }
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-“Global Positioning with Animal‐borne Pressure Sensors.” \emph{Methods in Ecology and Evolution}.
+Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14, 1118–1129
 \url{https://doi.org/10.1111/2041-210X.14043}.}
 }
 \seealso{

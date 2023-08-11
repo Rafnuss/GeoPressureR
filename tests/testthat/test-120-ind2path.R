@@ -8,7 +8,7 @@ tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE)
 
 tag <- tag |>
-  tag_setmap(extent = c(-16, 23, 0, 50), scale = 1)
+  tag_set_map(extent = c(-16, 23, 0, 50), scale = 1)
 
 test_that("Check ind2path() output", {
   path_m <- matrix(c(

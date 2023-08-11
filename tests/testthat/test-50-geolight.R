@@ -24,12 +24,12 @@ test_that("Check twilight_label_read() is correct", {
   expect_true("label" %in% names(tag$twilight))
 })
 
-test_that("Check geolight_map() not working before tag_setmap()", {
+test_that("Check geolight_map() not working before tag_set_map()", {
   expect_error(tag <- geolight_map(tag))
 })
 
 tag <- tag_label(tag)
-tag <- tag_setmap(tag,
+tag <- tag_set_map(tag,
   extent = c(-16, 23, 0, 50),
   scale = 4,
   known = data.frame(

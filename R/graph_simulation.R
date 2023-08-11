@@ -1,10 +1,10 @@
-#' Simulation of trajectories
+#' Simulate randomly multiple trajectories
 #'
 #' @description
 #' This function randomly simulates multiple trajectories from a graph using the forward filtering
 #' backward sampling algorithm. See section 2.3.3 in Nussbaumer (2023) for more information.
 #'
-#' @param graph A graph object.
+#' @param graph a graph object.
 #' @param nj Number of simulations.
 #' @return Path data.frame containing the columns
 #' -`stap_id` stationary period
@@ -20,8 +20,8 @@
 #' @seealso [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-3-simulate-path)
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
-#' Sheldon. 2023. “Reconstructing bird trajectories from pressure and wind data using a highly
-#' optimized hidden Markov model.” *Methods in Ecology and Evolution*.
+#' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
+#' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
 #' <https://doi.org/10.1111/2041-210X.14082>.}
 #' @family graph
 #' @export

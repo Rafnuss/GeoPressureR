@@ -2,54 +2,97 @@
 % Please edit documentation in R/graph_create.R
 \name{graph_create}
 \alias{graph_create}
-\title{Create graph}
+\title{Create a \code{graph} object}
 \usage{
-graph_create(geostap, thr_likelihood = 0.99, thr_gs = 150, likelihood = NA)
+graph_create(
+  tag,
+  thr_likelihood = 0.99,
+  thr_gs = 150,
+  likelihood = NULL,
+  quiet = FALSE
+)
 }
 \arguments{
-\item{geostap}{List of the geographical and stationary period information. See
-\code{\link[=geostap_create]{geostap_create()}} for details.}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{thr_likelihood}{Threshold of percentile (see details).}
 
 \item{thr_gs}{Threshold of groundspeed (km/h)  (see details).}
 
-\item{likelihood}{Field of the \code{geostap} list containing the likelihood map (character). Default
-\code{NA} is to take the product of \code{map_pressure} and \code{map_light} if available.}
+\item{likelihood}{Field of the \code{tag} list containing the likelihood map (character). Possible
+value are \code{map_pressure}, \code{map_light}, \code{map_pressure_mse}, \code{map_pressure_mse},
+\code{map_pressure_mse}, \code{mask_water}. Default \code{NA} is to take the product of \code{map_pressure} and
+\code{map_light}, or if not available, taking the first of the possible values.}
+
+\item{quiet}{logical to hide messages about the progress}
 }
 \value{
 Graph as a list
 \itemize{
-\item \code{s}:   source node (index in the 3d grid lat-lon-stap)
-\item \code{t}:   target node (index in the 3d grid lat-lon-stap)
-\item \code{gs}:  average ground speed required to make that transition (km/h) as complex number
+\item \code{id}:
+\item \code{s}: source node (index in the 3d grid lat-lon-stap)
+\item \code{t}: target node (index in the 3d grid lat-lon-stap)
+\item \code{gs}: average ground speed required to make that transition (km/h) as complex number
 representing the E-W as real and S-N as imaginary
-\item \code{obs}:   observation model, corresponding to the normalized likelihood in a 3D matrix of size
+\item \code{obs}: observation model, corresponding to the normalized likelihood in a 3D matrix of size
 \code{sz}
-\item \code{sz}:  size of the 3d grid lat-lon-stap
+\item \code{sz}: size of the 3d grid lat-lon-stap
 \item \code{stap}: data.frame of all stationary periods
 \item \code{equipment}: node(s) of the first stap (index in the 3d grid lat-lon-sta)
 \item \code{retrieval}: node(s) of the last stap (index in the 3d grid lat-lon-sta)
-\item \code{extent}: same as \code{geostap$extent}
-\item \code{scale}: same as \code{geostap$scale}
+\item \code{extent}: same as \code{tag$param$extent}
+\item \code{scale}: same as \code{tag$param$scale}
 \item \code{mask_water}: logical matrix of water-land
 \item \code{param}: parameter used to create the graph, including \code{thr_likelihood} and \code{thr_gs}
 }
 }
 \description{
-This function returns a graph representing the trajectory of a bird based on filtering and
-trimming the likelihood maps provided.
+This function returns a trellis graph representing the trajectory of a bird based on filtering and
+prunning the likelihood maps provided.
 
-In the final graph, we only keep the most likely nodes (position in time) defined as (1) those
-whose cumulative probability reaches up to \code{thr_likelihood} for each stationary period and (2)
-those which are connected to edges whose average ground speed is lower than \code{thr_gs} km/h.
+In the final graph, we only keep the most likely nodes (i.e., position of the bird at each
+stationary periods) defined as (1) those whose likelihood value are within the threshold of
+percentile \code{thr_likelihood} of the total likelihood map and (2) those which are connected to
+at least one edge of the previous and next stationary periods requireing an average ground speed
+lower than \code{thr_gs} (in km/h).
+
+For more details and illustration, see Section 2.2 of \href{https://doi.org/10.1111/2041-210X.14082}{Nussbaumer et al. (2023)} and
+\href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph}{GeoPressureManual | Basic graph}
+}
+\examples{
+setwd(system.file("extdata/", package = "GeoPressureR"))
+tag <- tag_create("18LX", quiet = TRUE) |>
+  tag_label(quiet = TRUE) |>
+  twilight_create() |>
+  twilight_label_read() |>
+  tag_set_map(
+    extent = c(-16, 23, 0, 50),
+    known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
+  ) |>
+  geopressure_map(quiet = TRUE) |>
+  geolight_map(quiet = TRUE)
+
+# Create graph
+graph <- graph_create(tag, thr_likelihood = 0.95, thr_gs = 100, quiet = TRUE)
+
+print(graph)
+
 }
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
-Sheldon. 2023. “Reconstructing bird trajectories from pressure and wind data using a highly
-optimized hidden Markov model.” \emph{Methods in Ecology and Evolution}.
+Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
+optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118–1129
 \url{https://doi.org/10.1111/2041-210X.14082}.}
 }
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph}{GeoPressureManual | Basic graph}
+
+Other graph: 
+\code{\link{graph_add_wind}()},
+\code{\link{graph_marginal}()},
+\code{\link{graph_most_likely}()},
+\code{\link{graph_set_movement}()},
+\code{\link{graph_simulation}()},
+\code{\link{print.graph}()}
 }
+\concept{graph}

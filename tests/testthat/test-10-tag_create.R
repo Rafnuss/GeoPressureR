@@ -58,4 +58,3 @@ test_that("param_create() | default", {
   expect_no_error(param_create(id = "18LX", extent = c(0, 0, 1, 1)))
   expect_no_error(param_create(id = "18LX", default = TRUE))
 })
-

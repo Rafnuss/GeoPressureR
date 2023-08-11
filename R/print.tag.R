@@ -1,15 +1,15 @@
-#' Plot `tag`
+#' Print a `tag` object
 #'
-#' This function plot a `tag`.
+#' This function displays the information of a `tag` object.
 #
-#' @param x A GeoPressureR `tag` object
-#' @param ... arguments passed from other methods
+#' @param x a GeoPressureR `tag` object
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @return `tag` is returned invisibly and unchanged
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX")
+#' tag <- tag_create("18LX", quiet = TRUE)
 #' print(tag)
 #'
 #' @family tag
@@ -59,32 +59,32 @@ print.tag <- function(x, ...) {
                   {.val {tag$param$extent[2]}}\u00b0")
     cli::cli_text("Extent S-N: {.val {tag$param$extent[3]}}\u00b0 to \\
                   {.val {tag$param$extent[4]}}\u00b0")
-    cli::cli_text("Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}\u00b0")
+    cli::cli_text("Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}")
     cli::cli_text("Resolution lat-lon: {.val {1/tag$param$scale}}\u00b0")
   } else {
-    cli::cli_inform(c("x" = "No geographical parameters defined yet. Use {.fun tag_setmap}\f"))
+    cli::cli_inform(c("x" = "No geographical parameters defined yet. Use {.fun tag_set_map}\f"))
     return(invisible(tag))
   }
 
   # Map
   cli::cli_h3("Map")
   if ("map_pressure" %in% status) {
-    cli::cli_inform(c("v" = "Pressure likelihood map {.field map_pressure} computed!\f"))
+    cli::cli_inform(c("v" = "Pressure likelihood map {.field map_pressure} computed!"))
     if ("map_pressure_mse" %in% status) {
       cli::cli_inform(c("i" = "Pressure mismatched maps {.field map_pressure_mse} and \\
-                        {.field map_pressure_mask} are also available.\f"))
+                        {.field map_pressure_mask} are also available."))
     }
   } else {
     if ("map_pressure_mse" %in% status) {
       cli::cli_inform(c("!" = "Pressure mismatched maps {.field map_pressure_mse} computed and \\
                         {.field map_pressure_mask}, but not the likelihood map. Use \\
-                        {.fun geopressure_map_likelihood}.\f"))
+                        {.fun geopressure_map_likelihood}."))
     } else {
-      cli::cli_inform(c("x" = "No pressure likelihood computed. Use {.fun geopressure_map}.\f"))
+      cli::cli_inform(c("x" = "No pressure likelihood computed. Use {.fun geopressure_map}."))
     }
   }
   if ("map_light" %in% status) {
-    cli::cli_inform(c("v" = "Light likelihood {.field map_light} computed!\f"))
+    cli::cli_inform(c("v" = "Light likelihood {.field map_light} computed!"))
   }
 
   # Param

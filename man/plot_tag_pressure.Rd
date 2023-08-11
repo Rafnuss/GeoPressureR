@@ -7,24 +7,21 @@
 plot_tag_pressure(
   tag,
   plot_plotly = TRUE,
-  display_check = TRUE,
-  pressure_diff_danger = 5,
-  pressure_diff_warning = 3,
-  stap_length_danger = 6,
-  stap_length_warning = 12,
-  ...
+  quiet = FALSE,
+  warning_pressure_diff = 3,
+  warning_stap_length = 12
 )
 }
 \arguments{
-\item{plot_plotly}{Logical to display interactive plot with \code{plotly}}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
-\item{pressure_diff_danger}{Threshold of pressure hourly difference marking as ️danger (hPa)}
+\item{plot_plotly}{logical to use \code{plotly}.}
 
-\item{pressure_diff_warning}{Threshold of pressure hourly difference marking as ️warning (hPa)}
+\item{quiet}{logical to hide warning message about label.}
 
-\item{stap_length_danger}{Threshold number of pressure datapoints flagged as ️danger (hourly).}
+\item{warning_pressure_diff}{Threshold of pressure hourly difference marking as ️warning (hPa).}
 
-\item{stap_length_warning}{Threshold number of pressure datapoints flagged as ️warning (hourly).}
+\item{warning_stap_length}{Threshold number of pressure datapoints flagged as ️warning (hourly.}
 }
 \description{
 This function display a plot of pressure timeseries recorded by a tag

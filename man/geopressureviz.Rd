@@ -4,13 +4,14 @@
 \alias{geopressureviz}
 \title{Start the GeoPressureViz shiny app}
 \usage{
-geopressureviz(geostap, path_pres = NA, launch_browser = TRUE)
+geopressureviz(x, pressurepath = NULL, marginal = NULL, launch_browser = TRUE)
 }
 \arguments{
-\item{geostap}{List of the geographical and stationary period information. See
-\code{\link[=geostap_create]{geostap_create()}} for details.}
+\item{x}{a GeoPressureR \code{tag} object or an unique identifier \code{id}.}
 
-\item{path_pres}{geopressure_timeseries}
+\item{pressurepath}{a GeoPressureR \code{pressurepath} data.frame.}
+
+\item{marginal}{map of the marginal probability computed with \code{graph_marginal()}.}
 
 \item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on Rstudio.}
 }

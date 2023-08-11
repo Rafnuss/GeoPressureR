@@ -1,14 +1,27 @@
-#' Plot `pressurepath`
+#' Plot a `pressurepath`
 #'
 #' Display a `pressurepath` data.frame as a timeseries or histogram
 #'
-#' @param pressurepath A GeoPressureR `pressurepath` data.frame
+#' @param pressurepath a GeoPressureR `pressurepath` data.frame.
 #' @param type Timeseries `"ts"` or histogram `"hist"`
 #' @inheritParams geopressure_map
 #' @param warning_std_thr Threshold of outliar, coefficient of the [z-score](
 #' https://en.wikipedia.org/wiki/Standard_score)
-#' @param plot_plotly Logical to use `plotly`
+#' @param plot_plotly logical to use `plotly`
 #'
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+#'
+#' path <- data.frame(
+#'   stap_id = tag$stap$stap_id,
+#'   lat = c(48.5, 32.5, 30.5, 49.5, 41.6),
+#'   lon = c(17.5, 13.5, 16.5, 21.5, 12.7)
+#' )
+#'
+#' pressurepath <- pressurepath_create(tag, path = path, quiet = TRUE)
+#'
+#' plot_pressurepath(pressurepath)
 #'
 #' @family pressurepath
 #' @export
@@ -20,8 +33,8 @@ plot_pressurepath <- function(pressurepath,
   assertthat::assert_that(is.data.frame(pressurepath))
   assertthat::assert_that(assertthat::has_name(
     pressurepath, c(
-      "date", "pressure_tag", "label", "stap_id", "pressure_era5", "altitude", "lat",
-      "lon", "pressure_era5_norm", "stap_ref"
+      "date", "pressure_tag", "label", "stap_id", "pressure_era5", "altitude", "lat", "lon",
+      "pressure_era5_norm", "stap_ref"
     )
   ))
 
@@ -61,28 +74,28 @@ plot_pressurepath <- function(pressurepath,
   # knitr::kable(tag_era5, "simple")
 
   if ("ts" == type) {
-    pp$warning <- (abs(pp$error) / pp$error_sd[pp$stap_id]) >= warning_std_thr
+    pp$warning <- (abs(pp$error) / sd[pp$stap_id]) >= warning_std_thr
 
     # convert stapelev to factor for color
     pp$stap_id <- factor(pp$stap_id)
 
-    p <- ggplot2::ggplot(pp, ggplot2::aes_string(x = "date")) +
+    p <- ggplot2::ggplot(pp, ggplot2::aes(x = .data$date)) +
       ggplot2::geom_line(
-        ggplot2::aes_string(y = "pressure_tag"),
+        ggplot2::aes(y = .data$pressure_tag),
         color = "grey"
       ) +
       ggplot2::geom_point(
         data = pp[pp$label == "discard", ],
-        ggplot2::aes_string(y = "pressure_tag"),
+        ggplot2::aes(y = .data$pressure_tag),
         colour = "black"
       ) +
       ggplot2::geom_line(
         data = pp[pp$stap_id != 0, ],
-        ggplot2::aes_string(y = "pressure_era5_norm", color = "stap_id")
+        ggplot2::aes(y = .data$pressure_era5_norm, color = .data$stap_id)
       ) +
       ggplot2::geom_point(
-        data = pp[pp$warning & pp$label != "discard", ],
-        ggplot2::aes_string(y = "pressure_tag"),
+        data = pp[pp$warning & pp$label != "discard" & pp$stap_id != 0, ],
+        ggplot2::aes(y = .data$pressure_tag),
         fill = "orange", shape = 24, size = 3
       ) +
       ggplot2::theme_bw() +
@@ -102,17 +115,17 @@ plot_pressurepath <- function(pressurepath,
       tag_era5$stapelev
     ))
 
-    p <- ggplot2::ggplot(pp[pp$label == "", ], ggplot2::aes_string(x = "error")) +
+    p <- ggplot2::ggplot(pp[pp$label == "", ], ggplot2::aes(x = .data$error)) +
       ggplot2::geom_histogram(
-        ggplot2::aes_string(fill = "sd_ok"),
+        ggplot2::aes(fill = .data$sd_ok),
         binwidth = .4
       ) +
       ggplot2::geom_vline(
-        ggplot2::aes_string(xintercept = "warning_m"),
+        ggplot2::aes(xintercept = .data$warning_m),
         linetype = "dashed", colour = "red"
       ) +
       ggplot2::geom_vline(
-        ggplot2::aes_string(xintercept = "warning_p"),
+        ggplot2::aes(xintercept = .data$warning_p),
         linetype = "dashed", colour = "red"
       ) +
       ggplot2::facet_wrap(~stapelev, scale = "free_y", labeller = lab) +
@@ -123,15 +136,30 @@ plot_pressurepath <- function(pressurepath,
       ggplot2::theme(legend.position = "none", axis.text.y = ggplot2::element_blank())
   } else if (type == "altitude") {
     pp_alt <- pressurepath2altitude(pp)
+    pp_alt$stap_id <- factor(pp_alt$stap_id)
 
-    p <- ggplot2::ggplot(pp_alt, ggplot2::aes_string(x = "date")) +
+    p <- ggplot2::ggplot() +
       ggplot2::geom_line(
-        ggplot2::aes_string(y = "altitude"),
-        color = "grey"
+        data = pp_alt[pp_alt$stap_id != 0, ],
+        ggplot2::aes(
+          x = .data$date,
+          y = .data$altitude,
+          group = .data$stap_id,
+          color = .data$stap_id
+        )
       ) +
       ggplot2::theme_bw() +
       ggplot2::scale_y_continuous(name = "Altitude (m)") +
       ggplot2::theme(legend.position = "none")
+
+    if (sum(pp_alt$stap_id == 0) > 0) {
+      p <- p +
+        ggplot2::geom_line(
+          data = pp_alt[pp_alt$stap_id == 0, ],
+          ggplot2::aes(x = .data$date, y = .data$altitude, group = .data$stap_s),
+          color = "black"
+        )
+    }
   }
 
   if (plot_plotly) {

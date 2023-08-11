@@ -2,22 +2,21 @@
 % Please edit documentation in R/geopressure_map_mismatch.R
 \name{geopressure_map_mismatch}
 \alias{geopressure_map_mismatch}
-\title{Request and download mismatch maps from pressure}
+\title{Request and download mismatch maps from pressure data}
 \usage{
 geopressure_map_mismatch(
-  geostap,
-  pressure,
+  tag,
   max_sample = 250,
   margin = 30,
   timeout = 60 * 5,
-  workers = 90
+  workers = "auto",
+  compute_known = FALSE,
+  debug = FALSE,
+  quiet = FALSE
 )
 }
 \arguments{
-\item{geostap}{List of the geographical and stationary period information. See
-\code{\link[=geostap_create]{geostap_create()}} for details.}
-
-\item{pressure}{Data.frame of the pressure measurements, usually \code{tag$pressure}.}
+\item{tag}{a GeoPressureR \code{tag} object}
 
 \item{max_sample}{The computation of the maps is only performed on \code{max_sample} datapoints of
 pressure to reduce computational time. The samples are randomly (uniformly) selected on the
@@ -29,7 +28,15 @@ topography, and vertical movements of the bird (unit in meters, 1hPa~10m).}
 \item{timeout}{Duration before the code is interrupted both for the request on
 GeoPressureAPI and GEE (in seconds, see \code{\link[httr:timeout]{httr::timeout()}}).}
 
-\item{workers}{Number of parallel requests on GEE. Integer between 1 and 99.}
+\item{workers}{Number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjust the
+number of workers to the number of \code{stap_elev} to query.}
+
+\item{compute_known}{logical defining if the map(s) for known stationary period should be
+estimated based on twilight or hard defined by the known location \verb{stap$known_l**}}
+
+\item{debug}{logical to display additional information to debug a request}
+
+\item{quiet}{logical to hide messages about the progress}
 }
 \description{
 This function returns, for each stationary period, two maps of mismatch between the pressure
@@ -63,7 +70,7 @@ resolution in order to match ERA-5 resolution.
 
 It is possible to indicate different elevation levels when the bird was spending time at
 locations with different elevations within a general area (~10km), and thus within the same stationary
-period. This can be done by using \code{tag$label="elev_*n*"}for all measurements of the same
+period. This can be done by using \code{tag$label="elev_n"}for all measurements of the same
 elevation level \emph{n}. See example in \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map }.
 
 For more background and details on this algorithm, please refer to the \href{https://doi.org/10.1111/2041-210X.14043}{associated scientific publication }. For more information on the exact computation, read
@@ -71,7 +78,7 @@ the \href{https://raphaelnussbaumer.com/GeoPressureAPI/}{GeoPressure API documen
 }
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-“Global Positioning with Animal‐borne Pressure Sensors.” \emph{Methods in Ecology and Evolution}.
+Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14, 1118–1129
 \url{https://doi.org/10.1111/2041-210X.14043}.}
 }
 \seealso{

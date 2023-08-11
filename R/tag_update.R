@@ -4,7 +4,7 @@
 #' avoid recomputing the entire workflow, this function figure out which stationary period have
 #' been changing on only update those in `tag$map_pressure` and `pressurepath`.
 #'
-#' @param tag A GeoPressureR `tag` object
+#' @param tag a GeoPressureR `tag` object
 #' @param file Absolute or relative path of the label file.
 #' @param known Data.frame containing the known positions of the bird (e.g., equipment or retrieval
 #' site). Default is to use `tag$stap`, which assumes that the `stap_id` has not changed for the
@@ -12,9 +12,9 @@
 #'
 #' @return the updated `tag` object
 #' @examples
-#' tag <- tag_create("18LX", quiet = T) |>
-#'   tag_label(quiet = T) |>
-#'   tag_setmap(extent = c(-16, 23, 0, 50), scale = 1) |>
+#' tag <- tag_create("18LX", quiet = TRUE) |>
+#'   tag_label(quiet = TRUE) |>
+#'   tag_set_map(extent = c(-16, 23, 0, 50), scale = 1) |>
 #'   geopressure_map()
 #'
 #' tag
@@ -81,7 +81,7 @@ tag_update <- function(tag,
   stap_new$include <- !(stap_new$old_stap_id %in% old_stap_include_exclude)
 
   # Build the setmapof stap_id to recompute and the one included
-  tag_new <- tag_setmap(tag_new,
+  tag_new <- tag_set_map(tag_new,
     extent = tag$param$extent,
     scale = tag$param$scale,
     known = known,

@@ -1,12 +1,18 @@
-#' Compute duration
+#' Compute duration of stationary periods
 #'
-#' This function compute and add the duration column to a `stap` or `path` data.frame based on the
-#' start and end time.
+#' @description
+#' This function returns the duration between `stap$start` and `stap$end`.
 #'
-#' @param stap_path A `stap` or `path` data.frame
+#' The function can be used with any data.frame containing `start` and `end` as POSIXct (e.g.,
+#' `flight` or `path`).
+#'
+#' @param stap_path A `stap` data.frame.
 #' @param units character string. Units in which the results are desired. Can be abbreviated.
 #' See [`difftime`]
-#' @param return_numeric Logical to return the duration as a numeric rather than with a format
+#' @param return_numeric logical to return the duration as a numeric rather than with a duration
+#' format.
+#'
+#' @return vector of duration
 #'
 #' @examples
 #' # Create fake stap

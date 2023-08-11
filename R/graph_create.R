@@ -1,4 +1,4 @@
-#' Create graph
+#' Create a `graph` object
 #'
 #' @description
 #' This function returns a trellis graph representing the trajectory of a bird based on filtering and
@@ -10,14 +10,17 @@
 #' at least one edge of the previous and next stationary periods requireing an average ground speed
 #' lower than `thr_gs` (in km/h).
 #'
-#' For more details and illustration, see Section 2.2 of @Nussbaumer2022b and
+#' For more details and illustration, see Section 2.2 of [Nussbaumer et al. (2023)](
+#' https://doi.org/10.1111/2041-210X.14082) and
 #' [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph)
 #'
-#' @param tag A GeoPressureR `tag` object.
+#' @param tag a GeoPressureR `tag` object.
 #' @param thr_likelihood Threshold of percentile (see details).
 #' @param thr_gs Threshold of groundspeed (km/h)  (see details).
 #' @inheritParams tag2map
+#' @param quiet logical to hide messages about the progress
+#'
 #' @return Graph as a list
 #' - `id`:
 #' - `s`: source node (index in the 3d grid lat-lon-stap)
@@ -34,18 +37,38 @@
 #' - `scale`: same as `tag$param$scale`
 #' - `mask_water`: logical matrix of water-land
 #' - `param`: parameter used to create the graph, including `thr_likelihood` and `thr_gs`
+#'
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE) |>
+#'   tag_label(quiet = TRUE) |>
+#'   twilight_create() |>
+#'   twilight_label_read() |>
+#'   tag_set_map(
+#'     extent = c(-16, 23, 0, 50),
+#'     known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
+#'   ) |>
+#'   geopressure_map(quiet = TRUE) |>
+#'   geolight_map(quiet = TRUE)
+#'
+#' # Create graph
+#' graph <- graph_create(tag, thr_likelihood = 0.95, thr_gs = 100, quiet = TRUE)
+#'
+#' print(graph)
+#'
 #' @seealso [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph)
 #' @family graph
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
-#' Sheldon. 2023. “Reconstructing bird trajectories from pressure and wind data using a highly
-#' optimized hidden Markov model.” *Methods in Ecology and Evolution*.
+#' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
+#' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
 #' <https://doi.org/10.1111/2041-210X.14082>.}
 #' @export
 graph_create <- function(tag,
                          thr_likelihood = .99,
                          thr_gs = 150,
-                         likelihood = NULL) {
+                         likelihood = NULL,
+                         quiet = FALSE) {
   # Construct the likelihood map
   lk <- tag2map(tag, likelihood = likelihood)
 
@@ -56,7 +79,9 @@ graph_create <- function(tag,
   assertthat::assert_that(length(thr_gs) == 1)
   assertthat::assert_that(thr_gs >= 0)
 
-  cli::cli_progress_step("Check data input")
+  if (!quiet) {
+    cli::cli_progress_step("Check data input")
+  }
 
   # Extract info from tag for simplicity
   stap <- tag$stap
@@ -151,7 +176,9 @@ graph_create <- function(tag,
     ))
   }
 
-  cli::cli_progress_step("Create graph from maps")
+  if (!quiet) {
+    cli::cli_progress_step("Create graph from maps")
+  }
   # filter the pixels which are not in reach of any location of the previous and next stationary
   # period
   for (i_s in seq_len(sz[3] - 1)) {
@@ -196,14 +223,16 @@ graph_create <- function(tag,
   future::plan(future::multisession, workers = future::availableCores() / 2)
   f <- list()
 
-  cli::cli_progress_step(
-    "Computing the groundspeed for {sum(nds_expend_sum)} edges for {length(nds_expend_sum)} \\
+  if (!quiet) {
+    cli::cli_progress_step(
+      "Computing the groundspeed for {sum(nds_expend_sum)} edges for {length(nds_expend_sum)} \\
     stationary periods",
-    spinner = TRUE
-  )
-  # progressr::handlers(global = TRUE)
-  progressr::handlers("cli")
-  p <- progressr::progressor(sum(nds_expend_sum))
+      spinner = TRUE
+    )
+    # progressr::handlers(global = TRUE)
+    progressr::handlers("cli")
+    p <- progressr::progressor(sum(nds_expend_sum))
+  }
   for (i in seq_len(length(nds_sorted_idx))) {
     i_s <- nds_sorted_idx[i]
     nds_i_s <- nds[[i_s]]
@@ -255,7 +284,9 @@ graph_create <- function(tag,
           edges, there are not any nodes left for the stationary period: {.val {stap_model[i_s]}}"
         ))
       }
-      p(amount = nds_expend_sum[i])
+      if (!quiet) {
+        p(amount = nds_expend_sum[i])
+      }
       return(grt)
     }, seed = TRUE)
   }
@@ -264,8 +295,10 @@ graph_create <- function(tag,
   gr <- future::value(f)
 
   # Prune
-  cli::cli_progress_step("Prune graph")
-  gr <- graph_create_prune(gr)
+  if (!quiet) {
+    cli::cli_progress_step("Prune graph")
+  }
+  gr <- graph_create_prune(gr, quiet = quiet)
 
   # Convert gr to a graph list
   graph <- as.list(do.call("rbind", gr))
@@ -277,14 +310,11 @@ graph_create <- function(tag,
   dim(graph$obs) <- sz
 
   # Add metadata information
-
   graph$sz <- sz
   graph$stap <- tag$stap
   graph$equipment <- which(nds[[1]] == TRUE)
   graph$retrieval <- as.integer(which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll)
   graph$mask_water <- tag$mask_water
-  graph$extent <- tag$param$extent
-  graph$scale <- tag$param$scale
 
   # Create the param from tag
   graph$param <- tag$param
@@ -305,12 +335,14 @@ graph_create <- function(tag,
 #' @return graph prunned
 #' @family graph
 #' @noRd
-graph_create_prune <- function(gr) {
+graph_create_prune <- function(gr, quiet = FALSE) {
   if (length(gr) < 2) {
     return(gr)
   }
 
-  cli::cli_progress_bar(total = (length(gr) - 1) * 2, type = "task")
+  if (!quiet) {
+    cli::cli_progress_bar(total = (length(gr) - 1) * 2, type = "task")
+  }
 
   # First, trim the graph from equipment to retrieval
   for (i_s in seq(2, length(gr))) {
@@ -329,7 +361,9 @@ graph_create_prune <- function(gr) {
           "Triming the graph killed it at stationary period {.val {i_s}} moving forward."
       ))
     }
-    cli::cli_progress_update(force = TRUE)
+    if (!quiet) {
+      cli::cli_progress_update(force = TRUE)
+    }
   }
   # Then, trim the graph from retrieval to equipment
   for (i_s in seq(length(gr) - 1, 1)) {
@@ -346,7 +380,9 @@ graph_create_prune <- function(gr) {
           "Triming the graph killed it at stationary period {.val {i_s}} moving backward"
       ))
     }
-    cli::cli_progress_update(force = TRUE)
+    if (!quiet) {
+      cli::cli_progress_update(force = TRUE)
+    }
   }
   return(gr)
 }

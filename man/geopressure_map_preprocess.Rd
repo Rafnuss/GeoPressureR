@@ -2,14 +2,15 @@
 % Please edit documentation in R/geopressure_map_preprocess.R
 \name{geopressure_map_preprocess}
 \alias{geopressure_map_preprocess}
-\title{Preprocess pressure data}
+\title{Prepare pressure data for geopositioning}
 \usage{
-geopressure_map_preprocess(pressure, stap)
+geopressure_map_preprocess(tag, compute_known = FALSE)
 }
 \arguments{
-\item{pressure}{Data.frame of the pressure measurements, usually \code{tag$pressure}.}
+\item{tag}{a GeoPressureR \code{tag} object}
 
-\item{stap}{Stationary period information (typically \code{geostap$stap} or \code{tag$stap}).}
+\item{compute_known}{logical defining if the map(s) for known stationary period should be
+estimated based on twilight or hard defined by the known location \verb{stap$known_l**}}
 }
 \value{
 Pressure data.frame without flight and discarded values, on a 1hr resolution.
@@ -27,9 +28,8 @@ pressure data sent to the GeoPressureAPI.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
-tag <- tag_read("18LX") |>
-  tag_label()
+tag <- tag_create("18LX", quiet = TRUE) |> tag_label()
 
-pressure_processed <- geopressure_map_preprocess(tag$pressure, tag$stap)
+pressure_processed <- geopressure_map_preprocess(tag)
 str(pressure_processed)
 }

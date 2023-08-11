@@ -2,89 +2,117 @@
 % Please edit documentation in R/geopressure_timeseries.R
 \name{geopressure_timeseries}
 \alias{geopressure_timeseries}
-\title{Download ERA5 pressure timeseries along a path}
+\title{Request and download pressure timeseries at a given location}
 \usage{
-geopressure_timeseries(path, pressure, include_flight = FALSE, workers = 90)
+geopressure_timeseries(
+  lat,
+  lon,
+  pressure = NULL,
+  start_time = NULL,
+  end_time = NULL,
+  timeout = 60 * 5,
+  quiet = FALSE
+)
 }
 \arguments{
-\item{path}{A data.frame of the position containing latitude (\code{lat}), longitude  (\code{lon}), and the
-stationary period id (\code{stap}) as columns.}
+\item{lat}{Latitude to query (0° to 90°).}
 
-\item{pressure}{Pressure data.frame from data logger.}
+\item{lon}{Longitude to query (-180° to 180°).}
 
-\item{include_flight}{Extend request to also query the pressure and altitude during the previous
-and/or next flight. Flights are defined by a \code{stap_id = 0}. Accept Logical or vector of -1 (
-previous flight), 0 (stationary) and/or 1 (next flight). (e.g. \code{include_flight = c(-1, 1)} will
-only search for the flight before and after but not the stationary period). Note that next and
-previous flights are defined by the +/1 of the \code{stap_id} value (and not the previous/next
-\code{stap_id} value).}
+\item{pressure}{A data.frame of pressure timeseries, containing at least a \code{"date"} and \code{"value"}
+column.}
 
-\item{workers}{Number of parallel requests on GEE. Between 1 and 99.}
+\item{start_time}{If \code{pressure} is not provided, \code{start_time} defines the start time of
+the timeseries as POSIXlt.}
+
+\item{end_time}{If \code{pressure} is not provided, \code{end_time} defines the end time of
+the timeseries as POSIXlt.}
+
+\item{timeout}{Duration before the code is interrupted both for the request on
+GeoPressureAPI and GEE (in seconds, see \code{\link[httr:timeout]{httr::timeout()}}).}
+
+\item{quiet}{logical to hide messages about the progress}
 }
 \value{
-A data.frame containing the row bind of the data.frames of each stationary period
-computed with \code{geopressure_timeseries_latlon()}:
+A data.frame containing
 \itemize{
-\item \code{date} same as \code{pressure$date}
-\item \code{pressure_tag}: same as \code{pressure$value}
-\item \code{label} same as \code{pressure$label}
-\item \code{stap_id} same as \code{pressure$stap_id} (i.e., including 0)
-\item \code{pressure_era5}
-\item \code{altitude}
-\item \code{lat}
-\item \code{lon}
-\item \code{pressure_era5_norm}
-\item \code{stap_ref} stap_id grouping of the requests (same as \code{stap_id} except for flights where
-\code{stap_id = 0} and \code{stap_id>0} is to the stationary period of the position used from the path).
+\item \code{date} POSIXct date time
+\item \code{pressure_era5} pressure (hPa)
+\item \code{lon} same as input \code{lon} except if over water
+\item \code{lat} same as input \code{lat} except if over water.
+\item \code{pressure_era5_norm} only if \code{pressure} is provided as input
+\item \code{altitude} only if \code{pressure} is provided as input
 }
-
-See \code{\link[=geopressure_timeseries_latlon]{geopressure_timeseries_latlon()}} for more details
 }
 \description{
-This function downloads the ERA5 pressure timeseries matching geolocator pressure data along a
-path. The function essentially splits the pressure of the geolocator into stationary periods and
-downloads the ERA5 timeseries of pressure for the corresponding location of the path by calling
-\code{geopressure_timeseries_latlon()}. The computation is optimized by paralleling the call of
-each stationary period.
+This function returns the surface atmospheric pressure timeseries from ERA5 at any requested
+location.
 
-The location of the path is matched with the geolocator pressure using \code{stap_id}.
+If the location queried is over water, the location will be moved to the closest onshore location.
 
-You can include previous and/or next flight period in each query, for instance to estimate
-flight altitude.
+The ERA5 pressure timeseries of the response \eqn{P_{ERA}} will be provided on a hourly basis
+between \code{start_time} and \code{end_time} or the same as \code{pressure$date} if \code{pressure} is supplied.
 
-Read more about how this is computed with \code{\link[=geopressure_timeseries_latlon]{geopressure_timeseries_latlon()}}
+If you supply the \code{pressure} of the geolocator \eqn{P_{gl}}, the function will
+additionally return the altitude of the geolocator above sea level \eqn{z_{gl}} using the
+barometric equation,
+\deqn{ z_{{gl}}(x)=z_{ERA5}(x) + \frac{T_{ERA5}(x)}{L_b}  \left( \frac{P_{gl}}{P_{ERA5}(x)}
+\right)^{\frac{RL_b}{g M}-1},}
+where \eqn{z_{ERA}}, \eqn{T_{ERA}}, and \eqn{P_{ERA}} respectively correspond to the ground level
+elevation, temperature at 2m, and ground level pressure of ERA5, \eqn{L_b}  is the standard
+temperature lapse rate, \eqn{R} is the universal gas constant, \eqn{g} is the gravity constant
+and  \eqn{M} is the molar mass of air. See more information at
+\href{https://raphaelnussbaumer.com/GeoPressureAPI/#description-1}{the GeoPressureAPI documentation}.
+
+To be able to compare the temporal variation of the retrieved pressure of ERA5 \eqn{P_{ERA}} to
+the geolocator pressure \eqn{P_{gl}}, the function also returns the ERA pressure normalized with
+the geolocator mean pressure measurement as \code{pressure_era5_norm}.
+\deqn{ P_{ERA5,0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\right) -
+\left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\boldsymbol{x})[i]-P_{gl}[i] \right).}
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
-tag <- tag_read("18LX") |>
-  tag_label()
-
-path <- data.frame(
-  stap_id = tag$stap$stap_id,
-  lat = c(48.5, 32.5, 30.5, 49.5, 41.6),
-  lon = c(17.5, 13.5, 16.5, 21.5, 12.7)
+# Request pressure at a given location
+pressurepath <- geopressure_timeseries(
+  lat = 46, lon = 6,
+  start_time = "2017-01-01 00:00",
+  end_time = "2017-01-02 00:00"
 )
 
-path_pres <- geopressure_timeseries(path, tag$pressure)
+str(pressurepath)
 
-str(path_pres)
-
-plot(path_pres$date, path_pres$pressure_tag,
-  col = path_pres$stap_id,
-  ylab = "Pressure (hPa)", xlab = "Datetime"
-)
-lines(path_pres$date, path_pres$pressure_era5_norm, col = "red")
-
-
-path_pres <- geopressure_timeseries(
-  path[c(2, 3, 4), ], tag$pressure,
-  include_flight = TRUE
+plot(pressurepath$date, pressurepath$pressure,
+  type = "b", ylab = "Pressure (hPa)", xlab = "Datetime"
 )
 
-plot(path_pres$date, path_pres$altitude,
-  type = "l", ylab = "Pressure (hPa)", xlab = "Datetime"
+# Retrieve the altitude of a bird being at this location adding random noise on the sensor.
+pressurepath <- geopressure_timeseries(
+  lat = 46, lon = 6,
+  pressure = data.frame(
+    data.frame(
+      date = pressurepath$date,
+      value = pressurepath$pressure_era5 + rnorm(nrow(pressurepath))
+    )
+  )
 )
+
+str(pressurepath)
+
+plot(pressurepath$date, pressurepath$altitude,
+  type = "b", ylab = "Altitude (m)", xlab = "Datetime"
+)
+}
+\references{
+{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
+Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14, 1118–1129
+\url{https://doi.org/10.1111/2041-210X.14043}.}
 }
 \seealso{
-\code{\link[=geopressure_timeseries_latlon]{geopressure_timeseries_latlon()}}, \code{\link[=geostap2path]{geostap2path()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map}
+\code{\link[=pressurepath_create]{pressurepath_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map}
+
+Other pressurepath: 
+\code{\link{plot_pressurepath}()},
+\code{\link{pressurepath2altitude}()},
+\code{\link{pressurepath_create}()},
+\code{\link{pressurepath_update}()}
 }
+\concept{pressurepath}

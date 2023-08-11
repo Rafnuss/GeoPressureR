@@ -2,13 +2,12 @@
 % Please edit documentation in R/tag_label_auto.R
 \name{tag_label_auto}
 \alias{tag_label_auto}
-\title{Automatic labelling of tag from acceleration data}
+\title{Automatic labelling of a \code{tag}}
 \usage{
 tag_label_auto(tag, min_duration = 30)
 }
 \arguments{
-\item{tag}{List containing the data logger dataset, this needs to contain at least a \code{pressure}
-data.frame, but can also have a \code{light} and \code{acceleration} data.frame (see \code{\link[=tag_create]{tag_create()}}).}
+\item{tag}{a GeoPressure \code{tag} object.}
 
 \item{min_duration}{Minimal duration (in minutes) to consider a high activity as migratory
 flight.}
@@ -28,7 +27,7 @@ This function is inspired by the function \code{classify_flap} from the
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
-tag <- tag_create("18LX")
+tag <- tag_create("18LX", quiet = TRUE)
 
 tag <- tag_label_auto(tag, min_duration = 15)
 str(tag$acceleration)
@@ -39,6 +38,7 @@ str(tag$acceleration)
 
 Other tag_label: 
 \code{\link{tag_label_read}()},
+\code{\link{tag_label_stap}()},
 \code{\link{tag_label_write}()},
 \code{\link{tag_label}()}
 }

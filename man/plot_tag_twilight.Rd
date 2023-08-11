@@ -7,7 +7,11 @@
 plot_tag_twilight(tag, transform_light = TRUE, plot_plotly = FALSE)
 }
 \arguments{
-\item{plot_plotly}{Logical to display interactive plot with \code{plotly}}
+\item{tag}{a GeoPressureR \code{tag} object}
+
+\item{transform_light}{logical to display a log transformation of light}
+
+\item{plot_plotly}{logical to use \code{plotly}}
 }
 \description{
 This function display a plot of twilight timeseries recorded by a tag

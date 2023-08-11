@@ -1,8 +1,8 @@
-#' Define grid for `tag`
+#' Configure the `map` of a `tag` object
 #'
 #' @description
 #' This function adds the parameters defining the 3D grid of the maps. The spatial parameters
-#' (`extent` and `scale`) defines the GEOgraphical dimension. The temporal dimension is
+#' (`extent` and `scale`) defines the geographical dimension. The temporal dimension is
 #' defined based on the stationary periods build from the label. `include_stap_id` and
 #' `include_min_duration` can be used to limit which stationary periods are computed and model in
 #' the rest of the analysis. By default, all stationary periods are included.
@@ -13,7 +13,7 @@
 #' periods as you wish. No likelihood map will be computed for these stationary periods and the
 #' trajectory model will be more constrain, thus saving significant computational time.
 #'
-#' @param tag Data logger list with label information. See [`tag_label()`] for the required input.
+#' @param tag a GeoPressureR `tag` object.
 #' @param extent Geographical extent of the map on which the likelihood and graph model will be
 #' computed. Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.
 #' @param scale Number of pixels per 1° latitude-longitude. For instance, `scale = 10` for a
@@ -35,15 +35,15 @@
 #' - `scale` same as input parameter `scale`
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX") |> tag_label()
+#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 #'
 #' # Default tag
-#' tag <- tag_setmap(tag, c(-16, 23, 0, 50))
+#' tag <- tag_set_map(tag, c(-16, 23, 0, 50))
 #' tag
 #'
 #' # Customized tag, with coarse grid scale, known position for the first stationary period and
 #' # considering only the stationary periods lasting more than 20hours.
-#' tag <- tag_setmap(tag,
+#' tag <- tag_set_map(tag,
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 1,
 #'   include_min_duration = 20,
@@ -53,18 +53,18 @@
 #'     known_lat = 48.9
 #'   )
 #' )
-#' tag
+#' print(tag)
 #' @export
-tag_setmap <- function(tag,
-                       extent,
-                       scale = 10,
-                       known = data.frame(
-                         stap_id = integer(),
-                         known_lat = double(),
-                         known_lon = double()
-                       ),
-                       include_stap_id = tag$stap$stap_id,
-                       include_min_duration = 0) {
+tag_set_map <- function(tag,
+                        extent,
+                        scale = 10,
+                        known = data.frame(
+                          stap_id = integer(),
+                          known_lat = double(),
+                          known_lon = double()
+                        ),
+                        include_stap_id = tag$stap$stap_id,
+                        include_min_duration = 0) {
   tag_assert(tag, "stap")
 
   # define stap for convenience

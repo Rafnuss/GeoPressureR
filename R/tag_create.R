@@ -1,8 +1,8 @@
-#' Read `tag` data
+#' Create a `tag` object
 #'
 #' @description
-#' Imports multi-sensor logger data from the folder `directory` and optionally crops at specific
-#' date. The `*_file` arguments are matched using a regex expression (e.g., `"*.pressure"`
+#' Create a GeoPressureR `tag` object from sensor(s) data and optionally crops at specific
+#' date. The `*_file` arguments are matched using a [regex] expression (e.g., `"*.pressure"`
 #' matches any file with the extension `pressure`).
 #'
 #' The current implementation can read the files from:
@@ -23,7 +23,7 @@
 #' have data in a format not supported yet.
 #'
 #' @param id Unique identifier of a tag.
-#' @param directory Path of the directory where the tag files can be read
+#' @param directory Path of the directory where the tag files can be read.
 #' @param pressure_file Name of the file with pressure data. Extension must be `.pressure` or
 #' `.deg` (required).
 #' @param light_file Name of the file with light data. Extension must be `.glf`, `.lux` (or `NA`
@@ -32,9 +32,9 @@
 #' `.acceleration`, `.deg` (or `NA` to ignore).
 #' @param crop_start Remove all data before this date (POSIXct or character in UTC).
 #' @param crop_end Remove all data after this date (POSIXct or character in UTC).
-#' @param quiet Logical to hide the file name read. Default is `FALSE`.
+#' @param quiet logical to hide messages about the progress.
 #' @return A GeoPressureR `tag` object containing
-#' - `id` character of the unique identifier of the tag
+#' - `param` parameter object (see [param_create])
 #' - `pressure` data.frame with column `date` and `value`
 #' - `light` (optional) same structure as pressure
 #' - `acceleration` (optional) same structure as pressure
@@ -50,7 +50,7 @@
 #' tag_create("CB621",
 #'   pressure_file = "*.deg",
 #'   light_file = "*.lux",
-#'   acceleration_file = NA
+#'   acceleration_file = NULL
 #' )
 #'
 #' # You can also specify exactly the file in case multiple file with the same
@@ -308,7 +308,7 @@ tag_create_dto <- function(sensor_path, skip = 6, col = 3, date_format = "%d.%m.
                   {20 + which(dtime != dtime[1])}.")
   }
   if (!quiet) {
-    cli::cli_inform(c("v" = "Read {sensor_path}\f"))
+    cli::cli_inform(c("v" = "Read {sensor_path}"))
   }
   return(df)
 }

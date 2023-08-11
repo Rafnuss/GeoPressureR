@@ -1,4 +1,4 @@
-#' Convert light data in matrix format
+#' Format light data into a matrix
 #'
 #' @inheritParams twilight_create
 #' @param light data.frame of a `tag`, containing at least `date` and `value`.

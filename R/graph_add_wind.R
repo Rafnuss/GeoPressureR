@@ -1,4 +1,4 @@
-#' Add windspeed and airspeed
+#' Compute windspeed and airspeed on a `graph`
 #'
 #' @description
 #' Reads the NetCDF files downloaded and interpolate the average windspeed experienced by the
@@ -6,22 +6,24 @@
 #'
 #' In addition, the graph can be further pruned based on a threashold of airspeed `thr_as`.
 #'
-#' See section 2.2.4 in Nussbaumer (2023) for more details.
+#' See section 2.2.4 in Nussbaumer (2023) for more technical details and
+#' [GeoPressureManual | Wind graph](
+#' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph) for an
+#' illustration on how to use it.
 #'
-#' @param graph A GeoPressureR graph object.
+#' @param graph a GeoPressureR graph object.
 #' @param pressure pressure measurement of the associated `tag` data used to estimate the pressure
 #' level (i.e., altitude) of the bird during the flights. This data.frame needs to contain `date` as
 #' POSIXt and `value` in hPa.
-#' @param thr_as Threshold of airspeed (km/h).
+#' @param thr_as threshold of airspeed (km/h).
 #' @inheritParams tag_download_wind
-#' @return Graph as a list with windspeed and airspeed as `ws` and `as` respectively (see
-#' [`graph_create()`] for more details on the graph returned).
+#' @return a `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
 #' @family graph
 #' @family movement
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
-#' Sheldon. 2023. “Reconstructing bird trajectories from pressure and wind data using a highly
-#' optimized hidden Markov model.” *Methods in Ecology and Evolution*.
+#' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
+#' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
 #' <https://doi.org/10.1111/2041-210X.14082>.}
 #' @seealso [GeoPressureManual | Wind graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph)
@@ -44,7 +46,7 @@ graph_add_wind <- function(graph,
   flight <- stap2flight(graph$stap, format = "list")
 
   # Compute lat-lon coordinate of the grid
-  g <- map_expand(graph$extent, graph$scale)
+  g <- map_expand(graph$param$extent, graph$param$scale)
 
   # Extract the index in lat, lon, stap from the source and target of all edges
   s <- arrayInd(graph$s, graph$sz)

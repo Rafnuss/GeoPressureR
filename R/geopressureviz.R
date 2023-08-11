@@ -5,35 +5,43 @@
 #' GeoPressureViz](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
 #' this [demo of the Great Reed Warbler (18LX)](https://rafnuss.shinyapps.io/GeoPressureViz/).
 #'
-#' @param tag a GeoPressureR `tag` object.
-#' @param id Unique identifier of a tag.
-#' @param pressurepath a pressure path computed with `create_pressurepath()`
-#' @param marginal map of the marginal probability computed with `graph_marginal()`
+#' @param x a GeoPressureR `tag` object or an unique identifier `id`.
+#' @param pressurepath a GeoPressureR `pressurepath` data.frame.
+#' @param marginal map of the marginal probability computed with `graph_marginal()`.
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on Rstudio.
 #' @return The updated path visualized in the app.
 #'
 #' @seealso [GeoPressureManual | GeoPressureViz
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
 #' @export
-geopressureviz <- function(tag = NULL,
+geopressureviz <- function(x,
                            pressurepath = NULL,
                            marginal = NULL,
-                           id = NULL,
                            launch_browser = TRUE) {
-  if (!is.null(id)) {
+
+  if (file.exists(x)){
+    file <- x
+  } else if (is.character(x)){
+    file = glue::glue("./data/interim/{x}.RData")
+  } else {
+    file <- NULL
+  }
+
+  if (file.exists(file)) {
     # Make of copy of the arguement so that they don't get overwritten
-    tag0 <- tag
     pressurepath0 <- pressurepath
     marginal0 <- marginal
     # Load interim
-    load(glue::glue("./data/interim/{id}.RData"))
+    load(file)
     # Overwrite loaded variable with arguments if provided
-    if (!is.null(tag0))
-      tag <- tag0
-    if (!is.null(pressurepath0))
+    if (!is.null(pressurepath0)) {
       pressurepath <- pressurepath0
-    if (!is.null(marginal0))
+    }
+    if (!is.null(marginal0)) {
       marginal <- marginal0
+    }
+  } else {
+    tag <- x
   }
 
   tag_assert(tag, "setmap")
@@ -42,11 +50,7 @@ geopressureviz <- function(tag = NULL,
     tag$map_preslight <- tag$map_pressure * tag$map_light
   }
 
-  if (is.null(marginal)) {
-    if (!is.null(id)) {
-      # load marginal from id
-    }
-  } else {
+  if (!is.null(marginal)) {
     tag$map_marginal <- marginal
   }
 

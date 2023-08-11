@@ -100,15 +100,15 @@ server <- function(input, output, session) {
 
   output$pressure_plot <- renderPlotly({
     p <- ggplot() +
-      geom_line(data = .pressure, aes_string(x = "date", y = "value"), colour = "grey") +
+      geom_line(data = .pressure, aes(x = .data$date, y = .data$value), colour = .data$grey) +
       geom_point(data = subset(.pressure, label=="discard"),
-                 aes_string(x = "date", y = "value"),
+                 aes(x = .data$date, y = .data$value),
                  colour = "black") +
       theme_bw()
 
     p <- p + geom_line(
       data = reactVal$pressurepath,
-      aes_string(x = "date",
+      aes(x = .data$date,
                  y = "pressure_era5_norm",
                  color = "col",
                  group = "stap_id",

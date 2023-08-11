@@ -2,25 +2,31 @@
 % Please edit documentation in R/print.tag.R
 \name{print.tag}
 \alias{print.tag}
-\title{Print \code{tag}}
+\title{Print a \code{tag} object}
 \usage{
 \method{print}{tag}(x, ...)
 }
 \arguments{
-\item{x}{A \code{tag} object}
+\item{x}{a GeoPressureR \code{tag} object}
 
-\item{...}{arguments passed from other methods}
+\item{...}{further arguments passed to or from other methods.}
 }
 \value{
 \code{tag} is returned invisibly and unchanged
 }
 \description{
-This function display the basic information on a \code{tag}
+This function displays the information of a \code{tag} object.
+}
+\examples{
+setwd(system.file("extdata/", package = "GeoPressureR"))
+tag <- tag_create("18LX", quiet = TRUE)
+print(tag)
+
 }
 \seealso{
 Other tag: 
-\code{\link{is.tag}()},
 \code{\link{plot.tag}()},
-\code{\link{tag_create}()}
+\code{\link{tag_create}()},
+\code{\link{tag_update}()}
 }
 \concept{tag}

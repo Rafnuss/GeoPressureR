@@ -1,4 +1,4 @@
-#' Read classification of activity and pressure
+#' Read a tag label file
 #'
 #' This function reads an exported csv file from [TRAINSET](https://trainset.geocene.com/) and updates
 #' the data logger dataset `tag`.
@@ -9,10 +9,11 @@
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = T)
+#' tag <- tag_create("18LX", quiet = TRUE)
 #'
 #' tag <- tag_label_read(tag)
-#' tag
+#'
+#' str(tag)
 #' @family tag_label
 #' @export
 tag_label_read <- function(tag,

@@ -1,4 +1,4 @@
-#' Create stationary periods from tag label
+#' Create stationary periods from a tag label
 #'
 #' @description
 #' This function computes the stationary periods from the pressure and/or acceleration label data.
@@ -15,18 +15,19 @@
 #' @param warning_flight_duration Threshold of flight duration to display warning for (hours)
 #' @param warning_stap_duration Threshold of stationary period duration to display warning for
 #' (hours)
-#' @param quiet  Logical to display warning
+#' @param quiet logical to display warning message.
 #' @return Same data logger list as input `tag` but with (1) a new data.frame of stationary periods
 #' `tag$stap` and (2) a new column `stap_id` for each sensor data.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = T) |>
+#' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label_read()
 #'
 #' tag <- tag_label_stap(tag)
-#' tag
-#' str(tag$stap)
 #'
+#' str(tag)
+#'
+#' str(tag$stap)
 #' @family tag_label
 #' @seealso  [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods)

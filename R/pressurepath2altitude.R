@@ -1,4 +1,4 @@
-#' Altitude
+#' Extract altitude from a `pressurepath`
 #'
 #' @description
 #' This function compute the timeseries of altitude from a pressurepath.
@@ -6,8 +6,27 @@
 #' As the altitude is estimated both at the arrival and departure stationary period location, we
 #' need to find a way to correct for the altitude in between.
 #'
-#' @param pressurepath A `pressurepath` data.frame
+#' @param pressurepath a GeoPressureR `pressurepath` data.frame
 #'
+#' @return A data.frame with columns:
+#' - `date` same as `pressure$date`
+#' - `altitude`
+#'
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+#'
+#' path <- data.frame(
+#'   stap_id = tag$stap$stap_id,
+#'   lat = c(48.5, 32.5, 30.5, 49.5, 41.6),
+#'   lon = c(17.5, 13.5, 16.5, 21.5, 12.7)
+#' )
+#'
+#' pressurepath <- pressurepath_create(tag, path = path, quiet = TRUE)
+#'
+#' pressurepath2altitude(pressurepath)
+#'
+#' @family pressurepath
 #' @export
 pressurepath2altitude <- function(pressurepath) {
   pp <- pressurepath
@@ -28,21 +47,26 @@ pressurepath2altitude <- function(pressurepath) {
   pp$altitude_w <- pp$w * pp$altitude
 
   # Sum the altitude by date, thus weighting average
-  pp_m <- stats::aggregate(list(altitude = pp$altitude_w), list(date = pp$date), \(x) sum(x))
+  pp_alt <- data.frame(
+    date = sapply(split(pp$date, pp$date), stats::median),
+    stap_id = sapply(split(pp$stap_id, pp$date), stats::median),
+    altitude = sapply(split(pp$altitude_w, pp$date), sum),
+    stap_s = sapply(split(pp$stap_ref, pp$date), min),
+    stap_t = sapply(split(pp$stap_ref, pp$date), max)
+  )
 
   # Because sum of weight is not exactly 1 all the time, we normalized by the sum
-  sum_w <- stats::aggregate(list(sum_w = pp$w), list(date = pp$date), \(x) sum(x))
-  pp_m$altitude <- pp_m$altitude / sum_w$sum_w
+  pp_alt$altitude <- pp_alt$altitude / sapply(split(pp$w, pp$date), sum)
 
   if (FALSE) {
-    p <- ggplot2::ggplot(pp_m) +
+    p <- ggplot2::ggplot(pp_alt) +
       ggplot2::geom_line(
-        ggplot2::aes_string(x = "date", y = "altitude"),
+        ggplot2::aes(x = .data$date, y = .data$altitude),
         color = "grey"
       ) +
       ggplot2::geom_point(
         data = pp[pp$w != 1, ],
-        ggplot2::aes_string(x = "date", y = "altitude"),
+        ggplot2::aes(x = .data$date, y = .data$altitude),
         color = "red"
       ) +
       ggplot2::theme_bw() +
@@ -51,5 +75,5 @@ pressurepath2altitude <- function(pressurepath) {
     plotly::ggplotly(p, dynamicTicks = TRUE)
   }
 
-  return(pp_m)
+  return(pp_alt)
 }

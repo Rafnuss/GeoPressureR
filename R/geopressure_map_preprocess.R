@@ -1,4 +1,4 @@
-#' Preprocess pressure data
+#' Prepare pressure data for geopositioning
 #'
 #' @description
 #' Performs the follow pre-processing for the pressure data.frame:
@@ -13,7 +13,7 @@
 #' @return Pressure data.frame without flight and discarded values, on a 1hr resolution.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX") |> tag_label()
+#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label()
 #'
 #' pressure_processed <- geopressure_map_preprocess(tag)
 #' str(pressure_processed)

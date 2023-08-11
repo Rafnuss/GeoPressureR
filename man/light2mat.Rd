@@ -2,17 +2,26 @@
 % Please edit documentation in R/light2mat.R
 \name{light2mat}
 \alias{light2mat}
-\title{Convert light data in matrix format}
+\title{Format light data into a matrix}
 \usage{
 light2mat(light, twl_offset = 0)
 }
 \arguments{
-\item{twl_offset}{Shift of the middle of the night compared to 00:00 UTC (in seconds). If not
+\item{light}{data.frame of a \code{tag}, containing at least \code{date} and \code{value}.}
+
+\item{twl_offset}{Shift of the middle of the night compared to 00:00 UTC (in hours). If not
 provided, it uses the middle of all nights.}
 }
 \value{
-A dataframe with columns \code{date} and \code{value}.
+A data.frame with columns \code{date} and \code{value}.
 }
 \description{
-Convert light data in matrix format
+Format light data into a matrix
 }
+\seealso{
+Other twilight: 
+\code{\link{twilight_create}()},
+\code{\link{twilight_label_read}()},
+\code{\link{twilight_label_write}()}
+}
+\concept{twilight}

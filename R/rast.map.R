@@ -1,23 +1,41 @@
 #' Construct a SpatRaster from a `map`
 #'
-#' This function return a [`terra::SpatRaster`] with each stationary periods as a different layer.
+#' This function convert a GeoPressureR `map` object into a [`terra::SpatRaster`] with the data of
+#' each stationary periods stored in a different layer.
 #'
-#' @param x A GeoPressureR `map` object
-#' @param names names of the SpatRaster layers created (see [`terra::names`]).
+#' @param x a GeoPressureR `map` object
+#' @param names names of the SpatRaster layers created. See [`terra::names`].
 #' @inheritParams terra::rast
-#' @param ... Additional parameters for `terra::rast`
+#' @param ... additional parameters for `terra::rast`
 #'
-#' @importMethodsFrom terra rast
 #' @return A [terra::SpatRaster] object.
+#'
+#'
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE) |>
+#'   tag_label(quiet = TRUE) |>
+#'   tag_label(quiet = TRUE) |>
+#'   tag_set_map(
+#'     extent = c(-16, 23, 0, 50),
+#'     scale = 4
+#'   ) |>
+#'   geopressure_map(quiet = TRUE)
+#'
+#' rast.map(tag$map_pressure)
+#'
+#'
+#' @family map
 #' @export
 rast.map <- function(x,
                      names = glue::glue("#{map$stap$stap_id}"),
                      crs = "epsg:4326",
                      ...) {
-
   map <- x
 
-    # Replace stap with NULL value in `map` with a matrix of NA (this should only happen with
+  assertthat::assert_that(inherits(map, "map"))
+
+  # Replace stap with NULL value in `map` with a matrix of NA (this should only happen with
   # map_pressure_mse or map_pressure_mask)
   stap_id_null <- which(sapply(map$data, is.null))
   if (length(stap_id_null) > 0) {
@@ -34,16 +52,3 @@ rast.map <- function(x,
 
   return(r)
 }
-
-# create generic function rast
-# #' @export
-#rast <- function(x, ...) {
-#  UseMethod("rast")
-#}
-
-#  setOldClass("map") allows S4 dispatch on S3 map objects.
-methods::setOldClass("map")
-
-
-methods::setMethod(rast, "map", rast.map)
-# #' @importMethodsFrom terra rast

@@ -2,13 +2,15 @@
 % Please edit documentation in R/tag_label_read.R
 \name{tag_label_read}
 \alias{tag_label_read}
-\title{Read classification of activity and pressure}
+\title{Read a tag label file}
 \usage{
-tag_label_read(tag, file = glue::glue("data/1_labels/{tag$id}-labeled.csv"))
+tag_label_read(
+  tag,
+  file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv")
+)
 }
 \arguments{
-\item{tag}{List containing the data logger dataset, this needs to contain at least a \code{pressure}
-data.frame, but can also have a \code{light} and \code{acceleration} data.frame (see \code{\link[=tag_read]{tag_read()}}).}
+\item{tag}{a GeoPressure \code{tag} object.}
 
 \item{file}{Absolute or relative path of the label file.}
 }
@@ -22,14 +24,16 @@ the data logger dataset \code{tag}.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
-tag <- tag_read("18LX")
+tag <- tag_create("18LX", quiet = TRUE)
 
 tag <- tag_label_read(tag)
+
 str(tag)
 }
 \seealso{
 Other tag_label: 
-\code{\link{tag_label_classify}()},
+\code{\link{tag_label_auto}()},
+\code{\link{tag_label_stap}()},
 \code{\link{tag_label_write}()},
 \code{\link{tag_label}()}
 }

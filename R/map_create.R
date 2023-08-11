@@ -1,19 +1,48 @@
-#' Create a `map`
+#' Create a `map` object
 #'
-#' This function create a GeoPressureR `map` object
+#' @description
+#' This function create a GeoPressureR `map` object from a spatio-temporal dataset.
+#' The data needs to be discretized according to `scale`, `extend` (space) and `stap` (time).
+#'
+#' This functions is used by `geopressure_map` and `graph_marginal`.
 #
-#' @param data List of matrices of the same size, one for each stationary period
-#' @param x A GeoPressureR `map` object
-#' @param y A GeoPressureR `map` object
-#' @param i indices specifying elements to extract
-#' @inheritParams tag_setmap
-#' @param stap A stationary period data.frame (see [`tag_label_stap()`])
+#' @param data List of matrices of the same size, one for each stationary period.
+#' @inheritParams tag_set_map
+#' @param stap A data.frame of stationary periods.
 #' @inheritParams tag_create
-#' @param type Type of data one of "unknown","pressure", "light", "pressure_mse", "water_mask",
-#' "pressure_mask", "marginal"
-#' @param ... arguments passed from other methods
+#' @param type Type of data one of `"unknown"`,`"pressure"`, `"light"`, `"pressure_mse"`,
+#' `"water_mask"`, `"pressure_mask"`, `"marginal"`. Allows for custom color palette on plot.
 #'
 #' @return A GeoPressure `map` object is returned
+#'
+#'
+#' @examples
+#' data <- lapply(1:10, \(x) matrix(runif(5000), nrow = 50, ncol = 100))
+#' scale <- 10
+#' extent <- c(0, 10, 0, 5)
+#' seq(as.Date("2023-01-01"), as.Date("2023-01-10"), by = "day")
+#' stap <- data.frame(
+#'   stap_id = 1:10,
+#'   start = seq(as.POSIXct("2023-01-01", tz = "UTC"),
+#'     as.POSIXct("2023-01-10 UTC", tz = "UTC"),
+#'     by = "day"
+#'   )
+#' )
+#' stap$end <- stap$start + sample(1:10) * 10000
+#'
+#' # Create the map
+#' map <- map_create(
+#'   data = data,
+#'   extent = extent,
+#'   scale = scale,
+#'   stap = stap,
+#'   id = "18LX",
+#'   type = "pressure"
+#' )
+#'
+#' print(map)
+#'
+#' plot(map)
 #'
 #' @family map
 #' @export
@@ -53,32 +82,32 @@ map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
   return(map)
 }
 
-#' @rdname map_create
+#' @noRd
 #' @export
 "[.map" <- function(x, i, ...) {
   x$data[i]
 }
 
-#' @rdname map_create
+#' @noRd
 #' @export
 "[[.map" <- function(x, i, ...) {
   x$data[[i]]
 }
 
-#' @rdname map_create
+#' @noRd
 #' @export
 length.map <- function(x) {
   length(x$data)
 }
 
-#' @rdname map_create
+#' @noRd
 #' @export
 dim.map <- function(x) {
   c(length(x$lat), length(x$lon), length(x$data))
 }
 
 
-#' @rdname map_create
+#' @noRd
 #' @export
 `*.map` <- function(x, y) {
   assertthat::assert_that(inherits(x, "map"))

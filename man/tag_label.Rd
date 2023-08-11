@@ -2,15 +2,27 @@
 % Please edit documentation in R/tag_label.R
 \name{tag_label}
 \alias{tag_label}
-\title{Add label to tag}
+\title{Label a \code{tag} object}
 \usage{
-tag_label(tag, file = glue::glue("data/1_labels/{tag$id}-labeled.csv"))
+tag_label(
+  tag,
+  file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
+  ...
+)
 }
 \arguments{
-\item{tag}{List containing the data logger dataset, this needs to contain at least a \code{pressure}
-data.frame, but can also have a \code{light} and \code{acceleration} data.frame (see \code{\link[=tag_read]{tag_read()}}).}
+\item{tag}{a GeoPressure \code{tag} object.}
 
 \item{file}{Absolute or relative path of the label file.}
+
+\item{...}{
+  Arguments passed on to \code{\link[=tag_label_stap]{tag_label_stap}}
+  \describe{
+    \item{\code{warning_flight_duration}}{Threshold of flight duration to display warning for (hours)}
+    \item{\code{warning_stap_duration}}{Threshold of stationary period duration to display warning for
+(hours)}
+    \item{\code{quiet}}{logical to display warning message.}
+  }}
 }
 \value{
 Same \code{tag} list with
@@ -41,22 +53,24 @@ on all sensors data.frame with \code{\link[=tag_label_stap]{tag_label_stap()}}
 }
 
 If the label file does not exist, the function will suggest to create it with
-\code{\link[=tag_label_write]{tag_label_write()}} and use \code{\link[=tag_label_classify]{tag_label_classify()}} if acceleration data exists.
+\code{\link[=tag_label_write]{tag_label_write()}} and use \code{\link[=tag_label_auto]{tag_label_auto()}} if acceleration data exists.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
-tag <- tag_read("18LX")
+tag <- tag_create("18LX", quiet = TRUE)
 
 tag <- tag_label(tag)
+
 str(tag)
 
 }
 \seealso{
-\code{\link[=tag_read]{tag_read()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset}{GeoPressureManual | Pressure Map }
+\href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset}{GeoPressureManual | Pressure Map }
 
 Other tag_label: 
-\code{\link{tag_label_classify}()},
+\code{\link{tag_label_auto}()},
 \code{\link{tag_label_read}()},
+\code{\link{tag_label_stap}()},
 \code{\link{tag_label_write}()}
 }
 \concept{tag_label}

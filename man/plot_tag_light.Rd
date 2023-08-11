@@ -7,7 +7,11 @@
 plot_tag_light(tag, transform_light = TRUE, plot_plotly = TRUE)
 }
 \arguments{
-\item{plot_plotly}{Logical to display interactive plot with \code{plotly}}
+\item{tag}{a GeoPressureR \code{tag} object}
+
+\item{transform_light}{logical to display a log transformation of light}
+
+\item{plot_plotly}{logical to use \code{plotly}}
 }
 \description{
 This function display a plot of light timeseries recorded by a tag

@@ -1,13 +1,48 @@
-#' Plot `tag`
+#' Plot a `tag` object
 #'
-#' This function display the basic information on a tag list
+#' This function plot a GeoPressureR `tag` object as a timeseries or a map.
 #'
-#' @param x A GeoPressureR `tag` object.
-#' @param type type of the plot to display. One of "pressure", "acceleration", "light", "twilight"
-#' "map", "map_pressure", "map_light", "map_pressure_mse", "map_pressure_mask", "mask_water"
-#' @param ... Additional parameters
+#' @param x a GeoPressureR `tag` object.
+#' @param type type of the plot to display. One of `"pressure"`, `"acceleration"`, `"light"`,
+#' `"twilight"`, `"map"`, `"map_pressure"`, `"map_light"`, `"map_pressure_mse"`,
+#' `"map_pressure_mask"`, `"mask_water"`
+#' @param ... additional parameters for `plot_tag_pressure()`, `plot_tag_acceleration()`,
+#' `plot_tag_light()`, `plot_tag_twilight()` or `plot.map()`
 #'
-#' @return `tag` is returned invisibly and unchanged
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE) |>
+#'   tag_label(quiet = TRUE)
+#'
+#' # Plot pressure by default
+#' plot(tag)
+#' plot(tag, type = "acceleration")
+#' plot(tag, type = "light")
+#'
+#' tag <- twilight_create(tag) |>
+#'   twilight_label_read()
+#'
+#' plot(tag, type = "twilight")
+#'
+#' tag <- tag_set_map(tag,
+#'   extent = c(-16, 23, 0, 50),
+#'   scale = 4,
+#'   known = data.frame(
+#'     stap_id = 1,
+#'     known_lon = 17.05,
+#'     known_lat = 48.9
+#'   )
+#' ) |>
+#'   geopressure_map(quiet = TRUE)
+#'
+#' # default is now to take "map"
+#' plot(tag)
+#'
+#' tag <- geolight_map(tag, quiet = TRUE)
+#'
+#' plot(tag)
+#' plot(tag, type = "map_light")
+#'
 #' @family tag
 #' @export
 plot.tag <- function(x, type = NULL, ...) {
@@ -57,11 +92,11 @@ plot.tag <- function(x, type = NULL, ...) {
 #'
 #' This function display a plot of pressure timeseries recorded by a tag
 #
-#' @param tag A GeoPressureR `tag` object
-#' @param plot_plotly Logical to use `plotly`
-#' @param quiet Logical to hide warning message about labeling
+#' @param tag a GeoPressureR `tag` object.
+#' @param plot_plotly logical to use `plotly`.
+#' @param quiet logical to hide warning message about label.
 #' @param warning_stap_length Threshold number of pressure datapoints flagged as ️warning (hourly.
-#' @param warning_pressure_diff Threshold of pressure hourly difference marking as ️warning (hPa)
+#' @param warning_pressure_diff Threshold of pressure hourly difference marking as ️warning (hPa).
 #' @export
 plot_tag_pressure <- function(tag,
                               plot_plotly = TRUE,
@@ -72,7 +107,7 @@ plot_tag_pressure <- function(tag,
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
       data = tag$pressure,
-      ggplot2::aes_string(x = "date", y = "value"),
+      ggplot2::aes(x = .data$date, y = .data$value),
       color = "grey"
     ) +
     ggplot2::theme_bw() +
@@ -152,16 +187,16 @@ plot_tag_pressure <- function(tag,
     p <- p +
       ggplot2::geom_point(
         data = tag$pressure[tag$pressure$label == "discard", ],
-        ggplot2::aes_string(x = "date", y = "value"),
+        ggplot2::aes(x = .data$date, y = .data$value),
         colour = "black"
       ) +
       ggplot2::geom_line(
         data = pres,
-        ggplot2::aes_string(x = "date", y = "value", color = "stapelev")
+        ggplot2::aes(x = .data$date, y = .data$value, color = .data$stapelev)
       ) +
       ggplot2::geom_point(
         data = pres_diff,
-        ggplot2::aes_string(x = "date", y = "value_avg"),
+        ggplot2::aes(x = .data$date, y = .data$value_avg),
         fill = "orange", shape = 24, size = 2
       )
   }
@@ -177,9 +212,9 @@ plot_tag_pressure <- function(tag,
 #'
 #' This function display a plot of acceleration timeseries recorded by a tag
 #'
-#' @param tag A GeoPressureR `tag` object
-#' @param plot_plotly Logical to use `plotly`
-#' @param label_auto Logical to compute and plot the flight label using `tag_label_auto()`. Only if
+#' @param tag a GeoPressureR `tag` object
+#' @param plot_plotly logical to use `plotly`
+#' @param label_auto logical to compute and plot the flight label using `tag_label_auto()`. Only if
 #' labels are not already present on tag$acceleration$label
 #' @inheritParams tag_label_auto
 #' @export
@@ -198,7 +233,7 @@ plot_tag_acceleration <- function(tag,
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
       data = tag$acceleration,
-      ggplot2::aes_string(x = "date", y = "value"),
+      ggplot2::aes(x = .data$date, y = .data$value),
       color = "black"
     ) +
     ggplot2::theme_bw() +
@@ -209,7 +244,7 @@ plot_tag_acceleration <- function(tag,
     p <- p +
       ggplot2::geom_point(
         data = tag$acceleration[tag$acceleration$label == "flight", ],
-        ggplot2::aes_string(x = "date", y = "value"),
+        ggplot2::aes(x = .data$date, y = .data$value),
         fill = "red", shape = 23, size = 2,
       )
   }
@@ -226,9 +261,9 @@ plot_tag_acceleration <- function(tag,
 #'
 #' This function display a plot of light timeseries recorded by a tag
 #'
-#' @param tag A GeoPressureR `tag` object
-#' @param plot_plotly Logical to use `plotly`
-#' @param transform_light Logical to display a log transformation of light
+#' @param tag a GeoPressureR `tag` object
+#' @param plot_plotly logical to use `plotly`
+#' @param transform_light logical to display a log transformation of light
 #' @export
 plot_tag_light <- function(tag,
                            transform_light = TRUE,
@@ -244,7 +279,7 @@ plot_tag_light <- function(tag,
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
       data = l,
-      ggplot2::aes_string(x = "date", y = "value"),
+      ggplot2::aes(x = .data$date, y = .data$value),
       color = "grey"
     ) +
     ggplot2::theme_bw() +
@@ -260,7 +295,7 @@ plot_tag_light <- function(tag,
     p <- p +
       ggplot2::geom_vline(
         data = twl,
-        ggplot2::aes_string(xintercept = "datetime", color = "twilight")
+        ggplot2::aes(xintercept = .data$datetime, color = .data$twilight)
       ) +
       ggplot2::scale_color_manual(values = c("sunrise" = "#FFD700", "sunset" = "#FF4500"))
   }
@@ -276,9 +311,9 @@ plot_tag_light <- function(tag,
 #'
 #' This function display a plot of twilight timeseries recorded by a tag
 #'
-#' @param tag A GeoPressureR `tag` object
-#' @param plot_plotly Logical to use `plotly`
-#' @param transform_light Logical to display a log transformation of light
+#' @param tag a GeoPressureR `tag` object
+#' @param plot_plotly logical to use `plotly`
+#' @param transform_light logical to display a log transformation of light
 #' @export
 plot_tag_twilight <- function(tag,
                               transform_light = TRUE,
@@ -310,7 +345,7 @@ plot_tag_twilight <- function(tag,
   p <- ggplot2::ggplot() +
     ggplot2::geom_raster(
       data = df_long,
-      ggplot2::aes_string(x = "date", y = "time", fill = "light")
+      ggplot2::aes(x = .data$date, y = .data$time, fill = .data$light)
     ) +
     ggplot2::theme_bw() +
     ggplot2::scale_fill_gradient(low = "black", high = "white") +
@@ -332,7 +367,7 @@ plot_tag_twilight <- function(tag,
       p <- p +
         ggplot2::geom_point(
           data = twl,
-          ggplot2::aes_string(x = "date", y = "time"),
+          ggplot2::aes(x = .data$date, y = .data$time),
           colour = "red",
           size = 2,
           shape = 16
@@ -341,7 +376,7 @@ plot_tag_twilight <- function(tag,
       p <- p +
         ggplot2::geom_point(
           data = twl,
-          ggplot2::aes_string(x = "date", y = "time", colour = "stap_id"),
+          ggplot2::aes(x = .data$date, y = .data$time, colour = .data$stap_id),
           size = 2,
           shape = 16
         )
@@ -349,7 +384,7 @@ plot_tag_twilight <- function(tag,
     p <- p +
       ggplot2::geom_point(
         data = twl[twl$discard, ],
-        ggplot2::aes_string(x = "date", y = "time"),
+        ggplot2::aes(x = .data$date, y = .data$time),
         size = 3,
         shape = 4,
         stroke = 2,

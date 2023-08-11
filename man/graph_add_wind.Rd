@@ -2,37 +2,65 @@
 % Please edit documentation in R/graph_add_wind.R
 \name{graph_add_wind}
 \alias{graph_add_wind}
-\title{Add windspeed and airspeed}
+\title{Compute windspeed and airspeed on a \code{graph}}
 \usage{
 graph_add_wind(
   graph,
   pressure,
-  directory = glue::glue("data/5_wind_graph/{graph$id}/"),
-  thr_as = Inf
+  thr_as = Inf,
+  file = function(stap_id)
+    glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc")
 )
 }
 \arguments{
-\item{graph}{graph constructed with \code{\link[=graph_create]{graph_create()}}}
+\item{graph}{a GeoPressureR graph object.}
 
-\item{pressure}{pressure data from a data logger. This data.frame needs to contain \code{date} as
-POSIXt and \code{value} in hPa. It is good practice to use \code{\link[=tag_read]{tag_read()}} and \code{\link[=tag_label_stap]{tag_label_stap()}} to build
-this data.frame.}
+\item{pressure}{pressure measurement of the associated \code{tag} data used to estimate the pressure
+level (i.e., altitude) of the bird during the flights. This data.frame needs to contain \code{date} as
+POSIXt and \code{value} in hPa.}
 
-\item{directory}{Character of the path where the netCDF files can be found.}
+\item{thr_as}{threshold of airspeed (km/h).}
 
-\item{thr_as}{Threshold of airspeed (km/h).}
+\item{file}{Absolute or relative path of the ERA5 wind data file to be downloaded. Function
+taking as single argument the stationary period identifier.}
 }
 \value{
-Graph as a list with windspeed and airspeed as \code{ws} and \code{as} respectively (see
-\code{\link[=graph_create]{graph_create()}} for more details on the graph returned).
+a \code{graph} object with windspeed and airspeed as \code{ws} and \code{as} respectively.
 }
 \description{
-Reads the NetCDF files downloaded in \code{directory} and adds the average windspeed experienced by the
-bird, and the corresponding airspeed for each edge of the graph.
+Reads the NetCDF files downloaded and interpolate the average windspeed experienced by the
+bird on each possible edge, as well as the corresponding airspeed.
 
-See the \href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data}{GeoPressureManual | Wind graph} for
-explanations and an example on how to download the \code{NetCDF} files from ERA-5.
+In addition, the graph can be further pruned based on a threashold of airspeed \code{thr_as}.
+
+See section 2.2.4 in Nussbaumer (2023) for more technical details and
+\href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph}{GeoPressureManual | Wind graph} for an
+illustration on how to use it.
+}
+\references{
+{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
+Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
+optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118–1129
+\url{https://doi.org/10.1111/2041-210X.14082}.}
 }
 \seealso{
-\code{\link[=graph_create]{graph_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph}{GeoPressureManual | Wind graph}
+\href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph}{GeoPressureManual | Wind graph}
+
+Other graph: 
+\code{\link{graph_create}()},
+\code{\link{graph_marginal}()},
+\code{\link{graph_most_likely}()},
+\code{\link{graph_set_movement}()},
+\code{\link{graph_simulation}()},
+\code{\link{print.graph}()}
+
+Other movement: 
+\code{\link{bird_create}()},
+\code{\link{graph_set_movement}()},
+\code{\link{graph_transition}()},
+\code{\link{plot_graph_movement}()},
+\code{\link{speed2prob}()},
+\code{\link{tag_download_wind}()}
 }
+\concept{graph}
+\concept{movement}

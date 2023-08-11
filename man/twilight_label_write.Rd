@@ -2,37 +2,35 @@
 % Please edit documentation in R/twilight_label_write.R
 \name{twilight_label_write}
 \alias{twilight_label_write}
-\title{Export twilight label}
+\title{Write a twilight label file}
 \usage{
 twilight_label_write(
   tag,
-  file = glue::glue("data/2_light/{tag$id}.csv"),
-  twl_offset = 0
+  file = glue::glue("./data/twilight-label/{tag$param$id}.csv")
 )
 }
 \arguments{
-\item{tag}{List containing the data logger dataset (see \code{\link[=tag_read]{tag_read()}}) It needs to contain
-a \code{twilight} data.frame created with \code{\link[=twilight_create]{twilight_create()}}.}
+\item{tag}{a GeoPressureR \code{tag} object}
 
 \item{file}{Name of the twilight label file to be saved.}
-
-\item{twl_offset}{Shift of the middle of the night compared to 00:00 UTC (in seconds). If not
-provided, it uses the middle of all nights.}
 }
 \description{
 This function writes the csv file of the labelled twilight which can be read with
-TRAINSET \url{https://trainset.geocene.com/}.
+TRAINSET \url{https://trainset.raphaelnussbaumer.com/}.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
-tag <- tag_read("18LX") |> tag_label()
-tag <- twilight_create(tag)
+tag <- tag_create("18LX", quiet = TRUE) |>
+  tag_label(quiet = TRUE) |>
+  twilight_create()
 
-label_file <- twilight_label_write(twilight)
+label_file <- twilight_label_write(tag)
+
 str(read.csv(label_file))
 }
 \seealso{
 Other twilight: 
+\code{\link{light2mat}()},
 \code{\link{twilight_create}()},
 \code{\link{twilight_label_read}()}
 }

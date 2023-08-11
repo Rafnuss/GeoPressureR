@@ -2,19 +2,29 @@
 % Please edit documentation in R/stap2flight.R
 \name{stap2flight}
 \alias{stap2flight}
-\title{Flight from stationary period}
+\title{Compute flights from stationary periods}
 \usage{
-stap2flight(stap, stap_include = NA, format = "df", units = "hours")
+stap2flight(
+  stap,
+  stap_include = NULL,
+  format = "df",
+  units = "hours",
+  return_numeric = TRUE
+)
 }
 \arguments{
-\item{stap}{Stationary period structure (see \code{\link[=tag_label_stap]{tag_label_stap()}}).}
+\item{stap}{A stationary period data.frame (see \code{\link[=tag_label_stap]{tag_label_stap()}}).}
 
 \item{stap_include}{Vecto of the stationary period \code{stap_id} to consider in the flight. Default
 is to use \code{stap$stap_id[stap$include]} or \code{stap$stap_id} if \code{model} is not available in \code{stap}.}
 
 \item{format}{Character to return a list \code{"list"} or a data.frame \code{"df"} (see description)}
 
-\item{units}{Units in which the results are desired. see \code{\link[=difftime]{difftime()}}}
+\item{units}{character string. Units in which the results are desired. Can be abbreviated.
+See \code{\link{difftime}}}
+
+\item{return_numeric}{logical to return the duration as a numeric rather than with a duration
+format.}
 }
 \value{
 A list or a data.frame (see description) containing
@@ -40,13 +50,15 @@ of all individual flight between the \code{stap_include}.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
-tag <- tag_read("18LX") |>
-  tag_label()
+tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 
-str(stap2flight(tag$stap))
+# By default, return a data.frame of all individual flights
+knitr::kable(stap2flight(tag$stap))
 
-str(stap2flight(tag$stap, stap_include = c(1, 3, 5)))
+# Compute the total flight between stap 1,3 and 5. Sum flight duration in between.
+knitr::kable(stap2flight(tag$stap, stap_include = c(1, 3, 5)))
 
-str(stap2flight(tag$stap, stap_include = c(2, 3, 5), format = "list", units = "secs"))
+# Can also return as a list of data.frame to access individual flights information.
+knitr::kable(stap2flight(tag$stap, stap_include = c(1, 3, 5), format = "list", units = "secs"))
 
 }

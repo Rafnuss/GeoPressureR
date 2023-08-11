@@ -2,19 +2,19 @@
 % Please edit documentation in R/graph_transition.R
 \name{graph_transition}
 \alias{graph_transition}
-\title{Compute transition probability of graph}
+\title{Compute transition probabilities of a \code{graph}}
 \usage{
 graph_transition(graph)
 }
 \arguments{
 \item{graph}{Graph constructed with \code{graph_create()} and with a movement (see
-\code{graph_add_movement()}).}
+\code{graph_set_movement()}).}
 }
 \value{
 Vector of transition probability for each edge.
 }
 \description{
-Use the movement model (see \code{graph_add_movement()}) to convert ground speed \code{gs} (or airspeed \code{as}
+Use the movement model (see \code{graph_set_movement()}) to convert ground speed \code{gs} (or airspeed \code{as}
 if available) into the transition probability of the edges of the graph.
 }
 \details{
@@ -27,5 +27,12 @@ To create a generic function, we define \code{speed2prob} which converts the spe
 transition probability.
 }
 \seealso{
-\code{\link[=graph_create]{graph_create()}}, \code{\link[=graph_add_movement]{graph_add_movement()}}
+Other movement: 
+\code{\link{bird_create}()},
+\code{\link{graph_add_wind}()},
+\code{\link{graph_set_movement}()},
+\code{\link{plot_graph_movement}()},
+\code{\link{speed2prob}()},
+\code{\link{tag_download_wind}()}
 }
+\concept{movement}

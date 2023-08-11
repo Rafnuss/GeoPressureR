@@ -2,24 +2,50 @@
 % Please edit documentation in R/plot_pressurepath.R
 \name{plot_pressurepath}
 \alias{plot_pressurepath}
-\title{Plot pressure pressurepath}
+\title{Plot a \code{pressurepath}}
 \usage{
 plot_pressurepath(
   pressurepath,
   type = "ts",
-  pressure_err_warning = 2,
-  pressure_err_danger = 5
+  sd = attr(pressurepath, "sd"),
+  warning_std_thr = 3,
+  plot_plotly = TRUE
 )
 }
 \arguments{
-\item{pressurepath}{rerer}
+\item{pressurepath}{a GeoPressureR \code{pressurepath} data.frame.}
 
-\item{type}{\code{"ts"} or \code{"hist"}}
+\item{type}{Timeseries \code{"ts"} or histogram \code{"hist"}}
 
-\item{pressure_err_warning}{Threshold of pressure difference marking as ️warning (hPa)}
+\item{sd}{Standard deviation of the pressure error . numeric of lenght 1 or number of stationary periods.}
 
-\item{pressure_err_danger}{Threshold of pressure difference marking as ️danger (hPa)}
+\item{warning_std_thr}{Threshold of outliar, coefficient of the \href{https://en.wikipedia.org/wiki/Standard_score}{z-score}}
+
+\item{plot_plotly}{logical to use \code{plotly}}
 }
 \description{
-description of check
+Display a \code{pressurepath} data.frame as a timeseries or histogram
 }
+\examples{
+setwd(system.file("extdata/", package = "GeoPressureR"))
+tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+
+path <- data.frame(
+  stap_id = tag$stap$stap_id,
+  lat = c(48.5, 32.5, 30.5, 49.5, 41.6),
+  lon = c(17.5, 13.5, 16.5, 21.5, 12.7)
+)
+
+pressurepath <- pressurepath_create(tag, path = path, quiet = TRUE)
+
+plot_pressurepath(pressurepath)
+
+}
+\seealso{
+Other pressurepath: 
+\code{\link{geopressure_timeseries}()},
+\code{\link{pressurepath2altitude}()},
+\code{\link{pressurepath_create}()},
+\code{\link{pressurepath_update}()}
+}
+\concept{pressurepath}

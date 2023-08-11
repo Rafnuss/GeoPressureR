@@ -12,7 +12,7 @@ setwd(system.file("extdata/", package = "GeoPressureR"))
 tag <- tag_create("18LX")
 tag <- tag_label(tag)
 expect_error(geopressureviz(tag))
-tag <- tag_setmap(tag,
+tag <- tag_set_map(tag,
   extent = c(-16, 23, 0, 50),
   scale = 2,
   known = data.frame(

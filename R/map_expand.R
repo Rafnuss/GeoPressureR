@@ -1,9 +1,14 @@
-#' Compute grid from `extent` and `scale`
+#' Construct grid from `extent` and `scale`
 #'
-#' Take the two GEOgraphic parameters used to define the grid in `tag` and `graph` and return
-#' all variable of interest for the spatial grid (e.g., grid dimension, latitude and longitude...)
+#' @description
+#' Take the two parameters defining the spatial grid of a map in GeoPressureR (`extent` and `scale`)
+#' and constructs various possible spatial variable of interest for the spatial grid (e.g., grid
+#' dimension, latitude and longitude...)
 #'
-#' @inheritParams tag_setmap
+#' This functions is used in multiple functions of GeoPressureR to allow to only store `extent` and
+#' `scale` in `tag` and `graph` while having access to all spatial variables anywhere anytime.
+#'
+#' @inheritParams tag_set_map
 #' @return A list containing:
 #' - `extent` same as input
 #' - `scale` same as input

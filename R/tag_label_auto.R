@@ -1,4 +1,4 @@
-#' Automatic labelling of tag from acceleration data
+#' Automatic labelling of a `tag`
 #'
 #' This function uses acceleration data to classify migratory flights. The function uses a
 #' `k=2` mean clustering ([`kmeans()`]) to identify high activity periods. Periods lasting more than
@@ -18,7 +18,7 @@
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX")
+#' tag <- tag_create("18LX", quiet = TRUE)
 #'
 #' tag <- tag_label_auto(tag, min_duration = 15)
 #' str(tag$acceleration)

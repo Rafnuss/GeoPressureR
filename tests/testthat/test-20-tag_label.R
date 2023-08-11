@@ -24,7 +24,7 @@ test_that("tag_label_write() | default", {
   expect_error(tag_label_write("not a tag"))
 
   # Work under normal condition
-  file_labeled <- tag_label_write(tag_classified, file = "./data/tag-label/18LX-test.csv")
+  file_labeled <- tag_label_write(tag_classified, file = "./data/tag-label/18LX.csv")
   csv <- read.csv(file_labeled)
   expect_true(all(c("series", "timestamp", "value", "label") %in% names(csv)))
   expect_true(all(c("pressure", "acceleration") %in% csv$series))

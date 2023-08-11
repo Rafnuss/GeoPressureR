@@ -1,7 +1,6 @@
-#' Return a likelihood map from a `tag`
+#' Extract a `map` from a `tag`
 #'
-#'
-#' @param tag A GeoPressureR `tag` object.
+#' @param tag a GeoPressureR `tag` object.
 #' @param likelihood Field of the `tag` list containing the likelihood map (character). Possible
 #' value are `map_pressure`, `map_light`, `map_pressure_mse`, `map_pressure_mse`,
 #' `map_pressure_mse`, `mask_water`. Default `NA` is to take the product of `map_pressure` and

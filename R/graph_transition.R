@@ -1,6 +1,6 @@
-#' Compute transition probability of graph
+#' Compute transition probabilities of a `graph`
 #'
-#' Use the movement model (see `graph_add_movement()`) to convert ground speed `gs` (or airspeed `as`
+#' Use the movement model (see `graph_set_movement()`) to convert ground speed `gs` (or airspeed `as`
 #' if available) into the transition probability of the edges of the graph.
 #'
 #' The vector return correspond to the elements of the transition matrices
@@ -12,7 +12,7 @@
 #' transition probability.
 #'
 #' @param graph Graph constructed with `graph_create()` and with a movement (see
-#' `graph_add_movement()`).
+#' `graph_set_movement()`).
 #' @return Vector of transition probability for each edge.
 #'
 #' @family movement
@@ -27,10 +27,10 @@ graph_transition <- function(graph) {
 
 
   graph_assert(graph, "movement")
-  if (graph$movement$type == "as") {
-    transition <- speed2prob(graph$gs - graph$ws, graph$movement)
-  } else if (graph$movement$type == "gs") {
-    transition <- speed2prob(graph$gs, graph$movement)
+  if (graph$param$movement$type == "as") {
+    transition <- speed2prob(graph$gs - graph$ws, graph$param$movement)
+  } else if (graph$param$movement$type == "gs") {
+    transition <- speed2prob(graph$gs, graph$param$movement)
   }
 
   return(transition)

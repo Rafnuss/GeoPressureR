@@ -1,3 +1,6 @@
+# GeoPressureR v3.0-beta
+
+
 # GeoPressureR v2.7-beta
 ## Major
 * Major fix in the computation of the marginal map https://github.com/Rafnuss/GeoPressureR/commit/bd1103fda0c5b4e3c0f218ee7bcf3fbc69dc6123

@@ -1,4 +1,4 @@
-#' Export csv label file
+#' Write a tag label file
 #'
 #' @description
 #' This function writes the csv file of labelled activity and pressure which can
@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = T)
+#' tag <- tag_create("18LX", quiet = TRUE)
 #'
 #' # Writing unlabeled tag will initialize the labelling for trainset
 #' file <- tag_label_write(tag)
@@ -26,9 +26,7 @@
 #'
 #' # Writing labeled tag will use the existing labels
 #' tag <- tag_label(tag)
-#' file <- tag_label_write(tag,
-#'   file = glue::glue("./data/tag-label/{tag$param$id}-v2.csv")
-#' )
+#' file <- tag_label_write(tag)
 #' str(read.csv(file))
 #'
 #' @family tag_label

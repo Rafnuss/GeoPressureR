@@ -1,4 +1,4 @@
-#' Add label to tag
+#' Label a `tag` object
 #'
 #' @description
 #' This function performs the following operations:
@@ -11,7 +11,7 @@
 #' If the label file does not exist, the function will suggest to create it with
 #' [`tag_label_write()`] and use [`tag_label_auto()`] if acceleration data exists.
 #'
-#' @param tag A GeoPressure `tag` object
+#' @param tag a GeoPressure `tag` object.
 #' @param file Absolute or relative path of the label file.
 #' @inheritDotParams tag_label_stap warning_flight_duration warning_stap_duration quiet
 #'
@@ -30,10 +30,11 @@
 #' - `stap_id` stationary period of the measurement matching the `tag$stap`.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX")
+#' tag <- tag_create("18LX", quiet = TRUE)
 #'
 #' tag <- tag_label(tag)
-#' tag
+#'
+#' str(tag)
 #'
 #' @family tag_label
 #' @seealso [GeoPressureManual | Pressure Map

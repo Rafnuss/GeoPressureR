@@ -4,10 +4,23 @@
 \alias{plot_tag_acceleration}
 \title{Plot acceleration data of a \code{tag}}
 \usage{
-plot_tag_acceleration(tag, plot_plotly = TRUE)
+plot_tag_acceleration(
+  tag,
+  plot_plotly = TRUE,
+  label_auto = TRUE,
+  min_duration = 30
+)
 }
 \arguments{
-\item{plot_plotly}{Logical to display interactive plot with \code{plotly}}
+\item{tag}{a GeoPressureR \code{tag} object}
+
+\item{plot_plotly}{logical to use \code{plotly}}
+
+\item{label_auto}{logical to compute and plot the flight label using \code{tag_label_auto()}. Only if
+labels are not already present on tag$acceleration$label}
+
+\item{min_duration}{Minimal duration (in minutes) to consider a high activity as migratory
+flight.}
 }
 \description{
 This function display a plot of acceleration timeseries recorded by a tag

@@ -2,38 +2,30 @@
 % Please edit documentation in R/pressurepath_update.R
 \name{pressurepath_update}
 \alias{pressurepath_update}
-\title{Update tag label and recompute tag}
+\title{Update a \code{pressurepath}}
 \usage{
-pressurepath_update(pressurepath, tag_new)
+pressurepath_update(pressurepath, tag, path = tag2path(tag))
 }
 \arguments{
-\item{path_pres}{pressurepath_create}
+\item{pressurepath}{a GeoPressureR \code{pressurepath} data.frame}
+
+\item{tag}{a GeoPressureR \code{tag} object.}
+
+\item{path}{a GeoPressureR \code{path} data.frame.}
 }
 \value{
-a list containing the new \code{tag} and \code{path_pres}.
+a list containing the new \code{pressurepath}.
 }
 \description{
 When updating the labelling file of a tag, often, only a few stationary periods are changing. To
 avoid recomputing the entire workflow, this function figure out which stationary period have
-been changing on only update those in \code{tag$map_pressure} and \code{path_pres}.
+been changing on only update those in \code{tag$map_pressure} and \code{pressurepath}.
 }
-\examples{
-tag <- tag_label(tag)
-
-tag <- tag |>
-  tag_create(extent = c(-16, 23, 0, 50), scale = 1) |>
-  geopressure_map(tag$pressure)
-
-path_pres <- tag |>
-  map2path() |>
-  pressurepath_create(tag$pressure)
-
-update <- tag_update(
-  file = "data/1-tag_label/18LX-labeled-modif.csv",
-  tag,
-  tag,
-  path_pres
-)
-
-list2env(update, env = .GlobalEnv)
+\seealso{
+Other pressurepath: 
+\code{\link{geopressure_timeseries}()},
+\code{\link{plot_pressurepath}()},
+\code{\link{pressurepath2altitude}()},
+\code{\link{pressurepath_create}()}
 }
+\concept{pressurepath}

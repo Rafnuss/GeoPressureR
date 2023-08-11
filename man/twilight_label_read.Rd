@@ -2,36 +2,41 @@
 % Please edit documentation in R/twilight_label_read.R
 \name{twilight_label_read}
 \alias{twilight_label_read}
-\title{Read label file of light}
+\title{Read a twilight label file}
 \usage{
 twilight_label_read(
   tag,
-  file = glue::glue("data/2_light/{tag$id}-labeled.csv")
+  file = glue::glue("./data/twilight-label/{tag$param$id}-labeled.csv")
 )
 }
 \arguments{
-\item{tag}{List containing the data logger dataset (see \code{\link[=tag_read]{tag_read()}}) It needs to contain
-a \code{twilight} data.frame created with \code{\link[=twilight_create]{twilight_create()}}.}
+\item{tag}{a GeoPressureR \code{tag} object}
 
 \item{file}{csv file of the labels to be read.}
 }
 \value{
-Same twilight data.frame as input, updated with the labels \code{tag$twilight$label}.
+Same \code{tag} object, updated with the labels \code{tag$twilight$label}.
 }
 \description{
-This function read an exported csv file from TRAINSET \url{https://trainset.geocene.com/} and update
-the data.frame twilight.
+This function read an exported csv file from TRAINSET \url{https://trainset.raphaelnussbaumer.com/}
+and update the twilight data \code{tag$twilight}.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
-tag <- tag_read("18LX") |> tag_label()
-tag <- twilight_create(tag)
 
-twilight <- twilight_label_read(twilight)
-str(twilight)
+tag <- tag_create("18LX", quiet = TRUE) |>
+  tag_label(quiet = TRUE) |>
+  twilight_create()
+plot(tag, type = "twilight", plot_plotly = F) + ggplot2::ggtitle("Before label")
+
+tag <- twilight_label_read(tag)
+str(tag$twilight)
+
+plot(tag, type = "twilight", plot_plotly = F) + ggplot2::ggtitle("After label")
 }
 \seealso{
 Other twilight: 
+\code{\link{light2mat}()},
 \code{\link{twilight_create}()},
 \code{\link{twilight_label_write}()}
 }

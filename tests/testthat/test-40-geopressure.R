@@ -31,12 +31,12 @@ known <- data.frame(
 )
 
 tag <- structure(list(
-  id = "18LX",
+  param = param_create("18LX"),
   stap = stap,
   pressure = pressure
 ), class = "tag")
 
-tag <- tag_setmap(tag, extent, scale = scale)
+tag <- tag_set_map(tag, extent, scale = scale)
 
 tag <- geopressure_map_mismatch(tag)
 
@@ -44,6 +44,7 @@ test_that("geopressure_map_mismatch() | default output", {
   expect_type(tag, "list")
   expect_equal(length(dim(tag$map_pressure_mse[[1]])), 2)
   expect_equal(length(dim(tag$map_pressure_mask[[1]])), 2)
+  expect_s3_class(tag$map_pressure_mask, "map")
   expect_true(tag$stap$nb_sample == 4)
 })
 
@@ -56,6 +57,11 @@ test_that("geopressure_map_mismatch() | timeout and worker", {
 tag <- geopressure_map_likelihood(tag)
 
 test_that("geopressure_map_likelihood() | default output", {
+  expect_equal(tag$map_pressure$id, "18LX")
+  expect_equal(tag$map_pressure$extent, extent)
+  expect_equal(tag$map_pressure$scale, scale)
+  expect_equal(tag$map_pressure$type, "pressure")
+  expect_s3_class(tag$map_pressure, "map")
   expect_equal(length(dim(tag$map_pressure[[1]])), 2)
 
   expect_error(geopressure_map_likelihood(tag, s = "not_a_number"))
@@ -65,7 +71,8 @@ test_that("geopressure_map_likelihood() | default output", {
 
 
 test_that("geopressure_map() | default output", {
-  tag <- tag_setmap(tag, extent, scale)
+  tag <- tag_set_map(tag, extent, scale)
   expect_no_error(tag <- geopressure_map(tag))
-  expect_true(assertthat::has_name(tag, c("id", "stap", "map_pressure", "param", "mask_water")))
+  expect_true(assertthat::has_name(tag, c("stap", "map_pressure", "param", "mask_water")))
+  expect_true(assertthat::has_name(tag$map_pressure, c("id", "stap", "data", "extent", "scale", "lat", "lon", "type")))
 })

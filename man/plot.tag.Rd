@@ -2,46 +2,62 @@
 % Please edit documentation in R/plot.tag.R
 \name{plot.tag}
 \alias{plot.tag}
-\title{Plot \code{tag}}
+\title{Plot a \code{tag} object}
 \usage{
-\method{plot}{tag}(tag, type = "pressure", ...)
+\method{plot}{tag}(x, type = NULL, ...)
 }
 \arguments{
-\item{type}{type of the plot to display. One of "pressure", "acceleration", "light", "twilight"
-or "map"}
+\item{x}{a GeoPressureR \code{tag} object.}
 
-\item{...}{
-  Arguments passed on to \code{\link[=plot_tag_pressure]{plot_tag_pressure}}, \code{\link[=plot_tag_acceleration]{plot_tag_acceleration}}, \code{\link[=plot_tag_light]{plot_tag_light}}, \code{\link[=plot_tag_twilight]{plot_tag_twilight}}, \code{\link[=plot_tag_map]{plot_tag_map}}
-  \describe{
-    \item{\code{stap_length_danger}}{Threshold number of pressure datapoints flagged as ️danger (hourly).}
-    \item{\code{stap_length_warning}}{Threshold number of pressure datapoints flagged as ️warning (hourly).}
-    \item{\code{pressure_diff_danger}}{Threshold of pressure hourly difference marking as ️danger (hPa)}
-    \item{\code{pressure_diff_warning}}{Threshold of pressure hourly difference marking as ️warning (hPa)}
-    \item{\code{plot_leaflet}}{Logical defining if the plot is an interactive \code{leaflet} map or a static
-\code{terra::plot} map.}
-    \item{\code{likelihood}}{Field of the \code{tag} list containing the likelihood map (character). Default
-\code{NA} is to take the product of \code{map_pressure} and \code{map_light}, or only \code{map_pressure} if
-\code{map_light} is not available.}
-    \item{\code{provider}}{the name of the provider (see
-\url{https://leaflet-extras.github.io/leaflet-providers/preview/} and
-\url{https://github.com/leaflet-extras/leaflet-providers})}
-    \item{\code{palette}}{The colors or color function that values will be mapped to}
-    \item{\code{opacity}}{the base opacity of the raster, expressed from 0 to 1}
-    \item{\code{legend}}{logical or character. If not \code{FALSE} a legend is drawn. The character value can be used to indicate where the legend is to be drawn. For example "topright" or "bottomleft". Use \code{plg} for more refined placement. Not supported for continuous legends (the default for raster data)}
-  }}
+\item{type}{type of the plot to display. One of \code{"pressure"}, \code{"acceleration"}, \code{"light"},
+\code{"twilight"}, \code{"map"}, \code{"map_pressure"}, \code{"map_light"}, \code{"map_pressure_mse"},
+\code{"map_pressure_mask"}, \code{"mask_water"}}
 
-\item{plot_plotly}{Logical to display interactive plot with \code{plotly}}
-}
-\value{
-\code{tag} is returned invisibly and unchanged
+\item{...}{additional parameters for \code{plot_tag_pressure()}, \code{plot_tag_acceleration()},
+\code{plot_tag_light()}, \code{plot_tag_twilight()} or \code{plot.map()}}
 }
 \description{
-This function display the basic information on a tag list
+This function plot a GeoPressureR \code{tag} object as a timeseries or a map.
+}
+\examples{
+setwd(system.file("extdata/", package = "GeoPressureR"))
+tag <- tag_create("18LX", quiet = TRUE) |>
+  tag_label(quiet = TRUE)
+
+# Plot pressure by default
+plot(tag)
+plot(tag, type = "acceleration")
+plot(tag, type = "light")
+
+tag <- twilight_create(tag) |>
+  twilight_label_read()
+
+plot(tag, type = "twilight")
+
+tag <- tag_set_map(tag,
+  extent = c(-16, 23, 0, 50),
+  scale = 4,
+  known = data.frame(
+    stap_id = 1,
+    known_lon = 17.05,
+    known_lat = 48.9
+  )
+) |>
+  geopressure_map(quiet = TRUE)
+
+# default is now to take "map"
+plot(tag)
+
+tag <- geolight_map(tag)
+
+plot(tag)
+plot(tag, type = "map_light")
+
 }
 \seealso{
 Other tag: 
-\code{\link{is.tag}()},
 \code{\link{print.tag}()},
-\code{\link{tag_create}()}
+\code{\link{tag_create}()},
+\code{\link{tag_update}()}
 }
 \concept{tag}

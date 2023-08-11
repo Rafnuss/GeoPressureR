@@ -2,22 +2,23 @@
 % Please edit documentation in R/tag_create.R
 \name{tag_create}
 \alias{tag_create}
-\title{Read tag data}
+\title{Create a \code{tag} object}
 \usage{
 tag_create(
   id,
-  directory = glue::glue("data/0-tag/{id}/"),
+  directory = glue::glue("./data/raw-tag/{id}/"),
   pressure_file = "*.pressure",
   light_file = "*.glf",
   acceleration_file = "*.acceleration",
-  crop_start = "1900-01-01",
-  crop_end = "2100-01-01"
+  crop_start = NULL,
+  crop_end = NULL,
+  quiet = FALSE
 )
 }
 \arguments{
-\item{id}{Unique identifier of the tag (character)}
+\item{id}{Unique identifier of a tag.}
 
-\item{directory}{Path of the directory where the tag files can be read}
+\item{directory}{Path of the directory where the tag files can be read.}
 
 \item{pressure_file}{Name of the file with pressure data. Extension must be \code{.pressure} or
 \code{.deg} (required).}
@@ -31,66 +32,74 @@ to ignore).}
 \item{crop_start}{Remove all data before this date (POSIXct or character in UTC).}
 
 \item{crop_end}{Remove all data after this date (POSIXct or character in UTC).}
+
+\item{quiet}{logical to hide messages about the progress.}
 }
 \value{
-A list containing
+A GeoPressureR \code{tag} object containing
 \itemize{
-\item \code{id} character of the unique identifier of the tag
+\item \code{param} parameter object (see \link{param_create})
 \item \code{pressure} data.frame with column \code{date} and \code{value}
 \item \code{light} (optional) same structure as pressure
 \item \code{acceleration} (optional) same structure as pressure
 }
 }
 \description{
-Imports multi-sensor logger data from a folder (\code{directory}) and optionally crops at specific
-date. The \verb{*_file} arguments are matched using a regex expression (e.g., \code{"*.pressure"}
+Create a GeoPressureR \code{tag} object from sensor(s) data and optionally crops at specific
+date. The \verb{*_file} arguments are matched using a \link{regex} expression (e.g., \code{"*.pressure"}
 matches any file with the extension \code{pressure}).
 
 The current implementation can read the files from:
 \itemize{
 \item \href{https://www.vogelwarte.ch/en/projects/bird-migration/tracking-devices-miniaturized-geolocators}{Swiss Ornithological Institute (SOI) }
-(default) with \code{pressure_file = "*.pressure"}, \code{light_file = "*.glf"} and
-\code{acceleration_file = "*.acceleration"}
-\item \href{http://www.migratetech.co.uk/}{Migrate Technology} with \code{pressure_file = "*.deg"},
-\code{light_file = "*.lux"} and \code{acceleration_file = "*.deg"}
+(default)
+\itemize{
+\item \code{pressure_file = "*.pressure"}
+\item \code{light_file = "*.glf"}
+\item \code{acceleration_file = "*.acceleration"}
+}
+\item \href{http://www.migratetech.co.uk/}{Migrate Technology}:
+\itemize{
+\item \code{pressure_file = "*.deg"}
+\item \code{light_file = "*.lux"}
+\item \code{acceleration_file = "*.deg"}
+}
 }
 
-Please create \href{https://github.com/Rafnuss/GeoPressureR/issues/new}{an issue on Github} if you have data
-in a format not supported yet.
+Use \code{NULL} to hide the message warning about the absence of a sensor file.
+
+Please create \href{https://github.com/Rafnuss/GeoPressureR/issues/new}{an issue on Github} if you
+have data in a format not supported yet.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
 
-tag <- tag_create("18LX")
-str(tag)
+tag_create("18LX")
 
-tag <- tag_create("18LX", crop_start = "2017-08-01", crop_end = "2017-08-05")
-str(tag)
+tag_create("18LX", crop_start = "2017-08-01", crop_end = "2017-08-05")
 
 # For Migrate Technology file, use
-tag <- tag_create("CB621",
+tag_create("CB621",
   pressure_file = "*.deg",
   light_file = "*.lux",
-  acceleration_file = NA
+  acceleration_file = NULL
 )
-str(tag)
 
 # You can also specify exactly the file in case multiple file with the same
 # extension exist in your directory
-tag <- tag_create("CB621",
+tag_create("CB621",
   pressure_file = "CB621_BAR.deg",
   light_file = NA,
   acceleration_file = NA
 )
-str(tag)
 
 }
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#read-geolocator-data}{GeoPressureManual | Pressure Map }
 
 Other tag: 
-\code{\link{is.tag}()},
 \code{\link{plot.tag}()},
-\code{\link{print.tag}()}
+\code{\link{print.tag}()},
+\code{\link{tag_update}()}
 }
 \concept{tag}

@@ -35,18 +35,18 @@ test_that("check speed2power()", {
   expect_no_error(GeoPressureR:::speed2power(seq(0, 20), bird))
 })
 
-test_that("check graph_add_movement() with groundspeed/gamma", {
+test_that("check graph_set_movement() with groundspeed/gamma", {
   speed <- seq(0, 100)
   graph <- structure(list(
     id = NULL, s = NULL, t = NULL, gs = 1, obs = NULL, sz = NULL, stap = NULL, equipment = NULL,
     retrieval = NULL, extent = NULL, scale = NULL, mask_water = NULL
   ), class = "graph")
-  graph <- graph_add_movement(graph)
-  expect_no_error(speed2prob(speed, graph$movement))
-  expect_no_error(speed2prob(speed + 1 * 1i, graph$movement))
-  expect_no_error(graph_add_movement(graph, shape = 8, scale = 2))
-  expect_no_error(graph_add_movement(graph, low_speed_fix = 0))
-  expect_no_error(graph_add_movement(graph, power2prob = \(power) (1 / power)^6))
+  graph <- graph_set_movement(graph)
+  expect_no_error(speed2prob(speed, graph$param$movement))
+  expect_no_error(speed2prob(speed + 1 * 1i, graph$param$movement))
+  expect_no_error(graph_set_movement(graph, shape = 8, scale = 2))
+  expect_no_error(graph_set_movement(graph, low_speed_fix = 0))
+  expect_no_error(graph_set_movement(graph, power2prob = \(power) (1 / power)^6))
 })
 
 test_that("check speed2prob() with groundspeed/logis", {
@@ -56,9 +56,9 @@ test_that("check speed2prob() with groundspeed/logis", {
     retrieval = NULL, extent = NULL, scale = NULL, mask_water = NULL
   ), class = "graph")
 
-  expect_no_error(graph_add_movement(graph, method = "logis"))
-  expect_no_error(graph_add_movement(graph, shape = 8, scale = 2, method = "logis"))
-  expect_no_error(graph_add_movement(graph, low_speed_fix = 0, method = "logis"))
+  expect_no_error(graph_set_movement(graph, method = "logis"))
+  expect_no_error(graph_set_movement(graph, shape = 8, scale = 2, method = "logis"))
+  expect_no_error(graph_set_movement(graph, low_speed_fix = 0, method = "logis"))
 })
 
 test_that("check speed2prob() with airspeed/bird", {
@@ -67,7 +67,7 @@ test_that("check speed2prob() with airspeed/bird", {
     equipment = NULL, retrieval = NULL, extent = NULL, scale = NULL, mask_water = NULL
   ), class = "graph")
   bird <- bird_create("Acrocephalus arundinaceus")
-  expect_no_error(graph_add_movement(graph, bird = bird))
-  expect_no_error(graph_add_movement(graph, bird = bird, power2prob = \(power) (1 / power)^6))
-  expect_no_error(graph_add_movement(graph, bird = bird, low_speed_fix = 0))
+  expect_no_error(graph_set_movement(graph, bird = bird))
+  expect_no_error(graph_set_movement(graph, bird = bird, power2prob = \(power) (1 / power)^6))
+  expect_no_error(graph_set_movement(graph, bird = bird, low_speed_fix = 0))
 })

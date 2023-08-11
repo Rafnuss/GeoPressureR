@@ -2,14 +2,14 @@
 % Please edit documentation in R/path2edge.R
 \name{path2edge}
 \alias{path2edge}
-\title{Edges flight info from path}
+\title{Extract the edges of a \code{path} from a \code{graph}}
 \usage{
 path2edge(path, graph)
 }
 \arguments{
-\item{path}{Data.frame containing at least \code{stap_id} and \code{ind}.}
+\item{path}{a GeoPressureR \code{path} data.frame}
 
-\item{graph}{graph constructed with \code{\link[=graph_create]{graph_create()}}.}
+\item{graph}{a GeoPressureR \code{graph} object}
 }
 \value{
 Data.frame of the edge containing:
@@ -19,14 +19,20 @@ Data.frame of the edge containing:
 \item \code{gs} : groundspeed vector expressed as a complex number. You can compute the groundspeed value
 (km/h) with \code{abs(gs)}, the W-E and S-N component of the flight with \code{Re(gs)} and \code{Im(gs)}, and
 the angle/direction with \code{Arg(gs)}.
-\item \code{dist} : Distance (in km) of the flight.
+\item \code{distance} : Distance (in km) of the flight.
 \item \code{ws}: if computed with \code{graph_add_wind()}, same value as \code{gs}. Airspeed is computed with
 \code{as = gs - ws} in complex number to keep the vectorial additive properties.
 }
 }
 \description{
-Return the flight information of the edges composing a given path.
+Retrieve the edges in a \code{graph} corresponding to the flight transition defined by a \code{path}. These
+edges can be useful to extract flight information specific to a path.
 }
 \seealso{
-\code{\link[=graph_create]{graph_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#energy}{GeoPressureManual | Wind graph}
+\href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#energy}{GeoPressureManual | Wind graph}
+
+Other path: 
+\code{\link{ind2path}()},
+\code{\link{plot_path}()}
 }
+\concept{path}

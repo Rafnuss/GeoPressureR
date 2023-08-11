@@ -35,7 +35,7 @@
 #' @param end_time If `pressure` is not provided, `end_time` defines the end time of
 #' the timeseries as POSIXlt.
 #' @inheritParams geopressure_map
-#' @param quiet Logical to hide messages about the progress
+#' @param quiet logical to hide messages about the progress
 #' @return A data.frame containing
 #' - `date` POSIXct date time
 #' - `pressure_era5` pressure (hPa)
@@ -76,7 +76,7 @@
 #' )
 #' @family pressurepath
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-#' “Global Positioning with Animal‐borne Pressure Sensors.” *Methods in Ecology and Evolution*.
+#' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14, 1118–1129
 #'  <https://doi.org/10.1111/2041-210X.14043>.}
 #' @export
 geopressure_timeseries <- function(lat,

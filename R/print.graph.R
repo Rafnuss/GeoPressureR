@@ -1,11 +1,28 @@
-#' Print `graph`
+#' Print a `graph` object
 #'
-#' This function display the basic information on a `graph` object.
+#' This function displays the information of a `graph` object.
 #
-#' @param x A `graph` list
-#' @param ... arguments passed from other methods
+#' @param x a GeoPressureR `graph` object.
+#' @param ... arguments passed to other methods
 #'
 #' @return `graph` is returned invisibly and unchanged
+#'
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE) |>
+#'   tag_label(quiet = TRUE) |>
+#'   twilight_create() |>
+#'   twilight_label_read() |>
+#'   tag_set_map(
+#'     extent = c(-16, 23, 0, 50),
+#'     known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
+#'   ) |>
+#'   geopressure_map(quiet = TRUE) |>
+#'   geolight_map(quiet = TRUE)
+#'
+#' graph <- graph_create(tag)
+#' print(graph)
+#'
 #' @family graph
 #' @method print graph
 #' @export
@@ -22,29 +39,30 @@ print.graph <- function(x, ...) {
   }
 
   cli::cli_h3("Geographical parameters ({.field scale} and {.field extent})")
-  geo <- map_expand(graph$extent, graph$scale)
-  cli::cli_text("Extent W-E: {.val {graph$extent[1]}}\u00b0 to {.val {graph$extent[2]}}\u00b0")
-  cli::cli_text("Extent S-N: {.val {graph$extent[3]}}\u00b0 to {.val {graph$extent[4]}}\u00b0")
-  cli::cli_text("Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}\u00b0")
-  cli::cli_text("Resolution lat-lon: {.val {1/graph$scale}}\u00b0")
+  geo <- map_expand(graph$param$extent, graph$param$scale)
+  cli::cli_text("Extent W-E: {.val {graph$param$extent[1]}}\u00b0 to {.val {graph$param$extent[2]}}\u00b0")
+  cli::cli_text("Extent S-N: {.val {graph$param$extent[3]}}\u00b0 to {.val {graph$param$extent[4]}}\u00b0")
+  cli::cli_text("Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}")
+  cli::cli_text("Resolution lat-lon: {.val {1/graph$param$scale}}\u00b0")
 
   cli::cli_h3("Graph size")
-  geo <- map_expand(graph$extent, graph$scale)
-  cli::cli_li("{.val {length(graph$s)}} edge{?s}")
+  geo <- map_expand(graph$param$extent, graph$param$scale)
   cli::cli_li("{.val {length(graph$equipment)}} equipement node{?s}")
   cli::cli_li("{.val {length(graph$retrieval)}} retrieval node{?s}")
+  cli::cli_li("{prettyNum(length(unique(c(graph$equipment, graph$t))), big.mark=',')} nodes")
+  cli::cli_li("{prettyNum(length(graph$s), big.mark=',')} edges")
 
   cli::cli_h3("Movement model")
   if ("ws" %in% names(graph)) {
-    cli::cli_inform(c("v" = "Windspeed computed!\f"))
+    cli::cli_inform(c("v" = "Windspeed computed!"))
   } else {
-    cli::cli_inform(c("!" = "Windspeed not computed. Use {.fun graph_add_wind}\f"))
+    cli::cli_inform(c("!" = "Windspeed not computed. Use {.fun graph_add_wind}"))
   }
 
-  if ("movement" %in% names(graph)) {
-    cli::cli_inform(c("v" = "Movement model defined for {.field {graph$movement$type}}\f"))
+  if ("movement" %in% names(graph$param)) {
+    cli::cli_inform(c("v" = "Movement model defined for {.field {graph$param$movement$type}}"))
   } else {
-    cli::cli_inform(c("x" = "No movement model defined. Use {.fun graph_add_movement}\f"))
+    cli::cli_inform(c("x" = "No movement model defined. Use {.fun graph_set_movement}"))
   }
 
   return(invisible(graph))

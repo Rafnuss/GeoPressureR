@@ -1,15 +1,37 @@
-#' Plot twilight data of a `tag`
+#' Plot a `map` object
 #'
-#' This function display a plot of twilight timeseries recorded by a tag
+#' This function plot a GeoPressureR `map` object.
 #'
-#' @param map A GeoPressureR `map` matrix
-#' @param plot_leaflet Logical to use an interactive `leaflet` map instead of `terra::plot`
-#' @param path A GeoPressureR `path` data.frame
+#' @param map A GeoPressureR `map` object
+#' @param plot_leaflet logical to use an interactive `leaflet` map instead of `terra::plot`
+#' @param path a GeoPressureR `path` data.frame
 #' @inheritParams leaflet::addProviderTiles
 #' @inheritParams leaflet::colorNumeric
 #' @inheritParams leaflet::addRasterImage
 #' @inheritParams terra::plot
 #' @inheritParams graph_create
+#'
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE) |>
+#'   tag_label(quiet = TRUE) |>
+#'   tag_set_map(
+#'     extent = c(-16, 23, 0, 50),
+#'     scale = 4
+#'   ) |>
+#'   geopressure_map(quiet = TRUE)
+#'
+#' plot(tag$map_pressure)
+#'
+#' plot(tag$map_pressure, plot_leaflet = FALSE)
+#'
+#' # `thr_likelihood` can be used to visualize its effect in `graph_create`
+#' plot(tag$map_pressure,
+#'   thr_likelihood = 0.9,
+#'   palette = "viridis",
+#'   opacity = 1,
+#'   provider = "CartoDB.DarkMatterNoLabels"
+#' )
 #'
 #' @family map
 #' @method plot map
@@ -23,12 +45,11 @@ plot.map <- function(x,
                      opacity = 0.8,
                      legend = FALSE,
                      ...) {
-
   map <- x
 
   # Eliminate unlikely pixel, same as in the creation of graph
   map$data <- lapply(map$data, function(m) {
-    if (!is.null(m)){
+    if (!is.null(m)) {
       # Normalize
       m <- m / sum(m, na.rm = TRUE)
 
@@ -39,7 +60,6 @@ plot.map <- function(x,
 
       # Set to NA all value below this threashold
       m[m < thr_prob] <- NA
-
     }
     return(m)
   })
@@ -48,7 +68,7 @@ plot.map <- function(x,
   r <- rast.map(map)
 
   if (plot_leaflet) {
-    #require("terra") required to attach has.RGB which has missing dependancy
+    # require("terra") required to attach has.RGB which has missing dependancy
 
     grp <- glue::glue("#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - \\
                       {format(map$stap$end , format = '%d %b %H:%M')}")

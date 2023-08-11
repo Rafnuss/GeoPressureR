@@ -1,18 +1,40 @@
-#' Marginal probability map
+#' Compute marginal probability map
 #'
 #' Compute the marginal probability map from a graph. The computation uses the [forward
 #' backward algorithm](https://en.wikipedia.org/wiki/Forward%E2%80%93backward_algorithm). See
 #' section 2.3.2 in Nussbaumer (2023) for more information.
 #'
-#' @param graph graph constructed with [`graph_create()`].
+#' @param graph a GeoPressureR `graph` with defined movement model `graph_set_movement()`.
+#'
 #' @return A list of the marginal maps for each stationary period (even those not modelled). Best to
 #' include within `tag`.
+#'
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE) |>
+#'   tag_label(quiet = TRUE) |>
+#'   twilight_create() |>
+#'   twilight_label_read() |>
+#'   tag_set_map(
+#'     extent = c(-16, 23, 0, 50),
+#'     known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
+#'   ) |>
+#'   geopressure_map(quiet = TRUE) |>
+#'   geolight_map(quiet = TRUE)
+#'
+#' # Create graph
+#' graph <- graph_create(tag)
+#'
+#' # Define movement model
+#' graph <- graph_set_movement()
+#'
+#' print(graph)
 #'
 #' @seealso [GeoPressureManual | Basic graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map)
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
-#' Sheldon. 2023. “Reconstructing bird trajectories from pressure and wind data using a highly
-#' optimized hidden Markov model.” *Methods in Ecology and Evolution*.
+#' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
+#' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
 #' <https://doi.org/10.1111/2041-210X.14082>.}
 #' @family graph
 #' @export

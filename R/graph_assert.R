@@ -1,12 +1,12 @@
-#' Assert status of a `graph` object
+#' Assert the status of a `graph`
 #'
-#' These functions return logical about the contents of a `graph` object.
+#' This function check the condition of a `graph` object.
 #'
 #' @param graph a GeoPressureR `graph` object
-#' @param condition condition to assert `tag` for. One of "tag" (default), "label", "stap",
-#' "setmap", "pressure_map" and "map_pressure_mismatch", "twilight"
+#' @param condition condition to assert `graph` for. One of `"graph"` (default), `"movement"`,
+#' or `"full"`.
 #'
-#' @return logical indicating the `tag` object has the relevant element
+#' @return logical indicating whether the `graph` object fulfill the condition.
 #' @export
 graph_assert <- function(graph, condition = "graph") {
   status <- graph_status(graph)
@@ -16,7 +16,7 @@ graph_assert <- function(graph, condition = "graph") {
   } else if (condition == "movement") {
     msg <- c(
       "x" = "The `graph` object has not movement model.",
-      ">" = "Use {.fun graph_add_movement} to define the movement model."
+      ">" = "Use {.fun graph_set_movement} to define the movement model."
     )
   } else if (condition == "full") {
     msg <- c(
@@ -34,27 +34,18 @@ graph_assert <- function(graph, condition = "graph") {
   cli::cli_abort(msg)
 }
 
-#' Return status of a `graph`
-#'
-#' These functions return a vector of the status of `graph`.
-#'
-#'
-#' @param graph a `graph` object
-#'
-#' @return logical indicating the `tag` object has the relevant element
 #' @noRd
 graph_status <- function(graph) {
   assertthat::assert_that(inherits(graph, "graph"))
 
   assertthat::assert_that(assertthat::has_name(graph, c(
     "s", "t", "gs", "obs", "sz", "stap",
-    "equipment", "retrieval", "extent", "scale",
-    "mask_water"
+    "equipment", "retrieval", "mask_water"
   )))
 
   status <- c()
 
-  if (assertthat::has_name(graph, "movement")) {
+  if (assertthat::has_name(graph$param, "movement")) {
     status <- append(status, "movement")
   }
   if (length(graph$s) > 0) {
