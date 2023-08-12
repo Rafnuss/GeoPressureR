@@ -32,8 +32,7 @@ path2edge <- function(path, graph) {
   assertthat::assert_that(all(unique(path$stap_id) == graph$stap$stap_id))
 
   # Number of paths
-  nj <- nrow(path) / nrow(graph$stap)
-  assertthat::assert_that(nj == round(nj))
+  nj <- length(unique(path$j))
 
   ind2d <- matrix(path$ind[!is.na(path$ind)], nrow = nj)
   lat <- matrix(path$lat[!is.na(path$ind)], nrow = nj)
@@ -69,8 +68,11 @@ path2edge <- function(path, graph) {
     t = graph$t
   )
 
+  # Shorten graph to only node of interest
+  graph_st_s <- graph_st[graph_st$s %in% path_st$s & graph_st$t %in% path_st$t, ]
+
   # Find index of edge
-  e <- merge(path_st, graph_st, all.x = TRUE, sort = FALSE)
+  e <- merge(path_st, graph_st_s, all.x = TRUE, sort = FALSE)
 
   edge <- data.frame(
     stap_s = ceiling(e$s / prod(graph$sz[c(1, 2)])),
