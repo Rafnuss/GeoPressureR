@@ -87,7 +87,7 @@ geopressure_map_mismatch <- function(tag,
 
   # Request URLS
   if (!quiet) {
-    cli::cli_progress_step("Generate requests for {.val {length(unique(pres$stapelev))}} stapelev (on GeoPressureAPI)", spinner = TRUE)
+    cli::cli_progress_step("Generate requests for {.val {length(unique(pres$stapelev))}} stapelev (on GeoPressureAPI): {.field {unique(pres$stapelev)}}")
   }
   res <- httr::POST("https://glp.mgravey.com/GeoPressure/v1/map/",
     body = body_df,
@@ -154,16 +154,15 @@ geopressure_map_mismatch <- function(tag,
 
 
   if (!quiet) {
+    msg <- glue::glue(" | 0/{length(urls)}")
     cli::cli_progress_step(
-      "Sending requests for {.val {length(urls)}} stationary periods: {.field {labels_ordered}}",
+      "Sending requests for {.val {length(urls)}} stapelev: {msg}",
       spinner = TRUE
     )
   }
-  if (!quiet) {
-    cli::cli_progress_bar(total = length(urls), type = "task")
-  }
   for (i_u in seq_len(length(urls))) {
     if (!quiet) {
+      msg <- glue::glue("{labels[i_u]} | {i_u}/{length(urls)}")
       cli::cli_progress_update(force = TRUE)
     }
     f[[i_u]] <- future::future(expr = {
@@ -185,14 +184,18 @@ geopressure_map_mismatch <- function(tag,
   # Get maps
   file <- c()
   map <- c()
+  if (!quiet) {
+    msg2 <- glue::glue("0/{length(urls)}")
+    cli::cli_progress_step(
+      "Compute maps (on GEE server) and download .geotiff: {msg2}",
+      spinner = TRUE
+    )
+  }
   tryCatch(
     expr = {
-      if (!quiet) {
-        cli::cli_progress_step("Compute maps (on GEE server) and download .geotiff")
-        cli::cli_progress_bar(total = length(urls), type = "tasks")
-      }
       for (i_u in seq_len(length(urls))) {
         if (!quiet) {
+          msg2 <- glue::glue("{i_u}/{length(urls)}")
           cli::cli_progress_update(force = TRUE)
         }
         file[i_u] <- future::value(f[[i_u]])
@@ -201,7 +204,7 @@ geopressure_map_mismatch <- function(tag,
       }
     },
     error = function(cond) {
-      cli::cli_inform(c("x" = "There was an error during the downloading and reading of the file. \\
+      cli::cli_warn(c("x" = "There was an error during the downloading and reading of the file. \\
       The original error is displayed below.\f"))
       message(cond)
       return(list(

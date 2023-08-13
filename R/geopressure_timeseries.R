@@ -117,7 +117,7 @@ geopressure_timeseries <- function(lat,
     body_df$endTime <- as.numeric(as.POSIXct(end_time))
   }
 
-  if (!quiet) cli::cli_progress_step("Generate request (on GeoPressureAPI)", spinner = TRUE)
+  if (!quiet) cli::cli_progress_step("Generate request (on GeoPressureAPI)")
   res <- httr::POST("https:///glp.mgravey.com/GeoPressure/v1/timeseries/",
     body = body_df,
     encode = "form",
@@ -148,14 +148,12 @@ geopressure_timeseries <- function(lat,
   }
 
   # Download the csv file
-  if (!quiet) cli::cli_progress_step("Sending request", spinner = TRUE)
+  if (!quiet) cli::cli_progress_step("Sending request")
   res2 <- httr::GET(res_data$url, httr::timeout(timeout))
 
   # read csv
   if (!quiet) {
-    cli::cli_progress_step("Compute timeseries (on GEE server) and download csv",
-      spinner = TRUE
-    )
+    cli::cli_progress_step("Compute timeseries (on GEE server) and download csv")
   }
   out <- as.data.frame(httr::content(res2,
     type = "text/csv",

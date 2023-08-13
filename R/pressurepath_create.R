@@ -77,6 +77,7 @@ pressurepath_create <- function(tag,
                                 workers = "auto",
                                 preprocess = FALSE,
                                 quiet = FALSE) {
+  cli::cli_progress_step("Prepare pressure")
   # Assert tag
   tag_assert(tag, "stap")
 
@@ -131,14 +132,20 @@ pressurepath_create <- function(tag,
   f <- c()
 
   if (!quiet) {
+    msg <- glue::glue("0/{nrow(path)}")
     cli::cli_progress_step(
-      "Generate requests (on GeoPressureAPI) for {nrow(path)} stationary periods",
+      "Generate requests (on GeoPressureAPI) for stap: {msg}",
       spinner = TRUE
     )
-    cli::cli_progress_bar(total = nrow(path), type = "task")
   }
   for (i_s in seq_len(nrow(path))) {
     i_stap <- path$stap_id[i_s]
+
+    if (!quiet) {
+      msg <- glue::glue("{i_s}/{nrow(path)}")
+      cli::cli_progress_update(force = TRUE)
+    }
+
     # Subset the pressure of the stationary period
     id_q <- rep(NA, length(stap_interp))
     if (any(0 == include_flight)) {
@@ -150,42 +157,53 @@ pressurepath_create <- function(tag,
     if (any(1 == include_flight)) {
       id_q[i_stap < stap_interp & stap_interp < i_stap + 1] <- 1
     }
+
+    # extract pressure for the stap
+    pressure_q <- subset(pressure, !is.na(id_q))
+
     # Send the query
-    f[[i_s]] <- future::future({
-      geopressure_timeseries(path$lat[i_s], path$lon[i_s],
-        pressure = subset(pressure, !is.na(id_q)),
-        quiet = TRUE
-      )
-    })
-    if (!quiet) {
-      cli::cli_progress_update(force = TRUE)
+    if (!is.na(path$lat[i_s]) & !is.na(path$lon[i_s]) & nrow(pressure_q) > 0) {
+      f[[i_s]] <- future::future({
+        geopressure_timeseries(path$lat[i_s], path$lon[i_s],
+          pressure = pressure_q,
+          quiet = TRUE
+        )
+      })
     }
   }
 
   pressure_timeseries <- list()
   if (!quiet) {
-    cli::cli_progress_step("Compute and download timeseries (on GEE server)",
+    msg2 <- glue::glue("0/{length(f)}")
+    cli::cli_progress_step(
+      "Compute and download timeseries (on GEE server): {msg2}",
       spinner = TRUE
     )
-    cli::cli_progress_bar(total = length(f), type = "task")
   }
   for (i_s in seq_len(length(f))) {
     i_stap <- path$stap_id[i_s]
-    tryCatch(
-      expr = {
-        pressure_timeseries[[i_s]] <- future::value(f[[i_s]])
-        pressure_timeseries[[i_s]]$stap_ref <- i_stap
-        if (!quiet) {
-          cli::cli_progress_update(force = TRUE)
+    if (!quiet) {
+      msg2 <- glue::glue("{i_s}/{length(f)}")
+      cli::cli_progress_update(force = TRUE)
+    }
+    if (inherits(f[[i_s]], "Future")) {
+      tryCatch(
+        expr = {
+          pressure_timeseries[[i_s]] <- future::value(f[[i_s]])
+          pressure_timeseries[[i_s]]$stap_ref <- i_stap
+        },
+        error = function(cond) {
+          cli::cli_warn("Error for stap {path$stap_id[i_s]}\f")
+          message(cond)
+          pressure_timeseries[[i_s]] <- data.frame()
         }
-      },
-      error = function(cond) {
-        cli::cli_warn("Error for stap {path$stap_id[i_s]}\f")
-        message(cond)
-      }
-    )
+      )
+    } else {
+      pressure_timeseries[[i_s]] <- data.frame()
+    }
   }
 
+  cli::cli_progress_step("Build pressurepath")
   pressurepath <- do.call("rbind", pressure_timeseries)
 
   attr(pressurepath, "id") <- tag$param$id
