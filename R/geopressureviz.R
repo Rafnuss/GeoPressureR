@@ -19,30 +19,36 @@ geopressureviz <- function(x,
                            marginal = NULL,
                            launch_browser = TRUE) {
 
-  if (file.exists(x)){
-    file <- x
-  } else if (is.character(x)){
-    file = glue::glue("./data/interim/{x}.RData")
-  } else {
-    file <- NULL
-  }
-
-  if (file.exists(file)) {
-    # Make of copy of the arguement so that they don't get overwritten
-    pressurepath0 <- pressurepath
-    marginal0 <- marginal
-    # Load interim
-    load(file)
-    # Overwrite loaded variable with arguments if provided
-    if (!is.null(pressurepath0)) {
-      pressurepath <- pressurepath0
+  if (!inherits(x, "tag")) {
+    if (is.character(x) & file.exists(x)){
+      file <- x
+    } else if (is.character(x)){
+      file = glue::glue("./data/interim/{x}.RData")
+    } else {
+      file <- NULL
     }
-    if (!is.null(marginal0)) {
-      marginal <- marginal0
+
+    if (is.character(file) & file.exists(file)) {
+      # Make of copy of the arguement so that they don't get overwritten
+      pressurepath0 <- pressurepath
+      marginal0 <- marginal
+      # Load interim
+      load(file)
+      # Overwrite loaded variable with arguments if provided
+      if (!is.null(pressurepath0)) {
+        pressurepath <- pressurepath0
+      }
+      if (!is.null(marginal0)) {
+        marginal <- marginal0
+      }
+    } else {
+      cli::cli_abort("The first arguement {.var x} needs to be a {.cls tag}, a {.field file} or \\
+                     an {.field id}")
     }
   } else {
     tag <- x
   }
+
 
   tag_assert(tag, "setmap")
 
@@ -66,7 +72,7 @@ geopressureviz <- function(x,
   maps_is_available <- sapply(maps_choices, \(x) all(x %in% names(tag)))
 
   maps <- lapply(maps_choices[maps_is_available], \(likelihood){
-    rast(tag2map(tag, likelihood = likelihood))
+    tag2map(tag, likelihood = likelihood)
   })
 
   names(maps) <- names(maps_choices[maps_is_available])

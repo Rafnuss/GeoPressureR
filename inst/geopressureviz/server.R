@@ -21,9 +21,10 @@ server <- function(input, output, session) {
 
   # return the map
   map_display <- reactive({
-    if (is.null(input$map_source))
+    if (is.null(input$map_source)) {
       return(NA)
-    return(.maps[[input$map_source]])
+    }
+    return(rast(.maps[[input$map_source]]))
   }) %>% bindEvent(input$map_source)
 
   idx <- reactive({
@@ -47,8 +48,10 @@ server <- function(input, output, session) {
       # options = providerTileOptions(noWrap = TRUE)
       addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%
       addProviderTiles("Esri.WorldTopoMap", group = "Topography") %>%
-      addLayersControl(baseGroups = c("Dark Matter", "Satellite", "Topography"),
-                       position = c("topleft"))
+      addLayersControl(
+        baseGroups = c("Dark Matter", "Satellite", "Topography"),
+        position = c("topleft")
+      )
   })
   output$tag_id <- renderUI({
     return(HTML(glue::glue("<h3 style='margin:0;'>", .tag_id, "</h3>")))
@@ -62,8 +65,10 @@ server <- function(input, output, session) {
     }
     if (idx() != 1) {
       idx_prev <- stap_include()[idx() - 1]
-      dist <- distGeo(reactVal$path[idx_prev, c("lon", "lat")],
-                      reactVal$path[as.numeric(input$i_stap), c("lon", "lat")]) / 1000
+      dist <- distGeo(
+        reactVal$path[idx_prev, c("lon", "lat")],
+        reactVal$path[as.numeric(input$i_stap), c("lon", "lat")]
+      ) / 1000
       HTML(
         "<b>Previous flight:</b><br>",
         as.numeric(input$i_stap) - idx_prev, " flights -",
@@ -84,8 +89,10 @@ server <- function(input, output, session) {
     }
     if (idx() != length(stap_include())) {
       idx_next <- stap_include()[idx() + 1]
-      dist <- geosphere::distGeo(reactVal$path[idx_next, c("lon", "lat")],
-                                 reactVal$path[as.numeric(input$i_stap), c("lon", "lat")]) / 1000
+      dist <- geosphere::distGeo(
+        reactVal$path[idx_next, c("lon", "lat")],
+        reactVal$path[as.numeric(input$i_stap), c("lon", "lat")]
+      ) / 1000
       HTML(
         "<b>Next flight:</b><br>",
         idx_next - as.numeric(input$i_stap), " flights -",
@@ -100,23 +107,27 @@ server <- function(input, output, session) {
 
   output$pressure_plot <- renderPlotly({
     p <- ggplot() +
-      geom_line(data = .pressure, aes(x = .data$date, y = .data$value), colour = .data$grey) +
-      geom_point(data = subset(.pressure, label=="discard"),
-                 aes(x = .data$date, y = .data$value),
-                 colour = "black") +
+      geom_line(data = .pressure, aes(x = date, y = value), colour = "grey") +
+      geom_point(
+        data = subset(.pressure, label == "discard"),
+        aes(x = date, y = value),
+        colour = "black"
+      ) +
       theme_bw()
 
     p <- p + geom_line(
       data = reactVal$pressurepath,
-      aes(x = .data$date,
-                 y = "pressure_era5_norm",
-                 color = "col",
-                 group = "stap_id",
-                 linetype = "linetype")
+      aes(
+        x = date,
+        y = pressure_era5_norm,
+        color = col,
+        group = stap_id,
+        linetype = linetype
+      )
     ) +
       scale_color_identity()
 
-    ggplotly(p, dynamicTicks = T, height = 300, tooltip = c("date", "pressure0", "lt")) %>%
+    ggplotly(p, dynamicTicks = T, height = 300, tooltip = c("x", "y", "linetype")) %>%
       layout(
         showlegend = F,
         yaxis = list(title = "Pressure [hPa]")
@@ -195,7 +206,7 @@ server <- function(input, output, session) {
     proxy <- leafletProxy("map") %>%
       clearShapes() %>%
       clearImages() %>%
-      clearMarkers
+      clearMarkers()
     stap_model <- .stap[stap_include(), ]
     path_model <- reactVal$path[stap_include(), c("lon", "lat")]
     fl_dur <- as.numeric(flight()$duration)
@@ -203,13 +214,14 @@ server <- function(input, output, session) {
       return()
     }
     if (input$full_track) {
-
       proxy <- proxy %>%
-        addPolylines(lng = path_model$lon,
-                     lat = path_model$lat,
-                     opacity = 1,
-                     color = "#FFF",
-                     weight = 3) %>%
+        addPolylines(
+          lng = path_model$lon,
+          lat = path_model$lat,
+          opacity = 1,
+          color = "#FFF",
+          weight = 3
+        ) %>%
         addCircleMarkers(
           lng = path_model$lon, lat = path_model$lat, fillOpacity = 1,
           radius = stap_model$duration^(0.3) * 10, weight = 1, color = "#FFF",
@@ -217,73 +229,93 @@ server <- function(input, output, session) {
           fillColor = stap_model$col
         ) %>%
         fitBounds(min(path_model$lon), min(path_model$lat), max(path_model$lon),
-                  max(path_model$lat), options = list(paddingBottomRight = c(300, 300)))
+          max(path_model$lat),
+          options = list(paddingBottomRight = c(300, 300))
+        )
     } else {
       map_i_stap <- map_display()[[as.numeric(input$i_stap)]]
       if (!is.null(map_i_stap)) {
         proxy <- proxy %>% addRasterImage(map_i_stap,
-                                          opacity = 0.8,
-                                          colors = leaflet::colorNumeric(
-                                            palette = "magma",
-                                            domain = NULL,
-                                            na.color = "#00000000",
-                                            alpha = TRUE),
-                                          method="ngb")
+          opacity = 0.8,
+          colors = leaflet::colorNumeric(
+            palette = "magma",
+            domain = NULL,
+            na.color = "#00000000",
+            alpha = TRUE
+          ),
+          method = "ngb"
+        )
       }
       proxy <- proxy %>%
-        addPolylines(lng = path_model$lon,
-                     lat = path_model$lat,
-                     opacity = .1,
-                     color = "#FFF",
-                     weight = 3) %>%
-        addCircles(lng = path_model$lon,
-                   lat = path_model$lat,
-                   fillOpacity = .1,
-                   fillColor = "#FFF",
-                   weight = 0,
-                   radius = stap_model$duration^(0.3) * 10)
+        addPolylines(
+          lng = path_model$lon,
+          lat = path_model$lat,
+          opacity = .1,
+          color = "#FFF",
+          weight = 3
+        ) %>%
+        addCircles(
+          lng = path_model$lon,
+          lat = path_model$lat,
+          fillOpacity = .1,
+          fillColor = "#FFF",
+          weight = 0,
+          radius = stap_model$duration^(0.3) * 10
+        )
 
       if (idx() != 1) {
         proxy <- proxy %>%
-          addPolylines(lng = path_model$lon[idx() + (-1:0)],
-                       lat = path_model$lat[idx() + (-1:0)],
-                       opacity = 1,
-                       color = "#FFF",
-                       weight = 3) %>%
-          addCircleMarkers(lng = path_model$lon[idx() - 1],
-                     lat = path_model$lat[idx() - 1],
-                     fillOpacity = 1,
-                     fillColor = stap_model$col[idx() - 1],
-                     weight = 1, color = "#FFF",
-                     radius = stap_model$duration[idx() - 1]^(0.3) * 10) %>%
-          addCircles(lng = path_model$lon[idx() - 1],
-                     lat = path_model$lat[idx() - 1],
-                     opacity = 1,
-                     color = stap_model$col[idx() - 1],
-                     radius = as.numeric(input$speed) * sum(fl_dur[idx() - 1]) * 1000,
-                     fillOpacity = 0,
-                     weight = 2)
+          addPolylines(
+            lng = path_model$lon[idx() + (-1:0)],
+            lat = path_model$lat[idx() + (-1:0)],
+            opacity = 1,
+            color = "#FFF",
+            weight = 3
+          ) %>%
+          addCircleMarkers(
+            lng = path_model$lon[idx() - 1],
+            lat = path_model$lat[idx() - 1],
+            fillOpacity = 1,
+            fillColor = stap_model$col[idx() - 1],
+            weight = 1, color = "#FFF",
+            radius = stap_model$duration[idx() - 1]^(0.3) * 10
+          ) %>%
+          addCircles(
+            lng = path_model$lon[idx() - 1],
+            lat = path_model$lat[idx() - 1],
+            opacity = 1,
+            color = stap_model$col[idx() - 1],
+            radius = as.numeric(input$speed) * sum(fl_dur[idx() - 1]) * 1000,
+            fillOpacity = 0,
+            weight = 2
+          )
       }
       if (idx() != length(stap_include())) {
         proxy <- proxy %>%
-          addPolylines(lng = path_model$lon[idx() + (0:1)],
-                       lat = path_model$lat[idx() + (0:1)],
-                       opacity = 1,
-                       color = "#FFF",
-                       weight = 3) %>%
-          addCircleMarkers(lng = path_model$lon[idx() + 1],
-                     lat = path_model$lat[idx() + 1],
-                     fillOpacity = 1,
-                     fillColor = stap_model$col[idx() + 1],
-                     weight = 1, color = "#FFF",
-                     radius = stap_model$duration[idx() + 1]^(0.3) * 10) %>%
-          addCircles(lng = path_model$lon[idx() + 1],
-                     lat = path_model$lat[idx() + 1],
-                     opacity = 1,
-                     color = stap_model$col[idx() + 1],
-                     radius = as.numeric(input$speed) * sum(fl_dur[idx()]) * 1000,
-                     fillOpacity = 0,
-                     weight = 2)
+          addPolylines(
+            lng = path_model$lon[idx() + (0:1)],
+            lat = path_model$lat[idx() + (0:1)],
+            opacity = 1,
+            color = "#FFF",
+            weight = 3
+          ) %>%
+          addCircleMarkers(
+            lng = path_model$lon[idx() + 1],
+            lat = path_model$lat[idx() + 1],
+            fillOpacity = 1,
+            fillColor = stap_model$col[idx() + 1],
+            weight = 1, color = "#FFF",
+            radius = stap_model$duration[idx() + 1]^(0.3) * 10
+          ) %>%
+          addCircles(
+            lng = path_model$lon[idx() + 1],
+            lat = path_model$lat[idx() + 1],
+            opacity = 1,
+            color = stap_model$col[idx() + 1],
+            radius = as.numeric(input$speed) * sum(fl_dur[idx()]) * 1000,
+            fillOpacity = 0,
+            weight = 2
+          )
       }
       proxy <- proxy %>%
         addCircleMarkers(
@@ -321,8 +353,10 @@ server <- function(input, output, session) {
     reactVal$path$lat[i_stap] <- pressuretimeseries$lat[1]
 
     # Merge the two data.frame
-    pressuretimeseries <- pressuretimeseries[, match(names(reactVal$pressurepath),
-                                                     names(pressuretimeseries))]
+    pressuretimeseries <- pressuretimeseries[, match(
+      names(reactVal$pressurepath),
+      names(pressuretimeseries)
+    )]
     reactVal$pressurepath <- rbind(reactVal$pressurepath, pressuretimeseries)
 
     # ?
@@ -340,12 +374,13 @@ server <- function(input, output, session) {
           "relayout",
           list(
             yaxis = list(range = c(min(pressure_val_stap_id) - 5, max(pressure_val_stap_id) + 5)),
-            xaxis = list(range = c(.stap$start[as.numeric(input$i_stap)] - 60 * 60 * 24,
-                                   .stap$end[as.numeric(input$i_stap)] + 60 * 60 * 24))
+            xaxis = list(range = c(
+              .stap$start[as.numeric(input$i_stap)] - 60 * 60 * 24,
+              .stap$end[as.numeric(input$i_stap)] + 60 * 60 * 24
+            ))
           )
         )
-    }
-    else {
+    } else {
       plotlyProxy("pressure_plot", session) %>%
         plotlyProxyInvoke(
           "relayout",
