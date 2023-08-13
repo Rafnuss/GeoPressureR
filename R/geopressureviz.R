@@ -88,15 +88,15 @@ geopressureviz <- function(x,
 
   # Get the pressure timeserie
   if (is.null(pressurepath)) {
-    pressurepath <- list()
+    pressurepath <- data.frame()
 
     # Set the initial path with tag2path
     path <- tag2path(tag)
   } else {
     path <- unique(pressurepath[, c("stap_id", "lat", "lon")])
+    pressurepath$linetype <- as.factor(1)
+    pressurepath <- merge(pressurepath, stap[, names(stap) %in% c("stap_id", "col")], by = "stap_id")
   }
-  pressurepath$linetype <- as.factor(1)
-  pressurepath <- merge(pressurepath, stap[, names(stap) %in% c("stap_id", "col")], by = "stap_id")
 
 
   # PEROSENVIR <- new.env(parent=emptyenv())
@@ -124,7 +124,7 @@ geopressureviz <- function(x,
 
   # Start the app
   shiny::runApp(system.file("geopressureviz", package = "GeoPressureR"),
-    launch.browser = launch_browser
+                launch.browser = launch_browser
   )
   return(.GlobalEnv$.path0)
 }
