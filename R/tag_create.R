@@ -171,7 +171,7 @@ tag_create <- function(id,
           light_path,
           skip = 19, nrow = 1, header = FALSE, sep = ""
         ) == "light(lux)")
-        if (!(col > 0)) {
+        if (length(col)==0) {
           cli::cli_abort(
             "The light file {.file {light_path}} is not compatible. Line 20 \\
             should contains {.val light(lux)}"
@@ -215,14 +215,16 @@ tag_create <- function(id,
         }
 
         # find column index with acceleration
-        col <- which(utils::read.delim(acceleration_path,
-          skip = 19, nrow = 1, header = FALSE, sep = ""
-        ) == "Zact")
-        if (!(col > 0)) {
-          cli::cli_abort(
-            "The light file {.file {acceleration_path}} is not compatible. Line 20 \\
-            should contains {.val Zact}"
-          )
+        col <- which(
+          utils::read.delim(acceleration_path, skip = 19, nrow = 1, header = FALSE, sep = "" )
+          == "Zact")
+        if (length(col)==0) {
+          cli::cli_abort(c(
+            "x" = "The acceleration file {.file {acceleration_path}} is not compatible. Line 20 \\
+            should contains {.val Zact}",
+            ">" = "Make sure to chose the correct file or use {.val {NULL}} if you don't have an \\
+            acceleration file"
+          ))
         }
 
         # Read file
@@ -270,14 +272,14 @@ tag_create_detect <- function(file, directory, default = NULL) {
   if (length(path) == 0) {
     cli::cli_warn(c(
       "!" = glue::glue("No file is matching '", file, "'."),
-      ">" = "This sensor will be ignored."
+      ">" = "This sensor will be ignored.\f"
     ))
     return(NA)
   }
   if (length(path) > 1) {
     cli::cli_warn(c(
-      "!" = "Multiple files matching {.file {f}}: {path}",
-      ">" = "The function will continue with the first one."
+      "!" = "Multiple files matching {.file {file}}: {path}",
+      ">" = "The function will continue with the first one.\f"
     ))
     return(path[1])
   }
