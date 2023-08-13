@@ -87,6 +87,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   }
 
   # Smooth and downscale each stapelev
+  # pgi <- pressure_stapelev[[9]]
   pressure_stapelev_clean <- lapply(pressure_stapelev, function(pgi) {
     # Define a regular temporal grid for smoothing and down scaling, rounded to the hours
     date_reg <- seq(
@@ -96,23 +97,30 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     )
 
     # Remove observation outside the start and end time. This should only be 1 or 2 datapoints
-    pgi <- pgi[pgi$date >= date_reg[1] & pgi$date <= date_reg[length(date_reg)], ]
+    # pgi <- pgi[pgi$date >= date_reg[1] & pgi$date <= date_reg[length(date_reg)], ]
 
     # Re-sample to the new temporal grid
-    id <- sapply(pgi$date, function(d) {
-      which.min(abs(d - date_reg))
-    })
-    assertthat::assert_that(length(id) == length(unique(id)))
-    assertthat::assert_that(all(difftime(pgi$date, date_reg[id], units = "hours") <= 0.5))
-    pgi$date <- date_reg[id]
+    # Too slow
+    # id <- sapply(pgi$date, function(d) {
+    #   which.min(abs(d - date_reg))
+    # })
 
-    # Create the dataset on the new grid, allowing for NA if no data available
-    pgi_reg <- merge(
-      data.frame(date = date_reg),
-      pgi,
-      by = "date",
-      all.x = TRUE
-    )
+    id <- stats::approx(
+      x = pgi$date, y = seq_len(nrow(pgi)), xout = date_reg, method = "constant", rule = 2
+    )$y
+
+    # Create a new data.frame of regular pressure
+    pgi_reg <- pgi[id, ]
+    # keep old recorded date for info
+    pgi_reg$date_ireg <- pgi_reg$date
+    # use new date
+    pgi_reg$date <- date_reg
+
+    # Only keep value which are within 30min of the actual measurement.
+    id <- difftime(pgi_reg$date, pgi_reg$date_ireg, units = "hours") > 0.5
+    pgi_reg$value[id] <- NA
+    # Also set stap_id NA to be able to identify those time to remove at the end of this function
+    pgi_reg$stap_id[id] <- NA
 
     # smooth the data with a moving average of 1hr
     # find the size of the windows for 1 hour
@@ -133,7 +141,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
       tmp <- smooth / smoothna
       tmp <- tmp[seq(2, length(tmp) - 1)]
 
-      pgi_reg$value <- tmp
+      pgi_reg$value[!is.na(tmp)] <- tmp[!is.na(tmp)]
     }
 
     # downscale to 1 hour
@@ -145,30 +153,32 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     # Remove time without measure
     pgi_reg <- pgi_reg[!is.na(pgi_reg$stap_id), ]
 
+    assertthat::assert_that(all(!is.na(pgi_reg$value)))
+
     return(pgi_reg)
   })
 
   # Combine into a single data.frame
-  pressure <- do.call("rbind", pressure_stapelev_clean)
+  pressure_clean <- do.call("rbind", pressure_stapelev_clean)
 
   # Make sure pressure is sorted by date (`pressure_stapelev_clean` uses stap_id as string and does
   # not insure the correct order when exceeding 10).
-  pressure <- pressure[order(pressure$date), ]
+  pressure_clean <- pressure_clean[order(pressure_clean$date), ]
 
-  if (nrow(pressure) == 0) {
+  if (nrow(pressure_clean) == 0) {
     cli::cli_abort(c(
       x = "There are no pressure data to match.",
       i = "Check the input pressure label and stap."
     ))
   }
-  assertthat::assert_that(all(!is.na(pressure$date)))
-  assertthat::assert_that(all(!is.na(pressure$value)))
-  assertthat::assert_that(all(pressure$stapelev != ""))
+  assertthat::assert_that(all(!is.na(pressure_clean$date)))
+  assertthat::assert_that(all(!is.na(pressure_clean$value)))
+  assertthat::assert_that(all(pressure_clean$stapelev != ""))
 
   # Check number of datapoint per stationary period
   stap <- stap[stap$include & is.na(stap$known_lat), ]
   stap <- merge(stap,
-    as.data.frame(table(pressure$stap_id)),
+    as.data.frame(table(pressure_clean$stap_id)),
     by.x = "stap_id", by.y = "Var1", all.x = TRUE
   )
   stap$Freq[is.na(stap$Freq)] <- 0
@@ -178,6 +188,6 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
                   than 3 datapoints to be used.")
   }
 
-  rownames(pressure) <- NULL
-  return(pressure)
+  rownames(pressure_clean) <- NULL
+  return(pressure_clean)
 }
