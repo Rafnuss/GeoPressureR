@@ -58,6 +58,7 @@ pressurepath2altitude <- function(pressurepath) {
   # Because sum of weight is not exactly 1 all the time, we normalized by the sum
   pp_alt$altitude <- pp_alt$altitude / sapply(split(pp$w, pp$date), sum)
 
+  # nolint start
   if (FALSE) {
     p <- ggplot2::ggplot(pp_alt) +
       ggplot2::geom_line(
@@ -74,6 +75,7 @@ pressurepath2altitude <- function(pressurepath) {
 
     plotly::ggplotly(p, dynamicTicks = TRUE)
   }
+  # nolint end
 
   return(pp_alt)
 }

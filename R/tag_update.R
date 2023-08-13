@@ -48,34 +48,43 @@ tag_update <- function(tag,
 
   # Find stap which have change, and those tha have not
   # 1. find the stationary period match based on start and end date
-  tag_stap_copy <- tag$stap[names(tag$stap) %in% c("start", "end", "stap_id")] # create a copy to modify the column name and allow a merge
+  # create a copy to modify the column name and allow a merge
+  tag_stap_copy <- tag$stap[names(tag$stap) %in% c("start", "end", "stap_id")]
   names(tag_stap_copy)[names(tag_stap_copy) == "stap_id"] <- "old_stap_id"
   stap_new <- merge(tag_new$stap, tag_stap_copy, by = c("start", "end"), all.x = TRUE)
 
   # Deal with known
-  # As known are defined with stap_id, we will only processed by assuming that the known stap_id have not changed (discard of pressure is ok though)
+  # As known are defined with stap_id, we will only processed by assuming that the known stap_id
+  # have not changed (discard of pressure is ok though)
   # Build the original known
   if (is.null(known)) {
     # Use the exact same known as provided
-    known <- tag$stap[!is.na(tag$stap$known_lat), names(tag$stap) %in% c("stap_id", "known_lat", "known_lon")]
+    known <- tag$stap[!is.na(tag$stap$known_lat), names(tag$stap) %in%
+      c("stap_id", "known_lat", "known_lon")]
     # Check that the old_stap_id is the same as the new ones for the known stap_id
     if (stap_new$stap_id[which(stap_new$old_stap_id == known$stap_id)] != known$stap_id) {
       cli::cli_abort(c(
-        "x" = "Known position were defined at stationary period{?s} {.val {known$stap_id}}, yet these stationary period have changed because you changed {.val flight} label before or after them.",
-        ">" = "In such case, you need start again from the raw data or provide an updated {.var known} arguement."
+        "x" = "Known position were defined at stationary period{?s} {.val {known$stap_id}}, yet \\
+        these stationary period have changed because you changed {.val flight} label before or \\
+        after them.",
+        ">" = "In such case, you need start again from the raw data or provide an updated \\
+        {.var known} arguement."
       ))
     }
   }
 
-  # Find the stap_include which were excluded and keep the same one if found in the matching of the new stap
+  # Find the stap_include which were excluded and keep the same one if found in the matching of the
+  # new stap
   old_stap_include_exclude <- tag$stap$stap_id[!tag$stap$include]
   if (!all(old_stap_include_exclude %in% stap_new$old_stap_id)) {
+    # nolint start
     tmp <- old_stap_include_exclude[!(old_stap_include_exclude %in% stap_new$old_stap_id)]
     cli::cli_warn(c(
       "!" = "Stationary period{?s} {.val {tmp}} were excluded ({.code include = FALSE}) from the \\
         original {.var tag} but are not present in the new {.var tag}",
       ">" = "We will assume that the same stap_id excluded should again be excluded.\f"
     ))
+    # nolint end
   }
   # Build the include to be used in the modeling, but not for geopressure and geolight
   stap_new$include <- !(stap_new$old_stap_id %in% old_stap_include_exclude)
@@ -90,21 +99,26 @@ tag_update <- function(tag,
 
 
   # 2. Check which stap_id have a discard pressure label which has changed
-  # we don't care about flight label change because they have already impacted the merge of the new stap, only pressure outliar and stap_elev are important at this stage
-  discard_label_chg <- (tag_new$pressure$label != tag$pressure$label) & (tag_new$pressure$label != "flight" | tag$pressure$label != "flight")
+  # we don't care about flight label change because they have already impacted the merge of the
+  # new stap, only pressure outliar and stap_elev are important at this stage
+  discard_label_chg <- (tag_new$pressure$label != tag$pressure$label) &
+    (tag_new$pressure$label != "flight" | tag$pressure$label != "flight")
 
   stap_new$recompute <- FALSE
   stap_new$recompute[tag_new$pressure$stap_id[discard_label_chg]] <- TRUE
 
   # Acutally not needed
   # if ("acceleration" %in% names(tag))
-  #  stap_new$old_stap_id[unique(tag_new$acceleration$stap_id[tag_new$acceleration$label != tag$acceleration$label])] <- NA
+  #  stap_new$old_stap_id[unique(tag_new$acceleration$stap_id[tag_new$acceleration$label !=
+  # tag$acceleration$label])] <- NA
 
   # Check if known have change pressure label, in which case we don't really care.
   # if (any(known$stap_id %in% stap_new$stap_id[stap_new$recompute])) {
   #  cli::cli_warn(c(
-  #    "!" = "The labeling of pressure during the known stationary period {.val {known$stap_id}} has changed.",
-  #    ">" = "We will keep the same {.var tag$stap$known} and the likelihood map is kept the same.\f"
+  #    "!" = "The labeling of pressure during the known stationary period \\
+  #     {.val {known$stap_id}} has changed.",
+  #    ">" = "We will keep the same {.var tag$stap$known} and the likelihood map is kept the \\
+  #    same.\f"
   #  ))
   # }
 
@@ -130,10 +144,13 @@ tag_update <- function(tag,
   )
 
   # Add the likelihood which have not changed
-  tag_new$map_pressure$data[stap_new$stap_id[!tag_new$stap$include]] <- tag$map_pressure$data[stap_new$old_stap_id[!tag_new$stap$include]]
+  tag_new$map_pressure$data[stap_new$stap_id[!tag_new$stap$include]] <-
+    tag$map_pressure$data[stap_new$old_stap_id[!tag_new$stap$include]]
   if ("map_pressure_mse" %in% names(tag)) {
-    tag_new$map_pressure_mse$data[stap_new$stap_id[!tag_new$stap$include]] <- tag$map_pressure_mse$data[stap_new$old_stap_id[!tag_new$stap$include]]
-    tag_new$map_pressure_thr$data[stap_new$stap_id[!tag_new$stap$include]] <- tag$map_pressure_thr$data[stap_new$old_stap_id[!tag_new$stap$include]]
+    tag_new$map_pressure_mse$data[stap_new$stap_id[!tag_new$stap$include]] <-
+      tag$map_pressure_mse$data[stap_new$old_stap_id[!tag_new$stap$include]]
+    tag_new$map_pressure_thr$data[stap_new$stap_id[!tag_new$stap$include]] <-
+      tag$map_pressure_thr$data[stap_new$old_stap_id[!tag_new$stap$include]]
   }
 
   # Overwrite the model and keep the initial stap_id excluded
@@ -141,7 +158,7 @@ tag_update <- function(tag,
 
 
   if ("map_light" %in% names(tag)) {
-    if (any(is.na(stap_new$old_stap_id)) | any(stap_new$stap_id != stap_new$old_stap_id)) {
+    if (any(is.na(stap_new$old_stap_id)) || any(stap_new$stap_id != stap_new$old_stap_id)) {
       cli::cli_warn("Light maps needs to be recomputed as some stationay periods have changed.\f")
       tag_new$map_light <- NULL
       tag_new$twilight <- NULL

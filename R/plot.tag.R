@@ -168,11 +168,15 @@ plot_tag_pressure <- function(tag,
     if (!quiet) {
       cli::cli_h3("Pressure difference")
       if (nrow(pres_diff) > 0) {
-        cli::cli_bullets(c(">" = "{.val {nrow(pres_diff)}} timestamp{?s} show{?s/} abnormal hourly \\
-                            change in pressure (i.e., >{.val {warning_pressure_diff}}hPa): "))
+        cli::cli_bullets(c(
+          ">" = "{.val {nrow(pres_diff)}} timestamp{?s} show{?s/} abnormal hourly change in \\
+        pressure (i.e., >{.val {warning_pressure_diff}}hPa):"
+        ))
         for (i in seq_len(min(nrow(pres_diff), pressure_diff_max_display))) {
-          cli::cli_bullets(c("!" = "{pres_diff$date[i]} | stap: {pres_diff$stap_id[i]} | \\
-                                  {.val {round(pres_diff$value[i],1)}} hPa "))
+          cli::cli_bullets(
+            c("!" = "{pres_diff$date[i]} | stap: {pres_diff$stap_id[i]} | \\
+                                  {.val {round(pres_diff$value[i],1)}} hPa ")
+          )
         }
         if (nrow(pres_diff) > pressure_diff_max_display) {
           cli::cli_bullets(c(">" = "{.val {nrow(pres_diff)-pressure_diff_max_display}} more \\
@@ -227,7 +231,7 @@ plot_tag_acceleration <- function(tag,
   assertthat::assert_that(assertthat::has_name(tag, "acceleration"))
 
   # If not label, use default auto_label
-  if (!("label" %in% names(tag$acceleration)) & label_auto) {
+  if (!("label" %in% names(tag$acceleration)) && label_auto) {
     tag <- tag_label_auto(tag, min_duration = min_duration)
   }
 
@@ -383,7 +387,9 @@ plot_tag_twilight <- function(tag,
           size = 2,
           shape = 16
         ) +
-        scale_color_manual(values = col[(1:length(unique(twl$stap_id))) %% length(col) + 1])
+        ggplot2::scale_color_manual(
+          values = col[seq_along(unique(twl$stap_id)) %% length(col) + 1]
+        )
     }
     p <- p +
       ggplot2::geom_point(

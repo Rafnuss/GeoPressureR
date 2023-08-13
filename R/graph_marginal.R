@@ -31,7 +31,7 @@
 #' print(graph)
 #'
 #' @seealso [GeoPressureManual | Basic graph](
-#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map)
+#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html)
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129

@@ -1,12 +1,12 @@
 #' Compute transition probabilities of a `graph`
 #'
-#' Use the movement model (see `graph_set_movement()`) to convert ground speed `gs` (or airspeed `as`
-#' if available) into the transition probability of the edges of the graph.
+#' Use the movement model (see `graph_set_movement()`) to convert ground speed `gs` (or airspeed
+#' `as` if available) into the transition probability of the edges of the graph.
 #'
 #' The vector return correspond to the elements of the transition matrices
 #' \eqn{T_k \forall k \in [1,n]} extracted for all edges considered in the graph. Each of these
-#' values thus corresponds to the probability \eqn{P(X_k \mid X_{k-1})}, where \eqn{X_k} is the random
-#' variable of the position of the bird at time \eqn{k}.
+#' values thus corresponds to the probability \eqn{P(X_k \mid X_{k-1})}, where \eqn{X_k} is the
+#' random variable of the position of the bird at time \eqn{k}.
 #'
 #' To create a generic function, we define `speed2prob` which converts the speed of an edge into the
 #' transition probability.

@@ -137,14 +137,17 @@ geolight_map <- function(tag,
 
   # construct the grid of latitude and longitude on cell centered
   m <- expand.grid(lat = g$lat, lon = g$lon)
-  ml <- split(m, seq(nrow(m)))
+  ml <- split(m, seq_len(nrow(m)))
 
   # Loop through each grid cell (location lat, lon) and compute the likelihood for all twilight
   if (!quiet) {
-    pgz <- lapply(cli::cli_progress_along(ml, name = "Compute a map for each twilight"), function(i) {
-      z <- geolight_refracted(geolight_zenith(sun, ml[[i]]$lon, ml[[i]]$lat))
-      stats::approx(twl_calib$x, twl_calib$y, z, yleft = 0, yright = 0)$y
-    })
+    pgz <- lapply(
+      cli::cli_progress_along(ml, name = "Compute a map for each twilight"),
+      function(i) {
+        z <- geolight_refracted(geolight_zenith(sun, ml[[i]]$lon, ml[[i]]$lat))
+        stats::approx(twl_calib$x, twl_calib$y, z, yleft = 0, yright = 0)$y
+      }
+    )
   } else {
     pgz <- lapply(ml, function(i) {
       z <- geolight_refracted(geolight_zenith(sun, i$lon, i$lat))

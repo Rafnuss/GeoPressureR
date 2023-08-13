@@ -8,7 +8,8 @@
 #' @param x a GeoPressureR `tag` object or an unique identifier `id`.
 #' @param pressurepath a GeoPressureR `pressurepath` data.frame.
 #' @param marginal map of the marginal probability computed with `graph_marginal()`.
-#' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on Rstudio.
+#' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
+#' Rstudio.
 #' @return The updated path visualized in the app.
 #'
 #' @seealso [GeoPressureManual | GeoPressureViz
@@ -19,7 +20,7 @@ geopressureviz <- function(x,
                            marginal = NULL,
                            launch_browser = TRUE) {
   if (!inherits(x, "tag")) {
-    if (is.character(x) & file.exists(x)) {
+    if (is.character(x) && file.exists(x)) {
       file <- x
     } else if (is.character(x)) {
       file <- glue::glue("./data/interim/{x}.RData")
@@ -27,7 +28,7 @@ geopressureviz <- function(x,
       file <- NULL
     }
 
-    if (is.character(file) & file.exists(file)) {
+    if (is.character(file) && file.exists(file)) {
       # Make of copy of the arguement so that they don't get overwritten
       pressurepath0 <- pressurepath
       marginal0 <- marginal
@@ -70,7 +71,7 @@ geopressureviz <- function(x,
   )
   maps_is_available <- sapply(maps_choices, \(x) all(x %in% names(tag)))
 
-  maps <- lapply(maps_choices[maps_is_available], \(likelihood){
+  maps <- lapply(maps_choices[maps_is_available], \(likelihood) {
     tag2map(tag, likelihood = likelihood)
   })
 
@@ -94,11 +95,14 @@ geopressureviz <- function(x,
   } else {
     path <- merge(tag$stap, unique(pressurepath[, c("stap_id", "lat", "lon")]), all = TRUE)
     pressurepath$linetype <- as.factor(1)
-    pressurepath <- merge(pressurepath, stap[, names(stap) %in% c("stap_id", "col")], by = "stap_id")
+    pressurepath <- merge(
+      pressurepath,
+      stap[, names(stap) %in% c("stap_id", "col")],
+      by = "stap_id"
+    )
   }
 
-
-  # PEROSENVIR <- new.env(parent=emptyenv())
+  # nolint start
   .GlobalEnv$.tag_id <- tag$param$id
   .GlobalEnv$.stap <- stap
   .GlobalEnv$.pressure <- tag$pressure
@@ -106,6 +110,7 @@ geopressureviz <- function(x,
   .GlobalEnv$.extent <- tag$param$extent
   .GlobalEnv$.pressurepath <- pressurepath
   .GlobalEnv$.path <- path
+  # nolint end
 
   # delete variable when removed
   # on.exit(

@@ -54,7 +54,8 @@ print.param <- function(x, ...) {
     "*" = "{.field margin}: {.val {param$margin}}",
     "*" = "{.field sd}: {.val {param$sd}}",
     "*" = "{.field thr_mask}: {.val {param$thr_mask}}",
-    "*" = "{.field log_linear_pooling_weight}: {.val {call2deparse(param$log_linear_pooling_weight)}}"
+    "*" = "{.field log_linear_pooling_weight}: {.val \\
+    {call2deparse(param$log_linear_pooling_weight)}}"
   ))
 
   cli::cli_h3("Twilight & Geolight{.fun twilight_create}")
@@ -90,7 +91,7 @@ print.param <- function(x, ...) {
 }
 
 call2deparse <- function(x) {
-  if (is.call(x) | is.function(x)) {
+  if (is.call(x) || is.function(x)) {
     deparse(x)
   } else {
     x

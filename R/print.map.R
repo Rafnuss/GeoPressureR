@@ -24,7 +24,9 @@
 #' @method print map
 #' @export
 print.map <- function(x, ...) {
+  # nolint start
   map <- x
+  # nolint end
 
   cli::cli_h1("GeoPressureR `map` object  of {.field {map$type}} for {.field id}={.val {map$id}}")
 

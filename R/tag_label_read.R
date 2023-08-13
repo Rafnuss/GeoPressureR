@@ -1,7 +1,7 @@
 #' Read a tag label file
 #'
-#' This function reads an exported csv file from [TRAINSET](https://trainset.geocene.com/) and updates
-#' the data logger dataset `tag`.
+#' This function reads an exported csv file from [TRAINSET](https://trainset.geocene.com/) and
+#' updates the data logger dataset `tag`.
 #'
 #' @inheritParams tag_label
 #' @return Same data logger list as input, updated with the labels `tag$pressure$label` and
@@ -24,7 +24,8 @@ tag_label_read <- function(tag,
     cli::cli_abort(c(
       "x" = "{.fun setmap} has already been run on this {.var tag}.",
       ">" = "It is best practice to start from your raw data again using {.fun tag_create}.",
-      "i" = "You can also use {.fun tag_update} to only change the what needs to be updated in {.var tag}."
+      "i" = "You can also use {.fun tag_update} to only change the what needs to be updated \\
+      in {.var tag}."
     ))
   }
 
@@ -40,7 +41,8 @@ tag_label_read <- function(tag,
   if (length(unique_label) > 0) {
     cli::cli_abort(c(
       x = "The pressure label file contains unknown label: {.val {unique_label}}",
-      i = "Correct the label file {.file {file}} to contains only {.val {c('flight', 'discard', 'elev_*')}}"
+      i = "Correct the label file {.file {file}} to contains only \\
+      {.val {c('flight', 'discard', 'elev_*')}}"
     ))
   }
 
@@ -62,7 +64,8 @@ tag_label_read <- function(tag,
       if (length(unique_label) > 0) {
         cli::cli_abort(c(
           x = "The acceleration label file contains unknown label: {.val {unique_label}}",
-          i = "Correct the label file {.file {file}} to contains only {.val {c('flight', 'discard', 'elev_*')}}"
+          i = "Correct the label file {.file {file}} to contains only \\
+          {.val {c('flight', 'discard', 'elev_*')}}"
         ))
       }
     }

@@ -28,7 +28,8 @@
 #' @family graph
 #' @export
 graph_simulation <- function(graph,
-                             nj = 10, quiet = F) {
+                             nj = 10,
+                             quiet = FALSE) {
   graph_assert(graph, "full")
 
   # Compute the matrix TO

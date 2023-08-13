@@ -1,8 +1,8 @@
 #' Create a `graph` object
 #'
 #' @description
-#' This function returns a trellis graph representing the trajectory of a bird based on filtering and
-#' prunning the likelihood maps provided.
+#' This function returns a trellis graph representing the trajectory of a bird based on filtering
+#' and prunning the likelihood maps provided.
 #'
 #' In the final graph, we only keep the most likely nodes (i.e., position of the bird at each
 #' stationary periods) defined as (1) those whose likelihood value are within the threshold of
@@ -302,7 +302,9 @@ graph_create <- function(tag,
 
   # Convert gr to a graph list
   graph <- as.list(do.call("rbind", gr))
+  # nolint start
   attr(graph, "out.attrs") <- NULL
+  # nolint end
   graph <- structure(graph, class = "graph")
 
   # Add observation model as matrix

@@ -4,7 +4,8 @@
 #' This function returns the surface atmospheric pressure timeseries from ERA5 at any requested
 #' location.
 #'
-#' If the location queried is over water, the location will be moved to the closest onshore location.
+#' If the location queried is over water, the location will be moved to the closest onshore
+#' location.
 #'
 #' The ERA5 pressure timeseries of the response \eqn{P_{ERA}} will be provided on a hourly basis
 #' between `start_time` and `end_time` or the same as `pressure$date` if `pressure` is supplied.
@@ -43,7 +44,6 @@
 #' - `lat` same as input `lat` except if over water.
 #' - `pressure_era5_norm` only if `pressure` is provided as input
 #' - `altitude` only if `pressure` is provided as input
-#' @seealso [`pressurepath_create()`], [GeoPressureManual | Pressure Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @examples
 #' # Request pressure at a given location
 #' pressurepath <- geopressure_timeseries(
@@ -76,8 +76,8 @@
 #' )
 #' @family pressurepath
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-#' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14, 1118–1129
-#'  <https://doi.org/10.1111/2041-210X.14043>.}
+#' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
+#' 1118–1129 <https://doi.org/10.1111/2041-210X.14043>.}
 #' @export
 geopressure_timeseries <- function(lat,
                                    lon,
@@ -131,8 +131,8 @@ geopressure_timeseries <- function(lat,
     write(jsonlite::toJSON(body_df), temp_file)
     cli::cli_abort(c(
       x = "Error with your request on {.url https://glp.mgravey.com/GeoPressure/v1/timeseries/}.",
-      i = "Please try again, and if the problem persists, file an issue on Github \\
-      {.url https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=pressurepath_create&labels=crash}
+      i = "Please try again, and if the problem persists, file an issue on Github {.url \\
+      https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=pressurepath_create&labels=crash}
       with this log file located on your computer: {.file {temp_file}}."
     ))
   }
@@ -219,7 +219,8 @@ geopressure_timeseries <- function(lat,
         id_elev <- pressure$elev == elev_i
         pressure_tag_m <- mean(pressure$value[id_elev & id_norm])
         pressure_era5_m <- mean(out$pressure_era5[id_elev & id_norm])
-        out$pressure_era5_norm[id_elev] <- out$pressure_era5[id_elev] - pressure_era5_m + pressure_tag_m
+        out$pressure_era5_norm[id_elev] <- out$pressure_era5[id_elev] - pressure_era5_m +
+          pressure_tag_m
       }
     }
   }

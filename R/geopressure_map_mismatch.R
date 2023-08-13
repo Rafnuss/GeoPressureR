@@ -25,20 +25,21 @@
 #' resolution in order to match ERA-5 resolution.
 #'
 #' It is possible to indicate different elevation levels when the bird was spending time at
-#' locations with different elevations within a general area (~10km), and thus within the same stationary
-#' period. This can be done by using `tag$label="elev_n"`for all measurements of the same
+#' locations with different elevations within a general area (~10km), and thus within the same
+#' stationary period. This can be done by using `tag$label="elev_n"`for all measurements of the same
 #' elevation level *n*. See example in [GeoPressureManual | Pressure Map
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html).
 #'
-#' For more background and details on this algorithm, please refer to the [associated scientific publication
-#' ]( https://doi.org/10.1111/2041-210X.14043). For more information on the exact computation, read
-#' the [GeoPressure API documentation](https://raphaelnussbaumer.com/GeoPressureAPI/).
+#' For more background and details on this algorithm, please refer to the [associated scientific
+#' publication]( https://doi.org/10.1111/2041-210X.14043). For more information on the exact
+#' computation, read the [GeoPressure API documentation
+#' ](https://raphaelnussbaumer.com/GeoPressureAPI/).
 #'
 #' @inheritParams geopressure_map
 #' @param debug logical to display additional information to debug a request
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-#' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14, 1118–1129
-#'  <https://doi.org/10.1111/2041-210X.14043>.}
+#' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
+#' 1118–1129 <https://doi.org/10.1111/2041-210X.14043>.}
 #' @family geopressure_map
 #' @export
 geopressure_map_mismatch <- function(tag,
@@ -87,14 +88,18 @@ geopressure_map_mismatch <- function(tag,
 
   # Request URLS
   if (!quiet) {
-    cli::cli_progress_step("Generate requests for {.val {length(unique(pres$stapelev))}} stapelev (on GeoPressureAPI): {.field {unique(pres$stapelev)}}")
+    cli::cli_progress_step("Generate requests for {.val {length(unique(pres$stapelev))}} stapelev \\
+                           (on GeoPressureAPI): {.field {unique(pres$stapelev)}}")
   }
   res <- httr::POST("https://glp.mgravey.com/GeoPressure/v1/map/",
     body = body_df,
     encode = "form",
     httr::config(
       timeout = timeout,
-      verbose = ifelse(debug, httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE), FALSE)
+      verbose = ifelse(debug,
+        httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE),
+        FALSE
+      )
     )
   )
 
@@ -150,15 +155,15 @@ geopressure_map_mismatch <- function(tag,
   future::plan(future::multisession, workers = workers)
 
   f <- c()
-  labels_ordered <- labels[order(as.numeric(gsub("|", ".", labels, fixed = TRUE)))]
-
 
   if (!quiet) {
+    # nolint start
     msg <- glue::glue(" | 0/{length(urls)}")
     cli::cli_progress_step(
       "Sending requests for {.val {length(urls)}} stapelev: {msg}",
       spinner = TRUE
     )
+    # nolint end
   }
   for (i_u in seq_len(length(urls))) {
     if (!quiet) {
@@ -185,11 +190,13 @@ geopressure_map_mismatch <- function(tag,
   file <- c()
   map <- c()
   if (!quiet) {
+    # nolint start
     msg2 <- glue::glue("0/{length(urls)}")
     cli::cli_progress_step(
       "Compute maps (on GEE server) and download .geotiff: {msg2}",
       spinner = TRUE
     )
+    # nolint end
   }
   tryCatch(
     expr = {
@@ -246,7 +253,8 @@ geopressure_map_mismatch <- function(tag,
     }, map[i_label], nb_sample[i_label])) / sum(nb_sample[i_label])
 
     # Extract the two map
-    mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE) / 100 / 100 # convert MSE from Pa to hPa
+    # convert MSE from Pa to hPa
+    mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE) / 100 / 100
     mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
   }
 

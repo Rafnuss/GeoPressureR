@@ -49,13 +49,17 @@ print.tag <- function(x, ...) {
       if (!("setmap" %in% status)) {
         cli::cli_bullets(c("x" = "No geographical parameters defined yet. Use {.fun tag_set_map}"))
       } else {
+        # nolint start
         geo <- map_expand(tag$param$extent, tag$param$scale)
         cli::cli_bullets(c(
-          "*" = "Extent W-E: {.val {tag$param$extent[1]}}\u00b0 to {.val {tag$param$extent[2]}}\u00b0",
-          "*" = "Extent S-N: {.val {tag$param$extent[3]}}\u00b0 to {.val {tag$param$extent[4]}}\u00b0",
+          "*" = "Extent W-E: {.val {tag$param$extent[1]}}\u00b0 to \\
+          {.val {tag$param$extent[2]}}\u00b0",
+          "*" = "Extent S-N: {.val {tag$param$extent[3]}}\u00b0 to \\
+          {.val {tag$param$extent[4]}}\u00b0",
           "*" = "Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}\u00b0",
           "*" = "Resolution lat-lon: {.val {1/tag$param$scale}}\u00b0"
         ))
+        # nolint end
 
         # Map
         cli::cli_h3("Map")
@@ -67,11 +71,12 @@ print.tag <- function(x, ...) {
           }
         } else {
           if ("map_pressure_mse" %in% status) {
-            cli::cli_bullets(c("!" = "Pressure mismatched maps {.field map_pressure_mse} computed and \\
-                              {.field map_pressure_mask}, but not the likelihood map. Use \\
+            cli::cli_bullets(c("!" = "Pressure mismatched maps {.field map_pressure_mse} computed \\
+                              and {.field map_pressure_mask}, but not the likelihood map. Use \\
                               {.fun geopressure_map_likelihood}."))
           } else {
-            cli::cli_bullets(c("x" = "No pressure likelihood computed. Use {.fun geopressure_map}."))
+            cli::cli_bullets(c("x" = "No pressure likelihood computed. Use \\
+                               {.fun geopressure_map}."))
           }
         }
         if ("map_light" %in% status) {

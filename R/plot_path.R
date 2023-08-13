@@ -152,7 +152,8 @@ plot_path_leaflet <- function(
     circle
   ))
   # Legend
+  # nolint start
   # https://stackoverflow.com/questions/58505589/circles-in-legend-for-leaflet-map-with-addcirclemarkers-in-r-without-shiny
-
+  # nolint end
   return(map)
 }

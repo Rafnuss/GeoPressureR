@@ -134,11 +134,13 @@ pressurepath_create <- function(tag,
   f <- c()
 
   if (!quiet) {
+    # nolint start
     msg <- glue::glue("0/{nrow(path)}")
     cli::cli_progress_step(
       "Generate requests (on GeoPressureAPI) for stap: {msg}",
       spinner = TRUE
     )
+    # nolint end
   }
   for (i_s in seq_len(nrow(path))) {
     i_stap <- path$stap_id[i_s]
@@ -164,7 +166,7 @@ pressurepath_create <- function(tag,
     pressure_q <- subset(pressure, !is.na(id_q))
 
     # Send the query
-    if (!is.na(path$lat[i_s]) & !is.na(path$lon[i_s]) & nrow(pressure_q) > 0) {
+    if (!is.na(path$lat[i_s]) && !is.na(path$lon[i_s]) && nrow(pressure_q) > 0) {
       f[[i_s]] <- future::future({
         geopressure_timeseries(path$lat[i_s], path$lon[i_s],
           pressure = pressure_q,
@@ -176,11 +178,13 @@ pressurepath_create <- function(tag,
 
   pressure_timeseries <- list()
   if (!quiet) {
+    # nolint start
     msg2 <- glue::glue("0/{length(f)}")
     cli::cli_progress_step(
       "Compute and download timeseries (on GEE server): {msg2}",
       spinner = TRUE
     )
+    # nolint end
   }
   for (i_s in seq_len(length(f))) {
     i_stap <- path$stap_id[i_s]

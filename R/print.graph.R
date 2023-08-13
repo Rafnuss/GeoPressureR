@@ -39,10 +39,14 @@ print.graph <- function(x, ...) {
   }
 
   cli::cli_h3("Geographical parameters ({.field scale} and {.field extent})")
+  # nolint start
   geo <- map_expand(graph$param$extent, graph$param$scale)
+  # nolint end
   cli::cli_bullets(c(
-    "*" = "Extent W-E: {.val {graph$param$extent[1]}}\u00b0 to {.val {graph$param$extent[2]}}\u00b0",
-    "*" = "Extent S-N: {.val {graph$param$extent[3]}}\u00b0 to {.val {graph$param$extent[4]}}\u00b0",
+    "*" = "Extent W-E: {.val {graph$param$extent[1]}}\u00b0 to \\
+    {.val {graph$param$extent[2]}}\u00b0",
+    "*" = "Extent S-N: {.val {graph$param$extent[3]}}\u00b0 to \\
+    {.val {graph$param$extent[4]}}\u00b0",
     "*" = "Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}\u00b0",
     "*" = "Resolution lat-lon: {.val {1/graph$param$scale}}\u00b0"
   ))

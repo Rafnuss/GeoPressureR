@@ -27,7 +27,7 @@ ui <- bootstrapPage(
         column(9, div(
           style = "text-align: center;",
           "Full Track",
-          switchInput("full_track", value = TRUE, inline = T, size = "small")
+          switchInput("full_track", value = TRUE, inline = TRUE, size = "small")
         ))
       )
     ),

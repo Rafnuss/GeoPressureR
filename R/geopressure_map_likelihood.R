@@ -18,8 +18,8 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html).
 #' @inheritParams geopressure_map
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-#' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14, 1118–1129
-#'  <https://doi.org/10.1111/2041-210X.14043>.}
+#' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
+#' 1118–1129 <https://doi.org/10.1111/2041-210X.14043>.}
 #' @family geopressure_map
 #' @export
 geopressure_map_likelihood <- function(tag,
@@ -36,7 +36,8 @@ geopressure_map_likelihood <- function(tag,
   } else if (length(sd) != nrow(tag$stap)) {
     cli::cli_abort(c(
       "x" = "{.var sd} is of length {.val {length(sd)}}.",
-      ">" = "{.var sd} needs to be of length {.val {1}} or {.val {nrow(tag$stap)}} ({.code nrow(tag$stap)})."
+      ">" = "{.var sd} needs to be of length {.val {1}} or {.val {nrow(tag$stap)}} \\
+      ({.code nrow(tag$stap)})."
     ))
   }
   assertthat::assert_that(all(sd >= 0))
@@ -79,7 +80,8 @@ geopressure_map_likelihood <- function(tag,
   # Add known location
   # compute latitude, longitude and dimension
   g <- map_expand(tag$param$extent, tag$param$scale)
-  # Add known location only if map_pressure_mse is null (ie., if .known_compute = TRUE in geopressure_map_mse)
+  # Add known location only if map_pressure_mse is null
+  # (ie., if .known_compute = TRUE in geopressure_map_mse)
   for (stap_id in which(!is.na(tag$stap$known_lat) & sapply(tag$map_pressure_mse$data, is.null))) {
     # Initiate an empty map
     map_pressure[[stap_id]] <- matrix(0, nrow = g$dim[1], ncol = g$dim[2])

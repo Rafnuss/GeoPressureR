@@ -87,9 +87,12 @@ tag_label <- function(tag,
       choices <- list(
         "1" = glue::glue("No, return the original `tag`"),
         "2" = glue::glue("Yes, read the new label, but start `tag` from scratch"),
-        "3" = glue::glue("Yes, use `tag_update()` to keep the setmap parameters and re-run likelihood maps.")
+        "3" = glue::glue("Yes, use `tag_update()` to keep the setmap parameters and re-run \\
+                         likelihood maps.")
       )
-      res <- as.numeric(names(utils::select.list(choices, title = "How to you want to proceed with the new label file?")))
+      res <- as.numeric(names(
+        utils::select.list(choices, title = "How to you want to proceed with the new label file?")
+      ))
 
       if (res == 1) {
         return(tag)

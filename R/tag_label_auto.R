@@ -14,7 +14,7 @@
 #' `"flight"` in the acceleration data.frame when a sustained high-activity period is detected.
 #' @seealso [flapping chapter of the tagLr
 #' manual](https://kiranlda.github.io/tagLrManual/flapping.html), [GeoPressureManual | Pressure Map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#automatic-classification-of-activity)
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))

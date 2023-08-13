@@ -1,3 +1,4 @@
+# nolint start
 server <- function(input, output, session) {
   session$onSessionEnded(function() {
     stopApp()
@@ -12,7 +13,7 @@ server <- function(input, output, session) {
   reactVal <- reactiveValues(
     path = .path,
     pressurepath = .pressurepath,
-    isEdit = F # if editing position
+    isEdit = FALSE # if editing position
   )
 
   stap_include <- reactive({
@@ -407,3 +408,4 @@ server <- function(input, output, session) {
     }
   })
 }
+# nolint end

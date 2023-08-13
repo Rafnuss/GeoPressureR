@@ -18,8 +18,8 @@
 #' computed. Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.
 #' @param scale Number of pixels per 1° latitude-longitude. For instance, `scale = 10` for a
 #' resolution of 0.1° (~10km) and `scale=4` for a resolution of 0.25° (~30km). To avoid
-#' interpolating the ERA5 data, the scale should be smaller than 10. Read more about scale on the [Google
-#' earth Engine documentation](https://developers.google.com/earth-engine/guides/scale).
+#' interpolating the ERA5 data, the scale should be smaller than 10. Read more about scale on the
+#' [Google earth Engine documentation](https://developers.google.com/earth-engine/guides/scale).
 #' @param include_stap_id Vector of `stap_id` defining which stationary period to model, that is,
 #' to compute in the likelihood map and use in the graph.
 #' @param include_min_duration Numeric defining the minimum threshold of stationary periods duration
@@ -93,7 +93,8 @@ tag_set_map <- function(tag,
   # Define which stationary periods to include
   assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
   assertthat::assert_that(is.numeric(include_min_duration))
-  include_min_duration_id <- stap$stap_id[stap2duration(stap, units = "hours") > include_min_duration]
+  include_min_duration_id <- stap$stap_id[stap2duration(stap, units = "hours") >
+    include_min_duration]
 
   # Include stap which are matching the three include constrains
   stap_include <- rep(FALSE, nrow(stap))

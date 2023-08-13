@@ -1,19 +1,19 @@
 #' Compute likelihood map from pressure data
 #'
 #' @description
-#' This function computes a likelihood map for each stationary period based on pressure measurements.
-#' It performs the following operations:
+#' This function computes a likelihood map for each stationary period based on pressure
+#' measurements. It performs the following operations:
 #'
 #' 1. Compute the mismatch map between the pressure sensor measurements and the ERA5 reanalysis
 #' database. See [`geopressure_map_mismatch()`] for details.
 #' 2. Convert the mismatch map into a likelihood map with [`geopressure_map_likelihood()`].
 #'
-#' A map will only be computed for the stationary periods included in `tag$stap$include` and without a
-#' known position `tag$stap$known_l**`. If the position is known, the function will
+#' A map will only be computed for the stationary periods included in `tag$stap$include` and without
+#' a known position `tag$stap$known_l**`. If the position is known, the function will
 #' create a likelihood map with a single 1 value at the grid cell closest to the known position.
 #'
-#' For more background and details on the method behind these functions, please refer to the [associated scientific
-#' publication]( https://doi.org/10.1111/2041-210X.14043).
+#' For more background and details on the method behind these functions, please refer to the
+#' [associated scientific publication]( https://doi.org/10.1111/2041-210X.14043).
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param max_sample The computation of the maps is only performed on `max_sample` datapoints of
@@ -21,11 +21,12 @@
 #' timeseries.
 #' @param margin The margin is used in the mask map to accept measurement errors, small-scale
 #' topography, and vertical movements of the bird (unit in meters, 1hPa~10m).
-#' @param sd Standard deviation of the pressure error . numeric of lenght 1 or number of stationary periods.
-#' @param thr_mask Threshold of the percentage of data points outside the elevation range to be considered
-#' not possible.
-#' @param log_linear_pooling_weight Weighting function of the log-linear pooling, taking the number of samples of the
-#' stationary periods used and returning the weight of the aggregation. See
+#' @param sd Standard deviation of the pressure error . numeric of lenght 1 or number of stationary
+#' periods.
+#' @param thr_mask Threshold of the percentage of data points outside the elevation range to be
+#' considered not possible.
+#' @param log_linear_pooling_weight Weighting function of the log-linear pooling, taking the number
+#' of samples of the stationary periods used and returning the weight of the aggregation. See
 #' [GeoPressureManual | Probability aggregation
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html) for more details.
 #' @param keep_mse_mask logical defining if the matrix of the MSE and mask are returned in the list.
@@ -65,8 +66,8 @@
 #' plot(tag, type = "map_pressure_mask", plot_leaflet = FALSE)
 #'
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-#' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14, 1118–1129
-#'  <https://doi.org/10.1111/2041-210X.14043>.}
+#' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
+#' 1118–1129 <https://doi.org/10.1111/2041-210X.14043>.}
 #' @family geopressure_map
 #' @export
 geopressure_map <- function(tag,

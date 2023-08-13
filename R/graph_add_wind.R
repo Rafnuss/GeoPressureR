@@ -30,11 +30,12 @@
 #' @seealso [GeoPressureManual | Wind graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph)
 #' @export
-graph_add_wind <- function(graph,
-                           pressure,
-                           thr_as = Inf,
-                           file = \(stap_id) glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
-                           quiet = FALSE) {
+graph_add_wind <- function(
+    graph,
+    pressure,
+    thr_as = Inf,
+    file = \(stap_id) glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
+    quiet = FALSE) {
   graph_assert(graph, "full")
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value")))
@@ -131,11 +132,11 @@ graph_add_wind <- function(graph,
 
     # We are assuming that the bird flight as a straight line between the source and the target node
     # of each edge. If multiple flights happen during this transition, we assume that the bird flew
-    # with a constant groundspeed during each flight, thus considering its cli::cli_abort-over position to be
+    # with a constant groundspeed during each flight, thus considering its stopover position to be
     # spread according to the flight duration. This does not account for habitat, so that it would
-    # assume a bird can cli::cli_abort over water. While we could improve this part of the code to assume
+    # assume a bird can stop over water. While we could improve this part of the code to assume
     # constant airspeed rather than groundspeed, we suggest to create the graph considering all
-    # cli::cli_abortovers.
+    # stopovers.
     ratio_stap <- as.matrix(c(0, cumsum(fl_s_dur) / sum(fl_s_dur)))
 
     # Prepare the u- and v- windspeed for each flight (row) and edge (col)
@@ -183,7 +184,7 @@ graph_add_wind <- function(graph,
       # on `t_q`. Extrapolation outside (before the bird departure or after he arrived) is with a
       # nearest neighbor.
 
-      dt <- fl_s_dur[i2] # old code not tested replaceent as.numeric(difftime(fl_s$end[i2], fl_s$start[i2], units = "hours"))
+      dt <- fl_s_dur[i2] # old code not tested replacent as.numeric(difftime(fl_s$end[i2], fl_s$start[i2], units = "hours"))
       dlat <- (lat_e - lat_s) / dt
       dlon <- (lon_e - lon_s) / dt
       w <- pmax(pmin(as.numeric(
@@ -280,17 +281,18 @@ graph_add_wind <- function(graph,
         # unique value that are needed. Then, we give the interpolated value back to all the lat_int
         # lon_int dimension
         # Convert the coordinate to 1d to have a more efficient unique.
-        ll_int_1D <- (round(lat_int[, i3], 1) + 90) * 10 * 10000 + (round(lon_int[, i3], 1) + 180) * 10 + 1
-        ll_int_1D_uniq <- unique(ll_int_1D)
+        ll_int_1d <- (round(lat_int[, i3], 1) + 90) * 10 * 10000 +
+          (round(lon_int[, i3], 1) + 180) * 10 + 1
+        ll_int_1d_uniq <- unique(ll_int_1d)
 
-        lat_int_uniq <- ((ll_int_1D_uniq - 1) %/% 10000) / 10 - 90
-        lon_int_uniq <- ((ll_int_1D_uniq - 1) %% 10000) / 10 - 180
+        lat_int_uniq <- ((ll_int_1d_uniq - 1) %/% 10000) / 10 - 90
+        lon_int_uniq <- ((ll_int_1d_uniq - 1) %% 10000) / 10 - 180
         # CHeck that the transofmration is correct with
-        # cbind((round(lat_int[, i3], 1)+90)*10, (ll_int_1D - 1) %/% 10000)
-        # cbind((round(lon_int[, i3],1)+180)*10, (ll_int_1D - 1) %% 10000)
+        # cbind((round(lat_int[, i3], 1)+90)*10, (ll_int_1d - 1) %/% 10000)
+        # cbind((round(lon_int[, i3],1)+180)*10, (ll_int_1d - 1) %% 10000)
         # cbind(lat_int_uniq, lon_int_uniq, lat_int[, i3], lon_int[, i3])
 
-        id_uniq <- match(ll_int_1D, ll_int_1D_uniq)
+        id_uniq <- match(ll_int_1d, ll_int_1d_uniq)
 
         tmp <- pracma::interp2(rev(lat[id_lat]), lon[id_lon],
           u[, rev(seq_len(ncol(u)))],

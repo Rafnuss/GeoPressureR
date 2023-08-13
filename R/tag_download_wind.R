@@ -42,7 +42,8 @@ tag_download_wind <- function(tag,
                               stap_id = utils::head(tag$stap$stap_id, -1),
                               cds_key = Sys.getenv("cds_key"),
                               cds_user = Sys.getenv("cds_user"),
-                              file = \(stap_id) glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
+                              file = \(stap_id)
+                              glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
                               overwrite = FALSE) {
   tag_assert(tag, "setmap")
 
@@ -72,15 +73,19 @@ tag_download_wind <- function(tag,
       ">" = "We created the directory.\f"
     ))
   }
-  if (any(file.exists(file(stap_id))) & !overwrite) {
+  if (any(file.exists(file(stap_id))) && !overwrite) {
+    # nolint start
     tmp <- file.exists(file(stap_id))
     cli::cli_abort(c(
       "x" = "There are already wind data file for stationary periods {.var {stap_id[tmp]}}",
       ">" = "Delete the corresponding file or use the arguement {.code overwrite = TRUE}."
     ))
+    # nolint end
   }
 
+  # nolint start
   # see https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Levellistings
+  # nolint end
   possible_pressure <- c(
     1, 2, 3, 5, 7, 10, 20, 30, 50, 70, seq(100, 250, 25), seq(300, 750, 50), seq(775, 1000, 25)
   )

@@ -333,9 +333,11 @@ tag_create_dto <- function(sensor_path,
   }
 
   if (length(unique(diff(df$date))) > 1) {
+    # nolint start
     dtime <- as.numeric(diff(df$date))
     cli::cli_warn("Irregular time spacing for {.file {sensor_path}}: \\
                   {df$date[which(dtime != dtime[1])]}.\f")
+    # nolint end
   }
   if (!quiet) {
     cli::cli_inform(c("v" = "Read {.file {sensor_path}}\f"))
