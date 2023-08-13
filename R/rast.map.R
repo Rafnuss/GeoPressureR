@@ -24,7 +24,6 @@
 #'
 #' rast.map(tag$map_pressure)
 #'
-#'
 #' @family map
 #' @export
 rast.map <- function(x,

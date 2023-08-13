@@ -171,7 +171,7 @@ tag_create <- function(id,
           light_path,
           skip = 19, nrow = 1, header = FALSE, sep = ""
         ) == "light(lux)")
-        if (length(col)==0) {
+        if (length(col) == 0) {
           cli::cli_abort(
             "The light file {.file {light_path}} is not compatible. Line 20 \\
             should contains {.val light(lux)}"
@@ -216,9 +216,10 @@ tag_create <- function(id,
 
         # find column index with acceleration
         col <- which(
-          utils::read.delim(acceleration_path, skip = 19, nrow = 1, header = FALSE, sep = "" )
-          == "Zact")
-        if (length(col)==0) {
+          utils::read.delim(acceleration_path, skip = 19, nrow = 1, header = FALSE, sep = "")
+          == "Zact"
+        )
+        if (length(col) == 0) {
           cli::cli_abort(c(
             "x" = "The acceleration file {.file {acceleration_path}} is not compatible. Line 20 \\
             should contains {.val Zact}",

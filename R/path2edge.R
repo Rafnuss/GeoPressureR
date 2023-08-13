@@ -90,7 +90,7 @@ path2edge <- function(path, graph, add_flight = TRUE) {
     edge$ws <- graph$ws[e$edge]
   }
 
-  if (add_flight){
+  if (add_flight) {
     flight <- stap2flight(graph$stap)
     edge <- merge(edge, flight)
   }

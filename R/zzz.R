@@ -1,4 +1,3 @@
-
 #' @importFrom ggplot2 .data
 NULL
 
@@ -9,4 +8,3 @@ NULL
 methods::setOldClass("map")
 
 methods::setMethod(rast, "map", rast.map)
-

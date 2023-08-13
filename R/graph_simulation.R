@@ -77,8 +77,9 @@ graph_simulation <- function(graph,
   }
 
   # Loop through the simulation along chronological order
-  if (!quiet)
+  if (!quiet) {
     cli::cli_progress_bar(total = graph$sz[3])
+  }
   for (i_s in seq(2, graph$sz[3])) {
     # find edges arriving to this stationary period
     id <- s_id[, 3] == (i_s - 1)
@@ -106,8 +107,9 @@ graph_simulation <- function(graph,
     path_ind3d[, i_s] <- path_ind2d + nll * (i_s - 1)
 
     # Update progress bar
-    if (!quiet)
+    if (!quiet) {
       cli::cli_progress_update(set = i_s, force = TRUE)
+    }
   }
 
   # convert 3D to 2D grid
