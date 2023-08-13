@@ -77,7 +77,9 @@ pressurepath_create <- function(tag,
                                 workers = "auto",
                                 preprocess = FALSE,
                                 quiet = FALSE) {
-  cli::cli_progress_step("Prepare pressure")
+  if (!quiet) {
+    cli::cli_progress_step("Prepare pressure")
+  }
   # Assert tag
   tag_assert(tag, "stap")
 
@@ -203,7 +205,9 @@ pressurepath_create <- function(tag,
     }
   }
 
-  cli::cli_progress_step("Build pressurepath")
+  if (!quiet) {
+    cli::cli_progress_step("Build pressurepath")
+  }
   pressurepath <- do.call("rbind", pressure_timeseries)
 
   attr(pressurepath, "id") <- tag$param$id

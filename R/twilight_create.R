@@ -10,14 +10,13 @@
 #' value of light (i.e, first and last light of day).
 #' @param twl_offset Shift of the middle of the night compared to 00:00 UTC (in hours). If not
 #' provided, it uses the middle of all nights.
+#' @param transform_light logical to use a log transformation of light
+#'
 #' @return a `tag` list containing a new data.frame `twilight` with columns:
 #' - `twilight` (date-time of twilight)
 #' - `rise` (logical) indicating sunrise (`TRUE`) or sunset (`FALSE`).
 #' - `stap_id` if `stap_id` is present in `light`.
-#' @family twilight
-#' @seealso [GeoPressureManual | Light Map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html), [`TwGeos::findTwilights()`](
-#' https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html)
+#'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
@@ -28,10 +27,16 @@
 #' str(tag$twilight)
 #'
 #' plot(tag, type = "twilight")
+#'
+#' @family twilight
+#' @seealso [GeoPressureManual | Light Map
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html), [`TwGeos::findTwilights()`](
+#' https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html)
 #' @export
 twilight_create <- function(tag,
                             twl_thr = NULL,
-                            twl_offset = NULL) {
+                            twl_offset = NULL,
+                            transform_light = TRUE) {
   tag_assert(tag)
 
   light <- tag$light
@@ -39,6 +44,10 @@ twilight_create <- function(tag,
   assertthat::assert_that(assertthat::has_name(light, c("date", "value")))
   assertthat::assert_that(assertthat::is.time(light$date))
   assertthat::assert_that(is.numeric(light$value))
+
+  if (transform_light) {
+    light$value <- log(light$value + 0.0001) + abs(min(log(light$value + 0.0001)))
+  }
 
   if (is.null(twl_thr)) {
     twl_thr <- min(light$value[light$value > 0])

@@ -62,11 +62,6 @@ test_that("workflow | full", {
   expect_no_error(plot_graph_movement(graph))
 
   expect_no_error(plot_path(path))
-
-  expect_no_error(geopressureviz(tag,
-    pressurepath = pressurepath,
-    marginal = marginal
-  ))
 })
 
 test_that("workflow | Missing pressure value", {

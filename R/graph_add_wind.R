@@ -17,6 +17,8 @@
 #' POSIXt and `value` in hPa.
 #' @param thr_as threshold of airspeed (km/h).
 #' @inheritParams tag_download_wind
+#' @param quiet logical to hide messages about the progress
+#'
 #' @return a `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
 #' @family graph
@@ -31,7 +33,8 @@
 graph_add_wind <- function(graph,
                            pressure,
                            thr_as = Inf,
-                           file = \(stap_id) glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc")) {
+                           file = \(stap_id) glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
+                           quiet = FALSE) {
   graph_assert(graph, "full")
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value")))
@@ -109,8 +112,9 @@ graph_add_wind <- function(graph,
   }
 
   # Start progress bar
-  nds_expend_sum <- table(s[, 3])
-  cli::cli_progress_bar(0, total = sum(nds_expend_sum))
+  if (!quiet) {
+    cli::cli_progress_bar(0, total = sum(table(s[, 3])))
+  }
 
   # Loop through the stationary period kept in the graph
   for (i1 in seq_len(graph$sz[3] - 1)) {
@@ -308,7 +312,9 @@ graph_add_wind <- function(graph,
       u_stap[i2, ] <- colSums(u_int * w)
       v_stap[i2, ] <- colSums(v_int * w)
 
-      cli::cli_progress_update(set = sum(nds_expend_sum[seq(1, i1)]))
+      if (!quiet) {
+        cli::cli_progress_update(set = sum(table(s[, 3])[seq(1, i1)]))
+      }
     }
     # Compute the average  over all the flight of the transition accounting for the duration of the
     # flight.

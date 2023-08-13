@@ -282,7 +282,7 @@ tag_create_detect <- function(file, directory, default = NULL) {
   }
   if (length(path) > 1) {
     cli::cli_warn(c(
-      "!" = "Multiple files matching {.file {file}}: {path}",
+      "!" = "Multiple files matching {.var {file}}: {.file {path}}",
       ">" = "The function will continue with the first one.\f"
     ))
     return(path[1])

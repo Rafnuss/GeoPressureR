@@ -73,6 +73,7 @@ param_create <- function(id, default = FALSE, ...) {
   } else {
     param <- list(
       id = id,
+      GeoPressureR_version = utils::packageVersion("GeoPressureR"),
       ...
     )
   }
