@@ -41,6 +41,12 @@ test_that("tag_create() | Migrate Technology", {
   )
   expect_gt(nrow(tag$pressure), 0)
   expect_gt(nrow(tag$light), 0)
+
+  tag <- tag_create(
+    id = "CB621",
+    acceleration_file = NA
+    # crop_start = "2017-06-20", crop_end = "2018-05-02"
+  )
 })
 
 
