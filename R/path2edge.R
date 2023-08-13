@@ -6,6 +6,8 @@
 #'
 #' @param path a GeoPressureR `path` data.frame
 #' @param graph a GeoPressureR `graph` object
+#' @param add_flight compute flight data.frame and merge with the return data.frame
+#'
 #' @return Data.frame of the edge containing:
 #' - `stap_s` : stationary period of the origin (source).
 #' - `stap_t` : stationary period of the destination (target).
@@ -15,11 +17,14 @@
 #' - `distance` : Distance (in km) of the flight.
 #' - `ws`: if computed with `graph_add_wind()`, same value as `gs`. Airspeed is computed with
 #' `as = gs - ws` in complex number to keep the vectorial additive properties.
+#' - `start` end of the flight. If `add_flight=T`.
+#' - `end` start of the flight. If `add_flight=T`.
+#' - `duration` duration of the flight. If `add_flight=T`.
 #' @family path
 #' @seealso [GeoPressureManual | Wind graph](
 #' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#energy)
 #' @export
-path2edge <- function(path, graph) {
+path2edge <- function(path, graph, add_flight = TRUE) {
   graph_assert(graph)
 
   g <- map_expand(graph$param$extent, graph$param$scale)
@@ -83,6 +88,11 @@ path2edge <- function(path, graph) {
 
   if ("ws" %in% names(graph)) {
     edge$ws <- graph$ws[e$edge]
+  }
+
+  if (add_flight){
+    flight <- stap2flight(graph$stap)
+    edge <- merge(edge, flight)
   }
 
   return(edge)
