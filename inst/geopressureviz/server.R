@@ -115,17 +115,19 @@ server <- function(input, output, session) {
       ) +
       theme_bw()
 
-    p <- p + geom_line(
-      data = reactVal$pressurepath,
-      aes(
-        x = date,
-        y = pressure_era5_norm,
-        color = col,
-        group = stap_id,
-        linetype = linetype
-      )
-    ) +
-      scale_color_identity()
+    if (nrow(reactVal$pressurepath)>0){
+      p <- p + geom_line(
+        data = reactVal$pressurepath,
+        aes(
+          x = date,
+          y = pressure_era5_norm,
+          color = col,
+          group = stap_id,
+          linetype = linetype
+        )
+      ) +
+        scale_color_identity()
+    }
 
     ggplotly(p, dynamicTicks = T, height = 300, tooltip = c("x", "y", "linetype")) %>%
       layout(

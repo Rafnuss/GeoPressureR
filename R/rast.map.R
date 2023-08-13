@@ -38,8 +38,8 @@ rast.map <- function(x,
   # Replace stap with NULL value in `map` with a matrix of NA (this should only happen with
   # map_pressure_mse or map_pressure_mask)
   stap_id_null <- which(sapply(map$data, is.null))
-  if (length(stap_id_null) > 0) {
-    map$data[[stap_id_null]] <- matrix(NA, nrow = dim(map)[1], ncol = dim(map)[2])
+  for (i in stap_id_null) {
+    map$data[[i]] <- matrix(NA, nrow = dim(map)[1], ncol = dim(map)[2])
   }
 
   r <- terra::rast(simplify2array(map$data), extent = map$extent, crs = crs, ...)
