@@ -252,7 +252,10 @@ tag_create <- function(id,
 # Detect full path from the argument file.
 #' @noRd
 tag_create_detect <- function(file, directory, default = NULL) {
-  if (is.na(file) | is.null(file)) {
+  if (is.null(file)) {
+    return(NA)
+  }
+  if (is.na(file)) {
     return(NA)
   }
   if (file.exists(file)) {
