@@ -77,7 +77,7 @@ tag_label <- function(tag,
     # Stop the function
     cli::cli_warn(c(
       "!" = "No label file available.",
-      ">" = "Return the original {.var tag} unmodified."
+      ">" = "Return the original {.var tag} unmodified.\f"
     ))
     return(tag)
   } else {

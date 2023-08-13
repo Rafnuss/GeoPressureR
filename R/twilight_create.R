@@ -72,7 +72,7 @@ twilight_create <- function(tag,
   if (any(id_sr == 1)) {
     cli::cli_warn(c(
       "!" = "{sum(id_sr == 1)} twilights are set at midnight (relative to {.var twl_offset}).",
-      "i" = "There is likely a problem with {.var twl_offset = {twl_offset}}."
+      "i" = "There is likely a problem with {.var twl_offset = {twl_offset}}.\f"
     ))
   }
   sr <- as.POSIXct(mat$date[id_sr_r], origin = "1970-01-01", tz = "UTC")
@@ -87,7 +87,7 @@ twilight_create <- function(tag,
   if (any(id_ss == dim(l)[1])) {
     cli::cli_warn(c(
       "!" = "{sum(id_ss == 1)} twilights are set at midnight (relative to {.var twl_offset}).",
-      "i" = "There is likely a problem with {.var twl_offset = {twl_offset}}."
+      "i" = "There is likely a problem with {.var twl_offset = {twl_offset}}.\f"
     ))
   }
   ss <- as.POSIXct(mat$date[id_ss_s + 1], origin = "1970-01-01", tz = "UTC")

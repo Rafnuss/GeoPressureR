@@ -41,7 +41,7 @@ pressurepath_update <- function(pressurepath,
     cli::cli_abort("{.var path} is empty.")
   }
   if (!all(path$stap_id %in% pressure$stap_id)) {
-    cli::cli_warn("Some {.field stap_id} of {.var path} are not present in {.var tag$pressure}.")
+    cli::cli_warn("Some {.field stap_id} of {.var path} are not present in {.var tag$pressure}.\f")
   }
 
 

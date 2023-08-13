@@ -57,7 +57,8 @@
 #' tag <- geopressure_map(tag,
 #'   max_sample = 50,
 #'   sd = 0.7,
-#'   keep_mse_mask = TRUE
+#'   keep_mse_mask = TRUE,
+#'   quiet = TRUE
 #' )
 #'
 #' plot(tag, type = "map_pressure_mse", plot_leaflet = FALSE)

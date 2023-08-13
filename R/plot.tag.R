@@ -78,7 +78,7 @@ plot.tag <- function(x, type = NULL, ...) {
     map <- tag2map(tag, likelihood = type)
 
     # plot the map
-    plot.map(map, stap = tag$stap, ...)
+    plot.map(map, ...)
   } else {
     cli::cli_abort(c(
       "x" = "The type {.val {type}} is not known",

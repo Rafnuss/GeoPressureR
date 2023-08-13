@@ -190,7 +190,8 @@ geopressure_timeseries <- function(lat,
     if (!quiet) cli::cli_progress_step("Compute normalized ERA5 pressure")
     if (nrow(out) != nrow(pressure)) {
       cli::cli_warn(
-        "The returned data.frame is had a different number of element than the requested pressure."
+        "The returned data.frame is had a different number of element than the requested\\
+        pressure.\f"
       )
     }
 

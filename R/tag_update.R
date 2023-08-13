@@ -74,7 +74,7 @@ tag_update <- function(tag,
     cli::cli_warn(c(
       "!" = "Stationary period{?s} {.val {tmp}} were excluded ({.code include = FALSE}) from the \\
         original {.var tag} but are not present in the new {.var tag}",
-      ">" = "We will assume that the same stap_id excluded should again be excluded."
+      ">" = "We will assume that the same stap_id excluded should again be excluded.\f"
     ))
   }
   # Build the include to be used in the modeling, but not for geopressure and geolight
@@ -104,7 +104,7 @@ tag_update <- function(tag,
   # if (any(known$stap_id %in% stap_new$stap_id[stap_new$recompute])) {
   #  cli::cli_warn(c(
   #    "!" = "The labeling of pressure during the known stationary period {.val {known$stap_id}} has changed.",
-  #    ">" = "We will keep the same {.var tag$stap$known} and the likelihood map is kept the same."
+  #    ">" = "We will keep the same {.var tag$stap$known} and the likelihood map is kept the same.\f"
   #  ))
   # }
 
@@ -114,7 +114,7 @@ tag_update <- function(tag,
   if (all(!tag_new$stap$include)) {
     cli::cli_warn(c(
       "!" = "There are no changes with the new label file",
-      ">" = "the original {.var tag} will be returned."
+      ">" = "the original {.var tag} will be returned.\f"
     ))
     return(tag)
   }
@@ -142,7 +142,7 @@ tag_update <- function(tag,
 
   if ("map_light" %in% names(tag)) {
     if (any(is.na(stap_new$old_stap_id)) | any(stap_new$stap_id != stap_new$old_stap_id)) {
-      cli::cli_warn("Light maps needs to be recomputed as some stationay periods have changed.")
+      cli::cli_warn("Light maps needs to be recomputed as some stationay periods have changed.\f")
       tag_new$map_light <- NULL
       tag_new$twilight <- NULL
     } else {

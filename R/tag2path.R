@@ -92,7 +92,7 @@ tag2path <- function(tag,
         cli::cli_warn(c(
           "!" = "First and/or last modeled stationary periods ({.val {tag$stap$stap_id[fal]}}) \\
          areshorter than {.val {interp}} day{?s} but cannot be interpolated.",
-          ">" = "They will not be interpolated."
+          ">" = "They will not be interpolated.\f"
         ))
       }
     }

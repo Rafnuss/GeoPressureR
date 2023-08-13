@@ -58,7 +58,7 @@ tag_download_wind <- function(tag,
     cli::cli_warn(c(
       "!" = "{.var stap_id} included the last stationarp period for which no wind can be \\
       computed.",
-      ">" = "We removed this stationary period."
+      ">" = "We removed this stationary period.\f"
     ))
   }
 
@@ -69,7 +69,7 @@ tag_download_wind <- function(tag,
     dir.create(directory, showWarnings = FALSE)
     cli::cli_warn(c(
       "!" = "The directory {.file {directory}} did not exist.",
-      ">" = "We created the directory."
+      ">" = "We created the directory.\f"
     ))
   }
   if (any(file.exists(file(stap_id))) & !overwrite) {

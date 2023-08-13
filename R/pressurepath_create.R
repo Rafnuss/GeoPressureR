@@ -95,7 +95,7 @@ pressurepath_create <- function(tag,
     cli::cli_abort("{.var path} is empty.")
   }
   if (!all(path$stap_id %in% pressure$stap_id)) {
-    cli::cli_warn("Some {.field stap_id} of {.var path} are not present in {.var tag$pressure}.")
+    cli::cli_warn("Some {.field stap_id} of {.var path} are not present in {.var tag$pressure}.\f")
   }
 
   # Assert include_flight
@@ -180,7 +180,7 @@ pressurepath_create <- function(tag,
         }
       },
       error = function(cond) {
-        cli::cli_warn("Error for stap {path$stap_id[i_s]}")
+        cli::cli_warn("Error for stap {path$stap_id[i_s]}\f")
         message(cond)
       }
     )

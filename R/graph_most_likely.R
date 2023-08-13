@@ -6,6 +6,8 @@
 #' Nussbaumer (2023) for more information.
 #'
 #' @param graph a graph object.
+#' @param quiet logical to hide messages about the progress.
+#'
 #' @return Path data.frame containing the columns
 #' -`stap_id` stationary period
 #' - `j` unique ID for each path, here always 1 as there is a single path.
@@ -25,7 +27,7 @@
 #' <https://doi.org/10.1111/2041-210X.14082>.}
 #' @family graph
 #' @export
-graph_most_likely <- function(graph) {
+graph_most_likely <- function(graph, quiet = FALSE) {
   graph_assert(graph, "full")
 
   # number of nodes in the 3d grid
@@ -61,7 +63,8 @@ graph_most_likely <- function(graph) {
 
   n_edge <- sapply(node_stap, nrow)
 
-  cli::cli_progress_bar(total = sum(n_edge))
+  if (!quiet)
+    cli::cli_progress_bar(total = sum(n_edge))
   i_s <- 0
 
   for (node_i_s in node_stap) {
@@ -81,7 +84,9 @@ graph_most_likely <- function(graph) {
 
     # Update progress bar
     i_s <- i_s + 1
-    cli::cli_progress_update(set = sum(n_edge[1:i_s]), force = TRUE)
+
+    if (!quiet)
+      cli::cli_progress_update(set = sum(n_edge[1:i_s]), force = TRUE)
   }
 
   # Construct the most likely path from path_max and path_s

@@ -44,7 +44,7 @@ geopressure_map_likelihood <- function(tag,
     cli::cli_warn(c(
       "!" = "{.var sd} has values {.val {unique(sd)}}.",
       "i" = "It is generally not recommended to have a standard deviation between {.val {0.3}} \\
-      and {.val {5}}."
+      and {.val {5}}.\f"
     ))
   }
   assertthat::assert_that(is.numeric(thr_mask))
