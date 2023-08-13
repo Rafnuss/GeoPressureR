@@ -38,7 +38,7 @@
 #'   1505, 1314, 1559, 1357, 1758, 1852, 1661, 1706, 1862, 1358
 #' ), nrow = 10)
 #' path <- ind2path(ind, tag)
-#' knitr::kable(path)
+#' knitr::kable(head(path, n = 15))
 #'
 #' @family path
 #' @export

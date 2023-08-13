@@ -74,7 +74,7 @@ plot_pressurepath <- function(pressurepath,
   # knitr::kable(tag_era5, "simple")
 
   if ("ts" == type) {
-    pp$warning <- (abs(pp$error) / sd[pp$stap_id]) >= warning_std_thr
+    pp$warning <- (abs(pp$error) / sd[ifelse(pp$stap_id == 0, 1, pp$stap_id)]) >= warning_std_thr
 
     # convert stapelev to factor for color
     pp$stap_id <- factor(pp$stap_id)
@@ -104,7 +104,7 @@ plot_pressurepath <- function(pressurepath,
   } else if ("hist" == type) {
     # Check if the empirical sd is greater than the sd used in the computation of the map
 
-    pp$sd_param <- sd[pp$stap_id]
+    pp$sd_param <- sd[ifelse(pp$stap_id == 0, 1, pp$stap_id)]
     pp$sd_ok <- pp$error_sd > pp$sd_param
     pp$stapelev <- factor(pp$stapelev, levels = tag_era5$stapelev)
     pp$warning_p <- pp$sd_param * warning_std_thr

@@ -54,7 +54,7 @@ plot_path <- function(path,
     p <- ggplot2::ggplot() +
       ggplot2::geom_polygon(
         data = map_data_countries,
-        ggplot2::aes_(x = .data$long, y = .data$lat, group = .data$group),
+        ggplot2::aes(x = .data$long, y = .data$lat, group = .data$group),
         fill = "#f7f7f7", color = "#e0e0e0", size = 0.2
       ) +
       ggplot2::geom_path(

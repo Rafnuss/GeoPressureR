@@ -28,42 +28,50 @@
 #' @export
 print.graph <- function(x, ...) {
   graph <- x
-  cli::cli_h1("GeoPressureR `graph` object for {.field id}={.val {graph$param$id}}")
 
+  out <- cli::cli_fmt({
+    cli::cli_h1("GeoPressureR `graph` object for {.field id}={.val {graph$param$id}}")
 
-  cli::cli_h3("Stationary periods {.field stap}")
-  cli::cli_text("{.val {nrow(graph$stap)}} stationary period{?s}")
-  print(utils::head(graph$stap))
-  if (nrow(graph$stap) > 6) {
-    cli::cli_text("Run {.code graph$stap} to display full table")
-  }
+    cli::cli_h3("Stationary periods {.field stap}")
+    cli::cli_text("{.val {nrow(graph$stap)}} stationary period{?s}")
+    print(utils::head(graph$stap))
+    if (nrow(graph$stap) > 6) {
+      cli::cli_text("Run {.code graph$stap} to display full table")
+    }
 
-  cli::cli_h3("Geographical parameters ({.field scale} and {.field extent})")
-  geo <- map_expand(graph$param$extent, graph$param$scale)
-  cli::cli_text("Extent W-E: {.val {graph$param$extent[1]}}\u00b0 to {.val {graph$param$extent[2]}}\u00b0")
-  cli::cli_text("Extent S-N: {.val {graph$param$extent[3]}}\u00b0 to {.val {graph$param$extent[4]}}\u00b0")
-  cli::cli_text("Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}")
-  cli::cli_text("Resolution lat-lon: {.val {1/graph$param$scale}}\u00b0")
+    cli::cli_h3("Geographical parameters ({.field scale} and {.field extent})")
+    geo <- map_expand(graph$param$extent, graph$param$scale)
+    cli::cli_bullets(c(
+      "*" = "Extent W-E: {.val {graph$param$extent[1]}}\u00b0 to {.val {graph$param$extent[2]}}\u00b0",
+      "*" = "Extent S-N: {.val {graph$param$extent[3]}}\u00b0 to {.val {graph$param$extent[4]}}\u00b0",
+      "*" = "Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}\u00b0",
+      "*" = "Resolution lat-lon: {.val {1/graph$param$scale}}\u00b0"
+    ))
 
-  cli::cli_h3("Graph size")
-  geo <- map_expand(graph$param$extent, graph$param$scale)
-  cli::cli_li("{.val {length(graph$equipment)}} equipement node{?s}")
-  cli::cli_li("{.val {length(graph$retrieval)}} retrieval node{?s}")
-  cli::cli_li("{prettyNum(length(unique(c(graph$equipment, graph$t))), big.mark=',')} nodes")
-  cli::cli_li("{prettyNum(length(graph$s), big.mark=',')} edges")
+    cli::cli_h3("Graph size")
+    geo <- map_expand(graph$param$extent, graph$param$scale)
+    cli::cli_bullets(c(
+      "*" = "{.val {length(graph$equipment)}} equipement node{?s}",
+      "*" = "{.val {length(graph$retrieval)}} retrieval node{?s}",
+      "*" = "{prettyNum(length(unique(c(graph$equipment, graph$t))), big.mark=',')} nodes",
+      "*" = "{prettyNum(length(graph$s), big.mark=',')} edges"
+    ))
 
-  cli::cli_h3("Movement model")
-  if ("ws" %in% names(graph)) {
-    cli::cli_inform(c("v" = "Windspeed computed!"))
-  } else {
-    cli::cli_inform(c("!" = "Windspeed not computed. Use {.fun graph_add_wind}"))
-  }
+    cli::cli_h3("Movement model")
+    if ("ws" %in% names(graph)) {
+      cli::cli_bullets(c("v" = "Windspeed computed!"))
+    } else {
+      cli::cli_bullets(c("!" = "Windspeed not computed. Use {.fun graph_add_wind}"))
+    }
 
-  if ("movement" %in% names(graph$param)) {
-    cli::cli_inform(c("v" = "Movement model defined for {.field {graph$param$movement$type}}"))
-  } else {
-    cli::cli_inform(c("x" = "No movement model defined. Use {.fun graph_set_movement}"))
-  }
+    if ("movement" %in% names(graph$param)) {
+      cli::cli_bullets(c("v" = "Movement model defined for {.field {graph$param$movement$type}}"))
+    } else {
+      cli::cli_bullets(c("x" = "No movement model defined. Use {.fun graph_set_movement}"))
+    }
+  })
+
+  cat(out, sep = "\n")
 
   return(invisible(graph))
 }

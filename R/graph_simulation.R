@@ -6,6 +6,8 @@
 #'
 #' @param graph a graph object.
 #' @param nj Number of simulations.
+#' @param quiet logical to hide messages about the progress.
+#'
 #' @return Path data.frame containing the columns
 #' -`stap_id` stationary period
 #' - `j` unique ID for each simulation.
@@ -26,7 +28,7 @@
 #' @family graph
 #' @export
 graph_simulation <- function(graph,
-                             nj = 10) {
+                             nj = 10, quiet = F) {
   graph_assert(graph, "full")
 
   # Compute the matrix TO
@@ -75,7 +77,8 @@ graph_simulation <- function(graph,
   }
 
   # Loop through the simulation along chronological order
-  cli::cli_progress_bar(total = graph$sz[3])
+  if (!quiet)
+    cli::cli_progress_bar(total = graph$sz[3])
   for (i_s in seq(2, graph$sz[3])) {
     # find edges arriving to this stationary period
     id <- s_id[, 3] == (i_s - 1)
@@ -103,7 +106,8 @@ graph_simulation <- function(graph,
     path_ind3d[, i_s] <- path_ind2d + nll * (i_s - 1)
 
     # Update progress bar
-    cli::cli_progress_update(set = i_s, force = TRUE)
+    if (!quiet)
+      cli::cli_progress_update(set = i_s, force = TRUE)
   }
 
   # convert 3D to 2D grid

@@ -134,17 +134,19 @@ plot_tag_pressure <- function(tag,
 
     id_length <- which(pressure_length$Freq <= warning_stap_length)
     if (!quiet) {
-      cli::cli_h3("Pre-processed pressure data length")
-      if (length(id_length) > 0) {
-        for (i in seq_len(length(id_length))) {
-          cli::cli_inform(c("!" = "There are only {.val {pressure_length$Freq[id_length[i]]}} \\
+      out <- cli::cli_fmt({
+        cli::cli_h3("Pre-processed pressure data length")
+        if (length(id_length) > 0) {
+          for (i in seq_len(length(id_length))) {
+            cli::cli_bullets(c("!" = "There are only {.val {pressure_length$Freq[id_length[i]]}} \\
             datapoint{?s} for the stationary period \\
-                            {.val {pressure_length$stap_id[id_length[i]]}}\f"))
+                            {.val {pressure_length$stap_id[id_length[i]]}}"))
+          }
+        } else {
+          cli::cli_bullets(c("v" = "All stationary periods have more than \\
+                              {.val {warning_stap_length}} datapoints."))
         }
-      } else {
-        cli::cli_inform(c("v" = "All stationary periods have more than \\
-                              {.val {warning_stap_length}} datapoints.\f"))
-      }
+      })
     }
 
     # Pressure difference
@@ -166,23 +168,27 @@ plot_tag_pressure <- function(tag,
     pressure_diff_max_display <- 10
 
     if (!quiet) {
-      cli::cli_h3("Pressure difference")
-      if (nrow(pres_diff) > 0) {
-        cli::cli_inform(c(">" = "{.val {nrow(pres_diff)}} timestamp{?s} show{?s/} abnormal hourly \\
-                            change in pressure (i.e., >{.val {warning_pressure_diff}}hPa): \f"))
-        for (i in seq_len(min(nrow(pres_diff), pressure_diff_max_display))) {
-          cli::cli_inform(c("!" = "{pres_diff$date[i]} | stap: {pres_diff$stap_id[i]} | \\
-                                  {.val {round(pres_diff$value[i],1)}} hPa \f"))
+      out <- c(out, cli::cli_fmt({
+        cli::cli_h3("Pressure difference")
+        if (nrow(pres_diff) > 0) {
+          cli::cli_bullets(c(">" = "{.val {nrow(pres_diff)}} timestamp{?s} show{?s/} abnormal hourly \\
+                            change in pressure (i.e., >{.val {warning_pressure_diff}}hPa): "))
+          for (i in seq_len(min(nrow(pres_diff), pressure_diff_max_display))) {
+            cli::cli_bullets(c("!" = "{pres_diff$date[i]} | stap: {pres_diff$stap_id[i]} | \\
+                                  {.val {round(pres_diff$value[i],1)}} hPa "))
+          }
+          if (nrow(pres_diff) > pressure_diff_max_display) {
+            cli::cli_bullets(c(">" = "{.val {nrow(pres_diff)-pressure_diff_max_display}} more \\
+                             timestamp{?s} {?is/are} exceeding the threshold."))
+          }
+        } else {
+          cli::cli_bullets(c("v" = "All hourly changes in pressure are below \\
+                               {.val {warning_pressure_diff}} hPa."))
         }
-        if (nrow(pres_diff) > pressure_diff_max_display) {
-          cli::cli_inform(c(">" = "{.val {nrow(pres_diff)-pressure_diff_max_display}} more \\
-                             timestamp{?s} {?is/are} exceeding the threshold.\f"))
-        }
-      } else {
-        cli::cli_inform(c("v" = "All hourly changes in pressure are below \\
-                               {.val {warning_pressure_diff}} hPa.\f"))
-      }
+      }))
+      cat(out, sep = "\n")
     }
+
 
     p <- p +
       ggplot2::geom_point(
