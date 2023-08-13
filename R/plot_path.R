@@ -33,10 +33,10 @@ plot_path <- function(path,
       plot_path_leaflet(path, ...)
   } else {
     bbox <- list(
-      min_lon = min(path$lon) - pad,
-      max_lon = max(path$lon) + pad,
-      min_lat = min(path$lat) - pad,
-      max_lat = max(path$lat) + pad
+      min_lon = min(path$lon, na.rm = TRUE) - pad,
+      max_lon = max(path$lon, na.rm = TRUE) + pad,
+      min_lat = min(path$lat, na.rm = TRUE) - pad,
+      max_lat = max(path$lat, na.rm = TRUE) + pad
     )
 
     world <- ggplot2::map_data("world")
@@ -51,26 +51,42 @@ plot_path <- function(path,
 
     path$duration <- log(stap2duration(path))
 
+    if (!("j" %in% names(path))) path$j <- 1
+
     p <- ggplot2::ggplot() +
       ggplot2::geom_polygon(
         data = map_data_countries,
         ggplot2::aes(x = .data$long, y = .data$lat, group = .data$group),
-        fill = "#f7f7f7", color = "#e0e0e0", size = 0.2
-      ) +
-      ggplot2::geom_path(
-        data = path,
+        fill = "#f7f7f7", color = "#e0e0e0", linewidth = 0.2
+      )
+
+    path_full <- path[!is.na(path$lat), ]
+    if (nrow(path_full) < nrow(path)) {
+      p <- p + ggplot2::geom_path(
+        data = path_full,
         ggplot2::aes(x = .data$lon, y = .data$lat, group = .data$j),
-        color = "#3498db", linewidth = 1
-      ) +
+        color = "black", linewidth = 1, alpha = 0.2
+      )
+    }
+
+    p <- p + ggplot2::geom_path(
+      data = path,
+      ggplot2::aes(x = .data$lon, y = .data$lat, group = .data$j),
+      color = "black", linewidth = 1
+    ) +
       ggplot2::geom_point(
-        data = path,
+        data = path_full,
         ggplot2::aes(x = .data$lon, y = .data$lat, size = .data$duration),
         fill = "#e74c3c", color = "black", shape = 21
       ) +
-      ggplot2::coord_fixed(ratio = 1.3,
-                           xlim = c(bbox$min_lon, bbox$max_lon),
-                           ylim = c(bbox$min_lat, bbox$max_lat)) +
+      ggplot2::coord_fixed(
+        ratio = 1.3,
+        xlim = c(bbox$min_lon, bbox$max_lon),
+        ylim = c(bbox$min_lat, bbox$max_lat)
+      ) +
       ggplot2::theme_minimal()
+
+
 
     return(p)
   }
@@ -99,6 +115,23 @@ plot_path_leaflet <- function(
       fillOpacity = 0.8,
       label = glue::glue("#{path$stap_id}, {round(stap2duration(path), 1)} days")
     )) {
+  path_full <- path[!is.na(path$lat), ]
+
+  if (nrow(path_full) < nrow(path)) {
+    polyline_full <- polyline
+    # polyline_full$weight <- polyline_full$weight/2
+    polyline_full$opacity <- polyline_full$opacity / 2
+    map <- do.call(leaflet::addPolylines, c(
+      list(
+        map = map,
+        lng = path_full$lon,
+        lat = path_full$lat,
+        group = path_full$j
+      ),
+      polyline_full
+    ))
+  }
+
   map <- do.call(leaflet::addPolylines, c(
     list(
       map = map,
@@ -112,9 +145,9 @@ plot_path_leaflet <- function(
   map <- do.call(leaflet::addCircleMarkers, c(
     list(
       map = map,
-      lng = path$lon,
-      lat = path$lat,
-      group = path$j
+      lng = path_full$lon,
+      lat = path_full$lat,
+      group = path_full$j
     ),
     circle
   ))
