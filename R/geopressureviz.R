@@ -18,12 +18,11 @@ geopressureviz <- function(x,
                            pressurepath = NULL,
                            marginal = NULL,
                            launch_browser = TRUE) {
-
   if (!inherits(x, "tag")) {
-    if (is.character(x) & file.exists(x)){
+    if (is.character(x) & file.exists(x)) {
       file <- x
-    } else if (is.character(x)){
-      file = glue::glue("./data/interim/{x}.RData")
+    } else if (is.character(x)) {
+      file <- glue::glue("./data/interim/{x}.RData")
     } else {
       file <- NULL
     }
@@ -93,7 +92,7 @@ geopressureviz <- function(x,
     # Set the initial path with tag2path
     path <- tag2path(tag)
   } else {
-    path <- unique(pressurepath[, c("stap_id", "lat", "lon")])
+    path <- merge(tag$stap, unique(pressurepath[, c("stap_id", "lat", "lon")]), all = TRUE)
     pressurepath$linetype <- as.factor(1)
     pressurepath <- merge(pressurepath, stap[, names(stap) %in% c("stap_id", "col")], by = "stap_id")
   }
@@ -124,7 +123,6 @@ geopressureviz <- function(x,
 
   # Start the app
   shiny::runApp(system.file("geopressureviz", package = "GeoPressureR"),
-                launch.browser = launch_browser
+    launch.browser = launch_browser
   )
-  return(.GlobalEnv$.path0)
 }

@@ -3,6 +3,10 @@ server <- function(input, output, session) {
     stopApp()
   })
 
+  observe({
+    .GlobalEnv$geopressureviz_path <- reactVal$path
+  })
+
   ## Reactive variable ----
 
   reactVal <- reactiveValues(
@@ -345,21 +349,30 @@ server <- function(input, output, session) {
     )
 
     # Find the new index for linetype
-    pressuretimeseries$linetype <-
-      as.factor(max(as.numeric(reactVal$pressurepath$linetype[reactVal$pressurepath$stap_id == stap_id])) + 1)
+    pressuretimeseries$linetype <- as.factor(ifelse(
+      any(reactVal$pressurepath$stap_id == stap_id),
+      max(as.numeric(reactVal$pressurepath$linetype[reactVal$pressurepath$stap_id == stap_id])) + 1,
+      1
+    ))
+
     pressuretimeseries$stap_ref <- stap_id
-    pressuretimeseries$col <- reactVal$pressurepath$col[reactVal$pressurepath$stap_id == stap_id][1]
+    pressuretimeseries$col <- .stap$col[.stap$stap_id == stap_id][1]
 
     # update lat lon in case over water
     reactVal$path$lon[i_stap] <- pressuretimeseries$lon[1]
     reactVal$path$lat[i_stap] <- pressuretimeseries$lat[1]
 
     # Merge the two data.frame
-    pressuretimeseries <- pressuretimeseries[, match(
-      names(reactVal$pressurepath),
-      names(pressuretimeseries)
-    )]
-    reactVal$pressurepath <- rbind(reactVal$pressurepath, pressuretimeseries)
+    if (nrow(reactVal$pressurepath)>0){
+      pressuretimeseries <- pressuretimeseries[, match(
+        names(reactVal$pressurepath),
+        names(pressuretimeseries)
+      )]
+      reactVal$pressurepath <- rbind(reactVal$pressurepath, pressuretimeseries)
+    } else{
+      reactVal$pressurepath <- pressuretimeseries
+    }
+
 
     # ?
     updateSelectizeInput(session, "i_stap", selected = 1)
