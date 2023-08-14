@@ -61,8 +61,8 @@ ind2path <- function(ind,
   assertthat::assert_that(dim(ind)[2] == nrow(stap))
 
   # Convert the index in 2D grid into 1D lat and lon coordinate
-  ind_lat <- (ind %% g$dim[1])
-  ind_lon <- (ind - ind_lat) / g$dim[1] + 1
+  ind_lon <- ceiling(ind / g$dim[1]) # (ind %% g$dim[1])
+  ind_lat <- (ind - 1) %% g$dim[1] + 1 # (ind - ind_lat) / g$dim[1] + 1
 
   # Create the data.frame with all information
   path0 <- data.frame(
