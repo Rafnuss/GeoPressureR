@@ -10,6 +10,7 @@
 #' @examples
 #' # Display the default parameters used in the package.
 #' param <- param_create("18LX", default = T)
+#'
 #' print(param)
 #'
 #' @family param
@@ -34,10 +35,10 @@ print.param <- function(x, ...) {
   cli::cli_h3("tag label {.fun tag_label}")
   cli::cli_bullets(c("*" = "{.field label_file}: {.val {call2deparse(param$label_file)}}"))
 
-  cli::cli_h3("Stationary period definition {.fun tag2stap}")
+  cli::cli_h3("Stationary period definition {.fun tag_set_map}")
+  cli::cli_bullets(c("*" = "{.field known}:"))
+  print(param$known)
   cli::cli_bullets(c(
-    "*" = "{.field known}:",
-    print(param$known),
     "*" = "{.field include_stap_id}: {.val {call2deparse(param$include_stap_id)}}",
     "*" = "{.field include_min_duration}: {.val {param$include_min_duration}}"
   ))

@@ -15,7 +15,8 @@
 #' @return A GeoPressureR `param` list
 #'
 #' @examples
-#' param_create("18LX", extent = c(0, 0, 1, 1))
+#' param = param_create("18LX", extent = c(0, 0, 1, 1))
+#' print(param)
 #'
 #' @family param
 #' @export
@@ -52,14 +53,16 @@ param_create <- function(id, default = FALSE, ...) {
       thr_gs = formals(graph_create)$thr_gs,
       thr_as = formals(graph_add_wind)$thr_as,
       wind_file = formals(graph_add_wind)$file,
-      type = formals(graph_set_movement)$type,
-      method = formals(graph_set_movement)$method,
-      shape = formals(graph_set_movement)$shape,
-      scale = formals(graph_set_movement)$scale,
-      location = formals(graph_set_movement)$location,
-      bird = formals(graph_set_movement)$bird,
-      power2prob = formals(graph_set_movement)$power2prob,
-      low_speed_fix = formals(graph_set_movement)$low_speed_fix,
+      movement = list(
+        type = formals(graph_set_movement)$type,
+        method = formals(graph_set_movement)$method,
+        shape = formals(graph_set_movement)$shape,
+        scale = formals(graph_set_movement)$scale,
+        location = formals(graph_set_movement)$location,
+        bird = formals(graph_set_movement)$bird,
+        power2prob = formals(graph_set_movement)$power2prob,
+        low_speed_fix = formals(graph_set_movement)$low_speed_fix
+      ),
       GeoPressureR_version = utils::packageVersion("GeoPressureR")
     )
 
