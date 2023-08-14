@@ -95,5 +95,8 @@ path2edge <- function(path, graph, add_flight = TRUE) {
     edge <- merge(edge, flight)
   }
 
+  # Sort by stap_s
+  edge <- edge[order(edge$stap_s),]
+
   return(edge)
 }
