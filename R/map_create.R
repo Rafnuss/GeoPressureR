@@ -118,9 +118,23 @@ dim.map <- function(x) {
   assertthat::assert_that(assertthat::are_equal(dim(x), dim(y)))
 
   # Compute value
-  x$data <- mapply(\(p, l) p * l, x$data, y$data, SIMPLIFY = FALSE)
+  x$data <- mapply(\(p, l) {
+    if (is.null(p) && is.null(l)) {
+      return(NULL)
+    } else if (is.null(p)) {
+      return(l)
+    } else if (is.null(l)) {
+      return(p)
+    } else {
+      return(p * l)
+    }
+  }, x$data, y$data, SIMPLIFY = FALSE)
 
-  x$stap <- merge(x$stap, y$stap)
+  # Merge the two stap, should have the same nrow
+  x$stap <- merge(x$stap, y$stap, all = TRUE)
+
+  # Preserve order of stap
+  x$stap <- x$stap[order(x$stap$stap_id), ]
 
   x$type <- glue::glue("{x$type} x {y$type}")
 
