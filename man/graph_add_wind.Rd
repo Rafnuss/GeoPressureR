@@ -9,7 +9,8 @@ graph_add_wind(
   pressure,
   thr_as = Inf,
   file = function(stap_id)
-    glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc")
+    glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
+  quiet = FALSE
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ POSIXt and \code{value} in hPa.}
 
 \item{file}{Absolute or relative path of the ERA5 wind data file to be downloaded. Function
 taking as single argument the stationary period identifier.}
+
+\item{quiet}{logical to hide messages about the progress}
 }
 \value{
 a \code{graph} object with windspeed and airspeed as \code{ws} and \code{as} respectively.
@@ -33,8 +36,8 @@ bird on each possible edge, as well as the corresponding airspeed.
 
 In addition, the graph can be further pruned based on a threashold of airspeed \code{thr_as}.
 
-See section 2.2.4 in Nussbaumer (2023) for more technical details and
-\href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph}{GeoPressureManual | Wind graph} for an
+See section \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title}{2.2.4 in Nussbaumer (2023b)}
+for more technical details and the \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual} for an
 illustration on how to use it.
 }
 \references{

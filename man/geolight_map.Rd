@@ -69,7 +69,14 @@ tag <- tag_create("18LX", quiet = TRUE) |>
 tag <- twilight_create(tag) |> twilight_label_read()
 
 # Compute likelihood map
-tag <- geolight_map(tag)
+tag <- geolight_map(tag, quiet = TRUE)
 
 plot(tag, type = "map_light")
 }
+\seealso{
+Other geolight: 
+\code{\link{twilight_create}()},
+\code{\link{twilight_label_read}()},
+\code{\link{twilight_label_write}()}
+}
+\concept{geolight}

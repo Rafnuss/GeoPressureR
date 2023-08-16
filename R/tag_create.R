@@ -1,16 +1,16 @@
 #' Create a `tag` object
 #'
 #' @description
-#' Create a GeoPressureR `tag` object from sensor(s) data and optionally crops at specific
-#' date.
+#' Create a GeoPressureR `tag` object from the data collected by the tracking device. This can
+#' include one or multiple sensors (pressure, light, acceleration). This function also optionally
+#' crops the data at a specific date.
 #'
-#' The `*_file` can be determined automatically with `"auto"`, provided as a full pathname of an
-#' existing file or be matched with a file extension using a [regex] expression (e.g.,
-#' `"*.pressure"` matches any file finishing with `pressure`).
+#' By default `"auto"`, the file are determined automatically from the files present in `directory`.
+#' You can also specfy the full pathname or a file extension using a [regex] expression (e.g.,
+#' `"*.pressure"` matches any file ending with `pressure`).
 #'
-#' The current implementation can read the files from:
-#' - [Swiss Ornithological Institute (SOI)
-#' ](https://www.vogelwarte.ch/en/projects/bird-migration/tracking-devices-miniaturized-geolocators)
+#' The current implementation can read files from:
+#' - [Swiss Ornithological Institute (SOI)](https://bit.ly/3QI6tkk)
 #'  (default)
 #'    - `pressure_file = "*.pressure"`
 #'    - `light_file = "*.glf"`
@@ -23,7 +23,7 @@
 #'  Use `NULL` to hide the message warning about the absence of a sensor file.
 #'
 #' Please create [an issue on Github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you
-#' have data in a format not supported yet.
+#' have data in a format that is not yet supported.
 #'
 #' @param id unique identifier of a tag.
 #' @param directory path of the directory where the tag files can be read.
@@ -39,35 +39,40 @@
 #'
 #' @return a GeoPressureR `tag` object containing
 #' - `param` parameter object (see [param_create])
-#' - `pressure` data.frame with column `date` and `value`
+#' - `pressure` data.frame with columns for `date` and `value`
 #' - `light` (optional) same structure as pressure
 #' - `acceleration` (optional) same structure as pressure
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #'
-#' tag_create("18LX")
+#' # Read all sensor file
+#' tag <- tag_create("18LX")
 #'
-#' tag_create("18LX", crop_start = "2017-08-01", crop_end = "2017-08-05")
+#' print(tag)
 #'
-#' # For Migrate Technology file, use
-#' tag_create("CB621",
-#'   pressure_file = "*.deg",
-#'   light_file = "*.lux",
+#' # Read only pressure and crop date
+#' tag <- tag_create("18LX",
+#'   light_file = NULL,
+#'   acceleration_file = NULL,
+#'   crop_start = "2017-08-01",
+#'   crop_end = "2017-08-05"
+#' )
+#'
+#' print(tag)
+#'
+#' # You can also specify the exact file in case multiple files with the
+#' # same extension exist in your directory
+#' tag <- tag_create("CB621",
+#'   pressure_file = "CB621_BAR.deg",
+#'   light_file = "CB621.lux",
 #'   acceleration_file = NULL
 #' )
 #'
-#' # You can also specify exactly the file in case multiple file with the same
-#' # extension exist in your directory
-#' tag_create("CB621",
-#'   pressure_file = "CB621_BAR.deg",
-#'   light_file = NA,
-#'   acceleration_file = NA
-#' )
+#' print(tag)
 #'
 #' @family tag
-#' @seealso [GeoPressureManual | Pressure Map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#read-geolocator-data)
+#' @seealso [GeoPressureManual](https://bit.ly/4462jpr)
 #' @export
 tag_create <- function(id,
                        directory = glue::glue("./data/raw-tag/{id}/"),

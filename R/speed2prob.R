@@ -9,18 +9,35 @@
 #' @examples
 #' speed <- seq(1, 120)
 #' low_speed_fix <- 20 # minimum speed allowed
-#' prob <- speed2prob(speed,
-#'   method = "gamma", shape = 7, scale = 7,
-#'   low_speed_fix = low_speed_fix
+#' prob <- speed2prob(
+#'   speed,
+#'   list(
+#'     method = "gamma",
+#'     shape = 7,
+#'     scale = 7,
+#'     low_speed_fix = low_speed_fix
+#'   )
 #' )
 #' plot(speed, prob,
-#'   type = "l", xlab = "Groundspeed [km/h]", ylab =
-#'     "Probability"
+#'   type = "l",
+#'   xlab = "Groundspeed [km/h]",
+#'   ylab = "Probability"
 #' )
 #' abline(v = low_speed_fix)
+#'
+#' # Using airspeed
 #' bird <- bird_create("Acrocephalus arundinaceus")
-#' prob <- speed2prob(speed, method = "power", bird = bird)
+#' prob <- speed2prob(
+#'   speed,
+#'   list(
+#'     method = "power",
+#'     bird = bird,
+#'     power2prob = \(power) (1 / power)^3,
+#'     low_speed_fix = low_speed_fix
+#'   ),
+#' )
 #' plot(speed, prob, type = "l", xlab = "Airspeed [km/h]", ylab = "Probability")
+#' abline(v = low_speed_fix)
 #' @family movement
 #' @export
 speed2prob <- function(speed, movement) {
@@ -29,7 +46,6 @@ speed2prob <- function(speed, movement) {
   }
   assertthat::assert_that(is.numeric(speed))
   assertthat::assert_that(all(speed >= 0))
-
 
   # We use a normalization so that methods are comparable to each other.
   # The normalization is computed as the sum of probability with a 1km/h unit grid

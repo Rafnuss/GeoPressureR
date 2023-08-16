@@ -3,13 +3,13 @@
 #' @description
 #' This function performs the following operations:
 #'
-#' 1. Read label file with [`tag_label_read()`] and assign the label to a new column in each sensor
+#' 1. Read label file with `tag_label_read()` and assign the label to a new column in each sensor
 #' data.frame
 #' 2. Compute the stationary period `tag$stap` from the label and assign the corresponding `stap_id`
-#' on all sensors data.frame with [`tag_label_stap()`]
+#' on all sensors data.frame with `tag_label_stap()`
 #'
 #' If the label file does not exist, the function will suggest to create it with
-#' [`tag_label_write()`] and use [`tag_label_auto()`] if acceleration data exists.
+#' `tag_label_write()` and use `tag_label_auto()` if acceleration data exists.
 #'
 #' @param tag a GeoPressure `tag` object.
 #' @param file Absolute or relative path of the label file.
@@ -32,13 +32,18 @@
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE)
 #'
+#' print(tag)
+#'
 #' tag <- tag_label(tag)
 #'
+#' print(tag)
+#'
+#' # The labeled `tag` contains additional column on the sensor data.frame
 #' str(tag)
 #'
 #' @family tag_label
-#' @seealso [GeoPressureManual | Pressure Map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset)
+#' @seealso [GeoPressureManual
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html)
 #' @export
 tag_label <- function(tag,
                       file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),

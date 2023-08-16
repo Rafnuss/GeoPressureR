@@ -34,13 +34,14 @@ GeoPressureAPI and GEE (in seconds, see \code{\link[httr:timeout]{httr::timeout(
 \item{workers}{Number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjust the
 number of workers to the number of \code{stap_elev} to query.}
 
-\item{sd}{Standard deviation of the pressure error . numeric of lenght 1 or number of stationary periods.}
+\item{sd}{Standard deviation of the pressure error . numeric of lenght 1 or number of stationary
+periods.}
 
-\item{thr_mask}{Threshold of the percentage of data points outside the elevation range to be considered
-not possible.}
+\item{thr_mask}{Threshold of the percentage of data points outside the elevation range to be
+considered not possible.}
 
-\item{log_linear_pooling_weight}{Weighting function of the log-linear pooling, taking the number of samples of the
-stationary periods used and returning the weight of the aggregation. See
+\item{log_linear_pooling_weight}{Weighting function of the log-linear pooling, taking the number
+of samples of the stationary periods used and returning the weight of the aggregation. See
 \href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation } for more details.}
 
 \item{keep_mse_mask}{logical defining if the matrix of the MSE and mask are returned in the list.}
@@ -60,19 +61,20 @@ true, the \code{mse} and \code{mask} maps computed with \code{geopressure_map_mi
 well as \code{tag$stap$nb_sample}, indicating the number of datapoints used to compute the MSE.
 }
 \description{
-This function computes a likelihood map for each stationary period based on pressure measurements.
-It performs the following operations:
+This function computes a likelihood map for each stationary period based on pressure
+measurements. It performs the following operations:
 \enumerate{
 \item Compute the mismatch map between the pressure sensor measurements and the ERA5 reanalysis
 database. See \code{\link[=geopressure_map_mismatch]{geopressure_map_mismatch()}} for details.
 \item Convert the mismatch map into a likelihood map with \code{\link[=geopressure_map_likelihood]{geopressure_map_likelihood()}}.
 }
 
-A map will only be computed for the stationary periods included in \code{tag$stap$include} and without a
-known position \verb{tag$stap$known_l**}. If the position is known, the function will
+A map will only be computed for the stationary periods included in \code{tag$stap$include} and without
+a known position \verb{tag$stap$known_l**}. If the position is known, the function will
 create a likelihood map with a single 1 value at the grid cell closest to the known position.
 
-For more background and details on the method behind these functions, please refer to the \href{https://doi.org/10.1111/2041-210X.14043}{associated scientific publication}.
+For more background and details on the method behind these functions, please refer to the
+Nussbaumer et al. (\href{https://doi.org/10.1111/2041-210X.14043}{2023a}).
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
@@ -86,19 +88,25 @@ tag <- tag_create("18LX", quiet = TRUE) |>
 tag <- geopressure_map(tag,
   max_sample = 50,
   sd = 0.7,
-  keep_mse_mask = TRUE
+  keep_mse_mask = TRUE,
+  quiet = TRUE
 )
 
 plot(tag, type = "map_pressure_mse", plot_leaflet = FALSE)
+
 plot(tag, type = "map_pressure_mask", plot_leaflet = FALSE)
+
+plot(tag, type = "map_pressure")
 
 }
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14, 1118–1129
-\url{https://doi.org/10.1111/2041-210X.14043}.}
+Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14,
+1118–1129 \url{https://doi.org/10.1111/2041-210X.14043}.}
 }
 \seealso{
+\href{https://bit.ly/3sg7yFJ}{GeoPressureManual}
+
 Other geopressure_map: 
 \code{\link{geopressure_map_likelihood}()},
 \code{\link{geopressure_map_mismatch}()}

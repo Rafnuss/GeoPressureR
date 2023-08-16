@@ -49,7 +49,8 @@
 #' pressurepath <- geopressure_timeseries(
 #'   lat = 46, lon = 6,
 #'   start_time = "2017-01-01 00:00",
-#'   end_time = "2017-01-02 00:00"
+#'   end_time = "2017-01-02 00:00",
+#'   quiet = TRUE
 #' )
 #'
 #' str(pressurepath)
@@ -66,7 +67,8 @@
 #'       date = pressurepath$date,
 #'       value = pressurepath$pressure_era5 + rnorm(nrow(pressurepath))
 #'     )
-#'   )
+#'   ),
+#'   quiet = TRUE
 #' )
 #'
 #' str(pressurepath)

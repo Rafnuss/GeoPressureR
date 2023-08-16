@@ -40,7 +40,7 @@
 #'   geopressure_map(quiet = TRUE) |>
 #'   geolight_map(quiet = TRUE)
 #'
-#' graph <- graph_create(tag)
+#' graph <- graph_create(tag, quiet = TRUE)
 #'
 #' graph <- graph_set_movement(graph,
 #'   method = "gamma",

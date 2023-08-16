@@ -34,7 +34,7 @@ str(tag$acceleration)
 
 }
 \seealso{
-\href{https://kiranlda.github.io/tagLrManual/flapping.html}{flapping chapter of the tagLr manual}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#automatic-classification-of-activity}{GeoPressureManual | Pressure Map }
+\href{https://bit.ly/45bthNt}{GeoPressureManual}
 
 Other tag_label: 
 \code{\link{tag_label_read}()},

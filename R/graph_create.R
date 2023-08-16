@@ -2,18 +2,17 @@
 #'
 #' @description
 #' This function returns a trellis graph representing the trajectory of a bird based on filtering
-#' and prunning the likelihood maps provided.
+#' and pruning the likelihood maps provided.
 #'
 #' In the final graph, we only keep the most likely nodes (i.e., position of the bird at each
 #' stationary periods) defined as (1) those whose likelihood value are within the threshold of
 #' percentile `thr_likelihood` of the total likelihood map and (2) those which are connected to
-#' at least one edge of the previous and next stationary periods requireing an average ground speed
+#' at least one edge of the previous and next stationary periods requiring an average ground speed
 #' lower than `thr_gs` (in km/h).
 #'
-#' For more details and illustration, see Section 2.2 of [Nussbaumer et al. (2023)](
-#' https://doi.org/10.1111/2041-210X.14082) and
-#' [GeoPressureManual | Basic graph](
-#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph)
+#' For more details and illustration, see [section 2.2 of Nussbaumer et al. (2023b)](
+#' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0004-title)
+#'and the [GeoPressureManual](https://bit.ly/3saLVqi)
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param thr_likelihood Threshold of percentile (see details).
@@ -56,8 +55,7 @@
 #'
 #' print(graph)
 #'
-#' @seealso [GeoPressureManual | Basic graph](
-#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph)
+#' @seealso [GeoPressureManual](https://bit.ly/3saLVqi)
 #' @family graph
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
@@ -69,6 +67,10 @@ graph_create <- function(tag,
                          thr_gs = 150,
                          likelihood = NULL,
                          quiet = FALSE) {
+  if (!quiet) {
+    cli::cli_progress_step("Check data input")
+  }
+
   # Construct the likelihood map
   lk <- tag2map(tag, likelihood = likelihood)
 
@@ -78,10 +80,6 @@ graph_create <- function(tag,
   assertthat::assert_that(is.numeric(thr_gs))
   assertthat::assert_that(length(thr_gs) == 1)
   assertthat::assert_that(thr_gs >= 0)
-
-  if (!quiet) {
-    cli::cli_progress_step("Check data input")
-  }
 
   # Extract info from tag for simplicity
   stap <- tag$stap
@@ -179,6 +177,7 @@ graph_create <- function(tag,
   if (!quiet) {
     cli::cli_progress_step("Create graph from maps")
   }
+
   # filter the pixels which are not in reach of any location of the previous and next stationary
   # period
   for (i_s in seq_len(sz[3] - 1)) {
@@ -224,11 +223,13 @@ graph_create <- function(tag,
   f <- list()
 
   if (!quiet) {
-    cli::cli_progress_step(
-      "Computing the groundspeed for {sum(nds_expend_sum)} edges for {length(nds_expend_sum)} \\
-    stationary periods",
-      spinner = TRUE
-    )
+    cli::cli_progress_step("Computing the groundspeed for {sum(nds_expend_sum)} edges of \\
+                           {length(nds_expend_sum)} stationary periods")
+    # msg1 <- glue::glue("0/{sum(nds_expend_sum)}")
+    # msg2 <- glue::glue("0/{length(nds_expend_sum)}")
+    # cli::cli_progress_step(
+    #  "Computing the groundspeed for {msg1} edges of {msg2} stationary periods",
+    #   spinner=TRUE )
     # progressr::handlers(global = TRUE)
     progressr::handlers("cli")
     p <- progressr::progressor(sum(nds_expend_sum))
@@ -285,6 +286,9 @@ graph_create <- function(tag,
         ))
       }
       if (!quiet) {
+        # msg1 <- glue::glue("{sum(nds_expend_sum[seq_len(i)])}/{sum(nds_expend_sum)}")
+        # msg2 <- glue::glue("{i}/{length(nds_expend_sum)}")
+        # cli::cli_progress_update(force = TRUE)
         p(amount = nds_expend_sum[i])
       }
       return(grt)
@@ -298,6 +302,7 @@ graph_create <- function(tag,
   if (!quiet) {
     cli::cli_progress_step("Prune graph")
   }
+
   gr <- graph_create_prune(gr, quiet = quiet)
 
   # Convert gr to a graph list

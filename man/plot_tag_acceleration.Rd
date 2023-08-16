@@ -25,3 +25,17 @@ flight.}
 \description{
 This function display a plot of acceleration timeseries recorded by a tag
 }
+\examples{
+setwd(system.file("extdata/", package = "GeoPressureR"))
+tag <- tag_create("18LX", quiet = TRUE)
+
+plot_tag_acceleration(tag)
+
+}
+\seealso{
+Other plot_tag: 
+\code{\link{plot_tag_light}()},
+\code{\link{plot_tag_pressure}()},
+\code{\link{plot_tag_twilight}()}
+}
+\concept{plot_tag}

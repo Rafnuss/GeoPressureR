@@ -2,7 +2,7 @@ library(testthat)
 library(GeoPressureR)
 
 # Hide cli message
-# options(cli.default_handler = function(...) { })
+options(cli.default_handler = function(...) { })
 
 # Set working directory
 setwd(system.file("extdata/", package = "GeoPressureR"))
@@ -93,7 +93,7 @@ test_that("workflow | with elev_", {
     extent = c(-16, 23, 0, 50),
     scale = 1
   )
-  expect_message(tag <- geopressure_map(tag), "*1|2*")
+  tag <- geopressure_map(tag)
   expect_equal(length(tag$map_pressure), nrow(tag$stap))
 
   # Check pressuretimeseries

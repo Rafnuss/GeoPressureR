@@ -21,8 +21,7 @@
 #' - `end` start of the flight. If `add_flight=T`.
 #' - `duration` duration of the flight. If `add_flight=T`.
 #' @family path
-#' @seealso [GeoPressureManual | Wind graph](
-#' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#energy)
+#' @seealso [GeoPressureManual](https://bit.ly/47MhQxN)
 #' @export
 path2edge <- function(path, graph, add_flight = TRUE) {
   graph_assert(graph)
@@ -96,7 +95,7 @@ path2edge <- function(path, graph, add_flight = TRUE) {
   }
 
   # Sort by stap_s
-  edge <- edge[order(edge$stap_s),]
+  edge <- edge[order(edge$stap_s), ]
 
   return(edge)
 }

@@ -19,14 +19,16 @@ This function displays the information of a \code{tag} object.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
+
 tag <- tag_create("18LX", quiet = TRUE)
+
 print(tag)
 
 }
 \seealso{
 Other tag: 
-\code{\link{plot.tag}()},
 \code{\link{tag_create}()},
+\code{\link{tag_set_map}()},
 \code{\link{tag_update}()}
 }
 \concept{tag}

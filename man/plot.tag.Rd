@@ -11,29 +11,44 @@
 
 \item{type}{type of the plot to display. One of \code{"pressure"}, \code{"acceleration"}, \code{"light"},
 \code{"twilight"}, \code{"map"}, \code{"map_pressure"}, \code{"map_light"}, \code{"map_pressure_mse"},
-\code{"map_pressure_mask"}, \code{"mask_water"}}
+\code{"map_pressure_mask"}, \code{"mask_water"}. Map can be combined by providing a vector of type.}
 
 \item{...}{additional parameters for \code{plot_tag_pressure()}, \code{plot_tag_acceleration()},
 \code{plot_tag_light()}, \code{plot_tag_twilight()} or \code{plot.map()}}
 }
 \description{
 This function plot a GeoPressureR \code{tag} object as a timeseries or a map.
+
+By default, \code{type} is determined in the following order of preference according to availability:
+\code{c("map_pressure", "map_light")}, \code{"map_pressure"}, \code{"map_light"}, \code{"pressure"}.
+
+\code{plot.tag()} calls different plotting functions depending on \code{type}.
+\itemize{
+\item \code{"pressure"}: \code{plot_tag_pressure()}
+\item \code{"light"}: \code{plot_tag_light()}
+\item \code{"acceleration"}: \code{plot_tag_acceleration()}
+\item \code{"twilight"}: \code{plot_tag_twilight()}
+\item \code{"map_*"} : \code{plot.map()} with \verb{tag$map_*} as first argument.
+}
+
+Refers to these functions for additional parameters and more flexibility in the plotting.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE)
 
-# Plot pressure by default
+# By default, plot will display the timeserie of pressure
 plot(tag)
+# Change the `type` to display other sensor
 plot(tag, type = "acceleration")
 plot(tag, type = "light")
-
-tag <- twilight_create(tag) |>
-  twilight_label_read()
-
+# Twilight is display as an image
+tag <- twilight_create(tag) |> twilight_label_read()
 plot(tag, type = "twilight")
 
+# After you compute any likelihood map, the default will
+# become this map (i.e., `type = "map"`)
 tag <- tag_set_map(tag,
   extent = c(-16, 23, 0, 50),
   scale = 4,
@@ -44,20 +59,13 @@ tag <- tag_set_map(tag,
   )
 ) |>
   geopressure_map(quiet = TRUE)
-
-# default is now to take "map"
 plot(tag)
-
-tag <- geolight_map(tag)
-
-plot(tag)
+# The likelihood map of light can be display with
+tag <- geolight_map(tag, quiet = TRUE)
 plot(tag, type = "map_light")
-
+# When both pressure and light likelihood are present,
+# the default is to display their products, equivalent
+to choose `type = c("map_pressure", "map_light")`
+plot(tag)
 }
-\seealso{
-Other tag: 
-\code{\link{print.tag}()},
-\code{\link{tag_create}()},
-\code{\link{tag_update}()}
-}
-\concept{tag}
+\concept{tag plot_tag}

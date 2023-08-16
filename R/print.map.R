@@ -28,7 +28,7 @@ print.map <- function(x, ...) {
   map <- x
   # nolint end
 
-  cli::cli_h1("GeoPressureR `map` object  of {.field {map$type}} for {.field id}={.val {map$id}}")
+  cli::cli_h1("GeoPressureR `map` object  of {.field {map$type}} for {.field id} = {.val {map$id}}")
 
   cli::cli_bullets(c(
     "*" = "Extent W-E: {.val {map$extent[1]}}\u00b0 to {.val {map$extent[2]}}\u00b0",

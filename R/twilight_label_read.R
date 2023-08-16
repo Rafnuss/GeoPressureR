@@ -6,7 +6,7 @@
 #' @param tag a GeoPressureR `tag` object
 #' @param file csv file of the labels to be read.
 #' @return Same `tag` object, updated with the labels `tag$twilight$label`.
-#' @family twilight
+#' @family geolight
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #'

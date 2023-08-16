@@ -19,7 +19,7 @@
 print.param <- function(x, ...) {
   param <- x
 
-  cli::cli_h1("GeoPressureR `param` object for {.field id}={.val {param$id}}")
+  cli::cli_h1("GeoPressureR `param` object for {.field id} = {.val {param$id}}")
   cli::cli_text("GeoPressureR version: {param$GeoPressureR_version}")
 
   cli::cli_h3("Sensors data {.fun tag_create}")

@@ -16,7 +16,9 @@
 #'
 #' tag_assert(tag)
 #'
-#' tag_assert(tag, "read", type = "inform")
+#' tag_assert(tag, "stap")
+#'
+#' tag_assert(tag, "setmap", type = "warn")
 #'
 #' tag_assert(tag, "map_pressure", type = "inform")
 #'

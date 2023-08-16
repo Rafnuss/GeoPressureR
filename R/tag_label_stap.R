@@ -16,8 +16,8 @@
 #' @param warning_stap_duration Threshold of stationary period duration to display warning for
 #' (hours)
 #' @param quiet logical to display warning message.
-#' @return Same data logger list as input `tag` but with (1) a new data.frame of stationary periods
-#' `tag$stap` and (2) a new column `stap_id` for each sensor data.
+#' @return `tag` is return with (1) a new data.frame of stationary periods `tag$stap` and (2) a new
+#'  column `stap_id` for each sensor data.
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
@@ -29,8 +29,7 @@
 #'
 #' str(tag$stap)
 #' @family tag_label
-#' @seealso  [GeoPressureManual | Pressure Map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods)
+#' @seealso [GeoPressureManual](https://bit.ly/45gwcVu)
 #' @export
 tag_label_stap <- function(tag,
                            quiet = FALSE,

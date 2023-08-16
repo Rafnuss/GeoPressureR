@@ -1,8 +1,8 @@
 #' Start the GeoPressureViz shiny app
 #'
 #' GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
-#' as well as each step-by-step move. Learn more about GeoPressureViz in the [GeoPressureManual |
-#' GeoPressureViz](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
+#' as well as each step-by-step move. Learn more about GeoPressureViz in the [GeoPressureManual
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
 #' this [demo of the Great Reed Warbler (18LX)](https://rafnuss.shinyapps.io/GeoPressureViz/).
 #'
 #' @param x a GeoPressureR `tag` object or an unique identifier `id`.
@@ -12,7 +12,7 @@
 #' Rstudio.
 #' @return The updated path visualized in the app.
 #'
-#' @seealso [GeoPressureManual | GeoPressureViz
+#' @seealso [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
 #' @export
 geopressureviz <- function(x,

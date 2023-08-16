@@ -4,10 +4,12 @@
 \alias{graph_most_likely}
 \title{Compute the most likely trajectory}
 \usage{
-graph_most_likely(graph)
+graph_most_likely(graph, quiet = FALSE)
 }
 \arguments{
 \item{graph}{a graph object.}
+
+\item{quiet}{logical to hide messages about the progress.}
 }
 \value{
 Path data.frame containing the columns
@@ -24,8 +26,34 @@ Path data.frame containing the columns
 }
 }
 \description{
-Compute the trajectory which maximizes the joint probability using the \href{https://en.wikipedia.org/wiki/Viterbi_algorithm}{Viterbi algorithm} on the graph structure. See section 2.3.1 in
-Nussbaumer (2023) for more information.
+Compute the trajectory which maximizes the joint probability using the \href{https://en.wikipedia.org/wiki/Viterbi_algorithm}{Viterbi algorithm} on the graph structure. For more
+details, see \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0011-title}{section 2.3.1 of Nussbaumer et al. (2023b)}
+and the \href{https://bit.ly/4578D12}{GeoPressureManual}.
+}
+\examples{
+setwd(system.file("extdata/", package = "GeoPressureR"))
+tag <- tag_create("18LX", quiet = TRUE) |>
+  tag_label(quiet = TRUE) |>
+  twilight_create() |>
+  twilight_label_read() |>
+  tag_set_map(
+    extent = c(-16, 23, 0, 50),
+    known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
+  ) |>
+  geopressure_map(quiet = TRUE) |>
+  geolight_map(quiet = TRUE)
+
+# Create graph
+graph <- graph_create(tag, quiet = TRUE)
+
+# Define movement model
+graph <- graph_set_movement()
+
+# Compute most likely path
+path_most_likely <- graph_most_likely(graph, quiet = TRUE)
+
+plot_path(path_most_likely)
+
 }
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
@@ -34,7 +62,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \url{https://doi.org/10.1111/2041-210X.14082}.}
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-3-simulate-path}{GeoPressureManual | Basic graph}
+\href{https://bit.ly/4578D12}{GeoPressureManual}
 
 Other graph: 
 \code{\link{graph_add_wind}()},

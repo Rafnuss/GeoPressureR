@@ -18,11 +18,14 @@
 #' @examples
 #' # Using AVONET dataset
 #' bird_create("Acrocephalus arundinaceus")
+#'
 #' # Using AVONET dataset + custom values
 #' bird_create("Acrocephalus arundinaceus", wing_aspect = 8)
+#'
 #' # Import your own bird. You will need mass, and at least two of wing_span,
 #' # wing_aspect or wing_area.
 #' bird_create("custum_bird", mass = 1, wing_span = 1, wing_aspect = 4)
+#'
 #' @family bird
 #' @family movement
 #' @export

@@ -14,13 +14,14 @@ geopressure_map_likelihood(
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object}
 
-\item{sd}{Standard deviation of the pressure error . numeric of lenght 1 or number of stationary periods.}
+\item{sd}{Standard deviation of the pressure error . numeric of lenght 1 or number of stationary
+periods.}
 
-\item{thr_mask}{Threshold of the percentage of data points outside the elevation range to be considered
-not possible.}
+\item{thr_mask}{Threshold of the percentage of data points outside the elevation range to be
+considered not possible.}
 
-\item{log_linear_pooling_weight}{Weighting function of the log-linear pooling, taking the number of samples of the
-stationary periods used and returning the weight of the aggregation. See
+\item{log_linear_pooling_weight}{Weighting function of the log-linear pooling, taking the number
+of samples of the stationary periods used and returning the weight of the aggregation. See
 \href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation } for more details.}
 }
 \description{
@@ -38,14 +39,16 @@ Because the auto-correlation of the timeseries is not accounted for in this equa
 log-linear pooling weight of \eqn{w=\log(n)/n} by default, where \eqn{n} is the number of samples
 in the timeserie (i.e., data points used to compute the MSE).
 
-For more background and details on the algorithm, please read the \href{https://doi.org/10.1111/2041-210X.14043}{associated scientific publication } and the \href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation }.
+For more background and details on the algorithm, please read Nussbaumer et al. (\href{https://doi.org/10.1111/2041-210X.14043}{2023a }) and the \href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation }.
 }
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14, 1118–1129
-\url{https://doi.org/10.1111/2041-210X.14043}.}
+Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14,
+1118–1129 \url{https://doi.org/10.1111/2041-210X.14043}.}
 }
 \seealso{
+\href{https://bit.ly/3saRNQu}{GeoPressureManual}
+
 Other geopressure_map: 
 \code{\link{geopressure_map_mismatch}()},
 \code{\link{geopressure_map}()}

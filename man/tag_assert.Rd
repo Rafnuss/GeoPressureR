@@ -23,11 +23,13 @@ This function check the condition of a \code{tag} object.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE) |>  tag_label(quiet = TRUE)
+tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 
 tag_assert(tag)
 
-tag_assert(tag, "read", type = "inform")
+tag_assert(tag, "stap")
+
+tag_assert(tag, "setmap", type = "warn")
 
 tag_assert(tag, "map_pressure", type = "inform")
 

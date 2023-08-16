@@ -1,6 +1,9 @@
 #' Plot a `map` object
 #'
+#' @description
 #' This function plot a GeoPressureR `map` object.
+#'
+#' You can plot on top of the `map` a `path`, this uses the `plot_path()` function.
 #'
 #' @param map A GeoPressureR `map` object
 #' @param plot_leaflet logical to use an interactive `leaflet` map instead of `terra::plot`
@@ -33,7 +36,8 @@
 #'   provider = "CartoDB.DarkMatterNoLabels"
 #' )
 #'
-#' @family map
+#' @family map plot_tag
+#' @seealso [plot_path()]
 #' @method plot map
 #' @export
 plot.map <- function(x,

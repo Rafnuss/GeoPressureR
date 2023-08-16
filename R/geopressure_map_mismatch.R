@@ -27,12 +27,10 @@
 #' It is possible to indicate different elevation levels when the bird was spending time at
 #' locations with different elevations within a general area (~10km), and thus within the same
 #' stationary period. This can be done by using `tag$label="elev_n"`for all measurements of the same
-#' elevation level *n*. See example in [GeoPressureManual | Pressure Map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html).
+#' elevation level *n*.
 #'
-#' For more background and details on this algorithm, please refer to the [associated scientific
-#' publication]( https://doi.org/10.1111/2041-210X.14043). For more information on the exact
-#' computation, read the [GeoPressure API documentation
+#' For more background and details on this algorithm, please refer to Nussbaumer et al. ([2023a
+#' ]( https://doi.org/10.1111/2041-210X.14043)) and the [GeoPressure API documentation
 #' ](https://raphaelnussbaumer.com/GeoPressureAPI/).
 #'
 #' @inheritParams geopressure_map
@@ -41,6 +39,8 @@
 #' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
 #' 1118–1129 <https://doi.org/10.1111/2041-210X.14043>.}
 #' @family geopressure_map
+#' @seealso [GeoPressureManual](https://bit.ly/3sfQjV6), [GeoPressure API
+#' ](https://raphaelnussbaumer.com/GeoPressureAPI/).
 #' @export
 geopressure_map_mismatch <- function(tag,
                                      max_sample = 250,

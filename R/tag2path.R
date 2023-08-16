@@ -25,23 +25,23 @@
 #' - `lon` longitude
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
-#' tag <- tag_set_map(tag,
-#'   extent = c(-16, 23, 0, 50),
-#'   scale = 2
-#' ) |>
+#' tag <- tag_create("18LX", quiet = TRUE) |>
+#'   tag_label(quiet = TRUE) |>
+#'   tag_set_map(
+#'     extent = c(-16, 23, 0, 50),
+#'     scale = 2
+#'   ) |>
 #'   geopressure_map(quiet = TRUE)
 #'
 #' # Extract a path from pressure map
 #' path <- tag2path(tag)
 #' plot_path(path, plot_leaflet = F)
 #'
-#' # Short stationary periods can be unreliably estimated, so interpolating them might be better
+#' # Short stationary periods can be unreliably estimated, so
+#' # interpolating them might be better
 #' path <- tag2path(tag, interp = 1)
 #' plot_path(path, plot_leaflet = F)
 #'
-#' @seealso [`geopressure_map_likelihood()`], [`pressurepath_create()`], [GeoPressureManual |
-#' Pressure Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-altitude)
 #' @export
 tag2path <- function(tag,
                      likelihood = NULL,

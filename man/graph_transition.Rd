@@ -14,14 +14,14 @@ graph_transition(graph)
 Vector of transition probability for each edge.
 }
 \description{
-Use the movement model (see \code{graph_set_movement()}) to convert ground speed \code{gs} (or airspeed \code{as}
-if available) into the transition probability of the edges of the graph.
+Use the movement model (see \code{graph_set_movement()}) to convert ground speed \code{gs} (or airspeed
+\code{as} if available) into the transition probability of the edges of the graph.
 }
 \details{
 The vector return correspond to the elements of the transition matrices
 \eqn{T_k \forall k \in [1,n]} extracted for all edges considered in the graph. Each of these
-values thus corresponds to the probability \eqn{P(X_k \mid X_{k-1})}, where \eqn{X_k} is the random
-variable of the position of the bird at time \eqn{k}.
+values thus corresponds to the probability \eqn{P(X_k \mid X_{k-1})}, where \eqn{X_k} is the
+random variable of the position of the bird at time \eqn{k}.
 
 To create a generic function, we define \code{speed2prob} which converts the speed of an edge into the
 transition probability.

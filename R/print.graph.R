@@ -20,7 +20,8 @@
 #'   geopressure_map(quiet = TRUE) |>
 #'   geolight_map(quiet = TRUE)
 #'
-#' graph <- graph_create(tag)
+#' graph <- graph_create(tag, quiet = TRUE)
+#'
 #' print(graph)
 #'
 #' @family graph
@@ -47,7 +48,7 @@ print.graph <- function(x, ...) {
     {.val {graph$param$extent[2]}}\u00b0",
     "*" = "Extent S-N: {.val {graph$param$extent[3]}}\u00b0 to \\
     {.val {graph$param$extent[4]}}\u00b0",
-    "*" = "Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}\u00b0",
+    "*" = "Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}",
     "*" = "Resolution lat-lon: {.val {1/graph$param$scale}}\u00b0"
   ))
 

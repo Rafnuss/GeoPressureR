@@ -14,7 +14,7 @@
 #' label_file <- twilight_label_write(tag)
 #'
 #' str(read.csv(label_file))
-#' @family twilight
+#' @family geolight
 #' @export
 twilight_label_write <- function(tag,
                                  file = glue::glue("./data/twilight-label/{tag$param$id}.csv")) {

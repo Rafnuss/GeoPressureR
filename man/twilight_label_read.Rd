@@ -35,9 +35,9 @@ str(tag$twilight)
 plot(tag, type = "twilight", plot_plotly = F) + ggplot2::ggtitle("After label")
 }
 \seealso{
-Other twilight: 
-\code{\link{light2mat}()},
+Other geolight: 
+\code{\link{geolight_map}()},
 \code{\link{twilight_create}()},
 \code{\link{twilight_label_write}()}
 }
-\concept{twilight}
+\concept{geolight}

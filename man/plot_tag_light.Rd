@@ -16,3 +16,17 @@ plot_tag_light(tag, transform_light = TRUE, plot_plotly = TRUE)
 \description{
 This function display a plot of light timeseries recorded by a tag
 }
+\examples{
+setwd(system.file("extdata/", package = "GeoPressureR"))
+tag <- tag_create("18LX", quiet = TRUE)
+
+plot_tag_light(tag)
+
+}
+\seealso{
+Other plot_tag: 
+\code{\link{plot_tag_acceleration}()},
+\code{\link{plot_tag_pressure}()},
+\code{\link{plot_tag_twilight}()}
+}
+\concept{plot_tag}

@@ -15,6 +15,7 @@
 #'
 #' str(tag)
 #' @family tag_label
+#' @seealso [GeoPressureManual](https://bit.ly/45v79gV)
 #' @export
 tag_label_read <- function(tag,
                            file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv")) {

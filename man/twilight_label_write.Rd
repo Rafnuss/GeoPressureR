@@ -29,9 +29,9 @@ label_file <- twilight_label_write(tag)
 str(read.csv(label_file))
 }
 \seealso{
-Other twilight: 
-\code{\link{light2mat}()},
+Other geolight: 
+\code{\link{geolight_map}()},
 \code{\link{twilight_create}()},
 \code{\link{twilight_label_read}()}
 }
-\concept{twilight}
+\concept{geolight}

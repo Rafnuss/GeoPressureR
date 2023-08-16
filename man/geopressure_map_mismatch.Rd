@@ -69,19 +69,20 @@ For each stationary period, the pressure measurements are smoothed and downscale
 resolution in order to match ERA-5 resolution.
 
 It is possible to indicate different elevation levels when the bird was spending time at
-locations with different elevations within a general area (~10km), and thus within the same stationary
-period. This can be done by using \code{tag$label="elev_n"}for all measurements of the same
-elevation level \emph{n}. See example in \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map }.
+locations with different elevations within a general area (~10km), and thus within the same
+stationary period. This can be done by using \code{tag$label="elev_n"}for all measurements of the same
+elevation level \emph{n}.
 
-For more background and details on this algorithm, please refer to the \href{https://doi.org/10.1111/2041-210X.14043}{associated scientific publication }. For more information on the exact computation, read
-the \href{https://raphaelnussbaumer.com/GeoPressureAPI/}{GeoPressure API documentation}.
+For more background and details on this algorithm, please refer to Nussbaumer et al. (\href{https://doi.org/10.1111/2041-210X.14043}{2023a }) and the \href{https://raphaelnussbaumer.com/GeoPressureAPI/}{GeoPressure API documentation }.
 }
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14, 1118–1129
-\url{https://doi.org/10.1111/2041-210X.14043}.}
+Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14,
+1118–1129 \url{https://doi.org/10.1111/2041-210X.14043}.}
 }
 \seealso{
+\href{https://bit.ly/3sfQjV6}{GeoPressureManual}, \href{https://raphaelnussbaumer.com/GeoPressureAPI/}{GeoPressure API }.
+
 Other geopressure_map: 
 \code{\link{geopressure_map_likelihood}()},
 \code{\link{geopressure_map}()}

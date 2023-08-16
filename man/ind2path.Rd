@@ -18,7 +18,7 @@ approximated to the map resolution in order to corresponds to integer index.}
 A path data.frame
 \itemize{
 \item \code{stap_id} stationary period identification
-\item \code{j} identification for each trajectory $1, ..., nj$.
+\item \code{j} identification for each trajectory (1 to $nj$).
 \item \code{ind} indices of the coordinate in the 2D grid. Useful to retrieve map or graph information.
 \item \code{lat} Latitude,
 \item \code{lon} longitude
@@ -52,7 +52,7 @@ ind <- matrix(c(
   1505, 1314, 1559, 1357, 1758, 1852, 1661, 1706, 1862, 1358
 ), nrow = 10)
 path <- ind2path(ind, tag)
-knitr::kable(path)
+knitr::kable(head(path, n = 15))
 
 }
 \seealso{

@@ -13,16 +13,17 @@ geopressureviz(x, pressurepath = NULL, marginal = NULL, launch_browser = TRUE)
 
 \item{marginal}{map of the marginal probability computed with \code{graph_marginal()}.}
 
-\item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on Rstudio.}
+\item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on
+Rstudio.}
 }
 \value{
 The updated path visualized in the app.
 }
 \description{
 GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
-as well as each step-by-step move. Learn more about GeoPressureViz in the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual | GeoPressureViz} or with
+as well as each step-by-step move. Learn more about GeoPressureViz in the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual } or with
 this \href{https://rafnuss.shinyapps.io/GeoPressureViz/}{demo of the Great Reed Warbler (18LX)}.
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual | GeoPressureViz }
+\href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual }
 }

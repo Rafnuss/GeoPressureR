@@ -1,33 +1,38 @@
 #' Update a `tag` object
 #'
-#' When updating the labeling file of a tag, often, only a few stationary periods are changing. To
-#' avoid recomputing the entire workflow, this function figure out which stationary period have
-#' been changing on only update those in `tag$map_pressure` and `pressurepath`.
+#' When updating the labelling file of a `tag`, we often change only a few stationary periods. To
+#' avoid recomputing the entire workflow, this function identifies which stationary periods have
+#' been modified and updates only these ones in `tag$map_pressure` and `pressurepath`.
 #'
-#' @param tag a GeoPressureR `tag` object
-#' @param file Absolute or relative path of the label file.
-#' @param known Data.frame containing the known positions of the bird (e.g., equipment or retrieval
-#' site). Default is to use `tag$stap`, which assumes that the `stap_id` has not changed for the
+#' @param tag a GeoPressureR `tag` object.
+#' @param file absolute or relative path of the label file.
+#' @param known data.frame containing the known positions of the bird (e.g., equipment or retrieval
+#' site). The default is to use `tag$stap`, which assumes that the `stap_id` has not changed for the
 #' known stationary periods.
+#' @param quiet logical to hide messages about the progress
 #'
-#' @return the updated `tag` object
+#' @return The updated `tag` object
 #' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
 #'   tag_set_map(extent = c(-16, 23, 0, 50), scale = 1) |>
-#'   geopressure_map()
+#'   geopressure_map(quiet = TRUE)
 #'
-#' tag
+#' print(tag)
 #'
 #' tag <- tag_update(tag,
-#'   file = "././data/tag-label/18LX-labeled-modif.csv"
+#'   file = "./data/tag-label/18LX-labeled-updated.csv",
+#'   quiet = TRUE
 #' )
-#' tag
+#'
+#' print(tag)
 #' @family tag
 #' @export
 tag_update <- function(tag,
                        file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
-                       known = NULL) {
+                       known = NULL,
+                       quiet = FALSE) {
   # Only work if the tag has already been labeled.
   tag_assert(tag, "map_pressure")
 
@@ -140,7 +145,8 @@ tag_update <- function(tag,
     sd = tag$param$sd,
     thr_mask = tag$param$thr_mask,
     log_linear_pooling_weight = tag$param$log_linear_pooling_weight,
-    keep_mse_mask = "map_pressure_mse" %in% names(tag)
+    keep_mse_mask = "map_pressure_mse" %in% names(tag),
+    quiet = quiet
   )
 
   # Add the likelihood which have not changed

@@ -15,7 +15,7 @@
 #' @return A GeoPressureR `param` list
 #'
 #' @examples
-#' param = param_create("18LX", extent = c(0, 0, 1, 1))
+#' param <- param_create("18LX", extent = c(0, 0, 1, 1))
 #' print(param)
 #'
 #' @family param
@@ -68,7 +68,7 @@ param_create <- function(id, default = FALSE, ...) {
 
     # Overwrite default value with input value
     param_overwrite <- list(...)
-    print(param_overwrite)
+
     common_names <- intersect(names(param), names(param_overwrite))
     for (name in common_names) {
       param[[name]] <- param_overwrite[[name]]

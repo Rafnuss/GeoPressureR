@@ -54,6 +54,7 @@
 #' tag <- geolight_map(tag, quiet = TRUE)
 #'
 #' plot(tag, type = "map_light")
+#' @family geolight
 #' @export
 geolight_map <- function(tag,
                          twl_calib_adjust = 1.4,

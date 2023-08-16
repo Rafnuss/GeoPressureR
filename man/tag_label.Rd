@@ -46,26 +46,31 @@ grouped by elevation layer (\verb{elev_*})
 \description{
 This function performs the following operations:
 \enumerate{
-\item Read label file with \code{\link[=tag_label_read]{tag_label_read()}} and assign the label to a new column in each sensor
+\item Read label file with \code{tag_label_read()} and assign the label to a new column in each sensor
 data.frame
 \item Compute the stationary period \code{tag$stap} from the label and assign the corresponding \code{stap_id}
-on all sensors data.frame with \code{\link[=tag_label_stap]{tag_label_stap()}}
+on all sensors data.frame with \code{tag_label_stap()}
 }
 
 If the label file does not exist, the function will suggest to create it with
-\code{\link[=tag_label_write]{tag_label_write()}} and use \code{\link[=tag_label_auto]{tag_label_auto()}} if acceleration data exists.
+\code{tag_label_write()} and use \code{tag_label_auto()} if acceleration data exists.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE)
 
+print(tag)
+
 tag <- tag_label(tag)
 
+print(tag)
+
+# The labeled `tag` contains additional column on the sensor data.frame
 str(tag)
 
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#edit-activity-on-trainset}{GeoPressureManual | Pressure Map }
+\href{https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html}{GeoPressureManual }
 
 Other tag_label: 
 \code{\link{tag_label_auto}()},

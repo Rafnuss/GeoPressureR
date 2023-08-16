@@ -47,17 +47,17 @@ representing the E-W as real and S-N as imaginary
 }
 }
 \description{
-This function returns a trellis graph representing the trajectory of a bird based on filtering and
-prunning the likelihood maps provided.
+This function returns a trellis graph representing the trajectory of a bird based on filtering
+and pruning the likelihood maps provided.
 
 In the final graph, we only keep the most likely nodes (i.e., position of the bird at each
 stationary periods) defined as (1) those whose likelihood value are within the threshold of
 percentile \code{thr_likelihood} of the total likelihood map and (2) those which are connected to
-at least one edge of the previous and next stationary periods requireing an average ground speed
+at least one edge of the previous and next stationary periods requiring an average ground speed
 lower than \code{thr_gs} (in km/h).
 
-For more details and illustration, see Section 2.2 of \href{https://doi.org/10.1111/2041-210X.14082}{Nussbaumer et al. (2023)} and
-\href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph}{GeoPressureManual | Basic graph}
+For more details and illustration, see \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0004-title}{section 2.2 of Nussbaumer et al. (2023b)}
+and the \href{https://bit.ly/3saLVqi}{GeoPressureManual}
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
@@ -85,7 +85,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \url{https://doi.org/10.1111/2041-210X.14082}.}
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#create-the-graph}{GeoPressureManual | Basic graph}
+\href{https://bit.ly/3saLVqi}{GeoPressureManual}
 
 Other graph: 
 \code{\link{graph_add_wind}()},

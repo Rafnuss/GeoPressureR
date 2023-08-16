@@ -18,10 +18,4 @@ A data.frame with columns \code{date} and \code{value}.
 \description{
 Format light data into a matrix
 }
-\seealso{
-Other twilight: 
-\code{\link{twilight_create}()},
-\code{\link{twilight_label_read}()},
-\code{\link{twilight_label_write}()}
-}
 \concept{twilight}

@@ -1,30 +1,31 @@
 #' Configure the `map` of a `tag` object
 #'
 #' @description
-#' This function adds the parameters defining the 3D grid of the maps. The spatial parameters
-#' (`extent` and `scale`) defines the geographical dimension. The temporal dimension is
-#' defined based on the stationary periods build from the label. `include_stap_id` and
-#' `include_min_duration` can be used to limit which stationary periods are computed and model in
-#' the rest of the analysis. By default, all stationary periods are included.
+#' This function adds to `tag` the parameters defining the 3D grid of the map. The spatial
+#' parameters (`extent` and `scale`) define the **geographical dimensions of the map**, and the
+#' **temporal dimension** is defined based on the stationary periods built using the labels.
+#' `include_stap_id` and `include_min_duration` can be used to limit which stationary periods are
+#' computed and modelled in the analysis. By default, all stationary periods are included.
 #'
-#' In addition, `tag` also includes the ability to define `known` locations (e.g., equipment or
+#' In addition, `tag` offers the possibility to define `known` locations (e.g., equipment or
 #' retrieval site). These can only be defined at the level of a stationary period (i.e., assuming
 #' constant position during the whole stationary period) but you can define as many known stationary
 #' periods as you wish. No likelihood map will be computed for these stationary periods and the
-#' trajectory model will be more constrain, thus saving significant computational time.
+#' trajectory model will be more constrained, saving significant computational time.
 #'
 #' @param tag a GeoPressureR `tag` object.
-#' @param extent Geographical extent of the map on which the likelihood and graph model will be
+#' @param extent geographical extent of the map on which the likelihood and graph model will be
 #' computed. Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.
-#' @param scale Number of pixels per 1° latitude-longitude. For instance, `scale = 10` for a
+#' @param scale number of pixels per 1° latitude-longitude. For instance, `scale = 10` for a
 #' resolution of 0.1° (~10km) and `scale=4` for a resolution of 0.25° (~30km). To avoid
-#' interpolating the ERA5 data, the scale should be smaller than 10. Read more about scale on the
-#' [Google earth Engine documentation](https://developers.google.com/earth-engine/guides/scale).
-#' @param include_stap_id Vector of `stap_id` defining which stationary period to model, that is,
+#' interpolating the ERA5 data, the scale should be equal to or smaller than 10. Read more about
+#' scale on the [Google earth Engine documentation
+#' ](https://developers.google.com/earth-engine/guides/scale).
+#' @param include_stap_id vector of `stap_id` defining which stationary period to model, that is,
 #' to compute in the likelihood map and use in the graph.
-#' @param include_min_duration Numeric defining the minimum threshold of stationary periods duration
-#' (in hours) to includes.
-#' @param known Data.frame containing the known positions of the bird (e.g., equipment or retrieval
+#' @param include_min_duration minimum duration threshold of stationary periods to include (in
+#' hours).
+#' @param known data.frame containing the known positions of the bird (e.g., equipment or retrieval
 #' site).
 #' @return A GeoPressureR `tag` object with:
 #' - `stap`: Data.frame of all stationary periods with three new columns: `known_lat` and
@@ -38,12 +39,13 @@
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 #'
 #' # Default tag
-#' tag <- tag_set_map(tag, c(-16, 23, 0, 50))
-#' tag
+#' tag_default <- tag_set_map(tag, c(-16, 23, 0, 50))
 #'
-#' # Customized tag, with coarse grid scale, known position for the first stationary period and
-#' # considering only the stationary periods lasting more than 20hours.
-#' tag <- tag_set_map(tag,
+#' print(tag_default)
+#'
+#' # Customized tag, with coarse grid scale, known position for the first stationary
+#' #  period and considering only the stationary periods lasting more than 20hours.
+#' tag_custom <- tag_set_map(tag,
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 1,
 #'   include_min_duration = 20,
@@ -53,7 +55,11 @@
 #'     known_lat = 48.9
 #'   )
 #' )
-#' print(tag)
+#'
+#' print(tag_custom)
+#'
+#' @family tag
+#' @seealso [GeoPressureManual](https://bit.ly/3QGkf6N)
 #' @export
 tag_set_map <- function(tag,
                         extent,

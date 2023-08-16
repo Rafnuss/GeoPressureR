@@ -14,8 +14,9 @@ A list of the marginal maps for each stationary period (even those not modelled)
 include within \code{tag}.
 }
 \description{
-Compute the marginal probability map from a graph. The computation uses the \href{https://en.wikipedia.org/wiki/Forward\%E2\%80\%93backward_algorithm}{forward backward algorithm}. See
-section 2.3.2 in Nussbaumer (2023) for more information.
+Compute the marginal probability map from a graph. The computation uses the \href{https://en.wikipedia.org/wiki/Forward\%E2\%80\%93backward_algorithm}{forward backward algorithm}. For more
+details, see \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0012-title}{section 2.3.2 of Nussbaumer et al. (2023b)}
+and the \href{https://bit.ly/3sd20vC}{GeoPressureManual}.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
@@ -31,12 +32,15 @@ tag <- tag_create("18LX", quiet = TRUE) |>
   geolight_map(quiet = TRUE)
 
 # Create graph
-graph <- graph_create(tag)
+graph <- graph_create(tag, quiet = TRUE)
 
 # Define movement model
 graph <- graph_set_movement()
 
-print(graph)
+# Compute marginal
+marginal <- graph_marginal(graph)
+
+plot(marginal)
 
 }
 \references{
@@ -46,7 +50,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \url{https://doi.org/10.1111/2041-210X.14082}.}
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map}{GeoPressureManual | Basic graph}
+\href{https://bit.ly/3sd20vC}{GeoPressureManual}
 
 Other graph: 
 \code{\link{graph_add_wind}()},

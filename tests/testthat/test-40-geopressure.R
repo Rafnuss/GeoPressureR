@@ -2,7 +2,7 @@ library(testthat)
 library(GeoPressureR)
 
 # Hide cli message
-# options(cli.default_handler = function(...) { })
+options(cli.default_handler = function(...) { })
 
 # Set working directory
 # setwd(system.file("extdata/", package = "GeoPressureR"))
@@ -74,6 +74,8 @@ test_that("geopressure_map() | default output", {
   tag <- tag_set_map(tag, extent, scale)
   expect_no_error(tag <- geopressure_map(tag))
   expect_true(assertthat::has_name(tag, c("stap", "map_pressure", "param", "mask_water")))
-  expect_true(assertthat::has_name(tag$map_pressure, c("id", "stap", "data", "extent", "scale",
-                                                       "lat", "lon", "type")))
+  expect_true(assertthat::has_name(tag$map_pressure, c(
+    "id", "stap", "data", "extent", "scale",
+    "lat", "lon", "type"
+  )))
 })

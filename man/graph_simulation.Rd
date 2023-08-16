@@ -4,12 +4,14 @@
 \alias{graph_simulation}
 \title{Simulate randomly multiple trajectories}
 \usage{
-graph_simulation(graph, nj = 10)
+graph_simulation(graph, nj = 10, quiet = FALSE)
 }
 \arguments{
 \item{graph}{a graph object.}
 
 \item{nj}{Number of simulations.}
+
+\item{quiet}{logical to hide messages about the progress.}
 }
 \value{
 Path data.frame containing the columns
@@ -27,7 +29,34 @@ Path data.frame containing the columns
 }
 \description{
 This function randomly simulates multiple trajectories from a graph using the forward filtering
-backward sampling algorithm. See section 2.3.3 in Nussbaumer (2023) for more information.
+backward sampling algorithm. For more
+details, see \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0013-title}{section 2.3.3 of Nussbaumer et al. (2023b)}
+and the \href{https://bit.ly/3YE83Wn}{GeoPressureManual}.
+}
+\examples{
+setwd(system.file("extdata/", package = "GeoPressureR"))
+tag <- tag_create("18LX", quiet = TRUE) |>
+  tag_label(quiet = TRUE) |>
+  twilight_create() |>
+  twilight_label_read() |>
+  tag_set_map(
+    extent = c(-16, 23, 0, 50),
+    known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
+  ) |>
+  geopressure_map(quiet = TRUE) |>
+  geolight_map(quiet = TRUE)
+
+# Create graph
+graph <- graph_create(tag, quiet = TRUE)
+
+# Define movement model
+graph <- graph_set_movement()
+
+# Compute simulations
+path_simulation <- graph_simulation(graph, quiet = TRUE)
+
+plot_path(path_simulation, plot_leaflet = FALSE)
+
 }
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
@@ -36,7 +65,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \url{https://doi.org/10.1111/2041-210X.14082}.}
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-3-simulate-path}{GeoPressureManual | Basic graph}
+\href{https://bit.ly/3YE83Wn}{GeoPressureManual}
 
 Other graph: 
 \code{\link{graph_add_wind}()},

@@ -9,7 +9,9 @@
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
+#'
 #' tag <- tag_create("18LX", quiet = TRUE)
+#'
 #' print(tag)
 #'
 #' @family tag
@@ -20,7 +22,7 @@ print.tag <- function(x, ...) {
 
   status <- tag_status(tag)
 
-  cli::cli_h1("GeoPressureR `tag` object for {.field id}={.val {tag$param$id}}")
+  cli::cli_h1("GeoPressureR `tag` object for {.field id} = {.val {tag$param$id}}")
 
   if (!("read" %in% status)) {
     cli::cli_bullets(c("x" = "Sensors data not yet read. Use {.fun tag_create}"))
@@ -56,7 +58,7 @@ print.tag <- function(x, ...) {
           {.val {tag$param$extent[2]}}\u00b0",
           "*" = "Extent S-N: {.val {tag$param$extent[3]}}\u00b0 to \\
           {.val {tag$param$extent[4]}}\u00b0",
-          "*" = "Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}\u00b0",
+          "*" = "Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}",
           "*" = "Resolution lat-lon: {.val {1/tag$param$scale}}\u00b0"
         ))
         # nolint end

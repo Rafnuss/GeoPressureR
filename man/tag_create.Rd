@@ -7,51 +7,55 @@
 tag_create(
   id,
   directory = glue::glue("./data/raw-tag/{id}/"),
-  pressure_file = "*.pressure",
-  light_file = "*.glf",
-  acceleration_file = "*.acceleration",
+  pressure_file = "auto",
+  light_file = "auto",
+  acceleration_file = "auto",
   crop_start = NULL,
   crop_end = NULL,
   quiet = FALSE
 )
 }
 \arguments{
-\item{id}{Unique identifier of a tag.}
+\item{id}{unique identifier of a tag.}
 
-\item{directory}{Path of the directory where the tag files can be read.}
+\item{directory}{path of the directory where the tag files can be read.}
 
-\item{pressure_file}{Name of the file with pressure data. Extension must be \code{.pressure} or
-\code{.deg} (required).}
+\item{pressure_file}{name of the file with pressure data. Full pathname, \code{"auto"}, or finishing
+with extensions \code{.pressure} or \code{.deg} (required).}
 
-\item{light_file}{Name of the file with light data. Extension must be \code{.glf}, \code{.lux} (or \code{NA}
-to ignore).}
+\item{light_file}{name of the file with light data. Full pathname, \code{"auto"}, \code{NULL} to ignore or
+extensions \verb{*.glf}, \verb{*.lux}.}
 
-\item{acceleration_file}{Name of the file with acceleration data. Extension must be
-\code{.acceleration}, \code{.deg} (or \code{NA} to ignore).}
+\item{acceleration_file}{name of the file with acceleration data. Full pathname, \code{"auto"}, \code{NULL}
+to ignore or extension \code{.acceleration}, \code{.deg} (or \code{NA} to ignore).}
 
-\item{crop_start}{Remove all data before this date (POSIXct or character in UTC).}
+\item{crop_start}{remove all data before this date (POSIXct or character in UTC).}
 
-\item{crop_end}{Remove all data after this date (POSIXct or character in UTC).}
+\item{crop_end}{remove all data after this date (POSIXct or character in UTC).}
 
 \item{quiet}{logical to hide messages about the progress.}
 }
 \value{
-A GeoPressureR \code{tag} object containing
+a GeoPressureR \code{tag} object containing
 \itemize{
 \item \code{param} parameter object (see \link{param_create})
-\item \code{pressure} data.frame with column \code{date} and \code{value}
+\item \code{pressure} data.frame with columns for \code{date} and \code{value}
 \item \code{light} (optional) same structure as pressure
 \item \code{acceleration} (optional) same structure as pressure
 }
 }
 \description{
-Create a GeoPressureR \code{tag} object from sensor(s) data and optionally crops at specific
-date. The \verb{*_file} arguments are matched using a \link{regex} expression (e.g., \code{"*.pressure"}
-matches any file with the extension \code{pressure}).
+Create a GeoPressureR \code{tag} object from the data collected by the tracking device. This can
+include one or multiple sensors (pressure, light, acceleration). This function also optionally
+crops the data at a specific date.
 
-The current implementation can read the files from:
+By default \code{"auto"}, the file are determined automatically from the files present in \code{directory}.
+You can also specfy the full pathname or a file extension using a \link{regex} expression (e.g.,
+\code{"*.pressure"} matches any file ending with \code{pressure}).
+
+The current implementation can read files from:
 \itemize{
-\item \href{https://www.vogelwarte.ch/en/projects/bird-migration/tracking-devices-miniaturized-geolocators}{Swiss Ornithological Institute (SOI) }
+\item \href{https://bit.ly/3QI6tkk}{Swiss Ornithological Institute (SOI)}
 (default)
 \itemize{
 \item \code{pressure_file = "*.pressure"}
@@ -69,37 +73,43 @@ The current implementation can read the files from:
 Use \code{NULL} to hide the message warning about the absence of a sensor file.
 
 Please create \href{https://github.com/Rafnuss/GeoPressureR/issues/new}{an issue on Github} if you
-have data in a format not supported yet.
+have data in a format that is not yet supported.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
 
-tag_create("18LX")
+# Read all sensor file
+tag <- tag_create("18LX")
 
-tag_create("18LX", crop_start = "2017-08-01", crop_end = "2017-08-05")
+print(tag)
 
-# For Migrate Technology file, use
-tag_create("CB621",
-  pressure_file = "*.deg",
-  light_file = "*.lux",
+# Read only pressure and crop date
+tag <- tag_create("18LX",
+  light_file = NULL,
+  acceleration_file = NULL,
+  crop_start = "2017-08-01",
+  crop_end = "2017-08-05"
+)
+
+print(tag)
+
+# You can also specify the exact file in case multiple files with the
+# same extension exist in your directory
+tag <- tag_create("CB621",
+  pressure_file = "CB621_BAR.deg",
+  light_file = "CB621.lux",
   acceleration_file = NULL
 )
 
-# You can also specify exactly the file in case multiple file with the same
-# extension exist in your directory
-tag_create("CB621",
-  pressure_file = "CB621_BAR.deg",
-  light_file = NA,
-  acceleration_file = NA
-)
+print(tag)
 
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#read-geolocator-data}{GeoPressureManual | Pressure Map }
+\href{https://bit.ly/4462jpr}{GeoPressureManual}
 
 Other tag: 
-\code{\link{plot.tag}()},
 \code{\link{print.tag}()},
+\code{\link{tag_set_map}()},
 \code{\link{tag_update}()}
 }
 \concept{tag}

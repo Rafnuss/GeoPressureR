@@ -2,7 +2,10 @@
 #'
 #' @description
 #' This function randomly simulates multiple trajectories from a graph using the forward filtering
-#' backward sampling algorithm. See section 2.3.3 in Nussbaumer (2023) for more information.
+#' backward sampling algorithm. For more
+#' details, see [section 2.3.3 of Nussbaumer et al. (2023b)](
+#' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0013-title)
+#' and the [GeoPressureManual](https://bit.ly/3YE83Wn).
 #'
 #' @param graph a graph object.
 #' @param nj Number of simulations.
@@ -19,8 +22,31 @@
 #' - `include` logical if stationary period was modeled (same as in `stap`)
 #' - `nb_sample known` number of datapoint used to compute pressure (same as in `stap`)
 #'
-#' @seealso [GeoPressureManual | Basic graph](
-#' https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-3-simulate-path)
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE) |>
+#'   tag_label(quiet = TRUE) |>
+#'   twilight_create() |>
+#'   twilight_label_read() |>
+#'   tag_set_map(
+#'     extent = c(-16, 23, 0, 50),
+#'     known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
+#'   ) |>
+#'   geopressure_map(quiet = TRUE) |>
+#'   geolight_map(quiet = TRUE)
+#'
+#' # Create graph
+#' graph <- graph_create(tag, quiet = TRUE)
+#'
+#' # Define movement model
+#' graph <- graph_set_movement(graph)
+#'
+#' # Compute simulations
+#' path_simulation <- graph_simulation(graph, quiet = TRUE)
+#'
+#' plot_path(path_simulation, plot_leaflet = FALSE)
+#'
+#' @seealso [GeoPressureManual](https://bit.ly/3YE83Wn)
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129

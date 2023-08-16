@@ -1,11 +1,24 @@
 #' Plot a `tag` object
 #'
+#' @description
 #' This function plot a GeoPressureR `tag` object as a timeseries or a map.
+#'
+#' By default, `type` is determined in the following order of preference according to availability:
+#' `c("map_pressure", "map_light")`, `"map_pressure"`, `"map_light"`, `"pressure"`.
+#'
+#' `plot.tag()` calls different plotting functions depending on `type`.
+#' - `"pressure"`: `plot_tag_pressure()`
+#' - `"light"`: `plot_tag_light()`
+#' - `"acceleration"`: `plot_tag_acceleration()`
+#' - `"twilight"`: `plot_tag_twilight()`
+#' - `"map_*"` : `plot.map()` with `tag$map_*` as first argument.
+#'
+#' Refers to these functions for additional parameters and more flexibility in the plotting.
 #'
 #' @param x a GeoPressureR `tag` object.
 #' @param type type of the plot to display. One of `"pressure"`, `"acceleration"`, `"light"`,
 #' `"twilight"`, `"map"`, `"map_pressure"`, `"map_light"`, `"map_pressure_mse"`,
-#' `"map_pressure_mask"`, `"mask_water"`
+#' `"map_pressure_mask"`, `"mask_water"`. Map can be combined by providing a vector of type.
 #' @param ... additional parameters for `plot_tag_pressure()`, `plot_tag_acceleration()`,
 #' `plot_tag_light()`, `plot_tag_twilight()` or `plot.map()`
 #'
@@ -14,16 +27,17 @@
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE)
 #'
-#' # Plot pressure by default
+#' # By default, plot will display the timeserie of pressure
 #' plot(tag)
+#' # Change the `type` to display other sensor
 #' plot(tag, type = "acceleration")
 #' plot(tag, type = "light")
-#'
-#' tag <- twilight_create(tag) |>
-#'   twilight_label_read()
-#'
+#' # Twilight is display as an image
+#' tag <- twilight_create(tag) |> twilight_label_read()
 #' plot(tag, type = "twilight")
 #'
+#' # After you compute any likelihood map, the default will
+#' # become this map (i.e., `type = "map"`)
 #' tag <- tag_set_map(tag,
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 4,
@@ -34,16 +48,15 @@
 #'   )
 #' ) |>
 #'   geopressure_map(quiet = TRUE)
-#'
-#' # default is now to take "map"
 #' plot(tag)
-#'
+#' # The likelihood map of light can be display with
 #' tag <- geolight_map(tag, quiet = TRUE)
-#'
-#' plot(tag)
 #' plot(tag, type = "map_light")
-#'
-#' @family tag
+#' # When both pressure and light likelihood are present,
+#' # the default is to display their products, equivalent
+#' # to choose `type = c("map_pressure", "map_light")`
+#' plot(tag)
+#' @family tag plot_tag
 #' @export
 plot.tag <- function(x, type = NULL, ...) {
   tag <- x
@@ -97,6 +110,17 @@ plot.tag <- function(x, type = NULL, ...) {
 #' @param quiet logical to hide warning message about label.
 #' @param warning_stap_length Threshold number of pressure datapoints flagged as ️warning (hourly.
 #' @param warning_pressure_diff Threshold of pressure hourly difference marking as ️warning (hPa).
+#'
+#' @family plot_tag
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE)
+#'
+#' plot_tag_pressure(tag, plot_plotly = FALSE)
+#'
+#' tag <- tag_label(tag, quiet = TRUE)
+#'
+#' plot_tag_pressure(tag)
 #' @export
 plot_tag_pressure <- function(tag,
                               plot_plotly = TRUE,
@@ -222,6 +246,14 @@ plot_tag_pressure <- function(tag,
 #' @param label_auto logical to compute and plot the flight label using `tag_label_auto()`. Only if
 #' labels are not already present on tag$acceleration$label
 #' @inheritParams tag_label_auto
+#'
+#' @family plot_tag
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE)
+#'
+#' plot_tag_acceleration(tag)
+#'
 #' @export
 plot_tag_acceleration <- function(tag,
                                   plot_plotly = TRUE,
@@ -269,6 +301,14 @@ plot_tag_acceleration <- function(tag,
 #' @param tag a GeoPressureR `tag` object
 #' @param plot_plotly logical to use `plotly`
 #' @param transform_light logical to display a log transformation of light
+#'
+#' @family plot_tag
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE)
+#'
+#' plot_tag_light(tag)
+#'
 #' @export
 plot_tag_light <- function(tag,
                            transform_light = TRUE,
@@ -319,6 +359,18 @@ plot_tag_light <- function(tag,
 #' @param tag a GeoPressureR `tag` object
 #' @param plot_plotly logical to use `plotly`
 #' @param transform_light logical to display a log transformation of light
+#'
+#' @family plot_tag
+#' @examples
+#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE)
+#'
+#' plot_tag_pressure(tag, plot_plotly = TRUE)
+#'
+#' tag <- tag_label(tag, quiet = TRUE)
+#'
+#' plot_tag_pressure(tag)
+#'
 #' @export
 plot_tag_twilight <- function(tag,
                               transform_light = TRUE,

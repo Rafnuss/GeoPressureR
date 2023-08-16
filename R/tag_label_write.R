@@ -11,25 +11,25 @@
 #' @inheritParams tag_label
 #' @param file Absolute or relative path of the label file to be saved.
 #'
+#' @return The file pathname is return invisibly
+#'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE)
 #'
 #' # Writing unlabeled tag will initialize the labelling for trainset
-#' file <- tag_label_write(tag)
-#' str(read.csv(file))
+#' tag_label_write(tag)
 #'
 #' # Writing unlabeled tag will initialize the labelling for trainset
 #' tag <- tag_label_auto(tag)
-#' file <- tag_label_write(tag)
-#' str(read.csv(file))
+#' tag_label_write(tag)
 #'
 #' # Writing labeled tag will use the existing labels
 #' tag <- tag_label(tag)
-#' file <- tag_label_write(tag)
-#' str(read.csv(file))
+#' tag_label_write(tag)
 #'
 #' @family tag_label
+#' @seealso [GeoPressureManual](https://bit.ly/3QC7IBt)
 #' @export
 tag_label_write <- function(tag,
                             file = glue::glue("./data/tag-label/{tag$param$id}.csv")) {

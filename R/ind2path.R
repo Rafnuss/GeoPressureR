@@ -13,7 +13,7 @@
 #' approximated to the map resolution in order to corresponds to integer index.
 #' @return A path data.frame
 #' - `stap_id` stationary period identification
-#' - `j` identification for each trajectory $1, ..., nj$.
+#' - `j` identification for each trajectory (1 to $nj$).
 #' - `ind` indices of the coordinate in the 2D grid. Useful to retrieve map or graph information.
 #' - `lat` Latitude,
 #' - `lon` longitude
@@ -61,8 +61,8 @@ ind2path <- function(ind,
   assertthat::assert_that(dim(ind)[2] == nrow(stap))
 
   # Convert the index in 2D grid into 1D lat and lon coordinate
-  ind_lon <- ceiling(ind / g$dim[1]) # (ind %% g$dim[1])
-  ind_lat <- (ind - 1) %% g$dim[1] + 1 # (ind - ind_lat) / g$dim[1] + 1
+  ind_lon <- ceiling(ind / g$dim[1]) # (ind - ind_lat) / g$dim[1] + 1
+  ind_lat <- (ind - 1) %% g$dim[1] + 1 # (ind %% g$dim[1])
 
   # Create the data.frame with all information
   path0 <- data.frame(

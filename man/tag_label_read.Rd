@@ -19,8 +19,8 @@ Same data logger list as input, updated with the labels \code{tag$pressure$label
 optionally \code{tag$acceleration$label}.
 }
 \description{
-This function reads an exported csv file from \href{https://trainset.geocene.com/}{TRAINSET} and updates
-the data logger dataset \code{tag}.
+This function reads an exported csv file from \href{https://trainset.geocene.com/}{TRAINSET} and
+updates the data logger dataset \code{tag}.
 }
 \examples{
 setwd(system.file("extdata/", package = "GeoPressureR"))
@@ -31,6 +31,8 @@ tag <- tag_label_read(tag)
 str(tag)
 }
 \seealso{
+\href{https://bit.ly/45v79gV}{GeoPressureManual}
+
 Other tag_label: 
 \code{\link{tag_label_auto}()},
 \code{\link{tag_label_stap}()},

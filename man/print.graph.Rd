@@ -30,7 +30,8 @@ tag <- tag_create("18LX", quiet = TRUE) |>
   geopressure_map(quiet = TRUE) |>
   geolight_map(quiet = TRUE)
 
-graph <- graph_create(tag)
+graph <- graph_create(tag, quiet = TRUE)
+
 print(graph)
 
 }

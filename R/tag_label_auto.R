@@ -12,9 +12,6 @@
 #' flight.
 #' @return Same data logger list than input `tag`, but with the column `label` filled with
 #' `"flight"` in the acceleration data.frame when a sustained high-activity period is detected.
-#' @seealso [flapping chapter of the tagLr
-#' manual](https://kiranlda.github.io/tagLrManual/flapping.html), [GeoPressureManual | Pressure Map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #'
 #' @examples
 #' setwd(system.file("extdata/", package = "GeoPressureR"))
@@ -24,6 +21,7 @@
 #' str(tag$acceleration)
 #'
 #' @family tag_label
+#' @seealso [GeoPressureManual](https://bit.ly/45bthNt)
 #' @export
 tag_label_auto <- function(tag,
                            min_duration = 30) {

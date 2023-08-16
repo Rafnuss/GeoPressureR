@@ -4,12 +4,14 @@
 \alias{path2edge}
 \title{Extract the edges of a \code{path} from a \code{graph}}
 \usage{
-path2edge(path, graph)
+path2edge(path, graph, add_flight = TRUE)
 }
 \arguments{
 \item{path}{a GeoPressureR \code{path} data.frame}
 
 \item{graph}{a GeoPressureR \code{graph} object}
+
+\item{add_flight}{compute flight data.frame and merge with the return data.frame}
 }
 \value{
 Data.frame of the edge containing:
@@ -22,6 +24,9 @@ the angle/direction with \code{Arg(gs)}.
 \item \code{distance} : Distance (in km) of the flight.
 \item \code{ws}: if computed with \code{graph_add_wind()}, same value as \code{gs}. Airspeed is computed with
 \code{as = gs - ws} in complex number to keep the vectorial additive properties.
+\item \code{start} end of the flight. If \code{add_flight=T}.
+\item \code{end} start of the flight. If \code{add_flight=T}.
+\item \code{duration} duration of the flight. If \code{add_flight=T}.
 }
 }
 \description{
@@ -29,7 +34,7 @@ Retrieve the edges in a \code{graph} corresponding to the flight transition defi
 edges can be useful to extract flight information specific to a path.
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#energy}{GeoPressureManual | Wind graph}
+\href{https://bit.ly/47MhQxN}{GeoPressureManual}
 
 Other path: 
 \code{\link{ind2path}()},

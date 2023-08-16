@@ -22,14 +22,14 @@ tag_label_stap(
 (hours)}
 }
 \value{
-Same data logger list as input \code{tag} but with (1) a new data.frame of stationary periods
-\code{tag$stap} and (2) a new column \code{stap_id} for each sensor data.
+\code{tag} is return with (1) a new data.frame of stationary periods \code{tag$stap} and (2) a new
+column \code{stap_id} for each sensor data.
 }
 \description{
 This function computes the stationary periods from the pressure and/or acceleration label data.
 
-If an acceleration data.frame is present and contains a column \code{label}, the stationary period will
-be computed from it, otherwise, it uses the pressure data.frame.
+If an acceleration data.frame is present and contains a column \code{label}, the stationary period
+will be computed from it, otherwise, it uses the pressure data.frame.
 
 Stationary periods are defined by being separated by a flight (label \code{"flight"}). Flights of any
 duration will be considered.
@@ -48,7 +48,7 @@ str(tag)
 str(tag$stap)
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#identify-stationary-periods}{GeoPressureManual | Pressure Map }
+\href{https://bit.ly/45gwcVu}{GeoPressureManual}
 
 Other tag_label: 
 \code{\link{tag_label_auto}()},

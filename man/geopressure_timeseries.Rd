@@ -48,7 +48,8 @@ A data.frame containing
 This function returns the surface atmospheric pressure timeseries from ERA5 at any requested
 location.
 
-If the location queried is over water, the location will be moved to the closest onshore location.
+If the location queried is over water, the location will be moved to the closest onshore
+location.
 
 The ERA5 pressure timeseries of the response \eqn{P_{ERA}} will be provided on a hourly basis
 between \code{start_time} and \code{end_time} or the same as \code{pressure$date} if \code{pressure} is supplied.
@@ -75,7 +76,8 @@ the geolocator mean pressure measurement as \code{pressure_era5_norm}.
 pressurepath <- geopressure_timeseries(
   lat = 46, lon = 6,
   start_time = "2017-01-01 00:00",
-  end_time = "2017-01-02 00:00"
+  end_time = "2017-01-02 00:00",
+  quiet = TRUE
 )
 
 str(pressurepath)
@@ -92,7 +94,8 @@ pressurepath <- geopressure_timeseries(
       date = pressurepath$date,
       value = pressurepath$pressure_era5 + rnorm(nrow(pressurepath))
     )
-  )
+  ),
+  quiet = TRUE
 )
 
 str(pressurepath)
@@ -103,12 +106,10 @@ plot(pressurepath$date, pressurepath$altitude,
 }
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14, 1118–1129
-\url{https://doi.org/10.1111/2041-210X.14043}.}
+Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14,
+1118–1129 \url{https://doi.org/10.1111/2041-210X.14043}.}
 }
 \seealso{
-\code{\link[=pressurepath_create]{pressurepath_create()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map}
-
 Other pressurepath: 
 \code{\link{plot_pressurepath}()},
 \code{\link{pressurepath2altitude}()},

@@ -13,7 +13,7 @@
 #' create a likelihood map with a single 1 value at the grid cell closest to the known position.
 #'
 #' For more background and details on the method behind these functions, please refer to the
-#' [associated scientific publication]( https://doi.org/10.1111/2041-210X.14043).
+#' Nussbaumer et al. ([2023a](https://doi.org/10.1111/2041-210X.14043)).
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param max_sample The computation of the maps is only performed on `max_sample` datapoints of
@@ -63,12 +63,16 @@
 #' )
 #'
 #' plot(tag, type = "map_pressure_mse", plot_leaflet = FALSE)
+#'
 #' plot(tag, type = "map_pressure_mask", plot_leaflet = FALSE)
+#'
+#' plot(tag, type = "map_pressure")
 #'
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
 #' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
 #' 1118–1129 <https://doi.org/10.1111/2041-210X.14043>.}
 #' @family geopressure_map
+#' @seealso [GeoPressureManual](https://bit.ly/3sg7yFJ)
 #' @export
 geopressure_map <- function(tag,
                             max_sample = 250,

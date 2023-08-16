@@ -6,9 +6,10 @@
 #'
 #' In addition, the graph can be further pruned based on a threashold of airspeed `thr_as`.
 #'
-#' See section 2.2.4 in Nussbaumer (2023) for more technical details and
-#' [GeoPressureManual | Wind graph](
-#' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph) for an
+#' See section [2.2.4 in Nussbaumer (2023b)](
+#' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title)
+#' for more technical details and the [GeoPressureManual](
+#' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html) for an
 #' illustration on how to use it.
 #'
 #' @param graph a GeoPressureR graph object.

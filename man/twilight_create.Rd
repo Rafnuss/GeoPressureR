@@ -4,7 +4,7 @@
 \alias{twilight_create}
 \title{Estimate twilight from light data}
 \usage{
-twilight_create(tag, twl_thr = NULL, twl_offset = NULL)
+twilight_create(tag, twl_thr = NULL, twl_offset = NULL, transform_light = TRUE)
 }
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object}
@@ -14,6 +14,8 @@ value of light (i.e, first and last light of day).}
 
 \item{twl_offset}{Shift of the middle of the night compared to 00:00 UTC (in hours). If not
 provided, it uses the middle of all nights.}
+
+\item{transform_light}{logical to use a log transformation of light}
 }
 \value{
 a \code{tag} list containing a new data.frame \code{twilight} with columns:
@@ -34,15 +36,18 @@ tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 
 # Create twilight data.frame
 tag <- twilight_create(tag)
+
 str(tag$twilight)
+
 plot(tag, type = "twilight")
+
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html}{GeoPressureManual | Light Map }, \href{https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html}{\code{TwGeos::findTwilights()}}
+\href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html}{GeoPressureManual }, \href{https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html}{\code{TwGeos::findTwilights()}}
 
-Other twilight: 
-\code{\link{light2mat}()},
+Other geolight: 
+\code{\link{geolight_map}()},
 \code{\link{twilight_label_read}()},
 \code{\link{twilight_label_write}()}
 }
-\concept{twilight}
+\concept{geolight}

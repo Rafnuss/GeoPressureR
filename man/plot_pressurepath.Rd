@@ -17,7 +17,8 @@ plot_pressurepath(
 
 \item{type}{Timeseries \code{"ts"} or histogram \code{"hist"}}
 
-\item{sd}{Standard deviation of the pressure error . numeric of lenght 1 or number of stationary periods.}
+\item{sd}{Standard deviation of the pressure error . numeric of lenght 1 or number of stationary
+periods.}
 
 \item{warning_std_thr}{Threshold of outliar, coefficient of the \href{https://en.wikipedia.org/wiki/Standard_score}{z-score}}
 
