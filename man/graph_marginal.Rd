@@ -35,7 +35,7 @@ tag <- tag_create("18LX", quiet = TRUE) |>
 graph <- graph_create(tag, quiet = TRUE)
 
 # Define movement model
-graph <- graph_set_movement()
+graph <- graph_set_movement(graph)
 
 # Compute marginal
 marginal <- graph_marginal(graph)

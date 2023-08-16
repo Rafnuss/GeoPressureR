@@ -5,7 +5,7 @@ library(GeoPressureR)
 options(cli.default_handler = function(...) { })
 
 # Set working directory
-# setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata/", package = "GeoPressureR"))
 
 # Small synthetic case
 pressure <- data.frame(
@@ -49,7 +49,8 @@ test_that("geopressure_map_mismatch() | default output", {
 })
 
 test_that("geopressure_map_mismatch() | timeout and worker", {
-  expect_error(geopressure_map_mismatch(tag, timeout = 0.1), "*Timeout was reached*")
+  expect_warning(expect_error(
+    geopressure_map_mismatch(tag, timeout = 0.1), "*Timeout was reached*"))
   expect_error(geopressure_map_mismatch(tag, worker = 100), "* workers < 100*")
 })
 

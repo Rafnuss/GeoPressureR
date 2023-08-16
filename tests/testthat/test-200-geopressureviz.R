@@ -4,7 +4,7 @@ library(GeoPressureR)
 skip("skip geopressureviz")
 
 # Hide cli message
-# options(cli.default_handler = function(...) { })
+options(cli.default_handler = function(...) { })
 
 # Set working directory
 setwd(system.file("extdata/", package = "GeoPressureR"))

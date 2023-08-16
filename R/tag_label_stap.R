@@ -109,7 +109,7 @@ tag_label_stap <- function(tag,
         cli::cli_bullets(c(
           "!" =
             "Stap {s$stap} ({format(s$start, format='%Y-%m-%d %H:%M')} - \\
-          {format(s$end, format='%Y-%m-%d %H:%M')}) : {prettyunits::pretty_dt(s$duration_time)}"
+          {format(s$end, format='%Y-%m-%d %H:%M')}) : {pretty_dt(s$duration_time)}"
         ))
         # nolint end
       }
@@ -131,7 +131,7 @@ tag_label_stap <- function(tag,
           "!" =
             "Flight {f$stap_s} -> {f$stap_t} ({format(f$start, format='%Y-%m-%d %H:%M')} - \\
             {format(f$end, format='%Y-%m-%d %H:%M')}) : \\
-          {prettyunits::pretty_dt(as.difftime(f$duration, units = 'hours'))}"
+          {pretty_dt(as.difftime(f$duration, units = 'hours'))}"
         ))
         # nolint end
       }
@@ -141,4 +141,36 @@ tag_label_stap <- function(tag,
     }
   }
   return(tag)
+}
+
+#' noRd
+pretty_dt <- function(diff_time) {
+  # Ensure the difftime object is in seconds
+  seconds <- as.numeric(as.difftime(diff_time, units = "secs"))
+
+  # Calculate days, hours, minutes, and seconds
+  days <- floor(seconds / (24 * 60 * 60))
+  seconds <- seconds %% (24 * 60 * 60)
+  hrs <- floor(seconds / (60 * 60))
+  seconds <- seconds %% (60 * 60)
+  mins <- floor(seconds / 60)
+  secs <- seconds %% 60
+
+  # Format the string
+  duration_str <- ""
+  if (days > 0) {
+    duration_str <- paste0(duration_str, days, "d ")
+  }
+  if (hrs > 0) {
+    duration_str <- paste0(duration_str, hrs, "h ")
+  }
+  if (mins > 0) {
+    duration_str <- paste0(duration_str, mins, "m ")
+  }
+  if (secs > 0 || duration_str == "") {
+    duration_str <- paste0(duration_str, secs, "s")
+  }
+
+  # Trim and return
+  return(trimws(duration_str))
 }

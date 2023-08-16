@@ -65,7 +65,7 @@ tag <- geolight_map(tag, quiet = TRUE)
 plot(tag, type = "map_light")
 # When both pressure and light likelihood are present,
 # the default is to display their products, equivalent
-to choose `type = c("map_pressure", "map_light")`
+# to choose `type = c("map_pressure", "map_light")`
 plot(tag)
 }
 \concept{tag plot_tag}

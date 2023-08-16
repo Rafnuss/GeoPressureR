@@ -34,7 +34,9 @@ path <- data.frame(
 
 pressurepath <- pressurepath_create(tag, path = path, quiet = TRUE)
 
-pressurepath2altitude(pressurepath)
+altitude <- pressurepath2altitude(pressurepath)
+
+knitr::kable(altitude)
 
 }
 \seealso{
