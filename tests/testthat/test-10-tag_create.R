@@ -7,6 +7,20 @@ options(cli.default_handler = function(...) { })
 # Set working directory
 setwd(system.file("extdata/", package = "GeoPressureR"))
 
+test_that("tag_create() | manufacturer", {
+  expect_no_error(tag_create(id = "18LX"))
+  expect_no_error(tag_create(id = "CB621"))
+  expect_no_error(tag_create(id = "X19D"))
+
+  pres <- data.frame(
+    date = as.POSIXct(c(
+      "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
+      "2017-06-20 02:00:00 UTC", "2017-06-20 03:00:00 UTC"
+    ), tz = "UTC"),
+    value = c(1000, 1000, 1000, 1000)
+  )
+  expect_no_error(tag_create(id = "dummy", pressure_file = pres) )
+})
 
 test_that("tag_create() | default", {
   # with crop

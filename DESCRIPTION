@@ -44,6 +44,7 @@ Suggests:
     shinyjs,
     shiny,
     RColorBrewer,
+    readxl,
     shinyWidgets,
     covr
 biocViews:

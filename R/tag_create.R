@@ -1,38 +1,49 @@
 #' Create a `tag` object
 #'
 #' @description
-#' Create a GeoPressureR `tag` object from the data collected by the tracking device. This can
-#' include one or multiple sensors (pressure, light, acceleration). This function also optionally
-#' crops the data at a specific date.
+#' Create a GeoPressureR `tag` object from the data collected by a tracking device. This data needs
+#' to include at least pressure and optionally a light and/or acceleration.
 #'
-#' By default `"auto"`, the file are determined automatically from the files present in `directory`.
-#' You can also specfy the full pathname or a file extension using a [regex] expression (e.g.,
-#' `"*.pressure"` matches any file ending with `pressure`).
-#'
-#' The current implementation can read files from:
-#' - [Swiss Ornithological Institute (SOI)](https://bit.ly/3QI6tkk)
-#'  (default)
+#' The current implementation can read files from the following three manufacturer:
+#' - [Swiss Ornithological Institute (`soi`)](https://bit.ly/3QI6tkk)
 #'    - `pressure_file = "*.pressure"`
-#'    - `light_file = "*.glf"`
-#'    - `acceleration_file = "*.acceleration"`
-#' - [Migrate Technology](http://www.migratetech.co.uk/):
+#'    - `light_file = "*.glf"` (optional)
+#'    - `acceleration_file = "*.acceleration"` (optional)
+#' - [Migrate Technology (`migratetech`)](http://www.migratetech.co.uk/):
 #'    - `pressure_file = "*.deg"`
-#'    - `light_file = "*.lux"`
-#'    - `acceleration_file = "*.deg"`
+#'    - `light_file = "*.lux"` (optional)
+#'    - `acceleration_file = "*.deg"` (optional)
+#' - [Lund CAnMove (`lund`)](https://bit.ly/3P6quyi)
+#'    - `pressure_file = "*_press.xlsx"`
+#'    - `light_file = "*_acc.xlsx"` (optional)
+#'    - `acceleration_file = "*_acc.xlsx"` (optional)
 #'
-#'  Use `NULL` to hide the message warning about the absence of a sensor file.
+#'  You can also enter the data manually (`manufacturer = "manual"`) by providing the data.frame to
+#'  `pressure_file`:
+#'    - `pressure_file`: data.frame with column date and value.
+#'    - `light_file`: (optional) data.frame with column date and value.
+#'    - `acceleration_file`: (optional) data.frame with column date and value.
+#'
+#' By default `manufacturer = NULL`, the manufacturer is determined automatically from the content
+#' of the `directory`. You can also specify manually the file with a full pathname or the file
+#' extension using a [regex] expression (e.g., `"*.pressure"` matches any file ending with
+#' `pressure`).
 #'
 #' Please create [an issue on Github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you
 #' have data in a format that is not yet supported.
 #'
+#' This function can be used to crop the data at specific date, for instance to remove pre-equipment
+#' or post-retrieval data.
+#'
 #' @param id unique identifier of a tag.
+#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"lund"` or `"manual"`
 #' @param directory path of the directory where the tag files can be read.
-#' @param pressure_file name of the file with pressure data. Full pathname, `"auto"`, or finishing
-#' with extensions `.pressure` or `.deg` (required).
-#' @param light_file name of the file with light data. Full pathname, `"auto"`, `NULL` to ignore or
-#'  extensions `*.glf`, `*.lux`.
-#' @param acceleration_file name of the file with acceleration data. Full pathname, `"auto"`, `NULL`
-#'  to ignore or extension `.acceleration`, `.deg` (or `NA` to ignore).
+#' @param pressure_file name of the file with pressure data. Full pathname  or finishing
+#' with extensions (e.g., `"*.pressure"`, `"*.deg"` or `"*_press.xlsx"`).
+#' @param light_file name of the file with light data. Full pathname  or finishing
+#' with extensions (e.g., `"*.glf"`, `"*.lux"` or `"*_acc.xlsx"`).
+#' @param acceleration_file name of the file with acceleration data. FFull pathname  or finishing
+#' with extensions (e.g., `"*.acceleration"`, `"*.deg"` or `"*_acc.xlsx"`).
 #' @param crop_start remove all data before this date (POSIXct or character in UTC).
 #' @param crop_end remove all data after this date (POSIXct or character in UTC).
 #' @param quiet logical to hide messages about the progress.
@@ -62,7 +73,7 @@
 #' print(tag)
 #'
 #' # You can also specify the exact file in case multiple files with the
-#' # same extension exist in your directory
+#' # same extension exist in your directory (migratetech data)
 #' tag <- tag_create("CB621",
 #'   pressure_file = "CB621_BAR.deg",
 #'   light_file = "CB621.lux",
@@ -71,219 +82,386 @@
 #'
 #' print(tag)
 #'
+#' # You can specify the data manually with
+#' pressure <- data.frame(
+#'   date = as.POSIXct(c(
+#'     "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
+#'     "2017-06-20 02:00:00 UTC", "2017-06-20 03:00:00 UTC"
+#'   ), tz = "UTC"),
+#'   value = c(1000, 1000, 1000, 1000)
+#' )
+#' tag_create(id = "xxx", pressure_file = pressure)
+#'
 #' @family tag
 #' @seealso [GeoPressureManual](https://bit.ly/4462jpr)
 #' @export
 tag_create <- function(id,
+                       manufacturer = NULL,
                        directory = glue::glue("./data/raw-tag/{id}/"),
-                       pressure_file = "auto",
-                       light_file = "auto",
-                       acceleration_file = "auto",
                        crop_start = NULL,
                        crop_end = NULL,
+                       pressure_file = NULL,
+                       light_file = NULL,
+                       acceleration_file = NULL,
                        quiet = FALSE) {
+  assertthat::assert_that(is.character(id))
+  assertthat::assert_that(is.logical(quiet))
+
+  if (is.null(manufacturer)) {
+    if (is.data.frame(pressure_file)) {
+      manufacturer <- "manual"
+    } else {
+      assertthat::assert_that(assertthat::is.dir(directory))
+      ext <- tools::file_ext(list.files(directory))
+      if (any(grepl("\\.pressure$", list.files(directory)))) {
+        manufacturer <- "soi"
+      } else if (any(grepl("\\.deg$", list.files(directory)))) {
+        manufacturer <- "migratetech"
+      } else if (any(grepl("_press\\.xlsx$", list.files(directory)))) {
+        manufacturer <- "lund"
+      } else {
+        cli::cli_abort(c(
+          "x" = "We were not able to determine the {.var manufacturer} of tag from the directory \\
+        {.field {directory}}",
+          ">" = "Check that this directory contains the file with pressure data (i.e., with \\
+        extension {.val .pressure}, {.val .deg} or {.val _press.xlsx})"
+        ))
+      }
+    }
+  }
+  assertthat::assert_that(is.character(manufacturer))
+  manufacturer_possible <- c("auto", "soi", "migratetech", "lund", "manual")
+  if (!any(manufacturer %in% manufacturer_possible)) {
+    cli::cli_abort(c(
+      "x" = "{.var manufacturer} needs to be one of {.val {manufacturer_possible}}"
+    ))
+  }
+
   # Create tag
   tag <- structure(list(
     param = param_create(id = id)
   ), class = "tag")
 
-  # Fix NA vs NULL, so that both would work
-  if (is.null(pressure_file)) {
-    pressure_file <- NA
-  }
-  if (is.null(acceleration_file)) {
-    acceleration_file <- NA
-  }
-
-  # Read Pressure
-  pressure_path <- tag_create_detect(pressure_file, directory, c("*.pressure", "*.deg"))
-
-  if (is.na(pressure_path)) {
-    cli::cli_abort(c(
-      "x" = "There are no pressure file {.val {names(sensor_paths[1])}}",
-      "!" = "Pressure file are required"
-    ))
-  } else if (tools::file_ext(pressure_path) == "pressure") {
-    tag$pressure <- tag_create_dto(pressure_path,
-      crop_start = crop_start,
-      crop_end = crop_end,
+  if (manufacturer == "soi") {
+    tag <- tag_create_soi(
+      tag,
+      directory = directory,
+      pressure_file = ifelse(is.null(pressure_file), "*.pressure", pressure_file),
+      light_file = ifelse(is.null(light_file), "*.glf", light_file),
+      acceleration_file = ifelse(is.null(acceleration_file), "*.acceleration", acceleration_file),
       quiet = quiet
     )
-  } else if (tools::file_ext(pressure_path) == "deg") {
-    # Check that it is a valid Migrate Technology file
-    assertthat::assert_that(grepl("Migrate Technology", readLines(pressure_path, n = 1)))
-    line2 <- readLines(pressure_path, n = 2)[[2]]
-    v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
-    if (v < 13) {
-      cli::cli_abort(
-        "The pressure file {.file {sensor_paths[1]}} is not compatible. Line 2 should \\
-             contains {.val Types:x}, with x>=13."
-      )
-    }
-
-    # find column index with pressure
-    col <- which(utils::read.delim(pressure_path,
-      skip = 19, nrow = 1, header = FALSE, sep = ""
-    ) == "P(Pa)")
-    if (!(col > 0)) {
-      cli::cli_abort(
-        "The pressure file {.file {pressure_path}} is not compatible. Line 20 \\
-            should contains {.val P(Pa)}"
-      )
-    }
-
-    # Read file
-    pres <- tag_create_dto(pressure_path,
-      skip = 20, col = col,
-      date_format = "%d/%m/%Y %H:%M:%S",
-      crop_start = crop_start,
-      crop_end = crop_end,
+  } else if (manufacturer == "migratetech") {
+    tag <- tag_create_migratetech(
+      tag,
+      directory = directory,
+      pressure_acceleration_file = ifelse(is.null(pressure_file), "*.deg", pressure_file),
+      light_file = ifelse(is.null(light_file), "*.lux", light_file),
       quiet = quiet
     )
-
-    # convert Pa in hPa
-    pres$value <- pres$value / 100
-    tag$pressure <- pres
-  } else {
-    cli::cli_abort(
-      "The pressure file {.val {pressure_path}} should have the extension {.val .pressure} \\
-        or {.val .deg}"
+  } else if (manufacturer == "lund") {
+    tag <- tag_create_lund(
+      tag,
+      directory = directory,
+      pressure_file = ifelse(is.null(pressure_file), "_press.xlsx", pressure_file),
+      acceleration_light_file = ifelse(is.null(acceleration_file), "_acc.xlsx", acceleration_file),
+      quiet = quiet
+    )
+  } else if (manufacturer == "manual") {
+    tag <- tag_create_manual(
+      tag,
+      directory = directory,
+      pressure_file = pressure_file,
+      light_file = light_file,
+      acceleration_file = acceleration_file,
+      quiet = quiet
     )
   }
 
+  ## Crop date
+  tag$pressure <- tag_create_crop(tag$pressure, crop_start = crop_start, crop_end = crop_end)
   if (nrow(tag$pressure) == 0) {
     cli::cli_abort(c(
       "!" = "Empty {.field pressure} sensor dataset from {.file {pressure_path}}",
       ">" = "Check crop date."
     ))
   }
+  tag$light <- tag_create_crop(tag$light,
+    crop_start = crop_start,
+    crop_end = crop_end
+  )
+  tag$acceleration <- tag_create_crop(tag$acceleration,
+    crop_start = crop_start,
+    crop_end = crop_end
+  )
 
 
-  # Read light
-  light_path <- tag_create_detect(light_file, directory, c("*.glf", "*.lux"))
-  if (!is.na(light_path)) {
-    tag$light <- switch(tools::file_ext(light_path),
-      "glf" = {
-        tag_create_dto(light_path,
-          crop_start = crop_start,
-          crop_end = crop_end,
-          quiet = quiet
-        )
-      },
-      "lux" = {
-        # find column index with light
-        col <- which(utils::read.delim(
-          light_path,
-          skip = 19, nrow = 1, header = FALSE, sep = ""
-        ) == "light(lux)")
-        if (length(col) == 0) {
-          cli::cli_abort(
-            "The light file {.file {light_path}} is not compatible. Line 20 \\
-            should contains {.val light(lux)}"
-          )
-        }
-
-        # Read file
-        tag_create_dto(light_path,
-          skip = 20, col = col,
-          date_format = "%d/%m/%Y %H:%M:%S",
-          crop_start = crop_start,
-          crop_end = crop_end,
-          quiet = quiet
-        )
-      }
-    )
-  }
-
-  # Read acceleration
-  acceleration_path <- tag_create_detect(acceleration_file, directory, c("*.acceleration", "*.deg"))
-  if (!is.na(acceleration_path)) {
-    tag$acceleration <- switch(tools::file_ext(acceleration_path),
-      "acceleration" = {
-        tag_create_dto(acceleration_path,
-          col = 4,
-          crop_start = crop_start,
-          crop_end = crop_end,
-          quiet = quiet
-        )
-      },
-      "deg" = {
-        # Check that it is a valid Migrate Technology file
-        assertthat::assert_that(grepl("Migrate Technology", readLines(acceleration_path, n = 1)))
-        line2 <- readLines(acceleration_path, n = 2)[[2]]
-        v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
-        if (v < 13) {
-          cli::cli_abort(
-            "The acceleration file {.file {acceleration_path}} is not compatible. Line 2 should \\
-             contains {.val Types:x}, with x>=13."
-          )
-        }
-
-        # find column index with acceleration
-        col <- which(
-          utils::read.delim(acceleration_path, skip = 19, nrow = 1, header = FALSE, sep = "")
-          == "Zact"
-        )
-        if (length(col) == 0) {
-          cli::cli_abort(c(
-            "x" = "The acceleration file {.file {acceleration_path}} is not compatible. Line 20 \\
-            should contains {.val Zact}",
-            ">" = "Make sure to chose the correct file or use {.val {NULL}} if you don't have an \\
-            acceleration file"
-          ))
-        }
-
-        # Read file
-        tag_create_dto(acceleration_path,
-          skip = 20, col = col,
-          date_format = "%d/%m/%Y %H:%M:%S",
-          crop_start = crop_start,
-          crop_end = crop_end,
-          quiet = quiet
-        )
-      }
-    )
-  }
 
   # Add parameter information
-  tag$param$pressure_file <- pressure_path
-  tag$param$light_file <- light_path
-  tag$param$acceleration_file <- acceleration_path
+  tag$param$manufacturer <- manufacturer
   tag$param$crop_start <- crop_start
   tag$param$crop_end <- crop_end
 
   return(tag)
 }
 
+
+
+# Read Swiss Ornithological Institutue (SOI) tag files
+#' @noRd
+tag_create_soi <- function(tag,
+                           directory,
+                           pressure_file,
+                           light_file,
+                           acceleration_file,
+                           quiet) {
+  # Read Pressure
+  pressure_path <- tag_create_detect(pressure_file, directory)
+  if (is.null(pressure_path)) {
+    cli::cli_abort(c(
+      "x" = "There are no pressure file {.val {pressure_path}}",
+      "!" = "Pressure file are required!"
+    ))
+  }
+  tag$pressure <- tag_create_dto(pressure_path, quiet = quiet)
+
+  # Read light
+  light_path <- tag_create_detect(light_file, directory)
+  if (!is.null(light_path)) {
+    tag$light <-
+      tag_create_dto(light_path, quiet = quiet)
+  }
+
+  # Read acceleration
+  acceleration_path <- tag_create_detect(acceleration_file, directory)
+  if (!is.null(acceleration_path)) {
+    tag$acceleration <- tag_create_dto(acceleration_path, col = 4, quiet = quiet)
+  }
+
+  # Add parameter information
+  tag$param$pressure_file <- pressure_path
+  tag$param$light_file <- light_path
+  tag$param$acceleration_file <- acceleration_path
+
+  return(tag)
+}
+
+
+
+# Read Migrate Technology tag files
+#' @noRd
+tag_create_migratetech <- function(tag,
+                                   directory,
+                                   pressure_acceleration_file,
+                                   light_file,
+                                   quiet) {
+  # Read Pressure
+  # Check that it is a valid Migrate Technology file
+  pres_acc_path <- tag_create_detect(pressure_acceleration_file, directory)
+  if (is.null(pres_acc_path)) {
+    cli::cli_abort(c(
+      "x" = "There are no pressure file {.val {pressure_acceleration_file}}",
+      "!" = "Pressure file are required!"
+    ))
+  }
+  assertthat::assert_that(grepl("Migrate Technology", readLines(pres_acc_path, n = 1)))
+  line2 <- readLines(pres_acc_path, n = 2)[[2]]
+  v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
+  if (v < 13) {
+    cli::cli_abort(
+      "The pressure file {.file {pres_acc_path}} is not compatible. Line 2 should \\
+               contains {.val Type:x}, with x>=13."
+    )
+  }
+  # Find column index with pressure
+  hdr <- utils::read.delim(pres_acc_path, skip = 19, nrow = 1, header = FALSE, sep = "")
+  col <- which(hdr == "P(Pa)")
+  if (!(col > 0)) {
+    cli::cli_abort(
+      "The pressure file {.file {pres_acc_path}} is not compatible. Line 20 \\
+              should contains {.val P(Pa)}"
+    )
+  }
+  # Read file
+  tag$pressure <- tag_create_dto(pres_acc_path,
+    skip = 20, col = col,
+    date_format = "%d/%m/%Y %H:%M:%S",
+    quiet = quiet
+  )
+  # convert Pa in hPa
+  tag$pressure$value <- tag$pressure$value / 100
+
+
+  # Read acceleration
+  col <- which(hdr == "Zact")
+  if (length(col) != 0) {
+    # Read file
+    tag$acceleration <- tag_create_dto(pres_acc_path,
+      skip = 20, col = col,
+      date_format = "%d/%m/%Y %H:%M:%S",
+      quiet = quiet
+    )
+  }
+
+
+  # Read light
+  light_path <- tag_create_detect(light_file, directory)
+  if (!is.null(light_path)) {
+    # find column index with light
+    hdr <- utils::read.delim(light_path, skip = 19, nrow = 1, header = FALSE, sep = "")
+    col <- which(hdr == "light(lux)")
+    if (length(col) == 0) {
+      cli::cli_abort(
+        "The light file {.file {light_path}} is not compatible. Line 20 \\
+              should contains {.val light(lux)}"
+      )
+    }
+    # Read file
+    tag$light <- tag_create_dto(light_path,
+      skip = 20, col = col,
+      date_format = "%d/%m/%Y %H:%M:%S",
+      quiet = quiet
+    )
+  }
+
+  # Add parameter information
+  tag$param$pressure_file <- pres_acc_path
+  tag$param$light_file <- light_path
+  tag$param$acceleration_file <- pres_acc_path
+
+  return(tag)
+}
+
+
+
+# Read Lund tag files
+#' @noRd
+tag_create_lund <- function(tag,
+                            directory,
+                            pressure_file,
+                            acceleration_light_file,
+                            quiet) {
+  # Read Pressure
+  pressure_path <- tag_create_detect(pressure_file, directory)
+  if (is.null(pressure_path)) {
+    cli::cli_abort(c(
+      "x" = "There are no pressure file {.val {pressure_path}}",
+      "!" = "Pressure file are required"
+    ))
+  }
+  xls <- readxl::read_excel(pressure_path, .name_repair = "unique_quiet")
+  tag$pressure <- data.frame(
+    date = as.POSIXct(xls$`Date & time`, tz = "UTC"),
+    value = xls$`Pressure [hPa]`
+  )
+  if (!quiet) {
+    cli::cli_inform(c("v" = "Read {.file {pressure_path}}\f"))
+  }
+
+
+  # Read light
+  acc_light_path <- tag_create_detect(acceleration_light_file, directory)
+  if (!is.null(acc_light_path)) {
+    xls <- readxl::read_excel(acc_light_path, sheet = "Light", skip = 1)
+    tag$light <- data.frame(
+      date = as.POSIXct(xls$`Date`, tz = "UTC"),
+      value = xls$`Light`
+    )
+
+    # Read acceleration
+    xls <- readxl::read_excel(acc_light_path, .name_repair = "unique_quiet")
+    tag$acceleration <- data.frame(
+      date = as.POSIXct(xls$`Activity date & time`, tz = "UTC"),
+      value = xls$`Act score`
+    )
+
+    if (!quiet) {
+      cli::cli_inform(c("v" = "Read {.file {acc_light_path}}\f"))
+    }
+  }
+
+  # Add parameter information
+  tag$param$pressure_file <- pressure_path
+  tag$param$light_file <- acc_light_path
+  tag$param$acceleration_file <- acc_light_path
+
+  return(tag)
+}
+
+
+
+# Read Migrate Technology tag files
+#' @noRd
+tag_create_manual <- function(tag,
+                              directory,
+                              pressure_file,
+                              light_file,
+                              acceleration_file,
+                              quiet) {
+  # Read Pressure
+  assertthat::assert_that(is.data.frame(pressure_file))
+  assertthat::assert_that(assertthat::has_name(pressure_file, c("date", "value")))
+  assertthat::assert_that(inherits(pressure_file$date, "POSIXct"))
+  assertthat::assert_that(assertthat::are_equal(attr(pressure_file$date, "tzone"), "UTC"))
+  if (min(pressure_file$value, na.rm = TRUE) < 250 ||
+    1100 < max(pressure_file$value, na.rm = TRUE)) {
+    cli::cli_warn("Pressure observation should be between 250 hPa (~10000m) and 1100 hPa \\
+  (sea level at 1013hPa). Check unit of pressure data.frame provided.\f")
+  }
+  tag$pressure <- pressure_file
+
+  # Read light
+  if (!is.null(light_file)) {
+    assertthat::assert_that(assertthat::has_name(light_file, c("date", "value")))
+    assertthat::assert_that(inherits(light_file$date, "POSIXct"))
+    assertthat::assert_that(assertthat::are_equal(attr(light_file$date, "tzone"), "UTC"))
+    tag$light <- light_file
+  }
+
+  # Read acceleration
+  if (!is.null(acceleration_file)) {
+    acc <- acceleration_file
+    assertthat::assert_that(assertthat::has_name(acceleration_file, c("date", "value")))
+    assertthat::assert_that(inherits(acceleration_file$date, "POSIXct"))
+    assertthat::assert_that(assertthat::are_equal(attr(acceleration_file$date, "tzone"), "UTC"))
+    tag$acceleration <- acceleration_file
+  }
+
+  # Add parameter information
+  tag$param$pressure_file <- "manual"
+  tag$param$light_file <- "manual"
+  tag$param$acceleration_file <- "manual"
+
+  return(tag)
+}
+
+
 # Detect full path from the argument file.
 #' @noRd
-tag_create_detect <- function(file, directory, default = NULL) {
+tag_create_detect <- function(file, directory) {
   if (is.null(file)) {
-    return(NA)
+    return(NULL)
   }
   if (is.na(file)) {
-    return(NA)
+    return(NULL)
   }
   if (file.exists(file)) {
     return(file)
   }
-  assertthat::assert_that(assertthat::is.dir(directory))
 
-  if (file == "auto") {
-    path <- list.files(directory,
-      pattern = paste0(default, "$", collapse = "|"),
-      full.names = TRUE
-    )
-  } else {
-    path <- list.files(directory, pattern = glue::glue(file, "$"), full.names = TRUE)
-  }
+  path <- list.files(directory,
+    pattern = glue::glue(file, "$"),
+    full.names = TRUE
+  )
+
+  path <- path[!grepl("~\\$", path)]
 
   if (length(path) == 0) {
     cli::cli_warn(c(
       "!" = glue::glue("No file is matching '", file, "'."),
       ">" = "This sensor will be ignored.\f"
     ))
-    return(NA)
+    return(NULL)
   }
   if (length(path) > 1) {
     cli::cli_warn(c(
@@ -303,15 +481,11 @@ tag_create_detect <- function(file, directory, default = NULL) {
 #' @param skip Number of lines of the data file to skip before beginning to read data.
 #' @param colIndex of the column of the data to take as observation.
 #' @param date_format Format of the date (see [`strptime()`]).
-#' @inheritParams tag_create
-#' @family tag
 #' @noRd
 tag_create_dto <- function(sensor_path,
                            skip = 6,
                            col = 3,
                            date_format = "%d.%m.%Y %H:%M",
-                           crop_start = NULL,
-                           crop_end = NULL,
                            quiet = FALSE) {
   data_raw <- utils::read.delim(sensor_path, skip = skip, sep = "", header = FALSE)
   df <- data.frame(
@@ -329,6 +503,17 @@ tag_create_dto <- function(sensor_path,
     ))
   }
 
+  if (!quiet) {
+    cli::cli_inform(c("v" = "Read {.file {sensor_path}}\f"))
+  }
+  return(df)
+}
+
+#' Crop sensor data.frame
+#' @noRd
+tag_create_crop <- function(df,
+                            crop_start,
+                            crop_end) {
   # Crop time
   if (!is.null(crop_start)) {
     df <- df[df$date >= crop_start, ]
@@ -344,8 +529,6 @@ tag_create_dto <- function(sensor_path,
                   {df$date[which(dtime != dtime[1])]}.\f")
     # nolint end
   }
-  if (!quiet) {
-    cli::cli_inform(c("v" = "Read {.file {sensor_path}}\f"))
-  }
+
   return(df)
 }
