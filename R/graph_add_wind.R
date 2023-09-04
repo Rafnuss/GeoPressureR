@@ -28,8 +28,8 @@
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
 #' <https://doi.org/10.1111/2041-210X.14082>.}
-#' @seealso [GeoPressureManual | Wind graph](
-#' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph)
+#' @seealso [GeoPressureManual](
+#' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
 graph_add_wind <- function(
     graph,

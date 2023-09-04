@@ -50,11 +50,11 @@ is used to download all wind files at the same time (up to 20 requests in parall
 To be able to download data from the Climate Data Store (CDS), you will need to create an account
 on \url{https://cds.climate.copernicus.eu}. You can then save
 your credentials (\code{cds_key} and \code{cds_user}) in your \code{.Rprofile} (see
-\href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data}{GeoPressureManual | Wind graph}).
+\href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual}).
 }
 \seealso{
 \href{https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html}{\code{wf_request()}},
-\href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data}{GeoPressureManual | Wind graph }
+\href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual }
 
 Other movement: 
 \code{\link{bird_create}()},

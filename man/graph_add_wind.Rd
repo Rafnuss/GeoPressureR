@@ -47,7 +47,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \url{https://doi.org/10.1111/2041-210X.14082}.}
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#add-wind-to-graph}{GeoPressureManual | Wind graph}
+\href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual}
 
 Other graph: 
 \code{\link{graph_create}()},

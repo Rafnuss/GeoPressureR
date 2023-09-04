@@ -143,10 +143,12 @@ tag_label_stap <- function(tag,
   return(tag)
 }
 
+#' Format difftime in d, h, m and s
+#' @param tim character string or numeric value specifying a time interval.
 #' noRd
-pretty_dt <- function(diff_time) {
+pretty_dt <- function(tim) {
   # Ensure the difftime object is in seconds
-  seconds <- as.numeric(as.difftime(diff_time, units = "secs"))
+  seconds <- as.numeric(as.difftime(tim, units = "secs"))
 
   # Calculate days, hours, minutes, and seconds
   days <- floor(seconds / (24 * 60 * 60))

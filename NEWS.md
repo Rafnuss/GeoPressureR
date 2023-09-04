@@ -15,7 +15,6 @@ This new version consists of a significant revamp of the entire code centered ar
 - Use of [cli](https://cli.r-lib.org/index.html) for message and progress bar.
 - Be able to update `tag` and `pressurepath` without re-computing everything.
 
-
 ⚠️ See [#55](https://github.com/Rafnuss/GeoPressureR/issues/55) for details on the functions named change
 ⚠️ See the [migration wiki](https://github.com/Rafnuss/GeoPressureR/wiki/Migration-v2-%E2%80%90--v3) for a small guide to transition from v2.
 
@@ -36,7 +35,7 @@ This new version consists of a significant revamp of the entire code centered ar
 * Typo of equipement and retrival in #48
 * Various minor fixes
 
-# Full Changelog
+## Full Changelog
 [https://github.com/Rafnuss/GeoPressureR/compare/v2.6-beta...v2.7-beta](https://github.com/Rafnuss/GeoPressureR/compare/v2.6-beta...v2.7-beta)
 
 # GeoPressureR v2.6-beta

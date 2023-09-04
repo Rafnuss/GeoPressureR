@@ -16,8 +16,8 @@
 #' To be able to download data from the Climate Data Store (CDS), you will need to create an account
 #' on [https://cds.climate.copernicus.eu](https://cds.climate.copernicus.eu). You can then save
 #' your credentials (`cds_key` and `cds_user`) in your `.Rprofile` (see
-#' [GeoPressureManual | Wind graph](
-#' https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)).
+#' [GeoPressureManual](
+#' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)).
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param extent Geographical extent of the map on which the likelihood will be computed.
@@ -34,8 +34,8 @@
 #'
 #' @family movement
 #' @seealso [`wf_request()`](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),
-#' [GeoPressureManual | Wind graph
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/wind-graph.html#download-wind-data)
+#' [GeoPressureManual
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
 tag_download_wind <- function(tag,
                               extent = tag$param$extent,

@@ -45,10 +45,7 @@ which provides a standard code structure for your analysis.
 Using this standardized code structure you will help you on many aspect:
 code sharing and troubleshooting, data archiving, work reproducibility.
 
-## Getting help
-
-The best way to get help is to use the [github
-discussions](https://github.com/Rafnuss/GeoPressureR/discussions).
+## Constributions
 
 Contributions to the code should follow the [Contributor Code of
 Conduct](https://raphaelnussbaumer.com/GeoPressureR/CONTRIBUTING.html).
