@@ -362,7 +362,8 @@ tag_create_lund <- function(tag,
   # Read light
   acc_light_path <- tag_create_detect(acceleration_light_file, directory)
   if (!is.null(acc_light_path)) {
-    xls <- readxl::read_excel(acc_light_path, sheet = "Light", skip = 1)
+    xls <- readxl::read_excel(acc_light_path, sheet = "Light", skip = 1,
+                              .name_repair = "unique_quiet")
     tag$light <- data.frame(
       date = as.POSIXct(xls$`Date`, tz = "UTC"),
       value = xls$`Light`

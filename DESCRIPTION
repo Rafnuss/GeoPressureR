@@ -45,6 +45,7 @@ Suggests:
     shiny,
     RColorBrewer,
     readxl,
+    readr,
     shinyWidgets,
     covr
 biocViews:
