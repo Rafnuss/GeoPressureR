@@ -49,11 +49,45 @@ test_that("geopressure_map_mismatch() | default output", {
 })
 
 test_that("geopressure_map_mismatch() | timeout and worker", {
-  expect_warning(expect_error(
-    geopressure_map_mismatch(tag, timeout = 0.1), "*Timeout was reached*"))
+  expect_error(geopressure_map_mismatch(tag, timeout = 0.001), "*Timeout was reached*")
   expect_error(geopressure_map_mismatch(tag, worker = 100), "* workers < 100*")
 })
 
+
+test_that("geopressure_map_mismatch() | date too early", {
+  pressure <- data.frame(
+    date = as.POSIXct(c(
+      "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
+      "2017-06-20 02:00:00 UTC", "2017-06-20 03:00:00 UTC",
+      "2037-06-20 00:00:00 UTC", "2037-06-20 01:00:00 UTC",
+      "2037-06-20 02:00:00 UTC", "2037-06-20 03:00:00 UTC"
+    ), tz = "UTC"),
+    value = c(1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000),
+    label = c("", "", "", ""),
+    stap_id = c(1, 1, 1, 1, 2, 2, 2, 2)
+  )
+  stap <- data.frame(
+    stap_id = c(1, 2),
+    start = c("2017-06-20 00:00:00 UTC", "2037-06-20 00:00:00 UTC"),
+    end = c("2017-06-20 03:00:00 UTC", "2037-06-20 03:00:00 UTC")
+  )
+
+  tag <- structure(list(
+    param = param_create("18LX"),
+    stap = stap,
+    pressure = pressure
+  ), class = "tag")
+
+  tag <- tag_set_map(tag, extent, scale = scale)
+
+  expect_error( # fail for after date
+    expect_warning( # warning after date
+      expect_warning( # irregular
+        tag <- geopressure_map_mismatch(tag)
+      )
+    )
+  )
+})
 
 tag <- geopressure_map_likelihood(tag)
 

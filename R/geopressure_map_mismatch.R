@@ -94,24 +94,25 @@ geopressure_map_mismatch <- function(tag,
   res <- httr::POST("https://glp.mgravey.com/GeoPressure/v1/map/",
     body = body_df,
     encode = "form",
+    httr::timeout(timeout),
     httr::config(
-      timeout = timeout,
-      verbose = ifelse(debug,
-        httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE),
-        FALSE
-      )
+      verbose = debug # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
     )
   )
 
   if (httr::http_error(res)) {
-    message(httr::content(res))
+    # message(httr::content(res))
     temp_file <- tempfile("log_geopressure_map_mismatch_", fileext = ".json")
     write(jsonlite::toJSON(body_df), temp_file)
+    github_link <- glue::glue(
+      "https://github.com/Rafnuss/GeoPressureAPI/issues/new?title=crash\\%20geopressure_map%20\\
+      task_id:{httr::content(res)$taskID}&labels=crash"
+    )
     cli::cli_abort(c(
-      x = "Error with your request on {.url https://glp.mgravey.com/GeoPressure/v1/map/}.",
-      i = "Please try again, and if the problem persists, file an issue on Github: \\
-    {.url https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=geopressure_map&labels=crash} \\
-     with this log file located on your computer: {.file {temp_file}}"
+      "x" = "Error with your request on {.url https://glp.mgravey.com/GeoPressure/v1/map/}.",
+      ">" = httr::content(res)$errorMesage,
+      "i" = "Please try again, and if the problem persists, file an issue on Github: \\
+        {.url {github_link}} with the request body file located on your computer: {.file {temp_file}}"
     ))
   }
 
@@ -175,7 +176,11 @@ geopressure_map_mismatch <- function(tag,
       res <- httr::GET(
         urls[i_u],
         httr::write_disk(file),
-        httr::timeout(timeout)
+        httr::timeout(timeout),
+        httr::config(
+          verbose = debug # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
+        )
+        # httr::timeout(timeout)
         # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
       )
       if (httr::http_error(res)) {
