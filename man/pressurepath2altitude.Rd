@@ -36,7 +36,9 @@ pressurepath <- pressurepath_create(tag, path = path, quiet = TRUE)
 
 altitude <- pressurepath2altitude(pressurepath)
 
-knitr::kable(altitude)
+plot(altitude$date, altitude$altitude, type = "l")
+
+knitr::kable(head(altitude))
 
 }
 \seealso{

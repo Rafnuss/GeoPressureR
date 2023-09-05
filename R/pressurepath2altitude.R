@@ -26,7 +26,9 @@
 #'
 #' altitude <- pressurepath2altitude(pressurepath)
 #'
-#' knitr::kable(altitude)
+#' plot(altitude$date, altitude$altitude, type = "l")
+#'
+#' knitr::kable(head(altitude))
 #'
 #' @family pressurepath
 #' @export

@@ -27,12 +27,12 @@ setwd(system.file("extdata/", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   twilight_create()
-plot(tag, type = "twilight", plot_plotly = F) + ggplot2::ggtitle("Before label")
+plot(tag, type = "twilight") + ggplot2::ggtitle("Before label")
 
 tag <- twilight_label_read(tag)
 str(tag$twilight)
 
-plot(tag, type = "twilight", plot_plotly = F) + ggplot2::ggtitle("After label")
+plot(tag, type = "twilight") + ggplot2::ggtitle("After label")
 }
 \seealso{
 Other geolight: 

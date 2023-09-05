@@ -34,7 +34,7 @@
 #'     bird = bird,
 #'     power2prob = \(power) (1 / power)^3,
 #'     low_speed_fix = low_speed_fix
-#'   ),
+#'   )
 #' )
 #' plot(speed, prob, type = "l", xlab = "Airspeed [km/h]", ylab = "Probability")
 #' abline(v = low_speed_fix)
