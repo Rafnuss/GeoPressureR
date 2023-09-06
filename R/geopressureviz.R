@@ -1,224 +1,133 @@
 #' Start the GeoPressureViz shiny app
 #'
-#' GeoPressureViz is a shiny app designed to helps you visualize the overall trajectory of the bird
-#' as well as each step-by-step move. Learn more about GeoPressureViz in the [GeoPressureManual |
-#' GeoPressureViz](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
-#' a [demo of the Great Reed Warbler (18LX)](https://rafnuss.shinyapps.io/GeoPressureViz/).
+#' GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
+#' as well as each step-by-step move. Learn more about GeoPressureViz in the [GeoPressureManual
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
+#' this [demo of the Great Reed Warbler (18LX)](https://rafnuss.shinyapps.io/GeoPressureViz/).
 #'
-#' @param pam PAM logger dataset list with `pam$sta` computed. See [`pam_read()`] and [`pam_sta()`].
-#' @param static_prob List of raster containing probability map of each stationary period. The
-#' metadata of `static_prob` needs to include the flight information to the next stationary period
-#' in the metadata `flight`. See [GeoPressureManual | Static map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/static-map.html#combine-pressure-and-light).
-#' @param pressure_prob List of raster containing probability map of each stationary period
-#' according to pressure data. See [GeoPressureManual | Pressure map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-probability-maps).
-#' @param light_prob List of raster containing probability map of each stationary period according
-#' to light data. See [GeoPressureManual | Light map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#compute-probability-map).
-#' @param static_prob_marginal List of raster containing probability map of each stationary period
-#' according to the graph output. See [GeoPressureManual | Basic graph
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map).
-#' @param pressure_prob_thr List of raster containing probability map of each stationary period
-#' according to the threshold of pressure data. See [GeoPressureManual | Pressure map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#computing-pressure-maps).
-#' @param pressure_prob_mismatch List of raster containing probability map of each stationary period
-#' according to mismatch of pressure data. See [GeoPressureManual | Pressure map
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#computing-pressure-maps).
-#' @param pressure_timeserie List of data.frame containing at least `sta_id`, `date` and `pressure0`
-#' @param lauch_browser If true (default), the app run in your browser, otherwise on Rstudio
-#' @return The path modified in the app.
-#' @seealso [GeoPressureManual | GeoPressureViz
+#' @param x a GeoPressureR `tag` object or an unique identifier `id`.
+#' @param pressurepath a GeoPressureR `pressurepath` data.frame.
+#' @param marginal map of the marginal probability computed with `graph_marginal()`.
+#' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
+#' Rstudio.
+#' @return The updated path visualized in the app.
+#'
+#' @seealso [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
-#' @examples
-#' \dontrun{
-#' load("data/1_pressure/18LX_pressure_prob.Rdata")
-#' load("data/2_light/18LX_light_prob.Rdata")
-#' load("data/3_static/18LX_static_prob.Rdata")
-#' geopressureviz(
-#'   pam = pam,
-#'   static_prob = static_prob,
-#'   pressure_prob = pressure_prob,
-#'   light_prob = light_prob,
-#'   pressure_timeserie = static_timeserie
-#' )
-#' }
 #' @export
-geopressureviz <- function(pam,
-                           static_prob,
-                           pressure_prob = NA,
-                           light_prob = NA,
-                           static_prob_marginal = NA,
-                           pressure_prob_thr = NA,
-                           pressure_prob_mismatch = NA,
-                           pressure_timeserie = NA,
-                           lauch_browser = TRUE) {
+geopressureviz <- function(x,
+                           pressurepath = NULL,
+                           marginal = NULL,
+                           launch_browser = TRUE) {
+  if (!inherits(x, "tag")) {
+    if (is.character(x) && file.exists(x)) {
+      file <- x
+    } else if (is.character(x)) {
+      file <- glue::glue("./data/interim/{x}.RData")
+    } else {
+      file <- NULL
+    }
+
+    if (is.character(file) && file.exists(file)) {
+      # Make of copy of the arguement so that they don't get overwritten
+      pressurepath0 <- pressurepath
+      marginal0 <- marginal
+      # Load interim
+      load(file)
+      # Overwrite loaded variable with arguments if provided
+      if (!is.null(pressurepath0)) {
+        pressurepath <- pressurepath0
+      }
+      if (!is.null(marginal0)) {
+        marginal <- marginal0
+      }
+    } else {
+      cli::cli_abort("The first arguement {.var x} needs to be a {.cls tag}, a {.field file} or \\
+                     an {.field id}")
+    }
+  } else {
+    tag <- x
+  }
+
+
+  tag_assert(tag, "setmap")
+
+  if (all(c("map_pressure", "map_light") %in% names(tag))) {
+    tag$map_preslight <- tag$map_pressure * tag$map_light
+  }
+
+  if (!is.null(marginal)) {
+    tag$map_marginal <- marginal
+  }
 
   # Add possible map to display
-  map_choices <- c()
-  map_val <- list()
-  sta_static <- unlist(lapply(static_prob, function(x) raster::metadata(x)$sta_id))
-  if (any(!is.na(light_prob))) {
-    map_choices <- c(map_choices, "Light")
-    sta_tmp <- unlist(lapply(light_prob, function(x) raster::metadata(x)$sta_id))
-    map_val[[length(map_val) + 1]] <- light_prob[sta_tmp %in% sta_static]
-  }
-  if (any(!is.na(pressure_prob_mismatch))) {
-    map_choices <- c(map_choices, "Pressure mis.")
-    sta_tmp <- unlist(lapply(pressure_prob_mismatch, function(x) raster::metadata(x)$sta_id))
-    map_val[[length(map_val) + 1]] <- pressure_prob_mismatch[sta_tmp %in% sta_static]
-  }
-
-  if (any(!is.na(pressure_prob_thr))) {
-    map_choices <- c(map_choices, "Pressure thres.")
-    sta_tmp <- unlist(lapply(pressure_prob_thr, function(x) raster::metadata(x)$sta_id))
-    map_val[[length(map_val) + 1]] <- pressure_prob_thr[sta_tmp %in% sta_static]
-  }
-  if (any(!is.na(pressure_prob))) {
-    map_choices <- c(map_choices, "Pressure")
-    sta_tmp <- unlist(lapply(pressure_prob, function(x) raster::metadata(x)$sta_id))
-    map_val[[length(map_val) + 1]] <- pressure_prob[sta_tmp %in% sta_static]
-  }
-  map_choices <- c(map_choices, "Static")
-  map_val[[length(map_val) + 1]] <- static_prob
-  if (any(!is.na(static_prob_marginal))) {
-    map_choices <- c(map_choices, "Marginal")
-    sta_tmp <- unlist(lapply(static_prob_marginal, function(x) raster::metadata(x)$sta_id))
-    map_val[[length(map_val) + 1]] <- static_prob_marginal[sta_tmp %in% sta_static]
-  }
-
-  # Get stationary period information
-  sta <- do.call("rbind", lapply(static_prob, function(r) {
-    mt <- raster::metadata(r)
-    mt$start <- mt$temporal_extent[1]
-    mt$end <- mt$temporal_extent[2]
-    # mt$duration <- as.numeric(difftime(mt$end, mt$start, units = "days"))
-    as.data.frame(mt[!(names(mt) %in% c("flight", "temporal_extent", "max_sample", "margin"))])
-  }))
-
-  # Check pam
-  pressure <- pam$pressure
-  assertthat::assert_that(is.data.frame(pressure))
-  assertthat::assert_that(assertthat::has_name(pressure, c("date", "obs", "sta_id")))
-  assertthat::assert_that(inherits(pressure$date, "POSIXt"))
-  assertthat::assert_that(is.numeric(pressure$obs))
-
-  if (!assertthat::has_name(pressure, "isoutlier")) {
-    if (assertthat::has_name(pressure, "isoutliar")) {
-      warning(
-        "pressure$isoutliar is deprecated in favor of pressure$isoutlier. This code will continue",
-        " but update your code and data to be compatible with futur version of GeoPressureR."
-      )
-      pressure$isoutlier <- pressure$isoutliar
-    } else {
-      assertthat::assert_that(assertthat::has_name(pressure, "isoutlier"))
-    }
-  }
-  gdl_id <- pam$id
-
-
-  # Correct duration for pressure datapoint available
-  pres_outlier_sta <- stats::aggregate(!pressure$isoutlier,
-    by = list(sta_id = pressure$sta_id),
-    FUN = sum
+  maps_choices <- list(
+    "Pres. MSE" = "map_pressure_mse",
+    "Pres. mask" = "map_pressure_mask",
+    "Pressure" = "map_pressure",
+    "Light" = "map_light",
+    "Pres.&Light" = c("map_pressure", "map_light"),
+    "Marginal" = "map_marginal"
   )
-  res <- as.numeric(difftime(pressure$date[2], pressure$date[1], units = "days"))
-  id_match <- match(sta$sta_id, pres_outlier_sta$sta_id)
-  assertthat::assert_that(all(!is.na(id_match)))
-  sta$duration <- pres_outlier_sta$x[id_match] * res
+  maps_is_available <- sapply(maps_choices, \(x) all(x %in% names(tag)))
 
-  # Set color of each stationary period
-  col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(max(sta$sta_id) / 8))
-  sta$col <- col[sta$sta_id]
-
-  # Get flight information and compute flight duration directly
-  flight <- lapply(static_prob, function(r) {
-    fl <- raster::metadata(r)$flight
-    if (length(fl) > 0) {
-      fl$duration <- mapply(function(s, e) {
-        as.numeric(difftime(e, s, units = "hours"))
-      }, fl$start, fl$end)
-    } else {
-      fl$duration <- 0
-    }
-    fl
+  maps <- lapply(maps_choices[maps_is_available], \(likelihood) {
+    tag2map(tag, likelihood = likelihood)
   })
 
+  names(maps) <- names(maps_choices[maps_is_available])
+
+  # Get stationary period information
+  stap <- tag$stap
+
+  # Set color of each stationary period
+  col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(nrow(stap) / 8))
+  stap$col <- col[stap$stap_id]
+  stap$duration <- stap2duration(stap)
 
 
   # Get the pressure timeserie
-  if (any(!is.na(pressure_timeserie))) {
-    assertthat::assert_that(length(pressure_timeserie) == nrow(sta))
-    # TODO Assert pressure_timeserie is correct
-    p_ts_sta_id <- unlist(lapply(pressure_timeserie, function(x) {
-      if (is.null(x)) {
-        NA
-      } else {
-        stats::median(x$sta_id[!(x$sta_id == 0)])
-      }
-    }))
-    test <- p_ts_sta_id == sta$sta_id
-    test[is.na(test)] <- TRUE
-    assertthat::assert_that(all(test))
-    ts0 <- pressure_timeserie
-    ts0 <- lapply(ts0, function(x) {
-      if (is.null(x)) {
-        x <- data.frame(
-          lon = NA,
-          lat = NA,
-          lt = 1,
-          sta_id = 0
-        )
-      } else {
-        x$lt <- 1
-      }
-      return(x)
-    })
-    path0 <- do.call("rbind", lapply(ts0, function(x) {
-      data.frame(
-        lon = x$lon[1],
-        lat = x$lat[1],
-        sta_id = stats::median(x$sta_id)
-      )
-    }))
+  if (is.null(pressurepath)) {
+    pressurepath <- data.frame()
+
+    # Set the initial path with tag2path
+    path <- tag2path(tag)
   } else {
-    ts0 <- list()
+    path <- merge(tag$stap, unique(pressurepath[, c("stap_id", "lat", "lon")]), all = TRUE)
+    pressurepath$linetype <- as.factor(1)
+    pressurepath <- merge(
+      pressurepath,
+      stap[, names(stap) %in% c("stap_id", "col")],
+      by = "stap_id"
+    )
   }
 
-  if (!exists("path0")) {
-    # Set the initial path to the most likely from static prob
-    path0 <- geopressure_map2path(static_prob)
-  }
-
-
-
-  # PEROSENVIR <- new.env(parent=emptyenv())
-  .GlobalEnv$.map_choices <- map_choices
-  .GlobalEnv$.map_val <- map_val
-  .GlobalEnv$.sta <- sta
-  .GlobalEnv$.pressure <- pressure
-  .GlobalEnv$.gdl_id <- gdl_id
-  .GlobalEnv$.ts0 <- ts0
-  .GlobalEnv$.path0 <- path0
-  .GlobalEnv$.flight <- flight
+  # nolint start
+  .GlobalEnv$.tag_id <- tag$param$id
+  .GlobalEnv$.stap <- stap
+  .GlobalEnv$.pressure <- tag$pressure
+  .GlobalEnv$.maps <- maps
+  .GlobalEnv$.extent <- tag$param$extent
+  .GlobalEnv$.pressurepath <- pressurepath
+  .GlobalEnv$.path <- path
+  # nolint end
 
   # delete variable when removed
-  on.exit(
-    rm(
-      list = c(".map_choices", ".map_val", ".sta", ".pressure", ".ts0", ".path0", ".flight"),
-      envir = .GlobalEnv
-    )
-  )
+  # on.exit(
+  #   rm(
+  #     list = c(".tag_id",".stap", ".pressure", ".maps", ".extent", ".ts0", ".path0"),
+  #     envir = .GlobalEnv
+  #  )
+  # )
 
-  if (lauch_browser) {
-    lauch_browser <- getOption("browser")
+  if (launch_browser) {
+    launch_browser <- getOption("browser")
   } else {
-    lauch_browser <- getOption("shiny.launch.browser", interactive())
+    launch_browser <- getOption("shiny.launch.browser", interactive())
   }
 
   # Start the app
   shiny::runApp(system.file("geopressureviz", package = "GeoPressureR"),
-    launch.browser = lauch_browser
+    launch.browser = launch_browser
   )
-  .GlobalEnv$.path0
 }

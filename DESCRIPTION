@@ -1,57 +1,53 @@
 Package: GeoPressureR
 Title: Global Positioning by Atmospheric Pressure
-Version: 2.7
+Version: 3.0.0
 Authors@R: c(
     person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8185-1020")),
     person("Mathieu", "Gravey", , "mathieu@mgravey.com", role = "aut",
            comment = c(ORCID = "0000-0002-0871-1507"))
   )
-Description: R package to determine the position of a bird based on the data retrieved from 
-  multi-sensor geolocators.
+Description: R package to determine the position and trajectory of a bird based on light-weight data-logger measuring at lease atmospheric pressure.
 License: GPL (>= 3)
 URL: https://github.com/Rafnuss/GeoPressureR,
     https://raphaelnussbaumer.com/GeoPressureR/
 BugReports: https://github.com/Rafnuss/GeoPressureR/issues
 Depends: 
-    R (>= 3.5.0)
+    R (>= 4.1.0)
 Imports: 
     assertthat,
     EBImage,
+    cli,
     ecmwfr,
     future,
     geosphere,
+    glue,
+    ggplot2,
     httr,
+    leaflet,
+    plotly,
     jsonlite,
     Matrix,
+    methods,
+    ncdf4,
     pracma,
-    raster,
+    progressr,
+    terra,
     stats,
     tools,
     utils
 Suggests: 
-    ggplot2,
-    igraph,
-    knitr,
-    leaflet,
-    ncdf4,
-    plotly,
-    RColorBrewer,
-    readr,
-    remotes,
-    rgdal,
-    rmarkdown,
-    sp,
-    sf,
-    testthat (>= 3.0.0),
     BiocManager,
+    knitr,
+    testthat (>= 3.0.0),
+    leaflet.extras,
     shinyjs,
     shiny,
-    leaflet.extras,
+    RColorBrewer,
+    readxl,
+    readr,
     shinyWidgets,
-    rnaturalearth,
-    covr,
-    gridExtra
+    covr
 biocViews:
 Config/testthat/edition: 3
 Encoding: UTF-8

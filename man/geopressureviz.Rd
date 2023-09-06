@@ -4,66 +4,26 @@
 \alias{geopressureviz}
 \title{Start the GeoPressureViz shiny app}
 \usage{
-geopressureviz(
-  pam,
-  static_prob,
-  pressure_prob = NA,
-  light_prob = NA,
-  static_prob_marginal = NA,
-  pressure_prob_thr = NA,
-  pressure_prob_mismatch = NA,
-  pressure_timeserie = NA,
-  lauch_browser = TRUE
-)
+geopressureviz(x, pressurepath = NULL, marginal = NULL, launch_browser = TRUE)
 }
 \arguments{
-\item{pam}{PAM logger dataset list with \code{pam$sta} computed. See \code{\link[=pam_read]{pam_read()}} and \code{\link[=pam_sta]{pam_sta()}}.}
+\item{x}{a GeoPressureR \code{tag} object or an unique identifier \code{id}.}
 
-\item{static_prob}{List of raster containing probability map of each stationary period. The
-metadata of \code{static_prob} needs to include the flight information to the next stationary period
-in the metadata \code{flight}. See \href{https://raphaelnussbaumer.com/GeoPressureManual/static-map.html#combine-pressure-and-light}{GeoPressureManual | Static map }.}
+\item{pressurepath}{a GeoPressureR \code{pressurepath} data.frame.}
 
-\item{pressure_prob}{List of raster containing probability map of each stationary period
-according to pressure data. See \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-probability-maps}{GeoPressureManual | Pressure map }.}
+\item{marginal}{map of the marginal probability computed with \code{graph_marginal()}.}
 
-\item{light_prob}{List of raster containing probability map of each stationary period according
-to light data. See \href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#compute-probability-map}{GeoPressureManual | Light map }.}
-
-\item{static_prob_marginal}{List of raster containing probability map of each stationary period
-according to the graph output. See \href{https://raphaelnussbaumer.com/GeoPressureManual/basic-graph.html#output-2-marginal-probability-map}{GeoPressureManual | Basic graph }.}
-
-\item{pressure_prob_thr}{List of raster containing probability map of each stationary period
-according to the threshold of pressure data. See \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#computing-pressure-maps}{GeoPressureManual | Pressure map }.}
-
-\item{pressure_prob_mismatch}{List of raster containing probability map of each stationary period
-according to mismatch of pressure data. See \href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#computing-pressure-maps}{GeoPressureManual | Pressure map }.}
-
-\item{pressure_timeserie}{List of data.frame containing at least \code{sta_id}, \code{date} and \code{pressure0}}
-
-\item{lauch_browser}{If true (default), the app run in your browser, otherwise on Rstudio}
+\item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on
+Rstudio.}
 }
 \value{
-The path modified in the app.
+The updated path visualized in the app.
 }
 \description{
-GeoPressureViz is a shiny app designed to helps you visualize the overall trajectory of the bird
-as well as each step-by-step move. Learn more about GeoPressureViz in the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual | GeoPressureViz} or with
-a \href{https://rafnuss.shinyapps.io/GeoPressureViz/}{demo of the Great Reed Warbler (18LX)}.
-}
-\examples{
-\dontrun{
-load("data/1_pressure/18LX_pressure_prob.Rdata")
-load("data/2_light/18LX_light_prob.Rdata")
-load("data/3_static/18LX_static_prob.Rdata")
-geopressureviz(
-  pam = pam,
-  static_prob = static_prob,
-  pressure_prob = pressure_prob,
-  light_prob = light_prob,
-  pressure_timeserie = static_timeserie
-)
-}
+GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
+as well as each step-by-step move. Learn more about GeoPressureViz in the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual } or with
+this \href{https://rafnuss.shinyapps.io/GeoPressureViz/}{demo of the Great Reed Warbler (18LX)}.
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual | GeoPressureViz }
+\href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual }
 }

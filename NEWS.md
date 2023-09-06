@@ -1,3 +1,28 @@
+# GeoPressureR v3.0.0.1-beta
+
+## Guiding principles of v3
+This new version consists of a significant revamp of the entire code centered around these themes:
+
+- Name more general than SOI sensors (e.g., use `tag` instead of `pam`)
+- Focus the workflow on pressure sensor (but still allows for acceleration or light data)
+- Update the notion of graph into State-Space Model notations (e.g. probability -> likelihood)
+- More memory efficient (store minimum graph info) while minimizing computational expense of the "slow" functions
+- Shorter workflow [#69](https://github.com/Rafnuss/GeoPressureR/issues/69)
+- Ease of labeling [#67](https://github.com/Rafnuss/GeoPressureR/issues/67)
+- Reproducibility and long-term storage with `param`.
+- Use of S3 class object with print and plot generic function.
+- Compatible with pipe `|>` or `%>%`
+- Use of [cli](https://cli.r-lib.org/index.html) for message and progress bar.
+- Be able to update `tag` and `pressurepath` without re-computing everything.
+
+⚠️ See [#55](https://github.com/Rafnuss/GeoPressureR/issues/55) for details on the functions named change
+⚠️ See the [migration wiki](https://github.com/Rafnuss/GeoPressureR/wiki/Migration-v2-%E2%80%90--v3) for a small guide to transition from v2.
+
+## Major
+* Major fix in the computation of the marginal map https://github.com/Rafnuss/GeoPressureR/commit/bd1103fda0c5b4e3c0f218ee7bcf3fbc69dc6123
+
+## Minor
+
 # GeoPressureR v2.7-beta
 ## Major
 * Major fix in the computation of the marginal map https://github.com/Rafnuss/GeoPressureR/commit/bd1103fda0c5b4e3c0f218ee7bcf3fbc69dc6123
@@ -10,7 +35,7 @@
 * Typo of equipement and retrival in #48
 * Various minor fixes
 
-# Full Changelog
+## Full Changelog
 [https://github.com/Rafnuss/GeoPressureR/compare/v2.6-beta...v2.7-beta](https://github.com/Rafnuss/GeoPressureR/compare/v2.6-beta...v2.7-beta)
 
 # GeoPressureR v2.6-beta

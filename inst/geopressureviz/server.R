@@ -1,46 +1,40 @@
+# nolint start
 server <- function(input, output, session) {
   session$onSessionEnded(function() {
-    # print("heleo")
     stopApp()
+  })
+
+  observe({
+    .GlobalEnv$geopressureviz_path <- reactVal$path
   })
 
   ## Reactive variable ----
 
   reactVal <- reactiveValues(
-    path = .path0, # path
-    ts = .ts0, # timeserie of pressurer
-    isEdit = F # if editing position
+    path = .path,
+    pressurepath = .pressurepath,
+    isEdit = FALSE # if editing position
   )
 
-  flight_duration <- reactive({
-    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
-    flight_duration <- c()
-    for (i_f in seq_len(max(0, length(idx_sta_short) - 1))) {
-      from_idx_sta_short <- idx_sta_short[i_f]
-      to_idx_sta_short <- idx_sta_short[i_f + 1] - 1
+  stap_include <- reactive({
+    which(.stap$duration >= as.numeric(input$min_dur_stap) & .stap$include)
+  }) %>% bindEvent(input$min_dur_stap)
 
-      flight_duration[i_f] <- sum(
-        do.call(rbind, lapply(
-          .flight[seq(from_idx_sta_short, to_idx_sta_short)],
-          function(x) {
-            sum(x$duration)
-          }
-        ))
-      )
-    }
-    flight_duration
-  }) %>% bindEvent(input$thr_sta)
+  flight <- reactive({
+    stap2flight(.stap, stap_include())
+  }) %>% bindEvent(input$min_dur_stap)
 
   # return the map
-  map_prob <- reactive({
+  map_display <- reactive({
     if (is.null(input$map_source)) {
       return(NA)
     }
-    return(.map_val[[which(input$map_source == .map_choices)]])
+    return(rast(.maps[[input$map_source]]))
   }) %>% bindEvent(input$map_source)
 
-
-
+  idx <- reactive({
+    which(stap_include() == input$i_stap)
+  }) %>% bindEvent(input$i_stap)
 
 
 
@@ -55,79 +49,92 @@ server <- function(input, output, session) {
   ## Render ----
   output$map <- renderLeaflet({
     map <- leaflet() %>%
-      addProviderTiles(providers$CartoDB.DarkMatterNoLabels, group = "Dark Matter") %>% # options = providerTileOptions(noWrap = TRUE)
-      addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
-      addProviderTiles(providers$Esri.WorldTopoMap, group = "Topography") %>%
-      addLayersControl(baseGroups = c("Dark Matter", "Satellite", "Topography"), position = c("topleft"))
+      addProviderTiles("CartoDB.DarkMatterNoLabels", group = "Dark Matter") %>%
+      # options = providerTileOptions(noWrap = TRUE)
+      addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%
+      addProviderTiles("Esri.WorldTopoMap", group = "Topography") %>%
+      addLayersControl(
+        baseGroups = c("Dark Matter", "Satellite", "Topography"),
+        position = c("topleft")
+      )
   })
-  output$gdl_id <- renderUI({
-    return(HTML(paste0("<h3 style='margin:0;'>", .gdl_id, "</h3>")))
+  output$tag_id <- renderUI({
+    return(HTML(glue::glue("<h3 style='margin:0;'>", .tag_id, "</h3>")))
   })
 
-  output$fl_prev_info <- renderUI({
-    req(input$i_sta)
-    fl_dur <- flight_duration()
+  output$flight_prev_info <- renderUI({
+    req(input$i_stap)
+    fl_dur <- as.numeric(flight()$duration[flight()$stap_t == input$i_stap])
     if (is.null(fl_dur)) {
       return(HTML(""))
     }
-    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
-    i <- which(idx_sta_short == as.numeric(input$i_sta))
-    if (i != 1) {
-      idx_sta_prev <- idx_sta_short[i - 1]
-      dist <- distGeo(reactVal$path[idx_sta_prev, c(1, 2)], reactVal$path[as.numeric(input$i_sta), c(1, 2)]) / 1000
+    if (idx() != 1) {
+      idx_prev <- stap_include()[idx() - 1]
+      dist <- distGeo(
+        reactVal$path[idx_prev, c("lon", "lat")],
+        reactVal$path[as.numeric(input$i_stap), c("lon", "lat")]
+      ) / 1000
       HTML(
         "<b>Previous flight:</b><br>",
-        as.numeric(input$i_sta) - idx_sta_prev, " flights -",
-        round(fl_dur[i - 1], 1), " hrs<br>",
+        as.numeric(input$i_stap) - idx_prev, " flights -",
+        round(fl_dur, 1), " hrs<br>",
         round(dist), " km - ",
-        round(dist / fl_dur[i - 1]), "km/h"
+        round(dist / fl_dur), "km/h"
       )
     } else {
       HTML("")
     }
   })
 
-  output$fl_next_info <- renderUI({
-    req(input$i_sta)
-    fl_dur <- flight_duration()
+  output$flight_next_info <- renderUI({
+    req(input$i_stap)
+    fl_dur <- as.numeric(flight()$duration[flight()$stap_s == input$i_stap])
     if (is.null(fl_dur)) {
       return(HTML(""))
     }
-    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
-    i <- which(idx_sta_short == input$i_sta)
-    if (i != length(idx_sta_short)) {
-      idx_sta_next <- idx_sta_short[i + 1]
-      dist <- geosphere::distGeo(reactVal$path[idx_sta_next, ], reactVal$path[as.numeric(input$i_sta), ]) / 1000
+    if (idx() != length(stap_include())) {
+      idx_next <- stap_include()[idx() + 1]
+      dist <- geosphere::distGeo(
+        reactVal$path[idx_next, c("lon", "lat")],
+        reactVal$path[as.numeric(input$i_stap), c("lon", "lat")]
+      ) / 1000
       HTML(
         "<b>Next flight:</b><br>",
-        idx_sta_next - as.numeric(input$i_sta), " flights -",
-        round(sum(fl_dur[i]), 1), " hrs<br>",
+        idx_next - as.numeric(input$i_stap), " flights -",
+        round(sum(fl_dur), 1), " hrs<br>",
         round(dist), " km - ",
-        round(dist / fl_dur[i]), "km/h"
+        round(dist / fl_dur), "km/h"
       )
     } else {
       HTML("")
     }
   })
 
-  output$pressure_graph <- renderPlotly({
+  output$pressure_plot <- renderPlotly({
     p <- ggplot() +
-      geom_line(data = .pressure, aes(x = date, y = obs), colour = "grey") +
-      geom_point(data = subset(.pressure, isoutlier), aes(x = date, y = obs), colour = "black") +
+      geom_line(data = .pressure, aes(x = date, y = value), colour = "grey") +
+      geom_point(
+        data = subset(.pressure, label == "discard"),
+        aes(x = date, y = value),
+        colour = "black"
+      ) +
       theme_bw()
 
-    req(input$thr_sta)
-    for (ts in reactVal$ts) {
-      sta_th <- .sta[median(ts$sta_id, na.rm = TRUE) == .sta$sta_id, ]
-      if (nrow(sta_th) > 0) {
-        if (sta_th$duration > as.numeric(input$thr_sta)) {
-          p <- p +
-            geom_line(data = ts, aes(x = date, y = pressure0), col = sta_th$col, linetype = ts$lt[1])
-        }
-      }
+    if (nrow(reactVal$pressurepath)>0){
+      p <- p + geom_line(
+        data = reactVal$pressurepath,
+        aes(
+          x = date,
+          y = pressure_era5_norm,
+          color = col,
+          group = stap_id,
+          linetype = linetype
+        )
+      ) +
+        scale_color_identity()
     }
 
-    ggplotly(p, dynamicTicks = T, height = 300, tooltip = c("date", "pressure0", "lt")) %>%
+    ggplotly(p, dynamicTicks = T, height = 300, tooltip = c("x", "y", "linetype")) %>%
       layout(
         showlegend = F,
         yaxis = list(title = "Pressure [hPa]")
@@ -145,63 +152,59 @@ server <- function(input, output, session) {
   ## ObserveEvents ----
   # Same order than the ui
 
-  observeEvent(input$allsta, {
-    if (input$allsta) {
-      shinyjs::hide(id = "sta_div", anim = T)
-      shinyjs::show(id = "thr_sta_page", anim = T)
+  observeEvent(input$full_track, {
+    if (input$full_track) {
+      shinyjs::hide(id = "stap_info_view", anim = T)
+      shinyjs::show(id = "track_info_view", anim = T)
     } else {
-      shinyjs::show(id = "sta_div", anim = T)
-      shinyjs::hide(id = "thr_sta_page", anim = T)
+      shinyjs::show(id = "stap_info_view", anim = T)
+      shinyjs::hide(id = "track_info_view", anim = T)
     }
   })
 
-  observeEvent(input$thr_sta, {
-    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
-    if (length(idx_sta_short) > 0) {
-      tmp <- as.list(idx_sta_short)
-      names(tmp) <- paste0("#", .sta$sta_id[idx_sta_short], " (", round(.sta$duration[idx_sta_short], 1), "d.)")
+  observeEvent(input$min_dur_stap, {
+    if (length(stap_include()) > 0) {
+      choices <- as.list(stap_include())
+      names(choices) <-
+        glue::glue("#{stap_include()} ({round(.stap$duration[stap_include()], 1)} d.)")
     } else {
-      tmp <- list()
+      choices <- list()
     }
-    updateSelectizeInput(session, "i_sta", choices = tmp)
+    updateSelectizeInput(session, "i_stap", choices = choices)
   })
 
-  observeEvent(input$prev_pos, {
-    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
-    i <- which(input$i_sta == idx_sta_short)
-    i <- min(max(i - 1, 1), length(idx_sta_short))
-    updateSelectizeInput(session, "i_sta", selected = idx_sta_short[i])
+  observeEvent(input$previous_position, {
+    idx_new <- min(max(idx() - 1, 1), length(stap_include()))
+    updateSelectizeInput(session, "i_stap", selected = stap_include()[idx_new])
   })
 
-  observeEvent(input$next_pos, {
-    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
-    i <- which(input$i_sta == idx_sta_short)
-    i <- min(max(i + 1, 1), length(idx_sta_short))
-    updateSelectizeInput(session, "i_sta", selected = idx_sta_short[i])
+  observeEvent(input$next_position, {
+    idx_new <- min(max(idx() + 1, 1), length(stap_include()))
+    updateSelectizeInput(session, "i_stap", selected = stap_include()[idx_new])
   })
 
-  observeEvent(input$edit_pos, {
+  observeEvent(input$edit_position, {
     if (reactVal$isEdit) {
       reactVal$isEdit <- F
-      updateActionButton(session, "edit_pos", label = "Start editing")
-      removeClass("edit_pos", "primary")
+      updateActionButton(session, "edit_position", label = "Start editing")
+      removeClass("edit_position", "primary")
     } else {
       reactVal$isEdit <- T
-      updateActionButton(session, "edit_pos", label = "Stop editing")
-      addClass("edit_pos", "primary")
+      updateActionButton(session, "edit_position", label = "Stop editing")
+      addClass("edit_position", "primary")
     }
   })
 
   observeEvent(input$map_click, {
+    click <- input$map_click
     if (is.null(click)) {
       return()
     }
-    click <- input$map_click
     if (!reactVal$isEdit) {
       return()
     }
-    if (!input$allsta) {
-      reactVal$path[as.numeric(input$i_sta), c(1, 2)] <- c(click$lng, click$lat)
+    if (!input$full_track) {
+      reactVal$path[as.numeric(input$i_stap), c("lon", "lat")] <- c(click$lng, click$lat)
     }
   })
 
@@ -209,98 +212,200 @@ server <- function(input, output, session) {
   observe({
     proxy <- leafletProxy("map") %>%
       clearShapes() %>%
-      clearImages()
-    req(input$i_sta)
-    idx_sta_short <- which(.sta$duration >= as.numeric(input$thr_sta))
-    sta_thr <- .sta[idx_sta_short, ]
-    path_thr <- reactVal$path[idx_sta_short, c(1, 2)]
-    fl_dur <- flight_duration()
+      clearImages() %>%
+      clearMarkers()
+    stap_model <- .stap[stap_include(), ]
+    path_model <- reactVal$path[stap_include(), c("lon", "lat")]
+    fl_dur <- as.numeric(flight()$duration)
     if (is.null(fl_dur)) {
       return()
     }
-    if (input$allsta) {
+    if (input$full_track) {
       proxy <- proxy %>%
-        addPolylines(lng = path_thr$lon, lat = path_thr$lat, opacity = 1, color = "#FFF", weight = 3) %>%
-        addCircles(
-          lng = path_thr$lon, lat = path_thr$lat, opacity = 1, weight = sta_thr$duration^(0.3) * 10,
-          label = paste0("#", sta_thr$sta_id, ", ", round(sta_thr$duration, 1), " days"), color = sta_thr$col
+        addPolylines(
+          lng = path_model$lon,
+          lat = path_model$lat,
+          opacity = 1,
+          color = "#FFF",
+          weight = 3
         ) %>%
-        fitBounds(min(path_thr$lon), min(path_thr$lat), max(path_thr$lon), max(path_thr$lat), options = list(paddingBottomRight = c(300, 300)))
+        addCircleMarkers(
+          lng = path_model$lon, lat = path_model$lat, fillOpacity = 1,
+          radius = stap_model$duration^(0.3) * 10, weight = 1, color = "#FFF",
+          label = glue::glue("#{stap_model$stap_id}, {round(stap_model$duration, 1)} days"),
+          fillColor = stap_model$col
+        ) %>%
+        fitBounds(min(path_model$lon), min(path_model$lat), max(path_model$lon),
+          max(path_model$lat),
+          options = list(paddingBottomRight = c(300, 300))
+        )
     } else {
-      tmp <- map_prob()
-      if (any(!is.na(tmp))) {
-        proxy <- proxy %>% addRasterImage(tmp[[as.numeric(input$i_sta)]], opacity = 0.8, colors = "magma")
+      map_i_stap <- map_display()[[as.numeric(input$i_stap)]]
+      if (!is.null(map_i_stap)) {
+        proxy <- proxy %>% addRasterImage(map_i_stap,
+          opacity = 0.8,
+          colors = leaflet::colorNumeric(
+            palette = "magma",
+            domain = NULL,
+            na.color = "#00000000",
+            alpha = TRUE
+          ),
+          method = "ngb"
+        )
       }
-
       proxy <- proxy %>%
-        addPolylines(lng = path_thr$lon, lat = path_thr$lat, opacity = .1, color = "#FFF", weight = 3) %>%
+        addPolylines(
+          lng = path_model$lon,
+          lat = path_model$lat,
+          opacity = .1,
+          color = "#FFF",
+          weight = 3
+        ) %>%
         addCircles(
-          lng = path_thr$lon, lat = path_thr$lat, opacity = .1, color = "#FFF",
-          weight = sta_thr$duration^(0.3) * 10
+          lng = path_model$lon,
+          lat = path_model$lat,
+          fillOpacity = .1,
+          fillColor = "#FFF",
+          weight = 0,
+          radius = stap_model$duration^(0.3) * 10
         )
 
-      # Index in sta_short
-      i <- which(idx_sta_short == input$i_sta)
-
-      if (i != 1) {
+      if (idx() != 1) {
         proxy <- proxy %>%
-          addPolylines(lng = path_thr$lon[i + (-1:0)], lat = path_thr$lat[i + (-1:0)], opacity = 1, color = "#FFF", weight = 3) %>%
-          addCircles(lng = path_thr$lon[i - 1], lat = path_thr$lat[i - 1], opacity = 1, color = sta_thr$col[i - 1], weight = sta_thr$duration[i - 1]^(0.3) * 10) %>%
-          addCircles(lng = path_thr$lon[i - 1], lat = path_thr$lat[i - 1], opacity = 1, color = sta_thr$col[i - 1], radius = as.numeric(input$speed) * sum(fl_dur[i - 1]) * 1000, fillOpacity = 0, weight = 2)
+          addPolylines(
+            lng = path_model$lon[idx() + (-1:0)],
+            lat = path_model$lat[idx() + (-1:0)],
+            opacity = 1,
+            color = "#FFF",
+            weight = 3
+          ) %>%
+          addCircleMarkers(
+            lng = path_model$lon[idx() - 1],
+            lat = path_model$lat[idx() - 1],
+            fillOpacity = 1,
+            fillColor = stap_model$col[idx() - 1],
+            weight = 1, color = "#FFF",
+            radius = stap_model$duration[idx() - 1]^(0.3) * 10
+          ) %>%
+          addCircles(
+            lng = path_model$lon[idx() - 1],
+            lat = path_model$lat[idx() - 1],
+            opacity = 1,
+            color = stap_model$col[idx() - 1],
+            radius = as.numeric(input$speed) * sum(fl_dur[idx() - 1]) * 1000,
+            fillOpacity = 0,
+            weight = 2
+          )
       }
-      if (i != length(static_prob)) {
+      if (idx() != length(stap_include())) {
         proxy <- proxy %>%
-          addPolylines(lng = path_thr$lon[i + (0:1)], lat = path_thr$lat[i + (0:1)], opacity = 1, color = "#FFF", weight = 3) %>%
-          addCircles(lng = path_thr$lon[i + 1], lat = path_thr$lat[i + 1], opacity = 1, color = sta_thr$col[i + 1], weight = sta_thr$duration[i + 1]^(0.3) * 10) %>%
-          addCircles(lng = path_thr$lon[i + 1], lat = path_thr$lat[i + 1], opacity = 1, color = sta_thr$col[i + 1], radius = as.numeric(input$speed) * sum(fl_dur[i]) * 1000, fillOpacity = 0, weight = 2)
+          addPolylines(
+            lng = path_model$lon[idx() + (0:1)],
+            lat = path_model$lat[idx() + (0:1)],
+            opacity = 1,
+            color = "#FFF",
+            weight = 3
+          ) %>%
+          addCircleMarkers(
+            lng = path_model$lon[idx() + 1],
+            lat = path_model$lat[idx() + 1],
+            fillOpacity = 1,
+            fillColor = stap_model$col[idx() + 1],
+            weight = 1, color = "#FFF",
+            radius = stap_model$duration[idx() + 1]^(0.3) * 10
+          ) %>%
+          addCircles(
+            lng = path_model$lon[idx() + 1],
+            lat = path_model$lat[idx() + 1],
+            opacity = 1,
+            color = stap_model$col[idx() + 1],
+            radius = as.numeric(input$speed) * sum(fl_dur[idx()]) * 1000,
+            fillOpacity = 0,
+            weight = 2
+          )
       }
       proxy <- proxy %>%
-        addCircles(
-          lng = reactVal$path$lon[as.numeric(input$i_sta)], lat = reactVal$path$lat[as.numeric(input$i_sta)], opacity = 1,
-          weight = .sta$duration[as.numeric(input$i_sta)]^(0.3) * 10, color = .sta$col[as.numeric(input$i_sta)]
+        addCircleMarkers(
+          lng = reactVal$path$lon[as.numeric(input$i_stap)],
+          lat = reactVal$path$lat[as.numeric(input$i_stap)],
+          opacity = 1,
+          fillOpacity = 1,
+          radius = .stap$duration[as.numeric(input$i_stap)]^(0.3) * 10,
+          fillColor = .stap$col[as.numeric(input$i_stap)],
+          color = "white",
+          weight = 2
         )
     }
     proxy
-  }) # %>% bindEvent(input$i_sta)
+  }) # %>% bindEvent(input$i_stap)
 
-  observeEvent(input$query_pos, {
-    sta_id <- .sta$sta_id[as.numeric(input$i_sta)]
-    pam_pressure_sta <- .pressure[.pressure$sta_id == sta_id, ]
-    ts <- geopressure_ts(reactVal$path$lon[as.numeric(input$i_sta)], reactVal$path$lat[as.numeric(input$i_sta)],
-      pressure = pam_pressure_sta
+  observeEvent(input$query_position, {
+    i_stap <- as.numeric(input$i_stap)
+    stap_id <- .stap$stap_id[i_stap]
+
+    pressuretimeseries <- geopressure_timeseries(
+      reactVal$path$lat[i_stap],
+      reactVal$path$lon[i_stap],
+      pressure = .pressure[.pressure$stap_id == stap_id, ]
     )
-    ts$lt <- sum(sta_id == unlist(lapply(reactVal$ts, function(x) {
-      x$sta_id[1]
-    }))) + 1
-    reactVal$path$lon[as.numeric(input$i_sta)] <- ts$lon[1]
-    reactVal$path$lat[as.numeric(input$i_sta)] <- ts$lat[1]
-    reactVal$ts[[length(reactVal$ts) + 1]] <- ts
-    updateSelectizeInput(session, "i_sta", selected = 1)
-    updateSelectizeInput(session, "i_sta", selected = input$i_sta)
+
+    # Find the new index for linetype
+    pressuretimeseries$linetype <- as.factor(ifelse(
+      any(reactVal$pressurepath$stap_id == stap_id),
+      max(as.numeric(reactVal$pressurepath$linetype[reactVal$pressurepath$stap_id == stap_id])) + 1,
+      1
+    ))
+
+    pressuretimeseries$stap_ref <- stap_id
+    pressuretimeseries$col <- .stap$col[.stap$stap_id == stap_id][1]
+
+    # update lat lon in case over water
+    reactVal$path$lon[i_stap] <- pressuretimeseries$lon[1]
+    reactVal$path$lat[i_stap] <- pressuretimeseries$lat[1]
+
+    # Merge the two data.frame
+    if (nrow(reactVal$pressurepath)>0){
+      pressuretimeseries <- pressuretimeseries[, match(
+        names(reactVal$pressurepath),
+        names(pressuretimeseries)
+      )]
+      reactVal$pressurepath <- rbind(reactVal$pressurepath, pressuretimeseries)
+    } else{
+      reactVal$pressurepath <- pressuretimeseries
+    }
+
+
+    # ?
+    updateSelectizeInput(session, "i_stap", selected = 1)
+    updateSelectizeInput(session, "i_stap", selected = input$i_stap)
   })
 
   # Pressure Graph
   observe({
-    if (!input$allsta) {
-      sta_id <- .sta$sta_id[as.numeric(input$i_sta)]
-      pres_sta_id <- .pressure$sta_id == sta_id
-      plotlyProxy("pressure_graph", session) %>%
+    if (!input$full_track) {
+      stap_id <- .stap$stap_id[as.numeric(input$i_stap)]
+      pressure_val_stap_id <- .pressure$value[.pressure$stap_id == stap_id]
+      plotlyProxy("pressure_plot", session) %>%
         plotlyProxyInvoke(
           "relayout",
           list(
-            yaxis = list(range = c(min(.pressure$obs[pres_sta_id]) - 5, max(.pressure$obs[pres_sta_id]) + 5)),
-            xaxis = list(range = c(.sta$start[as.numeric(input$i_sta)] - 60 * 60 * 24, .sta$end[as.numeric(input$i_sta)] + 60 * 60 * 24))
+            yaxis = list(range = c(min(pressure_val_stap_id) - 5, max(pressure_val_stap_id) + 5)),
+            xaxis = list(range = c(
+              .stap$start[as.numeric(input$i_stap)] - 60 * 60 * 24,
+              .stap$end[as.numeric(input$i_stap)] + 60 * 60 * 24
+            ))
           )
         )
     } else {
-      plotlyProxy("pressure_graph", session) %>%
+      plotlyProxy("pressure_plot", session) %>%
         plotlyProxyInvoke(
           "relayout",
           list(
-            yaxis = list(autorange = T),
-            xaxis = list(autorange = T)
+            yaxis = list(autorange = TRUE),
+            xaxis = list(autorange = TRUE)
           )
         )
     }
   })
 }
+# nolint end
