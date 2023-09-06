@@ -28,13 +28,17 @@ jobs:
           extra-packages: any::pkgdown, local::.
           needs: website
 
+      - name: Move PNG files
+        run: |
+          find inst/extdata/ -name "*.png" -exec mv {} docs/reference/ \;
+
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
-      - name: Move PNG files
+      - name: Move PNG files 2
         run: |
-          mv inst/extdata/*.png docs/reference/
+          find inst/extdata/ -name "*.png" -exec mv {} docs/reference/ \;
 
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
