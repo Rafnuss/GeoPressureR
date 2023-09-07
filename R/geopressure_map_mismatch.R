@@ -155,7 +155,7 @@ geopressure_map_mismatch <- function(tag,
   }
   future::plan(future::multisession, workers = workers)
 
-  f <- c()
+  f <- vector("list", length(urls))
 
   if (!quiet) {
     # nolint start
@@ -180,20 +180,18 @@ geopressure_map_mismatch <- function(tag,
         httr::config(
           verbose = debug # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
         )
-        # httr::timeout(timeout)
         # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
       )
       if (httr::http_error(res)) {
-        httr::warn_for_status(res, task = "download GEE data")
-        cat(readChar(file, 1e5))
+        return(res)
+      } else {
+        return(file)
       }
-      return(file)
     }, seed = TRUE)
   }
 
   # Get maps
-  file <- c()
-  map <- c()
+  map <- vector("list", length(urls))
   if (!quiet) {
     # nolint start
     msg2 <- glue::glue("0/{length(urls)}")
@@ -203,30 +201,23 @@ geopressure_map_mismatch <- function(tag,
     )
     # nolint end
   }
-  tryCatch(
-    expr = {
-      for (i_u in seq_len(length(urls))) {
-        if (!quiet) {
-          msg2 <- glue::glue("{i_u}/{length(urls)}")
-          cli::cli_progress_update(force = TRUE)
-        }
-        file[i_u] <- future::value(f[[i_u]])
-        map[[i_u]] <- terra::rast(file[i_u])
-        names(map[[i_u]]) <- c("map_pressure_mse", "map_pressure_mask")
-      }
-    },
-    error = function(cond) {
-      cli::cli_warn(c("x" = "There was an error during the downloading and reading of the file. \\
-      The original error is displayed below.\f"))
-      message(cond)
-      return(list(
-        urls = urls,
-        file = file,
-        map = map,
-        future = f
-      ))
+  for (i_u in seq_len(length(urls))) {
+    if (!quiet) {
+      msg2 <- glue::glue("{i_u}/{length(urls)}")
+      cli::cli_progress_update(force = TRUE)
     }
-  )
+    file <- future::value(f[[i_u]])
+    if (inherits(file, "response")) {
+      cli::cli_warn(c(
+        "x" = "There was an error for stap {.val {labels[i_u]}} during the downloading and
+      reading of the response url {.url {urls[i_u]}}. It returned a status code {.val {httr::status_code(res)}}. The original error is displayed below."
+      ))
+      cat(httr::content(res))
+    } else {
+      map[[i_u]] <- terra::rast(file)
+      names(map[[i_u]]) <- c("map_pressure_mse", "map_pressure_mask")
+    }
+  }
 
   if (!quiet) {
     cli::cli_progress_step("Process maps")
@@ -252,15 +243,18 @@ geopressure_map_mismatch <- function(tag,
     # compute the total number of sample for that stap.
     tag$stap$nb_sample[i_stap] <- sum(nb_sample[i_label])
 
-    # Compute the average of the mse and mask map weighted by the number of sample
-    tmp <- Reduce(`+`, mapply(function(m, w) {
-      w * m
-    }, map[i_label], nb_sample[i_label])) / sum(nb_sample[i_label])
+    # Only if the map was correctly computed and returned
+    if (!is.null(map[i_label])) {
+      # Compute the average of the mse and mask map weighted by the number of sample
+      tmp <- Reduce(`+`, mapply(function(m, w) {
+        w * m
+      }, map[i_label], nb_sample[i_label])) / sum(nb_sample[i_label])
 
-    # Extract the two map
-    # convert MSE from Pa to hPa
-    mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE) / 100 / 100
-    mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
+      # Extract the two map
+      # convert MSE from Pa to hPa
+      mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE) / 100 / 100
+      mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
+    }
   }
 
   # Add attribute
