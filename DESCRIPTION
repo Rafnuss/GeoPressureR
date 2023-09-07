@@ -32,8 +32,9 @@ Imports:
     ncdf4,
     pracma,
     progressr,
-    terra,
+    readr,
     stats,
+    terra,
     tools,
     utils
 Suggests: 
@@ -45,7 +46,6 @@ Suggests:
     shiny,
     RColorBrewer,
     readxl,
-    readr,
     shinyWidgets,
     covr
 biocViews:
