@@ -1,4 +1,4 @@
-# GeoPressureR v3.0.0.1-beta
+# GeoPressureR v3.0.0
 
 ## Guiding principles of v3
 This new version consists of a significant revamp of the entire code centered around these themes:
@@ -19,9 +19,21 @@ This new version consists of a significant revamp of the entire code centered ar
 ⚠️ See the [migration wiki](https://github.com/Rafnuss/GeoPressureR/wiki/Migration-v2-%E2%80%90--v3) for a small guide to transition from v2.
 
 ## Major
-* Major fix in the computation of the marginal map https://github.com/Rafnuss/GeoPressureR/commit/bd1103fda0c5b4e3c0f218ee7bcf3fbc69dc6123
+* Use of GeoPressureR object: `tag`, `graph`, `param`, `bird`
+* Many new ploting functions including update of `geopressureviz()`
+* Transition from `raster` to `terra` #59
+* New label scheme with test and messaging for troubleshooting #67 #73 #83
+* Create `tag_update()` and `pressurepath_update()`
+* Review the structure of a path and edges. 
 
 ## Minor
+
+* Formulate graph as a HMM #68
+* Simplified workflow #69
+* Use of `cli` for message. 
+* Create `graph_shortestpath` https://github.com/Rafnuss/GeoPressureR/commit/b69c2a21b784f598b03822e940c02c216114e9f9
+* Review all tests and example
+* Review all functions names and parameters
 
 # GeoPressureR v2.7-beta
 ## Major
