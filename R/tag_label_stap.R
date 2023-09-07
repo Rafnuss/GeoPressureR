@@ -149,7 +149,7 @@ tag_label_stap <- function(tag,
 #' @noRd
 pretty_dt <- function(tim) {
   # Ensure the difftime object is in seconds
-  seconds <- as.numeric(as.difftime(tim, units = "secs"))
+  seconds <- as.numeric(as.difftime(tim), units = "secs")
 
   # Calculate days, hours, minutes, and seconds
   days <- floor(seconds / (24 * 60 * 60))
@@ -157,7 +157,7 @@ pretty_dt <- function(tim) {
   hrs <- floor(seconds / (60 * 60))
   seconds <- seconds %% (60 * 60)
   mins <- floor(seconds / 60)
-  secs <- seconds %% 60
+  secs <- round(seconds %% 60)
 
   # Format the string
   duration_str <- ""
