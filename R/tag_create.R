@@ -179,23 +179,13 @@ tag_create <- function(id,
   }
 
   ## Crop date
-  tag$pressure <- tag_create_crop(tag$pressure, crop_start = crop_start, crop_end = crop_end)
+  tag <- tag_create_crop(tag, crop_start = crop_start, crop_end = crop_end)
   if (nrow(tag$pressure) == 0) {
     cli::cli_abort(c(
       "!" = "Empty {.field pressure} sensor dataset from {.file {pressure_path}}",
       ">" = "Check crop date."
     ))
   }
-  tag$light <- tag_create_crop(tag$light,
-    crop_start = crop_start,
-    crop_end = crop_end
-  )
-  tag$acceleration <- tag_create_crop(tag$acceleration,
-    crop_start = crop_start,
-    crop_end = crop_end
-  )
-
-
 
   # Add parameter information
   tag$param$manufacturer <- manufacturer
@@ -362,8 +352,10 @@ tag_create_lund <- function(tag,
   # Read light
   acc_light_path <- tag_create_detect(acceleration_light_file, directory)
   if (!is.null(acc_light_path)) {
-    xls <- readxl::read_excel(acc_light_path, sheet = "Light", skip = 1,
-                              .name_repair = "unique_quiet")
+    xls <- readxl::read_excel(acc_light_path,
+      sheet = "Light", skip = 1,
+      .name_repair = "unique_quiet"
+    )
     tag$light <- data.frame(
       date = as.POSIXct(xls$`Date`, tz = "UTC"),
       value = xls$`Light`
@@ -512,24 +504,28 @@ tag_create_dto <- function(sensor_path,
 
 #' Crop sensor data.frame
 #' @noRd
-tag_create_crop <- function(df,
+tag_create_crop <- function(tag,
                             crop_start,
                             crop_end) {
-  # Crop time
-  if (!is.null(crop_start)) {
-    df <- df[df$date >= crop_start, ]
-  }
-  if (!is.null(crop_end)) {
-    df <- df[df$date < crop_end, ]
-  }
+  for (sensor in c("pressure", "light", "acceleration")) {
+    if (sensor %in% names(tag)) {
+      # Crop time
+      if (!is.null(crop_start)) {
+        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date >= crop_start, ]
+      }
+      if (!is.null(crop_end)) {
+        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date < crop_end, ]
+      }
 
-  if (length(unique(diff(df$date))) > 1) {
-    # nolint start
-    dtime <- as.numeric(diff(df$date))
-    cli::cli_warn("Irregular time spacing for {.file {sensor_path}}: \\
-                  {df$date[which(dtime != dtime[1])]}.\f")
-    # nolint end
+      # Check irregular time
+      if (length(unique(diff(tag[[sensor]]$date))) > 1) {
+        # nolint start
+        dtime <- as.numeric(diff(tag[[sensor]]$date))
+        cli::cli_warn("Irregular time spacing for {.field {sensor}}: \\
+                  {tag[[sensor]]$date[which(dtime != dtime[1])]}.\f")
+        # nolint end
+      }
+    }
   }
-
-  return(df)
+  return(tag)
 }
