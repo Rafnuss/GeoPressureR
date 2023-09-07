@@ -1,16 +1,24 @@
 #' Start the GeoPressureViz shiny app
 #'
 #' GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
-#' as well as each step-by-step move. Learn more about GeoPressureViz in the [GeoPressureManual
+#' as well as each step-by-step move. This app is particularly useful to check the correspondance
+#' between pressure map, light map and flight distance. You can edit the path and query pressure
+#' timeserie for individual stationary period to test manual what seems the optimal path.
+#'
+#' You can retrieved the edited path from the global envirenmental variable `geopressureviz_path`.
+#'
+#' Learn more about GeoPressureViz in the [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
 #' this [demo of the Great Reed Warbler (18LX)](https://rafnuss.shinyapps.io/GeoPressureViz/).
+#'
 #'
 #' @param x a GeoPressureR `tag` object or an unique identifier `id`.
 #' @param pressurepath a GeoPressureR `pressurepath` data.frame.
 #' @param marginal map of the marginal probability computed with `graph_marginal()`.
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
 #' Rstudio.
-#' @return The updated path visualized in the app.
+#' @return The updated path visualized in the app. Can also be retrieved with
+#' `.GlobalEnv$geopressureviz_path`
 #'
 #' @seealso [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
@@ -130,4 +138,6 @@ geopressureviz <- function(x,
   shiny::runApp(system.file("geopressureviz", package = "GeoPressureR"),
     launch.browser = launch_browser
   )
+
+  return(.GlobalEnv$geopressureviz_path)
 }

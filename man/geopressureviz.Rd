@@ -17,11 +17,19 @@ geopressureviz(x, pressurepath = NULL, marginal = NULL, launch_browser = TRUE)
 Rstudio.}
 }
 \value{
-The updated path visualized in the app.
+The updated path visualized in the app. Can also be retrieved with
+\code{.GlobalEnv$geopressureviz_path}
 }
 \description{
 GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
-as well as each step-by-step move. Learn more about GeoPressureViz in the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual } or with
+as well as each step-by-step move. This app is particularly useful to check the correspondance
+between pressure map, light map and flight distance. You can edit the path and query pressure
+timeserie for individual stationary period to test manual what seems the optimal path.
+}
+\details{
+You can retrieved the edited path from the global envirenmental variable \code{geopressureviz_path}.
+
+Learn more about GeoPressureViz in the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual } or with
 this \href{https://rafnuss.shinyapps.io/GeoPressureViz/}{demo of the Great Reed Warbler (18LX)}.
 }
 \seealso{
