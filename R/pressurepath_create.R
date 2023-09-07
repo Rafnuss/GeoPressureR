@@ -86,7 +86,7 @@ pressurepath_create <- function(tag,
   # Assert preprocess
   assertthat::assert_that(is.logical(preprocess))
   if (preprocess) {
-    pressure <- geopressure_map_preprocess(tag)
+    pressure <- geopressure_map_preprocess(tag, compute_known = TRUE)
   } else {
     pressure <- tag$pressure
   }
@@ -117,8 +117,8 @@ pressurepath_create <- function(tag,
 
   # Interpolate stap_id for flight period so that, a flight between stap_id 2 and 3 will have a
   # `stap_interp` between 2 and 3.
-  id_0 <- pressure$stap_id == 0 | is.na(pressure$stap)
-  stap_interp <- pressure$stap
+  id_0 <- pressure$stap_id == 0 | is.na(pressure$stap_id)
+  stap_interp <- pressure$stap_id
   stap_interp[id_0] <- stats::approx(which(!id_0),
     pressure$stap_id[!id_0], which(id_0),
     rule = 2
@@ -164,6 +164,10 @@ pressurepath_create <- function(tag,
 
     # extract pressure for the stap
     pressure_q <- subset(pressure, !is.na(id_q))
+
+    if (nrow(pressure_q) == 0) {
+      cli::cli_warn("No pressure to query for stap_id {.val {i_stap}}.\f")
+    }
 
     # Send the query
     if (!is.na(path$lat[i_s]) && !is.na(path$lon[i_s]) && nrow(pressure_q) > 0) {
