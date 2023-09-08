@@ -29,7 +29,8 @@
 #' of samples of the stationary periods used and returning the weight of the aggregation. See
 #' [GeoPressureManual | Probability aggregation
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html) for more details.
-#' @param keep_mse_mask logical defining if the matrix of the MSE and mask are returned in the list.
+#' @param keep_mask logical defining if the mask map is returned in `tag`.
+#' @param keep_mse logical defining if the MSE map is returned in `tag`.
 #' @param timeout Duration before the code is interrupted both for the request on
 #' GeoPressureAPI and GEE (in seconds, see [`httr::timeout()`]).
 #' @param workers Number of parallel requests on GEE. Integer between 1 and 99. `"auto"` adjust the
@@ -62,11 +63,11 @@
 #'   quiet = TRUE
 #' )
 #'
-#' plot(tag, type = "map_pressure_mse", plot_leaflet = FALSE)
+#' # plot(tag, type = "map_pressure_mse", plot_leaflet = FALSE)
 #'
-#' plot(tag, type = "map_pressure_mask", plot_leaflet = FALSE)
+#' # plot(tag, type = "map_pressure_mask", plot_leaflet = FALSE)
 #'
-#' plot(tag, type = "map_pressure")
+#' # plot(tag, type = "map_pressure")
 #'
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
 #' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
@@ -82,13 +83,16 @@ geopressure_map <- function(tag,
                             sd = 1,
                             thr_mask = 0.9,
                             log_linear_pooling_weight = \(n) log(n) / n,
-                            keep_mse_mask = FALSE,
+                            keep_mask = FALSE,
+                            keep_mse = FALSE,
                             compute_known = FALSE,
                             quiet = FALSE) {
   # Compute mean square error maps
   tag <- geopressure_map_mismatch(tag,
     max_sample = max_sample,
     margin = margin,
+    thr_mask = thr_mask,
+    keep_mask = keep_mask,
     timeout = timeout,
     workers = workers,
     compute_known = compute_known,
@@ -98,15 +102,9 @@ geopressure_map <- function(tag,
   # Compute likelihood maps from the MSE maps
   tag <- geopressure_map_likelihood(tag,
     sd = sd,
-    thr_mask = thr_mask,
-    log_linear_pooling_weight = log_linear_pooling_weight
+    log_linear_pooling_weight = log_linear_pooling_weight,
+    keep_mse = keep_mse
   )
-
-  # remove intermediate maps computed by geopressure_map_mismatch()
-  if (!keep_mse_mask) {
-    tag[names(tag) %in% c("map_pressure_mse", "map_pressure_mask")] <- NULL
-    tag$stap <- tag$stap[names(tag$stap) != "nb_sample"]
-  }
 
   return(tag)
 }
