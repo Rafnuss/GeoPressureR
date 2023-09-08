@@ -51,8 +51,8 @@ tag_update <- function(tag,
   tag_new <- tag_label_read(tag_new, file = file)
   tag_new <- tag_label_stap(tag_new, quiet = TRUE)
 
-  # Find stap which have change, and those tha have not
-  # 1. find the stationary period match based on start and end date
+  # Find which stap have change or not
+  # 1. find the stationary period based on start and end date
   # create a copy to modify the column name and allow a merge
   tag_stap_copy <- tag$stap[names(tag$stap) %in% c("start", "end", "stap_id")]
   names(tag_stap_copy)[names(tag_stap_copy) == "stap_id"] <- "old_stap_id"
@@ -63,17 +63,17 @@ tag_update <- function(tag,
   # have not changed (discard of pressure is ok though)
   # Build the original known
   if (is.null(known)) {
-    # Use the exact same known as provided
-    known <- tag$stap[!is.na(tag$stap$known_lat), names(tag$stap) %in%
-      c("stap_id", "known_lat", "known_lon")]
+    # Use the same original known
+    known <- tag$param$known
+
     # Check that the old_stap_id is the same as the new ones for the known stap_id
-    if (stap_new$stap_id[which(stap_new$old_stap_id == known$stap_id)] != known$stap_id) {
+    if (any(stap_new$stap_id[which(stap_new$old_stap_id == known$stap_id)] != known$stap_id)) {
       cli::cli_abort(c(
-        "x" = "Known position were defined at stationary period{?s} {.val {known$stap_id}}, yet \\
-        these stationary period have changed because you changed {.val flight} label before or \\
-        after them.",
+        "x" = "Known position were defined at stationary period{?s} \\
+        {.val {as.character(known$stap_id)}}, yet th{?is/ese} stationary period{?s} ha{?s/ve} \\
+        changed",
         ">" = "In such case, you need start again from the raw data or provide an updated \\
-        {.var known} arguement."
+        {.var known} argument."
       ))
     }
   }
