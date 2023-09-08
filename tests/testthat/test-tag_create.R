@@ -5,7 +5,7 @@ library(GeoPressureR)
 options(cli.default_handler = function(...) { })
 
 # Set working directory
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 
 test_that("tag_create() | manufacturer", {
   expect_no_error(tag_create(id = "18LX"))
@@ -19,7 +19,7 @@ test_that("tag_create() | manufacturer", {
     ), tz = "UTC"),
     value = c(1000, 1000, 1000, 1000)
   )
-  expect_no_error(tag_create(id = "dummy", pressure_file = pres) )
+  expect_no_error(tag_create(id = "dummy", pressure_file = pres))
 })
 
 test_that("tag_create() | default", {

@@ -55,7 +55,7 @@
 #' - `acceleration` (optional) same structure as pressure
 #'
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #'
 #' # Read all sensor file
 #' tag <- tag_create("18LX")
@@ -97,7 +97,7 @@
 #' @export
 tag_create <- function(id,
                        manufacturer = NULL,
-                       directory = glue::glue("./data/raw-tag/{id}/"),
+                       directory = glue::glue("./data/raw-tag/{id}"),
                        crop_start = NULL,
                        crop_end = NULL,
                        pressure_file = NULL,

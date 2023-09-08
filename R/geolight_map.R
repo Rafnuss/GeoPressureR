@@ -33,7 +33,7 @@
 #' @return a `tag` with the likelihood of light as `tag$map_light`
 #'
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' # Read geolocator data and build twilight
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>

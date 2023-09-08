@@ -7,7 +7,7 @@ skip("skip geopressureviz")
 options(cli.default_handler = function(...) { })
 
 # Set working directory
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 
 tag <- tag_create("18LX")
 tag <- tag_label(tag)

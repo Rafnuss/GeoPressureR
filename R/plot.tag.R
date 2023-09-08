@@ -23,7 +23,7 @@
 #' `plot_tag_light()`, `plot_tag_twilight()` or `plot.map()`
 #'
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE)
 #'
@@ -113,7 +113,7 @@ plot.tag <- function(x, type = NULL, ...) {
 #'
 #' @family plot_tag
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE)
 #'
 #' plot_tag_pressure(tag, plot_plotly = FALSE)
@@ -249,7 +249,7 @@ plot_tag_pressure <- function(tag,
 #'
 #' @family plot_tag
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE)
 #'
 #' plot_tag_acceleration(tag)
@@ -304,7 +304,7 @@ plot_tag_acceleration <- function(tag,
 #'
 #' @family plot_tag
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE)
 #'
 #' plot_tag_light(tag)
@@ -362,7 +362,7 @@ plot_tag_light <- function(tag,
 #'
 #' @family plot_tag
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE)
 #'
 #' plot_tag_pressure(tag, plot_plotly = TRUE)

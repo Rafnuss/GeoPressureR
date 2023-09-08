@@ -29,7 +29,7 @@
 #' grouped by elevation layer (`elev_*`)
 #' - `stap_id` stationary period of the measurement matching the `tag$stap`.
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE)
 #'
 #' print(tag)
