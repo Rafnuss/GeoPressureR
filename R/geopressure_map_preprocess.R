@@ -90,10 +90,12 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   # pgi <- pressure_stapelev[[9]]
   pressure_stapelev_clean <- lapply(pressure_stapelev, function(pgi) {
     # Define a regular temporal grid for smoothing and down scaling, rounded to the hours
+    dt <- min(diff(pgi$date))
+    units(dt) <- "hours"
     date_reg <- seq(
       round.POSIXt(min(pgi$date), units = "hours"),
       round.POSIXt(max(pgi$date), units = "hours"),
-      by = min(diff(pgi$date))
+      by = dt
     )
 
     # Remove observation outside the start and end time. This should only be 1 or 2 datapoints
@@ -124,10 +126,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
 
     # smooth the data with a moving average of 1hr
     # find the size of the windows for 1 hour
-    dtall <- diff(pgi_reg$date)
-    units(dtall) <- "hours"
-    dt <- as.numeric(stats::median(dtall))
-    n <- round(1 / dt + 1)
+    n <- round(1 / as.numeric(dt) + 1)
 
     # check that there are enough datapoint for the smoothing
     if (nrow(pgi_reg) > n) {
@@ -148,7 +147,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     # Pressure is an instantaneous parameters
     # (https://confluence.ecmwf.int/display/CKB/Parameters+valid+at+the+specified+time), so we take
     # the value at the exact hour
-    pgi_reg <- pgi_reg[seq(1, nrow(pgi_reg), by = 1 / dt), ]
+    pgi_reg <- pgi_reg[seq(1, nrow(pgi_reg), by = 1 / as.numeric(dt)), ]
 
     # Remove time without measure
     pgi_reg <- pgi_reg[!is.na(pgi_reg$stap_id), ]
