@@ -38,17 +38,23 @@ geopressureviz <- function(x,
 
     if (is.character(file) && file.exists(file)) {
       # Make of copy of the arguement so that they don't get overwritten
-      pressurepath0 <- pressurepath
-      marginal0 <- marginal
+      if (!is.null(pressurepath)) {
+        pressurepath0 <- pressurepath
+      }
+      if (!is.null(marginal)) {
+        marginal0 <- marginal
+      }
       # Load interim
       load(file)
+      print(marginal)
       # Overwrite loaded variable with arguments if provided
-      if (!is.null(pressurepath0)) {
+      if (exists("pressurepath0")) {
         pressurepath <- pressurepath0
       }
-      if (!is.null(marginal0)) {
+      if (exists("marginal0")) {
         marginal <- marginal0
       }
+      print(marginal)
     } else {
       cli::cli_abort("The first arguement {.var x} needs to be a {.cls tag}, a {.field file} or \\
                      an {.field id}")
@@ -98,8 +104,12 @@ geopressureviz <- function(x,
   if (is.null(pressurepath)) {
     pressurepath <- data.frame()
 
-    # Set the initial path with tag2path
-    path <- tag2path(tag)
+    if (exists("path_most_likely")) {
+      path <- path_most_likely
+    } else {
+      # Set the initial path with tag2path
+      path <- tag2path(tag)
+    }
   } else {
     path <- merge(tag$stap, unique(pressurepath[, c("stap_id", "lat", "lon")]), all = TRUE)
     pressurepath$linetype <- as.factor(1)
