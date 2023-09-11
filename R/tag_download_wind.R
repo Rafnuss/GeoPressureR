@@ -67,7 +67,7 @@ tag_download_wind <- function(tag,
 
   directory <- dirname(file(1))
   if (!file.exists(directory)) {
-    dir.create(directory, showWarnings = FALSE)
+    dir.create(directory, recursive = TRUE)
     cli::cli_warn(c(
       "!" = "The directory {.file {directory}} did not exist.",
       ">" = "We created the directory.\f"
