@@ -58,7 +58,7 @@
 #' @export
 geolight_map <- function(tag,
                          twl_calib_adjust = 1.4,
-                         twl_llp = \(n) 0.1,
+                         twl_llp = \(n) log(n)/n,
                          compute_known = FALSE,
                          quiet = FALSE) {
   # Check tag
