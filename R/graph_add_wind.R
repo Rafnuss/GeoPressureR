@@ -31,12 +31,12 @@
 #' @seealso [GeoPressureManual](
 #' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
-graph_add_wind <- function(
-    graph,
-    pressure,
-    thr_as = Inf,
-    file = \(stap_id) glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
-    quiet = FALSE) {
+graph_add_wind <- function(graph,
+                           pressure,
+                           thr_as = Inf,
+                           file = \(stap_id)
+                           glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
+                           quiet = FALSE) {
   graph_assert(graph, "full")
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value")))
@@ -112,10 +112,19 @@ graph_add_wind <- function(
       }
     }
   }
+  cli::cli_progress_done()
 
   # Start progress bar
   if (!quiet) {
-    cli::cli_progress_bar(0, total = sum(table(s[, 3])))
+    i1 <- 0
+    cli::cli_progress_bar(
+      "Compute wind speed for edges of stationary period:",
+      format = "{cli::pb_name} {i1}/{graph$sz[3] - 1} {cli::pb_bar} {cli::pb_percent} | \\
+      {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "Compute wind speed for edges of stationary periods [{cli::pb_elapsed}]",
+      clear = FALSE,
+      total = sum(table(s[, 3]))
+    )
   }
 
   # Loop through the stationary period kept in the graph
@@ -314,16 +323,17 @@ graph_add_wind <- function(
       # Compute the average wind component of the flight accounting for the weighting scheme
       u_stap[i2, ] <- colSums(u_int * w)
       v_stap[i2, ] <- colSums(v_int * w)
-
-      if (!quiet) {
-        cli::cli_progress_update(set = sum(table(s[, 3])[seq(1, i1)]))
-      }
     }
     # Compute the average  over all the flight of the transition accounting for the duration of the
     # flight.
     uv[st_id, 1] <- colSums(u_stap * fl_s_dur / sum(fl_s_dur))
     uv[st_id, 2] <- colSums(v_stap * fl_s_dur / sum(fl_s_dur))
+
+    if (!quiet) {
+      cli::cli_progress_update(set = sum(table(s[, 3])[seq(1, i1)]), force = TRUE)
+    }
   }
+  cli::cli_progress_done()
 
   # save windspeed in complex notation and convert from m/s to km/h
   graph$ws <- (uv[, 1] + 1i * uv[, 2]) / 1000 * 60 * 60
