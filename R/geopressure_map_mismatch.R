@@ -1,46 +1,5 @@
-#' Request and download mismatch maps from pressure data
-#'
-#' This function returns, for each stationary period, two maps of mismatch between the pressure
-#' measured by the geolocator and the ERA5 pressure database.
-#'
-#' These maps are generated on Google Earth Engine via the map entry point of the
-#' [GeoPressure API](https://raphaelnussbaumer.com/GeoPressureAPI/#description). The computation
-#' performed by this function consists of the following:
-#' 1. Send a request to generate the Google Earth Engine (GEE) URL of the code producing the maps
-#' for each stationary period separately.
-#' 2. Download and read these geotiff maps as matrix. The computation on GEE only happens in this
-#' second step when fetching the URL.
-#'
-#' The maps of each stationary period are returned in two layers:
-#' 1. The Mean Square Error (MSE) between the data logger pressure timeseries and the reanalysis.
-#' The mean error is removed because we assume no specific altitude of the geolocator, thus
-#' allowing an altitudinal shift of the pressure timeseries.
-#' 2. The mask of the proportion of pressure measurements corresponding to altitude values
-#' found within the min and max ground elevation at each location. The altitude value
-#' of the geolocator pressure timeseries is computed with the barometric formula accounting for the
-#' temporal variation of pressure (surface-pressure) and temperature (2m-temperature) based on
-#' ERA5 data. The min and max ground elevation of each pixel is computed from SRTM-90.
-#'
-#' For each stationary period, the pressure measurements are smoothed and downscaled to a 1-hour
-#' resolution in order to match ERA-5 resolution.
-#'
-#' It is possible to indicate different elevation levels when the bird was spending time at
-#' locations with different elevations within a general area (~10km), and thus within the same
-#' stationary period. This can be done by using `tag$label="elev_n"`for all measurements of the same
-#' elevation level *n*.
-#'
-#' For more background and details on this algorithm, please refer to Nussbaumer et al. ([2023a
-#' ]( https://doi.org/10.1111/2041-210X.14043)) and the [GeoPressure API documentation
-#' ](https://raphaelnussbaumer.com/GeoPressureAPI/).
-#'
-#' @inheritParams geopressure_map
-#' @param debug logical to display additional information to debug a request
-#' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-#' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
-#' 1118–1129 <https://doi.org/10.1111/2041-210X.14043>.}
 #' @family geopressure_map
-#' @seealso [GeoPressureManual](https://bit.ly/3sfQjV6), [GeoPressure API
-#' ](https://raphaelnussbaumer.com/GeoPressureAPI/).
+#' @rdname geopressure_map
 #' @export
 geopressure_map_mismatch <- function(tag,
                                      max_sample = 250,
@@ -183,16 +142,16 @@ geopressure_map_mismatch <- function(tag,
 
   if (!quiet) {
     # nolint start
-    msg <- glue::glue(" | 0/{length(urls)}")
+    i_u <- 1
     cli::cli_progress_step(
-      "Sending requests for {.val {length(urls)}} stapelev: {msg}",
+      msg = "Send requests for {.val {length(urls)}} stapelev (in parallel): {.val {labels[i_u]}} | {i_u}/{length(urls)}",
+      msg_done = "Send requests for {.val {length(urls)}} stapelev (in parallel)",
       spinner = TRUE
     )
     # nolint end
   }
   for (i_u in seq_len(length(urls))) {
     if (!quiet) {
-      msg <- glue::glue("{labels[i_u]} | {i_u}/{length(urls)}")
       cli::cli_progress_update(force = TRUE)
     }
     f[[i_u]] <- future::future(expr = {
@@ -219,16 +178,16 @@ geopressure_map_mismatch <- function(tag,
   map <- vector("list", length(urls))
   if (!quiet) {
     # nolint start
-    msg2 <- glue::glue("0/{length(urls)}")
+    i_u <- 1
     cli::cli_progress_step(
-      "Compute maps (on GEE server) and download .geotiff: {msg2}",
+      msg = "Compute the map (on GEE server) and download .geotiff: {.val {labels[i_u]}} | {i_u}/{length(urls)}",
+      msg_done = "Compute the map (on GEE server) and download .geotiff",
       spinner = TRUE
     )
     # nolint end
   }
   for (i_u in seq_len(length(urls))) {
     if (!quiet) {
-      msg2 <- glue::glue("{i_u}/{length(urls)}")
       cli::cli_progress_update(force = TRUE)
     }
     file <- future::value(f[[i_u]])
@@ -252,7 +211,7 @@ geopressure_map_mismatch <- function(tag,
   }
 
   if (!quiet) {
-    cli::cli_progress_step("Process maps")
+    cli::cli_progress_step("Post-process maps")
   }
 
   # Find the stap of each urls from labels (same order)

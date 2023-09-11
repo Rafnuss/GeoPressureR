@@ -1,27 +1,5 @@
-#' Convert mismatch map into likelihood map
-#'
-#' This function converts the mismatch maps (MSE and mask) into a likelihood map.
-#'
-#' We convert the map of the mean square error \eqn{MSE} and altitude mask \eqn{z_{mask}} computed
-#' by [`geopressure_map_mismatch()`] into a likelihood map with,
-#'
-#' \deqn{L = \exp \left(-w \frac{MSE}{\sigma} \right) \left[z_{mask}>T \right],}
-#'
-#' where \eqn{\sigma} is the standard deviation of pressure and \eqn{T} is the mask threshold.
-#'
-#' Because the auto-correlation of the timeseries is not accounted for in this equation, we use a
-#' log-linear pooling weight of \eqn{w=\log(n)/n} by default, where \eqn{n} is the number of samples
-#' in the timeserie (i.e., data points used to compute the MSE).
-#'
-#' For more background and details on the algorithm, please read Nussbaumer et al. ([2023a
-#' ]( https://doi.org/10.1111/2041-210X.14043)) and the [GeoPressureManual | Probability aggregation
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html).
-#' @inheritParams geopressure_map
-#' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-#' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
-#' 1118–1129 <https://doi.org/10.1111/2041-210X.14043>.}
 #' @family geopressure_map
-#' @seealso [GeoPressureManual](https://bit.ly/3saRNQu)
+#' @rdname geopressure_map
 #' @export
 geopressure_map_likelihood <- function(tag,
                                        sd = 1,

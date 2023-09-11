@@ -6,11 +6,11 @@
 #'
 #' This functions is used by `geopressure_map` and `graph_marginal`.
 #
-#' @param data List of matrices of the same size, one for each stationary period.
+#' @param data list of matrices of the same size, one for each stationary period.
 #' @inheritParams tag_set_map
-#' @param stap A data.frame of stationary periods.
+#' @param stap a data.frame of stationary periods.
 #' @inheritParams tag_create
-#' @param type Type of data one of `"unknown"`,`"pressure"`, `"light"`, `"pressure_mse"`,
+#' @param type type of data one of `"unknown"`,`"pressure"`, `"light"`, `"pressure_mse"`,
 #' `"water_mask"`, `"pressure_mask"`, `"marginal"`. Allows for custom color palette on plot.
 #'
 #' @return A GeoPressure `map` object is returned
