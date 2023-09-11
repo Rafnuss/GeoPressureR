@@ -40,7 +40,7 @@
 #' - `extent` same as input parameter `extent`
 #' - `scale` same as input parameter `scale`
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 #'
 #' # Default tag
@@ -139,7 +139,6 @@ tag_set_map <- function(tag,
           # If yes, remove existing likelihood map and carry on the overwrite of parameter
           tag$map_pressure <- NULL
           tag$map_light <- NULL
-          tag$mask_water <- NULL
           tag$param <- NULL
           cli::cli_warn(c(
             "!" = "The old parameters have been overwitten with the new ones and the likelihood \\

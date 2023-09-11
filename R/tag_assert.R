@@ -11,7 +11,7 @@
 #' @return logical indicating the `tag` object has the relevant element
 #'
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 #'
 #' tag_assert(tag)
@@ -123,7 +123,7 @@ tag_status <- function(tag) {
   if (assertthat::has_name(tag, "map_pressure")) {
     status <- append(status, "map_pressure")
   }
-  if (assertthat::has_name(tag, c("map_pressure_mse", "map_pressure_mask"))) {
+  if (assertthat::has_name(tag, "map_pressure_mse")) {
     status <- append(status, "map_pressure_mismatch")
   }
   if (assertthat::has_name(tag, "twilight")) {

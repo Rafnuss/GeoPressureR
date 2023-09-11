@@ -321,7 +321,7 @@ graph_create <- function(tag,
   graph$stap <- tag$stap
   graph$equipment <- which(nds[[1]] == TRUE)
   graph$retrieval <- as.integer(which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll)
-  graph$mask_water <- tag$mask_water
+  graph$mask_water <- tag$map_pressure$mask_water
 
   # Create the param from tag
   graph$param <- tag$param

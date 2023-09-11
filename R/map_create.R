@@ -46,7 +46,12 @@
 #'
 #' @family map
 #' @export
-map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
+map_create <- function(data,
+                       extent,
+                       scale,
+                       stap,
+                       id = NA,
+                       type = "unknown") {
   g <- map_expand(extent, scale)
 
   assertthat::assert_that(is.list(data))
@@ -68,9 +73,19 @@ map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
     "pressure_mask", "marginal"
   ))
 
+  # Define the mask of water
+  tmp <- data[[which(!sapply(data, is.null))[1]]]
+  mask_water <- tmp < -1.5 | is.na(tmp)
+
+  # Replace negative value (-1|not computed or -2|water) by NA
+  for (istap in which(!sapply(data, is.null))) {
+    data[[istap]][data[[istap]] < 0] <- NA
+  }
+
   map <- structure(list(
     id = id,
     data = data,
+    mask_water = mask_water,
     extent = extent,
     scale = scale,
     lat = g$lat,

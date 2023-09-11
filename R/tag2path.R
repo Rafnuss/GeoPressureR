@@ -24,7 +24,7 @@
 #' - `lat` Latitude,
 #' - `lon` longitude
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
 #'   tag_set_map(
@@ -114,13 +114,13 @@ tag2path <- function(tag,
 
     # Move to the closest non-water position
     # Find the index of lat-lon for all non-water position
-    mask_water_ind2 <- which(!tag$mask_water)
+    mask_water_ind2 <- which(!tag$map_pressure$mask_water)
     mask_water_ind_lat <- (mask_water_ind2 %% g$dim[1])
     mask_water_ind_lon <- (mask_water_ind2 - mask_water_ind_lat) / g$dim[1] + 1
 
     for (i in seq_len(length(lat_ind))) {
       # if following over water
-      if (tag$mask_water[lat_ind[i], lon_ind[i]]) {
+      if (tag$map_pressure$mask_water[lat_ind[i], lon_ind[i]]) {
         # Find the closest non-water
         closest_ind2 <- which.min((mask_water_ind_lat - lat_ind[i])^2 +
           (mask_water_ind_lon - lon_ind[i])^2)

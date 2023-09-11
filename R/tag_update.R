@@ -13,7 +13,7 @@
 #'
 #' @return The updated `tag` object
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
 #'   tag_set_map(extent = c(-16, 23, 0, 50), scale = 1) |>
@@ -39,11 +39,13 @@ tag_update <- function(tag,
   # Re-create the original tag before label
   tag_new <- tag_create(
     id = tag$param$id,
+    manufacturer = NULL,
+    directory = glue::glue("./data/raw-tag/{id}/"),
+    crop_start = tag$param$crop_start,
+    crop_end = tag$param$crop_end,
     pressure_file = tag$param$pressure_file,
     light_file = tag$param$light_file,
     acceleration_file = tag$param$acceleration_file,
-    crop_start = tag$param$crop_start,
-    crop_end = tag$param$crop_end,
     quiet = TRUE
   )
 
@@ -145,7 +147,8 @@ tag_update <- function(tag,
     sd = tag$param$sd,
     thr_mask = tag$param$thr_mask,
     log_linear_pooling_weight = tag$param$log_linear_pooling_weight,
-    keep_mse_mask = "map_pressure_mse" %in% names(tag),
+    keep_mask = "map_pressure_mask" %in% names(tag),
+    keep_mse = "map_pressure_mse" %in% names(tag),
     quiet = quiet
   )
 

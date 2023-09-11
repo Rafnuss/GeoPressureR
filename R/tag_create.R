@@ -97,9 +97,9 @@
 #' @export
 tag_create <- function(id,
                        manufacturer = NULL,
-                       directory = glue::glue("./data/raw-tag/{id}"),
                        crop_start = NULL,
                        crop_end = NULL,
+                       directory = glue::glue("./data/raw-tag/{id}"),
                        pressure_file = NULL,
                        light_file = NULL,
                        acceleration_file = NULL,
@@ -191,6 +191,7 @@ tag_create <- function(id,
   tag$param$manufacturer <- manufacturer
   tag$param$crop_start <- crop_start
   tag$param$crop_end <- crop_end
+  tag$param$directory <- directory
 
   return(tag)
 }

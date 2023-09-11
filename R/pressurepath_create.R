@@ -44,7 +44,7 @@
 #' `stap_id = 0` and `stap_ref` is to the stationary period of the position used from the path).
 #'
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 #'
 #' path <- data.frame(
