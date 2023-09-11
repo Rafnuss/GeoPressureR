@@ -134,7 +134,7 @@ tag_download_wind <- function(tag,
   }
 
   ecmwfr::wf_request_batch(
-    request_list,
+    request_list[stap_id],
     workers = 20,
     # user = ,
     path = directory,
