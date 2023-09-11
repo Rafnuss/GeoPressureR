@@ -244,6 +244,10 @@ geopressure_map_mismatch <- function(tag,
         w * m
       }, map[i_label], nb_sample[i_label])) / sum(nb_sample[i_label])
 
+      # Find pixel below thrashold (i.e., -1) in any of the elev and apply to the combined map of mse
+      tmp2 <- Reduce(`|`, lapply(map[i_label], function(x) x[[1]] == -1))
+      tmp[[1]][tmp2] <- -1
+
       # Convert the maps to matrix
       mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE)
       # convert MSE from Pa to hPa
