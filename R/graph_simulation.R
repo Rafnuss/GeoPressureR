@@ -59,6 +59,9 @@ graph_simulation <- function(graph,
   graph_assert(graph, "full")
 
   # Compute the matrix TO
+  if (!quiet) {
+    cli::cli_progress_step("Compute movement model")
+  }
   trans_obs <- graph_transition(graph) * graph$obs[graph$t]
 
   # number of nodes in the 3d grid
@@ -76,6 +79,9 @@ graph_simulation <- function(graph,
   map_b <- list()
 
   # Initiate map_b at the last stap with the retrieval node (b_n=1 in Nussbaumer et al. 2023)
+  if (!quiet) {
+    cli::cli_progress_step("Build backward probability vector")
+  }
   map_b[[graph$sz[3]]] <- Matrix::sparseMatrix(
     rep(1, length(graph$retrieval)),
     graph$retrieval,
@@ -105,7 +111,15 @@ graph_simulation <- function(graph,
 
   # Loop through the simulation along chronological order
   if (!quiet) {
-    cli::cli_progress_bar(total = graph$sz[3])
+    i_s <- 1
+    cli::cli_progress_bar(
+      "Simulate positions for stationary period:",
+      format = "{cli::pb_name} {i_s}/{graph$sz[3]} {cli::pb_bar} {cli::pb_percent} | \\
+      {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "Simulate positions for stationary periods [{cli::pb_elapsed}]",
+      clear = FALSE,
+      total = graph$sz[3]
+    )
   }
   for (i_s in seq(2, graph$sz[3])) {
     # find edges arriving to this stationary period
@@ -151,6 +165,10 @@ graph_simulation <- function(graph,
 
   # Convert the index of the path in a path data.frame
   path <- ind2path(path_ind2d_full, graph)
+
+  if (!quiet) {
+    cli::cli_alert_success("All done")
+  }
 
   return(path)
 }

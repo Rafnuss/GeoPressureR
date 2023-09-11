@@ -59,6 +59,9 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   n <- prod(graph$sz)
 
   # Compute the matrix TO
+  if (!quiet) {
+    cli::cli_progress_step("Compute movement model")
+  }
   trans_obs <- graph_transition(graph) * graph$obs[graph$t]
 
   # Initiate the matrix providing for each node of the graph, the source id (index of the node)
@@ -76,6 +79,9 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   )
 
   # Create a data.frame of all edges information
+  if (!quiet) {
+    cli::cli_progress_step("Create edge data.frame")
+  }
   node <- data.frame(
     s = graph$s,
     t = graph$t,
@@ -89,11 +95,20 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   n_edge <- sapply(node_stap, nrow)
 
   if (!quiet) {
-    cli::cli_progress_bar(total = sum(n_edge))
+    i_s <- 0
+    cli::cli_progress_bar(
+      "Compute most likely position for stationary period:",
+      format = "{cli::pb_name} {i_s}/{length(node_stap)} {cli::pb_bar} {cli::pb_percent} | \\
+      {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "Compute most likely position for stationary periods [{cli::pb_elapsed}]",
+      clear = FALSE,
+      total = sum(n_edge)
+    )
   }
-  i_s <- 0
 
-  for (node_i_s in node_stap) {
+  for (i_s in seq_len(length(node_stap))) {
+    node_i_s <- node_stap[[i_s]]
+
     # compute the probability of all possible transition
     node_i_s$p <- path_max[node_i_s$s] * node_i_s$to
 
@@ -107,9 +122,6 @@ graph_most_likely <- function(graph, quiet = FALSE) {
       x$s[which.max(x$p)]
     })
     path_s[max_t] <- max_s
-
-    # Update progress bar
-    i_s <- i_s + 1
 
     if (!quiet) {
       cli::cli_progress_update(set = sum(n_edge[1:i_s]), force = TRUE)
@@ -137,6 +149,10 @@ graph_most_likely <- function(graph, quiet = FALSE) {
 
   # Convert the index of the path in a path data.frame
   path <- ind2path(path_ind2d_full, graph)
+
+  if (!quiet) {
+    cli::cli_alert_success("All done")
+  }
 
   return(path)
 }
