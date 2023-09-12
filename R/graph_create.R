@@ -223,8 +223,10 @@ graph_create <- function(tag,
   f <- list()
 
   if (!quiet) {
-    cli::cli_progress_step("Computing the groundspeed for {sum(nds_expend_sum)} edges of \\
-                           {length(nds_expend_sum)} stationary periods")
+    cli::cli_progress_step(
+      "Computing the groundspeed for {prettyNum(sum(nds_expend_sum), big.mark=',')} edges of \\
+    {length(nds_expend_sum)} stationary periods"
+    )
     # msg1 <- glue::glue("0/{sum(nds_expend_sum)}")
     # msg2 <- glue::glue("0/{length(nds_expend_sum)}")
     # cli::cli_progress_step(

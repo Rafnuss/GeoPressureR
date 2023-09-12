@@ -80,7 +80,7 @@ plot.tag <- function(x, type = NULL, ...) {
   } else if (type == "twilight") {
     plot_tag_twilight(tag, ...)
   } else if (grepl("map", type)) {
-    # Define optimal color palete base on the type of variable shown
+    # Define optimal color palette based on the type of variable shown
 
     # Accept type="map" for default map determined by `tag2map` with likelihood = NA
     if (type == "map") {

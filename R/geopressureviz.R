@@ -46,7 +46,6 @@ geopressureviz <- function(x,
       }
       # Load interim
       load(file)
-      print(marginal)
       # Overwrite loaded variable with arguments if provided
       if (exists("pressurepath0")) {
         pressurepath <- pressurepath0
@@ -54,7 +53,6 @@ geopressureviz <- function(x,
       if (exists("marginal0")) {
         marginal <- marginal0
       }
-      print(marginal)
     } else {
       cli::cli_abort("The first arguement {.var x} needs to be a {.cls tag}, a {.field file} or \\
                      an {.field id}")

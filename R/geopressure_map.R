@@ -141,8 +141,7 @@
 #'
 #' tag <- geopressure_map_likelihood(tag,
 #'   sd = 1,
-#'   log_linear_pooling_weight = function(n) log(n)/n,
-#'   quiet = TRUE
+#'   log_linear_pooling_weight = function(n) log(n) / n
 #' )
 #'
 #' plot(tag, type = "map_pressure")
@@ -165,7 +164,6 @@ geopressure_map <- function(tag,
                             keep_mse = FALSE,
                             compute_known = FALSE,
                             quiet = FALSE) {
-
   # Compute mean square error maps
   tag <- geopressure_map_mismatch(tag,
     max_sample = max_sample,

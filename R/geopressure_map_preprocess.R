@@ -38,7 +38,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   }
 
   if (length(unique(diff(pressure$date))) > 1) {
-    cli::cli_warn("Pressure data is not on a regular interval.The code should still
+    cli::cli_warn("Pressure data is not on a regular interval. The code should still
     technically work, but it might be the cause of an error later.\f")
   }
 

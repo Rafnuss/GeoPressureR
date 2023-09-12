@@ -10,6 +10,7 @@ geopressure_map_likelihood <- function(tag,
 
   # Check sd
   assertthat::assert_that(is.numeric(sd))
+  sd0 <- sd
   if (length(sd) == 1) {
     sd <- rep(sd, times = nrow(tag$stap))
   } else if (length(sd) != nrow(tag$stap)) {
@@ -82,7 +83,7 @@ geopressure_map_likelihood <- function(tag,
     type = "pressure"
   )
 
-  tag$param$sd <- sd
+  tag$param$sd <- sd0
   tag$param$log_linear_pooling_weight <- log_linear_pooling_weight
   attr(tag$param$log_linear_pooling_weight, "srcref") <- NULL
 

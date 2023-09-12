@@ -132,8 +132,11 @@ dim.map <- function(x) {
   assertthat::assert_that(assertthat::are_equal(x$id, y$id))
   assertthat::assert_that(assertthat::are_equal(dim(x), dim(y)))
 
+  # Return a map similar to x
+  z <- x
+
   # Compute value
-  x$data <- mapply(\(p, l) {
+  z$data <- mapply(\(p, l) {
     if (is.null(p) && is.null(l)) {
       return(NULL)
     } else if (is.null(p)) {
@@ -146,12 +149,12 @@ dim.map <- function(x) {
   }, x$data, y$data, SIMPLIFY = FALSE)
 
   # Merge the two stap, should have the same nrow
-  x$stap <- merge(x$stap, y$stap, all = TRUE)
+  z$stap <- merge(x$stap, y$stap, all = TRUE)
 
   # Preserve order of stap
-  x$stap <- x$stap[order(x$stap$stap_id), ]
+  z$stap <- z$stap[order(z$stap$stap_id), ]
 
-  x$type <- glue::glue("{x$type} x {y$type}")
+  z$type <- glue::glue("{x$type} x {y$type}")
 
   return(x)
 }

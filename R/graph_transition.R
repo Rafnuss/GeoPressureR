@@ -25,12 +25,19 @@ graph_transition <- function(graph) {
     return(graph$transition)
   }
 
-
+  # Check that movement has been defined
   graph_assert(graph, "movement")
+
+
   if (graph$param$movement$type == "as") {
     transition <- speed2prob(graph$gs - graph$ws, graph$param$movement)
   } else if (graph$param$movement$type == "gs") {
     transition <- speed2prob(graph$gs, graph$param$movement)
+  } else {
+    cli::cli_abort(c(
+      "x" = "Movement type not correct.",
+      "i" = "{.code graph$param$movement$type} needs to be {.val as} or {.val gs}"
+    ))
   }
 
   return(transition)

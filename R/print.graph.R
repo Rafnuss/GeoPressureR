@@ -30,40 +30,45 @@
 print.graph <- function(x, ...) {
   graph <- x
 
-  cli::cli_h1("GeoPressureR `graph` object for {.field id}={.val {graph$param$id}}")
+  cli::cli_h1("GeoPressureR `graph` object for {graph$param$id}")
+  cli::cli_text("{.strong Note}: All {.field green} texts are fields of `graph` (i.e., \\
+                `graph${.field field}`).")
+
+  # Param
+  cli::cli_h3("Parameter {.field param}")
+  cli::cli_text("Run {.code graph$param} to display full table")
 
   cli::cli_h3("Stationary periods {.field stap}")
-  cli::cli_text("{.val {nrow(graph$stap)}} stationary period{?s}")
-  print(utils::head(graph$stap))
-  if (nrow(graph$stap) > 6) {
-    cli::cli_text("Run {.code graph$stap} to display full table")
+  cli::cli_text("{.val {nrow(graph$stap)}} stationary periods")
+  print(utils::head(graph$stap, n = 3))
+  if (nrow(graph$stap) > 3) {
+    cli::cli_text("...")
+    cli::cli_text("Run {.code graph$stap} to see full stap table")
   }
 
-  cli::cli_h3("Geographical parameters ({.field scale} and {.field extent})")
+  cli::cli_h3("Map")
   # nolint start
   geo <- map_expand(graph$param$extent, graph$param$scale)
-  # nolint end
   cli::cli_bullets(c(
-    "*" = "Extent W-E: {.val {graph$param$extent[1]}}\u00b0 to \\
-    {.val {graph$param$extent[2]}}\u00b0",
-    "*" = "Extent S-N: {.val {graph$param$extent[3]}}\u00b0 to \\
-    {.val {graph$param$extent[4]}}\u00b0",
-    "*" = "Dimension lat-lon: {.val {geo$dim[1]}} x {.val {geo$dim[2]}}",
-    "*" = "Resolution lat-lon: {.val {1/graph$param$scale}}\u00b0"
+    "*" = "Extent (W, E, S, N): {.val {graph$param$extent[1]}}\u00b0, \\
+        {.val {graph$param$extent[2]}}\u00b0, {.val {graph$param$extent[3]}}\u00b0, \\
+        {.val {graph$param$extent[4]}}\u00b0",
+    "*" = "Dimensions (lat x lon): {.val {geo$dim[1]}} x {.val {geo$dim[2]}} (res. \\
+          {.val {1/graph$param$scale}}\u00b0)"
   ))
+  # nolint end
 
   cli::cli_h3("Graph size")
-  geo <- map_expand(graph$param$extent, graph$param$scale)
   cli::cli_bullets(c(
-    "*" = "{.val {length(graph$equipment)}} equipement node{?s}",
-    "*" = "{.val {length(graph$retrieval)}} retrieval node{?s}",
+    "*" = "{.val {length(graph$equipment)}} {.field equipement} node{?s}",
+    "*" = "{.val {length(graph$retrieval)}} {.field retrieval} node{?s}",
     "*" = "{prettyNum(length(unique(c(graph$equipment, graph$t))), big.mark=',')} nodes",
     "*" = "{prettyNum(length(graph$s), big.mark=',')} edges"
   ))
 
   cli::cli_h3("Movement model")
   if ("ws" %in% names(graph)) {
-    cli::cli_bullets(c("v" = "Windspeed computed!"))
+    cli::cli_bullets(c("v" = "Windspeed {.field ws} computed!"))
   } else {
     cli::cli_bullets(c("!" = "Windspeed not computed. Use {.fun graph_add_wind}"))
   }
