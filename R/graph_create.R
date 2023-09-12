@@ -66,6 +66,8 @@ graph_create <- function(tag,
                          thr_likelihood = .99,
                          thr_gs = 150,
                          likelihood = NULL,
+                         geosphere_dist = geosphere::distHaversine,
+                         geosphere_bearing = geosphere::bearing,
                          quiet = FALSE) {
   if (!quiet) {
     cli::cli_progress_step("Check data input")
@@ -253,7 +255,7 @@ graph_create <- function(tag,
       t_id <- arrayInd(grt$t, sz)
 
       # compute the groundspeed for all transition
-      gs_abs <- geosphere::distGeo(
+      gs_abs <- geosphere_dist(
         cbind(g$lon[s_id[, 2]], g$lat[s_id[, 1]]),
         cbind(g$lon[t_id[, 2]], g$lat[t_id[, 1]])
       ) / 1000 / flight_duration[i_s]
@@ -269,7 +271,7 @@ graph_create <- function(tag,
       grt <- grt[id, ]
 
       # Compute the bearing of the trajectory
-      gs_bearing <- geosphere::bearingRhumb(
+      gs_bearing <- geosphere_bearing(
         cbind(g$lon[s_id[id, 2]], g$lat[s_id[id, 1]]),
         cbind(g$lon[t_id[id, 2]], g$lat[t_id[id, 1]])
       )
