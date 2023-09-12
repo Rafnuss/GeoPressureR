@@ -185,6 +185,11 @@ tag_set_map <- function(tag,
   tag$param$scale <- scale
   tag$param$extent <- extent
   tag$param$known <- known0
+  tag$param$include_stap_id <- NULL
+  if (length(include_stap_id) != length(tag$stap$stap_id) || any(include_stap_id != tag$stap$stap_id)) {
+    tag$param$include_stap_id <- include_stap_id
+  }
+  tag$param$include_min_duration <- include_min_duration
 
   return(tag)
 }
