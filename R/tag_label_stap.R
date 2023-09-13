@@ -65,11 +65,17 @@ tag_label_stap <- function(tag,
   tmp <- c(1, cumsum(diff(as.numeric(sensor$label == "flight")) == 1) + 1)
   tmp[sensor$label == "flight"] <- NA
 
+  # As we label "in flight" pressure/acceleration, the taking-off and landing happened before and
+  # after the labeling respectively. To account for this. We estimate that the bird took off between
+  # the previous and first flight label, and landed between the last flight label and next one.
+  # We use the temporal resolution to account for this.
+  dt <- median(diff(sensor$date))
+
   # construct stationary period table
   tag$stap <- data.frame(
     stap_id = unique(tmp[!is.na(tmp)]),
-    start = do.call(c, lapply(split(sensor$date, tmp), min)),
-    end = do.call("c", lapply(split(sensor$date, tmp), max))
+    start = do.call(c, lapply(split(sensor$date, tmp), min)) - dt / 2,
+    end = do.call("c", lapply(split(sensor$date, tmp), max)) + dt / 2
   )
 
   # Assign to each sensor the stationary period to which it belong to.
