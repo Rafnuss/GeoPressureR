@@ -115,12 +115,15 @@ plot_path_leaflet <- function(
       fillOpacity = 0.8,
       label = glue::glue("#{path$stap_id}, {round(stap2duration(path), 1)} days")
     )) {
+  # Remove position of stap not included/not available
   path_full <- path[!is.na(path$lat), ]
 
+  # Plot trajectory of all available point in grey
   if (nrow(path_full) < nrow(path)) {
     polyline_full <- polyline
     # polyline_full$weight <- polyline_full$weight/2
     polyline_full$opacity <- polyline_full$opacity / 2
+    polyline_full$color <- "grey"
     map <- do.call(leaflet::addPolylines, c(
       list(
         map = map,
@@ -132,6 +135,7 @@ plot_path_leaflet <- function(
     ))
   }
 
+  # Overlay with trajectory of consecutive position in black.
   map <- do.call(leaflet::addPolylines, c(
     list(
       map = map,
@@ -142,15 +146,17 @@ plot_path_leaflet <- function(
     polyline
   ))
 
-  map <- do.call(leaflet::addCircleMarkers, c(
-    list(
-      map = map,
-      lng = path_full$lon,
-      lat = path_full$lat,
-      group = path_full$j
-    ),
-    circle
-  ))
+  suppressWarnings({
+    map <- do.call(leaflet::addCircleMarkers, c(
+      list(
+        map = map,
+        lng = path$lon,
+        lat = path$lat,
+        group = path$j
+      ),
+      circle
+    ))
+  })
   # Legend
   # nolint start
   # https://stackoverflow.com/questions/58505589/circles-in-legend-for-leaflet-map-with-addcirclemarkers-in-r-without-shiny

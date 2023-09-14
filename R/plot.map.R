@@ -57,12 +57,12 @@ plot.map <- function(x,
       # Normalize
       m <- m / sum(m, na.rm = TRUE)
 
-      # Find threashold of precentile
+      # Find threshold of percentile
       ms <- sort(m)
       id_prob_percentile <- sum(cumsum(ms) < (1 - thr_likelihood))
       thr_prob <- ms[id_prob_percentile + 1]
 
-      # Set to NA all value below this threashold
+      # Set to NA all value below this threshold
       m[m < thr_prob] <- NA
     }
     return(m)
@@ -72,8 +72,6 @@ plot.map <- function(x,
   r <- rast.map(map)
 
   if (plot_leaflet) {
-    # require("terra") required to attach has.RGB which has missing dependancy
-
     grp <- glue::glue("#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - \\
                       {format(map$stap$end , format = '%d %b %H:%M')}")
 
@@ -133,27 +131,29 @@ plot.map <- function(x,
       lmap <- plot_path_leaflet(lmap, path)
 
       for (i in seq_len(nrow(path))) {
-        lmap <- leaflet::addCircleMarkers(
-          lmap,
-          lng = path$lon[i],
-          lat = path$lat[i],
-          group = grp[i],
-          radius = stap2duration(path[i, ])^(0.25) * 6,
-          stroke = TRUE,
-          color = "white",
-          weight = 2,
-          opacity = 1,
-          fill = TRUE,
-          fillColor = "black",
-          fillOpacity = 1,
-          label = glue::glue("#{path$stap_id}, {round(stap2duration(path), 1)} days")
-        )
+        if (!is.na(path$lon[i])) {
+          lmap <- leaflet::addCircleMarkers(
+            lmap,
+            lng = path$lon[i],
+            lat = path$lat[i],
+            group = grp[i],
+            radius = stap2duration(path[i, ])^(0.25) * 6,
+            stroke = TRUE,
+            color = "white",
+            weight = 2,
+            opacity = 1,
+            fill = TRUE,
+            fillColor = "black",
+            fillOpacity = 1,
+            label = glue::glue("#{path$stap_id[i]}, {round(stap2duration(path)[i], 1)} days")
+          )
+        }
       }
     }
 
     lmap <- leaflet::addLayersControl(
       lmap,
-      baseGroups = grp,
+      baseGroups = grp[map$stap$include],
       options = leaflet::layersControlOptions(collapsed = FALSE)
     )
 
