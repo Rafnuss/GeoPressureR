@@ -53,13 +53,6 @@ graph_add_wind <- function(graph,
   # Compute lat-lon coordinate of the grid
   g <- map_expand(graph$param$extent, graph$param$scale)
 
-  # Extract the index in lat, lon, stap from the source and target of all edges
-  s <- arrayInd(graph$s, graph$sz)
-  t <- arrayInd(graph$t, graph$sz)
-
-  # Prepare the matrix of speed to return
-  uv <- matrix(NA, nrow = length(graph$s), ncol = 2)
-
   # Check that all the files of wind_speed exist and match the data request
   for (i1 in seq_len(graph$sz[3] - 1)) {
     fl_s <- flight[[i1]]
@@ -112,6 +105,17 @@ graph_add_wind <- function(graph,
       }
     }
   }
+
+  if (!quiet) {
+    cli::cli_progress_step("Extract edge information")
+  }
+
+  # Extract the index in lat, lon, stap from the source and target of all edges
+  s <- arrayInd(graph$s, graph$sz)
+  t <- arrayInd(graph$t, graph$sz)
+
+  # Prepare the matrix of speed to return
+  uv <- matrix(NA, nrow = length(graph$s), ncol = 2)
 
   # Start progress bar
   if (!quiet) {
@@ -332,7 +336,6 @@ graph_add_wind <- function(graph,
       cli::cli_progress_update(set = sum(table(s[, 3])[seq(1, i1)]), force = TRUE)
     }
   }
-  cli::cli_progress_done()
 
   # save windspeed in complex notation and convert from m/s to km/h
   graph$ws <- (uv[, 1] + 1i * uv[, 2]) / 1000 * 60 * 60
