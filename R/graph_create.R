@@ -182,20 +182,22 @@ graph_create <- function(tag,
 
   # filter the pixels which are not in reach of any location of the previous and next stationary
   # period
+  # The "-1" of distmap accounts for the fact that the shortest distance between two grid cell is
+  # not the center of the cell but the side. This should only impact short flight distance/duration.
   for (i_s in seq_len(sz[3] - 1)) {
-    nds[[i_s + 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
+    nds[[i_s + 1]] <- (EBImage::distmap(!nds[[i_s]]) - 1) * resolution <
       flight_duration[i_s] * thr_gs & nds[[i_s + 1]]
     if (sum(nds[[i_s + 1]]) == 0) {
       cli::cli_abort(c(
         x = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the binary distance \\
-          edges, there are not any nodes left at stationary period {stap_model[i_s + 1]} from\\
-        stationary period {stap_model[i_s]}"
+          edges, there are not any nodes left at stationary period {.val {stap_model[i_s + 1]}} \\
+        from stationary period {.val {stap_model[i_s]}}"
       ))
     }
   }
   for (i_sr in seq_len(sz[3] - 1)) {
     i_s <- sz[3] - i_sr + 1
-    nds[[i_s - 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
+    nds[[i_s - 1]] <- (EBImage::distmap(!nds[[i_s]]) - 1) * resolution <
       flight_duration[i_s - 1] * thr_gs & nds[[i_s - 1]]
     if (sum(nds[[i_s - 1]]) == 0) {
       cli::cli_abort(c(
@@ -255,10 +257,18 @@ graph_create <- function(tag,
       t_id <- arrayInd(grt$t, sz)
 
       # compute the groundspeed for all transition
-      gs_abs <- geosphere_dist(
+      dist <- geosphere_dist(
         cbind(g$lon[s_id[, 2]], g$lat[s_id[, 1]]),
         cbind(g$lon[t_id[, 2]], g$lat[t_id[, 1]])
-      ) / 1000 / flight_duration[i_s]
+      ) / 1000 # m -> km
+
+      # The minimal distance between grid cell is not from the center of the cell, but from one edge
+      # to the other (opposite) edge. So the minimal distance between cell should be reduce by the
+      # grid resolution.
+      dist <- pmax(dist - resolution[s_id[, 1]], 0)
+
+      # Compute groundspeed
+      gs_abs <- dist / flight_duration[i_s]
 
       # filter the transition based on the groundspeed
       id <- gs_abs < thr_gs
