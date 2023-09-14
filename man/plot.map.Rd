@@ -19,7 +19,7 @@
 \arguments{
 \item{x}{a \code{\link[terra]{SpatRaster}} or a \code{RasterLayer} object--see \code{\link[raster]{raster}}}
 
-\item{thr_likelihood}{Threshold of percentile (see details).}
+\item{thr_likelihood}{threshold of percentile (see details).}
 
 \item{path}{a GeoPressureR \code{path} data.frame}
 
@@ -45,7 +45,7 @@ This function plot a GeoPressureR \code{map} object.
 You can plot on top of the \code{map} a \code{path}, this uses the \code{plot_path()} function.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   tag_set_map(

@@ -26,7 +26,7 @@ flight.}
 This function display a plot of acceleration timeseries recorded by a tag
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE)
 
 plot_tag_acceleration(tag)

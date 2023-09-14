@@ -29,7 +29,7 @@ the timeseries as POSIXlt.}
 the timeseries as POSIXlt.}
 
 \item{timeout}{Duration before the code is interrupted both for the request on
-GeoPressureAPI and GEE (in seconds, see \code{\link[httr:timeout]{httr::timeout()}}).}
+GeoPressureAPI and on GEE (in seconds, see \code{\link[httr:timeout]{httr::timeout()}}).}
 
 \item{quiet}{logical to hide messages about the progress}
 }

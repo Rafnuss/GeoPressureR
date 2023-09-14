@@ -24,6 +24,7 @@
 #' or `geosphere::bearingRhumb`. See https://rspatial.org/raster/sphere/3-direction.html#bearing
 #' for details.
 #' @param quiet logical to hide messages about the progress.
+#' @inheritParams tag2map
 #'
 #' @return Graph as a list
 #' - `id`:

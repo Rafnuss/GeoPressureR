@@ -19,7 +19,7 @@ This function writes the csv file of the labelled twilight which can be read wit
 TRAINSET \url{https://trainset.raphaelnussbaumer.com/}.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   twilight_create()

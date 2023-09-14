@@ -23,7 +23,7 @@ This function reads an exported csv file from \href{https://trainset.geocene.com
 updates the data logger dataset \code{tag}.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE)
 
 tag <- tag_label_read(tag)

@@ -26,7 +26,7 @@ This function is inspired by the function \code{classify_flap} from the
 \href{https://github.com/KiranLDA/PAMlr}{PAMlr package}.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE)
 
 tag <- tag_label_auto(tag, min_duration = 15)

@@ -8,6 +8,7 @@ tag_update(
   tag,
   file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
   known = NULL,
+  include_stap_id = NULL,
   quiet = FALSE
 )
 }
@@ -20,6 +21,10 @@ tag_update(
 site). The default is to use \code{tag$stap}, which assumes that the \code{stap_id} has not changed for the
 known stationary periods.}
 
+\item{include_stap_id}{vector of \code{stap_id} defining which stationary period to model, that is,
+to compute in the likelihood map and use in the graph. The default is to use the same original
+value.}
+
 \item{quiet}{logical to hide messages about the progress}
 }
 \value{
@@ -31,7 +36,7 @@ avoid recomputing the entire workflow, this function identifies which stationary
 been modified and updates only these ones in \code{tag$map_pressure} and \code{pressurepath}.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   tag_set_map(extent = c(-16, 23, 0, 50), scale = 1) |>

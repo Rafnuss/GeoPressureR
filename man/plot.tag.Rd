@@ -34,7 +34,7 @@ By default, \code{type} is determined in the following order of preference accor
 Refers to these functions for additional parameters and more flexibility in the plotting.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE)
 

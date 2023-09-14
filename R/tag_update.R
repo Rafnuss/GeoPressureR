@@ -9,6 +9,9 @@
 #' @param known data.frame containing the known positions of the bird (e.g., equipment or retrieval
 #' site). The default is to use `tag$stap`, which assumes that the `stap_id` has not changed for the
 #' known stationary periods.
+#' @param include_stap_id vector of `stap_id` defining which stationary period to model, that is,
+#' to compute in the likelihood map and use in the graph. The default is to use the same original
+#' value.
 #' @param quiet logical to hide messages about the progress
 #'
 #' @return The updated `tag` object

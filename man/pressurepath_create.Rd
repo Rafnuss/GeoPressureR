@@ -18,14 +18,14 @@ pressurepath_create(
 
 \item{path}{a GeoPressureR \code{path} data.frame.}
 
-\item{include_flight}{Extend request to also query the pressure and altitude during the previous
+\item{include_flight}{extend request to also query the pressure and altitude during the previous
 and/or next flight. Flights are defined by a \code{stap_id = 0}. Accept logical or vector of -1 (
 previous flight), 0 (stationary) and/or 1 (next flight). (e.g. \code{include_flight = c(-1, 1)} will
 only search for the flight before and after but not the stationary period). Note that next and
 previous flights are defined by the +/1 of the \code{stap_id} value (and not the previous/next
 \code{stap_id} value).}
 
-\item{workers}{Number of parallel requests on GEE. Between 1 and 99. \code{"auto"} adjust the number
+\item{workers}{number of parallel requests on GEE. Between 1 and 99. \code{"auto"} adjust the number
 of workers to the number of \code{stap_elev} to query.}
 
 \item{preprocess}{logical to use \code{geopressure_map_preprocess}.}
@@ -66,7 +66,7 @@ downloads the ERA5 timeseries of pressure for the corresponding location of the 
 paralleling the call of each stationary period.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 
 path <- data.frame(
