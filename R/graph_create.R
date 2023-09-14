@@ -15,10 +15,15 @@
 #' and the [GeoPressureManual](https://bit.ly/3saLVqi)
 #'
 #' @param tag a GeoPressureR `tag` object.
-#' @param thr_likelihood Threshold of percentile (see details).
-#' @param thr_gs Threshold of groundspeed (km/h)  (see details).
-#' @inheritParams tag2map
-#' @param quiet logical to hide messages about the progress
+#' @param thr_likelihood threshold of percentile (see details).
+#' @param thr_gs threshold of groundspeed (km/h)  (see details).
+#' @param geosphere_dist function to compute the distance. Usually, either
+#' `geosphere::distHaversine` (fast) or `geosphere::distGeo` (precise but slow). See
+#' https://rspatial.org/raster/sphere/2-distance.html for more options and details.
+#' @param geosphere_bearing function to compute the bearing. Either `geosphere::bearing` (default)
+#' or `geosphere::bearingRhumb`. See https://rspatial.org/raster/sphere/3-direction.html#bearing
+#' for details.
+#' @param quiet logical to hide messages about the progress.
 #'
 #' @return Graph as a list
 #' - `id`:
@@ -223,33 +228,31 @@ graph_create <- function(tag,
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
   nds_sorted_idx <- order(nds_expend_sum, decreasing = TRUE)
   nds_expend_sum <- sort(nds_expend_sum, decreasing = TRUE)
-  future::plan(future::multisession, workers = future::availableCores() / 2)
+  workers <- future::availableCores() / 2
+  if (!quiet) {
+    cli::cli_progress_step("Starting parrallel session on {workers} workers")
+  }
+  future::plan(future::multisession, workers = workers)
   f <- list()
 
   if (!quiet) {
+    i <- 0
     cli::cli_progress_step(
-      "Computing the groundspeed for {prettyNum(sum(nds_expend_sum), big.mark=',')} edges of \\
-    {length(nds_expend_sum)} stationary periods"
+      "Starting to compute the groundspeed for stationary period {i}/{length(nds_expend_sum)} \\
+      ({ round(sum(nds_expend_sum[seq_len(i)])/sum(nds_expend_sum)*100)}% of nodes)",
+      msg_done = "Compute the groundspeed"
     )
-    # msg1 <- glue::glue("0/{sum(nds_expend_sum)}")
-    # msg2 <- glue::glue("0/{length(nds_expend_sum)}")
-    # cli::cli_progress_step(
-    #  "Computing the groundspeed for {msg1} edges of {msg2} stationary periods",
-    #   spinner=TRUE )
-    # progressr::handlers(global = TRUE)
-    progressr::handlers("cli")
-    p <- progressr::progressor(sum(nds_expend_sum))
   }
   for (i in seq_len(length(nds_sorted_idx))) {
     i_s <- nds_sorted_idx[i]
-    nds_i_s <- nds[[i_s]]
-    nds_i_s_1 <- nds[[i_s + 1]]
+    nds_i_s <- which(nds[[i_s]])
+    nds_i_s_1 <- which(nds[[i_s + 1]])
     f[[i_s]] <- future::future(expr = {
       # find all the possible equipment and target based on nds and expand to all possible
       # combination
       grt <- expand.grid(
-        s = as.integer(which(nds_i_s) + (i_s - 1) * nll),
-        t = as.integer(which(nds_i_s_1) + i_s * nll)
+        s = as.integer(nds_i_s + (i_s - 1) * nll),
+        t = as.integer(nds_i_s_1 + i_s * nll)
       )
 
       # Find the index in lat, lon, stap of those equipment and target
@@ -299,24 +302,17 @@ graph_create <- function(tag,
           edges, there are not any nodes left for the stationary period: {.val {stap_model[i_s]}}"
         ))
       }
-      if (!quiet) {
-        # msg1 <- glue::glue("{sum(nds_expend_sum[seq_len(i)])}/{sum(nds_expend_sum)}")
-        # msg2 <- glue::glue("{i}/{length(nds_expend_sum)}")
-        # cli::cli_progress_update(force = TRUE)
-        p(amount = nds_expend_sum[i])
-      }
       return(grt)
     }, seed = TRUE)
+    if (!quiet) {
+      cli::cli_progress_update(force = TRUE)
+    }
   }
 
   # Retrieve the graph
   gr <- future::value(f)
 
   # Prune
-  if (!quiet) {
-    cli::cli_progress_step("Prune graph")
-  }
-
   gr <- graph_create_prune(gr, quiet = quiet)
 
   # Convert gr to a graph list
@@ -342,6 +338,10 @@ graph_create <- function(tag,
   graph$param$thr_likelihood <- thr_likelihood
   graph$param$thr_gs <- thr_gs
 
+  if (!quiet) {
+    cli::cli_progress_done()
+  }
+
   return(graph)
 }
 
@@ -362,7 +362,14 @@ graph_create_prune <- function(gr, quiet = FALSE) {
   }
 
   if (!quiet) {
-    cli::cli_progress_bar(total = (length(gr) - 1) * 2, type = "task")
+    cli::cli_progress_bar(
+      "Prune the graph:",
+      format = "{cli::pb_name} {i_s}/{(length(gr) - 1) * 2} {cli::pb_bar} {cli::pb_percent} | \\
+      {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "Prune the graph [{cli::pb_elapsed}]",
+      clear = FALSE,
+      total = (length(gr) - 1) * 2
+    )
   }
 
   # First, trim the graph from equipment to retrieval
@@ -378,8 +385,7 @@ graph_create_prune <- function(gr, quiet = FALSE) {
 
     if (nrow(gr[[i_s]]) == 0) {
       cli::cli_abort(c(
-        x =
-          "Triming the graph killed it at stationary period {.val {i_s}} moving forward."
+        "x" = "Triming the graph killed it at stationary period {.val {i_s}} moving forward."
       ))
     }
     if (!quiet) {
@@ -397,8 +403,7 @@ graph_create_prune <- function(gr, quiet = FALSE) {
 
     if (nrow(gr[[i_s]]) == 0) {
       cli::cli_abort(c(
-        x =
-          "Triming the graph killed it at stationary period {.val {i_s}} moving backward"
+        "x" = "Triming the graph killed it at stationary period {.val {i_s}} moving backward"
       ))
     }
     if (!quiet) {

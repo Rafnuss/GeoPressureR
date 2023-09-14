@@ -112,7 +112,6 @@ graph_add_wind <- function(graph,
       }
     }
   }
-  cli::cli_progress_done()
 
   # Start progress bar
   if (!quiet) {

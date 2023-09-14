@@ -8,7 +8,7 @@
 #'
 #' @param stap_path A `stap` data.frame.
 #' @param units character string. Units in which the results are desired. Can be abbreviated.
-#' See [`difftime`]
+#' See `difftime()`
 #' @param return_numeric logical to return the duration as a numeric rather than with a duration
 #' format.
 #'
