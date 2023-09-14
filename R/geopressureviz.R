@@ -1,20 +1,25 @@
 #' Start the GeoPressureViz shiny app
 #'
 #' GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
-#' as well as each step-by-step move. This app is particularly useful to check the correspondance
+#' as well as each step-by-step move. This app is particularly useful to check the correspondence
 #' between pressure map, light map and flight distance. You can edit the path and query pressure
 #' timeserie for individual stationary period to test manual what seems the optimal path.
 #'
-#' You can retrieved the edited path from the global envirenmental variable `geopressureviz_path`.
+#' GeoPressureViz can be started based on a `.Rdata` file containing at least `tag`, but also
+#' optionally `marginal` and/or `path` (`path_most_likely` is also accepted).
+#'
+#' You can retrieved the edited path from the global environment variable `geopressureviz_path`.
 #'
 #' Learn more about GeoPressureViz in the [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
 #' this [demo of the Great Reed Warbler (18LX)](https://rafnuss.shinyapps.io/GeoPressureViz/).
 #'
 #'
-#' @param x a GeoPressureR `tag` object or an unique identifier `id`.
-#' @param pressurepath a GeoPressureR `pressurepath` data.frame.
-#' @param marginal map of the marginal probability computed with `graph_marginal()`.
+#' @param x a GeoPressureR `tag` object, a `.Rdata` file or the
+#' unique identifier `id` with a `.Rdata` file located in `"./data/interim/{id}.RData"`.
+#' @param path a GeoPressureR `path` or `pressurepath` data.frame.
+#' @param marginal map of the marginal probability computed with `graph_marginal()`. Overwrite the
+#' `path` or `pressurepath` contained in the `.Rdata` file.
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
 #' Rstudio.
 #' @return The updated path visualized in the app. Can also be retrieved with
@@ -24,7 +29,7 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
 #' @export
 geopressureviz <- function(x,
-                           pressurepath = NULL,
+                           path = NULL,
                            marginal = NULL,
                            launch_browser = TRUE) {
   if (!inherits(x, "tag")) {
@@ -38,17 +43,21 @@ geopressureviz <- function(x,
 
     if (is.character(file) && file.exists(file)) {
       # Make of copy of the arguement so that they don't get overwritten
-      if (!is.null(pressurepath)) {
-        pressurepath0 <- pressurepath
+      if (!is.null(path)) {
+        path0 <- path
       }
       if (!is.null(marginal)) {
         marginal0 <- marginal
       }
-      # Load interim
+      # Load interim data
       load(file)
+      # Accept path_most_likely instead of path
+      if (exists("path_most_likely")){
+        path <- path_most_likely
+      }
       # Overwrite loaded variable with arguments if provided
-      if (exists("pressurepath0")) {
-        pressurepath <- pressurepath0
+      if (exists("path0")) {
+        path <- path0
       }
       if (exists("marginal0")) {
         marginal <- marginal0
@@ -99,16 +108,13 @@ geopressureviz <- function(x,
 
 
   # Get the pressure timeserie
-  if (is.null(pressurepath)) {
+  if (is.null(path)) {
+    # path is not defined
     pressurepath <- data.frame()
-
-    if (exists("path_most_likely")) {
-      path <- path_most_likely
-    } else {
-      # Set the initial path with tag2path
-      path <- tag2path(tag)
-    }
-  } else {
+    path <- tag2path(tag)
+  } else if ("pressure_tag" %in% names(path)){
+    # If path is a pressurepath
+    pressurepath <- path
     path <- merge(tag$stap, unique(pressurepath[, c("stap_id", "lat", "lon")]), all = TRUE)
     pressurepath$linetype <- as.factor(1)
     pressurepath <- merge(
@@ -116,6 +122,9 @@ geopressureviz <- function(x,
       stap[, names(stap) %in% c("stap_id", "col")],
       by = "stap_id"
     )
+  } else {
+    # path is a path
+    pressurepath <- data.frame()
   }
 
   # nolint start
@@ -131,7 +140,7 @@ geopressureviz <- function(x,
   # delete variable when removed
   # on.exit(
   #   rm(
-  #     list = c(".tag_id",".stap", ".pressure", ".maps", ".extent", ".ts0", ".path0"),
+  #     list = c(".tag_id",".stap", ".pressure", ".maps", ".extent", ".pressurepath", ".path0"),
   #     envir = .GlobalEnv
   #  )
   # )
