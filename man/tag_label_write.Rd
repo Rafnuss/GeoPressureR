@@ -23,7 +23,7 @@ Optionally, it can also export a reference dataset for pressure \code{tag$pressu
 series to be visualized on TRAINSET, but without impacting the labelling process.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE)
 
 # Writing unlabeled tag will initialize the labelling for trainset

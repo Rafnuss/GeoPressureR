@@ -31,12 +31,12 @@
 #' @seealso [GeoPressureManual](
 #' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
-graph_add_wind <- function(
-    graph,
-    pressure,
-    thr_as = Inf,
-    file = \(stap_id) glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
-    quiet = FALSE) {
+graph_add_wind <- function(graph,
+                           pressure,
+                           thr_as = Inf,
+                           file = \(stap_id)
+                           glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
+                           quiet = FALSE) {
   graph_assert(graph, "full")
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value")))
@@ -52,13 +52,6 @@ graph_add_wind <- function(
 
   # Compute lat-lon coordinate of the grid
   g <- map_expand(graph$param$extent, graph$param$scale)
-
-  # Extract the index in lat, lon, stap from the source and target of all edges
-  s <- arrayInd(graph$s, graph$sz)
-  t <- arrayInd(graph$t, graph$sz)
-
-  # Prepare the matrix of speed to return
-  uv <- matrix(NA, nrow = length(graph$s), ncol = 2)
 
   # Check that all the files of wind_speed exist and match the data request
   for (i1 in seq_len(graph$sz[3] - 1)) {
@@ -113,9 +106,28 @@ graph_add_wind <- function(
     }
   }
 
+  if (!quiet) {
+    cli::cli_progress_step("Extract edge information")
+  }
+
+  # Extract the index in lat, lon, stap from the source and target of all edges
+  s <- arrayInd(graph$s, graph$sz)
+  t <- arrayInd(graph$t, graph$sz)
+
+  # Prepare the matrix of speed to return
+  uv <- matrix(NA, nrow = length(graph$s), ncol = 2)
+
   # Start progress bar
   if (!quiet) {
-    cli::cli_progress_bar(0, total = sum(table(s[, 3])))
+    i1 <- 0
+    cli::cli_progress_bar(
+      "Compute wind speed for edges of stationary period:",
+      format = "{cli::pb_name} {i1}/{graph$sz[3] - 1} {cli::pb_bar} {cli::pb_percent} | \\
+      {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "Compute wind speed for edges of stationary periods [{cli::pb_elapsed}]",
+      clear = FALSE,
+      total = sum(table(s[, 3]))
+    )
   }
 
   # Loop through the stationary period kept in the graph
@@ -185,7 +197,8 @@ graph_add_wind <- function(
       # on `t_q`. Extrapolation outside (before the bird departure or after he arrived) is with a
       # nearest neighbor.
 
-      dt <- fl_s_dur[i2] # old code not tested replacent as.numeric(difftime(fl_s$end[i2], fl_s$start[i2], units = "hours"))
+      dt <- fl_s_dur[i2] # old code not tested replacement as.numeric(difftime(fl_s$end[i2],
+      # fl_s$start[i2], units = "hours"))
       dlat <- (lat_e - lat_s) / dt
       dlon <- (lon_e - lon_s) / dt
       w <- pmax(pmin(as.numeric(
@@ -314,15 +327,15 @@ graph_add_wind <- function(
       # Compute the average wind component of the flight accounting for the weighting scheme
       u_stap[i2, ] <- colSums(u_int * w)
       v_stap[i2, ] <- colSums(v_int * w)
-
-      if (!quiet) {
-        cli::cli_progress_update(set = sum(table(s[, 3])[seq(1, i1)]))
-      }
     }
     # Compute the average  over all the flight of the transition accounting for the duration of the
     # flight.
     uv[st_id, 1] <- colSums(u_stap * fl_s_dur / sum(fl_s_dur))
     uv[st_id, 2] <- colSums(v_stap * fl_s_dur / sum(fl_s_dur))
+
+    if (!quiet) {
+      cli::cli_progress_update(set = sum(table(s[, 3])[seq(1, i1)]), force = TRUE)
+    }
   }
 
   # save windspeed in complex notation and convert from m/s to km/h

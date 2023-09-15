@@ -4,10 +4,12 @@
 \alias{graph_marginal}
 \title{Compute marginal probability map}
 \usage{
-graph_marginal(graph)
+graph_marginal(graph, quiet = FALSE)
 }
 \arguments{
 \item{graph}{a GeoPressureR \code{graph} with defined movement model \code{graph_set_movement()}.}
+
+\item{quiet}{logical to hide messages about the progress.}
 }
 \value{
 A list of the marginal maps for each stationary period (even those not modelled). Best to
@@ -19,7 +21,7 @@ details, see \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-
 and the \href{https://bit.ly/3sd20vC}{GeoPressureManual}.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   twilight_create() |>

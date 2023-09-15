@@ -6,11 +6,11 @@
 #'
 #' This functions is used by `geopressure_map` and `graph_marginal`.
 #
-#' @param data List of matrices of the same size, one for each stationary period.
+#' @param data list of matrices of the same size, one for each stationary period.
 #' @inheritParams tag_set_map
-#' @param stap A data.frame of stationary periods.
+#' @param stap a data.frame of stationary periods.
 #' @inheritParams tag_create
-#' @param type Type of data one of `"unknown"`,`"pressure"`, `"light"`, `"pressure_mse"`,
+#' @param type type of data one of `"unknown"`,`"pressure"`, `"light"`, `"pressure_mse"`,
 #' `"water_mask"`, `"pressure_mask"`, `"marginal"`. Allows for custom color palette on plot.
 #'
 #' @return A GeoPressure `map` object is returned
@@ -46,7 +46,12 @@
 #'
 #' @family map
 #' @export
-map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
+map_create <- function(data,
+                       extent,
+                       scale,
+                       stap,
+                       id = NA,
+                       type = "unknown") {
   g <- map_expand(extent, scale)
 
   assertthat::assert_that(is.list(data))
@@ -68,9 +73,19 @@ map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
     "pressure_mask", "marginal"
   ))
 
+  # Define the mask of water
+  tmp <- data[[which(!sapply(data, is.null))[1]]]
+  mask_water <- tmp < -1.5 | is.na(tmp)
+
+  # Replace negative value (-1|not computed or -2|water) by NA
+  for (istap in which(!sapply(data, is.null))) {
+    data[[istap]][data[[istap]] < 0] <- NA
+  }
+
   map <- structure(list(
     id = id,
     data = data,
+    mask_water = mask_water,
     extent = extent,
     scale = scale,
     lat = g$lat,
@@ -117,8 +132,11 @@ dim.map <- function(x) {
   assertthat::assert_that(assertthat::are_equal(x$id, y$id))
   assertthat::assert_that(assertthat::are_equal(dim(x), dim(y)))
 
+  # Return a map similar to x
+  z <- x
+
   # Compute value
-  x$data <- mapply(\(p, l) {
+  z$data <- mapply(\(p, l) {
     if (is.null(p) && is.null(l)) {
       return(NULL)
     } else if (is.null(p)) {
@@ -131,12 +149,12 @@ dim.map <- function(x) {
   }, x$data, y$data, SIMPLIFY = FALSE)
 
   # Merge the two stap, should have the same nrow
-  x$stap <- merge(x$stap, y$stap, all = TRUE)
+  z$stap <- merge(x$stap, y$stap, all = TRUE)
 
   # Preserve order of stap
-  x$stap <- x$stap[order(x$stap$stap_id), ]
+  z$stap <- z$stap[order(z$stap$stap_id), ]
 
-  x$type <- glue::glue("{x$type} x {y$type}")
+  z$type <- glue::glue("{x$type} x {y$type}")
 
   return(x)
 }

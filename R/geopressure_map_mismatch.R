@@ -1,50 +1,11 @@
-#' Request and download mismatch maps from pressure data
-#'
-#' This function returns, for each stationary period, two maps of mismatch between the pressure
-#' measured by the geolocator and the ERA5 pressure database.
-#'
-#' These maps are generated on Google Earth Engine via the map entry point of the
-#' [GeoPressure API](https://raphaelnussbaumer.com/GeoPressureAPI/#description). The computation
-#' performed by this function consists of the following:
-#' 1. Send a request to generate the Google Earth Engine (GEE) URL of the code producing the maps
-#' for each stationary period separately.
-#' 2. Download and read these geotiff maps as matrix. The computation on GEE only happens in this
-#' second step when fetching the URL.
-#'
-#' The maps of each stationary period are returned in two layers:
-#' 1. The Mean Square Error (MSE) between the data logger pressure timeseries and the reanalysis.
-#' The mean error is removed because we assume no specific altitude of the geolocator, thus
-#' allowing an altitudinal shift of the pressure timeseries.
-#' 2. The mask of the proportion of pressure measurements corresponding to altitude values
-#' found within the min and max ground elevation at each location. The altitude value
-#' of the geolocator pressure timeseries is computed with the barometric formula accounting for the
-#' temporal variation of pressure (surface-pressure) and temperature (2m-temperature) based on
-#' ERA5 data. The min and max ground elevation of each pixel is computed from SRTM-90.
-#'
-#' For each stationary period, the pressure measurements are smoothed and downscaled to a 1-hour
-#' resolution in order to match ERA-5 resolution.
-#'
-#' It is possible to indicate different elevation levels when the bird was spending time at
-#' locations with different elevations within a general area (~10km), and thus within the same
-#' stationary period. This can be done by using `tag$label="elev_n"`for all measurements of the same
-#' elevation level *n*.
-#'
-#' For more background and details on this algorithm, please refer to Nussbaumer et al. ([2023a
-#' ]( https://doi.org/10.1111/2041-210X.14043)) and the [GeoPressure API documentation
-#' ](https://raphaelnussbaumer.com/GeoPressureAPI/).
-#'
-#' @inheritParams geopressure_map
-#' @param debug logical to display additional information to debug a request
-#' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-#' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
-#' 1118–1129 <https://doi.org/10.1111/2041-210X.14043>.}
 #' @family geopressure_map
-#' @seealso [GeoPressureManual](https://bit.ly/3sfQjV6), [GeoPressure API
-#' ](https://raphaelnussbaumer.com/GeoPressureAPI/).
+#' @rdname geopressure_map
 #' @export
 geopressure_map_mismatch <- function(tag,
                                      max_sample = 250,
                                      margin = 30,
+                                     keep_mask = TRUE,
+                                     thr_mask = 0.9,
                                      timeout = 60 * 5,
                                      workers = "auto",
                                      compute_known = FALSE,
@@ -58,6 +19,9 @@ geopressure_map_mismatch <- function(tag,
   assertthat::assert_that(0 < max_sample)
   assertthat::assert_that(is.numeric(margin))
   assertthat::assert_that(0 < margin)
+  assertthat::assert_that(is.logical(keep_mask))
+  assertthat::assert_that(is.numeric(thr_mask))
+  assertthat::assert_that(thr_mask >= 0 & thr_mask <= 1)
   assertthat::assert_that(is.numeric(timeout))
   assertthat::assert_that(is.numeric(workers) | workers == "auto")
 
@@ -67,22 +31,24 @@ geopressure_map_mismatch <- function(tag,
   # Prepare data
   pres <- geopressure_map_preprocess(tag, compute_known = compute_known)
 
-  body_df <- list(
-    time = jsonlite::toJSON(as.numeric(as.POSIXct(pres$date))),
-    label = jsonlite::toJSON(pres$stapelev),
-    pressure = jsonlite::toJSON(round(pres$value * 100)), # convert from hPa to Pa
+  body <- list(
+    time = as.numeric(as.POSIXct(pres$date)),
+    label = pres$stapelev,
+    pressure = round(pres$value * 100), # convert from hPa to Pa
     W = tag$param$extent[1],
     E = tag$param$extent[2],
     S = tag$param$extent[3],
     N = tag$param$extent[4],
     scale = tag$param$scale,
     max_sample = max_sample,
-    margin = margin
+    margin = margin,
+    includeMask = keep_mask,
+    maskThreshold = thr_mask
   )
 
   if (debug) {
     temp_file <- tempfile("log_geopressure_map_mismatch_", fileext = ".json")
-    write(jsonlite::toJSON(body_df), temp_file)
+    write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
     cli::cli_text("Body request file: {.file {temp_file}}")
   }
 
@@ -91,9 +57,9 @@ geopressure_map_mismatch <- function(tag,
     cli::cli_progress_step("Generate requests for {.val {length(unique(pres$stapelev))}} stapelev \\
                            (on GeoPressureAPI): {.field {unique(pres$stapelev)}}")
   }
-  res <- httr::POST("https://glp.mgravey.com/GeoPressure/v1/map/",
-    body = body_df,
-    encode = "form",
+  res <- httr::POST("https://glp.mgravey.com/GeoPressure/v2/map/",
+    body = body,
+    encode = "json",
     httr::timeout(timeout),
     httr::config(
       verbose = debug # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
@@ -101,19 +67,38 @@ geopressure_map_mismatch <- function(tag,
   )
 
   if (httr::http_error(res)) {
-    # message(httr::content(res))
     temp_file <- tempfile("log_geopressure_map_mismatch_", fileext = ".json")
-    write(jsonlite::toJSON(body_df), temp_file)
-    github_link <- glue::glue(
-      "https://github.com/Rafnuss/GeoPressureAPI/issues/new?title=crash\\%20geopressure_map%20\\
+    write(jsonlite::toJSON(body), temp_file)
+    # nolint start
+    if (httr::status_code(res) == 400 || httr::status_code(res) == 400) {
+      # message(httr::content(res))
+      github_link <- glue::glue(
+        "https://github.com/Rafnuss/GeoPressureAPI/issues/new?title=crash\\%20geopressure_map%20\\
       task_id:{httr::content(res)$taskID}&labels=crash"
-    )
-    cli::cli_abort(c(
-      "x" = "Error with your request on {.url https://glp.mgravey.com/GeoPressure/v1/map/}.",
-      ">" = httr::content(res)$errorMesage,
-      "i" = "Please try again, and if the problem persists, file an issue on Github: \\
-        {.url {github_link}} with the request body file located on your computer: {.file {temp_file}}"
-    ))
+      )
+      cli::cli_abort(c(
+        "x" = "Error (Status code {.val {httr::status_code(res)}}) with your request on \\
+        {.url https://glp.mgravey.com/GeoPressure/v2/map/}.",
+        ">" = httr::content(res)$errorMessage,
+        "i" = "Please try again, and if the problem persists, file an issue on Github: \\
+        {.url {github_link}} with the request body file located on your computer: \\
+        {.file {temp_file}}"
+      ))
+    } else {
+      github_link <- glue::glue(
+        "https://github.com/Rafnuss/GeoPressureAPI/issues/new?title=crash\\%20geopressure_map%20\\
+      &labels=crash"
+      )
+      print(res)
+      cli::cli_abort(c(
+        "x" = "Error (Status code {.val {httr::status_code(res)}}) with your request on \\
+        {.url https://glp.mgravey.com/GeoPressure/v2/map/}.",
+        "i" = "Please try again, and if the problem persists, file an issue on Github: \\
+        {.url {github_link}} with the request body file located on your computer: \\
+        {.file {temp_file}}"
+      ))
+    }
+    # nolint end
   }
 
   # Get urls
@@ -155,81 +140,80 @@ geopressure_map_mismatch <- function(tag,
   }
   future::plan(future::multisession, workers = workers)
 
-  f <- c()
+  f <- vector("list", length(urls))
 
   if (!quiet) {
     # nolint start
-    msg <- glue::glue(" | 0/{length(urls)}")
+    i_u <- 1
     cli::cli_progress_step(
-      "Sending requests for {.val {length(urls)}} stapelev: {msg}",
+      msg = "Send requests for {.val {length(urls)}} stapelev (in parallel): {.val {labels[i_u]}} | {i_u}/{length(urls)}",
+      msg_done = "Send requests for {.val {length(urls)}} stapelev (in parallel)",
       spinner = TRUE
     )
     # nolint end
   }
   for (i_u in seq_len(length(urls))) {
     if (!quiet) {
-      msg <- glue::glue("{labels[i_u]} | {i_u}/{length(urls)}")
       cli::cli_progress_update(force = TRUE)
     }
     f[[i_u]] <- future::future(expr = {
-      file <- tempfile()
+      file <- tempfile(fileext = ".geotiff")
       res <- httr::GET(
         urls[i_u],
         httr::write_disk(file),
         httr::timeout(timeout),
         httr::config(
-          verbose = debug # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
+          verbose = debug
+          # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
         )
-        # httr::timeout(timeout)
         # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
       )
       if (httr::http_error(res)) {
-        httr::warn_for_status(res, task = "download GEE data")
-        cat(readChar(file, 1e5))
+        return(res)
+      } else {
+        return(file)
       }
-      return(file)
     }, seed = TRUE)
   }
 
   # Get maps
-  file <- c()
-  map <- c()
+  map <- vector("list", length(urls))
   if (!quiet) {
     # nolint start
-    msg2 <- glue::glue("0/{length(urls)}")
+    i_u <- 1
     cli::cli_progress_step(
-      "Compute maps (on GEE server) and download .geotiff: {msg2}",
+      msg = "Compute the map (on GEE server) and download .geotiff: {.val {labels[i_u]}} | {i_u}/{length(urls)}",
+      msg_done = "Compute the map (on GEE server) and download .geotiff",
       spinner = TRUE
     )
     # nolint end
   }
-  tryCatch(
-    expr = {
-      for (i_u in seq_len(length(urls))) {
-        if (!quiet) {
-          msg2 <- glue::glue("{i_u}/{length(urls)}")
-          cli::cli_progress_update(force = TRUE)
-        }
-        file[i_u] <- future::value(f[[i_u]])
-        map[[i_u]] <- terra::rast(file[i_u])
-        names(map[[i_u]]) <- c("map_pressure_mse", "map_pressure_mask")
-      }
-    },
-    error = function(cond) {
-      cli::cli_warn(c("x" = "There was an error during the downloading and reading of the file. \\
-      The original error is displayed below.\f"))
-      message(cond)
-      return(list(
-        urls = urls,
-        file = file,
-        map = map,
-        future = f
-      ))
+  for (i_u in seq_len(length(urls))) {
+    if (!quiet) {
+      cli::cli_progress_update(force = TRUE)
     }
-  )
+    file <- future::value(f[[i_u]])
+    if (inherits(file, "response")) {
+      cli::cli_warn(c(
+        "x" = "There was an error for stap {.val {labels[i_u]}} during the downloading and \\
+        reading of the response url {.url {urls[i_u]}}. It returned a status code \\
+        {.val {httr::status_code(res)}}. The original error is displayed below."
+      ))
+      cat(httr::content(res))
+    } else {
+      if (debug) {
+        print(file)
+      }
+      map[[i_u]] <- terra::rast(file)
+      names(map[[i_u]][[1]]) <- "map_pressure_mse"
+      if (keep_mask) {
+        names(map[[i_u]][[2]]) <- "map_pressure_mask"
+      }
+    }
+  }
 
   if (!quiet) {
-    cli::cli_progress_step("Process maps")
+    cli::cli_progress_step("Post-process maps")
   }
 
   # Find the stap of each urls from labels (same order)
@@ -242,7 +226,9 @@ geopressure_map_mismatch <- function(tag,
 
   # Initialize the return list from tag$stap to make sure all stap are present
   mse <- vector("list", nrow(tag$stap))
-  mask <- vector("list", nrow(tag$stap))
+  if (keep_mask) {
+    mask <- vector("list", nrow(tag$stap))
+  }
   tag$stap$nb_sample <- 0
 
   for (i_stap in unique(labels_stap)) {
@@ -252,26 +238,30 @@ geopressure_map_mismatch <- function(tag,
     # compute the total number of sample for that stap.
     tag$stap$nb_sample[i_stap] <- sum(nb_sample[i_label])
 
-    # Compute the average of the mse and mask map weighted by the number of sample
-    tmp <- Reduce(`+`, mapply(function(m, w) {
-      w * m
-    }, map[i_label], nb_sample[i_label])) / sum(nb_sample[i_label])
+    # Only if the map was correctly computed and returned
+    if (!is.null(map[i_label])) {
+      # When elev is present, use an average of the mse and mask maps weighted by the number of
+      # sample
+      tmp <- Reduce(`+`, mapply(function(m, w) {
+        w * m
+      }, map[i_label], nb_sample[i_label])) / sum(nb_sample[i_label])
 
-    # Extract the two map
-    # convert MSE from Pa to hPa
-    mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE) / 100 / 100
-    mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
+      # Find pixel below threshold (i.e., -1) in any of the elev and apply to the combined map of
+      # mse
+      tmp2 <- Reduce(`|`, lapply(map[i_label], function(x) x[[1]] == -1))
+      tmp[[1]][tmp2] <- -1
+
+      # Convert the maps to matrix
+      mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE)
+      # convert MSE from Pa to hPa
+      mse[[i_stap]][mse[[i_stap]] > 0] <- mse[[i_stap]][mse[[i_stap]] > 0] / 100 / 100
+      if (keep_mask) {
+        mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
+      }
+    }
   }
 
   # Add attribute
-  tag$map_pressure_mask <- map_create(
-    data = mask,
-    extent = tag$param$extent,
-    scale = tag$param$scale,
-    stap = tag$stap,
-    id = tag$param$id,
-    type = "pressure_mask"
-  )
   tag$map_pressure_mse <- map_create(
     data = mse,
     extent = tag$param$extent,
@@ -281,9 +271,21 @@ geopressure_map_mismatch <- function(tag,
     type = "pressure_mse"
   )
 
+  if (keep_mask) {
+    tag$map_pressure_mask <- map_create(
+      data = mask,
+      extent = tag$param$extent,
+      scale = tag$param$scale,
+      stap = tag$stap,
+      id = tag$param$id,
+      type = "pressure_mask"
+    )
+  }
+
   # keep parameters used
   tag$param$max_sample <- max_sample
   tag$param$margin <- margin
+  tag$param$thr_mask <- thr_mask
 
   # return the pressure_mismatch in the same order than requested
   return(tag)

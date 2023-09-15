@@ -10,7 +10,7 @@ stap2duration(stap_path, units = "days", return_numeric = TRUE)
 \item{stap_path}{A \code{stap} data.frame.}
 
 \item{units}{character string. Units in which the results are desired. Can be abbreviated.
-See \code{\link{difftime}}}
+See \code{difftime()}}
 
 \item{return_numeric}{logical to return the duration as a numeric rather than with a duration
 format.}

@@ -37,7 +37,7 @@ duration will be considered.
 The function also adds the corresponding \code{stap_id} column to each sensor data.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label_read()
 

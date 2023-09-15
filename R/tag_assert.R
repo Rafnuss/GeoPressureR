@@ -5,13 +5,13 @@
 #' @param tag a GeoPressureR `tag` object.
 #' @param condition condition to assert `tag` for. One of `"tag"` (default), `"pressure"`,
 #' `"light"`, `"acceleration"`, `"label"`, `"stap"`, `"setmap"`, `"map_pressure"`, `"map_light"`
-#' `"map_pressure_mismatch"` and `"twilight"`
+#' `"map_pressure_mse"` and `"twilight"`
 #' @param type Message type to display. One of `"abort"` (default), `"warn"` or `"inform"`
 #'
 #' @return logical indicating the `tag` object has the relevant element
 #'
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 #'
 #' tag_assert(tag)
@@ -61,7 +61,7 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
       "x" = "The pressure likelihood map has not yet been computed for {.var field}.",
       ">" = "Use {.fun geopressure_map} to compute the maps."
     )
-  } else if (condition == "map_pressure_mismatch") {
+  } else if (condition == "map_pressure_mse") {
     msg <- c(
       "x" = "The pressure mean square error map has not yet been computed for {.var field}.",
       ">" = "Use {.fun geopressure_map_mismatch} to compute the maps."
@@ -123,8 +123,8 @@ tag_status <- function(tag) {
   if (assertthat::has_name(tag, "map_pressure")) {
     status <- append(status, "map_pressure")
   }
-  if (assertthat::has_name(tag, c("map_pressure_mse", "map_pressure_mask"))) {
-    status <- append(status, "map_pressure_mismatch")
+  if (assertthat::has_name(tag, "map_pressure_mse")) {
+    status <- append(status, "map_pressure_mse")
   }
   if (assertthat::has_name(tag, "twilight")) {
     status <- append(status, "twilight")

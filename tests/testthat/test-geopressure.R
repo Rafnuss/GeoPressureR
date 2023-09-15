@@ -5,7 +5,7 @@ library(GeoPressureR)
 options(cli.default_handler = function(...) { })
 
 # Set working directory
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 
 # Small synthetic case
 pressure <- data.frame(
@@ -39,6 +39,7 @@ tag <- structure(list(
 tag <- tag_set_map(tag, extent, scale = scale)
 
 tag <- geopressure_map_mismatch(tag)
+
 
 test_that("geopressure_map_mismatch() | default output", {
   expect_type(tag, "list")
@@ -100,7 +101,6 @@ test_that("geopressure_map_likelihood() | default output", {
   expect_equal(length(dim(tag$map_pressure[[1]])), 2)
 
   expect_error(geopressure_map_likelihood(tag, s = "not_a_number"))
-  expect_error(geopressure_map_likelihood(tag, thr = "not_a_number"))
   expect_error(geopressure_map_likelihood(tag, log_linear_pooling_weight = "not_a_function"))
 })
 
@@ -108,9 +108,8 @@ test_that("geopressure_map_likelihood() | default output", {
 test_that("geopressure_map() | default output", {
   tag <- tag_set_map(tag, extent, scale)
   expect_no_error(tag <- geopressure_map(tag))
-  expect_true(assertthat::has_name(tag, c("stap", "map_pressure", "param", "mask_water")))
+  expect_true(assertthat::has_name(tag, c("stap", "map_pressure", "param")))
   expect_true(assertthat::has_name(tag$map_pressure, c(
-    "id", "stap", "data", "extent", "scale",
-    "lat", "lon", "type"
+    "id", "stap", "data", "extent", "scale", "lat", "lon", "type", "mask_water"
   )))
 })

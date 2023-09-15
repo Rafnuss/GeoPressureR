@@ -55,7 +55,7 @@
 #' - `acceleration` (optional) same structure as pressure
 #'
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #'
 #' # Read all sensor file
 #' tag <- tag_create("18LX")
@@ -97,9 +97,9 @@
 #' @export
 tag_create <- function(id,
                        manufacturer = NULL,
-                       directory = glue::glue("./data/raw-tag/{id}/"),
                        crop_start = NULL,
                        crop_end = NULL,
+                       directory = glue::glue("./data/raw-tag/{id}"),
                        pressure_file = NULL,
                        light_file = NULL,
                        acceleration_file = NULL,
@@ -112,7 +112,6 @@ tag_create <- function(id,
       manufacturer <- "manual"
     } else {
       assertthat::assert_that(assertthat::is.dir(directory))
-      ext <- tools::file_ext(list.files(directory))
       if (any(grepl("\\.pressure$", list.files(directory)))) {
         manufacturer <- "soi"
       } else if (any(grepl("\\.deg$", list.files(directory)))) {
@@ -179,28 +178,19 @@ tag_create <- function(id,
   }
 
   ## Crop date
-  tag$pressure <- tag_create_crop(tag$pressure, crop_start = crop_start, crop_end = crop_end)
+  tag <- tag_create_crop(tag, crop_start = crop_start, crop_end = crop_end)
   if (nrow(tag$pressure) == 0) {
     cli::cli_abort(c(
       "!" = "Empty {.field pressure} sensor dataset from {.file {pressure_path}}",
       ">" = "Check crop date."
     ))
   }
-  tag$light <- tag_create_crop(tag$light,
-    crop_start = crop_start,
-    crop_end = crop_end
-  )
-  tag$acceleration <- tag_create_crop(tag$acceleration,
-    crop_start = crop_start,
-    crop_end = crop_end
-  )
-
-
 
   # Add parameter information
   tag$param$manufacturer <- manufacturer
   tag$param$crop_start <- crop_start
   tag$param$crop_end <- crop_end
+  tag$param$directory <- directory
 
   return(tag)
 }
@@ -362,8 +352,10 @@ tag_create_lund <- function(tag,
   # Read light
   acc_light_path <- tag_create_detect(acceleration_light_file, directory)
   if (!is.null(acc_light_path)) {
-    xls <- readxl::read_excel(acc_light_path, sheet = "Light", skip = 1,
-                              .name_repair = "unique_quiet")
+    xls <- readxl::read_excel(acc_light_path,
+      sheet = "Light", skip = 1,
+      .name_repair = "unique_quiet"
+    )
     tag$light <- data.frame(
       date = as.POSIXct(xls$`Date`, tz = "UTC"),
       value = xls$`Light`
@@ -421,7 +413,6 @@ tag_create_manual <- function(tag,
 
   # Read acceleration
   if (!is.null(acceleration_file)) {
-    acc <- acceleration_file
     assertthat::assert_that(assertthat::has_name(acceleration_file, c("date", "value")))
     assertthat::assert_that(inherits(acceleration_file$date, "POSIXct"))
     assertthat::assert_that(assertthat::are_equal(attr(acceleration_file$date, "tzone"), "UTC"))
@@ -512,24 +503,28 @@ tag_create_dto <- function(sensor_path,
 
 #' Crop sensor data.frame
 #' @noRd
-tag_create_crop <- function(df,
+tag_create_crop <- function(tag,
                             crop_start,
                             crop_end) {
-  # Crop time
-  if (!is.null(crop_start)) {
-    df <- df[df$date >= crop_start, ]
-  }
-  if (!is.null(crop_end)) {
-    df <- df[df$date < crop_end, ]
-  }
+  for (sensor in c("pressure", "light", "acceleration")) {
+    if (sensor %in% names(tag)) {
+      # Crop time
+      if (!is.null(crop_start)) {
+        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date >= crop_start, ]
+      }
+      if (!is.null(crop_end)) {
+        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date < crop_end, ]
+      }
 
-  if (length(unique(diff(df$date))) > 1) {
-    # nolint start
-    dtime <- as.numeric(diff(df$date))
-    cli::cli_warn("Irregular time spacing for {.file {sensor_path}}: \\
-                  {df$date[which(dtime != dtime[1])]}.\f")
-    # nolint end
+      # Check irregular time
+      if (length(unique(diff(tag[[sensor]]$date))) > 1) {
+        # nolint start
+        dtime <- as.numeric(diff(tag[[sensor]]$date))
+        cli::cli_warn("Irregular time spacing for {.field {sensor}}: \\
+                  {tag[[sensor]]$date[which(dtime != dtime[1])]}.\f")
+        # nolint end
+      }
+    }
   }
-
-  return(df)
+  return(tag)
 }

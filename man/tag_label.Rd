@@ -56,7 +56,7 @@ If the label file does not exist, the function will suggest to create it with
 \code{tag_label_write()} and use \code{tag_label_auto()} if acceleration data exists.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE)
 
 print(tag)

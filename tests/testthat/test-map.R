@@ -2,7 +2,7 @@ library(testthat)
 library(GeoPressureR)
 
 # Set working directory
-# setwd(system.file("extdata/", package = "GeoPressureR"))
+# setwd(system.file("extdata", package = "GeoPressureR"))
 
 data <- lapply(1:10, \(x) matrix(runif(5000), nrow = 50, ncol = 100))
 scale <- 10

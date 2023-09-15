@@ -15,10 +15,16 @@
 #' and the [GeoPressureManual](https://bit.ly/3saLVqi)
 #'
 #' @param tag a GeoPressureR `tag` object.
-#' @param thr_likelihood Threshold of percentile (see details).
-#' @param thr_gs Threshold of groundspeed (km/h)  (see details).
+#' @param thr_likelihood threshold of percentile (see details).
+#' @param thr_gs threshold of groundspeed (km/h)  (see details).
+#' @param geosphere_dist function to compute the distance. Usually, either
+#' `geosphere::distHaversine` (fast) or `geosphere::distGeo` (precise but slow). See
+#' https://rspatial.org/raster/sphere/2-distance.html for more options and details.
+#' @param geosphere_bearing function to compute the bearing. Either `geosphere::bearing` (default)
+#' or `geosphere::bearingRhumb`. See https://rspatial.org/raster/sphere/3-direction.html#bearing
+#' for details.
+#' @param quiet logical to hide messages about the progress.
 #' @inheritParams tag2map
-#' @param quiet logical to hide messages about the progress
 #'
 #' @return Graph as a list
 #' - `id`:
@@ -38,7 +44,7 @@
 #' - `param`: parameter used to create the graph, including `thr_likelihood` and `thr_gs`
 #'
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
 #'   twilight_create() |>
@@ -66,6 +72,8 @@ graph_create <- function(tag,
                          thr_likelihood = .99,
                          thr_gs = 150,
                          likelihood = NULL,
+                         geosphere_dist = geosphere::distHaversine,
+                         geosphere_bearing = geosphere::bearing,
                          quiet = FALSE) {
   if (!quiet) {
     cli::cli_progress_step("Check data input")
@@ -180,20 +188,22 @@ graph_create <- function(tag,
 
   # filter the pixels which are not in reach of any location of the previous and next stationary
   # period
+  # The "-1" of distmap accounts for the fact that the shortest distance between two grid cell is
+  # not the center of the cell but the side. This should only impact short flight distance/duration.
   for (i_s in seq_len(sz[3] - 1)) {
-    nds[[i_s + 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
+    nds[[i_s + 1]] <- (EBImage::distmap(!nds[[i_s]]) - 1) * resolution <
       flight_duration[i_s] * thr_gs & nds[[i_s + 1]]
     if (sum(nds[[i_s + 1]]) == 0) {
       cli::cli_abort(c(
         x = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the binary distance \\
-          edges, there are not any nodes left at stationary period {stap_model[i_s + 1]} from\\
-        stationary period {stap_model[i_s]}"
+          edges, there are not any nodes left at stationary period {.val {stap_model[i_s + 1]}} \\
+        from stationary period {.val {stap_model[i_s]}}"
       ))
     }
   }
   for (i_sr in seq_len(sz[3] - 1)) {
     i_s <- sz[3] - i_sr + 1
-    nds[[i_s - 1]] <- EBImage::distmap(!nds[[i_s]]) * resolution <
+    nds[[i_s - 1]] <- (EBImage::distmap(!nds[[i_s]]) - 1) * resolution <
       flight_duration[i_s - 1] * thr_gs & nds[[i_s - 1]]
     if (sum(nds[[i_s - 1]]) == 0) {
       cli::cli_abort(c(
@@ -219,31 +229,31 @@ graph_create <- function(tag,
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
   nds_sorted_idx <- order(nds_expend_sum, decreasing = TRUE)
   nds_expend_sum <- sort(nds_expend_sum, decreasing = TRUE)
-  future::plan(future::multisession, workers = future::availableCores() / 2)
+  workers <- future::availableCores() / 2
+  if (!quiet) {
+    cli::cli_progress_step("Starting parrallel session on {workers} workers")
+  }
+  future::plan(future::multisession, workers = workers)
   f <- list()
 
   if (!quiet) {
-    cli::cli_progress_step("Computing the groundspeed for {sum(nds_expend_sum)} edges of \\
-                           {length(nds_expend_sum)} stationary periods")
-    # msg1 <- glue::glue("0/{sum(nds_expend_sum)}")
-    # msg2 <- glue::glue("0/{length(nds_expend_sum)}")
-    # cli::cli_progress_step(
-    #  "Computing the groundspeed for {msg1} edges of {msg2} stationary periods",
-    #   spinner=TRUE )
-    # progressr::handlers(global = TRUE)
-    progressr::handlers("cli")
-    p <- progressr::progressor(sum(nds_expend_sum))
+    i <- 0
+    cli::cli_progress_step(
+      "Starting to compute the groundspeed for stationary period {i}/{length(nds_expend_sum)} \\
+      ({ round(sum(nds_expend_sum[seq_len(i)])/sum(nds_expend_sum)*100)}% of nodes)",
+      msg_done = "Compute the groundspeed"
+    )
   }
   for (i in seq_len(length(nds_sorted_idx))) {
     i_s <- nds_sorted_idx[i]
-    nds_i_s <- nds[[i_s]]
-    nds_i_s_1 <- nds[[i_s + 1]]
+    nds_i_s <- which(nds[[i_s]])
+    nds_i_s_1 <- which(nds[[i_s + 1]])
     f[[i_s]] <- future::future(expr = {
       # find all the possible equipment and target based on nds and expand to all possible
       # combination
       grt <- expand.grid(
-        s = as.integer(which(nds_i_s) + (i_s - 1) * nll),
-        t = as.integer(which(nds_i_s_1) + i_s * nll)
+        s = as.integer(nds_i_s + (i_s - 1) * nll),
+        t = as.integer(nds_i_s_1 + i_s * nll)
       )
 
       # Find the index in lat, lon, stap of those equipment and target
@@ -251,10 +261,18 @@ graph_create <- function(tag,
       t_id <- arrayInd(grt$t, sz)
 
       # compute the groundspeed for all transition
-      gs_abs <- geosphere::distGeo(
+      dist <- geosphere_dist(
         cbind(g$lon[s_id[, 2]], g$lat[s_id[, 1]]),
         cbind(g$lon[t_id[, 2]], g$lat[t_id[, 1]])
-      ) / 1000 / flight_duration[i_s]
+      ) / 1000 # m -> km
+
+      # The minimal distance between grid cell is not from the center of the cell, but from one edge
+      # to the other (opposite) edge. So the minimal distance between cell should be reduce by the
+      # grid resolution.
+      dist <- pmax(dist - resolution[s_id[, 1]], 0)
+
+      # Compute groundspeed
+      gs_abs <- dist / flight_duration[i_s]
 
       # filter the transition based on the groundspeed
       id <- gs_abs < thr_gs
@@ -267,7 +285,7 @@ graph_create <- function(tag,
       grt <- grt[id, ]
 
       # Compute the bearing of the trajectory
-      gs_bearing <- geosphere::bearingRhumb(
+      gs_bearing <- geosphere_bearing(
         cbind(g$lon[s_id[id, 2]], g$lat[s_id[id, 1]]),
         cbind(g$lon[t_id[id, 2]], g$lat[t_id[id, 1]])
       )
@@ -285,24 +303,17 @@ graph_create <- function(tag,
           edges, there are not any nodes left for the stationary period: {.val {stap_model[i_s]}}"
         ))
       }
-      if (!quiet) {
-        # msg1 <- glue::glue("{sum(nds_expend_sum[seq_len(i)])}/{sum(nds_expend_sum)}")
-        # msg2 <- glue::glue("{i}/{length(nds_expend_sum)}")
-        # cli::cli_progress_update(force = TRUE)
-        p(amount = nds_expend_sum[i])
-      }
       return(grt)
     }, seed = TRUE)
+    if (!quiet) {
+      cli::cli_progress_update(force = TRUE)
+    }
   }
 
   # Retrieve the graph
   gr <- future::value(f)
 
   # Prune
-  if (!quiet) {
-    cli::cli_progress_step("Prune graph")
-  }
-
   gr <- graph_create_prune(gr, quiet = quiet)
 
   # Convert gr to a graph list
@@ -321,12 +332,16 @@ graph_create <- function(tag,
   graph$stap <- tag$stap
   graph$equipment <- which(nds[[1]] == TRUE)
   graph$retrieval <- as.integer(which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll)
-  graph$mask_water <- tag$mask_water
+  graph$mask_water <- tag$map_pressure$mask_water
 
   # Create the param from tag
   graph$param <- tag$param
   graph$param$thr_likelihood <- thr_likelihood
   graph$param$thr_gs <- thr_gs
+
+  if (!quiet) {
+    cli::cli_progress_done()
+  }
 
   return(graph)
 }
@@ -348,7 +363,14 @@ graph_create_prune <- function(gr, quiet = FALSE) {
   }
 
   if (!quiet) {
-    cli::cli_progress_bar(total = (length(gr) - 1) * 2, type = "task")
+    cli::cli_progress_bar(
+      "Prune the graph:",
+      format = "{cli::pb_name} {i_s}/{(length(gr) - 1) * 2} {cli::pb_bar} {cli::pb_percent} | \\
+      {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "Prune the graph [{cli::pb_elapsed}]",
+      clear = FALSE,
+      total = (length(gr) - 1) * 2
+    )
   }
 
   # First, trim the graph from equipment to retrieval
@@ -364,8 +386,7 @@ graph_create_prune <- function(gr, quiet = FALSE) {
 
     if (nrow(gr[[i_s]]) == 0) {
       cli::cli_abort(c(
-        x =
-          "Triming the graph killed it at stationary period {.val {i_s}} moving forward."
+        "x" = "Triming the graph killed it at stationary period {.val {i_s}} moving forward."
       ))
     }
     if (!quiet) {
@@ -383,8 +404,7 @@ graph_create_prune <- function(gr, quiet = FALSE) {
 
     if (nrow(gr[[i_s]]) == 0) {
       cli::cli_abort(c(
-        x =
-          "Triming the graph killed it at stationary period {.val {i_s}} moving backward"
+        "x" = "Triming the graph killed it at stationary period {.val {i_s}} moving backward"
       ))
     }
     if (!quiet) {

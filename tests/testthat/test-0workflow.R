@@ -5,7 +5,7 @@ library(GeoPressureR)
 options(cli.default_handler = function(...) { })
 
 # Set working directory
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 
 test_that("workflow | full", {
   tag <- tag_create("18LX")

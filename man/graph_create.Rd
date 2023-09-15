@@ -9,22 +9,32 @@ graph_create(
   thr_likelihood = 0.99,
   thr_gs = 150,
   likelihood = NULL,
+  geosphere_dist = geosphere::distHaversine,
+  geosphere_bearing = geosphere::bearing,
   quiet = FALSE
 )
 }
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object.}
 
-\item{thr_likelihood}{Threshold of percentile (see details).}
+\item{thr_likelihood}{threshold of percentile (see details).}
 
-\item{thr_gs}{Threshold of groundspeed (km/h)  (see details).}
+\item{thr_gs}{threshold of groundspeed (km/h)  (see details).}
 
 \item{likelihood}{Field of the \code{tag} list containing the likelihood map (character). Possible
 value are \code{map_pressure}, \code{map_light}, \code{map_pressure_mse}, \code{map_pressure_mse},
 \code{map_pressure_mse}, \code{mask_water}. Default \code{NA} is to take the product of \code{map_pressure} and
 \code{map_light}, or if not available, taking the first of the possible values.}
 
-\item{quiet}{logical to hide messages about the progress}
+\item{geosphere_dist}{function to compute the distance. Usually, either
+\code{geosphere::distHaversine} (fast) or \code{geosphere::distGeo} (precise but slow). See
+https://rspatial.org/raster/sphere/2-distance.html for more options and details.}
+
+\item{geosphere_bearing}{function to compute the bearing. Either \code{geosphere::bearing} (default)
+or \code{geosphere::bearingRhumb}. See https://rspatial.org/raster/sphere/3-direction.html#bearing
+for details.}
+
+\item{quiet}{logical to hide messages about the progress.}
 }
 \value{
 Graph as a list
@@ -60,7 +70,7 @@ For more details and illustration, see \href{https://besjournals.onlinelibrary.w
 and the \href{https://bit.ly/3saLVqi}{GeoPressureManual}
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   twilight_create() |>

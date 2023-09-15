@@ -18,13 +18,13 @@
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param path a GeoPressureR `path` data.frame.
-#' @param include_flight Extend request to also query the pressure and altitude during the previous
+#' @param include_flight extend request to also query the pressure and altitude during the previous
 #' and/or next flight. Flights are defined by a `stap_id = 0`. Accept logical or vector of -1 (
 #' previous flight), 0 (stationary) and/or 1 (next flight). (e.g. `include_flight = c(-1, 1)` will
 #' only search for the flight before and after but not the stationary period). Note that next and
 #' previous flights are defined by the +/1 of the `stap_id` value (and not the previous/next
 #' `stap_id` value).
-#' @param workers Number of parallel requests on GEE. Between 1 and 99. `"auto"` adjust the number
+#' @param workers number of parallel requests on GEE. Between 1 and 99. `"auto"` adjust the number
 #' of workers to the number of `stap_elev` to query.
 #' @param preprocess logical to use `geopressure_map_preprocess`.
 #' @param quiet logical to hide messages about the progress
@@ -44,7 +44,7 @@
 #' `stap_id = 0` and `stap_ref` is to the stationary period of the position used from the path).
 #'
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 #'
 #' path <- data.frame(
@@ -86,7 +86,7 @@ pressurepath_create <- function(tag,
   # Assert preprocess
   assertthat::assert_that(is.logical(preprocess))
   if (preprocess) {
-    pressure <- geopressure_map_preprocess(tag)
+    pressure <- geopressure_map_preprocess(tag, compute_known = TRUE)
   } else {
     pressure <- tag$pressure
   }
@@ -117,8 +117,8 @@ pressurepath_create <- function(tag,
 
   # Interpolate stap_id for flight period so that, a flight between stap_id 2 and 3 will have a
   # `stap_interp` between 2 and 3.
-  id_0 <- pressure$stap_id == 0 | is.na(pressure$stap)
-  stap_interp <- pressure$stap
+  id_0 <- pressure$stap_id == 0 | is.na(pressure$stap_id)
+  stap_interp <- pressure$stap_id
   stap_interp[id_0] <- stats::approx(which(!id_0),
     pressure$stap_id[!id_0], which(id_0),
     rule = 2
@@ -164,6 +164,10 @@ pressurepath_create <- function(tag,
 
     # extract pressure for the stap
     pressure_q <- subset(pressure, !is.na(id_q))
+
+    if (nrow(pressure_q) == 0) {
+      cli::cli_warn("No pressure to query for stap_id {.val {i_stap}}.\f")
+    }
 
     # Send the query
     if (!is.na(path$lat[i_s]) && !is.na(path$lon[i_s]) && nrow(pressure_q) > 0) {

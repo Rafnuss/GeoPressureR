@@ -17,7 +17,7 @@ plot_pressurepath(
 
 \item{type}{Timeseries \code{"ts"} or histogram \code{"hist"}}
 
-\item{sd}{Standard deviation of the pressure error . numeric of lenght 1 or number of stationary
+\item{sd}{standard deviation of the pressure error . numeric of lenght 1 or number of stationary
 periods.}
 
 \item{warning_std_thr}{Threshold of outliar, coefficient of the \href{https://en.wikipedia.org/wiki/Standard_score}{z-score}}
@@ -28,7 +28,7 @@ periods.}
 Display a \code{pressurepath} data.frame as a timeseries or histogram
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 
 path <- data.frame(

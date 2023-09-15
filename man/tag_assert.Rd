@@ -11,7 +11,7 @@ tag_assert(tag, condition = "tag", type = "abort")
 
 \item{condition}{condition to assert \code{tag} for. One of \code{"tag"} (default), \code{"pressure"},
 \code{"light"}, \code{"acceleration"}, \code{"label"}, \code{"stap"}, \code{"setmap"}, \code{"map_pressure"}, \code{"map_light"}
-\code{"map_pressure_mismatch"} and \code{"twilight"}}
+\code{"map_pressure_mse"} and \code{"twilight"}}
 
 \item{type}{Message type to display. One of \code{"abort"} (default), \code{"warn"} or \code{"inform"}}
 }
@@ -22,7 +22,7 @@ logical indicating the \code{tag} object has the relevant element
 This function check the condition of a \code{tag} object.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 
 tag_assert(tag)

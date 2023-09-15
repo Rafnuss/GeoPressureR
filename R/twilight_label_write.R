@@ -6,7 +6,7 @@
 #' @param tag a GeoPressureR `tag` object
 #' @param file Name of the twilight label file to be saved.
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
 #'   twilight_create()

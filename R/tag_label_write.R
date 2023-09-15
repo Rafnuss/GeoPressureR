@@ -14,7 +14,7 @@
 #' @return The file pathname is return invisibly
 #'
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE)
 #'
 #' # Writing unlabeled tag will initialize the labelling for trainset

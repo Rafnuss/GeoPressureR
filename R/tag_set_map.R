@@ -10,8 +10,12 @@
 #' In addition, `tag` offers the possibility to define `known` locations (e.g., equipment or
 #' retrieval site). These can only be defined at the level of a stationary period (i.e., assuming
 #' constant position during the whole stationary period) but you can define as many known stationary
-#' periods as you wish. No likelihood map will be computed for these stationary periods and the
-#' trajectory model will be more constrained, saving significant computational time.
+#' periods as you wish. By default (see `compute_known` in `geopressure_map()`), no likelihood map
+#' will be computed for these stationary periods and the trajectory model will be more constrained,
+#' saving significant computational time.
+#'
+#' Because the index of the last stationary period is generally unknown, you can use negative
+#' indexing in `known`, i.e., `known$stap_id = -1` will be converted to `nrow(tag$stap)`.
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param extent geographical extent of the map on which the likelihood and graph model will be
@@ -26,7 +30,8 @@
 #' @param include_min_duration minimum duration threshold of stationary periods to include (in
 #' hours).
 #' @param known data.frame containing the known positions of the bird (e.g., equipment or retrieval
-#' site).
+#' site) with columns `stap_id`, `known_lat` and `known_lon`. You can set position of the last
+#' stationary period using `stap_id = -1`.
 #' @return A GeoPressureR `tag` object with:
 #' - `stap`: Data.frame of all stationary periods with three new columns: `known_lat` and
 #' `known_lon` define the known position during these stationary periods, and `model` defines
@@ -35,7 +40,7 @@
 #' - `extent` same as input parameter `extent`
 #' - `scale` same as input parameter `scale`
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 #'
 #' # Default tag
@@ -93,6 +98,10 @@ tag_set_map <- function(tag,
       i = "Modify {.var extent} or {.var known} to match this requirement."
     ))
   }
+  # Keep a copy of the original known to keep in param. Useful to keep negative indexing
+  known0 <- known
+  # Use negative indexing: e.g. replace known$stap_id = -1 to the last stap
+  known$stap_id[known$stap_id < 0] <- nrow(stap) - 1 - known$stap_id[known$stap_id < 0]
   assertthat::assert_that(all(known$stap_id %in% stap$stap_id))
   assertthat::assert_that(all(unique(known$stap_id) == known$stap_id))
 
@@ -111,7 +120,7 @@ tag_set_map <- function(tag,
   if ("extent" %in% names(tag) || "known_lat" %in% names(stap) || "scale" %in% names(tag) ||
     "include" %in% names(stap)) {
     # Check if value are changing
-    chg_known <- any(stap$known_lon[known$stap_id] != known$known_lon)
+    chg_known <- nrow(known0) != nrow(tag$param$known) || any(known0 != tag$param$known)
     chg_include <- any(stap$include != stap_include)
     chg_extent <- any(extent != tag$param$extent)
     chg_scale <- scale != tag$param$scale
@@ -130,7 +139,6 @@ tag_set_map <- function(tag,
           # If yes, remove existing likelihood map and carry on the overwrite of parameter
           tag$map_pressure <- NULL
           tag$map_light <- NULL
-          tag$mask_water <- NULL
           tag$param <- NULL
           cli::cli_warn(c(
             "!" = "The old parameters have been overwitten with the new ones and the likelihood \\
@@ -176,6 +184,13 @@ tag_set_map <- function(tag,
   tag$stap <- stap
   tag$param$scale <- scale
   tag$param$extent <- extent
+  tag$param$known <- known0
+  tag$param$include_stap_id <- NULL
+  if (length(include_stap_id) != length(tag$stap$stap_id) ||
+    any(include_stap_id != tag$stap$stap_id)) {
+    tag$param$include_stap_id <- include_stap_id
+  }
+  tag$param$include_min_duration <- include_min_duration
 
   return(tag)
 }

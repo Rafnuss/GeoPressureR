@@ -7,12 +7,13 @@
 #' and the [GeoPressureManual](https://bit.ly/3sd20vC).
 #'
 #' @param graph a GeoPressureR `graph` with defined movement model `graph_set_movement()`.
+#' @param quiet logical to hide messages about the progress.
 #'
 #' @return A list of the marginal maps for each stationary period (even those not modelled). Best to
 #' include within `tag`.
 #'
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
 #'   twilight_create() |>
@@ -42,10 +43,13 @@
 #' <https://doi.org/10.1111/2041-210X.14082>.}
 #' @family graph
 #' @export
-graph_marginal <- function(graph) {
+graph_marginal <- function(graph, quiet = FALSE) {
   graph_assert(graph, "full")
 
   # Compute the transition matrix (movement model)
+  if (!quiet) {
+    cli::cli_progress_step("Compute movement model")
+  }
   transition <- graph_transition(graph)
 
   # number of nodes in the 3d grid
@@ -55,6 +59,10 @@ graph_marginal <- function(graph) {
   trans_obs <- Matrix::sparseMatrix(graph$s, graph$t,
     x = transition * graph$obs[graph$t], dims = c(n, n)
   )
+
+  if (!quiet) {
+    cli::cli_progress_step("Compute marginal")
+  }
 
   # Initiate the forward probability vector (f_k^T in Nussbaumer et al. (2023) )
   map_f <- Matrix::sparseMatrix(1, 1, x = 0, dims = c(1, n))
@@ -94,7 +102,8 @@ graph_marginal <- function(graph) {
         i = "Please check the data used to create the graph."
       ))
     }
-    marginal_data[[stap_includeed[i_s]]] <- map_fb_i
+    # Normalize the map to the highest value
+    marginal_data[[stap_includeed[i_s]]] <- map_fb_i / max(map_fb, na.rm = TRUE)
   }
 
   marginal <- map_create(
@@ -105,6 +114,10 @@ graph_marginal <- function(graph) {
     id = graph$param$id,
     type = "marginal"
   )
+
+  if (!quiet) {
+    cli::cli_alert_success("All done")
+  }
 
   return(marginal)
 }

@@ -19,7 +19,7 @@
 #' @return `tag` is return with (1) a new data.frame of stationary periods `tag$stap` and (2) a new
 #'  column `stap_id` for each sensor data.
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label_read()
 #'
@@ -65,11 +65,17 @@ tag_label_stap <- function(tag,
   tmp <- c(1, cumsum(diff(as.numeric(sensor$label == "flight")) == 1) + 1)
   tmp[sensor$label == "flight"] <- NA
 
+  # As we label "in flight" pressure/acceleration, the taking-off and landing happened before and
+  # after the labeling respectively. To account for this. We estimate that the bird took off between
+  # the previous and first flight label, and landed between the last flight label and next one.
+  # We use the temporal resolution to account for this.
+  dt <- stats::median(diff(sensor$date))
+
   # construct stationary period table
   tag$stap <- data.frame(
     stap_id = unique(tmp[!is.na(tmp)]),
-    start = do.call(c, lapply(split(sensor$date, tmp), min)),
-    end = do.call("c", lapply(split(sensor$date, tmp), max))
+    start = do.call(c, lapply(split(sensor$date, tmp), min)) - dt / 2,
+    end = do.call("c", lapply(split(sensor$date, tmp), max)) + dt / 2
   )
 
   # Assign to each sensor the stationary period to which it belong to.
@@ -101,7 +107,7 @@ tag_label_stap <- function(tag,
     stap$duration_time <- stap2duration(stap, return_numeric = FALSE)
 
     stap_warning <- stap[stap$duration_num <= warning_stap_duration, ]
-    cli::cli_h3("Short stationary periods:")
+    cli::cli_h3("Short stationary periods (<{warning_stap_duration}hr):")
     if (nrow(stap_warning) > 0) {
       for (i in seq_len(nrow(stap_warning))) {
         # nolint start
@@ -122,7 +128,7 @@ tag_label_stap <- function(tag,
     flight <- stap2flight(stap, units = "hours", return_numeric = FALSE)
     flight_warning <- flight[as.numeric(flight$duration, units = "hours") <=
       warning_flight_duration, ]
-    cli::cli_h3("Short flights:")
+    cli::cli_h3("Short flights (<{warning_flight_duration}hr):")
     if (nrow(flight_warning) > 0) {
       for (i in seq_len(nrow(flight_warning))) {
         # nolint start
@@ -149,7 +155,7 @@ tag_label_stap <- function(tag,
 #' @noRd
 pretty_dt <- function(tim) {
   # Ensure the difftime object is in seconds
-  seconds <- as.numeric(as.difftime(tim, units = "secs"))
+  seconds <- as.numeric(as.difftime(tim), units = "secs")
 
   # Calculate days, hours, minutes, and seconds
   days <- floor(seconds / (24 * 60 * 60))
@@ -157,7 +163,7 @@ pretty_dt <- function(tim) {
   hrs <- floor(seconds / (60 * 60))
   seconds <- seconds %% (60 * 60)
   mins <- floor(seconds / 60)
-  secs <- seconds %% 60
+  secs <- round(seconds %% 60)
 
   # Format the string
   duration_str <- ""

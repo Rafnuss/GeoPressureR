@@ -12,7 +12,7 @@
 #' @inheritParams geopressure_map
 #' @return Pressure data.frame without flight and discarded values, on a 1hr resolution.
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label()
 #'
 #' pressure_processed <- geopressure_map_preprocess(tag)
@@ -38,7 +38,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   }
 
   if (length(unique(diff(pressure$date))) > 1) {
-    cli::cli_warn("Pressure data is not on a regular interval.The code should still
+    cli::cli_warn("Pressure data is not on a regular interval. The code should still
     technically work, but it might be the cause of an error later.\f")
   }
 
@@ -52,10 +52,18 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     pressure <- pressure[pressure$stap_id %in% stap$stap_id[is.na(stap$known_lat)], ]
   }
 
-  # remove flight and discard label
-  pressure <- pressure[pressure$label != "flight" &
-    pressure$label != "discard" &
-    pressure$stap_id > 0, ]
+  # Remove flight and discard label
+  id <- pressure$label != "flight" & pressure$label != "discard" & pressure$stap_id > 0
+  tmp <- unique(pressure$stap_id[!(pressure$stap_id %in% pressure$stap_id[id]) &
+    pressure$stap_id > 0])
+  if (length(tmp) > 0) {
+    cli::cli_abort(c(
+      "x" = "Stationary period{?s} {.val {as.character(tmp)}} {?is/are} included but all its \\
+      pressure measurements are {.val discard} or in {.val flight}.",
+      ">" = "Modify the label on trainset to fix this."
+    ))
+  }
+  pressure <- pressure[id, ]
 
   if (max(pressure$date) > Sys.time() - 3 * 30 * 24 * 60 * 60) {
     cli::cli_warn("There are potentially not yet pressure data on the Google Earth \\
@@ -90,10 +98,12 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   # pgi <- pressure_stapelev[[9]]
   pressure_stapelev_clean <- lapply(pressure_stapelev, function(pgi) {
     # Define a regular temporal grid for smoothing and down scaling, rounded to the hours
+    dt <- min(diff(pgi$date))
+    units(dt) <- "hours"
     date_reg <- seq(
       round.POSIXt(min(pgi$date), units = "hours"),
       round.POSIXt(max(pgi$date), units = "hours"),
-      by = min(diff(pgi$date))
+      by = dt
     )
 
     # Remove observation outside the start and end time. This should only be 1 or 2 datapoints
@@ -124,10 +134,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
 
     # smooth the data with a moving average of 1hr
     # find the size of the windows for 1 hour
-    dtall <- diff(pgi_reg$date)
-    units(dtall) <- "hours"
-    dt <- as.numeric(stats::median(dtall))
-    n <- round(1 / dt + 1)
+    n <- round(1 / as.numeric(dt) + 1)
 
     # check that there are enough datapoint for the smoothing
     if (nrow(pgi_reg) > n) {
@@ -148,7 +155,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     # Pressure is an instantaneous parameters
     # (https://confluence.ecmwf.int/display/CKB/Parameters+valid+at+the+specified+time), so we take
     # the value at the exact hour
-    pgi_reg <- pgi_reg[seq(1, nrow(pgi_reg), by = 1 / dt), ]
+    pgi_reg <- pgi_reg[seq(1, nrow(pgi_reg), by = 1 / as.numeric(dt)), ]
 
     # Remove time without measure
     pgi_reg <- pgi_reg[!is.na(pgi_reg$stap_id), ]

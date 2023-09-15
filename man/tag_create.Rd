@@ -7,9 +7,9 @@
 tag_create(
   id,
   manufacturer = NULL,
-  directory = glue::glue("./data/raw-tag/{id}/"),
   crop_start = NULL,
   crop_end = NULL,
+  directory = glue::glue("./data/raw-tag/{id}"),
   pressure_file = NULL,
   light_file = NULL,
   acceleration_file = NULL,
@@ -21,11 +21,11 @@ tag_create(
 
 \item{manufacturer}{One of \code{NULL}, \code{"soi"}, \code{"migratetech"}, \code{"lund"} or \code{"manual"}}
 
-\item{directory}{path of the directory where the tag files can be read.}
-
 \item{crop_start}{remove all data before this date (POSIXct or character in UTC).}
 
 \item{crop_end}{remove all data after this date (POSIXct or character in UTC).}
+
+\item{directory}{path of the directory where the tag files can be read.}
 
 \item{pressure_file}{name of the file with pressure data. Full pathname  or finishing
 with extensions (e.g., \code{"*.pressure"}, \code{"*.deg"} or \code{"*_press.xlsx"}).}
@@ -93,7 +93,7 @@ This function can be used to crop the data at specific date, for instance to rem
 or post-retrieval data.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 
 # Read all sensor file
 tag <- tag_create("18LX")

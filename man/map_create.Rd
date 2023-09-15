@@ -7,7 +7,7 @@
 map_create(data, extent, scale, stap, id = NA, type = "unknown")
 }
 \arguments{
-\item{data}{List of matrices of the same size, one for each stationary period.}
+\item{data}{list of matrices of the same size, one for each stationary period.}
 
 \item{extent}{geographical extent of the map on which the likelihood and graph model will be
 computed. Vector of length 4 \code{c(xmin, xmax, ymin, ymax)} or \code{c(W, E, S, N)}.}
@@ -17,11 +17,11 @@ resolution of 0.1° (~10km) and \code{scale=4} for a resolution of 0.25° (~30km
 interpolating the ERA5 data, the scale should be equal to or smaller than 10. Read more about
 scale on the \href{https://developers.google.com/earth-engine/guides/scale}{Google earth Engine documentation }.}
 
-\item{stap}{A data.frame of stationary periods.}
+\item{stap}{a data.frame of stationary periods.}
 
 \item{id}{unique identifier of a tag.}
 
-\item{type}{Type of data one of \code{"unknown"},\code{"pressure"}, \code{"light"}, \code{"pressure_mse"},
+\item{type}{type of data one of \code{"unknown"},\code{"pressure"}, \code{"light"}, \code{"pressure_mse"},
 \code{"water_mask"}, \code{"pressure_mask"}, \code{"marginal"}. Allows for custom color palette on plot.}
 }
 \value{

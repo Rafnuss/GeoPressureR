@@ -33,7 +33,7 @@
 #' @return a `tag` with the likelihood of light as `tag$map_light`
 #'
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' # Read geolocator data and build twilight
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
@@ -58,7 +58,7 @@
 #' @export
 geolight_map <- function(tag,
                          twl_calib_adjust = 1.4,
-                         twl_llp = \(n) 0.1,
+                         twl_llp = \(n) log(n) / n,
                          compute_known = FALSE,
                          quiet = FALSE) {
   # Check tag

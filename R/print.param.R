@@ -19,17 +19,23 @@
 print.param <- function(x, ...) {
   param <- x
 
-  cli::cli_h1("GeoPressureR `param` object for {.field id} = {.val {param$id}}")
-  cli::cli_text("GeoPressureR version: {param$GeoPressureR_version}")
+  cli::cli_h1("GeoPressureR `param` object for {.field id}: {param$id}")
+  cli::cli_text("{.strong Note}: All {.field green} texts are fields of `param` (i.e., \\
+                `param${.field field}`).")
+
+  cli::cli_bullets(c(
+    "*" = "{.field GeoPressureR_version}: {.val {param$GeoPressureR_version}}"
+  ))
 
   cli::cli_h3("Sensors data {.fun tag_create}")
   cli::cli_bullets(c(
-    "*" = "{.field directory}: {.val {call2deparse(param$sensor_file_directory)}}",
+    "*" = "{.field manufacturer}: {.val {call2deparse(param$manufacturer)}}",
+    "*" = "{.field crop_start}: {.val {param$crop_start}}",
+    "*" = "{.field crop_end}: {.val {param$crop_end}}",
+    "*" = "{.field directory}: {.val {call2deparse(param$directory)}}",
     "*" = "{.field pressure_file}: {.val {param$pressure_file}}",
     "*" = "{.field light_file}: {.val {param$light_file}}",
-    "*" = "{.field acceleration_file}: {.val {param$acceleration_file}}",
-    "*" = "{.field crop_start}: {.val {param$crop_start}}",
-    "*" = "{.field crop_end}: {.val {param$crop_end}}"
+    "*" = "{.field acceleration_file}: {.val {param$acceleration_file}}"
   ))
 
   cli::cli_h3("tag label {.fun tag_label}")
@@ -59,7 +65,7 @@ print.param <- function(x, ...) {
     {call2deparse(param$log_linear_pooling_weight)}}"
   ))
 
-  cli::cli_h3("Twilight & Geolight{.fun twilight_create}")
+  cli::cli_h3("Twilight & Geolight {.fun twilight_create}")
   cli::cli_bullets(c(
     "*" = "{.field twl_thr}: {.val {param$twl_thr}}",
     "*" = "{.field twl_offset}: {.val {param$twl_offset}}",

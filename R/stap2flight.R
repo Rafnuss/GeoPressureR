@@ -3,6 +3,9 @@
 #' @description
 #' Convert a stationary period data.frame `stap` into a flight data.frame or list. Flight are
 #' computed as the difference between the end of a stationary period to the start of the next one.
+#' Because the pressure/acceleration is labeled for "in flight", the bird was already in flight
+#' before the first label and after the last label. We account for this by adding to all flights
+#' duration half the temporal resolution of the sensor.
 #'
 #' You can compute the flight between specific stationary periods using `stap_include`. In this
 #' case, the flight duration is computed as the sum of individual flights in between.
@@ -10,10 +13,10 @@
 #' You can return the flight as a data.frame or as a list if you want to retrieve the information
 #' of all individual flight between the `stap_include`.
 #'
-#' @param stap A stationary period data.frame (see [`tag_label_stap()`]).
-#' @param stap_include Vecto of the stationary period `stap_id` to consider in the flight. Default
+#' @param stap a stationary period data.frame (see [`tag_label_stap()`]).
+#' @param stap_include vector of the stationary period `stap_id` to consider in the flight. Default
 #' is to use `stap$stap_id[stap$include]` or `stap$stap_id` if `model` is not available in `stap`.
-#' @param format Character to return a list `"list"` or a data.frame `"df"` (see description)
+#' @param format character to return a list `"list"` or a data.frame `"df"` (see description)
 #' @inheritParams stap2duration
 #' @return A list or a data.frame (see description) containing
 #' - `start`: Start time of the (first) flight
@@ -24,7 +27,7 @@
 #' - (`n`: Numer of flights)
 #' The value in brackets are only for the data.frame
 #' @examples
-#' setwd(system.file("extdata/", package = "GeoPressureR"))
+#' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 #'
 #' # By default, return a data.frame of all individual flights
@@ -56,6 +59,7 @@ stap2flight <- function(stap,
   }
   assertthat::assert_that(all(stap_include %in% stap$stap_id))
   assertthat::assert_that(format %in% c("list", "df"))
+  assertthat::assert_that(is.logical(return_numeric))
 
   if (length(stap_include) == 1) {
     if (format == "list") {

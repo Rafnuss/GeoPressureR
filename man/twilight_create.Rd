@@ -31,7 +31,7 @@ and last light of the day which is defined by the light exceeds or
 falls below the light threshold \code{twl_thr}.
 }
 \examples{
-setwd(system.file("extdata/", package = "GeoPressureR"))
+setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 
 # Create twilight data.frame
