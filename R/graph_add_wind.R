@@ -197,7 +197,8 @@ graph_add_wind <- function(graph,
       # on `t_q`. Extrapolation outside (before the bird departure or after he arrived) is with a
       # nearest neighbor.
 
-      dt <- fl_s_dur[i2] # old code not tested replacent as.numeric(difftime(fl_s$end[i2], fl_s$start[i2], units = "hours"))
+      dt <- fl_s_dur[i2] # old code not tested replacement as.numeric(difftime(fl_s$end[i2],
+      # fl_s$start[i2], units = "hours"))
       dlat <- (lat_e - lat_s) / dt
       dlon <- (lon_e - lon_s) / dt
       w <- pmax(pmin(as.numeric(

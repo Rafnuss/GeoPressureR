@@ -164,6 +164,12 @@ tag_update <- function(tag,
     quiet = quiet
   )
 
+  # Retrieve sd
+  tag_new$param$max_sample <- tag_new_include$param$max_sample
+  tag_new$param$margin <- tag_new_include$param$margin
+  tag_new$param$sd <- tag_new_include$param$sd
+  tag_new$param$thr_mask <- tag_new_include$param$thr_mask
+  tag_new$param$log_linear_pooling_weight <- tag_new_include$param$log_linear_pooling_weight
 
   if ("nb_sample" %in% names(tag$stap)) {
     tag_new$stap$nb_sample <- tag_new_include$stap$nb_sample
@@ -201,6 +207,12 @@ tag_update <- function(tag,
       # No stap have changed, we can keep the original light map
       tag_new$twilight <- tag$twilight
       tag_new$map_light <- tag$map_light
+
+      tag_new$param$twl_thr <- tag_new_include$param$twl_thr
+      tag_new$param$twl_offset <- tag_new_include$param$twl_offset
+      tag_new$param$twilight_file <- tag_new_include$param$twilight_file
+      tag_new$param$twl_calib_adjust <- tag_new_include$param$twl_calib_adjust
+      tag_new$param$twl_llp <- tag_new_include$param$twl_llp
     }
   }
 

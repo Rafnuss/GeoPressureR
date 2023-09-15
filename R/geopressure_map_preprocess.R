@@ -52,10 +52,18 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     pressure <- pressure[pressure$stap_id %in% stap$stap_id[is.na(stap$known_lat)], ]
   }
 
-  # remove flight and discard label
-  pressure <- pressure[pressure$label != "flight" &
-    pressure$label != "discard" &
-    pressure$stap_id > 0, ]
+  # Remove flight and discard label
+  id <- pressure$label != "flight" & pressure$label != "discard" & pressure$stap_id > 0
+  tmp <- unique(pressure$stap_id[!(pressure$stap_id %in% pressure$stap_id[id]) &
+    pressure$stap_id > 0])
+  if (length(tmp) > 0) {
+    cli::cli_abort(c(
+      "x" = "Stationary period{?s} {.val {as.character(tmp)}} {?is/are} included but all its \\
+      pressure measurements are {.val discard} or in {.val flight}.",
+      ">" = "Modify the label on trainset to fix this."
+    ))
+  }
+  pressure <- pressure[id, ]
 
   if (max(pressure$date) > Sys.time() - 3 * 30 * 24 * 60 * 60) {
     cli::cli_warn("There are potentially not yet pressure data on the Google Earth \\

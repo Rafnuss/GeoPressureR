@@ -1,8 +1,8 @@
 #' Compute likelihood map from pressure data
 #'
 #' @description
-#' The `geopressure_map()` function computes a likelihood map for each stationary period based on pressure
-#' measurements. It is a wrapper of the following two child functions:
+#' The `geopressure_map()` function computes a likelihood map for each stationary period based on
+#' pressure measurements. It is a wrapper of the following two child functions:
 #'
 #' 1. `geopressure_map_mismatch()` computes the mismatch maps between the pressure sensor
 #' measurements and the ERA5 reanalysis database.

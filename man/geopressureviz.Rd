@@ -4,14 +4,16 @@
 \alias{geopressureviz}
 \title{Start the GeoPressureViz shiny app}
 \usage{
-geopressureviz(x, pressurepath = NULL, marginal = NULL, launch_browser = TRUE)
+geopressureviz(x, path = NULL, marginal = NULL, launch_browser = TRUE)
 }
 \arguments{
-\item{x}{a GeoPressureR \code{tag} object or an unique identifier \code{id}.}
+\item{x}{a GeoPressureR \code{tag} object, a \code{.Rdata} file or the
+unique identifier \code{id} with a \code{.Rdata} file located in \code{"./data/interim/{id}.RData"}.}
 
-\item{pressurepath}{a GeoPressureR \code{pressurepath} data.frame.}
+\item{path}{a GeoPressureR \code{path} or \code{pressurepath} data.frame.}
 
-\item{marginal}{map of the marginal probability computed with \code{graph_marginal()}.}
+\item{marginal}{map of the marginal probability computed with \code{graph_marginal()}. Overwrite the
+\code{path} or \code{pressurepath} contained in the \code{.Rdata} file.}
 
 \item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on
 Rstudio.}
@@ -22,12 +24,15 @@ The updated path visualized in the app. Can also be retrieved with
 }
 \description{
 GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
-as well as each step-by-step move. This app is particularly useful to check the correspondance
+as well as each step-by-step move. This app is particularly useful to check the correspondence
 between pressure map, light map and flight distance. You can edit the path and query pressure
 timeserie for individual stationary period to test manual what seems the optimal path.
 }
 \details{
-You can retrieved the edited path from the global envirenmental variable \code{geopressureviz_path}.
+GeoPressureViz can be started based on a \code{.Rdata} file containing at least \code{tag}, but also
+optionally \code{marginal} and/or \code{path} (\code{path_most_likely} is also accepted).
+
+You can retrieved the edited path from the global environment variable \code{geopressureviz_path}.
 
 Learn more about GeoPressureViz in the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual } or with
 this \href{https://rafnuss.shinyapps.io/GeoPressureViz/}{demo of the Great Reed Warbler (18LX)}.

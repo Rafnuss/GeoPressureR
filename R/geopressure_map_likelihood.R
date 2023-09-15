@@ -6,7 +6,7 @@ geopressure_map_likelihood <- function(tag,
                                        log_linear_pooling_weight = \(n) log(n) / n,
                                        keep_mse = TRUE) {
   # Check tag status
-  tag_assert(tag, "map_pressure_mismatch")
+  tag_assert(tag, "map_pressure_mse")
 
   # Check sd
   assertthat::assert_that(is.numeric(sd))
@@ -39,11 +39,9 @@ geopressure_map_likelihood <- function(tag,
     # Log-linear pooling weight
     w <- log_linear_pooling_weight(n)
 
-    # get MSE layer
-    mse <-
-      # compute likelihood assume gaussian error distribution
-      likelihood <- (1 / (2 * pi * sd[istap]^2))^(n * w / 2) *
-        exp(-w * n / 2 / (sd[istap]^2) * tag$map_pressure_mse$data[[istap]])
+    # compute likelihood assume gaussian error distribution
+    likelihood <- (1 / (2 * pi * sd[istap]^2))^(n * w / 2) *
+      exp(-w * n / 2 / (sd[istap]^2) * tag$map_pressure_mse$data[[istap]])
 
     # change water in NA
     likelihood[is.na(likelihood)] <- 0
