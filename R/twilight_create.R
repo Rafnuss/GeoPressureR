@@ -18,8 +18,9 @@
 #' - `stap_id` if `stap_id` is present in `light`.
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
+#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+#' setwd(owd)
 #'
 #' # Create twilight data.frame
 #' tag <- twilight_create(tag)

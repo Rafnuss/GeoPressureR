@@ -13,8 +13,9 @@
 #' - `altitude`
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
+#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+#' setwd(owd)
 #'
 #' path <- data.frame(
 #'   stap_id = tag$stap$stap_id,
