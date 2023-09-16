@@ -1,6 +1,7 @@
 # GeoPressureR v3.1.0
 ## Major
-* Update to GeoPressureAPI v2, using `thr_mask` in `geopressure_map_mismatch()` and spliting `keep_mse_mask`.
+* Update to GeoPressureAPI v2, using `thr_mask` in `geopressure_map_mismatch()` and splitting `keep_mse_mask`.
+* Adjust computation of ground speed to account for grid resolution. 
 
 ## Minor
 * Use negative indexing for `known`

@@ -88,8 +88,8 @@ If \code{keep_mask} and \code{keep_mse} are each true, \code{tag} also includes 
 datapoints used to compute the MSE.
 }
 \description{
-The \code{geopressure_map()} function computes a likelihood map for each stationary period based on pressure
-measurements. It is a wrapper of the following two child functions:
+The \code{geopressure_map()} function computes a likelihood map for each stationary period based on
+pressure measurements. It is a wrapper of the following two child functions:
 \enumerate{
 \item \code{geopressure_map_mismatch()} computes the mismatch maps between the pressure sensor
 measurements and the ERA5 reanalysis database.
@@ -189,7 +189,8 @@ tag <- geopressure_map_mismatch(tag,
   margin = 20,
   thr_mask = 0.95,
   keep_mask = TRUE,
-  quiet = TRUE
+  quiet = TRUE,
+  workers = 1
 )
 
 plot(tag, type = "map_pressure_mse", plot_leaflet = FALSE)

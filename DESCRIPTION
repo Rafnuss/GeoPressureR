@@ -34,7 +34,6 @@ Imports:
     readr,
     stats,
     terra,
-    tools,
     utils
 Suggests: 
     BiocManager,
@@ -46,7 +45,8 @@ Suggests:
     RColorBrewer,
     readxl,
     shinyWidgets,
-    covr
+    covr,
+    maps
 biocViews:
 Config/testthat/edition: 3
 Encoding: UTF-8

@@ -31,6 +31,7 @@ test_that("tag_update() | default", {
   expect_equal(tag_new$map_pressure$stap, tag_new$stap)
   expect_equal(tag_new$map_pressure$data[[1]], tag_old$map_pressure$data[[1]])
   expect_equal(tag_new$map_pressure$data[[5]], tag_old$map_pressure$data[[5]])
+  expect_equal(tag_new$param$sd, tag_old$param$sd)
 })
 
 

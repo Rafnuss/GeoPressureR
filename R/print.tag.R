@@ -73,25 +73,23 @@ print.tag <- function(x, ...) {
           "*" = "Dimensions (lat x lon): {.val {geo$dim[1]}} x {.val {geo$dim[2]}} (res. \\
           {.val {1/tag$param$scale}}\u00b0)"
         ))
-        # nolint end
-        if ("map_pressure_mismatch" %in% status) {
+        fun_map <- "geopressure_map"
+        if ("map_pressure_mse" %in% status) {
           map_pressure_mismatch <- c("map_pressure_mse", "map_pressure_mask")
           map_pressure_mismatch <- map_pressure_mismatch[map_pressure_mismatch %in% names(tag)]
           cli::cli_bullets(c(
             "v" = "Pressure mismatch {.field {map_pressure_mismatch}} computed."
           ))
-          if ("map_pressure" %in% status) {
-            cli::cli_bullets(c(
-              "v" = "Pressure likelihood {.field map_pressure} computed!"
-            ))
-          } else {
-            cli::cli_bullets(c(
-              "x" = "No pressure likelihood computed yet. Use {.fun geopressure_map_likelihood}."
-            ))
-          }
+          fun_map <- "geopressure_map_likelihood"
+        }
+        # nolint end
+        if ("map_pressure" %in% status) {
+          cli::cli_bullets(c(
+            "v" = "Pressure likelihood {.field map_pressure} computed!"
+          ))
         } else {
           cli::cli_bullets(c(
-            "x" = "No pressure likelihood computed. Use {.fun geopressure_map}."
+            "x" = "No pressure likelihood computed yet. Use {.fun {fun_map}}."
           ))
         }
         if ("map_light" %in% status) {

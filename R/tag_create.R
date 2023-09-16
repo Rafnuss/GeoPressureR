@@ -112,7 +112,6 @@ tag_create <- function(id,
       manufacturer <- "manual"
     } else {
       assertthat::assert_that(assertthat::is.dir(directory))
-      ext <- tools::file_ext(list.files(directory))
       if (any(grepl("\\.pressure$", list.files(directory)))) {
         manufacturer <- "soi"
       } else if (any(grepl("\\.deg$", list.files(directory)))) {
@@ -414,7 +413,6 @@ tag_create_manual <- function(tag,
 
   # Read acceleration
   if (!is.null(acceleration_file)) {
-    acc <- acceleration_file
     assertthat::assert_that(assertthat::has_name(acceleration_file, c("date", "value")))
     assertthat::assert_that(inherits(acceleration_file$date, "POSIXct"))
     assertthat::assert_that(assertthat::are_equal(attr(acceleration_file$date, "tzone"), "UTC"))

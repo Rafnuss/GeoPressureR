@@ -49,10 +49,12 @@ geopressureviz <- function(x,
       if (!is.null(marginal)) {
         marginal0 <- marginal
       }
+      # Avoid CMD error
+      path_most_likely <- NULL
       # Load interim data
       load(file)
       # Accept path_most_likely instead of path
-      if (exists("path_most_likely")){
+      if (!is.null("path_most_likely")) {
         path <- path_most_likely
       }
       # Overwrite loaded variable with arguments if provided
@@ -112,7 +114,7 @@ geopressureviz <- function(x,
     # path is not defined
     pressurepath <- data.frame()
     path <- tag2path(tag)
-  } else if ("pressure_tag" %in% names(path)){
+  } else if ("pressure_tag" %in% names(path)) {
     # If path is a pressurepath
     pressurepath <- path
     path <- merge(tag$stap, unique(pressurepath[, c("stap_id", "lat", "lon")]), all = TRUE)
