@@ -23,9 +23,12 @@
 #' `plot_tag_light()`, `plot_tag_twilight()` or `plot.map()`
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
+#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
-#'   tag_label(quiet = TRUE)
+#'   tag_label(quiet = TRUE) |>
+#'   twilight_create() |>
+#'   twilight_label_read()
+#' setwd(owd)
 #'
 #' # By default, plot will display the timeserie of pressure
 #' plot(tag)
@@ -33,7 +36,6 @@
 #' plot(tag, type = "acceleration")
 #' plot(tag, type = "light")
 #' # Twilight is display as an image
-#' tag <- twilight_create(tag) |> twilight_label_read()
 #' plot(tag, type = "twilight")
 #'
 #' # After you compute any likelihood map, the default will
@@ -113,12 +115,15 @@ plot.tag <- function(x, type = NULL, ...) {
 #'
 #' @family plot_tag
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
+#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE)
+#' setwd(owd)
 #'
 #' plot_tag_pressure(tag, plot_plotly = FALSE)
 #'
+#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_label(tag, quiet = TRUE)
+#' setwd(owd)
 #'
 #' plot_tag_pressure(tag)
 #' @export

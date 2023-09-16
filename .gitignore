@@ -38,7 +38,7 @@
 .Rdata
 
 # pkgdown site
-docs/
+# docs/
 
 # GeopressureViz
 inst/geopressureviz/geopressureviz.RData

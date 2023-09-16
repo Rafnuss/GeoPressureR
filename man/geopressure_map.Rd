@@ -176,13 +176,14 @@ significantly.
 }
 
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
+owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   tag_set_map(
     extent = c(-16, 23, 0, 50),
     scale = 4
   )
+setwd(owd)
 
 tag <- geopressure_map_mismatch(tag,
   max_sample = 50,

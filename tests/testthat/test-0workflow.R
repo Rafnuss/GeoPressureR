@@ -35,13 +35,13 @@ test_that("workflow | full", {
     graph_set_movement()
 
   marginal <- graph_marginal(graph)
-  path <- graph_most_likely(graph)
-  sim <- graph_simulation(graph)
+  path_most_likely <- graph_most_likely(graph)
+  path_simulation <- graph_simulation(graph)
 
-  edge <- path2edge(path, graph)
-  edge_sim <- path2edge(sim, graph)
+  edge_most_likely <- path2edge(path_most_likely, graph)
+  edge_simulation <- path2edge(path_simulation, graph)
 
-  pressurepath <- pressurepath_create(tag, path)
+  pressurepath <- pressurepath_create(tag, path_most_likely)
 
   expect_no_error(print(tag))
   expect_no_error(print(graph))
@@ -61,7 +61,7 @@ test_that("workflow | full", {
 
   expect_no_error(plot_graph_movement(graph))
 
-  expect_no_error(plot_path(path))
+  expect_no_error(plot_path(path_most_likely))
 })
 
 test_that("workflow | Missing pressure value", {

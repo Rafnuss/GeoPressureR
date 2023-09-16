@@ -27,12 +27,15 @@ plot_tag_pressure(
 This function display a plot of pressure timeseries recorded by a tag
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
+owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE)
+setwd(owd)
 
 plot_tag_pressure(tag, plot_plotly = FALSE)
 
+owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_label(tag, quiet = TRUE)
+setwd(owd)
 
 plot_tag_pressure(tag)
 }

@@ -23,7 +23,7 @@
 #' - `nb_sample known` number of datapoint used to compute pressure (same as in `stap`)
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
+#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
 #'   twilight_create() |>
@@ -34,6 +34,7 @@
 #'   ) |>
 #'   geopressure_map(quiet = TRUE) |>
 #'   geolight_map(quiet = TRUE)
+#' setwd(owd)
 #'
 #' # Create graph
 #' graph <- graph_create(tag, quiet = TRUE)

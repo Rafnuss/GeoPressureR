@@ -23,8 +23,9 @@ As the altitude is estimated both at the arrival and departure stationary period
 need to find a way to correct for the altitude in between.
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
+owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+setwd(owd)
 
 path <- data.frame(
   stap_id = tag$stap$stap_id,
