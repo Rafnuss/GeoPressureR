@@ -44,7 +44,7 @@ the position of the longer ones. The interpolation assumes that the first and la
 period can be safely estimated from the probability map.
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
+owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   tag_set_map(
@@ -52,6 +52,7 @@ tag <- tag_create("18LX", quiet = TRUE) |>
     scale = 2
   ) |>
   geopressure_map(quiet = TRUE)
+setwd(owd)
 
 # Extract a path from pressure map
 path <- tag2path(tag)

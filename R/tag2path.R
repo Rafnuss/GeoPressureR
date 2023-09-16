@@ -24,7 +24,7 @@
 #' - `lat` Latitude,
 #' - `lon` longitude
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
+#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
 #'   tag_set_map(
@@ -32,6 +32,7 @@
 #'     scale = 2
 #'   ) |>
 #'   geopressure_map(quiet = TRUE)
+#' setwd(owd)
 #'
 #' # Extract a path from pressure map
 #' path <- tag2path(tag)

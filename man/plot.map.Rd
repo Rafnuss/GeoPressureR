@@ -45,7 +45,7 @@ This function plot a GeoPressureR \code{map} object.
 You can plot on top of the \code{map} a \code{path}, this uses the \code{plot_path()} function.
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
+owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   tag_set_map(
@@ -53,6 +53,7 @@ tag <- tag_create("18LX", quiet = TRUE) |>
     scale = 4
   ) |>
   geopressure_map(quiet = TRUE)
+setwd(owd)
 
 plot(tag$map_pressure)
 
