@@ -88,6 +88,7 @@ and the <a href="https://bit.ly/3saLVqi" class="external-link">GeoPressureManual
 <span>  likelihood <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  geosphere_dist <span class="op">=</span> <span class="fu">geosphere</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/geosphere/man/distHaversine.html" class="external-link">distHaversine</a></span>,</span>
 <span>  geosphere_bearing <span class="op">=</span> <span class="fu">geosphere</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/geosphere/man/bearing.html" class="external-link">bearing</a></span>,</span>
+<span>  workers <span class="op">=</span> <span class="st">"auto"</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -123,6 +124,14 @@ https://rspatial.org/raster/sphere/2-distance.html for more options and details.
 <dd><p>function to compute the bearing. Either <code><a href="https://rdrr.io/pkg/geosphere/man/bearing.html" class="external-link">geosphere::bearing</a></code> (default)
 or <code><a href="https://rdrr.io/pkg/geosphere/man/bearingRhumb.html" class="external-link">geosphere::bearingRhumb</a></code>. See https://rspatial.org/raster/sphere/3-direction.html#bearing
 for details.</p></dd>
+
+
+<dt>workers</dt>
+<dd><p>number of workers used in the computation of edges ground speed. More workers
+(up to the limit <code><a href="https://parallelly.futureverse.org/reference/availableCores.html" class="external-link">future::availableCores()</a></code>) usually makes the computation faster, but because
+the the number of edges is large, memory will often limit the computation. You might want to
+reduce this number to 1 or 2 in this case. <code>"auto"</code> (default) adjusts the number of workers to
+half of the cores available.</p></dd>
 
 
 <dt>quiet</dt>

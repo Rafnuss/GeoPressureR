@@ -35,9 +35,11 @@ https://rspatial.org/raster/sphere/2-distance.html for more options and details.
 or \code{geosphere::bearingRhumb}. See https://rspatial.org/raster/sphere/3-direction.html#bearing
 for details.}
 
-\item{workers}{Computation of edges ground speed is computed in parralle. \code{"auto"} adjust the
-number of workers to half of the cores available. Depending on the memory required and available
-you might nee to reduce this number}
+\item{workers}{number of workers used in the computation of edges ground speed. More workers
+(up to the limit \code{future::availableCores()}) usually makes the computation faster, but because
+the the number of edges is large, memory will often limit the computation. You might want to
+reduce this number to 1 or 2 in this case. \code{"auto"} (default) adjusts the number of workers to
+half of the cores available.}
 
 \item{quiet}{logical to hide messages about the progress.}
 }

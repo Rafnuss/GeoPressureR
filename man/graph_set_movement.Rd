@@ -30,7 +30,7 @@ graph_set_movement(
 \item{location}{parameter for the logistic distribution}
 
 \item{bird}{A GeoPressureR \code{bird} object containing the basic morphological traits necessary:
-mass, wing span, wing aspect ratio, and body frontal area. See \code{\link[=bird_create]{bird_create()}}.}
+mass, wing span, wing aspect ratio, and body frontal area. See \code{bird_create()}.}
 
 \item{power2prob}{function taking power as a single argument and returning a probability}
 
