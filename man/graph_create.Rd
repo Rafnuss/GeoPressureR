@@ -11,6 +11,7 @@ graph_create(
   likelihood = NULL,
   geosphere_dist = geosphere::distHaversine,
   geosphere_bearing = geosphere::bearing,
+  workers = "auto",
   quiet = FALSE
 )
 }
@@ -33,6 +34,12 @@ https://rspatial.org/raster/sphere/2-distance.html for more options and details.
 \item{geosphere_bearing}{function to compute the bearing. Either \code{geosphere::bearing} (default)
 or \code{geosphere::bearingRhumb}. See https://rspatial.org/raster/sphere/3-direction.html#bearing
 for details.}
+
+\item{workers}{number of workers used in the computation of edges ground speed. More workers
+(up to the limit \code{future::availableCores()}) usually makes the computation faster, but because
+the the number of edges is large, memory will often limit the computation. You might want to
+reduce this number to 1 or 2 in this case. \code{"auto"} (default) adjusts the number of workers to
+half of the cores available.}
 
 \item{quiet}{logical to hide messages about the progress.}
 }
