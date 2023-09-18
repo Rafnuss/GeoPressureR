@@ -23,6 +23,9 @@
 #' @param geosphere_bearing function to compute the bearing. Either `geosphere::bearing` (default)
 #' or `geosphere::bearingRhumb`. See https://rspatial.org/raster/sphere/3-direction.html#bearing
 #' for details.
+#' @param workers Computation of edges ground speed is computed in parralle. `"auto"` adjust the
+#' number of workers to half of the cores available. Depending on the memory required and available
+#' you might nee to reduce this number
 #' @param quiet logical to hide messages about the progress.
 #' @inheritParams tag2map
 #'
@@ -74,6 +77,7 @@ graph_create <- function(tag,
                          likelihood = NULL,
                          geosphere_dist = geosphere::distHaversine,
                          geosphere_bearing = geosphere::bearing,
+                         workers = "auto",
                          quiet = FALSE) {
   if (!quiet) {
     cli::cli_progress_step("Check data input")
@@ -229,7 +233,11 @@ graph_create <- function(tag,
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
   nds_sorted_idx <- order(nds_expend_sum, decreasing = TRUE)
   nds_expend_sum <- sort(nds_expend_sum, decreasing = TRUE)
-  workers <- future::availableCores() / 2
+  if (workers == "auto") {
+    workers <- future::availableCores() / 2
+  } else {
+    assertthat::assert_that(workers > 0 & workers < 100)
+  }
   if (!quiet) {
     cli::cli_progress_step("Starting parrallel session on {workers} workers")
   }
