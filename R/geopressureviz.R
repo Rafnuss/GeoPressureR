@@ -158,5 +158,5 @@ geopressureviz <- function(x,
     launch.browser = launch_browser
   )
 
-  return(.GlobalEnv$geopressureviz_path)
+  return(invisible(.GlobalEnv$geopressureviz_path))
 }
