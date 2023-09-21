@@ -11,11 +11,11 @@ geopressure_map(
   tag,
   max_sample = 250,
   margin = 30,
-  timeout = 60 * 5,
-  workers = "auto",
   sd = 1,
   thr_mask = 0.9,
   log_linear_pooling_weight = function(n) log(n)/n,
+  timeout = 60 * 5,
+  workers = "auto",
   keep_mask = FALSE,
   keep_mse = FALSE,
   compute_known = FALSE,
@@ -52,12 +52,6 @@ timeseries.}
 \item{margin}{the margin is used in the mask map to accept measurement errors, small-scale
 topography, and vertical movements of the bird (unit in meters, 1hPa~10m).}
 
-\item{timeout}{Duration before the code is interrupted both for the request on
-GeoPressureAPI and on GEE (in seconds, see \code{\link[httr:timeout]{httr::timeout()}}).}
-
-\item{workers}{Number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjust the
-number of workers to the number of \code{stap_elev} to query.}
-
 \item{sd}{standard deviation of the pressure error . numeric of lenght 1 or number of stationary
 periods.}
 
@@ -67,6 +61,12 @@ considered not possible.}
 \item{log_linear_pooling_weight}{weighting function of the log-linear pooling, taking the number
 of samples of the stationary periods used and returning the weight of the aggregation. See
 \href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation } for more details.}
+
+\item{timeout}{Duration before the code is interrupted both for the request on
+GeoPressureAPI and on GEE (in seconds, see \code{\link[httr:timeout]{httr::timeout()}}).}
+
+\item{workers}{Number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjust the
+number of workers to the number of \code{stap_elev} to query.}
 
 \item{keep_mask}{logical defining if the mask map is returned in \code{tag}.}
 
@@ -160,7 +160,8 @@ The mismatch maps of all elevation levels belonging to the same stationay period
 We convert the map of the mean square error \eqn{MSE} and altitude mask \eqn{z_{mask}} computed
 by \code{\link[=geopressure_map_mismatch]{geopressure_map_mismatch()}} into a likelihood map with,
 
-\deqn{L = \exp \left(-w \frac{MSE}{\sigma} \right) \left[z_{mask}>T \right],}
+\deqn{L = \left( \frac{1}{2 \pi \sigma^2}\right)^{\frac{nw}{2}}
+\exp \left(-w n \frac{MSE}{2\sigma^2} \right) \left[z_{mask}>T \right],}
 
 where \eqn{\sigma} is the standard deviation (\code{sd}) of pressure and \eqn{T} is the mask threshold
 (\code{thr_mask}).

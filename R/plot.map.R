@@ -97,7 +97,7 @@ plot.map <- function(x,
       }
     }
 
-    for (i in seq_len(dim(r)[3])) {
+    for (i in map$stap$stap_id[map$stap$include]) {
       lmap <- leaflet::addRasterImage(
         lmap,
         r[[i]],
@@ -160,6 +160,6 @@ plot.map <- function(x,
 
     return(lmap)
   } else {
-    terra::plot(r, legend = legend, ...)
+    terra::plot(r[[map$stap$include]], legend = legend, ...)
   }
 }

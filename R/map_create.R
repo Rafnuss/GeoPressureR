@@ -156,5 +156,5 @@ dim.map <- function(x) {
 
   z$type <- glue::glue("{x$type} x {y$type}")
 
-  return(x)
+  return(z)
 }

@@ -109,20 +109,20 @@ geopressure_timeseries <- function(lat,
   assertthat::assert_that(is.logical(quiet))
 
   # Format query
-  body_df <- list(lon = lon, lat = lat)
+  body <- list(lon = lon, lat = lat)
   if (!is.null(pressure)) {
     assertthat::assert_that(nrow(pressure) > 0)
-    body_df$time <- jsonlite::toJSON(as.numeric(as.POSIXct(pressure$date)))
-    body_df$pressure <- jsonlite::toJSON(pressure$value * 100)
+    body$time <- as.numeric(as.POSIXct(pressure$date))
+    body$pressure <- pressure$value * 100
   } else {
-    body_df$startTime <- as.numeric(as.POSIXct(start_time))
-    body_df$endTime <- as.numeric(as.POSIXct(end_time))
+    body$startTime <- as.numeric(as.POSIXct(start_time))
+    body$endTime <- as.numeric(as.POSIXct(end_time))
   }
 
   if (!quiet) cli::cli_progress_step("Generate request (on GeoPressureAPI)")
-  res <- httr::POST("https:///glp.mgravey.com/GeoPressure/v1/timeseries/",
-    body = body_df,
-    encode = "form",
+  res <- httr::POST("https:///glp.mgravey.com/GeoPressure/v2/timeseries/",
+    body = body,
+    encode = "json",
     httr::timeout(timeout)
   )
 
@@ -130,9 +130,9 @@ geopressure_timeseries <- function(lat,
     message(httr::http_status(res)$message)
     message(httr::content(res))
     temp_file <- tempfile("log_pressurepath_create", fileext = ".json")
-    write(jsonlite::toJSON(body_df), temp_file)
+    write(jsonlite::toJSON(body), temp_file)
     cli::cli_abort(c(
-      x = "Error with your request on {.url https://glp.mgravey.com/GeoPressure/v1/timeseries/}.",
+      x = "Error with your request on {.url https://glp.mgravey.com/GeoPressure/v2/timeseries/}.",
       i = "Please try again, and if the problem persists, file an issue on Github {.url \\
       https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=pressurepath_create&labels=crash}
       with this log file located on your computer: {.file {temp_file}}."
@@ -166,7 +166,7 @@ geopressure_timeseries <- function(lat,
   # check for errors
   if (nrow(out) == 0) {
     temp_file <- tempfile("log_pressurepath_create", fileext = ".json")
-    write(jsonlite::toJSON(body_df), temp_file)
+    write(jsonlite::toJSON(body), temp_file)
     cli::cli_abort(c(
       x = "Returned csv file is empty.",
       i = "Check that the time range is none-empty. Log of your  JSON request: {.file {temp_file}}"

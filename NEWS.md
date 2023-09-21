@@ -1,3 +1,15 @@
+# GeoPressureR v3.2.0
+## Major
+*  
+
+## Minor
+* Add `workers` argument in `graph_create()` https://github.com/Rafnuss/GeoPressureR/commit/e1ce45882809e1fd3da0e8feb2ff80ac70f2bf8b
+* Update to GeoPressureAPI v2 for `geopressure_timeseries()` https://github.com/Rafnuss/GeoPressureR/commit/732d1a02cc241dc7d2dde3401c8747fa860650c6
+
+## Full Changelog
+[https://github.com/Rafnuss/GeoPressureR/compare/v3.2.1...v3.2.0](https://github.com/Rafnuss/GeoPressureR/compare/v3.1.0...v3.2.0)
+
+
 # GeoPressureR v3.1.0
 ## Major
 * Update to GeoPressureAPI v2, using `thr_mask` in `geopressure_map_mismatch()` and splitting `keep_mse_mask`.
@@ -8,9 +20,9 @@
 * remove trailing `/` to default directories.
 * documentations and minor fixes.
 
-
 ## Full Changelog
 [https://github.com/Rafnuss/GeoPressureR/compare/v3.0.0...v3.1.0](https://github.com/Rafnuss/GeoPressureR/compare/v3.0.0...v3.1.0)
+
 
 # GeoPressureR v3.0.0
 

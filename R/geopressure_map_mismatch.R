@@ -146,8 +146,9 @@ geopressure_map_mismatch <- function(tag,
     # nolint start
     i_u <- 1
     cli::cli_progress_step(
-      msg = "Send requests for {.val {length(urls)}} stapelev (in parallel): {.val {labels[i_u]}} | {i_u}/{length(urls)}",
-      msg_done = "Send requests for {.val {length(urls)}} stapelev (in parallel)",
+      msg = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev \\
+      (in parallel): {.val {labels[i_u]}} | {i_u}/{length(urls)}",
+      msg_done = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev",
       spinner = TRUE
     )
     # nolint end
@@ -166,7 +167,6 @@ geopressure_map_mismatch <- function(tag,
           verbose = debug
           # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
         )
-        # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
       )
       if (httr::http_error(res)) {
         return(res)
@@ -182,8 +182,8 @@ geopressure_map_mismatch <- function(tag,
     # nolint start
     i_u <- 1
     cli::cli_progress_step(
-      msg = "Compute the map (on GEE server) and download .geotiff: {.val {labels[i_u]}} | {i_u}/{length(urls)}",
-      msg_done = "Compute the map (on GEE server) and download .geotiff",
+      msg = "Read .geotiff: {.val {labels[i_u]}} | {i_u}/{length(urls)}",
+      msg_done = "Read .geotiff",
       spinner = TRUE
     )
     # nolint end
@@ -197,9 +197,9 @@ geopressure_map_mismatch <- function(tag,
       cli::cli_warn(c(
         "x" = "There was an error for stap {.val {labels[i_u]}} during the downloading and \\
         reading of the response url {.url {urls[i_u]}}. It returned a status code \\
-        {.val {httr::status_code(res)}}. The original error is displayed below."
+        {.val {httr::status_code(res)}}."
       ))
-      cat(httr::content(res))
+      print(res)
     } else {
       if (debug) {
         print(file)
