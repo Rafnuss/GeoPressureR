@@ -166,7 +166,7 @@ geopressure_timeseries <- function(lat,
   # check for errors
   if (nrow(out) == 0) {
     temp_file <- tempfile("log_pressurepath_create", fileext = ".json")
-    write(jsonlite::toJSON(body_df), temp_file)
+    write(jsonlite::toJSON(body), temp_file)
     cli::cli_abort(c(
       x = "Returned csv file is empty.",
       i = "Check that the time range is none-empty. Log of your  JSON request: {.file {temp_file}}"

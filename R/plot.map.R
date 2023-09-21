@@ -160,6 +160,6 @@ plot.map <- function(x,
 
     return(lmap)
   } else {
-    terra::plot(r[map$stap$include], legend = legend, ...)
+    terra::plot(r[[map$stap$include]], legend = legend, ...)
   }
 }
