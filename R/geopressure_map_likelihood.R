@@ -41,7 +41,7 @@ geopressure_map_likelihood <- function(tag,
 
     # compute likelihood assume gaussian error distribution
     likelihood <- (1 / (2 * pi * sd[istap]^2))^(n * w / 2) *
-      exp(-w * n / 2 / (sd[istap]^2) * tag$map_pressure_mse$data[[istap]])
+      exp(-w * n / (2 * sd[istap]^2) * tag$map_pressure_mse$data[[istap]])
 
     # change water in NA
     likelihood[is.na(likelihood)] <- 0
