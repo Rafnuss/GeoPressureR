@@ -21,7 +21,7 @@ plot_graph_movement <- function(graph,
   )
   lsf <- data.frame(low_speed_fix = graph$param$movement$low_speed_fix)
 
-  if (assertthat::has_name(graph, c("ws"))) {
+  if (graph$param$movement$type == "as") {
     xlab <- "Airspeed [km/h]"
   } else {
     xlab <- "Groundspeed [km/h]"

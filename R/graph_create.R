@@ -315,9 +315,6 @@ graph_create <- function(tag,
       }
       return(grt)
     }, seed = TRUE)
-    if (!quiet) {
-      cli::cli_progress_update(force = TRUE)
-    }
   }
 
   # Retrieve the graph
