@@ -56,7 +56,7 @@ $$ P_{ERA5,0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.1.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -225,12 +225,12 @@ Global Positioning with Animal‐borne Pressure Sensors. <em>Methods in Ecology 
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">pressurepath</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 'data.frame':	25 obs. of  7 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ date              : POSIXct, format: "2017-01-01 00:00:00" "2017-01-01 01:00:00" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure_tag      : num  968 969 969 966 967 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure_tag      : num  970 968 968 966 967 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure_era5     : num  969 969 968 968 967 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ altitude          : num  497 484 475 497 486 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ altitude          : num  482 490 488 497 489 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ lat               : num  46 46 46 46 46 46 46 46 46 46 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ lon               : num  6 6 6 6 6 6 6 6 6 6 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure_era5_norm: num  970 969 968 968 967 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure_era5_norm: num  969 969 968 968 967 ...</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pressurepath</span><span class="op">$</span><span class="va">date</span>, <span class="va">pressurepath</span><span class="op">$</span><span class="va">altitude</span>,</span></span>
 <span class="r-in"><span>  type <span class="op">=</span> <span class="st">"b"</span>, ylab <span class="op">=</span> <span class="st">"Altitude (m)"</span>, xlab <span class="op">=</span> <span class="st">"Datetime"</span></span></span>
