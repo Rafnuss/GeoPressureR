@@ -13,7 +13,7 @@
 #' @return Pressure data.frame without flight and discarded values, on a 1hr resolution.
 #' @examples
 #' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label()
+#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 #' setwd(owd)
 #'
 #' pressure_processed <- geopressure_map_preprocess(tag)

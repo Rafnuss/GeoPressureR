@@ -134,8 +134,7 @@
 #'   margin = 20,
 #'   thr_mask = 0.95,
 #'   keep_mask = TRUE,
-#'   quiet = TRUE,
-#'   workers = 1
+#'   quiet = TRUE
 #' )
 #'
 #' plot(tag, type = "map_pressure_mse", plot_leaflet = FALSE)

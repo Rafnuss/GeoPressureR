@@ -12,14 +12,15 @@
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
 #'   twilight_create()
+#'
+#' tag_labeled <- twilight_label_read(tag)
 #' setwd(owd)
 #'
 #' plot(tag, type = "twilight") + ggplot2::ggtitle("Before label")
 #'
-#' tag <- twilight_label_read(tag)
-#' str(tag$twilight)
+#' str(tag_labeled$twilight)
 #'
-#' plot(tag, type = "twilight") + ggplot2::ggtitle("After label")
+#' plot(tag_labeled, type = "twilight") + ggplot2::ggtitle("After label")
 #' @export
 twilight_label_read <- function(
     tag,

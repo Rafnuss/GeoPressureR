@@ -261,6 +261,9 @@ geopressure_map_mismatch <- function(tag,
     }
   }
 
+  # Explicitly close multisession workers by switching plan
+  future::plan(future::sequential)
+
   # Add attribute
   tag$map_pressure_mse <- map_create(
     data = mse,

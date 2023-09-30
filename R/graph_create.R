@@ -320,6 +320,9 @@ graph_create <- function(tag,
   # Retrieve the graph
   gr <- future::value(f)
 
+  # Explicitly close multisession workers by switching plan
+  future::plan(future::sequential)
+
   # Prune
   gr <- graph_create_prune(gr, quiet = quiet)
 
