@@ -16,7 +16,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.1.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,9 +51,46 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="3.0.0" id="geopressurer-v300">GeoPressureR v3.0.0<a class="anchor" aria-label="anchor" href="#geopressurer-v300"></a></h2>
+<h2 class="pkg-version" data-toc-text="3.1.2" id="geopressurer-v312">GeoPressureR v3.1.2<a class="anchor" aria-label="anchor" href="#geopressurer-v312"></a></h2>
 <div class="section level3">
-<h3 id="guiding-principles-of-v3-3-0-0">Guiding principles of v3<a class="anchor" aria-label="anchor" href="#guiding-principles-of-v3-3-0-0"></a></h3>
+<h3 id="major-3-1-2">Major<a class="anchor" aria-label="anchor" href="#major-3-1-2"></a></h3>
+<ul><li>
+</li></ul></div>
+<div class="section level3">
+<h3 id="minor-3-1-2">Minor<a class="anchor" aria-label="anchor" href="#minor-3-1-2"></a></h3>
+<ul><li>Add <code>workers</code> argument in <code><a href="../reference/graph_create.html">graph_create()</a></code> <a href="https://github.com/Rafnuss/GeoPressureR/commit/e1ce45882809e1fd3da0e8feb2ff80ac70f2bf8b" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/e1ce45882809e1fd3da0e8feb2ff80ac70f2bf8b</a>
+</li>
+<li>Update to GeoPressureAPI v2 for <code><a href="../reference/geopressure_timeseries.html">geopressure_timeseries()</a></code> <a href="https://github.com/Rafnuss/GeoPressureR/commit/732d1a02cc241dc7d2dde3401c8747fa860650c6" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/732d1a02cc241dc7d2dde3401c8747fa860650c6</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="full-changelog-3-1-2">Full Changelog<a class="anchor" aria-label="anchor" href="#full-changelog-3-1-2"></a></h3>
+<p><a href="https://github.com/Rafnuss/GeoPressureR/compare/v3.1.0...v3.1.2" class="external-link">https://github.com/Rafnuss/GeoPressureR/compare/v3.2.1…v3.1.2</a></p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="3.1" id="geopressurer-v31">GeoPressureR v3.1<a class="anchor" aria-label="anchor" href="#geopressurer-v31"></a></h2>
+<div class="section level3">
+<h3 id="major-3-1">Major<a class="anchor" aria-label="anchor" href="#major-3-1"></a></h3>
+<ul><li>Update to GeoPressureAPI v2, using <code>thr_mask</code> in <code><a href="../reference/geopressure_map.html">geopressure_map_mismatch()</a></code> and splitting <code>keep_mse_mask</code>.</li>
+<li>Adjust computation of ground speed to account for grid resolution.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-3-1">Minor<a class="anchor" aria-label="anchor" href="#minor-3-1"></a></h3>
+<ul><li>Use negative indexing for <code>known</code>
+</li>
+<li>remove trailing <code>/</code> to default directories.</li>
+<li>documentations and minor fixes.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="full-changelog-3-1">Full Changelog<a class="anchor" aria-label="anchor" href="#full-changelog-3-1"></a></h3>
+<p><a href="https://github.com/Rafnuss/GeoPressureR/compare/v3.0.0...v3.1.0" class="external-link">https://github.com/Rafnuss/GeoPressureR/compare/v3.0.0…v3.1.0</a></p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="3.0" id="geopressurer-v30">GeoPressureR v3.0<a class="anchor" aria-label="anchor" href="#geopressurer-v30"></a></h2>
+<div class="section level3">
+<h3 id="guiding-principles-of-v3-3-0">Guiding principles of v3<a class="anchor" aria-label="anchor" href="#guiding-principles-of-v3-3-0"></a></h3>
 <p>This new version consists of a significant revamp of the entire code centered around these themes:</p>
 <ul><li>Name more general than SOI sensors (e.g., use <code>tag</code> instead of <code>pam</code>)</li>
 <li>Focus the workflow on pressure sensor (but still allows for acceleration or light data)</li>
@@ -72,7 +109,7 @@
 </ul><p>⚠️ See <a href="https://github.com/Rafnuss/GeoPressureR/issues/55" class="external-link">#55</a> for details on the functions named change ⚠️ See the <a href="https://github.com/Rafnuss/GeoPressureR/wiki/Migration-v2-%E2%80%90--v3" class="external-link">migration wiki</a> for a small guide to transition from v2.</p>
 </div>
 <div class="section level3">
-<h3 id="major-3-0-0">Major<a class="anchor" aria-label="anchor" href="#major-3-0-0"></a></h3>
+<h3 id="major-3-0">Major<a class="anchor" aria-label="anchor" href="#major-3-0"></a></h3>
 <ul><li>Use of GeoPressureR object: <code>tag</code>, <code>graph</code>, <code>param</code>, <code>bird</code>
 </li>
 <li>Many new ploting functions including update of <code><a href="../reference/geopressureviz.html">geopressureviz()</a></code>
@@ -84,7 +121,7 @@
 <li>Review the structure of a path and edges.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="minor-3-0-0">Minor<a class="anchor" aria-label="anchor" href="#minor-3-0-0"></a></h3>
+<h3 id="minor-3-0">Minor<a class="anchor" aria-label="anchor" href="#minor-3-0"></a></h3>
 <ul><li>Formulate graph as a HMM <a href="https://github.com/Rafnuss/GeoPressureR/issues/68" class="external-link">#68</a></li>
 <li>Simplified workflow <a href="https://github.com/Rafnuss/GeoPressureR/issues/69" class="external-link">#69</a></li>
 <li>Use of <code>cli</code> for message.</li>

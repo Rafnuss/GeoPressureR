@@ -20,7 +20,7 @@ been modified and updates only these ones in tag$map_pressure and pressurepath."
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.1.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,6 +67,7 @@ been modified and updates only these ones in <code>tag$map_pressure</code> and <
 <span>  <span class="va">tag</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"./data/tag-label/{tag$param$id}-labeled.csv"</span><span class="op">)</span>,</span>
 <span>  known <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  include_stap_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -85,6 +86,12 @@ been modified and updates only these ones in <code>tag$map_pressure</code> and <
 <dd><p>data.frame containing the known positions of the bird (e.g., equipment or retrieval
 site). The default is to use <code>tag$stap</code>, which assumes that the <code>stap_id</code> has not changed for the
 known stationary periods.</p></dd>
+
+
+<dt>include_stap_id</dt>
+<dd><p>vector of <code>stap_id</code> defining which stationary period to model, that is,
+to compute in the likelihood map and use in the graph. The default is to use the same original
+value.</p></dd>
 
 
 <dt>quiet</dt>
@@ -107,7 +114,7 @@ known stationary periods.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_create.html">tag_create</a></span><span class="op">(</span><span class="st">"18LX"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="tag_label.html">tag_label</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="tag_set_map.html">tag_set_map</a></span><span class="op">(</span>extent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">16</span>, <span class="fl">23</span>, <span class="fl">0</span>, <span class="fl">50</span><span class="op">)</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
@@ -115,73 +122,66 @@ known stationary periods.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `tag` object for </span><span style="color: #00BB00; font-weight: bold;">id</span><span style="font-weight: bold;"> = </span><span style="color: #0000BB; font-weight: bold;">"18LX"</span> <span style="color: #00BBBB;">───────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Date range: 2017-07-27 to 2017-08-09 23:30:00</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `tag` object for 18LX</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Note</span>: All <span style="color: #00BB00;">green</span> texts are fields of `tag` (i.e., `tag$<span style="color: #00BB00;">field</span>`).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Parameter <span style="color: #00BB00;">param</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Run `tag$param` to display full table</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Sensors data </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">pressure</span>: 672 datapoints</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">acceleration</span>: 4032 datapoints</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">light</span>: 4032 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Manufacturer: soi</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Date range: 2017-07-27 to 2017-08-09 23:30:00</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">pressure</span>: 672 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">acceleration</span>: 4032 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">light</span>: 4032 datapoints</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Stationary periods <span style="color: #00BB00;">stap</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">5</span> stationary periods</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stap_id               start                 end known_lat known_lon include</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1 2017-07-27 00:00:00 2017-08-04 19:45:00        NA        NA    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2 2017-08-04 23:20:00 2017-08-05 19:25:00        NA        NA    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3 2017-08-06 02:55:00 2017-08-06 19:10:00        NA        NA    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       4 2017-08-07 03:15:00 2017-08-07 19:10:00        NA        NA    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5       5 2017-08-08 00:15:00 2017-08-09 23:55:00        NA        NA    TRUE</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Run `tag$stap` to see stap table</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Geographical parameters (<span style="color: #00BB00;">scale</span> and <span style="color: #00BB00;">extent</span>) </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Extent W-E: <span style="color: #0000BB;">-16</span>° to <span style="color: #0000BB;">23</span>°</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Extent S-N: <span style="color: #0000BB;">0</span>° to <span style="color: #0000BB;">50</span>°</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Dimension lat-lon: <span style="color: #0000BB;">50</span> x <span style="color: #0000BB;">39</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Resolution lat-lon: <span style="color: #0000BB;">1</span>°</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1 2017-07-26 23:57:30 2017-08-04 19:47:30        NA        NA    TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2 2017-08-04 23:17:30 2017-08-05 19:27:30        NA        NA    TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3 2017-08-06 02:52:30 2017-08-06 19:12:30        NA        NA    TRUE</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Run `tag$stap` to see full stap table</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Map </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Pressure likelihood map <span style="color: #00BB00;">map_pressure</span> computed!</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Parameter <span style="color: #00BB00;">param</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Run `tag$param` to display full table</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Extent (W, E, S, N): <span style="color: #0000BB;">-16</span>°, <span style="color: #0000BB;">23</span>°, <span style="color: #0000BB;">0</span>°, <span style="color: #0000BB;">50</span>°</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Dimensions (lat x lon): <span style="color: #0000BB;">50</span> x <span style="color: #0000BB;">39</span> (res. <span style="color: #0000BB;">1</span>°)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Pressure likelihood <span style="color: #00BB00;">map_pressure</span> computed!</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu">tag_update</span><span class="op">(</span><span class="va">tag</span>,</span></span>
 <span class="r-in"><span>  file <span class="op">=</span> <span class="st">"./data/tag-label/18LX-labeled-updated.csv"</span>,</span></span>
 <span class="r-in"><span>  quiet <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in if (stap_new$stap_id[which(stap_new$old_stap_id == known$stap_id)] !=     known$stap_id) {    cli::cli_abort(c(x = "Known position were defined at stationary period{?s} {.val {known$stap_id}}, yet \\\n        these stationary period have changed because you changed {.val flight} label before or \\\n        after them.",         `&gt;` = "In such case, you need start again from the raw data or provide an updated \\\n        {.var known} arguement."))}:</span> argument is of length zero</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `tag` object for </span><span style="color: #00BB00; font-weight: bold;">id</span><span style="font-weight: bold;"> = </span><span style="color: #0000BB; font-weight: bold;">"18LX"</span> <span style="color: #00BBBB;">───────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Date range: 2017-07-27 to 2017-08-09 23:30:00</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `tag` object for 18LX</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Note</span>: All <span style="color: #00BB00;">green</span> texts are fields of `tag` (i.e., `tag$<span style="color: #00BB00;">field</span>`).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Parameter <span style="color: #00BB00;">param</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Run `tag$param` to display full table</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Sensors data </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">pressure</span>: 672 datapoints</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">acceleration</span>: 4032 datapoints</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">light</span>: 4032 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Manufacturer: soi</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Date range: 2017-07-27 to 2017-08-09 23:30:00</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">pressure</span>: 672 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">acceleration</span>: 4032 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">light</span>: 4032 datapoints</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Stationary periods <span style="color: #00BB00;">stap</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">5</span> stationary periods</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stap_id               start                 end known_lat known_lon include</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1 2017-07-27 00:00:00 2017-08-04 19:45:00        NA        NA    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2 2017-08-04 23:20:00 2017-08-05 19:25:00        NA        NA    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3 2017-08-06 02:55:00 2017-08-06 19:10:00        NA        NA    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       4 2017-08-07 03:15:00 2017-08-07 19:10:00        NA        NA    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5       5 2017-08-08 00:15:00 2017-08-09 23:55:00        NA        NA    TRUE</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Run `tag$stap` to see stap table</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Geographical parameters (<span style="color: #00BB00;">scale</span> and <span style="color: #00BB00;">extent</span>) </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Extent W-E: <span style="color: #0000BB;">-16</span>° to <span style="color: #0000BB;">23</span>°</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Extent S-N: <span style="color: #0000BB;">0</span>° to <span style="color: #0000BB;">50</span>°</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Dimension lat-lon: <span style="color: #0000BB;">50</span> x <span style="color: #0000BB;">39</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Resolution lat-lon: <span style="color: #0000BB;">1</span>°</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1 2017-07-26 23:57:30 2017-08-04 19:47:30        NA        NA    TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2 2017-08-04 23:17:30 2017-08-05 19:27:30        NA        NA    TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3 2017-08-06 02:52:30 2017-08-06 19:12:30        NA        NA    TRUE</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Run `tag$stap` to see full stap table</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Map </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Pressure likelihood map <span style="color: #00BB00;">map_pressure</span> computed!</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Parameter <span style="color: #00BB00;">param</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Run `tag$param` to display full table</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Extent (W, E, S, N): <span style="color: #0000BB;">-16</span>°, <span style="color: #0000BB;">23</span>°, <span style="color: #0000BB;">0</span>°, <span style="color: #0000BB;">50</span>°</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Dimensions (lat x lon): <span style="color: #0000BB;">50</span> x <span style="color: #0000BB;">39</span> (res. <span style="color: #0000BB;">1</span>°)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Pressure likelihood <span style="color: #00BB00;">map_pressure</span> computed!</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

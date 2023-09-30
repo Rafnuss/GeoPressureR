@@ -18,7 +18,7 @@ updates the data logger dataset tag."><meta property="og:image" content="https:/
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.1.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,21 +95,22 @@ optionally <code>tag$acceleration$label</code>.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_create.html">tag_create</a></span><span class="op">(</span><span class="st">"18LX"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu">tag_label_read</span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> List of 4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ param       :List of 7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ param       :List of 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ id                  : chr "18LX"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ GeoPressureR_version:Classes 'package_version', 'numeric_version'  hidden list of 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int [1:3] 3 0 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pressure_file       : chr "./data/raw-tag/18LX//18LX_20180725.pressure"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ light_file          : chr "./data/raw-tag/18LX//18LX_20180725.glf"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ acceleration_file   : chr "./data/raw-tag/18LX//18LX_20180725.acceleration"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int [1:3] 3 1 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pressure_file       : chr "./data/raw-tag/18LX/18LX_20180725.pressure"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ light_file          : chr "./data/raw-tag/18LX/18LX_20180725.glf"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ acceleration_file   : chr "./data/raw-tag/18LX/18LX_20180725.acceleration"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ manufacturer        : chr "soi"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ directory           : 'glue' chr "./data/raw-tag/18LX"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ label_file          : 'glue' chr "./data/tag-label/18LX-labeled.csv"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "class")= chr "param"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure    :'data.frame':	672 obs. of  3 variables:</span>

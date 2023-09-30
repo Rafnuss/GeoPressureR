@@ -32,7 +32,7 @@ and the GeoPressureManual"><meta property="og:image" content="https://raphaelnus
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.1.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,6 +86,9 @@ and the <a href="https://bit.ly/3saLVqi" class="external-link">GeoPressureManual
 <span>  thr_likelihood <span class="op">=</span> <span class="fl">0.99</span>,</span>
 <span>  thr_gs <span class="op">=</span> <span class="fl">150</span>,</span>
 <span>  likelihood <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  geosphere_dist <span class="op">=</span> <span class="fu">geosphere</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/geosphere/man/distHaversine.html" class="external-link">distHaversine</a></span>,</span>
+<span>  geosphere_bearing <span class="op">=</span> <span class="fu">geosphere</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/geosphere/man/bearing.html" class="external-link">bearing</a></span>,</span>
+<span>  workers <span class="op">=</span> <span class="st">"auto"</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -97,11 +100,11 @@ and the <a href="https://bit.ly/3saLVqi" class="external-link">GeoPressureManual
 
 
 <dt>thr_likelihood</dt>
-<dd><p>Threshold of percentile (see details).</p></dd>
+<dd><p>threshold of percentile (see details).</p></dd>
 
 
 <dt>thr_gs</dt>
-<dd><p>Threshold of groundspeed (km/h)  (see details).</p></dd>
+<dd><p>threshold of groundspeed (km/h)  (see details).</p></dd>
 
 
 <dt>likelihood</dt>
@@ -111,29 +114,46 @@ value are <code>map_pressure</code>, <code>map_light</code>, <code>map_pressure_
 <code>map_light</code>, or if not available, taking the first of the possible values.</p></dd>
 
 
+<dt>geosphere_dist</dt>
+<dd><p>function to compute the distance. Usually, either
+<code><a href="https://rdrr.io/pkg/geosphere/man/distHaversine.html" class="external-link">geosphere::distHaversine</a></code> (fast) or <code><a href="https://rdrr.io/pkg/geosphere/man/distGeo.html" class="external-link">geosphere::distGeo</a></code> (precise but slow). See
+https://rspatial.org/raster/sphere/2-distance.html for more options and details.</p></dd>
+
+
+<dt>geosphere_bearing</dt>
+<dd><p>function to compute the bearing. Either <code><a href="https://rdrr.io/pkg/geosphere/man/bearing.html" class="external-link">geosphere::bearing</a></code> (default)
+or <code><a href="https://rdrr.io/pkg/geosphere/man/bearingRhumb.html" class="external-link">geosphere::bearingRhumb</a></code>. See https://rspatial.org/raster/sphere/3-direction.html#bearing
+for details.</p></dd>
+
+
+<dt>workers</dt>
+<dd><p>number of workers used in the computation of edges ground speed. More workers
+(up to the limit <code><a href="https://parallelly.futureverse.org/reference/availableCores.html" class="external-link">future::availableCores()</a></code>) usually makes the computation faster, but because
+the the number of edges is large, memory will often limit the computation. You might want to
+reduce this number to 1 or 2 in this case. <code>"auto"</code> (default) adjusts the number of workers to
+half of the cores available.</p></dd>
+
+
 <dt>quiet</dt>
-<dd><p>logical to hide messages about the progress</p></dd>
+<dd><p>logical to hide messages about the progress.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>Graph as a list</p><ul><li><p><code>id</code>:</p></li>
-<li><p><code>s</code>: source node (index in the 3d grid lat-lon-stap)</p></li>
+<p>Graph as a list</p><ul><li><p><code>s</code>: source node (index in the 3d grid lat-lon-stap)</p></li>
 <li><p><code>t</code>: target node (index in the 3d grid lat-lon-stap)</p></li>
 <li><p><code>gs</code>: average ground speed required to make that transition (km/h) as complex number
 representing the E-W as real and S-N as imaginary</p></li>
 <li><p><code>obs</code>: observation model, corresponding to the normalized likelihood in a 3D matrix of size
 <code>sz</code></p></li>
 <li><p><code>sz</code>: size of the 3d grid lat-lon-stap</p></li>
-<li><p><code>stap</code>: data.frame of all stationary periods</p></li>
+<li><p><code>stap</code>: data.frame of all stationary periods (samme as <code>tag$stap</code>)</p></li>
 <li><p><code>equipment</code>: node(s) of the first stap (index in the 3d grid lat-lon-sta)</p></li>
 <li><p><code>retrieval</code>: node(s) of the last stap (index in the 3d grid lat-lon-sta)</p></li>
-<li><p><code>extent</code>: same as <code>tag$param$extent</code></p></li>
-<li><p><code>scale</code>: same as <code>tag$param$scale</code></p></li>
 <li><p><code>mask_water</code>: logical matrix of water-land</p></li>
-<li><p><code>param</code>: parameter used to create the graph, including <code>thr_likelihood</code> and <code>thr_gs</code></p></li>
+<li><p><code>param</code>: list of parameters including <code>thr_likelihood</code> and <code>thr_gs</code> (same as <code>tag$param</code>)</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -156,7 +176,7 @@ optimized hidden Markov model. <em>Methods in Ecology and Evolution</em>, 14, 11
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_create.html">tag_create</a></span><span class="op">(</span><span class="st">"18LX"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="tag_label.html">tag_label</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="twilight_create.html">twilight_create</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
@@ -170,39 +190,33 @@ optimized hidden Markov model. <em>Methods in Ecology and Evolution</em>, 14, 11
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create graph</span></span></span>
 <span class="r-in"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu">graph_create</span><span class="op">(</span><span class="va">tag</span>, thr_likelihood <span class="op">=</span> <span class="fl">0.95</span>, thr_gs <span class="op">=</span> <span class="fl">100</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The legacy packages maptools, rgdal, and rgeos, underpinning the sp package,</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> which was just loaded, will retire in October 2023.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Please refer to R-spatial evolution reports for details, especially</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> https://r-spatial.org/r/2023/05/15/evolution4.html.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> It may be desirable to make the sf package available;</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> package maintainers should consider adding sf to Suggests:.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The sp package is now running under evolution status 2</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>      (status 2 uses the sf package in place of rgdal)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `graph` object for </span><span style="color: #00BB00; font-weight: bold;">id</span><span style="font-weight: bold;">=</span><span style="color: #0000BB; font-weight: bold;">"18LX"</span> <span style="color: #00BBBB;">───────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `graph` object for 18LX</span> <span style="color: #00BBBB;">────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Note</span>: All <span style="color: #00BB00;">green</span> texts are fields of `graph` (i.e., `graph$<span style="color: #00BB00;">field</span>`).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Parameter <span style="color: #00BB00;">param</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Run `graph$param` to display full table</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Stationary periods <span style="color: #00BB00;">stap</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">5</span> stationary periods</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stap_id               start                 end known_lon known_lat include</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1 2017-07-27 00:00:00 2017-08-04 19:45:00     17.05      48.9    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2 2017-08-04 23:20:00 2017-08-05 19:25:00        NA        NA    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3 2017-08-06 02:55:00 2017-08-06 19:10:00        NA        NA    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       4 2017-08-07 03:15:00 2017-08-07 19:10:00        NA        NA    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5       5 2017-08-08 00:15:00 2017-08-09 23:55:00        NA        NA    TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1 2017-07-26 23:57:30 2017-08-04 19:47:30     17.05      48.9    TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2 2017-08-04 23:17:30 2017-08-05 19:27:30        NA        NA    TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3 2017-08-06 02:52:30 2017-08-06 19:12:30        NA        NA    TRUE</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Run `graph$stap` to see full stap table</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Geographical parameters (<span style="color: #00BB00;">scale</span> and <span style="color: #00BB00;">extent</span>) </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Extent W-E: <span style="color: #0000BB;">-16</span>° to <span style="color: #0000BB;">23</span>°</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Extent S-N: <span style="color: #0000BB;">0</span>° to <span style="color: #0000BB;">50</span>°</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Dimension lat-lon: <span style="color: #0000BB;">500</span> x <span style="color: #0000BB;">390</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Resolution lat-lon: <span style="color: #0000BB;">0.1</span>°</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Map </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Extent (W, E, S, N): <span style="color: #0000BB;">-16</span>°, <span style="color: #0000BB;">23</span>°, <span style="color: #0000BB;">0</span>°, <span style="color: #0000BB;">50</span>°</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Dimensions (lat x lon): <span style="color: #0000BB;">500</span> x <span style="color: #0000BB;">390</span> (res. <span style="color: #0000BB;">0.1</span>°)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Graph size </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #0000BB;">1</span> equipement node</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #0000BB;">103</span> retrieval nodes</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> 4,473 nodes</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> 4,372,960 edges</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #0000BB;">1</span> <span style="color: #00BB00;">equipement</span> node</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #0000BB;">40</span> <span style="color: #00BB00;">retrieval</span> nodes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> 1,623 nodes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> 619,873 edges</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Movement model </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Windspeed not computed. Use `graph_add_wind()`</span>

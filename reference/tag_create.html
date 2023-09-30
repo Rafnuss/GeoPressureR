@@ -84,7 +84,7 @@ or post-retrieval data.'><meta property="og:image" content="https://raphaelnussb
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.1.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -153,9 +153,9 @@ or post-retrieval data.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">tag_create</span><span class="op">(</span></span>
 <span>  <span class="va">id</span>,</span>
 <span>  manufacturer <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  directory <span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"./data/raw-tag/{id}/"</span><span class="op">)</span>,</span>
 <span>  crop_start <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  crop_end <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  directory <span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"./data/raw-tag/{id}"</span><span class="op">)</span>,</span>
 <span>  pressure_file <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  light_file <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  acceleration_file <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -173,16 +173,16 @@ or post-retrieval data.</p>
 <dd><p>One of <code>NULL</code>, <code>"soi"</code>, <code>"migratetech"</code>, <code>"lund"</code> or <code>"manual"</code></p></dd>
 
 
-<dt>directory</dt>
-<dd><p>path of the directory where the tag files can be read.</p></dd>
-
-
 <dt>crop_start</dt>
 <dd><p>remove all data before this date (POSIXct or character in UTC).</p></dd>
 
 
 <dt>crop_end</dt>
 <dd><p>remove all data after this date (POSIXct or character in UTC).</p></dd>
+
+
+<dt>directory</dt>
+<dd><p>path of the directory where the tag files can be read.</p></dd>
 
 
 <dt>pressure_file</dt>
@@ -224,23 +224,28 @@ with extensions (e.g., <code>"*.acceleration"</code>, <code>"*.deg"</code> or <c
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Read all sensor file</span></span></span>
 <span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu">tag_create</span><span class="op">(</span><span class="st">"18LX"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/18LX//18LX_20180725.pressure</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/18LX//18LX_20180725.glf</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/18LX//18LX_20180725.acceleration</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/18LX/18LX_20180725.pressure</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/18LX/18LX_20180725.glf</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/18LX/18LX_20180725.acceleration</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `tag` object for </span><span style="color: #00BB00; font-weight: bold;">id</span><span style="font-weight: bold;"> = </span><span style="color: #0000BB; font-weight: bold;">"18LX"</span> <span style="color: #00BBBB;">───────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Date range: 2017-07-27 to 2017-08-09 23:30:00</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `tag` object for 18LX</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Note</span>: All <span style="color: #00BB00;">green</span> texts are fields of `tag` (i.e., `tag$<span style="color: #00BB00;">field</span>`).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Parameter <span style="color: #00BB00;">param</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Run `tag$param` to display full table</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Sensors data </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">pressure</span>: 672 datapoints</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">acceleration</span>: 4032 datapoints</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">light</span>: 4032 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Manufacturer: soi</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Date range: 2017-07-27 to 2017-08-09 23:30:00</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">pressure</span>: 672 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">acceleration</span>: 4032 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">light</span>: 4032 datapoints</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Stationary periods <span style="color: #00BB00;">stap</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> No stationary periods defined yet. Use `tag_label()`</span>
@@ -252,19 +257,24 @@ with extensions (e.g., <code>"*.acceleration"</code>, <code>"*.deg"</code> or <c
 <span class="r-in"><span>  crop_start <span class="op">=</span> <span class="st">"2017-08-01"</span>,</span></span>
 <span class="r-in"><span>  crop_end <span class="op">=</span> <span class="st">"2017-08-05"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/18LX//18LX_20180725.pressure</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/18LX//18LX_20180725.glf</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/18LX//18LX_20180725.acceleration</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/18LX/18LX_20180725.pressure</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/18LX/18LX_20180725.glf</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/18LX/18LX_20180725.acceleration</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `tag` object for </span><span style="color: #00BB00; font-weight: bold;">id</span><span style="font-weight: bold;"> = </span><span style="color: #0000BB; font-weight: bold;">"18LX"</span> <span style="color: #00BBBB;">───────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Date range: 2017-08-01 to 2017-08-04 23:30:00</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `tag` object for 18LX</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Note</span>: All <span style="color: #00BB00;">green</span> texts are fields of `tag` (i.e., `tag$<span style="color: #00BB00;">field</span>`).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Parameter <span style="color: #00BB00;">param</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Run `tag$param` to display full table</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Sensors data </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">pressure</span>: 192 datapoints</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">acceleration</span>: 1152 datapoints</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">light</span>: 1152 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Manufacturer: soi</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Date range: 2017-08-01 to 2017-08-04 23:30:00</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">pressure</span>: 192 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">acceleration</span>: 1152 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">light</span>: 1152 datapoints</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Stationary periods <span style="color: #00BB00;">stap</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> No stationary periods defined yet. Use `tag_label()`</span>
@@ -276,17 +286,22 @@ with extensions (e.g., <code>"*.acceleration"</code>, <code>"*.deg"</code> or <c
 <span class="r-in"><span>  light_file <span class="op">=</span> <span class="st">"CB621.lux"</span>,</span></span>
 <span class="r-in"><span>  acceleration_file <span class="op">=</span> <span class="cn">NULL</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/CB621//CB621_BAR.deg</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/CB621//CB621.lux</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/CB621/CB621_BAR.deg</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Read <span style="color: #0000BB;">./data/raw-tag/CB621/CB621.lux</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `tag` object for </span><span style="color: #00BB00; font-weight: bold;">id</span><span style="font-weight: bold;"> = </span><span style="color: #0000BB; font-weight: bold;">"CB621"</span> <span style="color: #00BBBB;">──────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Date range: 2021-06-15 21:38:35 to 2021-06-16 05:08:35</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `tag` object for CB621</span> <span style="color: #00BBBB;">─────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Note</span>: All <span style="color: #00BB00;">green</span> texts are fields of `tag` (i.e., `tag$<span style="color: #00BB00;">field</span>`).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Parameter <span style="color: #00BB00;">param</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Run `tag$param` to display full table</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Sensors data </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">pressure</span>: 16 datapoints</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">light</span>: 14 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Manufacturer: migratetech</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Date range: 2021-06-15 21:38:35 to 2021-06-16 05:08:35</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">pressure</span>: 16 datapoints</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">light</span>: 14 datapoints</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Stationary periods <span style="color: #00BB00;">stap</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> No stationary periods defined yet. Use `tag_label()`</span>
@@ -301,14 +316,15 @@ with extensions (e.g., <code>"*.acceleration"</code>, <code>"*.deg"</code> or <c
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">tag_create</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"xxx"</span>, pressure_file <span class="op">=</span> <span class="va">pressure</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ param   :List of 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ param   :List of 7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ id                  : chr "xxx"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ GeoPressureR_version:Classes 'package_version', 'numeric_version'  hidden list of 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int [1:3] 3 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int [1:3] 3 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pressure_file       : chr "manual"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ light_file          : chr "manual"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ acceleration_file   : chr "manual"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ manufacturer        : chr "manual"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ directory           : 'glue' chr "./data/raw-tag/xxx"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "class")= chr "param"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure:'data.frame':	4 obs. of  2 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ date : POSIXct[1:4], format: "2017-06-20 00:00:00" "2017-06-20 01:00:00" ...</span>

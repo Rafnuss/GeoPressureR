@@ -56,7 +56,7 @@ $$ P_{ERA5,0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.1.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -155,7 +155,7 @@ the timeseries as POSIXlt.</p></dd>
 
 <dt>timeout</dt>
 <dd><p>Duration before the code is interrupted both for the request on
-GeoPressureAPI and GEE (in seconds, see <code><a href="https://httr.r-lib.org/reference/timeout.html" class="external-link">httr::timeout()</a></code>).</p></dd>
+GeoPressureAPI and on GEE (in seconds, see <code><a href="https://httr.r-lib.org/reference/timeout.html" class="external-link">httr::timeout()</a></code>).</p></dd>
 
 
 <dt>quiet</dt>
@@ -225,9 +225,9 @@ Global Positioning with Animal‐borne Pressure Sensors. <em>Methods in Ecology 
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">pressurepath</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 'data.frame':	25 obs. of  7 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ date              : POSIXct, format: "2017-01-01 00:00:00" "2017-01-01 01:00:00" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure_tag      : num  970 968 969 967 966 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure_tag      : num  969 970 967 968 967 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure_era5     : num  969 969 968 968 967 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ altitude          : num  483 488 477 492 494 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ altitude          : num  491 479 495 480 483 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ lat               : num  46 46 46 46 46 46 46 46 46 46 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ lon               : num  6 6 6 6 6 6 6 6 6 6 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure_era5_norm: num  970 969 968 968 967 ...</span>

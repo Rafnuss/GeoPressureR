@@ -30,7 +30,7 @@ pressure data sent to the GeoPressureAPI."><meta property="og:image" content="ht
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.1.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,7 +69,7 @@ pressure data sent to the GeoPressureAPI."><meta property="og:image" content="ht
     <p>Performs the follow pre-processing for the pressure data.frame:</p><ol><li><p>Remove discarded and flight pressure measurements.</p></li>
 <li><p>Group pressure measurements by stationary period and elevation level.</p></li>
 <li><p>Smooth and downscale pressure to a 1 hour resolution to match ERA5 data.</p></li>
-</ol><p>This function is used within <code><a href="geopressure_map_mismatch.html">geopressure_map_mismatch()</a></code> but can be useful to check the
+</ol><p>This function is used within <code><a href="geopressure_map.html">geopressure_map_mismatch()</a></code> but can be useful to check the
 pressure data sent to the GeoPressureAPI.</p>
     </div>
 
@@ -98,14 +98,9 @@ estimated based on twilight or hard defined by the known location <code>stap$kno
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_create.html">tag_create</a></span><span class="op">(</span><span class="st">"18LX"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="tag_label.html">tag_label</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Short stationary periods: </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> All 5 stationary periods duration are above 6 hours.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Short flights: </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> All 4 flights duration are above 2 hours.</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">owd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_create.html">tag_create</a></span><span class="op">(</span><span class="st">"18LX"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="tag_label.html">tag_label</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="va">owd</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pressure_processed</span> <span class="op">&lt;-</span> <span class="fu">geopressure_map_preprocess</span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">pressure_processed</span><span class="op">)</span></span></span>
