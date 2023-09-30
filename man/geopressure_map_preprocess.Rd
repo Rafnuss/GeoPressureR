@@ -28,7 +28,7 @@ pressure data sent to the GeoPressureAPI.
 }
 \examples{
 owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE) |> tag_label()
+tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 setwd(owd)
 
 pressure_processed <- geopressure_map_preprocess(tag)

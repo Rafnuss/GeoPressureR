@@ -56,11 +56,11 @@ setwd(owd)
 
 # Extract a path from pressure map
 path <- tag2path(tag)
-plot_path(path, plot_leaflet = F)
+plot_path(path, plot_leaflet = FALSE)
 
 # Short stationary periods can be unreliably estimated, so
 # interpolating them might be better
 path <- tag2path(tag, interp = 1)
-plot_path(path, plot_leaflet = F)
+plot_path(path, plot_leaflet = FALSE)
 
 }

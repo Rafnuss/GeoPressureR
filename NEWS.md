@@ -1,4 +1,4 @@
-# GeoPressureR v3.2.0
+# GeoPressureR v3.1.2
 ## Major
 *  
 
@@ -7,10 +7,10 @@
 * Update to GeoPressureAPI v2 for `geopressure_timeseries()` https://github.com/Rafnuss/GeoPressureR/commit/732d1a02cc241dc7d2dde3401c8747fa860650c6
 
 ## Full Changelog
-[https://github.com/Rafnuss/GeoPressureR/compare/v3.2.1...v3.2.0](https://github.com/Rafnuss/GeoPressureR/compare/v3.1.0...v3.2.0)
+[https://github.com/Rafnuss/GeoPressureR/compare/v3.2.1...v3.1.2](https://github.com/Rafnuss/GeoPressureR/compare/v3.1.0...v3.1.2)
 
 
-# GeoPressureR v3.1.0
+# GeoPressureR v3.1
 ## Major
 * Update to GeoPressureAPI v2, using `thr_mask` in `geopressure_map_mismatch()` and splitting `keep_mse_mask`.
 * Adjust computation of ground speed to account for grid resolution. 
@@ -24,7 +24,7 @@
 [https://github.com/Rafnuss/GeoPressureR/compare/v3.0.0...v3.1.0](https://github.com/Rafnuss/GeoPressureR/compare/v3.0.0...v3.1.0)
 
 
-# GeoPressureR v3.0.0
+# GeoPressureR v3.0
 
 ## Guiding principles of v3
 This new version consists of a significant revamp of the entire code centered around these themes:

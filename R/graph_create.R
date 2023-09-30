@@ -32,7 +32,6 @@
 #' @inheritParams tag2map
 #'
 #' @return Graph as a list
-#' - `id`:
 #' - `s`: source node (index in the 3d grid lat-lon-stap)
 #' - `t`: target node (index in the 3d grid lat-lon-stap)
 #' - `gs`: average ground speed required to make that transition (km/h) as complex number
@@ -40,13 +39,11 @@
 #' - `obs`: observation model, corresponding to the normalized likelihood in a 3D matrix of size
 #' `sz`
 #' - `sz`: size of the 3d grid lat-lon-stap
-#' - `stap`: data.frame of all stationary periods
+#' - `stap`: data.frame of all stationary periods (samme as `tag$stap`)
 #' - `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-sta)
 #' - `retrieval`: node(s) of the last stap (index in the 3d grid lat-lon-sta)
-#' - `extent`: same as `tag$param$extent`
-#' - `scale`: same as `tag$param$scale`
 #' - `mask_water`: logical matrix of water-land
-#' - `param`: parameter used to create the graph, including `thr_likelihood` and `thr_gs`
+#' - `param`: list of parameters including `thr_likelihood` and `thr_gs` (same as `tag$param`)
 #'
 #' @examples
 #' setwd(system.file("extdata", package = "GeoPressureR"))

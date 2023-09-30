@@ -46,7 +46,6 @@ half of the cores available.}
 \value{
 Graph as a list
 \itemize{
-\item \code{id}:
 \item \code{s}: source node (index in the 3d grid lat-lon-stap)
 \item \code{t}: target node (index in the 3d grid lat-lon-stap)
 \item \code{gs}: average ground speed required to make that transition (km/h) as complex number
@@ -54,13 +53,11 @@ representing the E-W as real and S-N as imaginary
 \item \code{obs}: observation model, corresponding to the normalized likelihood in a 3D matrix of size
 \code{sz}
 \item \code{sz}: size of the 3d grid lat-lon-stap
-\item \code{stap}: data.frame of all stationary periods
+\item \code{stap}: data.frame of all stationary periods (samme as \code{tag$stap})
 \item \code{equipment}: node(s) of the first stap (index in the 3d grid lat-lon-sta)
 \item \code{retrieval}: node(s) of the last stap (index in the 3d grid lat-lon-sta)
-\item \code{extent}: same as \code{tag$param$extent}
-\item \code{scale}: same as \code{tag$param$scale}
 \item \code{mask_water}: logical matrix of water-land
-\item \code{param}: parameter used to create the graph, including \code{thr_likelihood} and \code{thr_gs}
+\item \code{param}: list of parameters including \code{thr_likelihood} and \code{thr_gs} (same as \code{tag$param})
 }
 }
 \description{

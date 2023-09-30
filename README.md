@@ -7,7 +7,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7754457.svg)](https://doi.org/10.5281/zenodo.7754457)
 [![R-CMD-check](https://github.com/Rafnuss/GeoPressureR/workflows/R-CMD-check/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions)
-[![pkgdown](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml)
+<!-- [![pkgdown](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml) -->
 [![Codecov test
 coverage](https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master)
 [![lint](https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml)
@@ -44,6 +44,12 @@ which provides a standard code structure for your analysis.
 
 Using this standardized code structure you will help you on many aspect:
 code sharing and troubleshooting, data archiving, work reproducibility.
+
+## Cheatsheet
+
+<a href="https://github.com/Rafnuss/GeoPressureManual/raw/master/inst/cheatsheet/cheatsheet.pdf" target="_blank">
+<img src="inst/cheatsheet/cheatsheet-01.png" height="160"/>
+<img src="inst/cheatsheet/cheatsheet-02.png" height="160"/> </a>
 
 ## Constributions
 
