@@ -16,6 +16,9 @@
 \item{...}{additional parameters for \code{plot_tag_pressure()}, \code{plot_tag_acceleration()},
 \code{plot_tag_light()}, \code{plot_tag_twilight()} or \code{plot.map()}}
 }
+\value{
+a plot, ggplotly or leaflet object.
+}
 \description{
 This function plot a GeoPressureR \code{tag} object as a timeseries or a map.
 

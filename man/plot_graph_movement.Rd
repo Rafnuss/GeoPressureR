@@ -13,6 +13,9 @@ plot_graph_movement(graph, speed = seq(1, 120), plot_plotly = FALSE)
 
 \item{plot_plotly}{logical to use \code{plotly}}
 }
+\value{
+a plot or ggplotly object.
+}
 \description{
 This function display a plot of pressure timeseries recorded by a tag
 }

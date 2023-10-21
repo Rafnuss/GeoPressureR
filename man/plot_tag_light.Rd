@@ -13,6 +13,9 @@ plot_tag_light(tag, transform_light = TRUE, plot_plotly = TRUE)
 
 \item{plot_plotly}{logical to use \code{plotly}}
 }
+\value{
+a plot or ggplotly object.
+}
 \description{
 This function display a plot of light timeseries recorded by a tag
 }

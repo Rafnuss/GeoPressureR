@@ -24,6 +24,9 @@ periods.}
 
 \item{plot_plotly}{logical to use \code{plotly}}
 }
+\value{
+a plot or ggplotly object.
+}
 \description{
 Display a \code{pressurepath} data.frame as a timeseries or histogram
 }

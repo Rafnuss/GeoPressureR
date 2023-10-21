@@ -23,6 +23,9 @@ plot_tag_pressure(
 
 \item{warning_stap_length}{Threshold number of pressure datapoints flagged as ️warning (hourly.}
 }
+\value{
+a plot or ggplotly object.
+}
 \description{
 This function display a plot of pressure timeseries recorded by a tag
 }
