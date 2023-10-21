@@ -19,3 +19,4 @@
 ^inst/geopressureviz/geopressureviz\.RData$
 ^\.DS_Store$
 ^CRAN-SUBMISSION$
+^codemeta\.json$
