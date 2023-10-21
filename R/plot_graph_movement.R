@@ -6,6 +6,7 @@
 #' @param speed Vector of speed value (km/h) used on the x-axis.
 #' @param plot_plotly logical to use `plotly`
 #'
+#' @return a plot or ggplotly object.
 #'
 #' @family movement
 #' @export

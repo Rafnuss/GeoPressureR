@@ -14,6 +14,8 @@
 #' @inheritParams terra::plot
 #' @inheritParams graph_create
 #'
+#' @return a plot or leaflet object.
+#'
 #' @examples
 #' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
