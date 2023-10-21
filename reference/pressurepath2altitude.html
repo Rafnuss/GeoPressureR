@@ -20,7 +20,7 @@ need to find a way to correct for the altitude in between."><meta property="og:i
     
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.1.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,23 +101,21 @@ need to find a way to correct for the altitude in between.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pressurepath</span> <span class="op">&lt;-</span> <span class="fu"><a href="pressurepath_create.html">pressurepath_create</a></span><span class="op">(</span><span class="va">tag</span>, path <span class="op">=</span> <span class="va">path</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>One or more parsing issues, call `problems()` on your data frame for details,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> e.g.:</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   dat &lt;- vroom(...)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   problems(dat)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Error for stap 5</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in `$&lt;-.data.frame`(`*tmp*`, "pressure", value = numeric(0)):</span> replacement has 0 rows, data has 6</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">altitude</span> <span class="op">&lt;-</span> <span class="fu">pressurepath2altitude</span><span class="op">(</span><span class="va">pressurepath</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'pressurepath' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">altitude</span><span class="op">$</span><span class="va">date</span>, <span class="va">altitude</span><span class="op">$</span><span class="va">altitude</span>, type <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="pressurepath2altitude-1.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'altitude' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">altitude</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |                    |       date| stap_id| altitude| stap_s| stap_t|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |:-------------------|----------:|-------:|--------:|------:|------:|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |2017-07-27          | 1501113600|       1| 157.1467|      1|      1|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |2017-07-27 00:30:00 | 1501115400|       1| 157.1467|      1|      1|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |2017-07-27 01:00:00 | 1501117200|       1| 147.9510|      1|      1|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |2017-07-27 01:30:00 | 1501119000|       1| 147.9510|      1|      1|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |2017-07-27 02:00:00 | 1501120800|       1| 157.5548|      1|      1|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |2017-07-27 02:30:00 | 1501122600|       1| 157.5548|      1|      1|</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'altitude' not found</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
