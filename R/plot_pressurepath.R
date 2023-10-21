@@ -9,6 +9,8 @@
 #' https://en.wikipedia.org/wiki/Standard_score)
 #' @param plot_plotly logical to use `plotly`
 #'
+#' @return a plot or ggplotly object.
+#'
 #' @examples
 #' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)

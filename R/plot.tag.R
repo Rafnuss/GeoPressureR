@@ -22,6 +22,8 @@
 #' @param ... additional parameters for `plot_tag_pressure()`, `plot_tag_acceleration()`,
 #' `plot_tag_light()`, `plot_tag_twilight()` or `plot.map()`
 #'
+#' @return a plot, ggplotly or leaflet object.
+#'
 #' @examples
 #' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
@@ -59,6 +61,7 @@
 #' # to choose `type = c("map_pressure", "map_light")`
 #' plot(tag)
 #' @family tag plot_tag
+#'
 #' @export
 plot.tag <- function(x, type = NULL, ...) {
   tag <- x
@@ -112,6 +115,8 @@ plot.tag <- function(x, type = NULL, ...) {
 #' @param quiet logical to hide warning message about label.
 #' @param warning_stap_length Threshold number of pressure datapoints flagged as ️warning (hourly.
 #' @param warning_pressure_diff Threshold of pressure hourly difference marking as ️warning (hPa).
+#'
+#' @return a plot or ggplotly object.
 #'
 #' @family plot_tag
 #' @examples
@@ -252,6 +257,8 @@ plot_tag_pressure <- function(tag,
 #' labels are not already present on tag$acceleration$label
 #' @inheritParams tag_label_auto
 #'
+#' @return a plot or ggplotly object.
+#'
 #' @family plot_tag
 #' @examples
 #' setwd(system.file("extdata", package = "GeoPressureR"))
@@ -306,6 +313,8 @@ plot_tag_acceleration <- function(tag,
 #' @param tag a GeoPressureR `tag` object
 #' @param plot_plotly logical to use `plotly`
 #' @param transform_light logical to display a log transformation of light
+#'
+#' @return a plot or ggplotly object.
 #'
 #' @family plot_tag
 #' @examples
@@ -364,6 +373,8 @@ plot_tag_light <- function(tag,
 #' @param tag a GeoPressureR `tag` object
 #' @param plot_plotly logical to use `plotly`
 #' @param transform_light logical to display a log transformation of light
+#'
+#' @return a plot object.
 #'
 #' @family plot_tag
 #' @examples

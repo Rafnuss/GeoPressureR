@@ -14,6 +14,8 @@
 #' @inheritParams terra::plot
 #' @inheritParams graph_create
 #'
+#' @return a plot or leaflet object.
+#'
 #' @examples
 #' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
@@ -45,7 +47,7 @@ plot.map <- function(x,
                      thr_likelihood = 1,
                      path = NULL,
                      plot_leaflet = TRUE,
-                     provider = "Stamen.TerrainBackground",
+                     provider = "Stadia.StamenTerrain",
                      palette = "auto",
                      opacity = 0.8,
                      legend = FALSE,
