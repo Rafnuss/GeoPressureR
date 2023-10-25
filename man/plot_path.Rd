@@ -7,7 +7,8 @@
 plot_path(
   path,
   plot_leaflet = TRUE,
-  provider = "Stamen.TerrainBackground",
+  provider = "Esri.WorldTopoMap",
+  provider_options = leaflet::providerTileOptions(),
   pad = 3,
   ...
 )
