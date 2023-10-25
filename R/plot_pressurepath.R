@@ -137,7 +137,7 @@ plot_pressurepath <- function(pressurepath,
       ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "none", axis.text.y = ggplot2::element_blank())
   } else if (type == "altitude") {
-    pp_alt <- pressurepath2altitude(pp)
+    pp_alt <- pressurepath2altitude(pressurepath)
     pp_alt$stap_id <- factor(pp_alt$stap_id)
 
     p <- ggplot2::ggplot() +

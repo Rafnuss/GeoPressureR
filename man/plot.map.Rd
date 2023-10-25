@@ -9,7 +9,8 @@
   thr_likelihood = 1,
   path = NULL,
   plot_leaflet = TRUE,
-  provider = "Stamen.TerrainBackground",
+  provider = "Esri.WorldTopoMap",
+  provider_options = leaflet::providerTileOptions(),
   palette = "auto",
   opacity = 0.8,
   legend = FALSE,
@@ -38,6 +39,9 @@
 \item{...}{named parameters to add to the options}
 
 \item{map}{A GeoPressureR \code{map} object}
+}
+\value{
+a plot or leaflet object.
 }
 \description{
 This function plot a GeoPressureR \code{map} object.

@@ -14,6 +14,9 @@ twilight_label_write(
 
 \item{file}{Name of the twilight label file to be saved.}
 }
+\value{
+None
+}
 \description{
 This function writes the csv file of the labelled twilight which can be read with
 TRAINSET \url{https://trainset.raphaelnussbaumer.com/}.

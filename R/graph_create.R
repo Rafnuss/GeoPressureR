@@ -25,9 +25,7 @@
 #' for details.
 #' @param workers number of workers used in the computation of edges ground speed. More workers
 #' (up to the limit `future::availableCores()`) usually makes the computation faster, but because
-#' the the number of edges is large, memory will often limit the computation. You might want to
-#' reduce this number to 1 or 2 in this case. `"auto"` (default) adjusts the number of workers to
-#' half of the cores available.
+#' the the number of edges is large, memory will often limit the computation.
 #' @param quiet logical to hide messages about the progress.
 #' @inheritParams tag2map
 #'
@@ -76,7 +74,7 @@ graph_create <- function(tag,
                          likelihood = NULL,
                          geosphere_dist = geosphere::distHaversine,
                          geosphere_bearing = geosphere::bearing,
-                         workers = "auto",
+                         workers = 1,
                          quiet = FALSE) {
   if (!quiet) {
     cli::cli_progress_step("Check data input")
@@ -232,11 +230,7 @@ graph_create <- function(tag,
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
   nds_sorted_idx <- order(nds_expend_sum, decreasing = TRUE)
   nds_expend_sum <- sort(nds_expend_sum, decreasing = TRUE)
-  if (workers == "auto") {
-    workers <- future::availableCores() / 2
-  } else {
-    assertthat::assert_that(workers > 0 & workers <= future::availableCores())
-  }
+  assertthat::assert_that(workers > 0 & workers <= future::availableCores())
   if (!quiet) {
     cli::cli_progress_step("Starting parrallel session on {workers} workers")
   }
