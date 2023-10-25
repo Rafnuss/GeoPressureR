@@ -24,12 +24,13 @@
 #' @export
 plot_path <- function(path,
                       plot_leaflet = TRUE,
-                      provider = "Stamen.TerrainBackground",
+                      provider = "Esri.WorldTopoMap",
+                      provider_options = leaflet::providerTileOptions(),
                       pad = 3,
                       ...) {
   if (plot_leaflet) {
     leaflet::leaflet(width = "100%") |>
-      leaflet::addProviderTiles(provider = provider) |>
+      leaflet::addProviderTiles(provider = provider, options = provider_options) |>
       plot_path_leaflet(path, ...)
   } else {
     bbox <- list(

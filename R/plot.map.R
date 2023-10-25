@@ -47,7 +47,8 @@ plot.map <- function(x,
                      thr_likelihood = 1,
                      path = NULL,
                      plot_leaflet = TRUE,
-                     provider = "Stadia.StamenTerrain",
+                     provider = "Esri.WorldTopoMap",
+                     provider_options = leaflet::providerTileOptions(),
                      palette = "auto",
                      opacity = 0.8,
                      legend = FALSE,
@@ -79,7 +80,7 @@ plot.map <- function(x,
                       {format(map$stap$end , format = '%d %b %H:%M')}")
 
     lmap <- leaflet::leaflet(width = "100%") |>
-      leaflet::addProviderTiles(provider = provider)
+      leaflet::addProviderTiles(provider = provider, options = provider_options)
 
     if (palette == "auto") {
       if ("pressure" == map$type) {
