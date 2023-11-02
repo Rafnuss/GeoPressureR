@@ -17,7 +17,8 @@ server <- function(input, output, session) {
   )
 
   stap_include <- reactive({
-    which(.stap$duration >= as.numeric(input$min_dur_stap) & .stap$include)
+    min_dur_stap <- ifelse(is.na(input$min_dur_stap), 0, as.numeric(input$min_dur_stap))
+    which(.stap$duration >= min_dur_stap & .stap$include)
   }) %>% bindEvent(input$min_dur_stap)
 
   flight <- reactive({
@@ -120,7 +121,7 @@ server <- function(input, output, session) {
       ) +
       theme_bw()
 
-    if (nrow(reactVal$pressurepath)>0){
+    if (nrow(reactVal$pressurepath) > 0) {
       p <- p + geom_line(
         data = reactVal$pressurepath,
         aes(
@@ -364,13 +365,13 @@ server <- function(input, output, session) {
     reactVal$path$lat[i_stap] <- pressuretimeseries$lat[1]
 
     # Merge the two data.frame
-    if (nrow(reactVal$pressurepath)>0){
+    if (nrow(reactVal$pressurepath) > 0) {
       pressuretimeseries <- pressuretimeseries[, match(
         names(reactVal$pressurepath),
         names(pressuretimeseries)
       )]
       reactVal$pressurepath <- rbind(reactVal$pressurepath, pressuretimeseries)
-    } else{
+    } else {
       reactVal$pressurepath <- pressuretimeseries
     }
 

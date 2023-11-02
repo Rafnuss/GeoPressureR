@@ -55,11 +55,11 @@ geopressureviz <- function(x,
       # Load interim data
       load(file)
       # Accept path_most_likely instead of path
-      if (!is.null("path_most_likely")) {
+      if (!is.null(path_most_likely)) {
         path <- path_most_likely
       }
       # Use pressurepath if available over path_most_likely
-      if (!is.null("pressurepath")) {
+      if (!is.null(pressurepath)) {
         path <- pressurepath
       }
       # Overwrite loaded variable with arguments if provided
