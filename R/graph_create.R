@@ -231,16 +231,13 @@ graph_create <- function(tag,
   nds_sorted_idx <- order(nds_expend_sum, decreasing = TRUE)
   nds_expend_sum <- sort(nds_expend_sum, decreasing = TRUE)
   assertthat::assert_that(workers > 0 & workers <= future::availableCores())
-  if (!quiet) {
-    cli::cli_progress_step("Starting parrallel session on {workers} workers")
-  }
   future::plan(future::multisession, workers = workers)
   f <- list()
 
   if (!quiet) {
     i <- 0
     cli::cli_progress_step(
-      "Starting to compute the groundspeed for stationary period {i}/{length(nds_expend_sum)} \\
+      "Compute the groundspeed for stationary period {i}/{length(nds_expend_sum)} \\
       ({ round(sum(nds_expend_sum[seq_len(i)])/sum(nds_expend_sum)*100)}% of nodes)",
       msg_done = "Compute the groundspeed"
     )
@@ -304,8 +301,16 @@ graph_create <- function(tag,
           edges, there are not any nodes left for the stationary period: {.val {stap_model[i_s]}}"
         ))
       }
+
       return(grt)
     }, seed = TRUE)
+
+    # Update progress bar
+    cli::cli_progress_update()
+  }
+
+  if (!quiet) {
+    cli::cli_progress_done()
   }
 
   # Retrieve the graph
@@ -316,6 +321,10 @@ graph_create <- function(tag,
 
   # Prune
   gr <- graph_create_prune(gr, quiet = quiet)
+
+  if (!quiet) {
+    cli::cli_progress_step("Format graph output")
+  }
 
   # Convert gr to a graph list
   graph <- as.list(do.call("rbind", gr))
@@ -340,10 +349,6 @@ graph_create <- function(tag,
   graph$param$thr_likelihood <- thr_likelihood
   graph$param$thr_gs <- thr_gs
 
-  if (!quiet) {
-    cli::cli_progress_done()
-  }
-
   return(graph)
 }
 
@@ -364,13 +369,10 @@ graph_create_prune <- function(gr, quiet = FALSE) {
   }
 
   if (!quiet) {
-    cli::cli_progress_bar(
-      "Prune the graph:",
-      format = "{cli::pb_name} {i_s}/{(length(gr) - 1) * 2} {cli::pb_bar} {cli::pb_percent} | \\
-      {cli::pb_eta_str} [{cli::pb_elapsed}]",
-      format_done = "Prune the graph [{cli::pb_elapsed}]",
-      clear = FALSE,
-      total = (length(gr) - 1) * 2
+    i <- 0
+    cli::cli_progress_step(
+      "Prune the graph {i}/{(length(gr) - 1) * 2} ",
+      msg_done = "Prune the graph"
     )
   }
 
@@ -391,7 +393,8 @@ graph_create_prune <- function(gr, quiet = FALSE) {
       ))
     }
     if (!quiet) {
-      cli::cli_progress_update(force = TRUE)
+      i <- i_s
+      cli::cli_progress_update()
     }
   }
   # Then, trim the graph from retrieval to equipment
@@ -409,8 +412,14 @@ graph_create_prune <- function(gr, quiet = FALSE) {
       ))
     }
     if (!quiet) {
-      cli::cli_progress_update(force = TRUE)
+      i <- length(gr) * 2 - i_s
+      cli::cli_progress_update()
     }
   }
+
+  if (!quiet) {
+    cli::cli_progress_done()
+  }
+
   return(gr)
 }
