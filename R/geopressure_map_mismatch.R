@@ -14,7 +14,7 @@ geopressure_map_mismatch <- function(tag,
   # Check tag
   tag_assert(tag, "setmap")
 
-  # Format query
+  # Assert input
   assertthat::assert_that(is.numeric(max_sample))
   assertthat::assert_that(0 < max_sample)
   assertthat::assert_that(is.numeric(margin))
@@ -24,6 +24,8 @@ geopressure_map_mismatch <- function(tag,
   assertthat::assert_that(thr_mask >= 0 & thr_mask <= 1)
   assertthat::assert_that(is.numeric(timeout))
   assertthat::assert_that(is.numeric(workers) | workers == "auto")
+  assertthat::assert_that(is.logical(debug))
+  assertthat::assert_that(is.logical(quiet))
 
   if (!quiet) {
     cli::cli_progress_step("Pre-process pressure data")
@@ -47,12 +49,11 @@ geopressure_map_mismatch <- function(tag,
   )
 
   if (debug) {
-    temp_file <- tempfile("log_geopressure_map_mismatch_", fileext = ".json")
+    temp_file <- tempfile("log_geopressure_map_", fileext = ".json")
     write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
     cli::cli_text("Body request file: {.file {temp_file}}")
   }
 
-  # Request URLS
   if (!quiet) {
     cli::cli_progress_step("Generate requests for {.val {length(unique(pres$stapelev))}} stapelev \\
                            (on GeoPressureAPI): {.field {unique(pres$stapelev)}}")
@@ -133,8 +134,7 @@ geopressure_map_mismatch <- function(tag,
     cli::cli_progress_step(
       msg = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev \\
       (in parallel): {.val {labels[i_u]}} | {i_u}/{length(urls)}",
-      msg_done = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev",
-      spinner = TRUE
+      msg_done = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev"
     )
     # nolint end
   }
@@ -143,8 +143,6 @@ geopressure_map_mismatch <- function(tag,
       cli::cli_progress_update(force = TRUE)
     }
     f[[i_u]] <- future::future(expr = {
-      file <- tempfile(fileext = ".geotiff")
-      res <- httr::GET(
       # Request URLS
       req <- httr2::request(urls[i_u]) |>
         httr2::req_timeout(timeout) |>
@@ -155,6 +153,7 @@ geopressure_map_mismatch <- function(tag,
         req <- httr2::req_verbose(req)
       }
 
+      # Perform the request and write the response to file
       file <- tempfile(fileext = ".geotiff")
       httr2::req_perform(req, path = file)
 
@@ -180,8 +179,6 @@ geopressure_map_mismatch <- function(tag,
       cli::cli_progress_update(force = TRUE)
     }
     file <- future::value(f[[i_u]])
-    if (inherits(file, "response")) {
-      cli::cli_warn(c(
     map[[i_u]] <- terra::rast(file)
     names(map[[i_u]][[1]]) <- "map_pressure_mse"
     if (keep_mask) {

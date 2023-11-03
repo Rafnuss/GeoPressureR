@@ -46,6 +46,7 @@
 #' - `lat` same as input `lat` except if over water.
 #' - `pressure_era5_norm` only if `pressure` is provided as input
 #' - `altitude` only if `pressure` is provided as input
+#'
 #' @examples
 #' # Request pressure at a given location
 #' pressurepath <- geopressure_timeseries(
@@ -181,7 +182,7 @@ geopressure_timeseries <- function(lat,
   # check for errors
   if (nrow(out) == 0) {
     temp_file <- tempfile("log_pressurepath_create", fileext = ".json")
-    write(jsonlite::toJSON(body), temp_file)
+    write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
     cli::cli_abort(c(
       x = "Returned csv file is empty.",
       i = "Check that the time range is none-empty. Log of your  JSON request: {.file {temp_file}}"
