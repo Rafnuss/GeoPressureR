@@ -1,13 +1,19 @@
-# GeoPressureR v3.1.2
+# GeoPressureR v3.1.5
 ## Major
-*  
+- Fix major bugs https://github.com/Rafnuss/GeoPressureR/pull/103/commits/05c3203ef1588bbc1f769050377cadf5f1aadcbd
+- Update to GeoPressureAPI v2 for `geopressure_timeseries()` https://github.com/Rafnuss/GeoPressureR/pull/103/commits/732d1a02cc241dc7d2dde3401c8747fa860650c6
+- Add `workers` argument in `graph_create()` https://github.com/Rafnuss/GeoPressureR/commit/e1ce45882809e1fd3da0e8feb2ff80ac70f2bf8b
+- Edit default number of workers for `graph_create()` https://github.com/Rafnuss/GeoPressureR/pull/106/commits/256c5756e3eeb27ebac82b6c5a61b6cfb23425da
+- Migrate from `httr`to `httr2` 
 
 ## Minor
-* Add `workers` argument in `graph_create()` https://github.com/Rafnuss/GeoPressureR/commit/e1ce45882809e1fd3da0e8feb2ff80ac70f2bf8b
-* Update to GeoPressureAPI v2 for `geopressure_timeseries()` https://github.com/Rafnuss/GeoPressureR/commit/732d1a02cc241dc7d2dde3401c8747fa860650c6
+- Add `codemeta.json` https://github.com/Rafnuss/GeoPressureR/pull/105/commits/4f7f7bce8875b4af59db3fc1ce403d41d6317469
+- Add project status badge https://github.com/Rafnuss/GeoPressureR/pull/105/commits/ecd8f61ec49dcd376748e54d19dfb2000675d302
+- Fix leaflet tile provider with Stadia change https://github.com/Rafnuss/GeoPressureR/pull/106/commits/8d9bd159874deb87d61907ea14911eca12877038
 
+**Full Changelog**: https://github.com/Rafnuss/GeoPressureR/compare/v3.1.5...v3.1.0
 ## Full Changelog
-[https://github.com/Rafnuss/GeoPressureR/compare/v3.2.1...v3.1.2](https://github.com/Rafnuss/GeoPressureR/compare/v3.1.0...v3.1.2)
+[https://github.com/Rafnuss/GeoPressureR/compare/v3.1.5...v3.1.0](https://github.com/Rafnuss/GeoPressureR/compare/v3.1.5...v3.1.0)
 
 
 # GeoPressureR v3.1

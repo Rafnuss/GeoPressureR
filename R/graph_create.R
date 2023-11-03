@@ -371,11 +371,13 @@ graph_create_prune <- function(gr, quiet = FALSE) {
   }
 
   if (!quiet) {
+    # nolint start
     i <- 0
     cli::cli_progress_step(
       "Prune the graph {i}/{(length(gr) - 1) * 2} ",
       msg_done = "Prune the graph"
     )
+    # nolint end
   }
 
   # First, trim the graph from equipment to retrieval
@@ -395,8 +397,10 @@ graph_create_prune <- function(gr, quiet = FALSE) {
       ))
     }
     if (!quiet) {
+      # nolint start
       i <- i_s
       cli::cli_progress_update()
+      # nolint end
     }
   }
   # Then, trim the graph from retrieval to equipment

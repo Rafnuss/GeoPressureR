@@ -11,7 +11,8 @@ geopressure_timeseries(
   start_time = NULL,
   end_time = NULL,
   timeout = 60 * 5,
-  quiet = FALSE
+  quiet = FALSE,
+  debug = FALSE
 )
 }
 \arguments{
@@ -29,9 +30,11 @@ the timeseries as POSIXlt.}
 the timeseries as POSIXlt.}
 
 \item{timeout}{Duration before the code is interrupted both for the request on
-GeoPressureAPI and on GEE (in seconds, see \code{\link[httr:timeout]{httr::timeout()}}).}
+GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 
 \item{quiet}{logical to hide messages about the progress}
+
+\item{debug}{logical to display additional information to debug a request}
 }
 \value{
 A data.frame containing
