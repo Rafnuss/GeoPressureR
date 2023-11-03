@@ -133,18 +133,15 @@ optimized hidden Markov model. <em>Methods in Ecology and Evolution</em>, 14, 11
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create graph</span></span></span>
 <span class="r-in"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="graph_create.html">graph_create</a></span><span class="op">(</span><span class="va">tag</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in cli::cli_progress_update():</span> Cannot find current progress bar for `&lt;environment: 0x55dffd17ff88&gt;`</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Define movement model</span></span></span>
 <span class="r-in"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="graph_set_movement.html">graph_set_movement</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'graph' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compute simulations</span></span></span>
 <span class="r-in"><span><span class="va">path_simulation</span> <span class="op">&lt;-</span> <span class="fu">graph_simulation</span><span class="op">(</span><span class="va">graph</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'graph' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plot_path.html">plot_path</a></span><span class="op">(</span><span class="va">path_simulation</span>, plot_leaflet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'path_simulation' not found</span>
+<span class="r-plt img"><img src="graph_simulation-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
