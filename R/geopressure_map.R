@@ -104,7 +104,7 @@
 #' @param keep_mask logical defining if the mask map is returned in `tag`.
 #' @param keep_mse logical defining if the MSE map is returned in `tag`.
 #' @param timeout Duration before the code is interrupted both for the request on
-#' GeoPressureAPI and on GEE (in seconds, see [`httr::timeout()`]).
+#' GeoPressureAPI and on GEE (in seconds, see `httr2::req_timeout()`).
 #' @param workers Number of parallel requests on GEE. Integer between 1 and 99. `"auto"` adjust the
 #' number of workers to the number of `stap_elev` to query.
 #' @param compute_known logical defining if the map(s) for known stationary period should be

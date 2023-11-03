@@ -37,6 +37,8 @@
 #' the timeseries as POSIXlt.
 #' @inheritParams geopressure_map
 #' @param quiet logical to hide messages about the progress
+#' @param debug logical to display additional information to debug a request
+#'
 #' @return A data.frame containing
 #' - `date` POSIXct date time
 #' - `pressure_era5` pressure (hPa)
@@ -87,7 +89,8 @@ geopressure_timeseries <- function(lat,
                                    start_time = NULL,
                                    end_time = NULL,
                                    timeout = 60 * 5,
-                                   quiet = FALSE) {
+                                   quiet = FALSE,
+                                   debug = FALSE) {
   # Check input
   assertthat::assert_that(is.numeric(lon))
   assertthat::assert_that(is.numeric(lat))
@@ -120,48 +123,60 @@ geopressure_timeseries <- function(lat,
   }
 
   if (!quiet) cli::cli_progress_step("Generate request (on GeoPressureAPI)")
-  res <- httr::POST("https:///glp.mgravey.com/GeoPressure/v2/timeseries/",
-    body = body,
-    encode = "json",
-    httr::timeout(timeout)
-  )
 
-  if (httr::http_error(res)) {
-    message(httr::http_status(res)$message)
-    message(httr::content(res))
-    temp_file <- tempfile("log_pressurepath_create", fileext = ".json")
-    write(jsonlite::toJSON(body), temp_file)
-    cli::cli_abort(c(
-      x = "Error with your request on {.url https://glp.mgravey.com/GeoPressure/v2/timeseries/}.",
-      i = "Please try again, and if the problem persists, file an issue on Github {.url \\
-      https://github.com/Rafnuss/GeoPressureAPI/issues/new?body=pressurepath_create&labels=crash}
-      with this log file located on your computer: {.file {temp_file}}."
-    ))
+  if (debug) {
+    temp_file <- tempfile("log_geopressure_timeseries_", fileext = ".json")
+    write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
+    cli::cli_text("Body request file: {.file {temp_file}}")
   }
 
-  # Retrieve response data
-  res_data <- httr::content(res)$data
+  req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/timeseries/") |>
+    httr2::req_body_json(body) |>
+    httr2::req_timeout(timeout) |>
+    httr2::req_retry(max_tries = 3) |>
+    httr2::req_error(body = function(resp) {
+      if (debug) {
+        print(httr2::resp_body_json(resp))
+      }
+      c(
+        "x" = "Error with your request on https://glp.mgravey.com/GeoPressure/v2/timeseries/.",
+        ">" = httr2::resp_body_json(resp)$errorMessage,
+        "i" = "Please try again with `debug=TRUE`"
+      )
+    })
+
+  if (debug) {
+    req <- httr2::req_verbose(req)
+  }
+
+  # Perform the request and convert the response to json
+  resp <- httr2::req_perform(req)
+  resp_data <- httr2::resp_body_json(resp)$data
 
   # Check for change in position
-  if (res_data$distInter > 0) {
+  if (resp_data$distInter > 0) {
     cli::cli_inform(c("!" = "Requested position is on water and will be move to the closet point \\
-      on shore ({.url https://www.google.com/maps/dir/{lat},{lon}/{res_data$lat},{res_data$lon}}) \\
-      located {round(res_data$distInter / 1000)} km away.\f"))
+      on shore \\
+      ({.url https://www.google.com/maps/dir/{lat},{lon}/{resp_data$lat},{resp_data$lon}}) \\
+      located {round(resp_data$distInter / 1000)} km away.\f"))
   }
 
-  # Download the csv file
   if (!quiet) cli::cli_progress_step("Sending request")
-  res2 <- httr::GET(res_data$url, httr::timeout(timeout))
 
-  # read csv
-  if (!quiet) {
-    cli::cli_progress_step("Compute timeseries (on GEE server) and download csv")
+  # Prepare request
+  req <- httr2::request(resp_data$url) |>
+    httr2::req_timeout(timeout) |>
+    httr2::req_retry(max_tries = 3)
+
+  if (debug) {
+    req <- httr2::req_verbose(req)
   }
-  out <- as.data.frame(httr::content(res2,
-    type = "text/csv",
-    encoding = "UTF-8",
-    show_col_types = FALSE
-  ))
+
+  # Perform request
+  resp <- httr2::req_perform(req)
+
+  # Convert the response to data.frame
+  out <- utils::read.csv(text = httr2::resp_body_string(resp))
 
   # check for errors
   if (nrow(out) == 0) {
@@ -182,8 +197,8 @@ geopressure_timeseries <- function(lat,
   names(out)[names(out) == "pressure"] <- "pressure_era5"
 
   # Add exact location
-  out$lat <- res_data$lat
-  out$lon <- res_data$lon
+  out$lat <- resp_data$lat
+  out$lon <- resp_data$lon
 
   # Compute the ERA5 pressure normalized to the pressure level (i.e. altitude) of the bird
   if (!is.null(pressure)) {

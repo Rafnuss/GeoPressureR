@@ -57,55 +57,40 @@ geopressure_map_mismatch <- function(tag,
     cli::cli_progress_step("Generate requests for {.val {length(unique(pres$stapelev))}} stapelev \\
                            (on GeoPressureAPI): {.field {unique(pres$stapelev)}}")
   }
-  res <- httr::POST("https://glp.mgravey.com/GeoPressure/v2/map/",
-    body = body,
-    encode = "json",
-    httr::timeout(timeout),
-    httr::config(
-      verbose = debug # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
-    )
-  )
 
-  if (httr::http_error(res)) {
-    temp_file <- tempfile("log_geopressure_map_mismatch_", fileext = ".json")
-    write(jsonlite::toJSON(body), temp_file)
-    # nolint start
-    if (httr::status_code(res) == 400 || httr::status_code(res) == 400) {
-      # message(httr::content(res))
-      github_link <- glue::glue(
-        "https://github.com/Rafnuss/GeoPressureAPI/issues/new?title=crash\\%20geopressure_map%20\\
-      task_id:{httr::content(res)$taskID}&labels=crash"
+  # Request URLS
+  req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/map/") |>
+    httr2::req_body_json(body) |>
+    httr2::req_timeout(timeout) |>
+    httr2::req_retry(max_tries = 3) |>
+    httr2::req_error(body = function(resp) {
+      if (debug) {
+        print(httr2::resp_body_json(resp))
+      }
+      c(
+        "x" = "Error with your request on https://glp.mgravey.com/GeoPressure/v2/map/.",
+        ">" = httr2::resp_body_json(resp)$errorMessage,
+        "i" = "Please try again with `debug=TRUE`"
       )
-      cli::cli_abort(c(
-        "x" = "Error (Status code {.val {httr::status_code(res)}}) with your request on \\
-        {.url https://glp.mgravey.com/GeoPressure/v2/map/}.",
-        ">" = httr::content(res)$errorMessage,
-        "i" = "Please try again, and if the problem persists, file an issue on Github: \\
-        {.url {github_link}} with the request body file located on your computer: \\
-        {.file {temp_file}}"
-      ))
-    } else {
-      github_link <- glue::glue(
-        "https://github.com/Rafnuss/GeoPressureAPI/issues/new?title=crash\\%20geopressure_map%20\\
-      &labels=crash"
-      )
-      print(res)
-      cli::cli_abort(c(
-        "x" = "Error (Status code {.val {httr::status_code(res)}}) with your request on \\
-        {.url https://glp.mgravey.com/GeoPressure/v2/map/}.",
-        "i" = "Please try again, and if the problem persists, file an issue on Github: \\
-        {.url {github_link}} with the request body file located on your computer: \\
-        {.file {temp_file}}"
-      ))
-    }
-    # nolint end
+    })
+
+  if (debug) {
+    req <- httr2::req_verbose(req)
+  }
+
+  # Perform the request and convert the response to json
+  resp <- httr2::req_perform(req)
+  resp_json <- httr2::resp_body_json(resp)
+
+  if (debug) {
+    print(resp_json)
   }
 
   # Get urls
-  urls <- httr::content(res)$data$urls
+  urls <- resp_json$data$urls
   urls[sapply(urls, is.null)] <- NA
   urls <- unlist(urls)
-  labels <- unlist(httr::content(res)$data$labels)
+  labels <- unlist(resp_json$data$labels)
 
   if (debug) {
     cli::cli_text("urls: ")
@@ -160,19 +145,21 @@ geopressure_map_mismatch <- function(tag,
     f[[i_u]] <- future::future(expr = {
       file <- tempfile(fileext = ".geotiff")
       res <- httr::GET(
-        urls[i_u],
-        httr::write_disk(file),
-        httr::timeout(timeout),
-        httr::config(
-          verbose = debug
-          # httr::verbose(data_out = TRUE, data_in = FALSE, info = TRUE, ssl = FALSE)
-        )
-      )
-      if (httr::http_error(res)) {
-        return(res)
-      } else {
-        return(file)
+      # Request URLS
+      req <- httr2::request(urls[i_u]) |>
+        httr2::req_timeout(timeout) |>
+        httr2::req_retry(max_tries = 3) |>
+        httr2::req_error(is_error = function(resp) FALSE)
+
+      if (debug) {
+        req <- httr2::req_verbose(req)
       }
+
+      file <- tempfile(fileext = ".geotiff")
+      httr2::req_perform(req, path = file)
+
+      # return the path to the file
+      return(file)
     }, seed = TRUE)
   }
 
@@ -195,20 +182,10 @@ geopressure_map_mismatch <- function(tag,
     file <- future::value(f[[i_u]])
     if (inherits(file, "response")) {
       cli::cli_warn(c(
-        "x" = "There was an error for stap {.val {labels[i_u]}} during the downloading and \\
-        reading of the response url {.url {urls[i_u]}}. It returned a status code \\
-        {.val {httr::status_code(res)}}."
-      ))
-      print(res)
-    } else {
-      if (debug) {
-        print(file)
-      }
-      map[[i_u]] <- terra::rast(file)
-      names(map[[i_u]][[1]]) <- "map_pressure_mse"
-      if (keep_mask) {
-        names(map[[i_u]][[2]]) <- "map_pressure_mask"
-      }
+    map[[i_u]] <- terra::rast(file)
+    names(map[[i_u]][[1]]) <- "map_pressure_mse"
+    if (keep_mask) {
+      names(map[[i_u]][[2]]) <- "map_pressure_mask"
     }
   }
 
