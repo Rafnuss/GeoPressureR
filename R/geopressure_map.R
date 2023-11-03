@@ -70,7 +70,8 @@
 #' We convert the map of the mean square error \eqn{MSE} and altitude mask \eqn{z_{mask}} computed
 #' by [`geopressure_map_mismatch()`] into a likelihood map with,
 #'
-#' \deqn{L = \exp \left(-w \frac{MSE}{\sigma} \right) \left[z_{mask}>T \right],}
+#' \deqn{L = \left( \frac{1}{2 \pi \sigma^2}\right)^{\frac{nw}{2}}
+#' \exp \left(-w n \frac{MSE}{2\sigma^2} \right) \left[z_{mask}>T \right],}
 #'
 #' where \eqn{\sigma} is the standard deviation (`sd`) of pressure and \eqn{T} is the mask threshold
 #' (`thr_mask`).
@@ -119,21 +120,21 @@
 #' datapoints used to compute the MSE.
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
+#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
 #'   tag_set_map(
 #'     extent = c(-16, 23, 0, 50),
 #'     scale = 4
 #'   )
+#' setwd(owd)
 #'
 #' tag <- geopressure_map_mismatch(tag,
 #'   max_sample = 50,
 #'   margin = 20,
 #'   thr_mask = 0.95,
 #'   keep_mask = TRUE,
-#'   quiet = TRUE,
-#'   workers = 1
+#'   quiet = TRUE
 #' )
 #'
 #' plot(tag, type = "map_pressure_mse", plot_leaflet = FALSE)
@@ -156,11 +157,11 @@
 geopressure_map <- function(tag,
                             max_sample = 250,
                             margin = 30,
-                            timeout = 60 * 5,
-                            workers = "auto",
                             sd = 1,
                             thr_mask = 0.9,
                             log_linear_pooling_weight = \(n) log(n) / n,
+                            timeout = 60 * 5,
+                            workers = "auto",
                             keep_mask = FALSE,
                             keep_mse = FALSE,
                             compute_known = FALSE,

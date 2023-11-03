@@ -9,7 +9,8 @@
   thr_likelihood = 1,
   path = NULL,
   plot_leaflet = TRUE,
-  provider = "Stamen.TerrainBackground",
+  provider = "Esri.WorldTopoMap",
+  provider_options = leaflet::providerTileOptions(),
   palette = "auto",
   opacity = 0.8,
   legend = FALSE,
@@ -29,6 +30,9 @@
 \url{https://leaflet-extras.github.io/leaflet-providers/preview/} and
 \url{https://github.com/leaflet-extras/leaflet-providers})}
 
+\item{provider_options}{tile options. See leaflet::addProviderTiles() and
+leaflet::providerTileOptions()}
+
 \item{palette}{The colors or color function that values will be mapped to}
 
 \item{opacity}{the base opacity of the raster, expressed from 0 to 1}
@@ -39,13 +43,16 @@
 
 \item{map}{A GeoPressureR \code{map} object}
 }
+\value{
+a plot or leaflet object.
+}
 \description{
 This function plot a GeoPressureR \code{map} object.
 
 You can plot on top of the \code{map} a \code{path}, this uses the \code{plot_path()} function.
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
+owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   tag_set_map(
@@ -53,6 +60,7 @@ tag <- tag_create("18LX", quiet = TRUE) |>
     scale = 4
   ) |>
   geopressure_map(quiet = TRUE)
+setwd(owd)
 
 plot(tag$map_pressure)
 

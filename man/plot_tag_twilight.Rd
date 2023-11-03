@@ -13,6 +13,9 @@ plot_tag_twilight(tag, transform_light = TRUE, plot_plotly = FALSE)
 
 \item{plot_plotly}{logical to use \code{plotly}}
 }
+\value{
+a plot object.
+}
 \description{
 This function display a plot of twilight timeseries recorded by a tag
 }

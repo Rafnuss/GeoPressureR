@@ -30,7 +30,7 @@ graph_set_movement(
 \item{location}{parameter for the logistic distribution}
 
 \item{bird}{A GeoPressureR \code{bird} object containing the basic morphological traits necessary:
-mass, wing span, wing aspect ratio, and body frontal area. See \code{\link[=bird_create]{bird_create()}}.}
+mass, wing span, wing aspect ratio, and body frontal area. See \code{bird_create()}.}
 
 \item{power2prob}{function taking power as a single argument and returning a probability}
 
@@ -53,7 +53,7 @@ curve equation (energy vs airspeed) to estimate the probability of a airspeed. R
 this approach in \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0009-title}{section 2.2.5. of Nussbaumer et al. (2023b)}
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
+owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   twilight_create() |>
@@ -64,6 +64,7 @@ tag <- tag_create("18LX", quiet = TRUE) |>
   ) |>
   geopressure_map(quiet = TRUE) |>
   geolight_map(quiet = TRUE)
+setwd(owd)
 
 graph <- graph_create(tag, quiet = TRUE)
 

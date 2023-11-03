@@ -22,6 +22,9 @@ labels are not already present on tag$acceleration$label}
 \item{min_duration}{Minimal duration (in minutes) to consider a high activity as migratory
 flight.}
 }
+\value{
+a plot or ggplotly object.
+}
 \description{
 This function display a plot of acceleration timeseries recorded by a tag
 }

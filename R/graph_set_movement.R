@@ -19,7 +19,7 @@
 #' @param scale  parameter of the gamma and logistic distribution
 #' @param location parameter for the logistic distribution
 #' @param bird A GeoPressureR `bird` object containing the basic morphological traits necessary:
-#'  mass, wing span, wing aspect ratio, and body frontal area. See [`bird_create()`].
+#'  mass, wing span, wing aspect ratio, and body frontal area. See `bird_create()`.
 #' @param power2prob function taking power as a single argument and returning a probability
 #' @param low_speed_fix speed below which the probability remains the same. This parameter is used
 #'   to allow short flights covering small distances.
@@ -28,7 +28,7 @@
 #' the transition probability
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
+#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
 #'   twilight_create() |>
@@ -39,6 +39,7 @@
 #'   ) |>
 #'   geopressure_map(quiet = TRUE) |>
 #'   geolight_map(quiet = TRUE)
+#' setwd(owd)
 #'
 #' graph <- graph_create(tag, quiet = TRUE)
 #'

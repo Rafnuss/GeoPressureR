@@ -11,6 +11,9 @@
 [![Codecov test
 coverage](https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master)
 [![lint](https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml)
+[![Project Status: Active – The project has reached a stable, usable
+state and is being actively
+developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 <!-- badges: end -->
 
 GeoPressureR is a R package which help researchers construct the
@@ -44,6 +47,12 @@ which provides a standard code structure for your analysis.
 
 Using this standardized code structure you will help you on many aspect:
 code sharing and troubleshooting, data archiving, work reproducibility.
+
+## Cheatsheet
+
+<a href="https://github.com/Rafnuss/GeoPressureR/raw/master/man/figures/cheatsheet.pdf" target="_blank">
+<img src="man/figures/cheatsheet-01.png" width="350"/>
+<img src="man/figures/cheatsheet-02.png" width="350"/> </a>
 
 ## Constributions
 

@@ -49,11 +49,18 @@ geopressureviz <- function(x,
       if (!is.null(marginal)) {
         marginal0 <- marginal
       }
+      # Avoid CMD error
+      path_most_likely <- NULL
+      pressurepath <- NULL
       # Load interim data
       load(file)
       # Accept path_most_likely instead of path
-      if (exists("path_most_likely")) {
+      if (!is.null(path_most_likely)) {
         path <- path_most_likely
+      }
+      # Use pressurepath if available over path_most_likely
+      if (!is.null(pressurepath)) {
+        path <- pressurepath
       }
       # Overwrite loaded variable with arguments if provided
       if (exists("path0")) {
@@ -156,5 +163,5 @@ geopressureviz <- function(x,
     launch.browser = launch_browser
   )
 
-  return(.GlobalEnv$geopressureviz_path)
+  return(invisible(.GlobalEnv$geopressureviz_path))
 }

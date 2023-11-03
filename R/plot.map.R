@@ -8,14 +8,18 @@
 #' @param map A GeoPressureR `map` object
 #' @param plot_leaflet logical to use an interactive `leaflet` map instead of `terra::plot`
 #' @param path a GeoPressureR `path` data.frame
+#' @param provider_options tile options. See leaflet::addProviderTiles() and
+#' leaflet::providerTileOptions()
 #' @inheritParams leaflet::addProviderTiles
 #' @inheritParams leaflet::colorNumeric
 #' @inheritParams leaflet::addRasterImage
 #' @inheritParams terra::plot
 #' @inheritParams graph_create
 #'
+#' @return a plot or leaflet object.
+#'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
+#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
 #'   tag_set_map(
@@ -23,6 +27,7 @@
 #'     scale = 4
 #'   ) |>
 #'   geopressure_map(quiet = TRUE)
+#' setwd(owd)
 #'
 #' plot(tag$map_pressure)
 #'
@@ -44,7 +49,8 @@ plot.map <- function(x,
                      thr_likelihood = 1,
                      path = NULL,
                      plot_leaflet = TRUE,
-                     provider = "Stamen.TerrainBackground",
+                     provider = "Esri.WorldTopoMap",
+                     provider_options = leaflet::providerTileOptions(),
                      palette = "auto",
                      opacity = 0.8,
                      legend = FALSE,
@@ -76,7 +82,7 @@ plot.map <- function(x,
                       {format(map$stap$end , format = '%d %b %H:%M')}")
 
     lmap <- leaflet::leaflet(width = "100%") |>
-      leaflet::addProviderTiles(provider = provider)
+      leaflet::addProviderTiles(provider = provider, options = provider_options)
 
     if (palette == "auto") {
       if ("pressure" == map$type) {
@@ -96,7 +102,7 @@ plot.map <- function(x,
       }
     }
 
-    for (i in seq_len(dim(r)[3])) {
+    for (i in map$stap$stap_id[map$stap$include]) {
       lmap <- leaflet::addRasterImage(
         lmap,
         r[[i]],
@@ -159,6 +165,6 @@ plot.map <- function(x,
 
     return(lmap)
   } else {
-    terra::plot(r, legend = legend, ...)
+    terra::plot(r[[map$stap$include]], legend = legend, ...)
   }
 }

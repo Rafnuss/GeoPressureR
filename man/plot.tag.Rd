@@ -16,6 +16,9 @@
 \item{...}{additional parameters for \code{plot_tag_pressure()}, \code{plot_tag_acceleration()},
 \code{plot_tag_light()}, \code{plot_tag_twilight()} or \code{plot.map()}}
 }
+\value{
+a plot, ggplotly or leaflet object.
+}
 \description{
 This function plot a GeoPressureR \code{tag} object as a timeseries or a map.
 
@@ -34,9 +37,12 @@ By default, \code{type} is determined in the following order of preference accor
 Refers to these functions for additional parameters and more flexibility in the plotting.
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
+owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
-  tag_label(quiet = TRUE)
+  tag_label(quiet = TRUE) |>
+  twilight_create() |>
+  twilight_label_read()
+setwd(owd)
 
 # By default, plot will display the timeserie of pressure
 plot(tag)
@@ -44,7 +50,6 @@ plot(tag)
 plot(tag, type = "acceleration")
 plot(tag, type = "light")
 # Twilight is display as an image
-tag <- twilight_create(tag) |> twilight_label_read()
 plot(tag, type = "twilight")
 
 # After you compute any likelihood map, the default will

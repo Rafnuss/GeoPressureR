@@ -85,7 +85,7 @@ pressurepath <- pressurepath_create(
   tag,
   path[c(2, 3, 4), ],
   include_flight = TRUE,
-  quiet = T
+  quiet = TRUE
 )
 
 plot_pressurepath(pressurepath)

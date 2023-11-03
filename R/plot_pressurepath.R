@@ -9,6 +9,8 @@
 #' https://en.wikipedia.org/wiki/Standard_score)
 #' @param plot_plotly logical to use `plotly`
 #'
+#' @return a plot or ggplotly object.
+#'
 #' @examples
 #' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
@@ -135,7 +137,7 @@ plot_pressurepath <- function(pressurepath,
       ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "none", axis.text.y = ggplot2::element_blank())
   } else if (type == "altitude") {
-    pp_alt <- pressurepath2altitude(pp)
+    pp_alt <- pressurepath2altitude(pressurepath)
     pp_alt$stap_id <- factor(pp_alt$stap_id)
 
     p <- ggplot2::ggplot() +

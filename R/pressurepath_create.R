@@ -63,7 +63,7 @@
 #'   tag,
 #'   path[c(2, 3, 4), ],
 #'   include_flight = TRUE,
-#'   quiet = T
+#'   quiet = TRUE
 #' )
 #'
 #' plot_pressurepath(pressurepath)
@@ -212,6 +212,9 @@ pressurepath_create <- function(tag,
       pressure_timeseries[[i_s]] <- data.frame()
     }
   }
+
+  # Explicitly close multisession workers by switching plan
+  future::plan(future::sequential)
 
   if (!quiet) {
     cli::cli_progress_step("Build pressurepath")

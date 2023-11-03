@@ -19,7 +19,7 @@ This function displays the information of a \code{param} list.
 }
 \examples{
 # Display the default parameters used in the package.
-param <- param_create("18LX", default = T)
+param <- param_create("18LX", default = TRUE)
 
 print(param)
 

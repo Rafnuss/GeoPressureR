@@ -23,11 +23,13 @@
 #' @param geosphere_bearing function to compute the bearing. Either `geosphere::bearing` (default)
 #' or `geosphere::bearingRhumb`. See https://rspatial.org/raster/sphere/3-direction.html#bearing
 #' for details.
+#' @param workers number of workers used in the computation of edges ground speed. More workers
+#' (up to the limit `future::availableCores()`) usually makes the computation faster, but because
+#' the the number of edges is large, memory will often limit the computation.
 #' @param quiet logical to hide messages about the progress.
 #' @inheritParams tag2map
 #'
 #' @return Graph as a list
-#' - `id`:
 #' - `s`: source node (index in the 3d grid lat-lon-stap)
 #' - `t`: target node (index in the 3d grid lat-lon-stap)
 #' - `gs`: average ground speed required to make that transition (km/h) as complex number
@@ -35,13 +37,11 @@
 #' - `obs`: observation model, corresponding to the normalized likelihood in a 3D matrix of size
 #' `sz`
 #' - `sz`: size of the 3d grid lat-lon-stap
-#' - `stap`: data.frame of all stationary periods
+#' - `stap`: data.frame of all stationary periods (samme as `tag$stap`)
 #' - `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-sta)
 #' - `retrieval`: node(s) of the last stap (index in the 3d grid lat-lon-sta)
-#' - `extent`: same as `tag$param$extent`
-#' - `scale`: same as `tag$param$scale`
 #' - `mask_water`: logical matrix of water-land
-#' - `param`: parameter used to create the graph, including `thr_likelihood` and `thr_gs`
+#' - `param`: list of parameters including `thr_likelihood` and `thr_gs` (same as `tag$param`)
 #'
 #' @examples
 #' setwd(system.file("extdata", package = "GeoPressureR"))
@@ -74,6 +74,7 @@ graph_create <- function(tag,
                          likelihood = NULL,
                          geosphere_dist = geosphere::distHaversine,
                          geosphere_bearing = geosphere::bearing,
+                         workers = 1,
                          quiet = FALSE) {
   if (!quiet) {
     cli::cli_progress_step("Check data input")
@@ -229,17 +230,14 @@ graph_create <- function(tag,
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
   nds_sorted_idx <- order(nds_expend_sum, decreasing = TRUE)
   nds_expend_sum <- sort(nds_expend_sum, decreasing = TRUE)
-  workers <- future::availableCores() / 2
-  if (!quiet) {
-    cli::cli_progress_step("Starting parrallel session on {workers} workers")
-  }
+  assertthat::assert_that(workers > 0 & workers <= future::availableCores())
   future::plan(future::multisession, workers = workers)
   f <- list()
 
   if (!quiet) {
     i <- 0
     cli::cli_progress_step(
-      "Starting to compute the groundspeed for stationary period {i}/{length(nds_expend_sum)} \\
+      "Compute the groundspeed for stationary period {i}/{length(nds_expend_sum)} \\
       ({ round(sum(nds_expend_sum[seq_len(i)])/sum(nds_expend_sum)*100)}% of nodes)",
       msg_done = "Compute the groundspeed"
     )
@@ -303,18 +301,32 @@ graph_create <- function(tag,
           edges, there are not any nodes left for the stationary period: {.val {stap_model[i_s]}}"
         ))
       }
+
       return(grt)
     }, seed = TRUE)
+
+    # Update progress bar
     if (!quiet) {
-      cli::cli_progress_update(force = TRUE)
+      cli::cli_progress_update()
     }
+  }
+
+  if (!quiet) {
+    cli::cli_progress_done()
   }
 
   # Retrieve the graph
   gr <- future::value(f)
 
+  # Explicitly close multisession workers by switching plan
+  future::plan(future::sequential)
+
   # Prune
   gr <- graph_create_prune(gr, quiet = quiet)
+
+  if (!quiet) {
+    cli::cli_progress_step("Format graph output")
+  }
 
   # Convert gr to a graph list
   graph <- as.list(do.call("rbind", gr))
@@ -339,10 +351,6 @@ graph_create <- function(tag,
   graph$param$thr_likelihood <- thr_likelihood
   graph$param$thr_gs <- thr_gs
 
-  if (!quiet) {
-    cli::cli_progress_done()
-  }
-
   return(graph)
 }
 
@@ -363,13 +371,10 @@ graph_create_prune <- function(gr, quiet = FALSE) {
   }
 
   if (!quiet) {
-    cli::cli_progress_bar(
-      "Prune the graph:",
-      format = "{cli::pb_name} {i_s}/{(length(gr) - 1) * 2} {cli::pb_bar} {cli::pb_percent} | \\
-      {cli::pb_eta_str} [{cli::pb_elapsed}]",
-      format_done = "Prune the graph [{cli::pb_elapsed}]",
-      clear = FALSE,
-      total = (length(gr) - 1) * 2
+    i <- 0
+    cli::cli_progress_step(
+      "Prune the graph {i}/{(length(gr) - 1) * 2} ",
+      msg_done = "Prune the graph"
     )
   }
 
@@ -390,7 +395,8 @@ graph_create_prune <- function(gr, quiet = FALSE) {
       ))
     }
     if (!quiet) {
-      cli::cli_progress_update(force = TRUE)
+      i <- i_s
+      cli::cli_progress_update()
     }
   }
   # Then, trim the graph from retrieval to equipment
@@ -408,8 +414,14 @@ graph_create_prune <- function(gr, quiet = FALSE) {
       ))
     }
     if (!quiet) {
-      cli::cli_progress_update(force = TRUE)
+      i <- length(gr) * 2 - i_s
+      cli::cli_progress_update()
     }
   }
+
+  if (!quiet) {
+    cli::cli_progress_done()
+  }
+
   return(gr)
 }

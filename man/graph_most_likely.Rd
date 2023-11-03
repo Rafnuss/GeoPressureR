@@ -31,7 +31,7 @@ details, see \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-
 and the \href{https://bit.ly/4578D12}{GeoPressureManual}.
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
+owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   twilight_create() |>
@@ -42,6 +42,7 @@ tag <- tag_create("18LX", quiet = TRUE) |>
   ) |>
   geopressure_map(quiet = TRUE) |>
   geolight_map(quiet = TRUE)
+setwd(owd)
 
 # Create graph
 graph <- graph_create(tag, quiet = TRUE)

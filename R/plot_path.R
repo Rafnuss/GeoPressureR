@@ -7,6 +7,8 @@
 #' @param plot_leaflet logical defining if the plot is an interactive `leaflet` map or a static
 #' basic plot.
 #' @inherit leaflet::addProviderTiles
+#' @param provider_options tile options. See leaflet::addProviderTiles() and
+#' leaflet::providerTileOptions()
 #' @param pad padding of the map in degree lat-lon (only for `plot_leaflet = FALSE`).
 #' @param ... additional parameters for `plot_path_leaflet()`
 #'
@@ -24,12 +26,13 @@
 #' @export
 plot_path <- function(path,
                       plot_leaflet = TRUE,
-                      provider = "Stamen.TerrainBackground",
+                      provider = "Esri.WorldTopoMap",
+                      provider_options = leaflet::providerTileOptions(),
                       pad = 3,
                       ...) {
   if (plot_leaflet) {
     leaflet::leaflet(width = "100%") |>
-      leaflet::addProviderTiles(provider = provider) |>
+      leaflet::addProviderTiles(provider = provider, options = provider_options) |>
       plot_path_leaflet(path, ...)
   } else {
     bbox <- list(

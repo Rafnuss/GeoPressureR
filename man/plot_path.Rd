@@ -7,7 +7,8 @@
 plot_path(
   path,
   plot_leaflet = TRUE,
-  provider = "Stamen.TerrainBackground",
+  provider = "Esri.WorldTopoMap",
+  provider_options = leaflet::providerTileOptions(),
   pad = 3,
   ...
 )
@@ -21,6 +22,9 @@ basic plot.}
 \item{provider}{the name of the provider (see
 \url{https://leaflet-extras.github.io/leaflet-providers/preview/} and
 \url{https://github.com/leaflet-extras/leaflet-providers})}
+
+\item{provider_options}{tile options. See leaflet::addProviderTiles() and
+leaflet::providerTileOptions()}
 
 \item{pad}{padding of the map in degree lat-lon (only for \code{plot_leaflet = FALSE}).}
 

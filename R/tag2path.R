@@ -24,7 +24,7 @@
 #' - `lat` Latitude,
 #' - `lon` longitude
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
+#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |>
 #'   tag_label(quiet = TRUE) |>
 #'   tag_set_map(
@@ -32,15 +32,16 @@
 #'     scale = 2
 #'   ) |>
 #'   geopressure_map(quiet = TRUE)
+#' setwd(owd)
 #'
 #' # Extract a path from pressure map
 #' path <- tag2path(tag)
-#' plot_path(path, plot_leaflet = F)
+#' plot_path(path, plot_leaflet = FALSE)
 #'
 #' # Short stationary periods can be unreliably estimated, so
 #' # interpolating them might be better
 #' path <- tag2path(tag, interp = 1)
-#' plot_path(path, plot_leaflet = F)
+#' plot_path(path, plot_leaflet = FALSE)
 #'
 #' @export
 tag2path <- function(tag,
