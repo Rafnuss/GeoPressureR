@@ -8,6 +8,8 @@
 #' @param map A GeoPressureR `map` object
 #' @param plot_leaflet logical to use an interactive `leaflet` map instead of `terra::plot`
 #' @param path a GeoPressureR `path` data.frame
+#' @param provider_options tile options. See leaflet::addProviderTiles() and
+#' leaflet::providerTileOptions()
 #' @inheritParams leaflet::addProviderTiles
 #' @inheritParams leaflet::colorNumeric
 #' @inheritParams leaflet::addRasterImage

@@ -7,6 +7,8 @@
 #' @param plot_leaflet logical defining if the plot is an interactive `leaflet` map or a static
 #' basic plot.
 #' @inherit leaflet::addProviderTiles
+#' @param provider_options tile options. See leaflet::addProviderTiles() and
+#' leaflet::providerTileOptions()
 #' @param pad padding of the map in degree lat-lon (only for `plot_leaflet = FALSE`).
 #' @param ... additional parameters for `plot_path_leaflet()`
 #'

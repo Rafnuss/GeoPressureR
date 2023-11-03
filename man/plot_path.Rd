@@ -23,6 +23,9 @@ basic plot.}
 \url{https://leaflet-extras.github.io/leaflet-providers/preview/} and
 \url{https://github.com/leaflet-extras/leaflet-providers})}
 
+\item{provider_options}{tile options. See leaflet::addProviderTiles() and
+leaflet::providerTileOptions()}
+
 \item{pad}{padding of the map in degree lat-lon (only for \code{plot_leaflet = FALSE}).}
 
 \item{...}{additional parameters for \code{plot_path_leaflet()}}

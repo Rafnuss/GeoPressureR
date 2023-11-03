@@ -306,7 +306,9 @@ graph_create <- function(tag,
     }, seed = TRUE)
 
     # Update progress bar
-    cli::cli_progress_update()
+    if (!quiet) {
+      cli::cli_progress_update()
+    }
   }
 
   if (!quiet) {

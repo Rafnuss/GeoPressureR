@@ -30,6 +30,9 @@
 \url{https://leaflet-extras.github.io/leaflet-providers/preview/} and
 \url{https://github.com/leaflet-extras/leaflet-providers})}
 
+\item{provider_options}{tile options. See leaflet::addProviderTiles() and
+leaflet::providerTileOptions()}
+
 \item{palette}{The colors or color function that values will be mapped to}
 
 \item{opacity}{the base opacity of the raster, expressed from 0 to 1}
