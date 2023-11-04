@@ -170,7 +170,7 @@ pressurepath_create <- function(tag,
 
     # Send the query
     if (!is.na(path$lat[i_s]) && !is.na(path$lon[i_s]) && nrow(pressure_q) > 0) {
-      f[[i_s]] <- future::future({
+      f[[i_s]] <- future::future(expr = {
         geopressure_timeseries(path$lat[i_s], path$lon[i_s],
           pressure = pressure_q,
           quiet = TRUE

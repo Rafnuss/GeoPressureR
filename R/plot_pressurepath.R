@@ -46,9 +46,9 @@ plot_pressurepath <- function(pressurepath,
 
   pp <- pressurepath
 
-  # Compute the error
+  # Compute the error and remove discarded pressure value
   pp$error <- pp$pressure_tag - pp$pressure_era5_norm
-  pp$error[pp$label != ""] <- NA
+  pp$error[pp$label == "discard"] <- NA
 
   # Group by stapelev rather than stap in order to assess the use of elev
   pp$stapelev <- paste(pp$stap_id,
@@ -162,6 +162,9 @@ plot_pressurepath <- function(pressurepath,
           color = "black"
         )
     }
+  } else {
+    cli::cli_abort("The type {.var {type}} of pressurepath plot does not exist. Available options
+                   are: {.val {c('ts', 'hist', 'altitude')}}")
   }
 
   if (plot_plotly) {
