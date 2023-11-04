@@ -45,25 +45,30 @@ pressurepath2altitude <- function(pressurepath) {
     rule = 2
   )$y
 
-  # Compute the weight
   # Compute the weight quantifying the proximity to the previous and next stap
   pp$w <- ifelse(pp$stap_interp == pp$stap_ref, 1, 1 - abs((pp$stap_interp - pp$stap_ref) * 2))
 
   # Weight the altitude
   pp$altitude_w <- pp$w * pp$altitude
+  pp$lon_w <- pp$w * pp$lon
+  pp$lat_w <- pp$w * pp$lat
 
-  # Sum the altitude by date, thus weighting average
   # Sum the altitude by date, thus creating a weighted average
   pp_alt <- data.frame(
     date = sapply(split(pp$date, pp$date), stats::median),
+    label = sapply(split(pp$label, pp$date), unique),
     stap_id = sapply(split(pp$stap_id, pp$date), stats::median),
     altitude = sapply(split(pp$altitude_w, pp$date), sum),
+    lat = sapply(split(pp$lat_w, pp$date), sum),
+    lon = sapply(split(pp$lon_w, pp$date), sum),
     stap_s = sapply(split(pp$stap_ref, pp$date), min),
     stap_t = sapply(split(pp$stap_ref, pp$date), max)
   )
 
   # Because sum of weight is not exactly 1 all the time, we normalized by the sum
   pp_alt$altitude <- pp_alt$altitude / sapply(split(pp$w, pp$date), sum)
+  pp_alt$lat <- pp_alt$lat / sapply(split(pp$w, pp$date), sum)
+  pp_alt$lon <- pp_alt$lon / sapply(split(pp$w, pp$date), sum)
 
   # Remove rowname
   rownames(pp_alt) <- NULL
