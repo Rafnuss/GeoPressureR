@@ -169,8 +169,7 @@ geopressure_map_mismatch <- function(tag,
     i_u <- 1
     cli::cli_progress_step(
       msg = "Read .geotiff: {.val {labels[i_u]}} | {i_u}/{length(urls)}",
-      msg_done = "Read .geotiff",
-      spinner = TRUE
+      msg_done = "Read .geotiff"
     )
     # nolint end
   }

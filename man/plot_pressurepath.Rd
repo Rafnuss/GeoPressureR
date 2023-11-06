@@ -15,7 +15,8 @@ plot_pressurepath(
 \arguments{
 \item{pressurepath}{a GeoPressureR \code{pressurepath} data.frame.}
 
-\item{type}{Timeseries \code{"ts"} or histogram \code{"hist"}}
+\item{type}{timeseries \code{"timeseries"} (default), histogram \code{"histogram"}, or altitude
+\code{"altitude"}}
 
 \item{sd}{standard deviation of the pressure error . numeric of lenght 1 or number of stationary
 periods.}
@@ -43,6 +44,10 @@ path <- data.frame(
 pressurepath <- pressurepath_create(tag, path = path, quiet = TRUE)
 
 plot_pressurepath(pressurepath)
+
+plot_pressurepath(pressurepath, type = "histogram")
+
+plot_pressurepath(pressurepath, type = "altitude")
 
 }
 \seealso{
