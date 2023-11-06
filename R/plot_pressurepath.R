@@ -3,7 +3,8 @@
 #' Display a `pressurepath` data.frame as a timeseries or histogram
 #'
 #' @param pressurepath a GeoPressureR `pressurepath` data.frame.
-#' @param type Timeseries `"ts"` or histogram `"hist"`
+#' @param type timeseries `"timeseries"` (default), histogram `"histogram"`, or altitude
+#' `"altitude"`
 #' @inheritParams geopressure_map
 #' @param warning_std_thr Threshold of outliar, coefficient of the [z-score](
 #' https://en.wikipedia.org/wiki/Standard_score)
@@ -25,6 +26,10 @@
 #'
 #' plot_pressurepath(pressurepath)
 #'
+#' plot_pressurepath(pressurepath, type = "histogram")
+#'
+#' plot_pressurepath(pressurepath, type = "altitude")
+#'
 #' @family pressurepath
 #' @export
 plot_pressurepath <- function(pressurepath,
@@ -44,17 +49,20 @@ plot_pressurepath <- function(pressurepath,
     sd <- rep(1, times = length(unique(pressurepath$stap_id)))
   }
 
+  # Shorter name for the rest of the code
   pp <- pressurepath
-
-  # Compute the error and remove discarded pressure value
-  pp$error <- pp$pressure_tag - pp$pressure_era5_norm
-  pp$error[pp$label == "discard"] <- NA
 
   # Group by stapelev rather than stap in order to assess the use of elev
   pp$stapelev <- paste(pp$stap_id,
     ifelse(startsWith(pp$label, "elev_"), gsub("^.*?elev_", "", pp$label), "0"),
     sep = "|"
   )
+
+  # Compute the error
+  pp$error <- pp$pressure_tag - pp$pressure_era5_norm
+
+  # Remove error for discard
+  pp$error[pp$label == "discard"] <- NA
 
   # Compute the error std and offset
   tag_era5 <- merge(
@@ -75,7 +83,7 @@ plot_pressurepath <- function(pressurepath,
 
   # knitr::kable(tag_era5, "simple")
 
-  if ("ts" == type) {
+  if (type == "ts") {
     pp$warning <- (abs(pp$error) / sd[ifelse(pp$stap_id == 0, 1, pp$stap_id)]) >= warning_std_thr
 
     # convert stapelev to factor for color
@@ -103,8 +111,11 @@ plot_pressurepath <- function(pressurepath,
       ggplot2::theme_bw() +
       ggplot2::scale_y_continuous(name = "Pressure (hPa)") +
       ggplot2::theme(legend.position = "none")
-  } else if ("hist" == type) {
+  } else if (type == "histogram") {
     # Check if the empirical sd is greater than the sd used in the computation of the map
+
+    # Remove error for flight
+    pp <- pp[pp$stap_id != 0, ]
 
     pp$sd_param <- sd[ifelse(pp$stap_id == 0, 1, pp$stap_id)]
     pp$sd_ok <- pp$error_sd > pp$sd_param
