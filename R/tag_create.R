@@ -263,6 +263,15 @@ tag_create_migratetech <- function(tag,
                contains {.val Type:x}, with x>=13."
     )
   }
+  line16 <- readLines(pres_acc_path, n = 16)[[16]]
+  drift <- abs(as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60)
+  if (drift > 30) {
+    cli::cli_warn(c(
+      "!" = "The pressure file {.file {pres_acc_path}} is recording a drift of {round(drift)} min \\
+      (line 16) which seems suspicious.",
+      ">" = "Check for error (e.g. timezone)"
+    ))
+  }
   # Find column index with pressure
   hdr <- utils::read.delim(pres_acc_path, skip = 19, nrow = 1, header = FALSE, sep = "")
   col <- which(hdr == "P(Pa)")
@@ -297,6 +306,15 @@ tag_create_migratetech <- function(tag,
   # Read light
   light_path <- tag_create_detect(light_file, directory)
   if (!is.null(light_path)) {
+    line16 <- readLines(light_path, n = 16)[[16]]
+    drift <- abs(as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60)
+    if (drift > 30) {
+      cli::cli_warn(c(
+        "!" = "The light file {.file {light_path}} is recording a drift of {round(drift)} min \\
+      (line 16) which seems suspicious.",
+        ">" = "Check for error (e.g. timezone)"
+      ))
+    }
     # find column index with light
     hdr <- utils::read.delim(light_path, skip = 19, nrow = 1, header = FALSE, sep = "")
     col <- which(hdr == "light(lux)")
@@ -312,6 +330,14 @@ tag_create_migratetech <- function(tag,
       date_format = "%d/%m/%Y %H:%M:%S",
       quiet = quiet
     )
+
+    if (drift > 5) {
+      cli::cli_warn(c(
+        "!" = "The light file {.file {light_path}} is recording a drift of {round(drift)} min \\
+      (line 16) which is higher than the resolution .",
+        "i" = "Check for error (e.g. timezone)"
+      ))
+    }
   }
 
   # Add parameter information
