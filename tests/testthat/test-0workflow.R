@@ -55,9 +55,9 @@ test_that("workflow | full", {
   expect_no_error(plot(tag, type = "map_light"))
   expect_no_error(plot(tag, type = "map"))
 
-  expect_no_error(plot_pressurepath(pressurepath, type = "ts"))
+  expect_no_error(plot_pressurepath(pressurepath, type = "timeseries"))
   expect_no_error(plot_pressurepath(pressurepath, type = "altitude"))
-  expect_no_error(plot_pressurepath(pressurepath, type = "hist"))
+  expect_no_error(plot_pressurepath(pressurepath, type = "histogram"))
 
   expect_no_error(plot_graph_movement(graph))
 

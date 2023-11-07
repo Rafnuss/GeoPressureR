@@ -33,7 +33,7 @@
 #' @family pressurepath
 #' @export
 plot_pressurepath <- function(pressurepath,
-                              type = "ts",
+                              type = "timeseries",
                               sd = attr(pressurepath, "sd"),
                               warning_std_thr = 3,
                               plot_plotly = TRUE) {
@@ -83,7 +83,7 @@ plot_pressurepath <- function(pressurepath,
 
   # knitr::kable(tag_era5, "simple")
 
-  if (type == "ts") {
+  if (type == "timeseries") {
     pp$warning <- (abs(pp$error) / sd[ifelse(pp$stap_id == 0, 1, pp$stap_id)]) >= warning_std_thr
 
     # convert stapelev to factor for color
