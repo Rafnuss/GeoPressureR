@@ -30,6 +30,14 @@ plot_path <- function(path,
                       provider_options = leaflet::providerTileOptions(),
                       pad = 3,
                       ...) {
+  if (all(c("start", "end") %in% names(path))) {
+    path$duration <- stap2duration(path)
+  } else {
+    path$duration <- 1
+  }
+
+  if (!("j" %in% names(path))) path$j <- 1
+
   if (plot_leaflet) {
     leaflet::leaflet(width = "100%") |>
       leaflet::addProviderTiles(provider = provider, options = provider_options) |>
@@ -52,9 +60,7 @@ plot_path <- function(path,
     ])
     map_data_countries <- ggplot2::map_data("world", region = intersecting_countries)
 
-    path$duration <- log(stap2duration(path))
 
-    if (!("j" %in% names(path))) path$j <- 1
 
     p <- ggplot2::ggplot() +
       ggplot2::geom_polygon(
@@ -79,7 +85,7 @@ plot_path <- function(path,
     ) +
       ggplot2::geom_point(
         data = path_full,
-        ggplot2::aes(x = .data$lon, y = .data$lat, size = .data$duration),
+        ggplot2::aes(x = .data$lon, y = .data$lat, size = log(.data$duration)),
         fill = "#e74c3c", color = "black", shape = 21
       ) +
       ggplot2::coord_fixed(
@@ -108,7 +114,7 @@ plot_path_leaflet <- function(
       dashArray = NULL
     ),
     circle = list(
-      radius = stap2duration(path)^(0.25) * 6,
+      radius = path$duration^(0.25) * 6,
       stroke = TRUE,
       color = "white",
       weight = 2,
@@ -116,7 +122,7 @@ plot_path_leaflet <- function(
       fill = ifelse(is.null(path$interp), TRUE, !path$interp),
       fillColor = "grey",
       fillOpacity = 0.8,
-      label = glue::glue("#{path$stap_id}, {round(stap2duration(path), 1)} days")
+      label = glue::glue("#{path$stap_id}, {round(path$duration, 1)} days")
     )) {
   # Remove position of stap not included/not available
   path_full <- path[!is.na(path$lat), ]
