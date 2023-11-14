@@ -122,7 +122,9 @@ geopressureviz <- function(x,
   } else if ("pressure_tag" %in% names(path)) {
     # If path is a pressurepath
     pressurepath <- path
-    path <- merge(tag$stap, unique(pressurepath[, c("stap_id", "lat", "lon")]), all = TRUE)
+    path <- merge(tag$stap,
+                  unique(pressurepath[pressurepath$stap_id != 0, c("stap_id", "lat", "lon")]),
+                  all = TRUE)
     pressurepath$linetype <- as.factor(1)
     pressurepath <- merge(
       pressurepath,
