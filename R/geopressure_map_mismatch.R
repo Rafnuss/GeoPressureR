@@ -76,7 +76,7 @@ geopressure_map_mismatch <- function(tag,
     })
 
   if (debug) {
-    req <- httr2::req_verbose(req)
+    httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
   }
 
   # Perform the request and convert the response to json
@@ -150,7 +150,7 @@ geopressure_map_mismatch <- function(tag,
         httr2::req_error(is_error = function(resp) FALSE)
 
       if (debug) {
-        req <- httr2::req_verbose(req)
+        httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
       }
 
       # Perform the request and write the response to file

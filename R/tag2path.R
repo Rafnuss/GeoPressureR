@@ -1,23 +1,22 @@
 #' Extract a `path` from a `tag`
 #'
+#' @description
 #' Find the position of the highest value in a map, typically most probable value in a likelihood
 #' map.
 #'
 #' Note that this path is the most likely, considering only the observation model and ignoring the
-#' movement model. Prefer to use `graph_most_likely()` for the most realistic path.
+#' movement model. Prefer to use `graph_most_likely()` for the most realistic path accounting for
+#' flight duration.
 #'
-#' `interp` can be used to interpolate unrealistic position from short stationary period based on
-#' the position of the longer ones. The interpolation assumes that the first and last stationary
-#' period can be safely estimated from the probability map.
+#' `interp` can be used to interpolate unrealistic position from short stationary periods based on
+#' the position of the longer ones. In order to preserve a reference to the grid, the interpolation
+#' is only performed at the center of the grid cell (defined by the `likelihood` map). Note also
+#' that it is not possible to interpolate the first and last stationary period.
 #'
-#' @inheritParams geopressure_map
+#' @param tag a GeoPressureR `tag` object
 #' @inheritParams tag2map
-#' @param interp The position of the stationary period shorter than `interp` will be
-#' replace by a linear average from other position accounting for flight duration (in days) .
-#' @param use_known If true, enforce the known position defined in `tag` in the path created. Known
-#' position are not interpolated (even if shorter than `interp`) and used in the interpolation. In
-#' most (all?) case, the likelihood map was computed using known, and therefore will result in the
-#' same position (approx. to the map resolution).
+#' @inheritParams interp_path
+#'
 #' @return A path data.frame
 #' - `stap_id` stationary period
 #' - `ind` indices of the coordinate in the 2D grid. Useful to retrieve map or graph information.
@@ -36,12 +35,12 @@
 #'
 #' # Extract a path from pressure map
 #' path <- tag2path(tag)
-#' plot_path(path, plot_leaflet = FALSE)
+#' plot_path(path)
 #'
-#' # Short stationary periods can be unreliably estimated, so
-#' # interpolating them might be better
+#' # Short stationary periods (e.g. 1 day) can be unreliably
+#' # estimated, so interpolating them is often better
 #' path <- tag2path(tag, interp = 1)
-#' plot_path(path, plot_leaflet = FALSE)
+#' plot_path(path)
 #'
 #' @export
 tag2path <- function(tag,
@@ -92,7 +91,7 @@ tag2path <- function(tag,
       } else {
         cli::cli_warn(c(
           "!" = "First and/or last modeled stationary periods ({.val {tag$stap$stap_id[fal]}}) \\
-         areshorter than {.val {interp}} day{?s} but cannot be interpolated.",
+         are shorter than {.val {interp}} day{?s} but cannot be interpolated.",
           ">" = "They will not be interpolated.\f"
         ))
       }
