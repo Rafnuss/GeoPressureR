@@ -251,7 +251,7 @@ server <- function(input, output, session) {
             na.color = "#00000000",
             alpha = TRUE
           ),
-          method = "ngb"
+          project = "false"
         )
       }
       proxy <- proxy %>%
