@@ -108,7 +108,7 @@ plot.map <- function(x,
         r[[i]],
         opacity = opacity,
         group = grp[i],
-        method = "ngb",
+        project = "false",
         colors = leaflet::colorNumeric(
           palette = palette,
           domain = NULL,
