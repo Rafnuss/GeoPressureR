@@ -1,5 +1,20 @@
 # nolint start
 server <- function(input, output, session) {
+
+  # Compute resolution of preojection
+
+  r <- .maps[[1]]
+  g <- map_expand(r$extent, r$scale)
+  lonInEPSG3857 <- (g$lon * 20037508.34 / 180)
+  latInEPSG3857 <- (log(tan((90 + g$lat) * pi / 360)) / (pi / 180)) * (20037508.34 / 180)
+  fac_res_proj <- 4
+  res_proj <- c(
+    median(diff(lonInEPSG3857)),
+    median(abs(diff(latInEPSG3857))) / fac_res_proj
+  )
+
+  origin_proj <- c(median(lonInEPSG3857), median(latInEPSG3857))
+
   session$onSessionEnded(function() {
     stopApp()
   })
@@ -30,7 +45,15 @@ server <- function(input, output, session) {
     if (is.null(input$map_source)) {
       return(NA)
     }
-    return(rast(.maps[[input$map_source]]))
+    r <- terra::project(
+      rast(.maps[[input$map_source]]),
+      "epsg:3857",
+      method = "near",
+      res = res_proj,
+      origin = origin_proj
+    )
+
+    return(r)
   }) %>% bindEvent(input$map_source)
 
   idx <- reactive({

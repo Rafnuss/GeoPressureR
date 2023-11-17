@@ -5,7 +5,16 @@
 #'
 #' You can plot on top of the `map` a `path`, this uses the `plot_path()` function.
 #'
-#' @param map A GeoPressureR `map` object
+#' Our maps are defined in lat-lon (i.e., EPSG:4326), but the display of maps on web map are
+#' nearly always in [web mercator](https://en.wikipedia.org/wiki/Web_Mercator_projection) (i.e.,
+#' EPSG:3857). We therefore need to reproject our map for display.
+#' However, we don't really want to interpolate the map as each pixel might be important to
+#' visualize. We therefore re-project with a near-neighbor interpolation (`method = "near"`
+#' in [`terra::project()`]). Yet to avoid having pixel misplaced, we generally need to use a
+#' projection with a finer resolution. The argument `fac_res_proj` controls the relative change of
+#' resolution between the orginal map to the projected map.
+#'
+#' @param map a GeoPressureR `map` object
 #' @param plot_leaflet logical to use an interactive `leaflet` map instead of `terra::plot`
 #' @param path a GeoPressureR `path` data.frame
 #' @param provider_options tile options. See leaflet::addProviderTiles() and
@@ -15,6 +24,10 @@
 #' @inheritParams leaflet::addRasterImage
 #' @inheritParams terra::plot
 #' @inheritParams graph_create
+#' @param fac_res_proj Factor of the resolution of the reprojection (see details above). A value of
+#' `1` will roughly reproject on a map with similar size resulting in relatively high inaccuracy of
+#' the pixel displayed. Increasing this factor will reduce the uncerstainty but might also increase
+#' the computational cost of the reprojection.
 #'
 #' @return a plot or leaflet object.
 #'
@@ -54,6 +67,7 @@ plot.map <- function(x,
                      palette = "auto",
                      opacity = 0.8,
                      legend = FALSE,
+                     fac_res_proj = 4,
                      ...) {
   map <- x
 
@@ -74,7 +88,7 @@ plot.map <- function(x,
     return(m)
   })
 
-  # Convert map into rast
+  # Convert GeoPressureR map to terra rast object
   r <- rast.map(map)
 
   if (plot_leaflet) {
@@ -102,13 +116,35 @@ plot.map <- function(x,
       }
     }
 
+    # Compute the resolution for the projection to web Mercator
+    g <- map_expand(map$extent, map$scale)
+    lonInEPSG3857 <- (g$lon * 20037508.34 / 180)
+    latInEPSG3857 <- (log(tan((90 + g$lat) * pi / 360)) / (pi / 180)) * (20037508.34 / 180)
+
+    # Define the default resolution of the projection as the median value of the difference of the
+    # actual position
+    res_proj <- c(
+      median(diff(lonInEPSG3857)),
+      median(abs(diff(latInEPSG3857))) / fac_res_proj
+    )
+
     for (i in map$stap$stap_id[map$stap$include]) {
+      # Project from lat-lon to web Mercator using the nearest neighbor interpolation
+      r_i_proj <- terra::project(
+        r[[i]],
+        "epsg:3857",
+        method = "near",
+        # res = res(r[[i]]) * c(110.574, 111.320) * 1000,
+        res = res_proj,
+        origin = c(median(lonInEPSG3857), median(latInEPSG3857))
+      )
+
       lmap <- leaflet::addRasterImage(
         lmap,
-        r[[i]],
+        r_i_proj,
         opacity = opacity,
         group = grp[i],
-        project = "false",
+        project = FALSE,
         colors = leaflet::colorNumeric(
           palette = palette,
           domain = NULL,
