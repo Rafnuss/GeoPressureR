@@ -3,8 +3,7 @@
 #' Display a `pressurepath` data.frame as a timeseries or histogram
 #'
 #' @param pressurepath a GeoPressureR `pressurepath` data.frame.
-#' @param type timeseries `"timeseries"` (default), histogram `"histogram"`, or altitude
-#' `"altitude"`
+#' @param type `"timeseries"` (default), `"histogram"`, or `"altitude"`
 #' @inheritParams geopressure_map
 #' @param warning_std_thr Threshold of outliar, coefficient of the [z-score](
 #' https://en.wikipedia.org/wiki/Standard_score)
@@ -175,7 +174,7 @@ plot_pressurepath <- function(pressurepath,
     }
   } else {
     cli::cli_abort("The type {.var {type}} of pressurepath plot does not exist. Available options
-                   are: {.val {c('ts', 'hist', 'altitude')}}")
+                   are: {.val {c('timeseries', 'histogram', 'altitude')}}")
   }
 
   if (plot_plotly) {
