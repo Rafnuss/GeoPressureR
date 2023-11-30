@@ -14,13 +14,8 @@ value are \code{map_pressure}, \code{map_light}, \code{map_pressure_mse}, \code{
 \code{map_pressure_mse}, \code{mask_water}. Default \code{NA} is to take the product of \code{map_pressure} and
 \code{map_light}, or if not available, taking the first of the possible values.}
 
-\item{interp}{The position of the stationary period shorter than \code{interp} will be
-replace by a linear average from other position accounting for flight duration (in days) .}
-
-\item{use_known}{If true, enforce the known position defined in \code{tag} in the path created. Known
-position are not interpolated (even if shorter than \code{interp}) and used in the interpolation. In
-most (all?) case, the likelihood map was computed using known, and therefore will result in the
-same position (approx. to the map resolution).}
+\item{use_known}{If true, enforce the known position in the path created. The known positions are
+approximated to the map resolution in order to corresponds to integer index.}
 }
 \value{
 A path data.frame
@@ -34,14 +29,15 @@ A path data.frame
 \description{
 Find the position of the highest value in a map, typically most probable value in a likelihood
 map.
-}
-\details{
-Note that this path is the most likely, considering only the observation model and ignoring the
-movement model. Prefer to use \code{graph_most_likely()} for the most realistic path.
 
-\code{interp} can be used to interpolate unrealistic position from short stationary period based on
-the position of the longer ones. The interpolation assumes that the first and last stationary
-period can be safely estimated from the probability map.
+Note that this path is the most likely, considering only the observation model and ignoring the
+movement model. Prefer to use \code{graph_most_likely()} for the most realistic path accounting for
+flight duration.
+
+\code{interp} can be used to interpolate unrealistic position from short stationary periods based on
+the position of the longer ones. In order to preserve a reference to the grid, the interpolation
+is only performed at the center of the grid cell (defined by the \code{likelihood} map). Note also
+that it is not possible to interpolate the first and last stationary period.
 }
 \examples{
 owd <- setwd(system.file("extdata", package = "GeoPressureR"))
@@ -56,11 +52,11 @@ setwd(owd)
 
 # Extract a path from pressure map
 path <- tag2path(tag)
-plot_path(path, plot_leaflet = FALSE)
+plot_path(path)
 
-# Short stationary periods can be unreliably estimated, so
-# interpolating them might be better
+# Short stationary periods (e.g. 1 day) can be unreliably
+# estimated, so interpolating them is often better
 path <- tag2path(tag, interp = 1)
-plot_path(path, plot_leaflet = FALSE)
+plot_path(path)
 
 }

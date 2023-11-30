@@ -51,6 +51,7 @@ plot_path(path)
 
 Other path: 
 \code{\link{ind2path}()},
-\code{\link{path2edge}()}
+\code{\link{path2edge}()},
+\code{\link{path2elevation}()}
 }
 \concept{path}

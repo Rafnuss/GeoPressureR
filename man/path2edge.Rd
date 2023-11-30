@@ -38,6 +38,7 @@ edges can be useful to extract flight information specific to a path.
 
 Other path: 
 \code{\link{ind2path}()},
+\code{\link{path2elevation}()},
 \code{\link{plot_path}()}
 }
 \concept{path}

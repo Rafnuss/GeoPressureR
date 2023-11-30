@@ -15,7 +15,7 @@
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @inheritParams tag2map
-#' @inheritParams interp_path
+#' @inheritParams ind2path
 #'
 #' @return A path data.frame
 #' - `stap_id` stationary period
