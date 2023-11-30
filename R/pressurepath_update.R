@@ -16,8 +16,8 @@ pressurepath_update <- function(pressurepath,
   assertthat::assert_that(is.data.frame(pressurepath))
   assertthat::assert_that(assertthat::has_name(
     pressurepath, c(
-      "date", "pressure_tag", "label", "stap_id", "pressure_era5", "altitude", "lat",
-      "lon", "pressure_era5_norm", "stap_ref"
+      "date", "pressure_tag", "label", "stap_id", "surface_pressure", "altitude", "lat",
+      "lon", "surface_pressure_norm", "stap_ref"
     )
   ))
 

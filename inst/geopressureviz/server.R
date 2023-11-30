@@ -149,7 +149,7 @@ server <- function(input, output, session) {
         data = reactVal$pressurepath,
         aes(
           x = date,
-          y = pressure_era5_norm,
+          y = surface_pressure_norm,
           color = col,
           group = stap_id,
           linetype = linetype

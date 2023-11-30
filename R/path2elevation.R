@@ -10,8 +10,8 @@
 #' you can request the elevation at a specify resolution defined by `scale` and return pre-defined
 #' `percentile` of the elevation at this resolution.
 #'
-#' The main goal is to determine the surrounding elevation during flights, and as such, the
-#' elevation is typically returned on a high spatial resolution, as defined by `sampling_scale`.
+#' The returned data.frame provide the ground elevation along the path with a resolution defined by
+#' `sampling_scale`.
 #'
 #' @param path a GeoPressureR `path` data.frame
 #' @param scale spatial resolution of the SRTM to use to query the elevation. `scale` is defined as
@@ -25,9 +25,10 @@
 #' @param debug logical to display additional information to debug a request
 #'
 #' @return A data.frame containing
-#' - `stap_id`
+#' - `stap_id` numeric value corresponding to the ratio of distance between position of known stap
 #' - `lon`
 #' - `lat`
+#' - `distance` distance in meter along the path starting at the first stap_id
 #'
 #' @examples
 #' # Create a path
@@ -68,7 +69,7 @@
 #' @family path
 #' @export
 path2elevation <- function(path,
-                           scale = 10,
+                           scale = 4,
                            sampling_scale = scale,
                            percentile = c(10, 50, 90),
                            timeout = 60 * 5,
@@ -90,7 +91,7 @@ path2elevation <- function(path,
   # 1. Interpolation of !include
   # In order to have the correct stap_id during the flight, we need to interpolate the position of
   # stap not included. As opposed to tag2path(), here we don't need to insure that the position
-  # falls exacling on a grid cell (in order to be able to have an index).
+  # falls exactly on a grid cell (in order to be able to have an index).
   path_interp <- is.na(path$lat) | is.na(path$lon)
 
   # We only request elevation between the first and last defined position. Basically, if the path
@@ -142,6 +143,7 @@ path2elevation <- function(path,
 
   req <- httr2::request("glp.mgravey.com/GeoPressure/v2/elevationPath/") |>
     httr2::req_body_json(body, digit = 5) |>
+    httr2::req_retry(max_tries = 3) |>
     httr2::req_timeout(timeout)
 
   if (debug) {
@@ -157,7 +159,7 @@ path2elevation <- function(path,
   # Rename stap_id
   names(out)[names(out) == "stapId"] <- "stap_id"
 
-  # Adjuste stap_id
+  # Adjust stap_id
   out$stap_id <- out$stap_id + path_c$stap_id[1]
 
   return(out)

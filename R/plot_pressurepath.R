@@ -39,8 +39,8 @@ plot_pressurepath <- function(pressurepath,
   assertthat::assert_that(is.data.frame(pressurepath))
   assertthat::assert_that(assertthat::has_name(
     pressurepath, c(
-      "date", "pressure_tag", "label", "stap_id", "pressure_era5", "altitude", "lat", "lon",
-      "pressure_era5_norm", "stap_ref"
+      "date", "pressure_tag", "label", "stap_id", "surface_pressure", "altitude", "lat", "lon",
+      "surface_pressure_norm", "stap_ref"
     )
   ))
 
@@ -58,7 +58,7 @@ plot_pressurepath <- function(pressurepath,
   )
 
   # Compute the error
-  pp$error <- pp$pressure_tag - pp$pressure_era5_norm
+  pp$error <- pp$pressure_tag - pp$surface_pressure_norm
 
   # Remove error for discard
   pp$error[pp$label == "discard"] <- NA
@@ -70,7 +70,7 @@ plot_pressurepath <- function(pressurepath,
       \(x) round(stats::sd(x, na.rm = TRUE), 2)
     ),
     stats::aggregate(
-      list(error_offset = pp$pressure_era5 - pp$pressure_era5_norm),
+      list(error_offset = pp$surface_pressure - pp$surface_pressure_norm),
       list(stapelev = pp$stapelev), \(x) round(mean(x), 2)
     )
   )
@@ -100,7 +100,7 @@ plot_pressurepath <- function(pressurepath,
       ) +
       ggplot2::geom_line(
         data = pp[pp$stap_id != 0, ],
-        ggplot2::aes(y = .data$pressure_era5_norm, color = .data$stap_id)
+        ggplot2::aes(y = .data$surface_pressure_norm, color = .data$stap_id)
       ) +
       ggplot2::geom_point(
         data = pp[pp$warning & pp$label != "discard" & pp$stap_id != 0, ],

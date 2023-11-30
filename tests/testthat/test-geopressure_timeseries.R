@@ -30,13 +30,13 @@ test_that("geopressure_timeseries() | default output", {
     end_time = as.POSIXct("2017-06-20 02:00:00", tz = "UTC")
   )
   expect_s3_class(pressure_timeseries, "data.frame")
-  expect_true(all(c("date", "pressure_era5", "lat", "lon") %in% names(pressure_timeseries)))
+  expect_true(all(c("date", "surface_pressure", "lat", "lon") %in% names(pressure_timeseries)))
 })
 
 test_that("geopressure_timeseries() | with lat, lon and pressure", {
   pressure_timeseries <- geopressure_timeseries(lat = 46, lon = 6, pressure = tag_sm$pressure)
   expect_s3_class(pressure_timeseries, "data.frame")
-  expect_true(all(c("date", "pressure_era5") %in% names(pressure_timeseries)))
+  expect_true(all(c("date", "surface_pressure") %in% names(pressure_timeseries)))
 })
 
 test_that("pressurepath_create() | Default output", {
@@ -73,7 +73,7 @@ pressure <- subset(tag$pressure, stap_id == i_s)
 test_that("geopressure_timeseries() | full example", {
   pressurepath <- geopressure_timeseries(path_i$lat, path_i$lon, pressure)
   expect_true(all(c(
-    "date", "pressure_tag", "pressure_era5", "altitude", "pressure_era5_norm"
+    "date", "pressure_tag", "surface_pressure", "altitude", "surface_pressure_norm"
   ) %in% names(pressurepath)))
   expect_equal(nrow(pressurepath), n[2])
 })
@@ -81,7 +81,7 @@ test_that("geopressure_timeseries() | full example", {
 test_that("pressurepath_create() | full example", {
   pressurepath <- expect_no_error(pressurepath_create(tag, path_i))
   expect_true(all(c(
-    "date", "pressure_tag", "stap_id", "pressure_era5", "altitude", "pressure_era5_norm", "lat",
+    "date", "pressure_tag", "stap_id", "surface_pressure", "altitude", "surface_pressure_norm", "lat",
     "stap_ref", "lon"
   ) %in% names(pressurepath)))
   expect_equal(nrow(pressurepath), n[2])

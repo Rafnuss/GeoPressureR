@@ -7,8 +7,8 @@
 pressurepath_create(
   tag,
   path = tag2path(tag),
-  include_flight = FALSE,
-  workers = "auto",
+  variable = c("altitude", "pressure_era5", "skin_temperature"),
+  include_flight = TRUE,
   preprocess = FALSE,
   quiet = FALSE
 )
@@ -18,15 +18,9 @@ pressurepath_create(
 
 \item{path}{a GeoPressureR \code{path} data.frame.}
 
-\item{include_flight}{extend request to also query the pressure and altitude during the previous
-and/or next flight. Flights are defined by a \code{stap_id = 0}. Accept logical or vector of -1 (
-previous flight), 0 (stationary) and/or 1 (next flight). (e.g. \code{include_flight = c(-1, 1)} will
-only search for the flight before and after but not the stationary period). Note that next and
-previous flights are defined by the +/1 of the \code{stap_id} value (and not the previous/next
-\code{stap_id} value).}
+\item{variable}{ERA5 variable/parameters available to download. See \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#heading-Parameterlistings}{Parameter listings in ERA5 doc}}
 
-\item{workers}{number of parallel requests on GEE. Between 1 and 99. \code{"auto"} adjust the number
-of workers to the number of \code{stap_elev} to query.}
+\item{include_flight}{logical}
 
 \item{preprocess}{logical to use \code{geopressure_map_preprocess}.}
 

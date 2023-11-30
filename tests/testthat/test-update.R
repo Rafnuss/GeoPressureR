@@ -40,7 +40,7 @@ pressurepath_new <- pressurepath_update(pressurepath, tag_new)
 
 test_that("tag_update() | default", {
   expect_equal(
-    pressurepath$pressure_era5[pressurepath$stap_id == 5],
-    pressurepath_new$pressure_era5[pressurepath_new$stap_id == 5]
+    pressurepath$surface_pressure[pressurepath$stap_id == 5],
+    pressurepath_new$surface_pressure[pressurepath_new$stap_id == 5]
   )
 })

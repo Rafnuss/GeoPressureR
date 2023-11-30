@@ -40,10 +40,10 @@ GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 A data.frame containing
 \itemize{
 \item \code{date} POSIXct date time
-\item \code{pressure_era5} pressure (hPa)
+\item \code{surface_pressure} pressure (hPa)
 \item \code{lon} same as input \code{lon} except if over water
 \item \code{lat} same as input \code{lat} except if over water.
-\item \code{pressure_era5_norm} only if \code{pressure} is provided as input
+\item \code{surface_pressure_norm} only if \code{pressure} is provided as input
 \item \code{altitude} only if \code{pressure} is provided as input
 }
 }
@@ -70,7 +70,7 @@ and  \eqn{M} is the molar mass of air. See more information at
 
 To be able to compare the temporal variation of the retrieved pressure of ERA5 \eqn{P_{ERA}} to
 the geolocator pressure \eqn{P_{gl}}, the function also returns the ERA pressure normalized with
-the geolocator mean pressure measurement as \code{pressure_era5_norm}.
+the geolocator mean pressure measurement as \code{surface_pressure_norm}.
 \deqn{ P_{ERA5,0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\right) -
 \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\boldsymbol{x})[i]-P_{gl}[i] \right).}
 }
@@ -95,7 +95,7 @@ pressurepath <- geopressure_timeseries(
   pressure = data.frame(
     data.frame(
       date = pressurepath$date,
-      value = pressurepath$pressure_era5 + rnorm(nrow(pressurepath))
+      value = pressurepath$surface_pressure + rnorm(nrow(pressurepath))
     )
   ),
   quiet = TRUE

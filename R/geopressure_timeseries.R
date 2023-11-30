@@ -23,7 +23,7 @@
 #'
 #' To be able to compare the temporal variation of the retrieved pressure of ERA5 \eqn{P_{ERA}} to
 #' the geolocator pressure \eqn{P_{gl}}, the function also returns the ERA pressure normalized with
-#' the geolocator mean pressure measurement as `pressure_era5_norm`.
+#' the geolocator mean pressure measurement as `surface_pressure_norm`.
 #' \deqn{ P_{ERA5,0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\right) -
 #' \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\boldsymbol{x})[i]-P_{gl}[i] \right).}
 #'
@@ -41,10 +41,10 @@
 #'
 #' @return A data.frame containing
 #' - `date` POSIXct date time
-#' - `pressure_era5` pressure (hPa)
+#' - `surface_pressure` pressure (hPa)
 #' - `lon` same as input `lon` except if over water
 #' - `lat` same as input `lat` except if over water.
-#' - `pressure_era5_norm` only if `pressure` is provided as input
+#' - `surface_pressure_norm` only if `pressure` is provided as input
 #' - `altitude` only if `pressure` is provided as input
 #'
 #' @examples
@@ -68,7 +68,7 @@
 #'   pressure = data.frame(
 #'     data.frame(
 #'       date = pressurepath$date,
-#'       value = pressurepath$pressure_era5 + rnorm(nrow(pressurepath))
+#'       value = pressurepath$surface_pressure + rnorm(nrow(pressurepath))
 #'     )
 #'   ),
 #'   quiet = TRUE
@@ -179,6 +179,9 @@ geopressure_timeseries <- function(lat,
   # Convert the response to data.frame
   out <- utils::read.csv(text = httr2::resp_body_string(resp))
 
+
+  print(out)
+
   # check for errors
   if (nrow(out) == 0) {
     temp_file <- tempfile("log_pressurepath_create", fileext = ".json")
@@ -195,7 +198,7 @@ geopressure_timeseries <- function(lat,
   # convert time into date
   out$time <- as.POSIXct(out$time, origin = "1970-01-01", tz = "UTC")
   names(out)[names(out) == "time"] <- "date"
-  names(out)[names(out) == "pressure"] <- "pressure_era5"
+  names(out)[names(out) == "pressure"] <- "surface_pressure"
 
   # Add exact location
   out$lat <- resp_data$lat
@@ -225,7 +228,7 @@ geopressure_timeseries <- function(lat,
     # We compute the mean pressure of the geolocator only when the bird is on the ground
     # (id_q==0) and when not labeled as flight or discard
     id_norm <- pressure$stap_id != 0 & pressure$label != "discard"
-    # If no ground (ie. only flight) is present, pressure_era5_norm has no meaning
+    # If no ground (ie. only flight) is present, surface_pressure_norm has no meaning
     if (sum(id_norm) > 0) {
       pressure$elev <- ifelse(
         startsWith(pressure$label, "elev_"),
@@ -236,8 +239,8 @@ geopressure_timeseries <- function(lat,
       for (elev_i in elev) {
         id_elev <- pressure$elev == elev_i
         pressure_tag_m <- mean(pressure$value[id_elev & id_norm])
-        pressure_era5_m <- mean(out$pressure_era5[id_elev & id_norm])
-        out$pressure_era5_norm[id_elev] <- out$pressure_era5[id_elev] - pressure_era5_m +
+        surface_pressure_m <- mean(out$surface_pressure[id_elev & id_norm])
+        out$surface_pressure_norm[id_elev] <- out$surface_pressure[id_elev] - surface_pressure_m +
           pressure_tag_m
       }
     }

@@ -18,14 +18,9 @@
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param path a GeoPressureR `path` data.frame.
-#' @param include_flight extend request to also query the pressure and altitude during the previous
-#' and/or next flight. Flights are defined by a `stap_id = 0`. Accept logical or vector of -1 (
-#' previous flight), 0 (stationary) and/or 1 (next flight). (e.g. `include_flight = c(-1, 1)` will
-#' only search for the flight before and after but not the stationary period). Note that next and
-#' previous flights are defined by the +/1 of the `stap_id` value (and not the previous/next
-#' `stap_id` value).
-#' @param workers number of parallel requests on GEE. Between 1 and 99. `"auto"` adjust the number
-#' of workers to the number of `stap_elev` to query.
+#' @param variable ERA5 variable/parameters available to download. See [Parameter listings in ERA5 doc](
+#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#heading-Parameterlistings)
+#' @param include_flight logical
 #' @param preprocess logical to use `geopressure_map_preprocess`.
 #' @param quiet logical to hide messages about the progress
 #'
@@ -73,8 +68,8 @@
 #' @export
 pressurepath_create <- function(tag,
                                 path = tag2path(tag),
-                                include_flight = FALSE,
-                                workers = "auto",
+                                variable = c("altitude", "pressure_era5", "skin_temperature"),
+                                include_flight = TRUE,
                                 preprocess = FALSE,
                                 quiet = FALSE) {
   if (!quiet) {
@@ -90,6 +85,7 @@ pressurepath_create <- function(tag,
   } else {
     pressure <- tag$pressure
   }
+  assertthat::assert_that(nrow(pressure) > 0)
 
   # Assert path
   assertthat::assert_that(is.data.frame(path))
@@ -102,122 +98,85 @@ pressurepath_create <- function(tag,
   }
 
   # Assert include_flight
-  if (is.logical(include_flight)) {
-    if (include_flight) {
-      include_flight <- c(-1, 0, 1)
-    } else {
-      include_flight <- 0
-    }
-  }
-  assertthat::assert_that(is.numeric(include_flight))
-  assertthat::assert_that(all(include_flight %in% c(-1, 0, 1)))
+  assertthat::assert_that(is.logical(include_flight))
 
-  # Assert worker
-  assertthat::assert_that(is.numeric(workers) | workers == "auto")
+  # Create pressurepath by combining pressure and path
+  pressurepath <- merge(
+    pressure,
+    path[!(names(path) %in%  c("start", "end") )],
+    by = "stap_id",
+    all.x = TRUE
+  )
 
-  # Interpolate stap_id for flight period so that, a flight between stap_id 2 and 3 will have a
-  # `stap_interp` between 2 and 3.
-  id_0 <- pressure$stap_id == 0 | is.na(pressure$stap_id)
-  stap_interp <- pressure$stap_id
-  stap_interp[id_0] <- stats::approx(which(!id_0),
-    pressure$stap_id[!id_0], which(id_0),
-    rule = 2
+  # Because merge change the order of pressure, we sort by date to keep the same original order
+  pressurepath <- pressurepath[order(pressurepath$date), ]
+
+  # Interpolate lat lon during flight
+  id <- pressurepath$stap_id == 0
+  sequence <- seq_len(nrow(pressurepath))
+  pressurepath$lat[id] <- stats::approx(sequence[!id],
+                                        pressurepath$lat[!id], sequence[id],
+                                     rule = 2
   )$y
 
-  # Define the number of parallel workers (Google Earth Engine allowance is currently 100)
-  if (workers == "auto") {
-    workers <- min(90, nrow(path))
-  } else {
-    assertthat::assert_that(workers > 0 & workers < 100)
-  }
-  future::plan(future::multisession, workers = workers)
-  f <- c()
+  pressurepath$lon[id] <- stats::approx(sequence[!id],
+                                        pressurepath$lon[!id], sequence[id],
+                                        rule = 2
+  )$y
 
-  if (!quiet) {
-    # nolint start
-    msg <- glue::glue("0/{nrow(path)}")
-    cli::cli_progress_step(
-      "Generate requests (on GeoPressureAPI) for stap: {msg}"
-    )
-    # nolint end
-  }
-  for (i_s in seq_len(nrow(path))) {
-    i_stap <- path$stap_id[i_s]
+  # Format query
+  body <- list(
+    lon = pressurepath$lon,
+    lat = pressurepath$lat,
+    time = as.numeric(as.POSIXct(pressurepath$date)),
+    variable = variable,
+    pressure = pressurepath$value * 100
+  )
 
-    if (!quiet) {
-      msg <- glue::glue("{i_s}/{nrow(path)}")
-      cli::cli_progress_update(force = TRUE)
-    }
+  if (!quiet) cli::cli_progress_step("Generate request (on GeoPressureAPI)")
 
-    # Subset the pressure of the stationary period
-    id_q <- rep(NA, length(stap_interp))
-    if (any(0 == include_flight)) {
-      id_q[path$stap_id[i_s] == stap_interp] <- 0
-    }
-    if (any(-1 == include_flight)) {
-      id_q[i_stap - 1 < stap_interp & stap_interp < i_stap] <- -1
-    }
-    if (any(1 == include_flight)) {
-      id_q[i_stap < stap_interp & stap_interp < i_stap + 1] <- 1
-    }
-
-    # extract pressure for the stap
-    pressure_q <- subset(pressure, !is.na(id_q))
-
-    if (nrow(pressure_q) == 0) {
-      cli::cli_warn("No pressure to query for stap_id {.val {i_stap}}.\f")
-    }
-
-    # Send the query
-    if (!is.na(path$lat[i_s]) && !is.na(path$lon[i_s]) && nrow(pressure_q) > 0) {
-      f[[i_s]] <- future::future(expr = {
-        geopressure_timeseries(path$lat[i_s], path$lon[i_s],
-          pressure = pressure_q,
-          quiet = TRUE
-        )
-      }, seed = TRUE)
-    }
+  if (debug) {
+    temp_file <- tempfile("log_pressurepath_", fileext = ".json")
+    write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
+    cli::cli_text("Body request file: {.file {temp_file}}")
   }
 
-  pressure_timeseries <- list()
-  if (!quiet) {
-    # nolint start
-    msg2 <- glue::glue("0/{length(f)}")
-    cli::cli_progress_step(
-      "Compute and download timeseries (on GEE server): {msg2}"
-    )
-    # nolint end
-  }
-  for (i_s in seq_len(length(f))) {
-    i_stap <- path$stap_id[i_s]
-    if (!quiet) {
-      msg2 <- glue::glue("{i_s}/{length(f)}")
-      cli::cli_progress_update(force = TRUE)
-    }
-    if (inherits(f[[i_s]], "Future")) {
-      tryCatch(
-        expr = {
-          pressure_timeseries[[i_s]] <- future::value(f[[i_s]])
-          pressure_timeseries[[i_s]]$stap_ref <- i_stap
-        },
-        error = function(cond) {
-          cli::cli_warn("Error for stap {path$stap_id[i_s]}\f")
-          message(cond)
-          pressure_timeseries[[i_s]] <- data.frame()
-        }
-      )
-    } else {
-      pressure_timeseries[[i_s]] <- data.frame()
-    }
+  req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/pressurePath/") |>
+    httr2::req_body_json(body, digit = 5, auto_unbox = FALSE)
+
+  if (debug) {
+    req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
   }
 
-  # Explicitly close multisession workers by switching plan
-  future::plan(future::sequential)
+  # Perform the request and convert the response to data.frame
+  resp <- httr2::req_perform(req)
+  resp_data <- httr2::resp_body_json(resp, simplifyVector = TRUE)$data
 
-  if (!quiet) {
-    cli::cli_progress_step("Build pressurepath")
-  }
-  pressurepath <- do.call("rbind", pressure_timeseries)
+  out <- as.data.frame(resp_data)
+
+  out$time <- as.POSIXct(out$time, origin = "1970-01-01", tz = "UTC")
+  names(out)[names(out) == "time"] <- "date"
+  out$surface_pressure <- out$surface_pressure / 100
+
+  pressurepath <- merge(
+    pressurepath,
+    out,
+    all.x = TRUE
+  )
+
+  names(pressurepath)[names(pressurepath) == 'value'] <- 'pressure_tag'
+
+  df = pressurepath
+  df$stap_id[df$label == "discard"] = 0
+
+  agg = merge(
+    aggregate(surface_pressure ~ stap_id, data = df, FUN=mean),
+    aggregate(pressure_tag ~ stap_id, data = df, FUN=mean)
+  )
+
+  id = match(pressurepath$stap_id, agg$stap_id)
+
+  pressurepath$surface_pressure_norm <- pressurepath$surface_pressure - agg$surface_pressure[id] + agg$pressure_tag[id]
 
   attr(pressurepath, "id") <- tag$param$id
   attr(pressurepath, "preprocess") <- preprocess
