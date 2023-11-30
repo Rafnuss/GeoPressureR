@@ -6,7 +6,7 @@
 \usage{
 plot_pressurepath(
   pressurepath,
-  type = "ts",
+  type = "timeseries",
   sd = attr(pressurepath, "sd"),
   warning_std_thr = 3,
   plot_plotly = TRUE
@@ -15,8 +15,7 @@ plot_pressurepath(
 \arguments{
 \item{pressurepath}{a GeoPressureR \code{pressurepath} data.frame.}
 
-\item{type}{timeseries \code{"timeseries"} (default), histogram \code{"histogram"}, or altitude
-\code{"altitude"}}
+\item{type}{\code{"timeseries"} (default), \code{"histogram"}, or \code{"altitude"}}
 
 \item{sd}{standard deviation of the pressure error . numeric of lenght 1 or number of stationary
 periods.}

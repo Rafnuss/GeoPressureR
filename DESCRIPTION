@@ -1,6 +1,6 @@
 Package: GeoPressureR
 Title: Global Positioning by Atmospheric Pressure
-Version: 3.1.7
+Version: 3.1.8
 Authors@R: c(
     person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8185-1020")),
@@ -23,8 +23,8 @@ Imports:
     geosphere,
     glue,
     ggplot2,
-    httr2,
-    leaflet,
+    httr2 (>= 1.0.0),
+    leaflet (>= 2.2.0),
     plotly,
     jsonlite,
     Matrix,
@@ -39,6 +39,7 @@ Suggests:
     knitr,
     testthat (>= 3.0.0),
     leaflet.extras,
+    leaflet.providers,
     shinyjs,
     shiny,
     RColorBrewer,

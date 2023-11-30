@@ -14,6 +14,7 @@
   palette = "auto",
   opacity = 0.8,
   legend = FALSE,
+  fac_res_proj = 4,
   ...
 )
 }
@@ -39,9 +40,14 @@ leaflet::providerTileOptions()}
 
 \item{legend}{logical or character. If not \code{FALSE} a legend is drawn. The character value can be used to indicate where the legend is to be drawn. For example "topright" or "bottomleft". Use \code{plg} for more refined placement. Not supported for continuous legends (the default for raster data)}
 
+\item{fac_res_proj}{Factor of the resolution of the reprojection (see details above). A value of
+\code{1} will roughly reproject on a map with similar size resulting in relatively high inaccuracy of
+the pixel displayed. Increasing this factor will reduce the uncerstainty but might also increase
+the computational cost of the reprojection.}
+
 \item{...}{named parameters to add to the options}
 
-\item{map}{A GeoPressureR \code{map} object}
+\item{map}{a GeoPressureR \code{map} object}
 }
 \value{
 a plot or leaflet object.
@@ -50,6 +56,15 @@ a plot or leaflet object.
 This function plot a GeoPressureR \code{map} object.
 
 You can plot on top of the \code{map} a \code{path}, this uses the \code{plot_path()} function.
+
+Our maps are defined in lat-lon (i.e., EPSG:4326), but the display of maps on web map are
+nearly always in \href{https://en.wikipedia.org/wiki/Web_Mercator_projection}{web mercator} (i.e.,
+EPSG:3857). We therefore need to reproject our map for display.
+However, we don't really want to interpolate the map as each pixel might be important to
+visualize. We therefore re-project with a near-neighbor interpolation (\code{method = "near"}
+in \code{\link[terra:project]{terra::project()}}). Yet to avoid having pixel misplaced, we generally need to use a
+projection with a finer resolution. The argument \code{fac_res_proj} controls the relative change of
+resolution between the orginal map to the projected map.
 }
 \examples{
 owd <- setwd(system.file("extdata", package = "GeoPressureR"))

@@ -141,7 +141,6 @@ geopressureviz <- function(x,
   .GlobalEnv$.stap <- stap
   .GlobalEnv$.pressure <- tag$pressure
   .GlobalEnv$.maps <- maps
-  .GlobalEnv$.extent <- tag$param$extent
   .GlobalEnv$.pressurepath <- pressurepath
   .GlobalEnv$.path <- path
   # nolint end

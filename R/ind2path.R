@@ -46,6 +46,7 @@ ind2path <- function(ind,
                      tag_graph,
                      use_known = TRUE) {
   assertthat::assert_that(inherits(tag_graph, "tag") | inherits(tag_graph, "graph"))
+  assertthat::assert_that(is.logical(use_known))
 
   stap <- tag_graph$stap
 
