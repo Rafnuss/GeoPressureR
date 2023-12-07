@@ -25,12 +25,15 @@ Imports:
     ggplot2,
     httr2 (>= 1.0.0),
     leaflet (>= 2.2.0),
+    leaflet.extras,
+    leaflet.providers,
     plotly,
     jsonlite,
     Matrix,
     methods,
     ncdf4,
     pracma,
+    RColorBrewer,
     stats,
     terra,
     utils
@@ -38,15 +41,11 @@ Suggests:
     BiocManager,
     knitr,
     testthat (>= 3.0.0),
-    leaflet.extras,
-    leaflet.providers,
     shinyjs,
     shiny,
-    RColorBrewer,
     readxl,
     shinyWidgets,
-    covr,
-    maps
+    covr
 biocViews:
 Config/testthat/edition: 3
 Encoding: UTF-8

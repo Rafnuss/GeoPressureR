@@ -10,7 +10,7 @@ ui <- bootstrapPage(
                .plotly .modebar{left: 0}"),
     # includeHTML("meta.html"),
   ),
-  leafletOutput("map", width = "100%", height = "100%"),
+  leaflet::leafletOutput("map", width = "100%", height = "100%"),
   absolutePanel(
     top = 0, left = 0, draggable = FALSE, width = "200px",
     style = "z-index:500; min-width: 300px;padding-left: 50px",
@@ -75,6 +75,6 @@ ui <- bootstrapPage(
   ),
   fixedPanel(
     bottom = 0, left = 0, width = "100%", height = "300px",
-    plotlyOutput("pressure_plot")
+    plotly::plotlyOutput("pressure_plot")
   ),
 )
