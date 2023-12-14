@@ -22,22 +22,10 @@ end = as.POSIXct(
 stap_id = seq(1, 8)
 )
 
-elevation <- path2elevation(path)
-
-plot(elevation$distance / 1000, elevation$X50,
- type = "l",
- ylab = "Elevation (m)", xlab = "Distance from start (km)"
-)
-lines(elevation$distance / 1000, elevation$X10, lty = 5)
-lines(elevation$distance / 1000, elevation$X90, lty = 5)
-id <- elevation$stap_id %% 1 == 0
-points(elevation$distance[id] / 1000, elevation$X90[id], col = "red")
-
-
 test_that("path2elevation() | default output", {
   elevation <- path2elevation(path)
   expect_s3_class(elevation, "data.frame")
-  expect_true(all(c("X10", "X50", "X90", "distance", "lat", "lon", "stap_id") %in% names(pressure_timeseries)))
+  expect_true(all(c("X10", "X50", "X90", "distance", "lat", "lon", "stap_id") %in% names(elevation)))
 })
 
 # test_that("path2elevation() | change default", {

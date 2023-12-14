@@ -58,7 +58,7 @@
 #'
 #' str(pressurepath)
 #'
-#' plot(pressurepath$date, pressurepath$pressure,
+#' plot(pressurepath$date, pressurepath$surface_pressure,
 #'   type = "b", ylab = "Pressure (hPa)", xlab = "Datetime"
 #' )
 #'
@@ -92,6 +92,7 @@ geopressure_timeseries <- function(lat,
                                    timeout = 60 * 5,
                                    quiet = FALSE,
                                    debug = FALSE) {
+
   # Check input
   assertthat::assert_that(is.numeric(lon))
   assertthat::assert_that(is.numeric(lat))
@@ -179,9 +180,6 @@ geopressure_timeseries <- function(lat,
   # Convert the response to data.frame
   out <- utils::read.csv(text = httr2::resp_body_string(resp))
 
-
-  print(out)
-
   # check for errors
   if (nrow(out) == 0) {
     temp_file <- tempfile("log_pressurepath_create", fileext = ".json")
@@ -192,13 +190,13 @@ geopressure_timeseries <- function(lat,
     ))
   }
 
-  # convert Pa to hPa
+  # convert Pa to hPa and rename
   out$pressure <- out$pressure / 100
+  names(out)[names(out) == "pressure"] <- "surface_pressure"
 
   # convert time into date
   out$time <- as.POSIXct(out$time, origin = "1970-01-01", tz = "UTC")
   names(out)[names(out) == "time"] <- "date"
-  names(out)[names(out) == "pressure"] <- "surface_pressure"
 
   # Add exact location
   out$lat <- resp_data$lat
@@ -206,13 +204,15 @@ geopressure_timeseries <- function(lat,
 
   # Compute the ERA5 pressure normalized to the pressure level (i.e. altitude) of the bird
   if (!is.null(pressure)) {
-    if (!quiet) cli::cli_progress_step("Compute normalized ERA5 pressure")
+
     if (nrow(out) != nrow(pressure)) {
       cli::cli_warn(
         "The returned data.frame is had a different number of element than the requested\\
         pressure.\f"
       )
     }
+
+    if (!quiet) cli::cli_progress_step("Compute normalized ERA5 pressure")
 
     # Use a merge to combine all information possible from out into pressure.
     out <- merge(pressure, out, all.x = TRUE)

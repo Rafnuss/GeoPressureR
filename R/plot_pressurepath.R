@@ -39,8 +39,8 @@ plot_pressurepath <- function(pressurepath,
   assertthat::assert_that(is.data.frame(pressurepath))
   assertthat::assert_that(assertthat::has_name(
     pressurepath, c(
-      "date", "pressure_tag", "label", "stap_id", "surface_pressure", "altitude", "lat", "lon",
-      "surface_pressure_norm", "stap_ref"
+      "date", "stap_id", "pressure_tag", "label", "surface_pressure", "altitude", "lat", "lon",
+      "surface_pressure_norm"
     )
   ))
 
@@ -147,7 +147,16 @@ plot_pressurepath <- function(pressurepath,
       ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "none", axis.text.y = ggplot2::element_blank())
   } else if (type == "altitude") {
-    pp_alt <- pressurepath2altitude(pressurepath)
+    pp_alt <- pressurepath
+
+    pp_alt$stap_id_flight = NA
+    id = pp_alt$stap_id==0
+    sequence <- seq_len(nrow(pp_alt))
+    pp_alt$stap_id_flight[id] <- stats::approx(sequence[!id],
+                                               pp_alt$stap_id[!id], sequence[id],
+                                        method = "constant"
+    )$y
+
     pp_alt$stap_id <- factor(pp_alt$stap_id)
 
     p <- ggplot2::ggplot() +
@@ -165,10 +174,11 @@ plot_pressurepath <- function(pressurepath,
       ggplot2::theme(legend.position = "none")
 
     if (sum(pp_alt$stap_id == 0) > 0) {
+
       p <- p +
         ggplot2::geom_line(
           data = pp_alt[pp_alt$stap_id == 0, ],
-          ggplot2::aes(x = .data$date, y = .data$altitude, group = .data$stap_s),
+          ggplot2::aes(x = .data$date, y = .data$altitude, group = .data$stap_id_flight),
           color = "black"
         )
     }
