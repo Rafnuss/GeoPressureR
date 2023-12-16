@@ -95,13 +95,6 @@ test_that("workflow | with elev_", {
   )
   tag <- geopressure_map(tag)
   expect_equal(length(tag$map_pressure), nrow(tag$stap))
-
-  # Check pressuretimeseries
-  path <- tag2path(tag)
-  pressurets <- geopressure_timeseries(
-    lat = path$lat[1], lon = path$lon[1], pressure = tag$pressure[tag$pressure$stap_id == 1, ]
-  )
-  expect_equal(unique(pressurets$label), c("", "elev_1", "elev_2"))
 })
 
 

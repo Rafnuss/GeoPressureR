@@ -11,13 +11,14 @@
 #' @export
 pressurepath_update <- function(pressurepath,
                                 tag,
-                                path = tag2path(tag)) {
+                                path = tag2path(tag),
+                                quiet = FALSE) {
   # Check pressurepath
   assertthat::assert_that(is.data.frame(pressurepath))
   assertthat::assert_that(assertthat::has_name(
     pressurepath, c(
       "date", "pressure_tag", "label", "stap_id", "surface_pressure", "altitude", "lat",
-      "lon", "surface_pressure_norm", "stap_ref"
+      "lon", "surface_pressure_norm"
     )
   ))
 
@@ -66,20 +67,14 @@ pressurepath_update <- function(pressurepath,
   stap_id_recompute <- union(stap_id_recompute_path, stap_id_recompute_pres)
 
   if (length(stap_id_recompute) > 0) {
-    if (assertthat::has_attr(pressurepath, "include_flight")) {
-      include_flight <- attr(pressurepath, "include_flight")
-    } else {
-      include_flight <- any(pressurepath$stap_id == 0)
-    }
-
     pressurepath_diff <- pressurepath_create(tag,
       path = path[path$stap_id %in% stap_id_recompute, ],
-      include_flight = include_flight,
-      preprocess = preprocess
+      preprocess = preprocess,
+      quiet = quiet
     )
 
     pressurepath_new <- rbind(
-      pressurepath[!(pressurepath$stap_ref %in% stap_id_recompute), ],
+      pressurepath[!(pressurepath$stap_id %in% stap_id_recompute), ],
       pressurepath_diff
     )
   } else {
@@ -89,13 +84,17 @@ pressurepath_update <- function(pressurepath,
   # Update label which are not affecting pressurepath
   pressurepath_new$label <- NULL
   pressurepath_new <- merge(pressurepath_new,
-    pressure[, names(pressurepath) %in% c("date", "label")],
+    pressure[, names(pressure) %in% c("date", "label")],
     by = "date"
   )
 
-
   # Sort by date
   pressurepath_new <- pressurepath_new[order(pressurepath_new$date), ]
+
+  # Add additional parameter to pressurepath
+  attr(pressurepath_new, "id") <- tag$param$id
+  attr(pressurepath_new, "preprocess") <- preprocess
+  attr(pressurepath_new, "sd") <- tag$param$sd
 
   return(pressurepath_new)
 }

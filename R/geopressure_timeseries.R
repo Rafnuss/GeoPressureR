@@ -92,6 +92,7 @@ geopressure_timeseries <- function(lat,
                                    timeout = 60 * 5,
                                    quiet = FALSE,
                                    debug = FALSE) {
+  .Deprecated("pressurepath_create()")
 
   # Check input
   assertthat::assert_that(is.numeric(lon))
