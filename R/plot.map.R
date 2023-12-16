@@ -118,14 +118,14 @@ plot.map <- function(x,
 
     # Compute the resolution for the projection to web Mercator
     g <- map_expand(map$extent, map$scale)
-    lonInEPSG3857 <- (g$lon * 20037508.34 / 180)
-    latInEPSG3857 <- (log(tan((90 + g$lat) * pi / 360)) / (pi / 180)) * (20037508.34 / 180)
+    lon_epsg3857 <- (g$lon * 20037508.34 / 180)
+    lat_epsg3857 <- (log(tan((90 + g$lat) * pi / 360)) / (pi / 180)) * (20037508.34 / 180)
 
     # Define the default resolution of the projection as the median value of the difference of the
     # actual position
     res_proj <- c(
-      median(diff(lonInEPSG3857)),
-      median(abs(diff(latInEPSG3857))) / fac_res_proj
+      stats::median(diff(lon_epsg3857)),
+      stats::median(abs(diff(lat_epsg3857))) / fac_res_proj
     )
 
     for (i in map$stap$stap_id[map$stap$include]) {
@@ -136,7 +136,7 @@ plot.map <- function(x,
         method = "near",
         # res = res(r[[i]]) * c(110.574, 111.320) * 1000,
         res = res_proj,
-        origin = c(median(lonInEPSG3857), median(latInEPSG3857))
+        origin = c(stats::median(lon_epsg3857), stats::median(lat_epsg3857))
       )
 
       lmap <- leaflet::addRasterImage(

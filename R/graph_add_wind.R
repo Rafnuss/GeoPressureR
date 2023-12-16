@@ -31,12 +31,12 @@
 #' @seealso [GeoPressureManual](
 #' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
-graph_add_wind <- function(graph,
-                           pressure,
-                           thr_as = Inf,
-                           file = \(stap_id)
-                           glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
-                           quiet = FALSE) {
+graph_add_wind <- function(
+    graph,
+    pressure,
+    thr_as = Inf,
+    file = \(stap_id) glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
+    quiet = FALSE) {
   graph_assert(graph, "full")
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value")))

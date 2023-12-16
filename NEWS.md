@@ -1,10 +1,11 @@
-# GeoPressureR v3.1.5
+# GeoPressureR v3.2
 ## Major
 - Fix major bugs https://github.com/Rafnuss/GeoPressureR/pull/103/commits/05c3203ef1588bbc1f769050377cadf5f1aadcbd
 - Update to GeoPressureAPI v2 for `geopressure_timeseries()` https://github.com/Rafnuss/GeoPressureR/pull/103/commits/732d1a02cc241dc7d2dde3401c8747fa860650c6
 - Add `workers` argument in `graph_create()` https://github.com/Rafnuss/GeoPressureR/commit/e1ce45882809e1fd3da0e8feb2ff80ac70f2bf8b
 - Edit default number of workers for `graph_create()` https://github.com/Rafnuss/GeoPressureR/pull/106/commits/256c5756e3eeb27ebac82b6c5a61b6cfb23425da
 - Migrate from `httr`to `httr2` 
+- Remove `tag_update()` and `pressurepath_update()`. `geopressure_map()` and `pressurepath_create()` are becoming fast enough that the update function are not necessary anymore and they can be quite tricky to maintain. 
 
 ## Minor
 - Add `codemeta.json` https://github.com/Rafnuss/GeoPressureR/pull/105/commits/4f7f7bce8875b4af59db3fc1ce403d41d6317469

@@ -1,9 +1,9 @@
 # remove.packages("GeoPressureR")
 # devtools::install_github("rafnuss/GeoPressureR")
 
-list.of.packages <- c("shiny", "shinyjs", "shinyWidgets")
-new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
-if (length(new.packages) > 0) install.packages(new.packages)
+list_of_packages <- c("shiny", "shinyjs", "shinyWidgets")
+new_packages <- list_of_packages[!(list_of_packages %in% installed.packages()[, "Package"])]
+if (length(new_packages) > 0) install.packages(new_packages)
 
 suppressMessages({
   # library(BiocManager)

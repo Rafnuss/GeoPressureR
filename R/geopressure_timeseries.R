@@ -35,7 +35,8 @@
 #' the timeseries as POSIXlt.
 #' @param end_time If `pressure` is not provided, `end_time` defines the end time of
 #' the timeseries as POSIXlt.
-#' @inheritParams geopressure_map
+#' @param timeout duration before the code is interrupted both for the request on
+#' GeoPressureAPI and on GEE (in seconds, see `httr2::req_timeout()`).
 #' @param quiet logical to hide messages about the progress
 #' @param debug logical to display additional information to debug a request
 #'
@@ -205,7 +206,6 @@ geopressure_timeseries <- function(lat,
 
   # Compute the ERA5 pressure normalized to the pressure level (i.e. altitude) of the bird
   if (!is.null(pressure)) {
-
     if (nrow(out) != nrow(pressure)) {
       cli::cli_warn(
         "The returned data.frame is had a different number of element than the requested\\

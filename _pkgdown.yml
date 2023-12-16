@@ -123,7 +123,7 @@ reference:
   - pressurepath_create
   - pressurepath_update
   - plot_pressurepath
-  - pressurepath2altitude
+  - path2elevation
 - title: Param
   desc: List of parameters used in `tag` and `graph`.
   contents:

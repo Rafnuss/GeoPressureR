@@ -22,16 +22,21 @@ test_that("pressurepath_create() | single stap", {
   path_i <- subset(path, stap_id %in% i_s)
   # pressure <- subset(tag$pressure, stap_id %in% i_s)
 
-  pressurepath <- expect_no_error(pressurepath_create(tag, path_i, quiet=TRUE, variable = c("altitude", "surface_pressure", "total_precipitation")))
+  pressurepath <- expect_no_error(
+    pressurepath_create(tag, path_i,
+      quiet = TRUE,
+      variable = c("altitude", "surface_pressure", "total_precipitation")
+    )
+  )
   expect_true(all(c(
-    "date", "pressure_tag", "stap_id", "surface_pressure", "altitude", "surface_pressure_norm", "lat",
-    "lon", "total_precipitation"
+    "date", "pressure_tag", "stap_id", "surface_pressure", "altitude", "surface_pressure_norm",
+    "lat", "lon", "total_precipitation"
   ) %in% names(pressurepath)))
   expect_equal(nrow(pressurepath), sum(tag$pressure$stap_id %in% i_s))
 })
 
 test_that("pressurepath_create() | check flight", {
-  i_s <- c(2,3,5)
+  i_s <- c(2, 3, 5)
   path_i <- subset(path, stap_id %in% i_s)
   # pressure <- subset(tag$pressure, stap_id %in% i_s)
 

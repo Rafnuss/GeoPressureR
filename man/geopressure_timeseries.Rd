@@ -29,7 +29,7 @@ the timeseries as POSIXlt.}
 \item{end_time}{If \code{pressure} is not provided, \code{end_time} defines the end time of
 the timeseries as POSIXlt.}
 
-\item{timeout}{Duration before the code is interrupted both for the request on
+\item{timeout}{duration before the code is interrupted both for the request on
 GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 
 \item{quiet}{logical to hide messages about the progress}
@@ -85,7 +85,7 @@ pressurepath <- geopressure_timeseries(
 
 str(pressurepath)
 
-plot(pressurepath$date, pressurepath$pressure,
+plot(pressurepath$date, pressurepath$surface_pressure,
   type = "b", ylab = "Pressure (hPa)", xlab = "Datetime"
 )
 
@@ -115,7 +115,6 @@ Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecolog
 \seealso{
 Other pressurepath: 
 \code{\link{plot_pressurepath}()},
-\code{\link{pressurepath2altitude}()},
 \code{\link{pressurepath_create}()},
 \code{\link{pressurepath_update}()}
 }

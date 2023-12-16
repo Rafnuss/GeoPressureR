@@ -14,6 +14,9 @@ value are \code{map_pressure}, \code{map_light}, \code{map_pressure_mse}, \code{
 \code{map_pressure_mse}, \code{mask_water}. Default \code{NA} is to take the product of \code{map_pressure} and
 \code{map_light}, or if not available, taking the first of the possible values.}
 
+\item{interp}{the position of the stationary period shorter than \code{interp} will be replace by a
+linear average from other position accounting for flight duration (in days).}
+
 \item{use_known}{If true, enforce the known position in the path created. The known positions are
 approximated to the map resolution in order to corresponds to integer index.}
 }

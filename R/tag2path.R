@@ -16,6 +16,8 @@
 #' @param tag a GeoPressureR `tag` object
 #' @inheritParams tag2map
 #' @inheritParams ind2path
+#' @param interp the position of the stationary period shorter than `interp` will be replace by a
+#' linear average from other position accounting for flight duration (in days).
 #'
 #' @return A path data.frame
 #' - `stap_id` stationary period

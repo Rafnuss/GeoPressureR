@@ -62,10 +62,10 @@ considered not possible.}
 of samples of the stationary periods used and returning the weight of the aggregation. See
 \href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation } for more details.}
 
-\item{timeout}{Duration before the code is interrupted both for the request on
+\item{timeout}{duration before the code is interrupted both for the request on
 GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 
-\item{workers}{Number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjust the
+\item{workers}{number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjust the
 number of workers to the number of \code{stap_elev} to query.}
 
 \item{keep_mask}{logical defining if the mask map is returned in \code{tag}.}
