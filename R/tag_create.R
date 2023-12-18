@@ -536,10 +536,10 @@ tag_create_crop <- function(tag,
     if (sensor %in% names(tag)) {
       # Crop time
       if (!is.null(crop_start)) {
-        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date >= crop_start, ]
+        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date >= as.POSIXct(crop_start), ]
       }
       if (!is.null(crop_end)) {
-        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date < crop_end, ]
+        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date < as.POSIXct(crop_end), ]
       }
 
       # Check irregular time
