@@ -83,12 +83,8 @@ tag_label_stap <- function(tag,
     if (assertthat::has_name(tag, sensor_df)) {
       assertthat::assert_that(is.data.frame(tag[[sensor_df]]))
       assertthat::assert_that(assertthat::has_name(tag[[sensor_df]], "date"))
-      tmp <- mapply(function(start, end) {
-        start <= tag[[sensor_df]]$date & tag[[sensor_df]]$date <= end
-      }, tag$stap$start, tag$stap$end)
-      tmp <- which(tmp, arr.ind = TRUE)
-      tag[[sensor_df]]$stap_id <- 0
-      tag[[sensor_df]]$stap_id[tmp[, 1]] <- tmp[, 2]
+
+      tag[[sensor_df]]$stap_id <- find_stap(tag$stap, tag[[sensor_df]]$date)
     }
   }
 
@@ -182,4 +178,21 @@ pretty_dt <- function(tim) {
 
   # Trim and return
   return(trimws(duration_str))
+}
+
+#' Find the stationary period corresponding to a date
+#'
+#' @noRd
+find_stap <- function(stap, date) {
+  tmp <- mapply(function(start, end) {
+    start <= date & date <= end
+  }, tag$stap$start, stap$end)
+
+  tmp <- which(tmp, arr.ind = TRUE)
+
+  stap_id <- rep(0, length(date))
+
+  stap_id[tmp[, 1]] <- tmp[, 2]
+
+  return(stap_id)
 }

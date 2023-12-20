@@ -82,12 +82,7 @@ geolight_map <- function(tag,
 
   # Add stap_id if missing
   if (!("stap_id" %in% names(twl))) {
-    tmp <- mapply(function(start, end) {
-      start <= twl$twilight & twl$twilight <= end
-    }, stap$start, stap$end)
-    tmp <- which(tmp, arr.ind = TRUE)
-    twl$stap_id <- 0
-    twl$stap_id[tmp[, 1]] <- tmp[, 2]
+    twl$stap_id <- find_stap(tag$stap, twl$twilight)
   }
 
   # check other

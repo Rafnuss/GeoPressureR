@@ -111,13 +111,8 @@ twilight_create <- function(tag,
   twilight <- twilight[order(twilight$twilight), ]
 
   # Add stap_id if present
-  if ("stap_id" %in% names(light)) {
-    twilight$stap_id <- stats::approx(
-      light$date[light$stap_id > 0],
-      light$stap_id[light$stap_id > 0],
-      twilight$twilight,
-      method = "constant"
-    )$y
+  if ("stap_id" %in% names(tag$stap)) {
+    twilight$stap_id <- find_stap(tag$stap, twilight$twilight)
   }
 
   tag$twilight <- twilight
