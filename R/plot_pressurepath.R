@@ -82,7 +82,7 @@ plot_pressurepath <- function(pressurepath,
 
   # knitr::kable(tag_era5, "simple")
 
-  if (type == "timeseries") {
+  if (type %in% c("timeseries", "ts")) {
     pp$warning <- (abs(pp$error) / sd[ifelse(pp$stap_id == 0, 1, pp$stap_id)]) >= warning_std_thr
 
     # convert stapelev to factor for color
@@ -110,7 +110,7 @@ plot_pressurepath <- function(pressurepath,
       ggplot2::theme_bw() +
       ggplot2::scale_y_continuous(name = "Pressure (hPa)") +
       ggplot2::theme(legend.position = "none")
-  } else if (type == "histogram") {
+  } else if (type %in% c("histogram", "hist")) {
     # Check if the empirical sd is greater than the sd used in the computation of the map
 
     # Remove error for flight
@@ -146,7 +146,7 @@ plot_pressurepath <- function(pressurepath,
       ggplot2::scale_fill_manual(values = c("TRUE" = "red", "FALSE" = "black")) +
       ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "none", axis.text.y = ggplot2::element_blank())
-  } else if (type == "altitude") {
+  } else if (type %in% c("altitude", "alt")) {
     pp_alt <- pressurepath
 
     pp_alt$stap_id_flight <- NA
