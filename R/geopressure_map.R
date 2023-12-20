@@ -165,6 +165,7 @@ geopressure_map <- function(tag,
                             keep_mask = FALSE,
                             keep_mse = FALSE,
                             compute_known = FALSE,
+                            debug = FALSE,
                             quiet = FALSE) {
   # Compute mean square error maps
   tag <- geopressure_map_mismatch(tag,
@@ -175,6 +176,7 @@ geopressure_map <- function(tag,
     timeout = timeout,
     workers = workers,
     compute_known = compute_known,
+    debug = debug,
     quiet = quiet
   )
 

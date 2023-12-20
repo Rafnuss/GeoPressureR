@@ -19,6 +19,7 @@ geopressure_map(
   keep_mask = FALSE,
   keep_mse = FALSE,
   compute_known = FALSE,
+  debug = FALSE,
   quiet = FALSE
 )
 
@@ -75,9 +76,9 @@ number of workers to the number of \code{stap_elev} to query.}
 \item{compute_known}{logical defining if the map(s) for known stationary period should be
 estimated based on twilight or hard defined by the known location \verb{stap$known_l**}}
 
-\item{quiet}{logical to hide messages about the progress}
-
 \item{debug}{logical to display additional information to debug a request}
+
+\item{quiet}{logical to hide messages about the progress}
 }
 \value{
 Returns the same GeoPressureR \code{tag} object including the GeoPressureR \code{map} object

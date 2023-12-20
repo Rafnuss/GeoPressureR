@@ -58,9 +58,15 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   tmp <- unique(pressure$stap_id[!(pressure$stap_id %in% pressure$stap_id[id]) &
     pressure$stap_id > 0])
   if (length(tmp) > 0) {
+    stap_info <- cli::format_inline({
+      for (i in tmp) {
+        cli::cli_text(c("*" = "{.val {i}} ({tag$stap$start[i]} - {tag$stap$end[i]}),"))
+      }
+    })
     cli::cli_abort(c(
-      "x" = "Stationary period{?s} {.val {as.character(tmp)}} {?is/are} included but all its \\
-      pressure measurements are {.val discard} or in {.val flight}.",
+      "x" = "All labels of the stationary period(s) {.val {tmp}} are either \\
+      {.val discard} or in {.val flight}.",
+      "i" = stap_info,
       ">" = "Modify the label on trainset to fix this."
     ))
   }

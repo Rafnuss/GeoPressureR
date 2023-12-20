@@ -181,7 +181,7 @@ tag_create <- function(id,
   tag <- tag_create_crop(tag, crop_start = crop_start, crop_end = crop_end)
   if (nrow(tag$pressure) == 0) {
     cli::cli_abort(c(
-      "!" = "Empty {.field pressure} sensor dataset from {.file {pressure_path}}",
+      "!" = "Empty {.field pressure} sensor dataset",
       ">" = "Check crop date."
     ))
   }
