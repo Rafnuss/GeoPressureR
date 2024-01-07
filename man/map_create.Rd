@@ -43,7 +43,8 @@ stap <- data.frame(
   start = seq(as.POSIXct("2023-01-01", tz = "UTC"),
     as.POSIXct("2023-01-10 UTC", tz = "UTC"),
     by = "day"
-  )
+  ),
+  include = T
 )
 stap$end <- stap$start + sample(1:10) * 10000
 
