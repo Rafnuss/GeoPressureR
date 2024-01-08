@@ -10,7 +10,7 @@
 #' This function is used within [`geopressure_map_mismatch()`] but can be useful to check the
 #' pressure data sent to the GeoPressureAPI.
 #' @inheritParams geopressure_map
-#' @return Pressure data.frame without flight and discarded values, on a 1hr resolution.
+#' @return Pressure data.frame without flight and discarded values, on a 1 hour resolution.
 #' @examples
 #' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
@@ -139,7 +139,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     # Also set stap_id NA to be able to identify those time to remove at the end of this function
     pgi_reg$stap_id[id] <- NA
 
-    # smooth the data with a moving average of 1hr
+    # smooth the data with a moving average of 1 hour
     # find the size of the windows for 1 hour
     n <- round(1 / as.numeric(dt) + 1)
 

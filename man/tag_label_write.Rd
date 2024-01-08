@@ -23,7 +23,7 @@ The file pathname is return invisibly
 \description{
 This function writes the csv file of labelled activity and pressure which can
 be read with \href{https://trainset.geocene.com/}{TRAINSET}. If no label data exist, it will first
-initialise the label data.
+initialize the label data.
 
 Optionally, it can also export a reference dataset for pressure \code{tag$pressure$ref} as another
 series to be visualized on TRAINSET, but without impacting the labelling process.
@@ -32,14 +32,14 @@ series to be visualized on TRAINSET, but without impacting the labelling process
 setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- tag_create("18LX", quiet = TRUE)
 
-# Writing unlabeled tag will initialize the labelling for trainset
+# Writing unlabelled tag will initialize the labelling for trainset
 tag_label_write(tag)
 
-# Writing unlabeled tag will initialize the labelling for trainset
+# Writing unlabelled tag will initialize the labelling for trainset
 tag <- tag_label_auto(tag)
 tag_label_write(tag)
 
-# Writing labeled tag will use the existing labels
+# Writing labelled tag will use the existing labels
 tag <- tag_label(tag)
 tag_label_write(tag)
 

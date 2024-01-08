@@ -20,7 +20,7 @@
 a plot, ggplotly or leaflet object.
 }
 \description{
-This function plot a GeoPressureR \code{tag} object as a timeseries or a map.
+This function plot a GeoPressureR \code{tag} object as a time series or a map.
 
 By default, \code{type} is determined in the following order of preference according to availability:
 \code{c("map_pressure", "map_light")}, \code{"map_pressure"}, \code{"map_light"}, \code{"pressure"}.
@@ -44,7 +44,7 @@ tag <- tag_create("18LX", quiet = TRUE) |>
   twilight_label_read()
 setwd(owd)
 
-# By default, plot will display the timeserie of pressure
+# By default, plot will display the time series of pressure
 plot(tag)
 # Change the `type` to display other sensor
 plot(tag, type = "acceleration")

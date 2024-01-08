@@ -6,7 +6,7 @@
 #' @param condition condition to assert `graph` for. One of `"graph"` (default), `"movement"`,
 #' or `"full"`.
 #'
-#' @return logical indicating whether the `graph` object fulfill the condition.
+#' @return logical indicating whether the `graph` object fulfil the condition.
 #' @export
 graph_assert <- function(graph, condition = "graph") {
   status <- graph_status(graph)

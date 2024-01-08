@@ -66,7 +66,7 @@ tag_label_stap <- function(tag,
   tmp[sensor$label == "flight"] <- NA
 
   # As we label "in flight" pressure/acceleration, the taking-off and landing happened before and
-  # after the labeling respectively. To account for this. We estimate that the bird took off between
+  # after the labelling respectively. To account for this. We estimate that the bird took off between
   # the previous and first flight label, and landed between the last flight label and next one.
   # We use the temporal resolution to account for this.
   dt <- stats::median(diff(sensor$date))

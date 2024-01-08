@@ -33,7 +33,7 @@ with extensions (e.g., \code{"*.pressure"}, \code{"*.deg"} or \code{"*_press.xls
 \item{light_file}{name of the file with light data. Full pathname  or finishing
 with extensions (e.g., \code{"*.glf"}, \code{"*.lux"} or \code{"*_acc.xlsx"}).}
 
-\item{acceleration_file}{name of the file with acceleration data. FFull pathname  or finishing
+\item{acceleration_file}{name of the file with acceleration data. Full pathname  or finishing
 with extensions (e.g., \code{"*.acceleration"}, \code{"*.deg"} or \code{"*_acc.xlsx"}).}
 
 \item{quiet}{logical to hide messages about the progress.}

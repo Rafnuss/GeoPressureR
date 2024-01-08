@@ -1,13 +1,13 @@
-#' Request and download pressure timeseries at a given location
+#' Request and download pressure time series at a given location
 #'
 #' @description
-#' This function returns the surface atmospheric pressure timeseries from ERA5 at any requested
+#' This function returns the surface atmospheric pressure time series from ERA5 at any requested
 #' location.
 #'
 #' If the location queried is over water, the location will be moved to the closest onshore
 #' location.
 #'
-#' The ERA5 pressure timeseries of the response \eqn{P_{ERA}} will be provided on a hourly basis
+#' The ERA5 pressure time series of the response \eqn{P_{ERA}} will be provided on a hourly basis
 #' between `start_time` and `end_time` or the same as `pressure$date` if `pressure` is supplied.
 #'
 #' If you supply the `pressure` of the geolocator \eqn{P_{gl}}, the function will
@@ -29,12 +29,12 @@
 #'
 #' @param lon Longitude to query (-180° to 180°).
 #' @param lat Latitude to query (0° to 90°).
-#' @param pressure A data.frame of pressure timeseries, containing at least a `"date"` and `"value"`
+#' @param pressure A data.frame of pressure time series, containing at least a `"date"` and `"value"`
 #' column.
 #' @param start_time If `pressure` is not provided, `start_time` defines the start time of
-#' the timeseries as POSIXlt.
+#' the time series as POSIXlt.
 #' @param end_time If `pressure` is not provided, `end_time` defines the end time of
-#' the timeseries as POSIXlt.
+#' the time series as POSIXlt.
 #' @param timeout duration before the code is interrupted both for the request on
 #' GeoPressureAPI and on GEE (in seconds, see `httr2::req_timeout()`).
 #' @param quiet logical to hide messages about the progress
@@ -225,7 +225,7 @@ geopressure_timeseries <- function(lat,
       pressure$label <- ""
     }
     # We compute the mean pressure of the geolocator only when the bird is on the ground
-    # (id_q==0) and when not labeled as flight or discard
+    # (id_q==0) and when not labelled as flight or discard
     id_norm <- pressure$stap_id != 0 & pressure$label != "discard"
     # If no ground (ie. only flight) is present, surface_pressure_norm has no meaning
     if (sum(id_norm) > 0) {

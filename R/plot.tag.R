@@ -1,7 +1,7 @@
 #' Plot a `tag` object
 #'
 #' @description
-#' This function plot a GeoPressureR `tag` object as a timeseries or a map.
+#' This function plot a GeoPressureR `tag` object as a time series or a map.
 #'
 #' By default, `type` is determined in the following order of preference according to availability:
 #' `c("map_pressure", "map_light")`, `"map_pressure"`, `"map_light"`, `"pressure"`.
@@ -32,7 +32,7 @@
 #'   twilight_label_read()
 #' setwd(owd)
 #'
-#' # By default, plot will display the timeserie of pressure
+#' # By default, plot will display the time series of pressure
 #' plot(tag)
 #' # Change the `type` to display other sensor
 #' plot(tag, type = "acceleration")
@@ -108,7 +108,7 @@ plot.tag <- function(x, type = NULL, ...) {
 
 #' Plot pressure data of a `tag`
 #'
-#' This function display a plot of pressure timeseries recorded by a tag
+#' This function display a plot of pressure time series recorded by a tag
 #
 #' @param tag a GeoPressureR `tag` object.
 #' @param plot_plotly logical to use `plotly`.
@@ -148,7 +148,7 @@ plot_tag_pressure <- function(tag,
     ggplot2::scale_y_continuous(name = "Pressure (hPa)") +
     ggplot2::theme(legend.position = "none")
 
-  # Only if tag is labeled
+  # Only if tag is labelled
   if ("stap" %in% names(tag)) {
     # compute the pressure at the hourly scale
     pres <- geopressure_map_preprocess(tag)
@@ -249,7 +249,7 @@ plot_tag_pressure <- function(tag,
 
 #' Plot acceleration data of a `tag`
 #'
-#' This function display a plot of acceleration timeseries recorded by a tag
+#' This function display a plot of acceleration time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param plot_plotly logical to use `plotly`
@@ -308,7 +308,7 @@ plot_tag_acceleration <- function(tag,
 
 #' Plot light data of a `tag`
 #'
-#' This function display a plot of light timeseries recorded by a tag
+#' This function display a plot of light time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param plot_plotly logical to use `plotly`
@@ -368,7 +368,7 @@ plot_tag_light <- function(tag,
 
 #' Plot twilight data of a `tag`
 #'
-#' This function display a plot of twilight timeseries recorded by a tag
+#' This function display a plot of twilight time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param plot_plotly logical to use `plotly`

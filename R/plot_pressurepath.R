@@ -1,11 +1,11 @@
 #' Plot a `pressurepath`
 #'
-#' Display a `pressurepath` data.frame as a timeseries or histogram
+#' Display a `pressurepath` data.frame as a time series or histogram
 #'
 #' @param pressurepath a GeoPressureR `pressurepath` data.frame.
 #' @param type `"timeseries"` (default), `"histogram"`, or `"altitude"`
 #' @inheritParams geopressure_map
-#' @param warning_std_thr Threshold of outliar, coefficient of the [z-score](
+#' @param warning_std_thr Threshold of outlier, coefficient of the [z-score](
 #' https://en.wikipedia.org/wiki/Standard_score)
 #' @param plot_plotly logical to use `plotly`
 #'

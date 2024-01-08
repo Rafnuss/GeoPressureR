@@ -89,7 +89,7 @@ geolight_map <- function(tag,
   assertthat::assert_that(is.numeric(twl_calib_adjust))
   assertthat::assert_that(is.function(twl_llp))
 
-  # Check if labeled
+  # Check if labelled
   if (!("label" %in% names(twl))) {
     cli::cli_abort(c(
       x = "There are no {.field label} in {.var tag$twilight}.",
@@ -131,7 +131,7 @@ geolight_map <- function(tag,
   # Get grid information
   g <- map_expand(tag$param$extent, tag$param$scale)
 
-  # construct the grid of latitude and longitude on cell centered
+  # construct the grid of latitude and longitude on cell centred
   m <- expand.grid(lat = g$lat, lon = g$lon)
   ml <- split(m, seq_len(nrow(m)))
 

@@ -37,9 +37,9 @@
 #' - `obs`: observation model, corresponding to the normalized likelihood in a 3D matrix of size
 #' `sz`
 #' - `sz`: size of the 3d grid lat-lon-stap
-#' - `stap`: data.frame of all stationary periods (samme as `tag$stap`)
-#' - `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-sta)
-#' - `retrieval`: node(s) of the last stap (index in the 3d grid lat-lon-sta)
+#' - `stap`: data.frame of all stationary periods (same as `tag$stap`)
+#' - `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-stap)
+#' - `retrieval`: node(s) of the last stap (index in the 3d grid lat-lon-stap)
 #' - `mask_water`: logical matrix of water-land
 #' - `param`: list of parameters including `thr_likelihood` and `thr_gs` (same as `tag$param`)
 #'
@@ -109,7 +109,7 @@ graph_create <- function(tag,
 
   if (length(stap_model) < 2) {
     cli::cli_abort(c(
-      x = "There are only {.var {length(stap_model)}} stationary period{?s} to be modeled \\
+      x = "There are only {.var {length(stap_model)}} stationary period{?s} to be modelled \\
       according to {.var stap$include}.",
       i = "You need at least 3 stationary periods."
     ))

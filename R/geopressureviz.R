@@ -3,7 +3,7 @@
 #' GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
 #' as well as each step-by-step move. This app is particularly useful to check the correspondence
 #' between pressure map, light map and flight distance. You can edit the path and query pressure
-#' timeserie for individual stationary period to test manual what seems the optimal path.
+#' time series for individual stationary period to test manual what seems the optimal path.
 #'
 #' GeoPressureViz can be started based on a `.Rdata` file containing at least `tag`, but also
 #' optionally `marginal` and/or `path` (`path_most_likely` is also accepted).

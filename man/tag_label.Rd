@@ -6,7 +6,7 @@
 \usage{
 tag_label(
   tag,
-  file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
+  file = glue::glue("./data/tag-label/{tag$param$id}-labelled.csv"),
   quiet = FALSE,
   ...
 )
@@ -67,7 +67,7 @@ tag <- tag_label(tag)
 
 print(tag)
 
-# The labeled `tag` contains additional column on the sensor data.frame
+# The labelled `tag` contains additional column on the sensor data.frame
 str(tag)
 
 }

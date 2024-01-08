@@ -62,7 +62,7 @@ ui <- bootstrapPage(
           selected = tail(names(.maps), 1)
         ),
         tags$hr(),
-        tags$p("Change position by clicking on the map and update the pressure timeserie."),
+        tags$p("Change position by clicking on the map and update the pressure time series."),
         fluidPage(
           id = "edit_query_position_id",
           fluidRow(

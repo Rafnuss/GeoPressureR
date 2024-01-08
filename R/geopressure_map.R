@@ -39,12 +39,12 @@
 #'
 #' The following two maps are returned for each stationary period:
 #'
-#' 1. **map_pressure_mse**: The Mean Square Error (MSE) between the data logger pressure timeseries
+#' 1. **map_pressure_mse**: The Mean Square Error (MSE) between the data logger pressure time series
 #' and the reanalysis. The mean error is removed because we assume no specific altitude of the
-#' geolocator, thus allowing an altitudinal shift of the pressure timeseries.
+#' geolocator, thus allowing an altitudinal shift of the pressure time series.
 #' 2. **map_pressure_mask** (optionally): The mask of the proportion of pressure measurements
 #' corresponding to altitude values found within the min and max ground elevation at each location.
-#' The altitude value of the geolocator pressure timeseries is computed with the barometric formula
+#' The altitude value of the geolocator pressure time series is computed with the barometric formula
 #' accounting for the temporal variation of pressure (surface-pressure) and temperature
 #' (2m-temperature) based on ERA5 data. The min and max ground elevation of each pixel is computed
 #' from SRTM-90. This map is only returned if `keep_mask` is `TRUE`.
@@ -57,12 +57,12 @@
 #' It is possible to indicate different elevation levels when the bird was spending time at
 #' locations with different elevations within a general area (~10km), and thus within the same
 #' stationary period. This can be done by using `tag$label="elev_x"`for all measurements of the same
-#' elevation level *x*. See more information on the labeling of elevation levels in [the
+#' elevation level *x*. See more information on the labelling of elevation levels in [the
 #' corresponding section in the GeoPressureManual](
 #' https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#elevation-period).
 #'
-#' Behind the scen, each of these elevations levels produce a new requests on the GeoPressureAPI.
-#' The mismatch maps of all elevation levels belonging to the same stationay periods are combined
+#' Behind the scene, each of these elevations levels produce a new requests on the GeoPressureAPI.
+#' The mismatch maps of all elevation levels belonging to the same stationary periods are combined
 #' (as a weighted average) to results in a single mismatch maps per stationary period.
 #'
 #' @section Convert mismatch map into likelihood map:
@@ -76,9 +76,9 @@
 #' where \eqn{\sigma} is the standard deviation (`sd`) of pressure and \eqn{T} is the mask threshold
 #' (`thr_mask`).
 #'
-#' Because the auto-correlation of the timeseries is not accounted for in this equation, we use a
+#' Because the auto-correlation of the time series is not accounted for in this equation, we use a
 #' log-linear pooling weight of \eqn{w=\log(n)/n} by default, where \eqn{n} is the number of samples
-#' in the timeserie (i.e., data points used to compute the MSE). See [GeoPressureManual |
+#' in the time series (i.e., data points used to compute the MSE). See [GeoPressureManual |
 #' Probability aggregation
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html) for details.
 #'
@@ -90,10 +90,10 @@
 #' @param tag a GeoPressureR `tag` object
 #' @param max_sample the computation of the maps is only performed on `max_sample` datapoints of
 #' pressure to reduce computational time. The samples are randomly (uniformly) selected on the
-#' timeseries.
+#' time series.
 #' @param margin the margin is used in the mask map to accept measurement errors, small-scale
 #' topography, and vertical movements of the bird (unit in meters, 1hPa~10m).
-#' @param sd standard deviation of the pressure error . numeric of lenght 1 or number of stationary
+#' @param sd standard deviation of the pressure error . numeric of length 1 or number of stationary
 #' periods.
 #' @param thr_mask threshold of the percentage of data points outside the elevation range to be
 #' considered not possible.
@@ -113,7 +113,7 @@
 #' @param debug logical to display additional information to debug a request
 #'
 #' @return Returns the same GeoPressureR `tag` object including the GeoPressureR `map` object
-#' `tag$map_pressure` containing the likelihood map of each statationay period. See `map_create()`
+#' `tag$map_pressure` containing the likelihood map of each stationary period. See `map_create()`
 #' for details.
 #' If `keep_mask` and `keep_mse` are each true, `tag` also includes the `tag$map_pressure_mse` and
 #' `tag$map_pressure_mask` maps, as well as `tag$stap$nb_sample`, indicating the number of

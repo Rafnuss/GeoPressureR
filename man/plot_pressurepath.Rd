@@ -17,10 +17,10 @@ plot_pressurepath(
 
 \item{type}{\code{"timeseries"} (default), \code{"histogram"}, or \code{"altitude"}}
 
-\item{sd}{standard deviation of the pressure error . numeric of lenght 1 or number of stationary
+\item{sd}{standard deviation of the pressure error . numeric of length 1 or number of stationary
 periods.}
 
-\item{warning_std_thr}{Threshold of outliar, coefficient of the \href{https://en.wikipedia.org/wiki/Standard_score}{z-score}}
+\item{warning_std_thr}{Threshold of outlier, coefficient of the \href{https://en.wikipedia.org/wiki/Standard_score}{z-score}}
 
 \item{plot_plotly}{logical to use \code{plotly}}
 }
@@ -28,7 +28,7 @@ periods.}
 a plot or ggplotly object.
 }
 \description{
-Display a \code{pressurepath} data.frame as a timeseries or histogram
+Display a \code{pressurepath} data.frame as a time series or histogram
 }
 \examples{
 setwd(system.file("extdata", package = "GeoPressureR"))

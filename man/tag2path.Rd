@@ -39,7 +39,7 @@ flight duration.
 
 \code{interp} can be used to interpolate unrealistic position from short stationary periods based on
 the position of the longer ones. In order to preserve a reference to the grid, the interpolation
-is only performed at the center of the grid cell (defined by the \code{likelihood} map). Note also
+is only performed at the centre of the grid cell (defined by the \code{likelihood} map). Note also
 that it is not possible to interpolate the first and last stationary period.
 }
 \examples{

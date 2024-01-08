@@ -4,7 +4,7 @@
 #' Reads the NetCDF files downloaded and interpolate the average windspeed experienced by the
 #' bird on each possible edge, as well as the corresponding airspeed.
 #'
-#' In addition, the graph can be further pruned based on a threashold of airspeed `thr_as`.
+#' In addition, the graph can be further pruned based on a threshold of airspeed `thr_as`.
 #'
 #' See section [2.2.4 in Nussbaumer (2023b)](
 #' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title)
@@ -182,8 +182,8 @@ graph_add_wind <- function(
       lon_e <- g$lon[s[st_id, 2]] +
         ratio_stap[i2 + 1] * (g$lon[t[st_id, 2]] - g$lon[s[st_id, 2]])
 
-      # As ERA5 data is available every hour, we build a one hour resolution timeserie including the
-      # start and end time of the flight. Thus, we first round the start end end time.
+      # As ERA5 data is available every hour, we build a one hour resolution time series including
+      # the start and end time of the flight. Thus, we first round the start end end time.
       t_s <- as.POSIXct(format(fl_s$start[i2], "%Y-%m-%d %H:00:00"),
         tz = "UTC"
       )
@@ -195,7 +195,7 @@ graph_add_wind <- function(
       # We assume that the bird is moving with a constant groundspeed between `flight$start` and
       # `flight$end`. Using a linear interpolation, we extract the position (lat, lon) at every hour
       # on `t_q`. Extrapolation outside (before the bird departure or after he arrived) is with a
-      # nearest neighbor.
+      # nearest neighbour.
 
       dt <- fl_s_dur[i2] # old code not tested replacement as.numeric(difftime(fl_s$end[i2],
       # fl_s$start[i2], units = "hours"))

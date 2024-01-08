@@ -17,7 +17,7 @@ plot_tag_light(tag, transform_light = TRUE, plot_plotly = TRUE)
 a plot or ggplotly object.
 }
 \description{
-This function display a plot of light timeseries recorded by a tag
+This function display a plot of light time series recorded by a tag
 }
 \examples{
 setwd(system.file("extdata", package = "GeoPressureR"))

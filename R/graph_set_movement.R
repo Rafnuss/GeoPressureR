@@ -4,8 +4,8 @@
 #' Configure the movement model of a `graph` by defining the value of the parameters needed to build
 #' the transition `graph_transition()` through `speed2prob()`.
 #'
-#' Three methods are currently implemented, the two parametrics `"gamma"` and `"logis"` are suitable
-#' when wind data is not available and are thus defining the probability of a groundspeed.
+#' Three methods are currently implemented with two parametric function `"gamma"` and `"logis"`
+#' suitable when wind data is not available and are thus defining the probability of a groundspeed.
 #'
 #' If wind data is available, it is recommended to use the `"power"` method which rely on the power
 #' curve equation (energy vs airspeed) to estimate the probability of a airspeed. Read more about

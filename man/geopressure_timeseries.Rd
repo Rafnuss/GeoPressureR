@@ -2,7 +2,7 @@
 % Please edit documentation in R/geopressure_timeseries.R
 \name{geopressure_timeseries}
 \alias{geopressure_timeseries}
-\title{Request and download pressure timeseries at a given location}
+\title{Request and download pressure time series at a given location}
 \usage{
 geopressure_timeseries(
   lat,
@@ -20,14 +20,14 @@ geopressure_timeseries(
 
 \item{lon}{Longitude to query (-180° to 180°).}
 
-\item{pressure}{A data.frame of pressure timeseries, containing at least a \code{"date"} and \code{"value"}
+\item{pressure}{A data.frame of pressure time series, containing at least a \code{"date"} and \code{"value"}
 column.}
 
 \item{start_time}{If \code{pressure} is not provided, \code{start_time} defines the start time of
-the timeseries as POSIXlt.}
+the time series as POSIXlt.}
 
 \item{end_time}{If \code{pressure} is not provided, \code{end_time} defines the end time of
-the timeseries as POSIXlt.}
+the time series as POSIXlt.}
 
 \item{timeout}{duration before the code is interrupted both for the request on
 GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
@@ -48,13 +48,13 @@ A data.frame containing
 }
 }
 \description{
-This function returns the surface atmospheric pressure timeseries from ERA5 at any requested
+This function returns the surface atmospheric pressure time series from ERA5 at any requested
 location.
 
 If the location queried is over water, the location will be moved to the closest onshore
 location.
 
-The ERA5 pressure timeseries of the response \eqn{P_{ERA}} will be provided on a hourly basis
+The ERA5 pressure time series of the response \eqn{P_{ERA}} will be provided on a hourly basis
 between \code{start_time} and \code{end_time} or the same as \code{pressure$date} if \code{pressure} is supplied.
 
 If you supply the \code{pressure} of the geolocator \eqn{P_{gl}}, the function will

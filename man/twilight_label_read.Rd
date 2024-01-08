@@ -6,7 +6,7 @@
 \usage{
 twilight_label_read(
   tag,
-  file = glue::glue("./data/twilight-label/{tag$param$id}-labeled.csv")
+  file = glue::glue("./data/twilight-label/{tag$param$id}-labelled.csv")
 )
 }
 \arguments{
@@ -27,14 +27,14 @@ tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   twilight_create()
 
-tag_labeled <- twilight_label_read(tag)
+tag_labelled <- twilight_label_read(tag)
 setwd(owd)
 
 plot(tag, type = "twilight") + ggplot2::ggtitle("Before label")
 
-str(tag_labeled$twilight)
+str(tag_labelled$twilight)
 
-plot(tag_labeled, type = "twilight") + ggplot2::ggtitle("After label")
+plot(tag_labelled, type = "twilight") + ggplot2::ggtitle("After label")
 }
 \seealso{
 Other geolight: 

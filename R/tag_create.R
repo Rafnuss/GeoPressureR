@@ -42,7 +42,7 @@
 #' with extensions (e.g., `"*.pressure"`, `"*.deg"` or `"*_press.xlsx"`).
 #' @param light_file name of the file with light data. Full pathname  or finishing
 #' with extensions (e.g., `"*.glf"`, `"*.lux"` or `"*_acc.xlsx"`).
-#' @param acceleration_file name of the file with acceleration data. FFull pathname  or finishing
+#' @param acceleration_file name of the file with acceleration data. Full pathname  or finishing
 #' with extensions (e.g., `"*.acceleration"`, `"*.deg"` or `"*_acc.xlsx"`).
 #' @param crop_start remove all data before this date (POSIXct or character in UTC).
 #' @param crop_end remove all data after this date (POSIXct or character in UTC).

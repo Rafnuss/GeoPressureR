@@ -13,18 +13,18 @@
 #'   tag_label(quiet = TRUE) |>
 #'   twilight_create()
 #'
-#' tag_labeled <- twilight_label_read(tag)
+#' tag_labelled <- twilight_label_read(tag)
 #' setwd(owd)
 #'
 #' plot(tag, type = "twilight") + ggplot2::ggtitle("Before label")
 #'
-#' str(tag_labeled$twilight)
+#' str(tag_labelled$twilight)
 #'
-#' plot(tag_labeled, type = "twilight") + ggplot2::ggtitle("After label")
+#' plot(tag_labelled, type = "twilight") + ggplot2::ggtitle("After label")
 #' @export
 twilight_label_read <- function(
     tag,
-    file = glue::glue("./data/twilight-label/{tag$param$id}-labeled.csv")) {
+    file = glue::glue("./data/twilight-label/{tag$param$id}-labelled.csv")) {
   tag_assert(tag, "twilight")
 
   tag$twilight <- trainset_read(tag$twilight,

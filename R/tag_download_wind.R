@@ -95,7 +95,7 @@ tag_download_wind <- function(
   request_list <- list()
 
   for (i_s in stap_id) {
-    # Get the timeserie of the flight on a 1 hour resolution
+    # Get the time series of the flight on a 1 hour resolution
     flight_time <- seq(round.POSIXt(stap$end[i_s] - 30 * 60, units = "hours"),
       round.POSIXt(stap$start[i_s + 1] + 30 * 60, units = "hours"),
       by = 60 * 60

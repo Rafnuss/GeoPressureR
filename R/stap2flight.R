@@ -3,7 +3,7 @@
 #' @description
 #' Convert a stationary period data.frame `stap` into a flight data.frame or list. Flight are
 #' computed as the difference between the end of a stationary period to the start of the next one.
-#' Because the pressure/acceleration is labeled for "in flight", the bird was already in flight
+#' Because the pressure/acceleration is labelled for "in flight", the bird was already in flight
 #' before the first label and after the last label. We account for this by adding to all flights
 #' duration half the temporal resolution of the sensor.
 #'
@@ -24,7 +24,7 @@
 #' - `stap_id_s`: Source stap_id (i.e, start)
 #' - `stap_id_t`: Target stap_id (i.e, end)
 #' - `duration`: (Sum of the) duration of flight(s)
-#' - (`n`: Numer of flights)
+#' - (`n`: Number of flights)
 #' The value in brackets are only for the data.frame
 #' @examples
 #' setwd(system.file("extdata", package = "GeoPressureR"))
@@ -83,7 +83,7 @@ stap2flight <- function(stap,
       max(stap_include) >= flight_all$stap_t,
   ]
 
-  # create the list of flight per stationary period modeled
+  # create the list of flight per stationary period modelled
   stap_flight_group <- sapply(flight_all$stap_s, function(s) {
     sum(stap_include <= s)
   })

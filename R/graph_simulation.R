@@ -19,7 +19,7 @@
 #' - `lon` longitude
 #' - `start` datetime of the start of the stationary period (same as in `stap`)
 #' - `end` datetime of the end of the stationary period (same as in `stap`)
-#' - `include` logical if stationary period was modeled (same as in `stap`)
+#' - `include` logical if stationary period was modelled (same as in `stap`)
 #' - `nb_sample known` number of datapoint used to compute pressure (same as in `stap`)
 #'
 #' @examples
@@ -157,7 +157,7 @@ graph_simulation <- function(graph,
   # convert 3D to 2D grid
   path_ind2d <- path_ind3d - t(replicate(nj, nll * (seq_len(graph$sz[3]) - 1)))
 
-  # Path was defined on the modeled stationary period which might be different than the full stap,
+  # Path was defined on the modelled stationary period which might be different than the full stap,
   # but we want to generate path at the level of all stationary periods
   path_ind2d_full <- matrix(ncol = nrow(graph$stap), nrow = nj)
   # find the stap_id of the model

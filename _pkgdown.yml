@@ -65,8 +65,8 @@ reference:
   - geopressure_map_mismatch
   - geopressure_map_likelihood
   - geopressure_map_preprocess
-- subtitle: GeoPressure timeseries
-  desc: Retrieving timeseries pressure at a given location.
+- subtitle: GeoPressure time series
+  desc: Retrieving time series pressure at a given location.
   contents:
   - geopressure_timeseries
 - title: GeoLight
@@ -118,7 +118,7 @@ reference:
   - path2edge
   - plot_path
 - title: Pressurepath
-  desc: Data.frame of pressure timeseries along a path.
+  desc: Data.frame of pressure time series along a path.
   contents:
   - pressurepath_create
   - pressurepath_update

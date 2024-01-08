@@ -65,7 +65,7 @@ specific \code{path}.
 
 Any ERA variables can be retrieve but the functions is most notably used to retrieve ERA5
 surface pressure to then be able to compare it to the pressure measured by the tag, and
-potentially adjust labeling tag data.
+potentially adjust labelling tag data.
 
 By default, We use both the \href{https://doi.org/10.24381/cds.e2161bac}{ERA5 LAND} and
 \href{https://doi.org/10.24381/cds.adbb2d47}{ERA5 surface level} if position over water. Available

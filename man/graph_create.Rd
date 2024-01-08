@@ -51,9 +51,9 @@ representing the E-W as real and S-N as imaginary
 \item \code{obs}: observation model, corresponding to the normalized likelihood in a 3D matrix of size
 \code{sz}
 \item \code{sz}: size of the 3d grid lat-lon-stap
-\item \code{stap}: data.frame of all stationary periods (samme as \code{tag$stap})
-\item \code{equipment}: node(s) of the first stap (index in the 3d grid lat-lon-sta)
-\item \code{retrieval}: node(s) of the last stap (index in the 3d grid lat-lon-sta)
+\item \code{stap}: data.frame of all stationary periods (same as \code{tag$stap})
+\item \code{equipment}: node(s) of the first stap (index in the 3d grid lat-lon-stap)
+\item \code{retrieval}: node(s) of the last stap (index in the 3d grid lat-lon-stap)
 \item \code{mask_water}: logical matrix of water-land
 \item \code{param}: list of parameters including \code{thr_likelihood} and \code{thr_gs} (same as \code{tag$param})
 }

@@ -16,8 +16,8 @@
 #' @param path a GeoPressureR `path` data.frame
 #' @param scale spatial resolution of the SRTM to use to query the elevation. `scale` is defined as
 #' the number of pixels per 1° latitude-longitude (see `tag_set_map()` for details). Native
-#' resolution of STRM is 30m.
-#' @param sampling_scale spatial resolution of the point along the polyline on which the SRTME is
+#' resolution of SRTM is 30m.
+#' @param sampling_scale spatial resolution of the point along the polyline on which the SRTM is
 #' estimated. Same unit as `scale`.
 #' @param percentile percentile of the ground elevation distribution found within each grid cell
 #' of the SRTM at the resolution defined by `scale`. `50` corresponds to the median.

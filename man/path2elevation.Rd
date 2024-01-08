@@ -18,9 +18,9 @@ path2elevation(
 
 \item{scale}{spatial resolution of the SRTM to use to query the elevation. \code{scale} is defined as
 the number of pixels per 1° latitude-longitude (see \code{tag_set_map()} for details). Native
-resolution of STRM is 30m.}
+resolution of SRTM is 30m.}
 
-\item{sampling_scale}{spatial resolution of the point along the polyline on which the SRTME is
+\item{sampling_scale}{spatial resolution of the point along the polyline on which the SRTM is
 estimated. Same unit as \code{scale}.}
 
 \item{percentile}{percentile of the ground elevation distribution found within each grid cell

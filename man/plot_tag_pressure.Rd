@@ -27,7 +27,7 @@ plot_tag_pressure(
 a plot or ggplotly object.
 }
 \description{
-This function display a plot of pressure timeseries recorded by a tag
+This function display a plot of pressure time series recorded by a tag
 }
 \examples{
 owd <- setwd(system.file("extdata", package = "GeoPressureR"))

@@ -22,8 +22,8 @@ test_that("tag_label_write() | default", {
   expect_error(tag_label_write("not a tag", quiet = TRUE))
 
   # Work under normal condition
-  file_labeled <- tag_label_write(tag_classified, file = "./data/tag-label/18LX.csv", quiet = TRUE)
-  csv <- read.csv(file_labeled)
+  file_labelled <- tag_label_write(tag_classified, file = "./data/tag-label/18LX.csv", quiet = TRUE)
+  csv <- read.csv(file_labelled)
   expect_true(all(c("series", "timestamp", "value", "label") %in% names(csv)))
   expect_true(all(c("pressure", "acceleration") %in% csv$series))
   expect_true("flight" %in% csv$label)
@@ -46,34 +46,34 @@ test_that("tag_label_write() | default", {
 })
 
 
-tag_labeled <- tag_label_read(tag)
+tag_labelled <- tag_label_read(tag)
 test_that("tag_label_read() | default", {
   # Returned value is correct
-  expect_type(tag_labeled, "list")
-  expect_true(c("label") %in% names(tag_labeled$pressure))
-  expect_type(tag_labeled$pressure$label, "character")
-  expect_true(c("label") %in% names(tag_labeled$acceleration))
-  expect_type(tag_labeled$acceleration$label, "character")
+  expect_type(tag_labelled, "list")
+  expect_true(c("label") %in% names(tag_labelled$pressure))
+  expect_type(tag_labelled$pressure$label, "character")
+  expect_true(c("label") %in% names(tag_labelled$acceleration))
+  expect_type(tag_labelled$acceleration$label, "character")
 
   # Return error for incorrect input
   expect_error(tag_label_read(tag, file = "not a path"))
   expect_error(tag_label_read("not a tag"))
 
-  # Test with different labeled file size
+  # Test with different labelled file size
   expect_warning(
     tag_label_read(tag, file = "./data/tag-label/18LX-labeled-diffsize.csv"),
     "*The labelization file of pressure is missing*"
   )
 })
 
-tag_labeled <- tag_label_stap(tag_labeled, quiet = TRUE)
+tag_labelled <- tag_label_stap(tag_labelled, quiet = TRUE)
 test_that("tag_label_stap() | default", {
   # Returned value is correct
-  expect_type(tag_labeled, "list")
-  expect_true(c("stap") %in% names(tag_labeled))
-  expect_type(tag_labeled$pressure$label, "character")
-  expect_type(tag_labeled$acceleration$label, "character")
-  expect_gt(nrow(tag_labeled$stap), 0)
+  expect_type(tag_labelled, "list")
+  expect_true(c("stap") %in% names(tag_labelled))
+  expect_type(tag_labelled$pressure$label, "character")
+  expect_type(tag_labelled$acceleration$label, "character")
+  expect_gt(nrow(tag_labelled$stap), 0)
 })
 
 
@@ -100,14 +100,14 @@ test_that("tag_label_read() | no acceleration", {
 
 
 
-tag_labeled <- tag_label_stap(tag_labeled, quiet = TRUE)
+tag_labelled <- tag_label_stap(tag_labelled, quiet = TRUE)
 test_that("tag_label_stap() | default", {
   # Returned value is correct
-  expect_type(tag_labeled, "list")
-  expect_true(c("stap") %in% names(tag_labeled))
-  expect_type(tag_labeled$pressure$label, "character")
-  expect_type(tag_labeled$acceleration$label, "character")
-  expect_gt(nrow(tag_labeled$stap), 0)
+  expect_type(tag_labelled, "list")
+  expect_true(c("stap") %in% names(tag_labelled))
+  expect_type(tag_labelled$pressure$label, "character")
+  expect_type(tag_labelled$acceleration$label, "character")
+  expect_gt(nrow(tag_labelled$stap), 0)
 })
 
 
@@ -121,13 +121,13 @@ test_that("tag_label_stap() | for elev", {
 
 test_that("tag_label_stap() | no acceleration", {
   expect_warning(
-    tag_labeled <- tag_label_read(tag, file = "./data/tag-label/18LX-labeled-no_acc.csv"),
+    tag_labelled <- tag_label_read(tag, file = "./data/tag-label/18LX-labeled-no_acc.csv"),
     "The labelization file does not contains label for acceleration."
   )
-  expect_no_error(tag_label_stap(tag_labeled, quiet = TRUE))
+  expect_no_error(tag_label_stap(tag_labelled, quiet = TRUE))
 })
 
 
 test_that("tag_label() | default", {
-  expect_no_error(tag_labeled <- tag_label(tag, quiet = TRUE))
+  expect_no_error(tag_labelled <- tag_label(tag, quiet = TRUE))
 })

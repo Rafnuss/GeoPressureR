@@ -34,14 +34,14 @@ A list or a data.frame (see description) containing
 \item \code{stap_id_s}: Source stap_id (i.e, start)
 \item \code{stap_id_t}: Target stap_id (i.e, end)
 \item \code{duration}: (Sum of the) duration of flight(s)
-\item (\code{n}: Numer of flights)
+\item (\code{n}: Number of flights)
 The value in brackets are only for the data.frame
 }
 }
 \description{
 Convert a stationary period data.frame \code{stap} into a flight data.frame or list. Flight are
 computed as the difference between the end of a stationary period to the start of the next one.
-Because the pressure/acceleration is labeled for "in flight", the bird was already in flight
+Because the pressure/acceleration is labelled for "in flight", the bird was already in flight
 before the first label and after the last label. We account for this by adding to all flights
 duration half the temporal resolution of the sensor.
 

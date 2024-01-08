@@ -8,7 +8,7 @@
 #'
 #' Any ERA variables can be retrieve but the functions is most notably used to retrieve ERA5
 #' surface pressure to then be able to compare it to the pressure measured by the tag, and
-#' potentially adjust labeling tag data.
+#' potentially adjust labelling tag data.
 #'
 #' By default, We use both the [ERA5 LAND](https://doi.org/10.24381/cds.e2161bac) and
 #' [ERA5 surface level](https://doi.org/10.24381/cds.adbb2d47) if position over water. Available
