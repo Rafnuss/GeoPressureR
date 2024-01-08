@@ -41,6 +41,16 @@ twilight_label_write <- function(tag,
     }
   }
 
+  if (any(is.na(twilight$label))) {
+    cli::cli_warn(c(
+      "!" = "Some twilight label contain NA value",
+      "i" = "Check {.code twilight$label} or {.code twilight$stap}",
+      ">" = "We replaced them by {.val 'discard'}"
+    ))
+    twilight$label[is.na(twilight$label)] <- "discard"
+  }
+
+
   # write a combined data.frame of pressure and acceleration in csv.
   file <- trainset_write(
     twilight,
