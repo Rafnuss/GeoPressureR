@@ -10,10 +10,11 @@
 #' surface pressure to then be able to compare it to the pressure measured by the tag, and
 #' potentially adjust labeling tag data.
 #'
-#' We use the [ERA5 LAND ](https://doi.org/10.24381/cds.e2161bac) or [ERA5 surface level
-#' ](https://doi.org/10.24381/cds.adbb2d47) if position over water. Available variable can be found
-#' on the [Parameter listings in ERA5 doc](
-#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#heading-Parameterlistings)
+#' By default, We use both the [ERA5 LAND](https://doi.org/10.24381/cds.e2161bac) and
+#' [ERA5 surface level](https://doi.org/10.24381/cds.adbb2d47) if position over water. Available
+#' variable can be found on the [parameter listings in ERA5 doc](
+#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#heading-Parameterlistings).
+#' Using just one of the two can make the query faster.
 #'
 #' Positions during the flight are estimated by linear interpolation of the position of the stap
 #' before and after. `pressurepath_create()` does not return measurement for stationary periods
@@ -40,6 +41,9 @@
 #' @param variable ERA5 variable/parameters available to download. See
 #' [Parameter listings in ERA5 doc](
 #' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#heading-Parameterlistings)
+#' @param era5_dataset select the dataset to use: `"single-levels"` [doc
+#' ](https://doi.org/10.24381/cds.adbb2d47), `"land"` [doc](https://doi.org/10.24381/cds.e2161bac)
+#' or `"both"`
 #' @param preprocess logical to use `geopressure_map_preprocess`.
 #' @param quiet logical to hide messages about the progress
 #' @param workers number of parallel requests on GEE. Integer between 1 and 99.
@@ -94,6 +98,7 @@
 pressurepath_create <- function(tag,
                                 path = tag2path(tag),
                                 variable = c("altitude", "surface_pressure"),
+                                era5_dataset = "both",
                                 preprocess = FALSE,
                                 timeout = 60 * 5,
                                 workers = "auto",
@@ -104,6 +109,8 @@ pressurepath_create <- function(tag,
   }
   # Assert tag
   tag_assert(tag, "stap")
+
+  assertthat::assert_that(era5_dataset %in% c("single-levels", "land", "both"))
 
   # Assert preprocess
   assertthat::assert_that(is.logical(preprocess))
@@ -167,7 +174,7 @@ pressurepath_create <- function(tag,
   assertthat::assert_that(is.numeric(workers) | workers == "auto")
   # GEE allows up to 100 requests at the same time, so we set the workers a little bit below
   if (workers == "auto") {
-    workers <- 2 # min(90, round(nrow(pressurepath)/100))
+    workers <- max(1, min(90, round(nrow(pressurepath) / 1500)))
   }
   assertthat::assert_that(workers > 0 & workers < 100)
 
@@ -178,6 +185,7 @@ pressurepath_create <- function(tag,
     lat = pressurepath$lat,
     time = as.numeric(as.POSIXct(pressurepath$date)),
     variable = variable,
+    dataset = era5_dataset,
     pressure = pressurepath$pressure_tag * 100,
     workers = workers
   )
