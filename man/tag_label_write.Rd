@@ -4,12 +4,18 @@
 \alias{tag_label_write}
 \title{Write a tag label file}
 \usage{
-tag_label_write(tag, file = glue::glue("./data/tag-label/{tag$param$id}.csv"))
+tag_label_write(
+  tag,
+  file = glue::glue("./data/tag-label/{tag$param$id}.csv"),
+  quiet = FALSE
+)
 }
 \arguments{
 \item{tag}{a GeoPressure \code{tag} object.}
 
 \item{file}{Absolute or relative path of the label file to be saved.}
+
+\item{quiet}{logical to display message.}
 }
 \value{
 The file pathname is return invisibly

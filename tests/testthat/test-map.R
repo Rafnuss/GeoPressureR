@@ -71,7 +71,7 @@ test_that("rast.map() | ", {
     type = "pressure"
   )
 
-  expect_no_error(r <- rast(map))
+  expect_no_error(r <- rast.map(map))
   expect_s4_class(r, "SpatRaster")
   expect_equal(terra::time(r), stap$start)
 })

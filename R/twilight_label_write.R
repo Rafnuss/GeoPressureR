@@ -5,6 +5,7 @@
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param file Name of the twilight label file to be saved.
+#' @param quiet logical to hide messages
 #'
 #' @return None
 #'
@@ -20,7 +21,8 @@
 #' @family geolight
 #' @export
 twilight_label_write <- function(tag,
-                                 file = glue::glue("./data/twilight-label/{tag$param$id}.csv")) {
+                                 file = glue::glue("./data/twilight-label/{tag$param$id}.csv"),
+                                 quiet = FALSE) {
   # Check twilight
   tag_assert(tag, "twilight")
 
@@ -55,7 +57,8 @@ twilight_label_write <- function(tag,
   file <- trainset_write(
     twilight,
     file = file,
-    timestamp = "twilight"
+    timestamp = "twilight",
+    quiet = quiet
   )
   invisible(file)
 }

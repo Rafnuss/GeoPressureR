@@ -13,6 +13,7 @@
 #'
 #' @param tag a GeoPressure `tag` object.
 #' @param file Absolute or relative path of the label file.
+#' @param quiet logical to display message.
 #' @inheritDotParams tag_label_stap warning_flight_duration warning_stap_duration quiet
 #'
 #' @return Same `tag` list with
@@ -47,6 +48,7 @@
 #' @export
 tag_label <- function(tag,
                       file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
+                      quiet = FALSE,
                       ...) {
   tag_assert(tag)
   assertthat::assert_that(is.character(file))
@@ -74,14 +76,13 @@ tag_label <- function(tag,
     res <- as.numeric(names(utils::select.list(choices, title = "Do you want to create it?")))
 
     if (res == 2) {
-      tag_label_write(tag, file_default)
+      tag_label_write(tag, file_default, quiet = quiet)
     } else if (res == 3) {
-      tag_label_write(tag, file_input)
+      tag_label_write(tag, file_input, quiet = quiet)
     }
 
     # Stop the function
     cli::cli_warn(c(
-      "!" = "No label file available.",
       ">" = "Return the original {.var tag} unmodified.\f"
     ))
     return(tag)
@@ -121,7 +122,7 @@ tag_label <- function(tag,
     tag <- tag_label_read(tag, file)
 
     # Add the stationary periods
-    tag <- tag_label_stap(tag, ...)
+    tag <- tag_label_stap(tag, quiet = quiet, ...)
 
     return(tag)
   }

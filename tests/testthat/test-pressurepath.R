@@ -16,7 +16,6 @@ path <- data.frame(
   known = c(TRUE, FALSE, FALSE, FALSE, FALSE)
 )
 
-
 test_that("pressurepath_create() | single stap", {
   i_s <- c(3)
   path_i <- subset(path, stap_id %in% i_s)
@@ -25,7 +24,8 @@ test_that("pressurepath_create() | single stap", {
   pressurepath <- expect_no_error(
     pressurepath_create(tag, path_i,
       quiet = TRUE,
-      variable = c("altitude", "surface_pressure", "total_precipitation")
+      variable = c("altitude", "surface_pressure", "total_precipitation"),
+      era5_dataset = "land"
     )
   )
   expect_true(all(c(
@@ -40,6 +40,6 @@ test_that("pressurepath_create() | check flight", {
   path_i <- subset(path, stap_id %in% i_s)
   # pressure <- subset(tag$pressure, stap_id %in% i_s)
 
-  pressurepath <- expect_no_error(pressurepath_create(tag, path_i))
+  pressurepath <- expect_no_error(pressurepath_create(tag, path_i, era5_dataset = "land"))
   expect_true(all(unique(pressurepath$stap_id) %in% c(i_s, 0)))
 })

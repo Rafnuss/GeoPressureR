@@ -55,12 +55,13 @@ computed and modelled in the analysis. By default, all stationary periods are in
 In addition, \code{tag} offers the possibility to define \code{known} locations (e.g., equipment or
 retrieval site). These can only be defined at the level of a stationary period (i.e., assuming
 constant position during the whole stationary period) but you can define as many known stationary
-periods as you wish. By default (see \code{compute_known} in \code{geopressure_map()}), no likelihood map
-will be computed for these stationary periods and the trajectory model will be more constrained,
-saving significant computational time.
+periods as you wish. Because the index of the last stationary period is generally unknown, you
+can use negative indexing in \code{known}, i.e., \code{known$stap_id = -1} will be converted to
+\code{nrow(tag$stap)}.
 
-Because the index of the last stationary period is generally unknown, you can use negative
-indexing in \code{known}, i.e., \code{known$stap_id = -1} will be converted to \code{nrow(tag$stap)}.
+By default, no likelihood map will be computed for these stationary periods and the trajectory
+model will be more constrained, saving significant computational time. You can change this
+using the \code{compute_known} parameter in \code{geopressure_map()}.
 }
 \examples{
 setwd(system.file("extdata", package = "GeoPressureR"))

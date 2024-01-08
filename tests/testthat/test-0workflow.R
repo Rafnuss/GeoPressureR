@@ -1,18 +1,15 @@
 library(testthat)
 library(GeoPressureR)
 
-# Hide cli message
-options(cli.default_handler = function(...) { })
-
 # Set working directory
 setwd(system.file("extdata", package = "GeoPressureR"))
 
 test_that("workflow | full", {
-  tag <- tag_create("18LX")
-  tag <- tag_label(tag)
+  tag <- tag_create("18LX", quiet = TRUE)
+  tag <- tag_label(tag, quiet = TRUE)
 
   tag <- twilight_create(tag)
-  twilight_label_write(tag)
+  twilight_label_write(tag, quiet = TRUE)
   tag <- twilight_label_read(tag)
 
   tag <- tag_set_map(tag,
@@ -25,23 +22,23 @@ test_that("workflow | full", {
     )
   )
 
-  tag <- geopressure_map(tag)
-  tag <- geolight_map(tag)
+  tag <- geopressure_map(tag, quiet = TRUE)
+  tag <- geolight_map(tag, quiet = TRUE)
 
   path <- tag2path(tag)
   expect_no_error(tag2path(tag, interp = 0.7))
 
-  graph <- graph_create(tag) |>
+  graph <- graph_create(tag, quiet = TRUE) |>
     graph_set_movement()
 
-  marginal <- graph_marginal(graph)
-  path_most_likely <- graph_most_likely(graph)
-  path_simulation <- graph_simulation(graph)
+  marginal <- graph_marginal(graph, quiet = TRUE)
+  path_most_likely <- graph_most_likely(graph, quiet = TRUE)
+  path_simulation <- graph_simulation(graph, quiet = TRUE)
 
   edge_most_likely <- path2edge(path_most_likely, graph)
   edge_simulation <- path2edge(path_simulation, graph)
 
-  pressurepath <- pressurepath_create(tag, path_most_likely)
+  pressurepath <- pressurepath_create(tag, path_most_likely, era5_dataset = "single-levels", quiet = TRUE)
 
   expect_no_error(print(tag))
   expect_no_error(print(graph))
@@ -71,7 +68,7 @@ test_that("workflow | Missing pressure value", {
   tag <- tag_set_map(tag, extent = c(-16, 23, 0, 50), scale = 1)
 
   expect_warning(expect_warning(
-    tag <- geopressure_map(tag),
+    tag <- geopressure_map(tag, quiet = TRUE),
     "*have less than 3 datapoints to be used*"
   ), "Pressure data is not on a regular interval")
 
@@ -79,10 +76,10 @@ test_that("workflow | Missing pressure value", {
 
   expect_no_error(tag2path(tag))
 
-  expect_error(graph <- graph_create(tag))
+  expect_error(graph <- graph_create(tag, quiet = TRUE))
 
   tag$stap$include <- c(FALSE, FALSE, TRUE, TRUE, FALSE)
-  expect_no_error(graph <- graph_create(tag))
+  expect_no_error(graph <- graph_create(tag, quiet = TRUE))
 })
 
 
@@ -93,7 +90,7 @@ test_that("workflow | with elev_", {
     extent = c(-16, 23, 0, 50),
     scale = 1
   )
-  tag <- geopressure_map(tag)
+  tag <- geopressure_map(tag, quiet = TRUE)
   expect_equal(length(tag$map_pressure), nrow(tag$stap))
 })
 
@@ -106,17 +103,17 @@ test_that("workflow | modeled fewer", {
     scale = 1,
     include_stap_id = c(2, 4, 5)
   )
-  tag <- geopressure_map(tag)
+  tag <- geopressure_map(tag, quiet = TRUE)
 
   path <- tag2path(tag)
 
-  graph <- graph_create(tag)
+  graph <- graph_create(tag, quiet = TRUE)
   graph <- graph_set_movement(graph)
 
 
-  marginal <- graph_marginal(graph)
-  path <- graph_most_likely(graph)
-  sim <- graph_simulation(graph)
+  marginal <- graph_marginal(graph, quiet = TRUE)
+  path <- graph_most_likely(graph, quiet = TRUE)
+  sim <- graph_simulation(graph, quiet = TRUE)
   edge <- path2edge(path, graph)
   edge_sim <- path2edge(sim, graph)
 

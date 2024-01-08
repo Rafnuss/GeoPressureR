@@ -19,22 +19,22 @@ path_sm <- data.frame(
 )
 
 test_that("geopressure_timeseries() | default output", {
-  expect_warning(pressure_timeseries <- geopressure_timeseries(
+  pressure_timeseries <- geopressure_timeseries(
     lon = 6, lat = 46,
     start_time = as.POSIXct("2017-06-20 00:00:00", tz = "UTC"),
     end_time = as.POSIXct("2017-06-20 02:00:00", tz = "UTC"),
     quiet = TRUE
-  ))
+  )
   expect_s3_class(pressure_timeseries, "data.frame")
   expect_true(all(c("date", "surface_pressure", "lat", "lon") %in% names(pressure_timeseries)))
 })
 
 test_that("geopressure_timeseries() | with lat, lon and pressure", {
-  expect_warning(pressure_timeseries <-
+ pressure_timeseries <-
     geopressure_timeseries(
       lat = 46,
       lon = 6, pressure = tag_sm$pressure, quiet = TRUE
-    ))
+    )
   expect_s3_class(pressure_timeseries, "data.frame")
   expect_true(all(c("date", "surface_pressure") %in% names(pressure_timeseries)))
 })

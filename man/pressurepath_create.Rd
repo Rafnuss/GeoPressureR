@@ -8,6 +8,7 @@ pressurepath_create(
   tag,
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
+  era5_dataset = "both",
   preprocess = FALSE,
   timeout = 60 * 5,
   workers = "auto",
@@ -22,6 +23,9 @@ pressurepath_create(
 
 \item{variable}{ERA5 variable/parameters available to download. See
 \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#heading-Parameterlistings}{Parameter listings in ERA5 doc}}
+
+\item{era5_dataset}{select the dataset to use: \code{"single-levels"} \href{https://doi.org/10.24381/cds.adbb2d47}{doc }, \code{"land"} \href{https://doi.org/10.24381/cds.e2161bac}{doc}
+or \code{"both"}}
 
 \item{preprocess}{logical to use \code{geopressure_map_preprocess}.}
 
@@ -63,8 +67,10 @@ Any ERA variables can be retrieve but the functions is most notably used to retr
 surface pressure to then be able to compare it to the pressure measured by the tag, and
 potentially adjust labeling tag data.
 
-We use the \href{https://doi.org/10.24381/cds.e2161bac}{ERA5 LAND } or \href{https://doi.org/10.24381/cds.adbb2d47}{ERA5 surface level } if position over water. Available variable can be found
-on the \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#heading-Parameterlistings}{Parameter listings in ERA5 doc}
+By default, We use both the \href{https://doi.org/10.24381/cds.e2161bac}{ERA5 LAND} and
+\href{https://doi.org/10.24381/cds.adbb2d47}{ERA5 surface level} if position over water. Available
+variable can be found on the \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#heading-Parameterlistings}{parameter listings in ERA5 doc}.
+Using just one of the two can make the query faster.
 
 Positions during the flight are estimated by linear interpolation of the position of the stap
 before and after. \code{pressurepath_create()} does not return measurement for stationary periods
