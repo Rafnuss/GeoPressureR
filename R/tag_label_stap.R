@@ -186,7 +186,7 @@ pretty_dt <- function(tim) {
 find_stap <- function(stap, date) {
   tmp <- mapply(function(start, end) {
     start <= date & date <= end
-  }, tag$stap$start, stap$end)
+  }, stap$start, stap$end)
 
   tmp <- which(tmp, arr.ind = TRUE)
 

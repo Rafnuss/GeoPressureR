@@ -182,7 +182,7 @@ pressurepath_create <- function(tag,
     workers = workers
   )
 
-  if (!quiet) cli::cli_progress_step("Generate request on GeoPressureAPI")
+  if (!quiet) cli::cli_progress_step("Generate request on GeoPressureAPI and download csv")
 
   if (debug) {
     temp_file <- tempfile("log_pressurepath_", fileext = ".json")
@@ -212,6 +212,8 @@ pressurepath_create <- function(tag,
       return(col)
     }
   }))
+
+  if (!quiet) cli::cli_progress_step("Post-process pressurepath")
 
   # Convert time to date
   out$time <- as.POSIXct(out$time, origin = "1970-01-01", tz = "UTC")
