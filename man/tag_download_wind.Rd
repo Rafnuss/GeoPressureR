@@ -2,12 +2,13 @@
 % Please edit documentation in R/tag_download_wind.R
 \name{tag_download_wind}
 \alias{tag_download_wind}
-\title{Download wind data}
+\title{Download flight data}
 \usage{
 tag_download_wind(
   tag,
   extent = tag$param$extent,
-  stap_id = utils::head(tag$stap$stap_id, -1),
+  include_stap_id = utils::head(tag$stap$stap_id, -1),
+  variable = c("u_component_of_wind", "v_component_of_wind"),
   cds_key = Sys.getenv("cds_key"),
   cds_user = Sys.getenv("cds_user"),
   file = function(stap_id)
@@ -18,39 +19,48 @@ tag_download_wind(
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object.}
 
-\item{extent}{Geographical extent of the map on which the likelihood will be computed.
+\item{extent}{geographical extent of the map on which the likelihood will be computed.
 Vector of length 4 \code{c(xmin, xmax, ymin, ymax)} or \code{c(W, E, S, N)}.}
 
-\item{stap_id}{Stationary period identifier of the start of the flight to download. Be default,
-download for all flights.}
+\item{include_stap_id}{stationary period identifiers of the start of the flight to download.
+Default is to download all flights.}
 
-\item{cds_key}{User (email address) used to sign up for the ECMWF data service. See
-\code{\link[=wf_set_key]{wf_set_key()}}.}
+\item{variable}{list of variables to download from \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level}:
+\code{"u_component_of_wind"}, \code{"v_component_of_wind"},  \code{"temperature"}, \code{"fraction_of_cloud_cover"},
+\code{"relative_humidity"}, , \code{"vertical_velocity"}, \code{"specific_cloud_ice_water_content"},
+\code{"specific_cloud_liquid_water_content"}, \code{"specific_humidity"}, \code{"specific_rain_water_content"},
+\code{"specific_snow_water_content"}, \code{"divergence"}, \code{"geopotential"}, \code{"ozone_mass_mixing_ratio"},
+\code{"potential_vorticity"}, \verb{'vorticity"}.}
 
-\item{cds_user}{Token provided by ECMWF. See \code{\link[=wf_set_key]{wf_set_key()}}.}
+\item{cds_key}{ECMWF API Key available from \href{https://cds.climate.copernicus.eu/user/}{your user page }. See \code{wf_set_key()}.}
 
-\item{file}{Absolute or relative path of the ERA5 wind data file to be downloaded. Function
+\item{cds_user}{ECMWF user name (UID value) available from \href{https://cds.climate.copernicus.eu/user/}{your user page }. See \code{wf_set_key()}.}
+
+\item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
 taking as single argument the stationary period identifier.}
 
 \item{overwrite}{logical. If \code{TRUE}, file is overwritten.}
 }
 \value{
-The folder with the downloaded file (same as the directory).
+the path of the downloaded (requested file) or the an R6 object with download/transfer information
 }
 \description{
-This function downloads the wind data from \href{https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview}{ERA5 hourly pressure levels}
+This function download data associated to each flight from the \href{https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview}{ERA5 hourly pressure levels}
 with the \href{https://cds.climate.copernicus.eu}{Climate Data Store (CDS)} and through the \href{https://bluegreen-labs.github.io/ecmwfr/index.html}{\code{ecmwfr} R package}.
 
-The flights are determined from the stationary periods classified \code{tag$sta}
-(see \code{tag_label_auto()}). It request a single file for each flight using the exact time
-(hourly basis) and pressure (altitude). To make the download more efficient,
-\href{https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests}{\code{wf_request_batch()}}
-is used to download all wind files at the same time (up to 20 requests in parallel).
+\href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#ERA5:datadocumentation-Table9}{Any variable available from the ERA5 pressure level}
+can be downloaded.
+
+The flights are determined from the stationary periods classified \code{tag$stap}. It request a
+single file for each flight using the exact time (hourly basis) and pressure (altitude). To make
+the download more efficient, \href{https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests}{\code{wf_request_batch()}}
+is used to download all files at the same time (up to 20 requests in parallel).
 
 To be able to download data from the Climate Data Store (CDS), you will need to create an account
-on \url{https://cds.climate.copernicus.eu}. You can then save
-your credentials (\code{cds_key} and \code{cds_user}) in your \code{.Rprofile} (see
-\href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual}).
+on \url{https://cds.climate.copernicus.eu}. Once created, you can
+retrieve your API key on \url{https://cds.climate.copernicus.eu/user/} and save them in your environment (i.e., \code{.Rprofile})
+with \code{Sys.setenv(cds_user = "{UID}", cds_key = "{API Key}")} (see \link{GeoPressureManual for details}
+(https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)).
 }
 \seealso{
 \href{https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html}{\code{wf_request()}},
@@ -58,6 +68,7 @@ your credentials (\code{cds_key} and \code{cds_user}) in your \code{.Rprofile} (
 
 Other movement: 
 \code{\link{bird_create}()},
+\code{\link{edge_add_wind}()},
 \code{\link{graph_add_wind}()},
 \code{\link{graph_set_movement}()},
 \code{\link{graph_transition}()},

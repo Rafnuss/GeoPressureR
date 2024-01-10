@@ -6,7 +6,7 @@
 \usage{
 twilight_label_read(
   tag,
-  file = glue::glue("./data/twilight-label/{tag$param$id}-labelled.csv")
+  file = glue::glue("./data/twilight-label/{tag$param$id}-labeled.csv")
 )
 }
 \arguments{

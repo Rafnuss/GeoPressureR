@@ -6,7 +6,7 @@
 \usage{
 tag_update(
   tag,
-  file = glue::glue("./data/tag-label/{tag$param$id}-labelled.csv"),
+  file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
   known = NULL,
   include_stap_id = NULL,
   quiet = FALSE

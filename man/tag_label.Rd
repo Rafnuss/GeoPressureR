@@ -6,7 +6,7 @@
 \usage{
 tag_label(
   tag,
-  file = glue::glue("./data/tag-label/{tag$param$id}-labelled.csv"),
+  file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
   quiet = FALSE,
   ...
 )

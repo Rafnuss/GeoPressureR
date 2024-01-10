@@ -54,6 +54,7 @@ Other bird:
 \code{\link{print.bird}()}
 
 Other movement: 
+\code{\link{edge_add_wind}()},
 \code{\link{graph_add_wind}()},
 \code{\link{graph_set_movement}()},
 \code{\link{graph_transition}()},

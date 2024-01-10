@@ -93,6 +93,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 }
 \seealso{
 Other graph: 
+\code{\link{edge_add_wind}()},
 \code{\link{graph_add_wind}()},
 \code{\link{graph_create}()},
 \code{\link{graph_marginal}()},
@@ -102,6 +103,7 @@ Other graph:
 
 Other movement: 
 \code{\link{bird_create}()},
+\code{\link{edge_add_wind}()},
 \code{\link{graph_add_wind}()},
 \code{\link{graph_transition}()},
 \code{\link{plot_graph_movement}()},
