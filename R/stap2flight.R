@@ -7,15 +7,16 @@
 #' before the first label and after the last label. We account for this by adding to all flights
 #' duration half the temporal resolution of the sensor.
 #'
-#' You can compute the flight between specific stationary periods using `stap_include`. In this
+#' You can compute the flight between specific stationary periods using `include_stap_id`. In this
 #' case, the flight duration is computed as the sum of individual flights in between.
 #'
 #' You can return the flight as a data.frame or as a list if you want to retrieve the information
-#' of all individual flight between the `stap_include`.
+#' of all individual flight between the `include_stap_id`.
 #'
 #' @param stap a stationary period data.frame (see [`tag_label_stap()`]).
-#' @param stap_include vector of the stationary period `stap_id` to consider in the flight. Default
-#' is to use `stap$stap_id[stap$include]` or `stap$stap_id` if `model` is not available in `stap`.
+#' @param include_stap_id vector of the stationary period `stap_id` to consider in the flight.
+#' Default is to use `stap$stap_id[stap$include]` or `stap$stap_id` if `model` is not available in
+#' `stap`.
 #' @param format character to return a list `"list"` or a data.frame `"df"` (see description)
 #' @inheritParams stap2duration
 #' @return A list or a data.frame (see description) containing
@@ -34,14 +35,14 @@
 #' knitr::kable(stap2flight(tag$stap))
 #'
 #' # Compute the total flight between stap 1,3 and 5. Sum flight duration in between.
-#' knitr::kable(stap2flight(tag$stap, stap_include = c(1, 3, 5)))
+#' knitr::kable(stap2flight(tag$stap, include_stap_id = c(1, 3, 5)))
 #'
 #' # Can also return as a list of data.frame to access individual flights information.
-#' knitr::kable(stap2flight(tag$stap, stap_include = c(1, 3, 5), format = "list", units = "secs"))
+#' knitr::kable(stap2flight(tag$stap, include_stap_id = c(1, 3, 5), format = "list", units = "secs"))
 #'
 #' @export
 stap2flight <- function(stap,
-                        stap_include = NULL,
+                        include_stap_id = NULL,
                         format = "df",
                         units = "hours",
                         return_numeric = TRUE) {
@@ -50,18 +51,18 @@ stap2flight <- function(stap,
   assertthat::assert_that(assertthat::has_name(stap, "start"))
   assertthat::assert_that(assertthat::has_name(stap, "end"))
   assertthat::assert_that(all(stap$stap_id == seq_len(nrow(stap))))
-  if (is.null(stap_include)) {
+  if (is.null(include_stap_id)) {
     if ("include" %in% names(stap)) {
-      stap_include <- stap$stap_id[stap$include]
+      include_stap_id <- stap$stap_id[stap$include]
     } else {
-      stap_include <- stap$stap_id
+      include_stap_id <- stap$stap_id
     }
   }
-  assertthat::assert_that(all(stap_include %in% stap$stap_id))
+  assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
   assertthat::assert_that(format %in% c("list", "df"))
   assertthat::assert_that(is.logical(return_numeric))
 
-  if (length(stap_include) == 1) {
+  if (length(include_stap_id) == 1) {
     if (format == "list") {
       return(list())
     } else {
@@ -77,17 +78,17 @@ stap2flight <- function(stap,
   )
   flight_all$duration <- stap2duration(flight_all, units = units, return_numeric = return_numeric)
 
-  # Filter flight_all to remove flight before the first stap_include or after the last stap_include
+  # Filter flight_all to remove flight before the first include_stap_id or after the last include_stap_id
   flight_all <- flight_all[
-    min(stap_include) <= flight_all$stap_s &
-      max(stap_include) >= flight_all$stap_t,
+    min(include_stap_id) <= flight_all$stap_s &
+      max(include_stap_id) >= flight_all$stap_t,
   ]
 
   # create the list of flight per stationary period modelled
   stap_flight_group <- sapply(flight_all$stap_s, function(s) {
-    sum(stap_include <= s)
+    sum(include_stap_id <= s)
   })
-  flight_list <- split(flight_all, stap_include[stap_flight_group])
+  flight_list <- split(flight_all, include_stap_id[stap_flight_group])
 
   if (format == "list") {
     return(flight_list)

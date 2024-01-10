@@ -111,7 +111,7 @@ path2elevation <- function(path,
   path_interp_c <- path_interp[stap_id_considered]
 
   # Compute flight duration including all stap_id
-  flight <- stap2flight(path_c, stap_include = path_c$stap_id)
+  flight <- stap2flight(path_c, include_stap_id = path_c$stap_id)
 
   # Cummulate the flight duration to get a proxy of the over distance covered
   total_flight <- cumsum(as.numeric(c(0, flight$duration)))

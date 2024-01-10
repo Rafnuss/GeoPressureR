@@ -145,8 +145,8 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   # stap, but we want to generate path at the level of all stationary periods
   path_ind2d_full <- rep(NA, nrow(graph$stap))
   # find the stap_id of the model
-  stap_includeed <- graph$stap$stap_id[graph$stap$include]
-  path_ind2d_full[stap_includeed] <- path_ind2d
+  stap_include <- graph$stap$stap_id[graph$stap$include]
+  path_ind2d_full[stap_include] <- path_ind2d
 
   # Convert the index of the path in a path data.frame
   path <- ind2path(path_ind2d_full, graph)
