@@ -47,7 +47,7 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html)
 #' @export
 tag_label <- function(tag,
-                      file = glue::glue("./data/tag-label/{tag$param$id}-labelled.csv"),
+                      file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
                       quiet = FALSE,
                       ...) {
   tag_assert(tag)

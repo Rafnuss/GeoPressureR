@@ -24,7 +24,7 @@
 #' @export
 twilight_label_read <- function(
     tag,
-    file = glue::glue("./data/twilight-label/{tag$param$id}-labelled.csv")) {
+    file = glue::glue("./data/twilight-label/{tag$param$id}-labeled.csv")) {
   tag_assert(tag, "twilight")
 
   tag$twilight <- trainset_read(tag$twilight,
