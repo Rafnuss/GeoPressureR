@@ -60,7 +60,7 @@ trainset_write <- function(df,
     row.names = FALSE
   )
 
-  if (!quiet){
+  if (!quiet) {
     cli::cli_inform(c("v" = "{.file {file}} written successfully.\f"))
   }
   return(file)

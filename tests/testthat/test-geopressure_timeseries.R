@@ -30,7 +30,7 @@ test_that("geopressure_timeseries() | default output", {
 })
 
 test_that("geopressure_timeseries() | with lat, lon and pressure", {
- pressure_timeseries <-
+  pressure_timeseries <-
     geopressure_timeseries(
       lat = 46,
       lon = 6, pressure = tag_sm$pressure, quiet = TRUE

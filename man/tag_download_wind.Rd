@@ -68,7 +68,6 @@ with \code{Sys.setenv(cds_user = "{UID}", cds_key = "{API Key}")} (see \link{Geo
 
 Other movement: 
 \code{\link{bird_create}()},
-\code{\link{edge_add_wind}()},
 \code{\link{graph_add_wind}()},
 \code{\link{graph_set_movement}()},
 \code{\link{graph_transition}()},

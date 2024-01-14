@@ -58,7 +58,6 @@ tag_download_wind <- function(
     cds_user = Sys.getenv("cds_user"),
     file = \(stap_id) glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
     overwrite = FALSE) {
-
   tag_assert(tag, "setmap")
 
   stap <- tag$stap
@@ -95,7 +94,7 @@ tag_download_wind <- function(
     tmp <- file.exists(file(include_stap_id))
     cli::cli_abort(c(
       "x" = "There are already ERA5 data file for stationary periods {.var {include_stap_id[tmp]}}",
-      ">" = "Delete the corresponding file or use the arguement {.code overwrite = TRUE}."
+      ">" = "Delete the corresponding file or use the argument {.code overwrite = TRUE}."
     ))
     # nolint end
   }

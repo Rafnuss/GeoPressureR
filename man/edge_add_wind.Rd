@@ -13,63 +13,59 @@ edge_add_wind(
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
   return_average_variable = FALSE,
-  file = function(stap_id)
-    glue::glue("./data/wind/{tag_graph$param$id}/{tag_graph$param$id}_{stap_id}.nc"),
+  file = function(stap_id) {
+    
+    glue::glue("./data/wind/{tag_graph$param$id}/{tag_graph$param$id}_{stap_id}.nc")
+ },
   quiet = FALSE
 )
 }
 \arguments{
 \item{tag_graph}{either a \code{tag} or a \code{graph} GeoPressureR object.}
 
-\item{edge_s}{a matrix of the index of the source node of the edge}
+\item{edge_s}{a index of the source node of the edge. Either a vector with 3D index or a matrix
+of 3 columns, one for each dimension.}
 
-\item{edge_t}{a matrix of the index of the target node of the edge}
+\item{edge_t}{a index of the target node of the edge. Either a vector with 3D index or a matrix
+of 3 columns, one for each dimension.}
 
 \item{pressure}{pressure measurement of the associated \code{tag} data used to estimate the pressure
 level (i.e., altitude) of the bird during the flights. This data.frame needs to contain \code{date} as
 POSIXt and \code{value} in hPa.}
 
-\item{variable}{variable the the}
+\item{variable}{list of variables to download from \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level}:
+\code{"u_component_of_wind"}, \code{"v_component_of_wind"},  \code{"temperature"}, \code{"fraction_of_cloud_cover"},
+\code{"relative_humidity"}, , \code{"vertical_velocity"}, \code{"specific_cloud_ice_water_content"},
+\code{"specific_cloud_liquid_water_content"}, \code{"specific_humidity"}, \code{"specific_rain_water_content"},
+\code{"specific_snow_water_content"}, \code{"divergence"}, \code{"geopotential"}, \code{"ozone_mass_mixing_ratio"},
+\code{"potential_vorticity"}, \verb{'vorticity"}.}
 
-\item{interp_spatial_linear}{logical}
+\item{rounding_interval}{temporal resolution on which to query the variable (min). Default is to
+macth ERA5 native resolution (1hr).}
+
+\item{interp_spatial_linear}{logical to interpolate the variable linearly over space, if \code{FALSE}
+takes the nearest neighbour. ERA5 native resolution is 0.25°}
+
+\item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
+taking as single argument the stationary period identifier.}
 
 \item{quiet}{logical to hide messages about the progress}
 
-\item{return_average_var}{logical}
+\item{return_average_var}{logical to return the variable for each timestep or average for the
+entire flight.}
 }
 \value{
-a \code{graph} object with windspeed and airspeed as \code{ws} and \code{as} respectively.
+...
 }
 \description{
-Reads the NetCDF files downloaded and interpolate the average windspeed experienced by the
-bird on each possible edge, as well as the corresponding airspeed.
+Reads the NetCDF files and extract the variable requested along each flight defined by the edges.
+\itemize{
+\item Time: linear interpolation using the resolution requested with \code{rounding_interval}
+\item Space: nearet neighbor interpolation by default or bi-linear with \code{pracma::interp2} if
+\code{interp_spatial_linear=TRUE}
+\item Pressure/altitude: linear interpolation using the exact \code{pressure} values
 }
-\references{
-{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
-Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
-optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118–1129
-\url{https://doi.org/10.1111/2041-210X.14082}.}
 }
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual}
-
-Other graph: 
-\code{\link{graph_add_wind}()},
-\code{\link{graph_create}()},
-\code{\link{graph_marginal}()},
-\code{\link{graph_most_likely}()},
-\code{\link{graph_set_movement}()},
-\code{\link{graph_simulation}()},
-\code{\link{print.graph}()}
-
-Other movement: 
-\code{\link{bird_create}()},
-\code{\link{graph_add_wind}()},
-\code{\link{graph_set_movement}()},
-\code{\link{graph_transition}()},
-\code{\link{plot_graph_movement}()},
-\code{\link{speed2prob}()},
-\code{\link{tag_download_wind}()}
 }
-\concept{graph}
-\concept{movement}

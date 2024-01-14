@@ -4,7 +4,7 @@
 \alias{path2edge}
 \title{Extract the edges of a \code{path} from a \code{graph}}
 \usage{
-path2edge(path, graph, add_flight = TRUE)
+path2edge(path, tag_graph)
 }
 \arguments{
 \item{path}{a GeoPressureR \code{path} data.frame}
@@ -16,17 +16,24 @@ path2edge(path, graph, add_flight = TRUE)
 \value{
 Data.frame of the edge containing:
 \itemize{
-\item \code{stap_s} : stationary period of the origin (source).
-\item \code{stap_t} : stationary period of the destination (target).
-\item \code{gs} : groundspeed vector expressed as a complex number. You can compute the groundspeed value
+\item \code{s}: index in 3D (lat-lon-stap) of the origin (source).
+\item \code{t}: index in 3D (lat-lon-stap) of the destination (target).
+\item \code{lat_s}: latitude of the origin (source).
+\item \code{lat_t}: latitude of the destination (target).
+\item \code{lon_s}: longitude of the origin (source).
+\item \code{lon_t}: longitude of the destination (target).
+\item \code{stap_s}: stationary period of the origin (source).
+\item \code{stap_t}: stationary period of the destination (target).
+\item \code{distance}: Distance (in km) of the flight.
+\item \code{start}: end of the flight.
+\item \code{end}: start of the flight.
+\item \code{duration}: duration of the flight.
+\item \code{n}: number of flight.
+\item \code{gs}: groundspeed vector expressed as a complex number. You can compute the groundspeed value
 (km/h) with \code{abs(gs)}, the W-E and S-N component of the flight with \code{Re(gs)} and \code{Im(gs)}, and
-the angle/direction with \code{Arg(gs)}.
-\item \code{distance} : Distance (in km) of the flight.
+the angle/direction with \code{Arg(gs)}. If graph provided.
 \item \code{ws}: if computed with \code{graph_add_wind()}, same value as \code{gs}. Airspeed is computed with
-\code{as = gs - ws} in complex number to keep the vectorial additive properties.
-\item \code{start} end of the flight. If \code{add_flight=T}.
-\item \code{end} start of the flight. If \code{add_flight=T}.
-\item \code{duration} duration of the flight. If \code{add_flight=T}.
+\code{as = gs - ws} in complex number to keep the vectorial additive properties. If graph provided.
 }
 }
 \description{

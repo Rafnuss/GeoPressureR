@@ -7,9 +7,11 @@
 graph_add_wind(
   graph,
   pressure,
-  thr_as = Inf,
+  rounding_interval = 60,
+  interp_spatial_linear = FALSE,
   file = function(stap_id)
     glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
+  thr_as = Inf,
   quiet = FALSE
 )
 }
@@ -20,10 +22,16 @@ graph_add_wind(
 level (i.e., altitude) of the bird during the flights. This data.frame needs to contain \code{date} as
 POSIXt and \code{value} in hPa.}
 
-\item{thr_as}{threshold of airspeed (km/h).}
+\item{rounding_interval}{temporal resolution on which to query the variable (min). Default is to
+macth ERA5 native resolution (1hr).}
+
+\item{interp_spatial_linear}{logical to interpolate the variable linearly over space, if \code{FALSE}
+takes the nearest neighbour. ERA5 native resolution is 0.25°}
 
 \item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
 taking as single argument the stationary period identifier.}
+
+\item{thr_as}{threshold of airspeed (km/h).}
 
 \item{quiet}{logical to hide messages about the progress}
 }
@@ -50,7 +58,6 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual}
 
 Other graph: 
-\code{\link{edge_add_wind}()},
 \code{\link{graph_create}()},
 \code{\link{graph_marginal}()},
 \code{\link{graph_most_likely}()},
@@ -60,7 +67,6 @@ Other graph:
 
 Other movement: 
 \code{\link{bird_create}()},
-\code{\link{edge_add_wind}()},
 \code{\link{graph_set_movement}()},
 \code{\link{graph_transition}()},
 \code{\link{plot_graph_movement}()},
