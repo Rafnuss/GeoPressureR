@@ -52,7 +52,7 @@
 tag_download_wind <- function(
     tag,
     extent = tag$param$extent,
-    include_stap_id = utils::head(tag$stap$stap_id, -1),
+    include_stap_id = NULL,
     variable = c("u_component_of_wind", "v_component_of_wind"),
     cds_key = Sys.getenv("cds_key"),
     cds_user = Sys.getenv("cds_user"),
@@ -63,6 +63,25 @@ tag_download_wind <- function(
   stap <- tag$stap
 
   assertthat::assert_that(length(extent) == 4)
+
+  assertthat::assert_that(is.function(file))
+  directory <- dirname(file(1))
+  if (!file.exists(directory)) {
+    dir.create(directory, recursive = TRUE)
+    cli::cli_warn(c(
+      "!" = "The directory {.file {directory}} did not exist.",
+      ">" = "We created the directory.\f"
+    ))
+  }
+
+  if (is.null(include_stap_id)) {
+    include_stap_id <- utils::head(tag$stap$stap_id, -1)
+
+    # Take all stap_id without an existing wind file
+    if (!overwrite) {
+      include_stap_id <- include_stap_id[!file.exists(file(include_stap_id))]
+    }
+  }
   assertthat::assert_that(is.numeric(include_stap_id))
   assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
 
@@ -80,15 +99,6 @@ tag_download_wind <- function(
 
   ecmwfr::wf_set_key(user = cds_user, key = cds_key, service = "cds")
 
-  assertthat::assert_that(is.function(file))
-  directory <- dirname(file(1))
-  if (!file.exists(directory)) {
-    dir.create(directory, recursive = TRUE)
-    cli::cli_warn(c(
-      "!" = "The directory {.file {directory}} did not exist.",
-      ">" = "We created the directory.\f"
-    ))
-  }
   if (any(file.exists(file(include_stap_id))) && !overwrite) {
     # nolint start
     tmp <- file.exists(file(include_stap_id))
