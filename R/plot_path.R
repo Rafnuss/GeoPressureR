@@ -122,7 +122,7 @@ plot_path_leaflet <- function(
       fill = ifelse(is.null(path$interp), TRUE, !path$interp),
       fillColor = "grey",
       fillOpacity = 0.8,
-      label = glue::glue("#{path$stap_id}, {round(stap2duration(path)[i], 1)} days")
+      label = glue::glue("#{path$stap_id}, {round(stap2duration(path), 1)} days")
     )) {
   # Remove position of stap not included/not available
   path_full <- path[!is.na(path$lat), ]

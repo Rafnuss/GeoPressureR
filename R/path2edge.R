@@ -49,7 +49,7 @@ path2edge <- function(path, tag_graph) {
 
   ind3d <- ind2d + t(replicate(nj, nll * (seq_len(nrow(stap)) - 1)))
 
-  stap3d = t(replicate(nj, stap$stap_id))
+  stap3d <- t(replicate(nj, stap$stap_id))
 
   # construct the edge of the path as data.frame
   edge <- data.frame(

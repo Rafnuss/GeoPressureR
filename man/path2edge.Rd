@@ -10,8 +10,6 @@ path2edge(path, tag_graph)
 \item{path}{a GeoPressureR \code{path} data.frame}
 
 \item{graph}{a GeoPressureR \code{graph} object}
-
-\item{add_flight}{compute flight data.frame and merge with the return data.frame}
 }
 \value{
 Data.frame of the edge containing:

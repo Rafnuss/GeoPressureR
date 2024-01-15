@@ -7,7 +7,7 @@
 tag_download_wind(
   tag,
   extent = tag$param$extent,
-  include_stap_id = utils::head(tag$stap$stap_id, -1),
+  include_stap_id = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
   cds_key = Sys.getenv("cds_key"),
   cds_user = Sys.getenv("cds_user"),
