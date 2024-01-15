@@ -46,6 +46,7 @@ plot_tag_pressure(tag)
 Other plot_tag: 
 \code{\link{plot_tag_acceleration}()},
 \code{\link{plot_tag_light}()},
+\code{\link{plot_tag_temperature}()},
 \code{\link{plot_tag_twilight}()}
 }
 \concept{plot_tag}

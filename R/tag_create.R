@@ -44,6 +44,8 @@
 #' with extensions (e.g., `"*.glf"`, `"*.lux"` or `"*_acc.xlsx"`).
 #' @param acceleration_file name of the file with acceleration data. Full pathname  or finishing
 #' with extensions (e.g., `"*.acceleration"`, `"*.deg"` or `"*_acc.xlsx"`).
+#' @param temperature_file name of the file with temperature data. Full pathname  or finishing
+#' with extensions (e.g., `"*.temperature"`, `"*.deg"`).
 #' @param crop_start remove all data before this date (POSIXct or character in UTC).
 #' @param crop_end remove all data after this date (POSIXct or character in UTC).
 #' @param quiet logical to hide messages about the progress.
@@ -103,6 +105,7 @@ tag_create <- function(id,
                        pressure_file = NULL,
                        light_file = NULL,
                        acceleration_file = NULL,
+                       temperature_file = NULL,
                        quiet = FALSE) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
@@ -148,13 +151,14 @@ tag_create <- function(id,
       pressure_file = ifelse(is.null(pressure_file), "*.pressure", pressure_file),
       light_file = ifelse(is.null(light_file), "*.glf", light_file),
       acceleration_file = ifelse(is.null(acceleration_file), "*.acceleration", acceleration_file),
+      temperature_file = ifelse(is.null(temperature_file), "*.temperature", temperature_file),
       quiet = quiet
     )
   } else if (manufacturer == "migratetech") {
     tag <- tag_create_migratetech(
       tag,
       directory = directory,
-      pressure_acceleration_file = ifelse(is.null(pressure_file), "*.deg", pressure_file),
+      deg_file = ifelse(is.null(pressure_file), "*.deg", pressure_file),
       light_file = ifelse(is.null(light_file), "*.lux", light_file),
       quiet = quiet
     )
@@ -173,6 +177,7 @@ tag_create <- function(id,
       pressure_file = pressure_file,
       light_file = light_file,
       acceleration_file = acceleration_file,
+      temperature_file = temperature_file,
       quiet = quiet
     )
   }
@@ -204,6 +209,7 @@ tag_create_soi <- function(tag,
                            pressure_file,
                            light_file,
                            acceleration_file,
+                           temperature_file,
                            quiet) {
   # Read Pressure
   pressure_path <- tag_create_detect(pressure_file, directory)
@@ -228,10 +234,17 @@ tag_create_soi <- function(tag,
     tag$acceleration <- tag_create_dto(acceleration_path, col = 4, quiet = quiet)
   }
 
+  # Read temperature
+  temperature_path <- tag_create_detect(temperature_file, directory)
+  if (!is.null(temperature_path)) {
+    tag$temperature <- tag_create_dto(temperature_path, col = 4, quiet = quiet)
+  }
+
   # Add parameter information
   tag$param$pressure_file <- pressure_path
   tag$param$light_file <- light_path
   tag$param$acceleration_file <- acceleration_path
+  tag$param$temperature_file <- temperature_path
 
   return(tag)
 }
@@ -242,47 +255,47 @@ tag_create_soi <- function(tag,
 #' @noRd
 tag_create_migratetech <- function(tag,
                                    directory,
-                                   pressure_acceleration_file,
+                                   deg_file,
                                    light_file,
                                    quiet) {
   # Read Pressure
   # Check that it is a valid Migrate Technology file
-  pres_acc_path <- tag_create_detect(pressure_acceleration_file, directory)
-  if (is.null(pres_acc_path)) {
+  deg_path <- tag_create_detect(deg_file, directory)
+  if (is.null(deg_path)) {
     cli::cli_abort(c(
-      "x" = "There are no pressure file {.val {pressure_acceleration_file}}",
+      "x" = "There are no pressure file {.val {deg_file}}",
       "!" = "Pressure file are required!"
     ))
   }
-  assertthat::assert_that(grepl("Migrate Technology", readLines(pres_acc_path, n = 1)))
-  line2 <- readLines(pres_acc_path, n = 2)[[2]]
+  assertthat::assert_that(grepl("Migrate Technology", readLines(deg_path, n = 1)))
+  line2 <- readLines(deg_path, n = 2)[[2]]
   v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
   if (v < 13) {
     cli::cli_abort(
-      "The pressure file {.file {pres_acc_path}} is not compatible. Line 2 should \\
+      "The deg file {.file {deg_path}} is not compatible. Line 2 should \\
                contains {.val Type:x}, with x>=13."
     )
   }
-  line16 <- readLines(pres_acc_path, n = 16)[[16]]
+  line16 <- readLines(deg_path, n = 16)[[16]]
   drift <- abs(as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60)
   if (drift > 30) {
     cli::cli_warn(c(
-      "!" = "The pressure file {.file {pres_acc_path}} is recording a drift of {round(drift)} min \\
+      "!" = "The deg file {.file {deg_path}} is recording a drift of {round(drift)} min \\
       (line 16) which seems suspicious.",
       ">" = "Check for error (e.g. timezone)"
     ))
   }
   # Find column index with pressure
-  hdr <- utils::read.delim(pres_acc_path, skip = 19, nrow = 1, header = FALSE, sep = "")
+  hdr <- utils::read.delim(deg_path, skip = 19, nrow = 1, header = FALSE, sep = "")
   col <- which(hdr == "P(Pa)")
   if (!(col > 0)) {
     cli::cli_abort(
-      "The pressure file {.file {pres_acc_path}} is not compatible. Line 20 \\
+      "The pressure file {.file {deg_path}} is not compatible. Line 20 \\
               should contains {.val P(Pa)}"
     )
   }
   # Read file
-  tag$pressure <- tag_create_dto(pres_acc_path,
+  tag$pressure <- tag_create_dto(deg_path,
     skip = 20, col = col,
     date_format = "%d/%m/%Y %H:%M:%S",
     quiet = quiet
@@ -290,18 +303,28 @@ tag_create_migratetech <- function(tag,
   # convert Pa in hPa
   tag$pressure$value <- tag$pressure$value / 100
 
-
   # Read acceleration
   col <- which(hdr == "Zact")
   if (length(col) != 0) {
     # Read file
-    tag$acceleration <- tag_create_dto(pres_acc_path,
+    tag$acceleration <- tag_create_dto(deg_path,
       skip = 20, col = col,
       date_format = "%d/%m/%Y %H:%M:%S",
       quiet = quiet
     )
+    tag$param$acceleration_file <- deg_path
   }
 
+  # Read temperature
+  col <- which(hdr == "T('C)")
+  if (length(col) != 0) {
+    tag$temperature <- tag_create_dto(deg_path,
+      skip = 20, col = col,
+      date_format = "%d/%m/%Y %H:%M:%S",
+      quiet = quiet
+    )
+    tag$param$temperature_file <- deg_path
+  }
 
   # Read light
   light_path <- tag_create_detect(light_file, directory)
@@ -341,9 +364,8 @@ tag_create_migratetech <- function(tag,
   }
 
   # Add parameter information
-  tag$param$pressure_file <- pres_acc_path
+  tag$param$pressure_file <- deg_path
   tag$param$light_file <- light_path
-  tag$param$acceleration_file <- pres_acc_path
 
   return(tag)
 }
@@ -416,6 +438,7 @@ tag_create_manual <- function(tag,
                               pressure_file,
                               light_file,
                               acceleration_file,
+                              temperature_file,
                               quiet) {
   # Read Pressure
   assertthat::assert_that(is.data.frame(pressure_file))
@@ -445,10 +468,19 @@ tag_create_manual <- function(tag,
     tag$acceleration <- acceleration_file
   }
 
+  # Read acceleration
+  if (!is.null(temperature_file)) {
+    assertthat::assert_that(assertthat::has_name(temperature_file, c("date", "value")))
+    assertthat::assert_that(inherits(temperature_file$date, "POSIXct"))
+    assertthat::assert_that(assertthat::are_equal(attr(temperature_file$date, "tzone"), "UTC"))
+    tag$temperature <- temperature_file
+  }
+
   # Add parameter information
   tag$param$pressure_file <- "manual"
   tag$param$light_file <- "manual"
   tag$param$acceleration_file <- "manual"
+  tag$param$temperature_file <- "manual"
 
   return(tag)
 }

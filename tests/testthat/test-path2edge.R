@@ -32,13 +32,12 @@ ind_c_na[3] <- NA
 path_c_na <- ind2path(ind_c_na, tag)
 
 ind_m_na <- ind_m
-ind_m_na[,5] <- NA
+ind_m_na[, 5] <- NA
 path_m_na <- ind2path(ind_m_na, tag)
 
 test_that("path2edge() | default", {
-
   expect_no_error(edge_c <- path2edge(path_c, tag))
-  expect_equal(nrow(edge_c), nrow(path_c)-1)
+  expect_equal(nrow(edge_c), nrow(path_c) - 1)
 
   expect_no_error(edge_m <- path2edge(path_m, tag))
 
