@@ -227,27 +227,30 @@ pressurepath_create <- function(tag,
   out$time <- as.POSIXct(out$time, origin = "1970-01-01", tz = "UTC")
   names(out)[names(out) == "time"] <- "date"
 
-  # Convert pressure Pa in hPa
-  out$surface_pressure <- out$surface_pressure / 100
-
   # Add out to pressurepath
   pressurepath <- merge(
     pressurepath,
     out,
+
     all.x = TRUE
   )
 
-  # Compute surface_pressure_norm
-  # compute average pressure per stap without including discard
-  df <- pressurepath
-  df$stap_id[df$label == "discard"] <- 0
-  agg <- merge(
-    stats::aggregate(surface_pressure ~ stap_id, data = df, FUN = mean),
-    stats::aggregate(pressure_tag ~ stap_id, data = df, FUN = mean)
-  )
-  id <- match(pressurepath$stap_id, agg$stap_id)
-  pressurepath$surface_pressure_norm <- pressurepath$surface_pressure -
-    agg$surface_pressure[id] + agg$pressure_tag[id]
+  # Convert pressure Pa in hPa
+  if ("surface_pressure" %in% names(pressurepath)) {
+    pressurepath$surface_pressure <- pressurepath$surface_pressure / 100
+
+    # Compute surface_pressure_norm
+    # compute average pressure per stap without including discard
+    df <- pressurepath
+    df$stap_id[df$label == "discard"] <- 0
+    agg <- merge(
+      stats::aggregate(surface_pressure ~ stap_id, data = df, FUN = mean),
+      stats::aggregate(pressure_tag ~ stap_id, data = df, FUN = mean)
+    )
+    id <- match(pressurepath$stap_id, agg$stap_id)
+    pressurepath$surface_pressure_norm <- pressurepath$surface_pressure -
+      agg$surface_pressure[id] + agg$pressure_tag[id]
+  }
 
   # Add additional parameter to pressurepath
   attr(pressurepath, "id") <- tag$param$id
