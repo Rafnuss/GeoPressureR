@@ -110,13 +110,11 @@ test_that("workflow | modelled fewer", {
   graph <- graph_create(tag, quiet = TRUE)
   graph <- graph_set_movement(graph)
 
-
   marginal <- graph_marginal(graph, quiet = TRUE)
   path <- graph_most_likely(graph, quiet = TRUE)
   sim <- graph_simulation(graph, quiet = TRUE)
   edge <- path2edge(path, graph)
   edge_sim <- path2edge(sim, graph)
 
-  # too many warning
   # gts <- pressurepath_create(tag)
 })
