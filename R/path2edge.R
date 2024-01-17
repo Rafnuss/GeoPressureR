@@ -5,7 +5,7 @@
 #' edges can be useful to extract flight information specific to a path.
 #'
 #' @param path a GeoPressureR `path` data.frame
-#' @param graph a GeoPressureR `graph` object
+#' @param graph either a `tag` or a `graph` GeoPressureR object.
 #'
 #' @return Data.frame of the edge containing:
 #' - `s`: index in 3D (lat-lon-stap) of the origin (source).
@@ -43,13 +43,17 @@ path2edge <- function(path, tag_graph) {
   # Number of paths
   nj <- length(unique(path$j))
 
-  ind2d <- matrix(path$ind, nrow = nj)
-  lat <- matrix(path$lat, nrow = nj)
-  lon <- matrix(path$lon, nrow = nj)
+  # Find stap included
+  stap_id_included <- unique(path$stap_id[!is.na(path$ind)])
+  # should be similar to stap$include in most case.
 
-  ind3d <- ind2d + t(replicate(nj, nll * (seq_len(nrow(stap)) - 1)))
+  ind2d <- matrix(path$ind[path$stap_id %in% stap_id_included], nrow = nj)
+  lat <- matrix(path$lat[path$stap_id %in% stap_id_included], nrow = nj)
+  lon <- matrix(path$lon[path$stap_id %in% stap_id_included], nrow = nj)
 
-  stap3d <- t(replicate(nj, stap$stap_id))
+  ind3d <- ind2d + t(replicate(nj, nll * (seq_len(ncol(ind2d)) - 1)))
+
+  stap3d <- t(replicate(nj, stap_id_included))
 
   # construct the edge of the path as data.frame
   edge <- data.frame(
@@ -63,7 +67,7 @@ path2edge <- function(path, tag_graph) {
     lon_t = as.vector(utils::tail(lon, c(nj, -1)))
   )
 
-  edge <- merge(edge, stap2flight(tag_graph$stap))
+  edge <- merge(edge, stap2flight(tag_graph$stap, include_stap_id = stap_id_included))
 
   edge$distance <- geosphere::distGeo(cbind(edge$lon_s, edge$lat_s), cbind(edge$lon_t, edge$lat_t)) / 1000
 
@@ -79,18 +83,18 @@ path2edge <- function(path, tag_graph) {
 
   if (inherits(tag_graph, "graph")) {
     # Check that all sources and target exist in the graph
-    assertthat::assert_that(all(edge$s %in% graph$s),
+    assertthat::assert_that(all(edge$s %in% tag_graph$s),
       msg = "path$ind is not compatible with the graph$s."
     )
-    assertthat::assert_that(all(edge$t %in% graph$t),
+    assertthat::assert_that(all(edge$t %in% tag_graph$t),
       msg = "path$ind is not compatible with the graph$t."
     )
 
     # Build data.frame of the graph
     graph_st <- data.frame(
-      edge_id = seq_len(length(graph$s)),
-      s = graph$s,
-      t = graph$t
+      edge_id = seq_len(length(tag_graph$s)),
+      s = tag_graph$s,
+      t = tag_graph$t
     )
 
     # Shorten graph to only node of interest
@@ -99,9 +103,9 @@ path2edge <- function(path, tag_graph) {
     # Find index of edge
     tmp <- merge(edge, graph_st, all.x = TRUE, sort = FALSE)
 
-    edge$gs <- graph$gs[tmp$edge_id]
-    if ("ws" %in% names(graph)) {
-      edge$ws <- graph$ws[tmp$edge_id]
+    edge$gs <- tag_graph$gs[tmp$edge_id]
+    if ("ws" %in% names(tag_graph)) {
+      edge$ws <- tag_graph$ws[tmp$edge_id]
     }
   }
 
