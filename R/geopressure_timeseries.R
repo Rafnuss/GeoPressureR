@@ -29,8 +29,8 @@
 #'
 #' @param lon Longitude to query (-180° to 180°).
 #' @param lat Latitude to query (0° to 90°).
-#' @param pressure A data.frame of pressure time series, containing at least a `"date"` and `"value"`
-#' column.
+#' @param pressure A data.frame of pressure time series, containing at least a `"date"` and
+#' `"value"` column.
 #' @param start_time If `pressure` is not provided, `start_time` defines the start time of
 #' the time series as POSIXlt.
 #' @param end_time If `pressure` is not provided, `end_time` defines the end time of

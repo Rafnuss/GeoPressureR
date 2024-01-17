@@ -38,7 +38,10 @@
 #' knitr::kable(stap2flight(tag$stap, include_stap_id = c(1, 3, 5)))
 #'
 #' # Can also return as a list of data.frame to access individual flights information.
-#' knitr::kable(stap2flight(tag$stap, include_stap_id = c(1, 3, 5), format = "list", units = "secs"))
+#' knitr::kable(stap2flight(tag$stap,
+#'   include_stap_id = c(1, 3, 5), format = "list",
+#'   units = "secs"
+#' ))
 #'
 #' @export
 stap2flight <- function(stap,
@@ -78,7 +81,8 @@ stap2flight <- function(stap,
   )
   flight_all$duration <- stap2duration(flight_all, units = units, return_numeric = return_numeric)
 
-  # Filter flight_all to remove flight before the first include_stap_id or after the last include_stap_id
+  # Filter flight_all to remove flight before the first include_stap_id or after the last
+  # include_stap_id
   flight_all <- flight_all[
     min(include_stap_id) <= flight_all$stap_s &
       max(include_stap_id) >= flight_all$stap_t,

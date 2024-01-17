@@ -63,6 +63,9 @@ knitr::kable(stap2flight(tag$stap))
 knitr::kable(stap2flight(tag$stap, include_stap_id = c(1, 3, 5)))
 
 # Can also return as a list of data.frame to access individual flights information.
-knitr::kable(stap2flight(tag$stap, include_stap_id = c(1, 3, 5), format = "list", units = "secs"))
+knitr::kable(stap2flight(tag$stap,
+  include_stap_id = c(1, 3, 5), format = "list",
+  units = "secs"
+))
 
 }

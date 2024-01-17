@@ -69,7 +69,9 @@ path2edge <- function(path, tag_graph) {
 
   edge <- merge(edge, stap2flight(tag_graph$stap, include_stap_id = stap_id_included))
 
-  edge$distance <- geosphere::distGeo(cbind(edge$lon_s, edge$lat_s), cbind(edge$lon_t, edge$lat_t)) / 1000
+  edge$distance <- geosphere::distGeo(
+    cbind(edge$lon_s, edge$lat_s), cbind(edge$lon_t, edge$lat_t)
+  ) / 1000
 
   # Compute the bearing of the trajectory
   edge$bearing <- geosphere::bearing(cbind(edge$lon_s, edge$lat_s), cbind(edge$lon_t, edge$lat_t))

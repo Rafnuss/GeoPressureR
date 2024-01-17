@@ -38,7 +38,10 @@ test_that("workflow | full", {
   edge_most_likely <- path2edge(path_most_likely, graph)
   edge_simulation <- path2edge(path_simulation, graph)
 
-  pressurepath <- pressurepath_create(tag, path_most_likely, era5_dataset = "single-levels", quiet = TRUE)
+  pressurepath <- pressurepath_create(tag,
+    path_most_likely,
+    era5_dataset = "single-levels", quiet = TRUE
+  )
 
   expect_no_error(print(tag))
   expect_no_error(print(graph))

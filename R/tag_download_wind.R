@@ -42,7 +42,8 @@
 #' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
 #' taking as single argument the stationary period identifier.
 #' @param overwrite logical. If `TRUE`, file is overwritten.
-#' @return the path of the downloaded (requested file) or the an R6 object with download/transfer information
+#' @return the path of the downloaded (requested file) or the an R6 object with download/transfer
+#' information
 #'
 #' @family movement
 #' @seealso [`wf_request()`](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),

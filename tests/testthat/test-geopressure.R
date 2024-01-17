@@ -47,7 +47,10 @@ test_that("geopressure_map_mismatch() | default output", {
 })
 
 test_that("geopressure_map_mismatch() | timeout and worker", {
-  expect_error(geopressure_map_mismatch(tag, timeout = 0.001, quiet = TRUE), "*Timeout was reached*")
+  expect_error(
+    geopressure_map_mismatch(tag, timeout = 0.001, quiet = TRUE),
+    "*Timeout was reached*"
+  )
   expect_error(geopressure_map_mismatch(tag, worker = 100, quiet = TRUE), "* workers < 100*")
 })
 

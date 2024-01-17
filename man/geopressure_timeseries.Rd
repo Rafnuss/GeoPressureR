@@ -20,8 +20,8 @@ geopressure_timeseries(
 
 \item{lon}{Longitude to query (-180° to 180°).}
 
-\item{pressure}{A data.frame of pressure time series, containing at least a \code{"date"} and \code{"value"}
-column.}
+\item{pressure}{A data.frame of pressure time series, containing at least a \code{"date"} and
+\code{"value"} column.}
 
 \item{start_time}{If \code{pressure} is not provided, \code{start_time} defines the start time of
 the time series as POSIXlt.}

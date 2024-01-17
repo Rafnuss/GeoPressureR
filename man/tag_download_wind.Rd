@@ -42,7 +42,8 @@ taking as single argument the stationary period identifier.}
 \item{overwrite}{logical. If \code{TRUE}, file is overwritten.}
 }
 \value{
-the path of the downloaded (requested file) or the an R6 object with download/transfer information
+the path of the downloaded (requested file) or the an R6 object with download/transfer
+information
 }
 \description{
 This function download data associated to each flight from the \href{https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview}{ERA5 hourly pressure levels}

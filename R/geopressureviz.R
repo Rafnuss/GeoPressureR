@@ -146,15 +146,13 @@ geopressureviz <- function(x,
   tryCatch(
     {
       GeoPressureR:::edge_add_wind_check(tag)
-      geopressure_Wd <- getwd()
-      file_wind <- \(stap_id) glue::glue("{geopressure_Wd}{file(stap_id)}")
+      geopressure_wd <- getwd()
+      file_wind <- \(stap_id) glue::glue("{geopressure_wd}{file(stap_id)}")
     },
     error = function(e) {
       file_wind <- NULL
     }
   )
-
-  print(file_wind)
 
   # nolint start
   .GlobalEnv$.tag <- tag
