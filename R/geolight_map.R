@@ -210,6 +210,10 @@ geolight_map <- function(tag,
     type = "light"
   )
 
+  attr(twl_llp, "srcref") <- NULL
+  attr(twl_llp, "srcfile") <- NULL
+  environment(twl_llp) <- baseenv()
+
   # Add parameters
   tag$param$twl_calib_adjust <- twl_calib_adjust
   tag$param$twl_llp <- twl_llp

@@ -98,6 +98,10 @@ graph_set_movement <- function(graph,
     assertthat::assert_that(inherits(bird, "bird"))
     assertthat::assert_that(is.function(power2prob))
     mvt$bird <- bird
+
+    attr(power2prob, "srcref") <- NULL
+    attr(power2prob, "srcfile") <- NULL
+    environment(power2prob) <- baseenv()
     mvt$power2prob <- power2prob
   }
 

@@ -82,6 +82,9 @@ geopressure_map_likelihood <- function(tag,
   )
 
   tag$param$sd <- sd0
+  attr(log_linear_pooling_weight, "srcref") <- NULL
+  attr(log_linear_pooling_weight, "srcfile") <- NULL
+  environment(log_linear_pooling_weight) <- baseenv()
   tag$param$log_linear_pooling_weight <- log_linear_pooling_weight
   attr(tag$param$log_linear_pooling_weight, "srcref") <- NULL
 

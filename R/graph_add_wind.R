@@ -72,6 +72,9 @@ graph_add_wind <- function(
   graph$gs <- graph$gs[id]
   graph$ws <- graph$ws[id]
   graph$param$thr_as <- thr_as
+  attr(file, "srcref") <- NULL
+  attr(file, "srcfile") <- NULL
+  environment(file) <- baseenv()
   graph$param$wind_file <- file
 
   return(graph)
