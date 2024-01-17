@@ -58,7 +58,11 @@ graph_add_wind <- function(
 
   # filter edges based on airspeed
   id <- abs(graph$gs - graph$ws) <= thr_as
-  sta_pass <- which(!(seq_len(graph$sz[3] - 1) %in% unique(edge_s[id, 3])))
+
+  # Check that there are always at least one node left by stap
+  g <- map_expand(graph$param$extent, graph$param$scale)
+  edge_s <- arrayInd(graph$s[id], c(g$dim, nrow(graph$stap)))
+  sta_pass <- which(!(seq_len(graph$sz[3] - 1) %in% unique(edge_s[, 3])))
   if (length(sta_pass) > 0) {
     cli::cli_abort(c(
       x = "Using the {.val thr_as} of {thr_as} km/h provided with the exact distance of edges, \\
