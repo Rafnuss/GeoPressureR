@@ -237,7 +237,7 @@ tag_create_soi <- function(tag,
   # Read temperature
   temperature_path <- tag_create_detect(temperature_file, directory)
   if (!is.null(temperature_path)) {
-    tag$temperature <- tag_create_dto(temperature_path, col = 4, quiet = quiet)
+    tag$temperature <- tag_create_dto(temperature_path, col = 3, quiet = quiet)
   }
 
   # Add parameter information
