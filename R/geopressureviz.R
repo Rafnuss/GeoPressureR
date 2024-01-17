@@ -42,7 +42,7 @@ geopressureviz <- function(x,
     }
 
     if (is.character(file) && file.exists(file)) {
-      # Make of copy of the arguement so that they don't get overwritten
+      # Make of copy of the argument so that they don't get overwritten
       if (!is.null(path)) {
         path0 <- path
       }
@@ -70,7 +70,7 @@ geopressureviz <- function(x,
         marginal <- marginal0
       }
     } else {
-      cli::cli_abort("The first arguement {.var x} needs to be a {.cls tag}, a {.field file} or \\
+      cli::cli_abort("The first argument {.var x} needs to be a {.cls tag}, a {.field file} or \\
                      an {.field id}")
     }
   } else {
@@ -105,14 +105,10 @@ geopressureviz <- function(x,
 
   names(maps) <- names(maps_choices[maps_is_available])
 
-  # Get stationary period information
-  stap <- tag$stap
-
   # Set color of each stationary period
-  col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(nrow(stap) / 8))
-  stap$col <- col[stap$stap_id]
-  stap$duration <- stap2duration(stap)
-
+  col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(nrow(tag$stap) / 8))
+  tag$stap$col <- col[tag$stap$stap_id]
+  tag$stap$duration <- stap2duration(tag$stap)
 
   # Get the pressure timeserie
   if (is.null(path)) {
@@ -129,7 +125,7 @@ geopressureviz <- function(x,
     pressurepath$linetype <- as.factor(1)
     pressurepath <- merge(
       pressurepath,
-      stap[, names(stap) %in% c("stap_id", "col")],
+      tag$stap[, names(tag$stap) %in% c("stap_id", "col")],
       by = "stap_id"
     )
   } else {
@@ -137,13 +133,25 @@ geopressureviz <- function(x,
     pressurepath <- data.frame()
   }
 
+  tryCatch(
+    {
+      GeoPressureR:::edge_add_wind_check(tag)
+      geopressure_Wd <- getwd()
+      file_wind = \(stap_id) glue::glue("{geopressure_Wd}{file(stap_id)}")
+    },
+    error = function(e) {
+      file_wind = NULL
+    }
+  )
+
+  print(file_wind)
+
   # nolint start
-  .GlobalEnv$.tag_id <- tag$param$id
-  .GlobalEnv$.stap <- stap
-  .GlobalEnv$.pressure <- tag$pressure
+  .GlobalEnv$.tag <- tag
   .GlobalEnv$.maps <- maps
   .GlobalEnv$.pressurepath <- pressurepath
   .GlobalEnv$.path <- path
+  .GlobalEnv$.file_wind <- file_wind
   # nolint end
 
   # delete variable when removed

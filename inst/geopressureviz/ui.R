@@ -46,7 +46,7 @@ ui <- bootstrapPage(
         tags$p("Choose a stationary period", style = "font-weight:bold;"),
         fluidRow(
           column(2, style = "padding:0px;", actionButton("previous_position", "<", width = "100%")),
-          column(8, style = "padding:0px;", selectInput("i_stap", label = NULL, choices = "1")),
+          column(8, style = "padding:0px;", selectInput("stap_id", label = NULL, choices = "1")),
           column(2, style = "padding:0px;", actionButton("next_position", ">", width = "100%")),
         )
       ),
@@ -66,10 +66,12 @@ ui <- bootstrapPage(
         fluidPage(
           id = "edit_query_position_id",
           fluidRow(
-            column(6, actionButton("edit_position", "Start editing")),
+            column(6, actionButton("edit_position", "Edit position")),
             column(6, actionButton("query_position", "Query pressure")),
           )
-        )
+        ),
+        checkboxInput("edit_position_interpolate",
+                      label = "Interpolate positions between stap", value = FALSE)
       )
     )
   ),
