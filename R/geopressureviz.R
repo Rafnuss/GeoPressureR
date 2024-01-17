@@ -60,6 +60,16 @@ geopressureviz <- function(x,
       }
       # Use pressurepath if available over path_most_likely
       if (!is.null(pressurepath)) {
+        if ("pressure_era5" %in% names(pressurepath)) {
+          cli::cli_warn(c(
+            "!" = "{.var pressurepath} has been create with an old version of \\
+      {.pkg GeoPressureR} (<v3.2.0)",
+            ">" = "For optimal performance, we suggest to re-run \\
+      {.fun pressurepath_create}"
+          ))
+          pressurepath$surface_pressure <- pressurepath$pressure_era5
+          pressurepath$surface_pressure_norm <- pressurepath$pressure_era5_norm
+        }
         path <- pressurepath
       }
       # Overwrite loaded variable with arguments if provided
@@ -137,10 +147,10 @@ geopressureviz <- function(x,
     {
       GeoPressureR:::edge_add_wind_check(tag)
       geopressure_Wd <- getwd()
-      file_wind = \(stap_id) glue::glue("{geopressure_Wd}{file(stap_id)}")
+      file_wind <- \(stap_id) glue::glue("{geopressure_Wd}{file(stap_id)}")
     },
     error = function(e) {
-      file_wind = NULL
+      file_wind <- NULL
     }
   )
 

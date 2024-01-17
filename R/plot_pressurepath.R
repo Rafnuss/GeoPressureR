@@ -37,6 +37,18 @@ plot_pressurepath <- function(pressurepath,
                               warning_std_thr = 3,
                               plot_plotly = TRUE) {
   assertthat::assert_that(is.data.frame(pressurepath))
+
+  if ("pressure_era5" %in% names(pressurepath)) {
+    cli::cli_warn(c(
+      "!" = "{.var pressurepath} has been create with an old version of \\
+      {.pkg GeoPressureR} (<v3.2.0)",
+      ">" = "For optimal performance, we suggest to re-run \\
+      {.fun pressurepath_create}"
+    ))
+    pressurepath$surface_pressure <- pressurepath$pressure_era5
+    pressurepath$surface_pressure_norm <- pressurepath$pressure_era5_norm
+  }
+
   assertthat::assert_that(assertthat::has_name(
     pressurepath, c(
       "date", "stap_id", "pressure_tag", "label", "surface_pressure", "altitude", "lat", "lon",
