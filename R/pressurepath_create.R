@@ -158,7 +158,7 @@ pressurepath_create <- function(tag,
   names(pressurepath)[names(pressurepath) == "value"] <- "pressure_tag"
 
   # Interpolate lat lon during flight
-  id <- pressurepath$stap_id == 0
+  id <- pressurepath$stap_id != round(pressurepath$stap_id)
   sequence <- seq_len(nrow(pressurepath))
   pressurepath$lat[id] <- stats::approx(sequence[!id],
     pressurepath$lat[!id], sequence[id],
@@ -231,7 +231,6 @@ pressurepath_create <- function(tag,
   pressurepath <- merge(
     pressurepath,
     out,
-
     all.x = TRUE
   )
 

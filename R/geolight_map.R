@@ -118,7 +118,7 @@ geolight_map <- function(tag,
   # compute the likelihood of observing the zenith angle of each twilight using the calibrated
   # error function for each grid cell.
 
-  # Only select twilight that we are interested of: not known and/or not in flight (stap_id == 0)
+  # Only select twilight that we are interested of: not known and/or not in flight
   if (compute_known) {
     twl_clean_comp <- twl_clean[twl_clean$stap_id %in% stap$stap_id[is.na(stap$known_lat)], ]
   } else {

@@ -47,6 +47,10 @@ plot_pressurepath <- function(pressurepath,
     ))
     pressurepath$surface_pressure <- pressurepath$pressure_era5
     pressurepath$surface_pressure_norm <- pressurepath$pressure_era5_norm
+
+    id <- pressurepath$stap_id == 0
+    sequence <- seq_len(nrow(pressurepath))
+    pressurepath$stap_id[id] <- approx(sequence[!id], pressurepath$stap_id[!id], sequence[id])$y
   }
 
   assertthat::assert_that(assertthat::has_name(
@@ -64,6 +68,7 @@ plot_pressurepath <- function(pressurepath,
   pp <- pressurepath
 
   # Group by stapelev rather than stap in order to assess the use of elev
+  pp$stap_id[round(pp$stap_id) != pp$stap_id] <- 0
   pp$stapelev <- paste(pp$stap_id,
     ifelse(startsWith(pp$label, "elev_"), gsub("^.*?elev_", "", pp$label), "0"),
     sep = "|"
@@ -128,7 +133,7 @@ plot_pressurepath <- function(pressurepath,
     # Remove error for flight
     pp <- pp[pp$stap_id != 0, ]
 
-    pp$sd_param <- sd[ifelse(pp$stap_id == 0, 1, pp$stap_id)]
+    pp$sd_param <- sd[ifelse(pp$stap_id != round(pp$stap_id), 1, pp$stap_id)]
     pp$sd_ok <- pp$error_sd > pp$sd_param
     pp$stapelev <- factor(pp$stapelev, levels = tag_era5$stapelev)
     pp$warning_p <- pp$sd_param * warning_std_thr
@@ -161,19 +166,25 @@ plot_pressurepath <- function(pressurepath,
   } else if (type %in% c("altitude", "alt")) {
     pp_alt <- pressurepath
 
-    pp_alt$stap_id_flight <- NA
-    id <- pp_alt$stap_id == 0
-    sequence <- seq_len(nrow(pp_alt))
-    pp_alt$stap_id_flight[id] <- stats::approx(sequence[!id],
-      pp_alt$stap_id[!id], sequence[id],
-      method = "constant"
-    )$y
-
+    # find flight
+    id_flight <- pp_alt$stap_id != round(pp_alt$stap_id)
+    # group flight arbitrarily using the floor of their stap_id
+    pp_alt$stap_id[id_flight] <- floor(pp_alt$stap_id)[id_flight]
+    # convert to factor for ploting
     pp_alt$stap_id <- factor(pp_alt$stap_id)
 
     p <- ggplot2::ggplot() +
       ggplot2::geom_line(
-        data = pp_alt[pp_alt$stap_id != 0, ],
+        data = pp_alt,
+        ggplot2::aes(
+          x = .data$date,
+          y = .data$altitude
+        ),
+        color = "grey",
+        linewidth = 0.2
+      ) +
+      ggplot2::geom_line(
+        data = pp_alt[!id_flight, ],
         ggplot2::aes(
           x = .data$date,
           y = .data$altitude,
@@ -185,11 +196,11 @@ plot_pressurepath <- function(pressurepath,
       ggplot2::scale_y_continuous(name = "Altitude (m)") +
       ggplot2::theme(legend.position = "none")
 
-    if (sum(pp_alt$stap_id == 0) > 0) {
+    if (any(id_flight)) {
       p <- p +
         ggplot2::geom_line(
-          data = pp_alt[pp_alt$stap_id == 0, ],
-          ggplot2::aes(x = .data$date, y = .data$altitude, group = .data$stap_id_flight),
+          data = pp_alt[id_flight, ],
+          ggplot2::aes(x = .data$date, y = .data$altitude, group = .data$stap_id),
           color = "black"
         )
     }

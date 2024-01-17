@@ -106,7 +106,7 @@
 #' @param timeout duration before the code is interrupted both for the request on
 #' GeoPressureAPI and on GEE (in seconds, see `httr2::req_timeout()`).
 #' @param workers number of parallel requests on GEE. Integer between 1 and 99. `"auto"` adjust the
-#' number of workers to the number of `stap_elev` to query.
+#' number of workers to the number of `stapelev` to query.
 #' @param compute_known logical defining if the map(s) for known stationary period should be
 #' estimated based on twilight or hard defined by the known location `stap$known_l**`
 #' @param quiet logical to hide messages about the progress

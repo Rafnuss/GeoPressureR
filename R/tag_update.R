@@ -132,7 +132,7 @@ tag_update <- function(tag,
 
   # 2. Check which stap_id have a discard pressure label which has changed
   # we don't care about flight label change because they have already impacted the merge of the
-  # new stap, only pressure outlier and stap_elev are important at this stage
+  # new stap, only pressure outlier and stapelev are important at this stage
   discard_label_chg <- (tag_new$pressure$label != tag$pressure$label) &
     (tag_new$pressure$label != "flight" | tag$pressure$label != "flight")
 

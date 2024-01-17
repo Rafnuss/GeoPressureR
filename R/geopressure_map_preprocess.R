@@ -24,6 +24,17 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   stap <- tag$stap
   pressure <- tag$pressure
 
+  if (any(pressure$stap_id == 0)) {
+    cli::cli_warn(c(
+      "!" = "{.var pressurepath} has been create with an old version of \\
+      {.pkg GeoPressureR} (<v3.2.0)",
+      ">" = "For optimal performance, we suggest to re-run your code"
+    ))
+    id <- pressure$stap_id == 0
+    sequence <- seq_len(nrow(pressure))
+    pressure$stap_id[id] <- approx(sequence[!id], pressure$stap_id[!id], sequence[id])$y
+  }
+
   if (nrow(pressure) < 3) {
     cli::cli_abort(c(
       "x" = "Pressure data has less than {.val {3}} datapoints.",
@@ -54,9 +65,10 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   }
 
   # Remove flight and discard label
-  id <- pressure$label != "flight" & pressure$label != "discard" & pressure$stap_id > 0
+  id <- pressure$label != "flight" & pressure$label != "discard" &
+    pressure$stap_id == round(pressure$stap_id)
   tmp <- unique(pressure$stap_id[!(pressure$stap_id %in% pressure$stap_id[id]) &
-    pressure$stap_id > 0])
+    pressure$stap_id == round(pressure$stap_id)])
   if (length(tmp) > 0) {
     stap_info <- cli::format_inline({
       for (i in tmp) {
@@ -84,13 +96,15 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   }
 
   # Create the stapelev of pressure to query: stationary period and elevation
-  pressure$stapelev <- paste(pressure$stap_id,
+  pressure$stapelev <- paste(
+    pressure$stap_id,
     ifelse(startsWith(pressure$label, "elev_"),
       gsub("^.*?elev_", "", pressure$label),
       "0"
     ),
     sep = "|"
   )
+
 
   # Split the data.frame per stapelev
   pressure_stapelev <- split(pressure, pressure$stapelev)

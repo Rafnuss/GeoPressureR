@@ -184,15 +184,26 @@ pretty_dt <- function(tim) {
 #'
 #' @noRd
 find_stap <- function(stap, date) {
+  # Find stap for each date
   tmp <- mapply(function(start, end) {
     start <= date & date <= end
   }, stap$start, stap$end)
 
+  # Find index
   tmp <- which(tmp, arr.ind = TRUE)
 
+  # Initiate with 0
   stap_id <- rep(0, length(date))
 
+  # Add known stap_id
   stap_id[tmp[, 1]] <- tmp[, 2]
+
+  # Interpolate linearly in between
+  sequence <- seq_len(length(stap_id))
+  id <- stap_id == 0
+  stap_id[id] <- stats::approx(sequence[!id], stap_id[!id], sequence[id], rule = 2)$y
+
+  assertthat::assert_that(all(!is.na(stap_id)))
 
   return(stap_id)
 }
