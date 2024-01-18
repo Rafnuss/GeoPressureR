@@ -12,9 +12,10 @@
 #'
 #' By default, We use both the [ERA5 LAND](https://doi.org/10.24381/cds.e2161bac) and
 #' [ERA5 surface level](https://doi.org/10.24381/cds.adbb2d47) if position over water. Available
-#' variable can be found on the [parameter listings in ERA5 doc](
+#' variables can be listed with `GeoPressureR:::pressurepath_variable` and details description
+#' can be found on the [parameter listings in ERA5 doc](
 #' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#heading-Parameterlistings).
-#' Using just one of the two can make the query faster.
+#' Note that their exact name might be be different as we query them through Google Earth Engine.
 #'
 #' Positions during the flight are estimated by linear interpolation of the position of the stap
 #' before and after. `pressurepath_create()` does not return measurement for stationary periods
@@ -38,12 +39,15 @@
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param path a GeoPressureR `path` data.frame.
-#' @param variable ERA5 variable/parameters available to download. See
-#' [Parameter listings in ERA5 doc](
-#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#heading-Parameterlistings)
+#' @param variable ERA5 variable/parameters available to download.
+#' The most commonly used variables:`"altitude"`, `"surface_pressure"`, `"temperature_2m"`,
+#' `"u_component_of_wind_10m"`, `"v_component_of_wind_10m"`, `"u_component_of_wind_100m"`,
+#' `"v_component_of_wind_100m"`, `"total_cloud_cover"`, `"total_precipitation"`, `"land_sea_mask"`.
+#' All variables can be listed with `GeoPressureR:::pressurepath_variable`.
 #' @param era5_dataset select the dataset to use: `"single-levels"` [doc
 #' ](https://doi.org/10.24381/cds.adbb2d47), `"land"` [doc](https://doi.org/10.24381/cds.e2161bac)
-#' or `"both"`
+#' or `"both"`. LAND has greater precision but is not available on water. Using a single one makes
+#' the query faster.
 #' @param preprocess logical to use `geopressure_map_preprocess`.
 #' @param quiet logical to hide messages about the progress
 #' @param workers number of parallel requests on GEE. Integer between 1 and 99.
@@ -109,6 +113,8 @@ pressurepath_create <- function(tag,
   }
   # Assert tag
   tag_assert(tag, "stap")
+
+  assertthat::assert_that(all(variable %in% GeoPressureR:::pressurepath_variable))
 
   assertthat::assert_that(era5_dataset %in% c("single-levels", "land", "both"))
 

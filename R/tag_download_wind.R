@@ -19,9 +19,12 @@
 #' To be able to download data from the Climate Data Store (CDS), you will need to create an account
 #' on [https://cds.climate.copernicus.eu](https://cds.climate.copernicus.eu). Once created, you can
 #' retrieve your API key on [https://cds.climate.copernicus.eu/user/
-#' ](https://cds.climate.copernicus.eu/user/) and save them in your environment (i.e., `.Rprofile`)
-#' with `Sys.setenv(cds_user = "{UID}", cds_key = "{API Key}")` (see [GeoPressureManual for details]
-#' (https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)).
+#' ](https://cds.climate.copernicus.eu/user/) and save them in your environment file
+#' (i.e., `.Renviron`). You can open this file with `usethis::edit_r_environ()` and add:
+#' \code{
+#'   cds_user = "{UID}"
+#'   cds_key = "{API Key}"
+#' }
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param extent geographical extent of the map on which the likelihood will be computed.

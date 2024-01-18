@@ -55,7 +55,25 @@ taking as single argument the stationary period identifier.}
 entire flight.}
 }
 \value{
-...
+A data.frame with columns:
+\itemize{
+\item \code{stap_s} id of the source/origin stationary period
+\item \code{stap_t} id of the target/destination stationary period
+\item \code{s} node id of the source (same as/similar to \code{edge_s})
+\item \code{t} node id of the target (same as/similar to \code{edge_t})
+\item \code{lat_s} latitude of the source
+\item \code{lat_t} latitude of the target
+\item \code{lon_s} longitude of the source
+\item \code{lon_t} longitude of the target
+\item \code{start} start datetime of the flight
+\item \code{end} end datetime of the flight
+\item \code{duration} flight duration
+\item \code{n} number of flight
+\item \code{distance} distance of the flight
+\item \code{bearing} bearing of the flight
+\item \code{gs} groundspeed
+\item \code{ws} windspeed (if \code{graph} provided)
+}
 }
 \description{
 Reads the NetCDF files and extract the variable requested along each flight defined by the edges.

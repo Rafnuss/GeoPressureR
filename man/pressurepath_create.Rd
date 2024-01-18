@@ -21,11 +21,15 @@ pressurepath_create(
 
 \item{path}{a GeoPressureR \code{path} data.frame.}
 
-\item{variable}{ERA5 variable/parameters available to download. See
-\href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#heading-Parameterlistings}{Parameter listings in ERA5 doc}}
+\item{variable}{ERA5 variable/parameters available to download.
+The most commonly used variables:\code{"altitude"}, \code{"surface_pressure"}, \code{"temperature_2m"},
+\code{"u_component_of_wind_10m"}, \code{"v_component_of_wind_10m"}, \code{"u_component_of_wind_100m"},
+\code{"v_component_of_wind_100m"}, \code{"total_cloud_cover"}, \code{"total_precipitation"}, \code{"land_sea_mask"}.
+All variables can be listed with \code{GeoPressureR:::pressurepath_variable}.}
 
 \item{era5_dataset}{select the dataset to use: \code{"single-levels"} \href{https://doi.org/10.24381/cds.adbb2d47}{doc }, \code{"land"} \href{https://doi.org/10.24381/cds.e2161bac}{doc}
-or \code{"both"}}
+or \code{"both"}. LAND has greater precision but is not available on water. Using a single one makes
+the query faster.}
 
 \item{preprocess}{logical to use \code{geopressure_map_preprocess}.}
 
@@ -69,8 +73,9 @@ potentially adjust labelling tag data.
 
 By default, We use both the \href{https://doi.org/10.24381/cds.e2161bac}{ERA5 LAND} and
 \href{https://doi.org/10.24381/cds.adbb2d47}{ERA5 surface level} if position over water. Available
-variable can be found on the \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#heading-Parameterlistings}{parameter listings in ERA5 doc}.
-Using just one of the two can make the query faster.
+variables can be listed with \code{GeoPressureR:::pressurepath_variable} and details description
+can be found on the \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#heading-Parameterlistings}{parameter listings in ERA5 doc}.
+Note that their exact name might be be different as we query them through Google Earth Engine.
 
 Positions during the flight are estimated by linear interpolation of the position of the stap
 before and after. \code{pressurepath_create()} does not return measurement for stationary periods

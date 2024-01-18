@@ -25,7 +25,23 @@
 #' macth ERA5 native resolution (1hr).
 #' @param quiet logical to hide messages about the progress
 #'
-#' @return ...
+#' @return A data.frame with columns:
+#' - `stap_s` id of the source/origin stationary period
+#' - `stap_t` id of the target/destination stationary period
+#' - `s` node id of the source (same as/similar to `edge_s`)
+#' - `t` node id of the target (same as/similar to `edge_t`)
+#' - `lat_s` latitude of the source
+#' - `lat_t` latitude of the target
+#' - `lon_s` longitude of the source
+#' - `lon_t` longitude of the target
+#' - `start` start datetime of the flight
+#' - `end` end datetime of the flight
+#' - `duration` flight duration
+#' - `n` number of flight
+#' - `distance` distance of the flight
+#' - `bearing` bearing of the flight
+#' - `gs` groundspeed
+#' - `ws` windspeed (if `graph` provided)
 #'
 #' @seealso [GeoPressureManual](
 #' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
@@ -47,7 +63,11 @@ edge_add_wind <- function(
     pressure <- tag_graph$pressure
   }
 
-  edge_add_wind_check(tag_graph, pressure, file)
+  edge_add_wind_check(tag_graph,
+    pressure = pressure,
+    variable = variable,
+    file = file
+  )
 
   # Compute lat-lon coordinate of the grid
   g <- map_expand(tag_graph$param$extent, tag_graph$param$scale)
@@ -391,6 +411,7 @@ edge_add_wind <- function(
 edge_add_wind_check <- function(
     tag_graph,
     pressure = NULL,
+    variable = c("u", "v"),
     file = \(stap_id) {
       glue::glue("./data/wind/{tag_graph$param$id}/{tag_graph$param$id}_{stap_id}.nc")
     }) {
@@ -425,9 +446,15 @@ edge_add_wind_check <- function(
       }
       nc <- ncdf4::nc_open(file(i_s))
 
-      # Check that the variables u and v are present
-      ncdf4::ncvar_get(nc, "v")
-      ncdf4::ncvar_get(nc, "u")
+      # Check that the variables are present
+      available_variable <- names(nc$var)
+      tmp <- !(variable %in% available_variable)
+      if (any(tmp)) {
+        cli::cli_abort(c(
+          x = "Wind file does not contains the variable{?s}: {.var {variable[tmp]}}.",
+          "i" = "Available variable{?s} {?is/are} {.var {available_variable}}."
+        ))
+      }
 
       time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60, origin = "1900-01-01", tz = "UTC")
       t_s <- as.POSIXct(format(fl_s$start[i_fl], "%Y-%m-%d %H:00:00"), tz = "UTC")

@@ -59,9 +59,12 @@ is used to download all files at the same time (up to 20 requests in parallel).
 
 To be able to download data from the Climate Data Store (CDS), you will need to create an account
 on \url{https://cds.climate.copernicus.eu}. Once created, you can
-retrieve your API key on \url{https://cds.climate.copernicus.eu/user/} and save them in your environment (i.e., \code{.Rprofile})
-with \code{Sys.setenv(cds_user = "{UID}", cds_key = "{API Key}")} (see \link{GeoPressureManual for details}
-(https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)).
+retrieve your API key on \url{https://cds.climate.copernicus.eu/user/} and save them in your environment file
+(i.e., \code{.Renviron}). You can open this file with \code{usethis::edit_r_environ()} and add:
+\code{
+  cds_user = "{UID}"
+  cds_key = "{API Key}"
+}
 }
 \seealso{
 \href{https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html}{\code{wf_request()}},
