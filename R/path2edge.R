@@ -31,27 +31,35 @@
 #' @export
 path2edge <- function(path, tag_graph) {
   assertthat::assert_that(is.data.frame(path))
-  assertthat::assert_that(assertthat::has_name(path, c("stap_id", "ind")))
+  assertthat::assert_that(assertthat::has_name(path, c("stap_id")))
 
   assertthat::assert_that(inherits(tag_graph, "tag") | inherits(tag_graph, "graph"))
   stap <- tag_graph$stap
   assertthat::assert_that(all(unique(path$stap_id) == stap$stap_id))
 
   g <- map_expand(tag_graph$param$extent, tag_graph$param$scale)
-  nll <- prod(g$dim)
 
   # Number of paths
-  nj <- length(unique(path$j))
+  if ("j" %in% names(path)){
+    nj <- length(unique(path$j))
+  } else {
+    nj = 1
+  }
+
 
   # Find stap included
-  stap_id_included <- unique(path$stap_id[!is.na(path$ind)])
+  stap_id_included <- unique(path$stap_id[!is.na(path$lat) & !is.na(path$lon)])
   # should be similar to stap$include in most case.
 
-  ind2d <- matrix(path$ind[path$stap_id %in% stap_id_included], nrow = nj)
   lat <- matrix(path$lat[path$stap_id %in% stap_id_included], nrow = nj)
   lon <- matrix(path$lon[path$stap_id %in% stap_id_included], nrow = nj)
 
-  ind3d <- ind2d + t(replicate(nj, nll * (seq_len(ncol(ind2d)) - 1)))
+  ind_lat <- sapply(lat, \(l) which.min(abs(l - g$lat)) )
+  ind_lon <- sapply(lon, \(l) which.min(abs(l - g$lon)) )
+
+  ind2d <- matrix(ind_lat + (ind_lon-1) * g$dim[1], nrow = nj)
+
+  ind3d <- ind2d + t(replicate(nj, prod(g$dim) * (seq_len(ncol(ind2d)) - 1)))
 
   stap3d <- t(replicate(nj, stap_id_included))
 
@@ -86,10 +94,10 @@ path2edge <- function(path, tag_graph) {
   if (inherits(tag_graph, "graph")) {
     # Check that all sources and target exist in the graph
     assertthat::assert_that(all(edge$s %in% tag_graph$s),
-      msg = "path$ind is not compatible with the graph$s."
+                            msg = "path is not compatible with the graph."
     )
     assertthat::assert_that(all(edge$t %in% tag_graph$t),
-      msg = "path$ind is not compatible with the graph$t."
+                            msg = "path is not compatible with the graph."
     )
 
     # Build data.frame of the graph

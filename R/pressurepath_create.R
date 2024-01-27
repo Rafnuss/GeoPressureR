@@ -61,7 +61,6 @@
 #' - `pressure_tag` same as `pressure$value`
 #' - `label` same as `pressure$label`
 #' - `j` same as `path$j`
-#' - `ind` same as `path$ind`
 #' - `lat` same as `path$lat`
 #' - `lon` same as `path$lon`
 #' - `include` same as `path$include`
