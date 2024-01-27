@@ -145,9 +145,10 @@ geopressureviz <- function(x,
 
   tryCatch(
     {
-      GeoPressureR:::edge_add_wind_check(tag)
-      geopressure_wd <- getwd()
-      file_wind <- \(stap_id) glue::glue("{geopressure_wd}{file(stap_id)}")
+      # GeoPressureR:::edge_add_wind_check(tag)
+      # geopressure_wd <- getwd()
+      # file_wind <- \(stap_id) glue::glue("{geopressure_wd}{file(stap_id)}")
+      file_wind <- NULL
     },
     error = function(e) {
       file_wind <- NULL

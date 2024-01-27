@@ -124,7 +124,7 @@ server <- function(input, output, session) {
         round(fl_dur_prev, 1), " hrs<br>",
         round(dist), " km - ",
         round(dist / fl_dur_prev), "km/h",
-        ifelse(is.null(a), "", as)
+        ifelse(is.null(as), "", as)
       )
     } else {
       HTML("")
@@ -153,7 +153,7 @@ server <- function(input, output, session) {
         round(fl_dur_next, 1), " hrs<br>",
         round(dist), " km - ",
         round(dist / fl_dur_next), "km/h",
-        ifelse(is.null(a), "", as)
+        ifelse(is.null(as), "", as)
       )
     } else {
       HTML("")
@@ -297,7 +297,7 @@ server <- function(input, output, session) {
       lat_ind = round(stats::approx(g$lat, seq(1, length(g$lat)), reactVal$path$lat, rule = 2)$y)
       lon_ind = round(stats::approx(g$lon, seq(1, length(g$lon)), reactVal$path$lon, rule = 2)$y)
 
-      reactVal$path$ind <- (lon_ind - 1) * g$dim[1] + lat_ind
+      # reactVal$path$ind <- (lon_ind - 1) * g$dim[1] + lat_ind
     }
   })
 
