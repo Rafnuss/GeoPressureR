@@ -28,7 +28,7 @@
 #' - `stap_id` numeric value corresponding to the ratio of distance between position of known stap
 #' - `lon`
 #' - `lat`
-#' - `distance` distance in meter along the path starting at the first stap_id
+#' - `distance` distance in km along the path starting at the first stap_id
 #'
 #' @examples
 #' # Create a path
@@ -57,14 +57,14 @@
 #'
 #' elevation <- path2elevation(path)
 #'
-#' plot(elevation$distance / 1000, elevation$X50,
+#' plot(elevation$distance, elevation$X50,
 #'   type = "l",
 #'   ylab = "Elevation (m)", xlab = "Distance from start (km)"
 #' )
-#' lines(elevation$distance / 1000, elevation$X10, lty = 5)
-#' lines(elevation$distance / 1000, elevation$X90, lty = 5)
+#' lines(elevation$distance, elevation$X10, lty = 5)
+#' lines(elevation$distance, elevation$X90, lty = 5)
 #' id <- elevation$stap_id %% 1 == 0
-#' points(elevation$distance[id] / 1000, elevation$X90[id], col = "red")
+#' points(elevation$distance[id], elevation$X90[id], col = "red")
 #'
 #' @family path
 #' @export
@@ -161,6 +161,9 @@ path2elevation <- function(path,
 
   # Adjust stap_id
   out$stap_id <- out$stap_id + path_c$stap_id[1]
+
+  # Convert distance to km
+  out$distance <- out$distance / 1000
 
   return(out)
 }

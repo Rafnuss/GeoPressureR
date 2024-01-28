@@ -50,7 +50,6 @@ A GeoPressureR \code{pressurepath} data.frame with columns:
 \item \code{pressure_tag} same as \code{pressure$value}
 \item \code{label} same as \code{pressure$label}
 \item \code{j} same as \code{path$j}
-\item \code{ind} same as \code{path$ind}
 \item \code{lat} same as \code{path$lat}
 \item \code{lon} same as \code{path$lon}
 \item \code{include} same as \code{path$include}

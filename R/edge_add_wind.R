@@ -371,7 +371,7 @@ edge_add_wind <- function(
             edge_id = rep(st_id, each = length(t_q)),
             val = as.vector(var_fl[[var_i]]),
             pressure = rep(p_q, length(st_id)),
-            time = rep(t_q, length(st_id)),
+            date = rep(t_q, length(st_id)),
             w = rep(w, length(st_id))
           )
           var[[var_i]][[i_stap]][[i_fl]]$var <- variable[var_i]

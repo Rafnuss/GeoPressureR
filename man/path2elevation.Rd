@@ -36,7 +36,7 @@ A data.frame containing
 \item \code{stap_id} numeric value corresponding to the ratio of distance between position of known stap
 \item \code{lon}
 \item \code{lat}
-\item \code{distance} distance in meter along the path starting at the first stap_id
+\item \code{distance} distance in km along the path starting at the first stap_id
 }
 }
 \description{
@@ -78,14 +78,14 @@ plot_path(path)
 
 elevation <- path2elevation(path)
 
-plot(elevation$distance / 1000, elevation$X50,
+plot(elevation$distance, elevation$X50,
   type = "l",
   ylab = "Elevation (m)", xlab = "Distance from start (km)"
 )
-lines(elevation$distance / 1000, elevation$X10, lty = 5)
-lines(elevation$distance / 1000, elevation$X90, lty = 5)
+lines(elevation$distance, elevation$X10, lty = 5)
+lines(elevation$distance, elevation$X90, lty = 5)
 id <- elevation$stap_id \%\% 1 == 0
-points(elevation$distance[id] / 1000, elevation$X90[id], col = "red")
+points(elevation$distance[id], elevation$X90[id], col = "red")
 
 }
 \seealso{
