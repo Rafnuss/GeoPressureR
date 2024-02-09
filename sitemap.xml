@@ -25,6 +25,9 @@
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/bird_create.html</loc>
   </url>
   <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/edge_add_wind.html</loc>
+  </url>
+  <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.html</loc>
   </url>
   <url>
@@ -85,6 +88,9 @@
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/path2edge.html</loc>
   </url>
   <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/path2elevation.html</loc>
+  </url>
+  <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/plot.map.html</loc>
   </url>
   <url>
@@ -109,10 +115,10 @@
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_pressure.html</loc>
   </url>
   <url>
-    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_twilight.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_temperature.html</loc>
   </url>
   <url>
-    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pressurepath2altitude.html</loc>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_twilight.html</loc>
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/pressurepath_create.html</loc>
@@ -137,6 +143,9 @@
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/rast.map.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/speed2bearing.html</loc>
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/speed2prob.html</loc>
@@ -191,5 +200,8 @@
   </url>
   <url>
     <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_label_write.html</loc>
+  </url>
+  <url>
+    <loc>https://raphaelnussbaumer.com/GeoPressureR/reference/windsupport.html</loc>
   </url>
 </urlset>
