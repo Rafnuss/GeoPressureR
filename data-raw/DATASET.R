@@ -320,6 +320,7 @@ pressurepath_variable <- c(
   "wave_spectral_peakedness",
   "wave_spectral_skewness",
   "wind_gust_since_previous_post_processing_10m",
-  "zero_degree_level")
+  "zero_degree_level"
+)
 
 usethis::use_data(pressurepath_variable, avonet, overwrite = TRUE, internal = TRUE)

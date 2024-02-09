@@ -136,6 +136,8 @@ reference:
   contents:
   - stap2flight
   - stap2duration
+  - speed2bearing
+  - windsupport
   - geopressureviz
   - GeoPressureR
 

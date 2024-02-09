@@ -40,10 +40,10 @@ path2edge <- function(path, tag_graph) {
   g <- map_expand(tag_graph$param$extent, tag_graph$param$scale)
 
   # Number of paths
-  if ("j" %in% names(path)){
+  if ("j" %in% names(path)) {
     nj <- length(unique(path$j))
   } else {
-    nj = 1
+    nj <- 1
   }
 
 
@@ -54,10 +54,10 @@ path2edge <- function(path, tag_graph) {
   lat <- matrix(path$lat[path$stap_id %in% stap_id_included], nrow = nj)
   lon <- matrix(path$lon[path$stap_id %in% stap_id_included], nrow = nj)
 
-  ind_lat <- sapply(lat, \(l) which.min(abs(l - g$lat)) )
-  ind_lon <- sapply(lon, \(l) which.min(abs(l - g$lon)) )
+  ind_lat <- sapply(lat, \(l) which.min(abs(l - g$lat)))
+  ind_lon <- sapply(lon, \(l) which.min(abs(l - g$lon)))
 
-  ind2d <- matrix(ind_lat + (ind_lon-1) * g$dim[1], nrow = nj)
+  ind2d <- matrix(ind_lat + (ind_lon - 1) * g$dim[1], nrow = nj)
 
   ind3d <- ind2d + t(replicate(nj, prod(g$dim) * (seq_len(ncol(ind2d)) - 1)))
 
@@ -94,10 +94,10 @@ path2edge <- function(path, tag_graph) {
   if (inherits(tag_graph, "graph")) {
     # Check that all sources and target exist in the graph
     assertthat::assert_that(all(edge$s %in% tag_graph$s),
-                            msg = "path is not compatible with the graph."
+      msg = "path is not compatible with the graph."
     )
     assertthat::assert_that(all(edge$t %in% tag_graph$t),
-                            msg = "path is not compatible with the graph."
+      msg = "path is not compatible with the graph."
     )
 
     # Build data.frame of the graph
