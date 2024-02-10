@@ -2,7 +2,7 @@
 % Please edit documentation in R/geopressure_timeseries.R
 \name{geopressure_timeseries}
 \alias{geopressure_timeseries}
-\title{Request and download pressure timeseries at a given location}
+\title{Request and download pressure time series at a given location}
 \usage{
 geopressure_timeseries(
   lat,
@@ -20,16 +20,16 @@ geopressure_timeseries(
 
 \item{lon}{Longitude to query (-180° to 180°).}
 
-\item{pressure}{A data.frame of pressure timeseries, containing at least a \code{"date"} and \code{"value"}
-column.}
+\item{pressure}{A data.frame of pressure time series, containing at least a \code{"date"} and
+\code{"value"} column.}
 
 \item{start_time}{If \code{pressure} is not provided, \code{start_time} defines the start time of
-the timeseries as POSIXlt.}
+the time series as POSIXlt.}
 
 \item{end_time}{If \code{pressure} is not provided, \code{end_time} defines the end time of
-the timeseries as POSIXlt.}
+the time series as POSIXlt.}
 
-\item{timeout}{Duration before the code is interrupted both for the request on
+\item{timeout}{duration before the code is interrupted both for the request on
 GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 
 \item{quiet}{logical to hide messages about the progress}
@@ -40,21 +40,21 @@ GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 A data.frame containing
 \itemize{
 \item \code{date} POSIXct date time
-\item \code{pressure_era5} pressure (hPa)
+\item \code{surface_pressure} pressure (hPa)
 \item \code{lon} same as input \code{lon} except if over water
 \item \code{lat} same as input \code{lat} except if over water.
-\item \code{pressure_era5_norm} only if \code{pressure} is provided as input
+\item \code{surface_pressure_norm} only if \code{pressure} is provided as input
 \item \code{altitude} only if \code{pressure} is provided as input
 }
 }
 \description{
-This function returns the surface atmospheric pressure timeseries from ERA5 at any requested
+This function returns the surface atmospheric pressure time series from ERA5 at any requested
 location.
 
 If the location queried is over water, the location will be moved to the closest onshore
 location.
 
-The ERA5 pressure timeseries of the response \eqn{P_{ERA}} will be provided on a hourly basis
+The ERA5 pressure time series of the response \eqn{P_{ERA}} will be provided on a hourly basis
 between \code{start_time} and \code{end_time} or the same as \code{pressure$date} if \code{pressure} is supplied.
 
 If you supply the \code{pressure} of the geolocator \eqn{P_{gl}}, the function will
@@ -70,7 +70,7 @@ and  \eqn{M} is the molar mass of air. See more information at
 
 To be able to compare the temporal variation of the retrieved pressure of ERA5 \eqn{P_{ERA}} to
 the geolocator pressure \eqn{P_{gl}}, the function also returns the ERA pressure normalized with
-the geolocator mean pressure measurement as \code{pressure_era5_norm}.
+the geolocator mean pressure measurement as \code{surface_pressure_norm}.
 \deqn{ P_{ERA5,0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\right) -
 \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\boldsymbol{x})[i]-P_{gl}[i] \right).}
 }
@@ -85,7 +85,7 @@ pressurepath <- geopressure_timeseries(
 
 str(pressurepath)
 
-plot(pressurepath$date, pressurepath$pressure,
+plot(pressurepath$date, pressurepath$surface_pressure,
   type = "b", ylab = "Pressure (hPa)", xlab = "Datetime"
 )
 
@@ -95,7 +95,7 @@ pressurepath <- geopressure_timeseries(
   pressure = data.frame(
     data.frame(
       date = pressurepath$date,
-      value = pressurepath$pressure_era5 + rnorm(nrow(pressurepath))
+      value = pressurepath$surface_pressure + rnorm(nrow(pressurepath))
     )
   ),
   quiet = TRUE
@@ -115,7 +115,6 @@ Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecolog
 \seealso{
 Other pressurepath: 
 \code{\link{plot_pressurepath}()},
-\code{\link{pressurepath2altitude}()},
 \code{\link{pressurepath_create}()},
 \code{\link{pressurepath_update}()}
 }

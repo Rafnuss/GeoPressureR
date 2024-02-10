@@ -1,11 +1,11 @@
 #' Plot a `pressurepath`
 #'
-#' Display a `pressurepath` data.frame as a timeseries or histogram
+#' Display a `pressurepath` data.frame as a time series or histogram
 #'
 #' @param pressurepath a GeoPressureR `pressurepath` data.frame.
 #' @param type `"timeseries"` (default), `"histogram"`, or `"altitude"`
 #' @inheritParams geopressure_map
-#' @param warning_std_thr Threshold of outliar, coefficient of the [z-score](
+#' @param warning_std_thr Threshold of outlier, coefficient of the [z-score](
 #' https://en.wikipedia.org/wiki/Standard_score)
 #' @param plot_plotly logical to use `plotly`
 #'
@@ -37,10 +37,28 @@ plot_pressurepath <- function(pressurepath,
                               warning_std_thr = 3,
                               plot_plotly = TRUE) {
   assertthat::assert_that(is.data.frame(pressurepath))
+
+  if ("pressure_era5" %in% names(pressurepath)) {
+    cli::cli_warn(c(
+      "!" = "{.var pressurepath} has been create with an old version of \\
+      {.pkg GeoPressureR} (<v3.2.0)",
+      ">" = "For optimal performance, we suggest to re-run \\
+      {.fun pressurepath_create}"
+    ))
+    pressurepath$surface_pressure <- pressurepath$pressure_era5
+    pressurepath$surface_pressure_norm <- pressurepath$pressure_era5_norm
+
+    id <- pressurepath$stap_id == 0
+    sequence <- seq_len(nrow(pressurepath))
+    pressurepath$stap_id[id] <- stats::approx(
+      sequence[!id], pressurepath$stap_id[!id], sequence[id]
+    )$y
+  }
+
   assertthat::assert_that(assertthat::has_name(
     pressurepath, c(
-      "date", "pressure_tag", "label", "stap_id", "pressure_era5", "altitude", "lat", "lon",
-      "pressure_era5_norm", "stap_ref"
+      "date", "stap_id", "pressure_tag", "label", "surface_pressure", "altitude", "lat", "lon",
+      "surface_pressure_norm"
     )
   ))
 
@@ -52,13 +70,14 @@ plot_pressurepath <- function(pressurepath,
   pp <- pressurepath
 
   # Group by stapelev rather than stap in order to assess the use of elev
+  pp$stap_id[round(pp$stap_id) != pp$stap_id] <- 0
   pp$stapelev <- paste(pp$stap_id,
     ifelse(startsWith(pp$label, "elev_"), gsub("^.*?elev_", "", pp$label), "0"),
     sep = "|"
   )
 
   # Compute the error
-  pp$error <- pp$pressure_tag - pp$pressure_era5_norm
+  pp$error <- pp$pressure_tag - pp$surface_pressure_norm
 
   # Remove error for discard
   pp$error[pp$label == "discard"] <- NA
@@ -70,7 +89,7 @@ plot_pressurepath <- function(pressurepath,
       \(x) round(stats::sd(x, na.rm = TRUE), 2)
     ),
     stats::aggregate(
-      list(error_offset = pp$pressure_era5 - pp$pressure_era5_norm),
+      list(error_offset = pp$surface_pressure - pp$surface_pressure_norm),
       list(stapelev = pp$stapelev), \(x) round(mean(x), 2)
     )
   )
@@ -82,7 +101,7 @@ plot_pressurepath <- function(pressurepath,
 
   # knitr::kable(tag_era5, "simple")
 
-  if (type == "timeseries") {
+  if (type %in% c("timeseries", "ts")) {
     pp$warning <- (abs(pp$error) / sd[ifelse(pp$stap_id == 0, 1, pp$stap_id)]) >= warning_std_thr
 
     # convert stapelev to factor for color
@@ -100,7 +119,7 @@ plot_pressurepath <- function(pressurepath,
       ) +
       ggplot2::geom_line(
         data = pp[pp$stap_id != 0, ],
-        ggplot2::aes(y = .data$pressure_era5_norm, color = .data$stap_id)
+        ggplot2::aes(y = .data$surface_pressure_norm, color = .data$stap_id)
       ) +
       ggplot2::geom_point(
         data = pp[pp$warning & pp$label != "discard" & pp$stap_id != 0, ],
@@ -110,13 +129,13 @@ plot_pressurepath <- function(pressurepath,
       ggplot2::theme_bw() +
       ggplot2::scale_y_continuous(name = "Pressure (hPa)") +
       ggplot2::theme(legend.position = "none")
-  } else if (type == "histogram") {
+  } else if (type %in% c("histogram", "hist")) {
     # Check if the empirical sd is greater than the sd used in the computation of the map
 
     # Remove error for flight
     pp <- pp[pp$stap_id != 0, ]
 
-    pp$sd_param <- sd[ifelse(pp$stap_id == 0, 1, pp$stap_id)]
+    pp$sd_param <- sd[ifelse(pp$stap_id != round(pp$stap_id), 1, pp$stap_id)]
     pp$sd_ok <- pp$error_sd > pp$sd_param
     pp$stapelev <- factor(pp$stapelev, levels = tag_era5$stapelev)
     pp$warning_p <- pp$sd_param * warning_std_thr
@@ -146,13 +165,28 @@ plot_pressurepath <- function(pressurepath,
       ggplot2::scale_fill_manual(values = c("TRUE" = "red", "FALSE" = "black")) +
       ggplot2::theme_bw() +
       ggplot2::theme(legend.position = "none", axis.text.y = ggplot2::element_blank())
-  } else if (type == "altitude") {
-    pp_alt <- pressurepath2altitude(pressurepath)
+  } else if (type %in% c("altitude", "alt")) {
+    pp_alt <- pressurepath
+
+    # find flight
+    id_flight <- pp_alt$stap_id != round(pp_alt$stap_id)
+    # group flight arbitrarily using the floor of their stap_id
+    pp_alt$stap_id[id_flight] <- floor(pp_alt$stap_id)[id_flight]
+    # convert to factor for ploting
     pp_alt$stap_id <- factor(pp_alt$stap_id)
 
     p <- ggplot2::ggplot() +
       ggplot2::geom_line(
-        data = pp_alt[pp_alt$stap_id != 0, ],
+        data = pp_alt,
+        ggplot2::aes(
+          x = .data$date,
+          y = .data$altitude
+        ),
+        color = "grey",
+        linewidth = 0.2
+      ) +
+      ggplot2::geom_line(
+        data = pp_alt[!id_flight, ],
         ggplot2::aes(
           x = .data$date,
           y = .data$altitude,
@@ -164,11 +198,11 @@ plot_pressurepath <- function(pressurepath,
       ggplot2::scale_y_continuous(name = "Altitude (m)") +
       ggplot2::theme(legend.position = "none")
 
-    if (sum(pp_alt$stap_id == 0) > 0) {
+    if (any(id_flight)) {
       p <- p +
         ggplot2::geom_line(
-          data = pp_alt[pp_alt$stap_id == 0, ],
-          ggplot2::aes(x = .data$date, y = .data$altitude, group = .data$stap_s),
+          data = pp_alt[id_flight, ],
+          ggplot2::aes(x = .data$date, y = .data$altitude, group = .data$stap_id),
           color = "black"
         )
     }

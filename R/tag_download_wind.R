@@ -1,70 +1,74 @@
-#' Download wind data
+#' Download flight data
 #'
 #' @description
-#' This function downloads the wind data from [ERA5 hourly pressure levels](
+#' This function download data associated to each flight from the [ERA5 hourly pressure levels](
 #' https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview)
 #' with the [Climate Data Store (CDS)](https://cds.climate.copernicus.eu) and through the [`ecmwfr`
 #' R package](https://bluegreen-labs.github.io/ecmwfr/index.html).
 #'
-#' The flights are determined from the stationary periods classified `tag$sta`
-#' (see `tag_label_auto()`). It request a single file for each flight using the exact time
-#' (hourly basis) and pressure (altitude). To make the download more efficient,
-#' [`wf_request_batch()`](
+#' [Any variable available from the ERA5 pressure level](
+#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9)
+#' can be downloaded.
+#'
+#' The flights are determined from the stationary periods classified `tag$stap`. It request a
+#' single file for each flight using the exact time (hourly basis) and pressure (altitude). To make
+#'  the download more efficient, [`wf_request_batch()`](
 #' https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests)
-#' is used to download all wind files at the same time (up to 20 requests in parallel).
+#' is used to download all files at the same time (up to 20 requests in parallel).
 #'
 #' To be able to download data from the Climate Data Store (CDS), you will need to create an account
-#' on [https://cds.climate.copernicus.eu](https://cds.climate.copernicus.eu). You can then save
-#' your credentials (`cds_key` and `cds_user`) in your `.Rprofile` (see
-#' [GeoPressureManual](
-#' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)).
+#' on [https://cds.climate.copernicus.eu](https://cds.climate.copernicus.eu). Once created, you can
+#' retrieve your API key on [https://cds.climate.copernicus.eu/user/
+#' ](https://cds.climate.copernicus.eu/user/) and save them in your environment file
+#' (i.e., `.Renviron`). You can open this file with `usethis::edit_r_environ()` and add:
+#' \code{
+#'   cds_user = "{UID}"
+#'   cds_key = "{API Key}"
+#' }
 #'
 #' @param tag a GeoPressureR `tag` object.
-#' @param extent Geographical extent of the map on which the likelihood will be computed.
+#' @param extent geographical extent of the map on which the likelihood will be computed.
 #' Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.
-#' @param stap_id Stationary period identifier of the start of the flight to download. Be default,
-#' download for all flights.
-#' @param cds_key User (email address) used to sign up for the ECMWF data service. See
-#' [`wf_set_key()`].
-#' @param cds_user Token provided by ECMWF. See [`wf_set_key()`].
-#' @param file Absolute or relative path of the ERA5 wind data file to be downloaded. Function
+#' @param include_stap_id stationary period identifiers of the start of the flight to download.
+#' Default is to download all flights.
+#' @param variable list of variables to download from [the ERA5 pressure level](
+#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9):
+#' `"u_component_of_wind"`, `"v_component_of_wind"`,  `"temperature"`, `"fraction_of_cloud_cover"`,
+#' `"relative_humidity"`, , `"vertical_velocity"`, `"specific_cloud_ice_water_content"`,
+#' `"specific_cloud_liquid_water_content"`, `"specific_humidity"`, `"specific_rain_water_content"`,
+#' `"specific_snow_water_content"`, `"divergence"`, `"geopotential"`, `"ozone_mass_mixing_ratio"`,
+#' `"potential_vorticity"`, `'vorticity"`.
+#' @param cds_user ECMWF user name (UID value) available from [your user page
+#' ](https://cds.climate.copernicus.eu/user/). See `wf_set_key()`.
+#' @param cds_key ECMWF API Key available from [your user page
+#' ](https://cds.climate.copernicus.eu/user/). See `wf_set_key()`.
+#' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
 #' taking as single argument the stationary period identifier.
 #' @param overwrite logical. If `TRUE`, file is overwritten.
-#' @return The folder with the downloaded file (same as the directory).
+#' @return the path of the downloaded (requested file) or the an R6 object with download/transfer
+#' information
 #'
 #' @family movement
 #' @seealso [`wf_request()`](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),
 #' [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
-tag_download_wind <- function(tag,
-                              extent = tag$param$extent,
-                              stap_id = utils::head(tag$stap$stap_id, -1),
-                              cds_key = Sys.getenv("cds_key"),
-                              cds_user = Sys.getenv("cds_user"),
-                              file = \(stap_id)
-                              glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
-                              overwrite = FALSE) {
+tag_download_wind <- function(
+    tag,
+    extent = tag$param$extent,
+    include_stap_id = NULL,
+    variable = c("u_component_of_wind", "v_component_of_wind"),
+    cds_key = Sys.getenv("cds_key"),
+    cds_user = Sys.getenv("cds_user"),
+    file = \(stap_id) glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
+    overwrite = FALSE) {
   tag_assert(tag, "setmap")
 
   stap <- tag$stap
 
   assertthat::assert_that(length(extent) == 4)
-  assertthat::assert_that(is.numeric(stap_id))
-  assertthat::assert_that(all(stap_id %in% stap$stap_id))
 
-  # remove the last stap_id if it was added by mistake
-  if (utils::tail(tag$stap$stap_id, 1) %in% stap_id) {
-    stap_id <- utils::head(sort(stap_id), -1)
-    cli::cli_warn(c(
-      "!" = "{.var stap_id} included the last stationarp period for which no wind can be \\
-      computed.",
-      ">" = "We removed this stationary period.\f"
-    ))
-  }
-
-  ecmwfr::wf_set_key(user = cds_user, key = cds_key, service = "cds")
-
+  assertthat::assert_that(is.function(file))
   directory <- dirname(file(1))
   if (!file.exists(directory)) {
     dir.create(directory, recursive = TRUE)
@@ -73,12 +77,38 @@ tag_download_wind <- function(tag,
       ">" = "We created the directory.\f"
     ))
   }
-  if (any(file.exists(file(stap_id))) && !overwrite) {
+
+  if (is.null(include_stap_id)) {
+    include_stap_id <- utils::head(tag$stap$stap_id, -1)
+
+    # Take all stap_id without an existing wind file
+    if (!overwrite) {
+      include_stap_id <- include_stap_id[!file.exists(file(include_stap_id))]
+    }
+  }
+  assertthat::assert_that(is.numeric(include_stap_id))
+  assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
+
+  assertthat::assert_that(is.character(variable))
+
+  # remove the last include_stap_id if it was added by mistake
+  if (utils::tail(tag$stap$stap_id, 1) %in% include_stap_id) {
+    include_stap_id <- utils::head(sort(include_stap_id), -1)
+    cli::cli_warn(c(
+      "!" = "{.var include_stap_id} included the last stationary period for which no wind can be \\
+      computed.",
+      ">" = "We removed this stationary period.\f"
+    ))
+  }
+
+  ecmwfr::wf_set_key(user = cds_user, key = cds_key, service = "cds")
+
+  if (any(file.exists(file(include_stap_id))) && !overwrite) {
     # nolint start
-    tmp <- file.exists(file(stap_id))
+    tmp <- file.exists(file(include_stap_id))
     cli::cli_abort(c(
-      "x" = "There are already wind data file for stationary periods {.var {stap_id[tmp]}}",
-      ">" = "Delete the corresponding file or use the arguement {.code overwrite = TRUE}."
+      "x" = "There are already ERA5 data file for stationary periods {.var {include_stap_id[tmp]}}",
+      ">" = "Delete the corresponding file or use the argument {.code overwrite = TRUE}."
     ))
     # nolint end
   }
@@ -93,8 +123,8 @@ tag_download_wind <- function(tag,
   # create list of request
   request_list <- list()
 
-  for (i_s in stap_id) {
-    # Get the timeserie of the flight on a 1 hour resolution
+  for (i_s in include_stap_id) {
+    # Get the time series of the flight on a 1 hour resolution
     flight_time <- seq(round.POSIXt(stap$end[i_s] - 30 * 60, units = "hours"),
       round.POSIXt(stap$start[i_s + 1] + 30 * 60, units = "hours"),
       by = 60 * 60
@@ -122,7 +152,7 @@ tag_download_wind <- function(tag,
       dataset_short_name = "reanalysis-era5-pressure-levels",
       product_type = "reanalysis",
       format = "netcdf",
-      variable = c("u_component_of_wind", "v_component_of_wind"),
+      variable = variable,
       pressure_level = possible_pressure[flight_pres_id],
       year = sort(unique(format(flight_time, "%Y"))),
       month = sort(unique(format(flight_time, "%m"))),
@@ -134,7 +164,7 @@ tag_download_wind <- function(tag,
   }
 
   ecmwfr::wf_request_batch(
-    request_list[stap_id],
+    request_list[include_stap_id],
     workers = 20,
     # user = ,
     path = directory,

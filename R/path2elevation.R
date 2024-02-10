@@ -10,14 +10,14 @@
 #' you can request the elevation at a specify resolution defined by `scale` and return pre-defined
 #' `percentile` of the elevation at this resolution.
 #'
-#' The main goal is to determine the surrounding elevation during flights, and as such, the
-#' elevation is typically returned on a high spatial resolution, as defined by `sampling_scale`.
+#' The returned data.frame provide the ground elevation along the path with a resolution defined by
+#' `sampling_scale`.
 #'
 #' @param path a GeoPressureR `path` data.frame
 #' @param scale spatial resolution of the SRTM to use to query the elevation. `scale` is defined as
 #' the number of pixels per 1° latitude-longitude (see `tag_set_map()` for details). Native
-#' resolution of STRM is 30m.
-#' @param sampling_scale spatial resolution of the point along the polyline on which the SRTME is
+#' resolution of SRTM is 30m.
+#' @param sampling_scale spatial resolution of the point along the polyline on which the SRTM is
 #' estimated. Same unit as `scale`.
 #' @param percentile percentile of the ground elevation distribution found within each grid cell
 #' of the SRTM at the resolution defined by `scale`. `50` corresponds to the median.
@@ -25,9 +25,10 @@
 #' @param debug logical to display additional information to debug a request
 #'
 #' @return A data.frame containing
-#' - `stap_id`
+#' - `stap_id` numeric value corresponding to the ratio of distance between position of known stap
 #' - `lon`
 #' - `lat`
+#' - `distance` distance in km along the path starting at the first stap_id
 #'
 #' @examples
 #' # Create a path
@@ -56,19 +57,19 @@
 #'
 #' elevation <- path2elevation(path)
 #'
-#' plot(elevation$distance / 1000, elevation$X50,
+#' plot(elevation$distance, elevation$X50,
 #'   type = "l",
 #'   ylab = "Elevation (m)", xlab = "Distance from start (km)"
 #' )
-#' lines(elevation$distance / 1000, elevation$X10, lty = 5)
-#' lines(elevation$distance / 1000, elevation$X90, lty = 5)
+#' lines(elevation$distance, elevation$X10, lty = 5)
+#' lines(elevation$distance, elevation$X90, lty = 5)
 #' id <- elevation$stap_id %% 1 == 0
-#' points(elevation$distance[id] / 1000, elevation$X90[id], col = "red")
+#' points(elevation$distance[id], elevation$X90[id], col = "red")
 #'
 #' @family path
 #' @export
 path2elevation <- function(path,
-                           scale = 10,
+                           scale = 4,
                            sampling_scale = scale,
                            percentile = c(10, 50, 90),
                            timeout = 60 * 5,
@@ -90,7 +91,7 @@ path2elevation <- function(path,
   # 1. Interpolation of !include
   # In order to have the correct stap_id during the flight, we need to interpolate the position of
   # stap not included. As opposed to tag2path(), here we don't need to insure that the position
-  # falls exacling on a grid cell (in order to be able to have an index).
+  # falls exactly on a grid cell (in order to be able to have an index).
   path_interp <- is.na(path$lat) | is.na(path$lon)
 
   # We only request elevation between the first and last defined position. Basically, if the path
@@ -110,7 +111,7 @@ path2elevation <- function(path,
   path_interp_c <- path_interp[stap_id_considered]
 
   # Compute flight duration including all stap_id
-  flight <- stap2flight(path_c, stap_include = path_c$stap_id)
+  flight <- stap2flight(path_c, include_stap_id = path_c$stap_id)
 
   # Cummulate the flight duration to get a proxy of the over distance covered
   total_flight <- cumsum(as.numeric(c(0, flight$duration)))
@@ -142,6 +143,7 @@ path2elevation <- function(path,
 
   req <- httr2::request("glp.mgravey.com/GeoPressure/v2/elevationPath/") |>
     httr2::req_body_json(body, digit = 5) |>
+    httr2::req_retry(max_tries = 3) |>
     httr2::req_timeout(timeout)
 
   if (debug) {
@@ -157,8 +159,11 @@ path2elevation <- function(path,
   # Rename stap_id
   names(out)[names(out) == "stapId"] <- "stap_id"
 
-  # Adjuste stap_id
+  # Adjust stap_id
   out$stap_id <- out$stap_id + path_c$stap_id[1]
+
+  # Convert distance to km
+  out$distance <- out$distance / 1000
 
   return(out)
 }

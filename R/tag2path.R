@@ -10,12 +10,14 @@
 #'
 #' `interp` can be used to interpolate unrealistic position from short stationary periods based on
 #' the position of the longer ones. In order to preserve a reference to the grid, the interpolation
-#' is only performed at the center of the grid cell (defined by the `likelihood` map). Note also
+#' is only performed at the centre of the grid cell (defined by the `likelihood` map). Note also
 #' that it is not possible to interpolate the first and last stationary period.
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @inheritParams tag2map
 #' @inheritParams ind2path
+#' @param interp the position of the stationary period shorter than `interp` will be replace by a
+#' linear average from other position accounting for flight duration (in days).
 #'
 #' @return A path data.frame
 #' - `stap_id` stationary period
@@ -85,12 +87,12 @@ tag2path <- function(tag,
       path_interp[fal] <- FALSE
       if (any(is.na(lat_ind[fal]))) {
         cli::cli_abort(c(
-          x = "First and/or last modeled stationary periods ({.val
+          x = "First and/or last modelled stationary periods ({.val
           {tag$stap$stap_id[fal[is.na(lat_ind[fal])]]}}) don't have a likelihood map."
         ))
       } else {
         cli::cli_warn(c(
-          "!" = "First and/or last modeled stationary periods ({.val {tag$stap$stap_id[fal]}}) \\
+          "!" = "First and/or last modelled stationary periods ({.val {tag$stap$stap_id[fal]}}) \\
          are shorter than {.val {interp}} day{?s} but cannot be interpolated.",
           ">" = "They will not be interpolated.\f"
         ))

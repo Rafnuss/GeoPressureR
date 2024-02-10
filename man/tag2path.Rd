@@ -14,6 +14,9 @@ value are \code{map_pressure}, \code{map_light}, \code{map_pressure_mse}, \code{
 \code{map_pressure_mse}, \code{mask_water}. Default \code{NA} is to take the product of \code{map_pressure} and
 \code{map_light}, or if not available, taking the first of the possible values.}
 
+\item{interp}{the position of the stationary period shorter than \code{interp} will be replace by a
+linear average from other position accounting for flight duration (in days).}
+
 \item{use_known}{If true, enforce the known position in the path created. The known positions are
 approximated to the map resolution in order to corresponds to integer index.}
 }
@@ -36,7 +39,7 @@ flight duration.
 
 \code{interp} can be used to interpolate unrealistic position from short stationary periods based on
 the position of the longer ones. In order to preserve a reference to the grid, the interpolation
-is only performed at the center of the grid cell (defined by the \code{likelihood} map). Note also
+is only performed at the centre of the grid cell (defined by the \code{likelihood} map). Note also
 that it is not possible to interpolate the first and last stationary period.
 }
 \examples{

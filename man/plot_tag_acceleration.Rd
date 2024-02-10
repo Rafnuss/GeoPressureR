@@ -26,7 +26,7 @@ flight.}
 a plot or ggplotly object.
 }
 \description{
-This function display a plot of acceleration timeseries recorded by a tag
+This function display a plot of acceleration time series recorded by a tag
 }
 \examples{
 setwd(system.file("extdata", package = "GeoPressureR"))
@@ -39,6 +39,7 @@ plot_tag_acceleration(tag)
 Other plot_tag: 
 \code{\link{plot_tag_light}()},
 \code{\link{plot_tag_pressure}()},
+\code{\link{plot_tag_temperature}()},
 \code{\link{plot_tag_twilight}()}
 }
 \concept{plot_tag}

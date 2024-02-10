@@ -10,7 +10,7 @@
 #' This function is used within [`geopressure_map_mismatch()`] but can be useful to check the
 #' pressure data sent to the GeoPressureAPI.
 #' @inheritParams geopressure_map
-#' @return Pressure data.frame without flight and discarded values, on a 1hr resolution.
+#' @return Pressure data.frame without flight and discarded values, on a 1 hour resolution.
 #' @examples
 #' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
@@ -23,6 +23,17 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   tag_assert(tag, "label")
   stap <- tag$stap
   pressure <- tag$pressure
+
+  if (any(pressure$stap_id == 0)) {
+    cli::cli_warn(c(
+      "!" = "{.var pressurepath} has been create with an old version of \\
+      {.pkg GeoPressureR} (<v3.2.0)",
+      ">" = "For optimal performance, we suggest to re-run your code"
+    ))
+    id <- pressure$stap_id == 0
+    sequence <- seq_len(nrow(pressure))
+    pressure$stap_id[id] <- approx(sequence[!id], pressure$stap_id[!id], sequence[id])$y
+  }
 
   if (nrow(pressure) < 3) {
     cli::cli_abort(c(
@@ -54,13 +65,20 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   }
 
   # Remove flight and discard label
-  id <- pressure$label != "flight" & pressure$label != "discard" & pressure$stap_id > 0
+  id <- pressure$label != "flight" & pressure$label != "discard" &
+    pressure$stap_id == round(pressure$stap_id)
   tmp <- unique(pressure$stap_id[!(pressure$stap_id %in% pressure$stap_id[id]) &
-    pressure$stap_id > 0])
+    pressure$stap_id == round(pressure$stap_id)])
   if (length(tmp) > 0) {
+    stap_info <- cli::format_inline({
+      for (i in tmp) {
+        cli::cli_text(c("*" = "{.val {i}} ({tag$stap$start[i]} - {tag$stap$end[i]}),"))
+      }
+    })
     cli::cli_abort(c(
-      "x" = "Stationary period{?s} {.val {as.character(tmp)}} {?is/are} included but all its \\
-      pressure measurements are {.val discard} or in {.val flight}.",
+      "x" = "All labels of the stationary period(s) {.val {tmp}} are either \\
+      {.val discard} or in {.val flight}.",
+      "i" = stap_info,
       ">" = "Modify the label on trainset to fix this."
     ))
   }
@@ -78,13 +96,15 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   }
 
   # Create the stapelev of pressure to query: stationary period and elevation
-  pressure$stapelev <- paste(pressure$stap_id,
+  pressure$stapelev <- paste(
+    pressure$stap_id,
     ifelse(startsWith(pressure$label, "elev_"),
       gsub("^.*?elev_", "", pressure$label),
       "0"
     ),
     sep = "|"
   )
+
 
   # Split the data.frame per stapelev
   pressure_stapelev <- split(pressure, pressure$stapelev)
@@ -133,7 +153,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     # Also set stap_id NA to be able to identify those time to remove at the end of this function
     pgi_reg$stap_id[id] <- NA
 
-    # smooth the data with a moving average of 1hr
+    # smooth the data with a moving average of 1 hour
     # find the size of the windows for 1 hour
     n <- round(1 / as.numeric(dt) + 1)
 

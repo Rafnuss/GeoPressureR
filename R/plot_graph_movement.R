@@ -1,6 +1,6 @@
 #' Plot movement model of a `graph`
 #'
-#' This function display a plot of pressure timeseries recorded by a tag
+#' This function display a plot of pressure time series recorded by a tag
 #
 #' @param graph a GeoPressureR `graph` object.
 #' @param speed Vector of speed value (km/h) used on the x-axis.

@@ -1,14 +1,11 @@
 library(testthat)
 library(GeoPressureR)
 
-# Hide cli message
-options(cli.default_handler = function(...) { })
-
 # Set working directory
 setwd(system.file("extdata", package = "GeoPressureR"))
 
-tag <- tag_create("18LX") |>
-  tag_label() |>
+tag <- tag_create("18LX", quiet = TRUE) |>
+  tag_label(quiet = TRUE) |>
   tag_set_map(
     extent = c(-16, 23, 0, 50),
     scale = 1,
@@ -20,10 +17,13 @@ tag <- tag_create("18LX") |>
     include_stap_id = c(1, 3, 4, 5)
   )
 
-tag <- geopressure_map(tag, keep_mask = TRUE, keep_mse = TRUE)
+tag <- geopressure_map(tag, keep_mask = TRUE, keep_mse = TRUE, quiet = TRUE)
 tag_old <- tag
 
-tag_new <- tag_update(tag, file = glue::glue("./data/tag-label/{tag$param$id}-labeled-updated.csv"))
+tag_new <- tag_update(tag,
+  file = glue::glue("./data/tag-label/{tag$param$id}-labeled-updated.csv"),
+  quiet = TRUE
+)
 
 test_that("tag_update() | default", {
   expect_equal(tag_old$stap$include, tag_new$stap$include)
@@ -35,12 +35,12 @@ test_that("tag_update() | default", {
 })
 
 
-pressurepath <- pressurepath_create(tag_old)
-pressurepath_new <- pressurepath_update(pressurepath, tag_new)
+pressurepath <- pressurepath_create(tag_old, quiet = TRUE)
+pressurepath_new <- pressurepath_update(pressurepath, tag_new, quiet = TRUE)
 
 test_that("tag_update() | default", {
   expect_equal(
-    pressurepath$pressure_era5[pressurepath$stap_id == 5],
-    pressurepath_new$pressure_era5[pressurepath_new$stap_id == 5]
+    pressurepath$surface_pressure[pressurepath$stap_id == 5],
+    pressurepath_new$surface_pressure[pressurepath_new$stap_id == 5]
   )
 })

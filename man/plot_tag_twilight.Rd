@@ -17,7 +17,7 @@ plot_tag_twilight(tag, transform_light = TRUE, plot_plotly = FALSE)
 a plot object.
 }
 \description{
-This function display a plot of twilight timeseries recorded by a tag
+This function display a plot of twilight time series recorded by a tag
 }
 \examples{
 setwd(system.file("extdata", package = "GeoPressureR"))
@@ -34,6 +34,7 @@ plot_tag_pressure(tag)
 Other plot_tag: 
 \code{\link{plot_tag_acceleration}()},
 \code{\link{plot_tag_light}()},
-\code{\link{plot_tag_pressure}()}
+\code{\link{plot_tag_pressure}()},
+\code{\link{plot_tag_temperature}()}
 }
 \concept{plot_tag}

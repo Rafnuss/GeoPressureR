@@ -1,6 +1,6 @@
 Package: GeoPressureR
 Title: Global Positioning by Atmospheric Pressure
-Version: 3.1.8
+Version: 3.2.0
 Authors@R: c(
     person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8185-1020")),
@@ -31,24 +31,25 @@ Imports:
     methods,
     ncdf4,
     pracma,
+    RColorBrewer,
     stats,
     terra,
     utils
 Suggests: 
     BiocManager,
     knitr,
-    testthat (>= 3.0.0),
     leaflet.extras,
     leaflet.providers,
+    maps,
+    testthat (>= 3.0.0),
     shinyjs,
     shiny,
-    RColorBrewer,
     readxl,
     shinyWidgets,
-    covr,
-    maps
+    covr
 biocViews:
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.0
+Language: en-GB

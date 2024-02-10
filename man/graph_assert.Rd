@@ -13,7 +13,7 @@ graph_assert(graph, condition = "graph")
 or \code{"full"}.}
 }
 \value{
-logical indicating whether the \code{graph} object fulfill the condition.
+logical indicating whether the \code{graph} object fulfil the condition.
 }
 \description{
 This function check the condition of a \code{graph} object.

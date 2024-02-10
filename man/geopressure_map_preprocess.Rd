@@ -13,7 +13,7 @@ geopressure_map_preprocess(tag, compute_known = FALSE)
 estimated based on twilight or hard defined by the known location \verb{stap$known_l**}}
 }
 \value{
-Pressure data.frame without flight and discarded values, on a 1hr resolution.
+Pressure data.frame without flight and discarded values, on a 1 hour resolution.
 }
 \description{
 Performs the follow pre-processing for the pressure data.frame:

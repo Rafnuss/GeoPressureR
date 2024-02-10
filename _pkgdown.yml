@@ -42,6 +42,7 @@ reference:
   - plot_tag_light
   - plot_tag_twilight
   - plot_tag_acceleration
+  - plot_tag_temperature
 - subtitle: Label tag
   desc: Core functions related to labelling a `tag` object.
   contents:
@@ -65,8 +66,8 @@ reference:
   - geopressure_map_mismatch
   - geopressure_map_likelihood
   - geopressure_map_preprocess
-- subtitle: GeoPressure timeseries
-  desc: Retrieving timeseries pressure at a given location.
+- subtitle: GeoPressure time series
+  desc: Retrieving time series pressure at a given location.
   contents:
   - geopressure_timeseries
 - title: GeoLight
@@ -91,6 +92,7 @@ reference:
   - bird_create
   - print.bird
   - speed2prob
+  - edge_add_wind
   - plot_graph_movement
 - subtitle: Graph products
   desc: Compute the three main products of the Hidden-Markov model.
@@ -118,12 +120,12 @@ reference:
   - path2edge
   - plot_path
 - title: Pressurepath
-  desc: Data.frame of pressure timeseries along a path.
+  desc: Data.frame of pressure time series along a path.
   contents:
   - pressurepath_create
   - pressurepath_update
   - plot_pressurepath
-  - pressurepath2altitude
+  - path2elevation
 - title: Param
   desc: List of parameters used in `tag` and `graph`.
   contents:
@@ -134,6 +136,8 @@ reference:
   contents:
   - stap2flight
   - stap2duration
+  - speed2bearing
+  - windsupport
   - geopressureviz
   - GeoPressureR
 

@@ -17,7 +17,7 @@ developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.re
 <!-- badges: end -->
 
 GeoPressureR is a R package which help researchers construct the
-trajectory of a bird equiped with an atmospheric pressure sensor.
+trajectory of a bird equipped with an atmospheric pressure sensor.
 
 The package is a direct implementation of methods presented in
 Nussbaumer et al. ([2023a](https://doi.org/10.1111/2041-210X.14043)) and
@@ -54,7 +54,7 @@ code sharing and troubleshooting, data archiving, work reproducibility.
 <img src="man/figures/cheatsheet-01.png" width="350"/>
 <img src="man/figures/cheatsheet-02.png" width="350"/> </a>
 
-## Constributions
+## Contributions
 
 Contributions to the code should follow the [Contributor Code of
 Conduct](https://raphaelnussbaumer.com/GeoPressureR/CONTRIBUTING.html).
