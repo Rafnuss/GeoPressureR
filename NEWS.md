@@ -7,6 +7,8 @@
 - Fix major bug with saving enviremnt variable in param https://github.com/Rafnuss/GeoPressureR/commit/9bcbf790a7de133448c738db272bf136dc831f8f
 - Add functions `speed2bearing()` and `windsupport()` https://github.com/Rafnuss/GeoPressureR/commit/fe244f6057db14b6a286c0a77aaaef4c5ec0152c
 - Use interpolated `stap_id` for flight instead of `0` https://github.com/Rafnuss/GeoPressureR/commit/d7491c2a5580c9eeafe598935933727489590a75
+- Create `edge_add_wind()` https://github.com/Rafnuss/GeoPressureR/commit/36412dc8f0fd061798a701ca632766dbe6f069c8
+- Create `path2elevation()` using GeoPressureAPI to compute ground elevation from a path
 
 ## Minor
 - Add `workers` argument in `graph_create()` https://github.com/Rafnuss/GeoPressureR/commit/e1ce45882809e1fd3da0e8feb2ff80ac70f2bf8b
@@ -14,10 +16,15 @@
 - Add project status badge https://github.com/Rafnuss/GeoPressureR/pull/105/commits/ecd8f61ec49dcd376748e54d19dfb2000675d302
 - Fix leaflet tile provider with Stadia change https://github.com/Rafnuss/GeoPressureR/pull/106/commits/8d9bd159874deb87d61907ea14911eca12877038
 - Add `WORDLIST` for `spelling` package.
+- Remove the use of `ind` in path https://github.com/Rafnuss/GeoPressureR/commit/f7b38e1c1b06666f590df394395d7db387f2565a
+- Read temperature sensor https://github.com/Rafnuss/GeoPressureR/commit/17524658a5f49466a211ea5bfbfc34c523b09a47
+- Only download wind data for non-existing file by default (instead of all flights) https://github.com/Rafnuss/GeoPressureR/commit/b6a2c41420bef2354a9ace640adffcb4e79e1aa1
+- Remove `pressurepath2altitude()` now computed in `pressurepath_create()`
 
 **Full Changelog**: https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0...v3.1.0
 ## Full Changelog
-[https://github.com/Rafnuss/GeoPressureR/compare/v3.1.5...v3.1.0](https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0...v3.1.0)
+[https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0...v3.1.0](https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0...v3.1.0)
+
 
 # GeoPressureR v3.1
 ## Major
