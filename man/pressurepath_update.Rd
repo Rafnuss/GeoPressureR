@@ -4,7 +4,7 @@
 \alias{pressurepath_update}
 \title{Update a \code{pressurepath}}
 \usage{
-pressurepath_update(pressurepath, tag, path = tag2path(tag))
+pressurepath_update(pressurepath, tag, path = tag2path(tag), quiet = FALSE)
 }
 \arguments{
 \item{pressurepath}{a GeoPressureR \code{pressurepath} data.frame}
@@ -12,6 +12,8 @@ pressurepath_update(pressurepath, tag, path = tag2path(tag))
 \item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{path}{a GeoPressureR \code{path} data.frame.}
+
+\item{quiet}{logical to hide messages about the progress}
 }
 \value{
 a list containing the new \code{pressurepath}.
@@ -25,7 +27,6 @@ been changing on only update those in \code{tag$map_pressure} and \code{pressure
 Other pressurepath: 
 \code{\link{geopressure_timeseries}()},
 \code{\link{plot_pressurepath}()},
-\code{\link{pressurepath2altitude}()},
 \code{\link{pressurepath_create}()}
 }
 \concept{pressurepath}

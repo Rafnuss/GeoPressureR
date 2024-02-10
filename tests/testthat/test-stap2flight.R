@@ -13,11 +13,11 @@ test_that("stap2flight() | default", {
   expect_true(nrow(flight) == nrow(stap) - 1)
   expect_true(all(flight$n == 1))
 
-  flight <- stap2flight(stap, stap_include = c(1, 2, 4, 8, 13))
+  flight <- stap2flight(stap, include_stap_id = c(1, 2, 4, 8, 13))
   expect_true(nrow(flight) == 4)
   expect_true(all(flight$n == c(1, 2, 4, 5)))
 
-  flight <- stap2flight(stap, stap_include = c(3, 5))
+  flight <- stap2flight(stap, include_stap_id = c(3, 5))
   expect_true(nrow(flight) == 1)
   expect_true(flight$n == 2)
 

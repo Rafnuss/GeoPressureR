@@ -42,7 +42,7 @@ leaflet::providerTileOptions()}
 
 \item{fac_res_proj}{Factor of the resolution of the reprojection (see details above). A value of
 \code{1} will roughly reproject on a map with similar size resulting in relatively high inaccuracy of
-the pixel displayed. Increasing this factor will reduce the uncerstainty but might also increase
+the pixel displayed. Increasing this factor will reduce the uncertainty but might also increase
 the computational cost of the reprojection.}
 
 \item{...}{named parameters to add to the options}
@@ -61,10 +61,10 @@ Our maps are defined in lat-lon (i.e., EPSG:4326), but the display of maps on we
 nearly always in \href{https://en.wikipedia.org/wiki/Web_Mercator_projection}{web mercator} (i.e.,
 EPSG:3857). We therefore need to reproject our map for display.
 However, we don't really want to interpolate the map as each pixel might be important to
-visualize. We therefore re-project with a near-neighbor interpolation (\code{method = "near"}
+visualize. We therefore re-project with a near-neighbour interpolation (\code{method = "near"}
 in \code{\link[terra:project]{terra::project()}}). Yet to avoid having pixel misplaced, we generally need to use a
 projection with a finer resolution. The argument \code{fac_res_proj} controls the relative change of
-resolution between the orginal map to the projected map.
+resolution between the original map to the projected map.
 }
 \examples{
 owd <- setwd(system.file("extdata", package = "GeoPressureR"))

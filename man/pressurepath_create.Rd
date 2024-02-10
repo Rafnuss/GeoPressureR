@@ -7,10 +7,13 @@
 pressurepath_create(
   tag,
   path = tag2path(tag),
-  include_flight = FALSE,
-  workers = "auto",
+  variable = c("altitude", "surface_pressure"),
+  era5_dataset = "both",
   preprocess = FALSE,
-  quiet = FALSE
+  timeout = 60 * 5,
+  workers = "auto",
+  quiet = FALSE,
+  debug = FALSE
 )
 }
 \arguments{
@@ -18,52 +21,80 @@ pressurepath_create(
 
 \item{path}{a GeoPressureR \code{path} data.frame.}
 
-\item{include_flight}{extend request to also query the pressure and altitude during the previous
-and/or next flight. Flights are defined by a \code{stap_id = 0}. Accept logical or vector of -1 (
-previous flight), 0 (stationary) and/or 1 (next flight). (e.g. \code{include_flight = c(-1, 1)} will
-only search for the flight before and after but not the stationary period). Note that next and
-previous flights are defined by the +/1 of the \code{stap_id} value (and not the previous/next
-\code{stap_id} value).}
+\item{variable}{ERA5 variable/parameters available to download.
+The most commonly used variables:\code{"altitude"}, \code{"surface_pressure"}, \code{"temperature_2m"},
+\code{"u_component_of_wind_10m"}, \code{"v_component_of_wind_10m"}, \code{"u_component_of_wind_100m"},
+\code{"v_component_of_wind_100m"}, \code{"total_cloud_cover"}, \code{"total_precipitation"}, \code{"land_sea_mask"}.
+All variables can be listed with \code{GeoPressureR:::pressurepath_variable}.}
 
-\item{workers}{number of parallel requests on GEE. Between 1 and 99. \code{"auto"} adjust the number
-of workers to the number of \code{stap_elev} to query.}
+\item{era5_dataset}{select the dataset to use: \code{"single-levels"} \href{https://doi.org/10.24381/cds.adbb2d47}{doc }, \code{"land"} \href{https://doi.org/10.24381/cds.e2161bac}{doc}
+or \code{"both"}. LAND has greater precision but is not available on water. Using a single one makes
+the query faster.}
 
 \item{preprocess}{logical to use \code{geopressure_map_preprocess}.}
 
+\item{timeout}{duration before the code is interrupted both for the request on
+GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
+
+\item{workers}{number of parallel requests on GEE. Integer between 1 and 99.}
+
 \item{quiet}{logical to hide messages about the progress}
+
+\item{debug}{logical to display additional information to debug a request}
 }
 \value{
 A GeoPressureR \code{pressurepath} data.frame with columns:
 \itemize{
 \item \code{date} same as \code{pressure$date}
-\item \code{pressure_tag}: same as \code{pressure$value}
+\item \code{stap_id} same as \code{pressure$stap_id}
+\item \code{pressure_tag} same as \code{pressure$value}
 \item \code{label} same as \code{pressure$label}
-\item \code{stap_id} same as \code{pressure$stap_id} (i.e., including 0)
-\item \code{pressure_era5} pressure retrieved from ERA5.
-\item \code{altitude} Altitude computed
+\item \code{j} same as \code{path$j}
 \item \code{lat} same as \code{path$lat}
 \item \code{lon} same as \code{path$lon}
-\item \code{pressure_era5_norm} pressure retrieved from ERA5 normalized to the average of \code{pressure_tag}
-over the stationary period.
-\item \code{stap_ref} stap_id grouping of the requests (same as \code{stap_id} except for flights where
-\code{stap_id = 0} and \code{stap_ref} is to the stationary period of the position used from the path).
+\item \code{include} same as \code{path$include}
+\item \code{known} same as \code{path$known}
+\item \code{altitude} altitude of the bird along the path (see detail)
+\item \code{surface_pressure} pressure retrieved from ERA5.
+\item \code{surface_pressure_norm} pressure retrieved from ERA5 normalized to the average of
+\code{pressure_tag} over the stationary period.
+\item \code{...} any other ERA5 variable requested by \code{variable}
 }
 }
 \description{
-A \code{pressurepath} is a data.frame representing a timeseries of ERA5 reanalysis pressure along a
-\code{path} (position over time). It can be thought as the equivalent of the hypothetical measurement
-of a pressure sensor equiped on a bird moving along a specific \code{path}.
+A \code{pressurepath} is a data.frame merging \code{path} and \code{tag$pressure}. It can be thought as the
+equivalent of the measurement of variables by sensors equipped on the bird moving along a
+specific \code{path}.
 
-\code{pressurepath} are useful for labeling tag data by allowing a direct comparison of the actual
-pressure measured by the sensor to the one equivalent to the best estimate of the path.
+Any ERA variables can be retrieve but the functions is most notably used to retrieve ERA5
+surface pressure to then be able to compare it to the pressure measured by the tag, and
+potentially adjust labelling tag data.
 
-You can include previous and/or next flight period in each query, for instance to estimate
-flight altitude.
+By default, We use both the \href{https://doi.org/10.24381/cds.e2161bac}{ERA5 LAND} and
+\href{https://doi.org/10.24381/cds.adbb2d47}{ERA5 surface level} if position over water. Available
+variables can be listed with \code{GeoPressureR:::pressurepath_variable} and details description
+can be found on the \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#heading-Parameterlistings}{parameter listings in ERA5 doc}.
+Note that their exact name might be be different as we query them through Google Earth Engine.
 
-The function essentially splits the pressure of the geolocator into stationary periods and
-downloads the ERA5 timeseries of pressure for the corresponding location of the path by calling
-\code{geopressure_timeseries()} at each stationary period. The computation is optimized by
-paralleling the call of each stationary period.
+Positions during the flight are estimated by linear interpolation of the position of the stap
+before and after. \code{pressurepath_create()} does not return measurement for stationary periods
+which are not provided in \code{path} as well as the flight before and after.
+
+\code{pressurepath_create()} also return the altitude of the bird along its trajectory. The altitude
+\eqn{z_{tag}} (a.s.l.) is computed from the tag pressure \eqn{P_{tag}}, using the barometric
+equation \deqn{ z_{{tag}}(x)=z_{ERA5}(x) + \frac{T_{ERA5}(x)}{L_b}  \left(
+\frac{P_{tag}}{P_{ERA5}(x)} \right)^{\frac{RL_b}{g M}-1},}
+where \eqn{z_{ERA}}, \eqn{T_{ERA}}, and \eqn{P_{ERA}} respectively correspond to the ground level
+elevation, temperature at 2m, and ground level pressure of ERA5, \eqn{L_b}  is the standard
+temperature lapse rate, \eqn{R} is the universal gas constant, \eqn{g} is the gravity constant
+and  \eqn{M} is the molar mass of air. See more information at
+\href{https://raphaelnussbaumer.com/GeoPressureAPI/#description-1}{the GeoPressureAPI documentation}.
+
+To be able to compare the temporal variation of the retrieved pressure of ERA5 \eqn{P_{ERA}} to
+the tag pressure \eqn{P_{tag}}, the function also returns the ERA pressure normalized with
+the tag mean pressure measurement as \code{surface_pressure_norm}.
+\deqn{ P_{ERA5,0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{tag}[t]\right) -
+\left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\boldsymbol{x})[i]-P_{tag}[i] \right).}
 }
 \examples{
 setwd(system.file("extdata", package = "GeoPressureR"))
@@ -84,7 +115,6 @@ plot_pressurepath(pressurepath)
 pressurepath <- pressurepath_create(
   tag,
   path[c(2, 3, 4), ],
-  include_flight = TRUE,
   quiet = TRUE
 )
 
@@ -96,7 +126,6 @@ plot_pressurepath(pressurepath)
 Other pressurepath: 
 \code{\link{geopressure_timeseries}()},
 \code{\link{plot_pressurepath}()},
-\code{\link{pressurepath2altitude}()},
 \code{\link{pressurepath_update}()}
 }
 \concept{pressurepath}

@@ -2,8 +2,8 @@
 % Please edit documentation in R/geopressurer.R
 \docType{package}
 \name{GeoPressureR}
-\alias{GeoPressureR}
 \alias{GeoPressureR-package}
+\alias{GeoPressureR}
 \title{GeoPressureR: Global positioning by atmospheric pressure.}
 \description{
 GeoPressureR is a R package which help researchers determine the position of a bird based on the

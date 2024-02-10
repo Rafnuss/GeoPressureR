@@ -10,7 +10,7 @@ ui <- bootstrapPage(
                .plotly .modebar{left: 0}"),
     # includeHTML("meta.html"),
   ),
-  leafletOutput("map", width = "100%", height = "100%"),
+  leaflet::leafletOutput("map", width = "100%", height = "100%"),
   absolutePanel(
     top = 0, left = 0, draggable = FALSE, width = "200px",
     style = "z-index:500; min-width: 300px;padding-left: 50px",
@@ -46,7 +46,7 @@ ui <- bootstrapPage(
         tags$p("Choose a stationary period", style = "font-weight:bold;"),
         fluidRow(
           column(2, style = "padding:0px;", actionButton("previous_position", "<", width = "100%")),
-          column(8, style = "padding:0px;", selectInput("i_stap", label = NULL, choices = "1")),
+          column(8, style = "padding:0px;", selectInput("stap_id", label = NULL, choices = "1")),
           column(2, style = "padding:0px;", actionButton("next_position", ">", width = "100%")),
         )
       ),
@@ -62,19 +62,21 @@ ui <- bootstrapPage(
           selected = tail(names(.maps), 1)
         ),
         tags$hr(),
-        tags$p("Change position by clicking on the map and update the pressure timeserie."),
+        tags$p("Change position by clicking on the map and update the pressure time series."),
         fluidPage(
           id = "edit_query_position_id",
           fluidRow(
-            column(6, actionButton("edit_position", "Start editing")),
+            column(6, actionButton("edit_position", "Edit position")),
             column(6, actionButton("query_position", "Query pressure")),
           )
-        )
+        ),
+        checkboxInput("edit_position_interpolate",
+                      label = "Interpolate positions between stap", value = FALSE)
       )
     )
   ),
   fixedPanel(
     bottom = 0, left = 0, width = "100%", height = "300px",
-    plotlyOutput("pressure_plot")
+    plotly::plotlyOutput("pressure_plot")
   ),
 )

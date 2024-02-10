@@ -42,7 +42,7 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
     )
   } else if (condition == "label") {
     msg <- c(
-      "x" = "The {.var tag} object has not yet been labeled.",
+      "x" = "The {.var tag} object has not yet been labelled.",
       ">" = "Use {.fun tag_label} to define the stationary periods."
     )
   } else if (condition == "stap") {

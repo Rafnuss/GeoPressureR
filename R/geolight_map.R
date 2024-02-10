@@ -82,19 +82,14 @@ geolight_map <- function(tag,
 
   # Add stap_id if missing
   if (!("stap_id" %in% names(twl))) {
-    tmp <- mapply(function(start, end) {
-      start <= twl$twilight & twl$twilight <= end
-    }, stap$start, stap$end)
-    tmp <- which(tmp, arr.ind = TRUE)
-    twl$stap_id <- 0
-    twl$stap_id[tmp[, 1]] <- tmp[, 2]
+    twl$stap_id <- find_stap(tag$stap, twl$twilight)
   }
 
   # check other
   assertthat::assert_that(is.numeric(twl_calib_adjust))
   assertthat::assert_that(is.function(twl_llp))
 
-  # Check if labeled
+  # Check if labelled
   if (!("label" %in% names(twl))) {
     cli::cli_abort(c(
       x = "There are no {.field label} in {.var tag$twilight}.",
@@ -123,7 +118,7 @@ geolight_map <- function(tag,
   # compute the likelihood of observing the zenith angle of each twilight using the calibrated
   # error function for each grid cell.
 
-  # Only select twilight that we are interested of: not known and/or not in flight (stap_id == 0)
+  # Only select twilight that we are interested of: not known and/or not in flight
   if (compute_known) {
     twl_clean_comp <- twl_clean[twl_clean$stap_id %in% stap$stap_id[is.na(stap$known_lat)], ]
   } else {
@@ -136,7 +131,7 @@ geolight_map <- function(tag,
   # Get grid information
   g <- map_expand(tag$param$extent, tag$param$scale)
 
-  # construct the grid of latitude and longitude on cell centered
+  # construct the grid of latitude and longitude on cell centred
   m <- expand.grid(lat = g$lat, lon = g$lon)
   ml <- split(m, seq_len(nrow(m)))
 
@@ -214,6 +209,10 @@ geolight_map <- function(tag,
     id = tag$param$id,
     type = "light"
   )
+
+  attr(twl_llp, "srcref") <- NULL
+  attr(twl_llp, "srcfile") <- NULL
+  environment(twl_llp) <- baseenv()
 
   # Add parameters
   tag$param$twl_calib_adjust <- twl_calib_adjust

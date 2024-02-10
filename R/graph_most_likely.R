@@ -18,7 +18,7 @@
 #' - `lon` longitude
 #' - `start` datetime of the start of the stationary period (same as in `stap`)
 #' - `end` datetime of the end of the stationary period (same as in `stap`)
-#' - `include` logical if stationary period was modeled (same as in `stap`)
+#' - `include` logical if stationary period was modelled (same as in `stap`)
 #' - `nb_sample known` number of datapoint used to compute pressure (same as in `stap`)
 #'
 #' @examples
@@ -141,12 +141,12 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   # convert 3D to 2D grid
   path_ind2d <- path_ind3d - prod(graph$sz[c(1, 2)]) * (seq_len(graph$sz[3]) - 1)
 
-  # path_ind2d was defined on the modeled stationary period which might be different than the full
+  # path_ind2d was defined on the modelled stationary period which might be different than the full
   # stap, but we want to generate path at the level of all stationary periods
   path_ind2d_full <- rep(NA, nrow(graph$stap))
   # find the stap_id of the model
-  stap_includeed <- graph$stap$stap_id[graph$stap$include]
-  path_ind2d_full[stap_includeed] <- path_ind2d
+  stap_include <- graph$stap$stap_id[graph$stap$include]
+  path_ind2d_full[stap_include] <- path_ind2d
 
   # Convert the index of the path in a path data.frame
   path <- ind2path(path_ind2d_full, graph)

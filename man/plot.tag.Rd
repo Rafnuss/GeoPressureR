@@ -10,7 +10,7 @@
 \item{x}{a GeoPressureR \code{tag} object.}
 
 \item{type}{type of the plot to display. One of \code{"pressure"}, \code{"acceleration"}, \code{"light"},
-\code{"twilight"}, \code{"map"}, \code{"map_pressure"}, \code{"map_light"}, \code{"map_pressure_mse"},
+\code{"temperature"}, \code{"twilight"}, \code{"map"}, \code{"map_pressure"}, \code{"map_light"}, \code{"map_pressure_mse"},
 \code{"map_pressure_mask"}, \code{"mask_water"}. Map can be combined by providing a vector of type.}
 
 \item{...}{additional parameters for \code{plot_tag_pressure()}, \code{plot_tag_acceleration()},
@@ -20,7 +20,7 @@
 a plot, ggplotly or leaflet object.
 }
 \description{
-This function plot a GeoPressureR \code{tag} object as a timeseries or a map.
+This function plot a GeoPressureR \code{tag} object as a time series or a map.
 
 By default, \code{type} is determined in the following order of preference according to availability:
 \code{c("map_pressure", "map_light")}, \code{"map_pressure"}, \code{"map_light"}, \code{"pressure"}.
@@ -30,6 +30,7 @@ By default, \code{type} is determined in the following order of preference accor
 \item \code{"pressure"}: \code{plot_tag_pressure()}
 \item \code{"light"}: \code{plot_tag_light()}
 \item \code{"acceleration"}: \code{plot_tag_acceleration()}
+\item \code{"temperature"}: \code{plot_tag_temperature()}
 \item \code{"twilight"}: \code{plot_tag_twilight()}
 \item \code{"map_*"} : \code{plot.map()} with \verb{tag$map_*} as first argument.
 }
@@ -44,7 +45,7 @@ tag <- tag_create("18LX", quiet = TRUE) |>
   twilight_label_read()
 setwd(owd)
 
-# By default, plot will display the timeserie of pressure
+# By default, plot will display the time series of pressure
 plot(tag)
 # Change the `type` to display other sensor
 plot(tag, type = "acceleration")

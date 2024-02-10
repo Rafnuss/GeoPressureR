@@ -6,13 +6,16 @@
 \usage{
 twilight_label_write(
   tag,
-  file = glue::glue("./data/twilight-label/{tag$param$id}.csv")
+  file = glue::glue("./data/twilight-label/{tag$param$id}.csv"),
+  quiet = FALSE
 )
 }
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object}
 
 \item{file}{Name of the twilight label file to be saved.}
+
+\item{quiet}{logical to hide messages}
 }
 \value{
 None

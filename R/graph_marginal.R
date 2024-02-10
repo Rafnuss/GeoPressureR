@@ -92,7 +92,7 @@ graph_marginal <- function(graph, quiet = FALSE) {
 
   # return as list
   marginal_data <- vector("list", nrow(graph$stap))
-  stap_includeed <- graph$stap$stap_id[graph$stap$include]
+  stap_include <- graph$stap$stap_id[graph$stap$include]
   for (i_s in seq_len(graph$sz[3])) {
     map_fb_i <- map_fb[, , i_s]
     map_fb_i[graph$mask_water] <- NA
@@ -103,7 +103,7 @@ graph_marginal <- function(graph, quiet = FALSE) {
       ))
     }
     # Normalize the map to the highest value
-    marginal_data[[stap_includeed[i_s]]] <- map_fb_i / max(map_fb, na.rm = TRUE)
+    marginal_data[[stap_include[i_s]]] <- map_fb_i / max(map_fb, na.rm = TRUE)
   }
 
   marginal <- map_create(

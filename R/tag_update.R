@@ -37,7 +37,7 @@ tag_update <- function(tag,
                        known = NULL,
                        include_stap_id = NULL,
                        quiet = FALSE) {
-  # Only work if the tag has already been labeled.
+  # Only work if the tag has already been labelled.
   tag_assert(tag, "map_pressure")
 
   # Re-create the original tag before label
@@ -132,7 +132,7 @@ tag_update <- function(tag,
 
   # 2. Check which stap_id have a discard pressure label which has changed
   # we don't care about flight label change because they have already impacted the merge of the
-  # new stap, only pressure outliar and stap_elev are important at this stage
+  # new stap, only pressure outlier and stapelev are important at this stage
   discard_label_chg <- (tag_new$pressure$label != tag$pressure$label) &
     (tag_new$pressure$label != "flight" | tag$pressure$label != "flight")
 
@@ -199,7 +199,7 @@ tag_update <- function(tag,
 
   if ("map_light" %in% names(tag)) {
     if (any(is.na(stap_new$old_stap_id)) || any(stap_new$stap_id != stap_new$old_stap_id)) {
-      cli::cli_warn("Light map {.code tag$map_light} was deleted as some stationay periods have \\
+      cli::cli_warn("Light map {.code tag$map_light} was deleted as some stationary periods have \\
                     changed.\f")
       tag_new$map_light <- NULL
       tag_new$twilight <- NULL

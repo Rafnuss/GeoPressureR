@@ -19,7 +19,6 @@ A path data.frame
 \itemize{
 \item \code{stap_id} stationary period identification
 \item \code{j} identification for each trajectory (1 to $nj$).
-\item \code{ind} indices of the coordinate in the 2D grid. Useful to retrieve map or graph information.
 \item \code{lat} Latitude,
 \item \code{lon} longitude
 \item \code{...} other columns from \code{stap}

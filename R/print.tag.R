@@ -43,6 +43,9 @@ print.tag <- function(x, ...) {
     if ("light" %in% names(tag)) {
       cli::cli_bullets(c("*" = "{.field light}: {nrow(tag$light)} datapoints"))
     }
+    if ("temperature" %in% names(tag)) {
+      cli::cli_bullets(c("*" = "{.field temperature}: {nrow(tag$temperature)} datapoints"))
+    }
     if ("twilight" %in% names(tag)) {
       cli::cli_bullets(c("*" = "{.field twilight}: {nrow(tag$twilight)} datapoints"))
     }

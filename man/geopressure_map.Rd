@@ -19,6 +19,7 @@ geopressure_map(
   keep_mask = FALSE,
   keep_mse = FALSE,
   compute_known = FALSE,
+  debug = FALSE,
   quiet = FALSE
 )
 
@@ -47,12 +48,12 @@ geopressure_map_mismatch(
 
 \item{max_sample}{the computation of the maps is only performed on \code{max_sample} datapoints of
 pressure to reduce computational time. The samples are randomly (uniformly) selected on the
-timeseries.}
+time series.}
 
 \item{margin}{the margin is used in the mask map to accept measurement errors, small-scale
 topography, and vertical movements of the bird (unit in meters, 1hPa~10m).}
 
-\item{sd}{standard deviation of the pressure error . numeric of lenght 1 or number of stationary
+\item{sd}{standard deviation of the pressure error . numeric of length 1 or number of stationary
 periods.}
 
 \item{thr_mask}{threshold of the percentage of data points outside the elevation range to be
@@ -62,11 +63,11 @@ considered not possible.}
 of samples of the stationary periods used and returning the weight of the aggregation. See
 \href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation } for more details.}
 
-\item{timeout}{Duration before the code is interrupted both for the request on
+\item{timeout}{duration before the code is interrupted both for the request on
 GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 
-\item{workers}{Number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjust the
-number of workers to the number of \code{stap_elev} to query.}
+\item{workers}{number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjust the
+number of workers to the number of \code{stapelev} to query.}
 
 \item{keep_mask}{logical defining if the mask map is returned in \code{tag}.}
 
@@ -75,13 +76,13 @@ number of workers to the number of \code{stap_elev} to query.}
 \item{compute_known}{logical defining if the map(s) for known stationary period should be
 estimated based on twilight or hard defined by the known location \verb{stap$known_l**}}
 
-\item{quiet}{logical to hide messages about the progress}
-
 \item{debug}{logical to display additional information to debug a request}
+
+\item{quiet}{logical to hide messages about the progress}
 }
 \value{
 Returns the same GeoPressureR \code{tag} object including the GeoPressureR \code{map} object
-\code{tag$map_pressure} containing the likelihood map of each statationay period. See \code{map_create()}
+\code{tag$map_pressure} containing the likelihood map of each stationary period. See \code{map_create()}
 for details.
 If \code{keep_mask} and \code{keep_mse} are each true, \code{tag} also includes the \code{tag$map_pressure_mse} and
 \code{tag$map_pressure_mask} maps, as well as \code{tag$stap$nb_sample}, indicating the number of
@@ -127,12 +128,12 @@ GeoPressureR \code{map} object with \code{create_map()}.
 
 The following two maps are returned for each stationary period:
 \enumerate{
-\item \strong{map_pressure_mse}: The Mean Square Error (MSE) between the data logger pressure timeseries
+\item \strong{map_pressure_mse}: The Mean Square Error (MSE) between the data logger pressure time series
 and the reanalysis. The mean error is removed because we assume no specific altitude of the
-geolocator, thus allowing an altitudinal shift of the pressure timeseries.
+geolocator, thus allowing an altitudinal shift of the pressure time series.
 \item \strong{map_pressure_mask} (optionally): The mask of the proportion of pressure measurements
 corresponding to altitude values found within the min and max ground elevation at each location.
-The altitude value of the geolocator pressure timeseries is computed with the barometric formula
+The altitude value of the geolocator pressure time series is computed with the barometric formula
 accounting for the temporal variation of pressure (surface-pressure) and temperature
 (2m-temperature) based on ERA5 data. The min and max ground elevation of each pixel is computed
 from SRTM-90. This map is only returned if \code{keep_mask} is \code{TRUE}.
@@ -147,10 +148,10 @@ For more details, read the \href{https://raphaelnussbaumer.com/GeoPressureAPI/}{
 It is possible to indicate different elevation levels when the bird was spending time at
 locations with different elevations within a general area (~10km), and thus within the same
 stationary period. This can be done by using \code{tag$label="elev_x"}for all measurements of the same
-elevation level \emph{x}. See more information on the labeling of elevation levels in \href{https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#elevation-period}{the corresponding section in the GeoPressureManual}.
+elevation level \emph{x}. See more information on the labelling of elevation levels in \href{https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#elevation-period}{the corresponding section in the GeoPressureManual}.
 
-Behind the scen, each of these elevations levels produce a new requests on the GeoPressureAPI.
-The mismatch maps of all elevation levels belonging to the same stationay periods are combined
+Behind the scene, each of these elevations levels produce a new requests on the GeoPressureAPI.
+The mismatch maps of all elevation levels belonging to the same stationary periods are combined
 (as a weighted average) to results in a single mismatch maps per stationary period.
 }
 
@@ -166,9 +167,9 @@ by \code{\link[=geopressure_map_mismatch]{geopressure_map_mismatch()}} into a li
 where \eqn{\sigma} is the standard deviation (\code{sd}) of pressure and \eqn{T} is the mask threshold
 (\code{thr_mask}).
 
-Because the auto-correlation of the timeseries is not accounted for in this equation, we use a
+Because the auto-correlation of the time series is not accounted for in this equation, we use a
 log-linear pooling weight of \eqn{w=\log(n)/n} by default, where \eqn{n} is the number of samples
-in the timeserie (i.e., data points used to compute the MSE). See \href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation } for details.
+in the time series (i.e., data points used to compute the MSE). See \href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation } for details.
 
 \strong{Important Note}: Since GeoPressure v3.1.0, the threshold of the mask is happening directly
 on the GEE server (i.e., during \code{geopressure_map_mismatch()}). This allows to compute the MSE

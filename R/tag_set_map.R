@@ -10,12 +10,13 @@
 #' In addition, `tag` offers the possibility to define `known` locations (e.g., equipment or
 #' retrieval site). These can only be defined at the level of a stationary period (i.e., assuming
 #' constant position during the whole stationary period) but you can define as many known stationary
-#' periods as you wish. By default (see `compute_known` in `geopressure_map()`), no likelihood map
-#' will be computed for these stationary periods and the trajectory model will be more constrained,
-#' saving significant computational time.
+#' periods as you wish. Because the index of the last stationary period is generally unknown, you
+#' can use negative indexing in `known`, i.e., `known$stap_id = -1` will be converted to
+#' `nrow(tag$stap)`.
 #'
-#' Because the index of the last stationary period is generally unknown, you can use negative
-#' indexing in `known`, i.e., `known$stap_id = -1` will be converted to `nrow(tag$stap)`.
+#' By default, no likelihood map will be computed for these stationary periods and the trajectory
+#' model will be more constrained, saving significant computational time. You can change this
+#' using the `compute_known` parameter in `geopressure_map()`.
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param extent geographical extent of the map on which the likelihood and graph model will be

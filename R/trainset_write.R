@@ -10,6 +10,7 @@
 #' @param value Column name of `df` to be used as value.
 #' @param label Column name of `df` to be used as label. If column doesn't exist, use empty
 #' characters.
+#' @param quiet logical to hide messages
 #' @seealso [`tag_label_write()`]
 #' @noRd
 trainset_write <- function(df,
@@ -17,7 +18,8 @@ trainset_write <- function(df,
                            series = "series",
                            timestamp = "date",
                            value = "value",
-                           label = "label") {
+                           label = "label",
+                           quiet = FALSE) {
   assertthat::assert_that(is.data.frame(df))
   assertthat::assert_that(assertthat::has_name(df, c(timestamp, value)))
   assertthat::assert_that(is.character(file))
@@ -41,7 +43,7 @@ trainset_write <- function(df,
   # Check if folder exist
   dir_file <- dirname(file)
   if (!dir.exists(dir_file)) {
-    cli::cli_inform(c("!" = "The directory {.file {file.path(getwd(), dir_file)}} does not\\
+    cli::cli_inform(c("!" = "The directory {.file {dir_file}} does not \\
                       exists.\f"))
     res <- utils::askYesNo("Do you want to create it?")
     if (res) {
@@ -58,6 +60,8 @@ trainset_write <- function(df,
     row.names = FALSE
   )
 
-  cli::cli_inform(c("v" = "{.file {file}} written successfully.\f"))
+  if (!quiet) {
+    cli::cli_inform(c("v" = "{.file {file}} written successfully.\f"))
+  }
   return(file)
 }

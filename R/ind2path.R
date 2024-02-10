@@ -14,7 +14,6 @@
 #' @return A path data.frame
 #' - `stap_id` stationary period identification
 #' - `j` identification for each trajectory (1 to $nj$).
-#' - `ind` indices of the coordinate in the 2D grid. Useful to retrieve map or graph information.
 #' - `lat` Latitude,
 #' - `lon` longitude
 #' - `...` other columns from `stap`
@@ -84,9 +83,9 @@ ind2path <- function(ind,
     path$lon[path$known] <- path$known_lon[path$known]
     path$lat[path$known] <- path$known_lat[path$known]
 
-    lon_ind_known <- sapply(path$known_lon[path$known], \(x) which.min(abs(g$lon - x)))
-    lat_ind_known <- sapply(path$known_lat[path$known], \(x) which.min(abs(g$lat - x)))
-    path$ind[path$known] <- (lon_ind_known - 1) * g$dim[1] + lat_ind_known
+    # lon_ind_known <- sapply(path$known_lon[path$known], \(x) which.min(abs(g$lon - x)))
+    # lat_ind_known <- sapply(path$known_lat[path$known], \(x) which.min(abs(g$lat - x)))
+    # path$ind[path$known] <- (lon_ind_known - 1) * g$dim[1] + lat_ind_known
   }
 
   # Remove known_lat and known_lon

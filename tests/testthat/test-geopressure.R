@@ -1,9 +1,6 @@
 library(testthat)
 library(GeoPressureR)
 
-# Hide cli message
-options(cli.default_handler = function(...) { })
-
 # Set working directory
 setwd(system.file("extdata", package = "GeoPressureR"))
 
@@ -31,14 +28,14 @@ known <- data.frame(
 )
 
 tag <- structure(list(
-  param = param_create("18LX"),
+  param = param_create("18LX", quiet = TRUE),
   stap = stap,
   pressure = pressure
 ), class = "tag")
 
 tag <- tag_set_map(tag, extent, scale = scale)
 
-tag <- geopressure_map_mismatch(tag)
+tag <- geopressure_map_mismatch(tag, quiet = TRUE)
 
 
 test_that("geopressure_map_mismatch() | default output", {
@@ -50,8 +47,11 @@ test_that("geopressure_map_mismatch() | default output", {
 })
 
 test_that("geopressure_map_mismatch() | timeout and worker", {
-  expect_error(geopressure_map_mismatch(tag, timeout = 0.001), "*Timeout was reached*")
-  expect_error(geopressure_map_mismatch(tag, worker = 100), "* workers < 100*")
+  expect_error(
+    geopressure_map_mismatch(tag, timeout = 0.001, quiet = TRUE),
+    "*Timeout was reached*"
+  )
+  expect_error(geopressure_map_mismatch(tag, worker = 100, quiet = TRUE), "* workers < 100*")
 })
 
 
@@ -84,7 +84,7 @@ test_that("geopressure_map_mismatch() | date too early", {
   expect_error( # fail for after date
     expect_warning( # warning after date
       expect_warning( # irregular
-        tag <- geopressure_map_mismatch(tag)
+        tag <- geopressure_map_mismatch(tag, quiet = TRUE)
       )
     )
   )
@@ -107,7 +107,7 @@ test_that("geopressure_map_likelihood() | default output", {
 
 test_that("geopressure_map() | default output", {
   tag <- tag_set_map(tag, extent, scale)
-  expect_no_error(tag <- geopressure_map(tag))
+  expect_no_error(tag <- geopressure_map(tag, quiet = TRUE))
   expect_true(assertthat::has_name(tag, c("stap", "map_pressure", "param")))
   expect_true(assertthat::has_name(tag$map_pressure, c(
     "id", "stap", "data", "extent", "scale", "lat", "lon", "type", "mask_water"

@@ -1,7 +1,7 @@
 #' Plot a `tag` object
 #'
 #' @description
-#' This function plot a GeoPressureR `tag` object as a timeseries or a map.
+#' This function plot a GeoPressureR `tag` object as a time series or a map.
 #'
 #' By default, `type` is determined in the following order of preference according to availability:
 #' `c("map_pressure", "map_light")`, `"map_pressure"`, `"map_light"`, `"pressure"`.
@@ -10,6 +10,7 @@
 #' - `"pressure"`: `plot_tag_pressure()`
 #' - `"light"`: `plot_tag_light()`
 #' - `"acceleration"`: `plot_tag_acceleration()`
+#' - `"temperature"`: `plot_tag_temperature()`
 #' - `"twilight"`: `plot_tag_twilight()`
 #' - `"map_*"` : `plot.map()` with `tag$map_*` as first argument.
 #'
@@ -17,7 +18,7 @@
 #'
 #' @param x a GeoPressureR `tag` object.
 #' @param type type of the plot to display. One of `"pressure"`, `"acceleration"`, `"light"`,
-#' `"twilight"`, `"map"`, `"map_pressure"`, `"map_light"`, `"map_pressure_mse"`,
+#' `"temperature"`, `"twilight"`, `"map"`, `"map_pressure"`, `"map_light"`, `"map_pressure_mse"`,
 #' `"map_pressure_mask"`, `"mask_water"`. Map can be combined by providing a vector of type.
 #' @param ... additional parameters for `plot_tag_pressure()`, `plot_tag_acceleration()`,
 #' `plot_tag_light()`, `plot_tag_twilight()` or `plot.map()`
@@ -32,7 +33,7 @@
 #'   twilight_label_read()
 #' setwd(owd)
 #'
-#' # By default, plot will display the timeserie of pressure
+#' # By default, plot will display the time series of pressure
 #' plot(tag)
 #' # Change the `type` to display other sensor
 #' plot(tag, type = "acceleration")
@@ -82,6 +83,8 @@ plot.tag <- function(x, type = NULL, ...) {
     plot_tag_acceleration(tag, ...)
   } else if (type == "light") {
     plot_tag_light(tag, ...)
+  } else if (type == "temperature") {
+    plot_tag_temperature(tag, ...)
   } else if (type == "twilight") {
     plot_tag_twilight(tag, ...)
   } else if (grepl("map", type)) {
@@ -100,15 +103,16 @@ plot.tag <- function(x, type = NULL, ...) {
   } else {
     cli::cli_abort(c(
       "x" = "The type {.val {type}} is not known",
-      ">" = "{.var type} should be one of {.val {c('pressure', 'acceleration', 'light', 'twilight',
-      'map', 'map_pressure', 'map_light', 'map_pressure_mse', 'map_pressure_mask', 'mask_water')}}"
+      ">" = "{.var type} should be one of {.val {c('pressure', 'acceleration', 'light',
+      'temperature', twilight', 'map', 'map_pressure', 'map_light', 'map_pressure_mse',
+      'map_pressure_mask', 'mask_water')}}"
     ))
   }
 }
 
 #' Plot pressure data of a `tag`
 #'
-#' This function display a plot of pressure timeseries recorded by a tag
+#' This function display a plot of pressure time series recorded by a tag
 #
 #' @param tag a GeoPressureR `tag` object.
 #' @param plot_plotly logical to use `plotly`.
@@ -148,7 +152,7 @@ plot_tag_pressure <- function(tag,
     ggplot2::scale_y_continuous(name = "Pressure (hPa)") +
     ggplot2::theme(legend.position = "none")
 
-  # Only if tag is labeled
+  # Only if tag is labelled
   if ("stap" %in% names(tag)) {
     # compute the pressure at the hourly scale
     pres <- geopressure_map_preprocess(tag)
@@ -249,7 +253,7 @@ plot_tag_pressure <- function(tag,
 
 #' Plot acceleration data of a `tag`
 #'
-#' This function display a plot of acceleration timeseries recorded by a tag
+#' This function display a plot of acceleration time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param plot_plotly logical to use `plotly`
@@ -308,7 +312,7 @@ plot_tag_acceleration <- function(tag,
 
 #' Plot light data of a `tag`
 #'
-#' This function display a plot of light timeseries recorded by a tag
+#' This function display a plot of light time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param plot_plotly logical to use `plotly`
@@ -366,9 +370,54 @@ plot_tag_light <- function(tag,
   }
 }
 
+
+#' Plot temperature data of a `tag`
+#'
+#' This function display a plot of temperature time series recorded by a tag
+#'
+#' @param tag a GeoPressureR `tag` object
+#' @param plot_plotly logical to use `plotly`
+#' @param label_auto logical to compute and plot the flight label using `tag_label_auto()`. Only if
+#' labels are not already present on tag$temperature$label
+#' @inheritParams tag_label_auto
+#'
+#' @return a plot or ggplotly object.
+#'
+#' @family plot_tag
+#' @examples
+#' setwd(system.file("extdata", package = "GeoPressureR"))
+#' tag <- tag_create("18LX", quiet = TRUE)
+#'
+#' plot_tag_temperature(tag)
+#'
+#' @export
+plot_tag_temperature <- function(tag,
+                                 plot_plotly = TRUE,
+                                 label_auto = TRUE,
+                                 min_duration = 30) {
+  tag_assert(tag)
+  assertthat::assert_that(assertthat::has_name(tag, "temperature"))
+
+  p <- ggplot2::ggplot() +
+    ggplot2::geom_line(
+      data = tag$temperature,
+      ggplot2::aes(x = .data$date, y = .data$value),
+      color = "black"
+    ) +
+    ggplot2::theme_bw() +
+    ggplot2::scale_y_continuous(name = "Temparature") +
+    ggplot2::theme(legend.position = "none")
+
+  if (plot_plotly) {
+    return(plotly::ggplotly(p, dynamicTicks = TRUE))
+  } else {
+    return(p)
+  }
+}
+
 #' Plot twilight data of a `tag`
 #'
-#' This function display a plot of twilight timeseries recorded by a tag
+#' This function display a plot of twilight time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param plot_plotly logical to use `plotly`

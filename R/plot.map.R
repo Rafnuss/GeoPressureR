@@ -9,10 +9,10 @@
 #' nearly always in [web mercator](https://en.wikipedia.org/wiki/Web_Mercator_projection) (i.e.,
 #' EPSG:3857). We therefore need to reproject our map for display.
 #' However, we don't really want to interpolate the map as each pixel might be important to
-#' visualize. We therefore re-project with a near-neighbor interpolation (`method = "near"`
+#' visualize. We therefore re-project with a near-neighbour interpolation (`method = "near"`
 #' in [`terra::project()`]). Yet to avoid having pixel misplaced, we generally need to use a
 #' projection with a finer resolution. The argument `fac_res_proj` controls the relative change of
-#' resolution between the orginal map to the projected map.
+#' resolution between the original map to the projected map.
 #'
 #' @param map a GeoPressureR `map` object
 #' @param plot_leaflet logical to use an interactive `leaflet` map instead of `terra::plot`
@@ -26,7 +26,7 @@
 #' @inheritParams graph_create
 #' @param fac_res_proj Factor of the resolution of the reprojection (see details above). A value of
 #' `1` will roughly reproject on a map with similar size resulting in relatively high inaccuracy of
-#' the pixel displayed. Increasing this factor will reduce the uncerstainty but might also increase
+#' the pixel displayed. Increasing this factor will reduce the uncertainty but might also increase
 #' the computational cost of the reprojection.
 #'
 #' @return a plot or leaflet object.
@@ -118,25 +118,25 @@ plot.map <- function(x,
 
     # Compute the resolution for the projection to web Mercator
     g <- map_expand(map$extent, map$scale)
-    lonInEPSG3857 <- (g$lon * 20037508.34 / 180)
-    latInEPSG3857 <- (log(tan((90 + g$lat) * pi / 360)) / (pi / 180)) * (20037508.34 / 180)
+    lon_epsg3857 <- (g$lon * 20037508.34 / 180)
+    lat_epsg3857 <- (log(tan((90 + g$lat) * pi / 360)) / (pi / 180)) * (20037508.34 / 180)
 
     # Define the default resolution of the projection as the median value of the difference of the
     # actual position
     res_proj <- c(
-      median(diff(lonInEPSG3857)),
-      median(abs(diff(latInEPSG3857))) / fac_res_proj
+      stats::median(diff(lon_epsg3857)),
+      stats::median(abs(diff(lat_epsg3857))) / fac_res_proj
     )
 
     for (i in map$stap$stap_id[map$stap$include]) {
-      # Project from lat-lon to web Mercator using the nearest neighbor interpolation
+      # Project from lat-lon to web Mercator using the nearest neighbour interpolation
       r_i_proj <- terra::project(
         r[[i]],
         "epsg:3857",
         method = "near",
         # res = res(r[[i]]) * c(110.574, 111.320) * 1000,
         res = res_proj,
-        origin = c(median(lonInEPSG3857), median(latInEPSG3857))
+        origin = c(stats::median(lon_epsg3857), stats::median(lat_epsg3857))
       )
 
       lmap <- leaflet::addRasterImage(

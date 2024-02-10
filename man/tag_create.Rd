@@ -13,6 +13,7 @@ tag_create(
   pressure_file = NULL,
   light_file = NULL,
   acceleration_file = NULL,
+  temperature_file = NULL,
   quiet = FALSE
 )
 }
@@ -33,8 +34,11 @@ with extensions (e.g., \code{"*.pressure"}, \code{"*.deg"} or \code{"*_press.xls
 \item{light_file}{name of the file with light data. Full pathname  or finishing
 with extensions (e.g., \code{"*.glf"}, \code{"*.lux"} or \code{"*_acc.xlsx"}).}
 
-\item{acceleration_file}{name of the file with acceleration data. FFull pathname  or finishing
+\item{acceleration_file}{name of the file with acceleration data. Full pathname  or finishing
 with extensions (e.g., \code{"*.acceleration"}, \code{"*.deg"} or \code{"*_acc.xlsx"}).}
+
+\item{temperature_file}{name of the file with temperature data. Full pathname  or finishing
+with extensions (e.g., \code{"*.temperature"}, \code{"*.deg"}).}
 
 \item{quiet}{logical to hide messages about the progress.}
 }

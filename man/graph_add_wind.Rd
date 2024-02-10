@@ -7,9 +7,11 @@
 graph_add_wind(
   graph,
   pressure,
-  thr_as = Inf,
+  rounding_interval = 60,
+  interp_spatial_linear = FALSE,
   file = function(stap_id)
     glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
+  thr_as = Inf,
   quiet = FALSE
 )
 }
@@ -20,10 +22,16 @@ graph_add_wind(
 level (i.e., altitude) of the bird during the flights. This data.frame needs to contain \code{date} as
 POSIXt and \code{value} in hPa.}
 
-\item{thr_as}{threshold of airspeed (km/h).}
+\item{rounding_interval}{temporal resolution on which to query the variable (min). Default is to
+macth ERA5 native resolution (1hr).}
 
-\item{file}{Absolute or relative path of the ERA5 wind data file to be downloaded. Function
+\item{interp_spatial_linear}{logical to interpolate the variable linearly over space, if \code{FALSE}
+takes the nearest neighbour. ERA5 native resolution is 0.25°}
+
+\item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
 taking as single argument the stationary period identifier.}
+
+\item{thr_as}{threshold of airspeed (km/h).}
 
 \item{quiet}{logical to hide messages about the progress}
 }
@@ -34,7 +42,7 @@ a \code{graph} object with windspeed and airspeed as \code{ws} and \code{as} res
 Reads the NetCDF files downloaded and interpolate the average windspeed experienced by the
 bird on each possible edge, as well as the corresponding airspeed.
 
-In addition, the graph can be further pruned based on a threashold of airspeed \code{thr_as}.
+In addition, the graph can be further pruned based on a threshold of airspeed \code{thr_as}.
 
 See section \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title}{2.2.4 in Nussbaumer (2023b)}
 for more technical details and the \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual} for an

@@ -1,15 +1,16 @@
-# GeoPressureR v3.1.5
+# GeoPressureR v3.2
 ## Major
-- Fix major bugs https://github.com/Rafnuss/GeoPressureR/pull/103/commits/05c3203ef1588bbc1f769050377cadf5f1aadcbd
+- Use the new GeoPressureAPI pressurepath entry point for `geopressurepath_create()`
 - Update to GeoPressureAPI v2 for `geopressure_timeseries()` https://github.com/Rafnuss/GeoPressureR/pull/103/commits/732d1a02cc241dc7d2dde3401c8747fa860650c6
-- Add `workers` argument in `graph_create()` https://github.com/Rafnuss/GeoPressureR/commit/e1ce45882809e1fd3da0e8feb2ff80ac70f2bf8b
-- Edit default number of workers for `graph_create()` https://github.com/Rafnuss/GeoPressureR/pull/106/commits/256c5756e3eeb27ebac82b6c5a61b6cfb23425da
+- Fix major bug https://github.com/Rafnuss/GeoPressureR/pull/103/commits/05c3203ef1588bbc1f769050377cadf5f1aadcbd
 - Migrate from `httr`to `httr2` 
 
 ## Minor
+- Add `workers` argument in `graph_create()` https://github.com/Rafnuss/GeoPressureR/commit/e1ce45882809e1fd3da0e8feb2ff80ac70f2bf8b
 - Add `codemeta.json` https://github.com/Rafnuss/GeoPressureR/pull/105/commits/4f7f7bce8875b4af59db3fc1ce403d41d6317469
 - Add project status badge https://github.com/Rafnuss/GeoPressureR/pull/105/commits/ecd8f61ec49dcd376748e54d19dfb2000675d302
 - Fix leaflet tile provider with Stadia change https://github.com/Rafnuss/GeoPressureR/pull/106/commits/8d9bd159874deb87d61907ea14911eca12877038
+- Add `WORDLIST` for `spelling` package.
 
 **Full Changelog**: https://github.com/Rafnuss/GeoPressureR/compare/v3.1.5...v3.1.0
 ## Full Changelog
@@ -33,14 +34,14 @@
 # GeoPressureR v3.0
 
 ## Guiding principles of v3
-This new version consists of a significant revamp of the entire code centered around these themes:
+This new version consists of a significant revamp of the entire code centred around these themes:
 
 - Name more general than SOI sensors (e.g., use `tag` instead of `pam`)
 - Focus the workflow on pressure sensor (but still allows for acceleration or light data)
 - Update the notion of graph into State-Space Model notations (e.g. probability -> likelihood)
 - More memory efficient (store minimum graph info) while minimizing computational expense of the "slow" functions
 - Shorter workflow [#69](https://github.com/Rafnuss/GeoPressureR/issues/69)
-- Ease of labeling [#67](https://github.com/Rafnuss/GeoPressureR/issues/67)
+- Ease of labelling [#67](https://github.com/Rafnuss/GeoPressureR/issues/67)
 - Reproducibility and long-term storage with `param`.
 - Use of S3 class object with print and plot generic function.
 - Compatible with pipe `|>` or `%>%`
@@ -52,7 +53,7 @@ This new version consists of a significant revamp of the entire code centered ar
 
 ## Major
 * Use of GeoPressureR object: `tag`, `graph`, `param`, `bird`
-* Many new ploting functions including update of `geopressureviz()`
+* Many new plot functions including update of `geopressureviz()`
 * Transition from `raster` to `terra` #59
 * New label scheme with test and messaging for troubleshooting #67 #73 #83
 * Create `tag_update()` and `pressurepath_update()`
@@ -73,10 +74,10 @@ This new version consists of a significant revamp of the entire code centered ar
 
 ## Minor
 * Improve `graph_download_wind()` #54 
-* Geopressureviz function in #52
-* Replace `isoutliar` with `isoutlier in #43
+* GeoPressureViz function in #52
+* Replace `isoutliar` with `isoutlier` in #43
 * Use `assertthat` in #46 and #47
-* Typo of equipement and retrival in #48
+* Typo of equipment and retrieval in #48
 * Various minor fixes
 
 ## Full Changelog
@@ -120,10 +121,10 @@ This new version consists of a significant revamp of the entire code centered ar
 
 ## Minor
 - minor fixes for `sta_id=0` or `NA`
-- minor fixes in geopressureviz
+- minor fixes in `geopressureviz()`
 - add dummy graph test to improve coverage.
 - compute windspeed for short flight happening during the same hour
-- typos, code readability and stlyer
+- typos, code readability and `stlyer`
 
 ## Full Changelog
 [https://github.com/Rafnuss/GeoPressureR/compare/v2.3-beta...v2.4-beta](https://github.com/Rafnuss/GeoPressureR/compare/v2.3-beta...v2.4-beta)
@@ -155,11 +156,11 @@ This new version consists of a significant revamp of the entire code centered ar
 # GeoPressureR v2.2-beta
 ## Major
 - New function `geopressure_map2path` with return of index of lat-lon option
-- New function `geopressure_ts_path` to compute mulitple `geopressure_ts` function on a full path
+- New function `geopressure_ts_path` to compute multiple `geopressure_ts` function on a full path
 - Update GeoPressureViz (https://rafnuss.shinyapps.io/GeoPressureViz/) to accept `geopressure_ts_path` output
 
 ## Minor
-- fix flight and avonet databse #10
+- fix flight and avonet database #10
 - fix #9 
 
 ## Full Changelog
@@ -174,7 +175,7 @@ This new version consists of a significant revamp of the entire code centered ar
 ## Minor
 - Minor correction of existing code
 - cleaning of name, variable and file saved for more consistency
-- Update to GeoPresureAPI v2.1
+- Update to GeoPressureAPI v2.1
 
 ## Full Changelog 
 [https://github.com/Rafnuss/GeoPressureR/compare/v2.0-beta...v2.1-beta](https://github.com/Rafnuss/GeoPressureR/compare/v2.0-beta...v2.1-beta)

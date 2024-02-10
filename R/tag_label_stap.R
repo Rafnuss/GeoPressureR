@@ -66,9 +66,9 @@ tag_label_stap <- function(tag,
   tmp[sensor$label == "flight"] <- NA
 
   # As we label "in flight" pressure/acceleration, the taking-off and landing happened before and
-  # after the labeling respectively. To account for this. We estimate that the bird took off between
-  # the previous and first flight label, and landed between the last flight label and next one.
-  # We use the temporal resolution to account for this.
+  # after the labelling respectively. To account for this. We estimate that the bird took off
+  # between the previous and first flight label, and landed between the last flight label and next
+  # one. We use the temporal resolution to account for this.
   dt <- stats::median(diff(sensor$date))
 
   # construct stationary period table
@@ -83,12 +83,8 @@ tag_label_stap <- function(tag,
     if (assertthat::has_name(tag, sensor_df)) {
       assertthat::assert_that(is.data.frame(tag[[sensor_df]]))
       assertthat::assert_that(assertthat::has_name(tag[[sensor_df]], "date"))
-      tmp <- mapply(function(start, end) {
-        start <= tag[[sensor_df]]$date & tag[[sensor_df]]$date <= end
-      }, tag$stap$start, tag$stap$end)
-      tmp <- which(tmp, arr.ind = TRUE)
-      tag[[sensor_df]]$stap_id <- 0
-      tag[[sensor_df]]$stap_id[tmp[, 1]] <- tmp[, 2]
+
+      tag[[sensor_df]]$stap_id <- find_stap(tag$stap, tag[[sensor_df]]$date)
     }
   }
 
@@ -182,4 +178,32 @@ pretty_dt <- function(tim) {
 
   # Trim and return
   return(trimws(duration_str))
+}
+
+#' Find the stationary period corresponding to a date
+#'
+#' @noRd
+find_stap <- function(stap, date) {
+  # Find stap for each date
+  tmp <- mapply(function(start, end) {
+    start <= date & date <= end
+  }, stap$start, stap$end)
+
+  # Find index
+  tmp <- which(tmp, arr.ind = TRUE)
+
+  # Initiate with 0
+  stap_id <- rep(0, length(date))
+
+  # Add known stap_id
+  stap_id[tmp[, 1]] <- tmp[, 2]
+
+  # Interpolate linearly in between
+  sequence <- seq_len(length(stap_id))
+  id <- stap_id == 0
+  stap_id[id] <- stats::approx(sequence[!id], stap_id[!id], sequence[id], rule = 2)$y
+
+  assertthat::assert_that(all(!is.na(stap_id)))
+
+  return(stap_id)
 }

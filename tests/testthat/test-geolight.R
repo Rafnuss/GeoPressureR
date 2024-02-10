@@ -1,12 +1,10 @@
 library(testthat)
 library(GeoPressureR)
 
-options(cli.default_handler = function(...) { })
-
 # Set working directory
 setwd(system.file("extdata", package = "GeoPressureR"))
 
-tag <- tag_create("18LX")
+tag <- tag_create("18LX", quiet = TRUE)
 tag <- twilight_create(tag, twl_offset = 0)
 
 test_that("Check twilight_create()", {
@@ -20,17 +18,17 @@ test_that("Check twilight_create()", {
 })
 
 
-twilight_label_write(tag)
+twilight_label_write(tag, quiet = TRUE)
 tag <- twilight_label_read(tag)
 test_that("Check twilight_label_read() is correct", {
   expect_true("label" %in% names(tag$twilight))
 })
 
 test_that("Check geolight_map() not working before tag_set_map()", {
-  expect_error(tag <- geolight_map(tag))
+  expect_error(tag <- geolight_map(tag, quiet = TRUE))
 })
 
-tag <- tag_label(tag)
+tag <- tag_label(tag, quiet = TRUE)
 tag <- tag_set_map(tag,
   extent = c(-16, 23, 0, 50),
   scale = 4,
@@ -42,7 +40,7 @@ tag <- tag_set_map(tag,
 )
 
 test_that("Check geolight_map() with stap", {
-  tag <- geolight_map(tag)
+  tag <- geolight_map(tag, quiet = TRUE)
   expect_type(tag$map_light, "list")
   expect_equal(length(dim(tag$map_light[[1]])), 2)
 })
