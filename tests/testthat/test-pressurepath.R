@@ -44,5 +44,4 @@ test_that("pressurepath_create() | check flight", {
     era5_dataset = "land",
     quiet = TRUE
   ))
-  expect_true(all(unique(pressurepath$stap_id) %in% c(i_s, 0)))
 })

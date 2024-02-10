@@ -12,7 +12,7 @@ edge_add_wind(
   variable = c("u", "v"),
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
-  return_average_variable = FALSE,
+  return_averaged_variable = FALSE,
   file = function(stap_id) {
     
     glue::glue("./data/wind/{tag_graph$param$id}/{tag_graph$param$id}_{stap_id}.nc")
@@ -46,13 +46,13 @@ macth ERA5 native resolution (1hr).}
 \item{interp_spatial_linear}{logical to interpolate the variable linearly over space, if \code{FALSE}
 takes the nearest neighbour. ERA5 native resolution is 0.25°}
 
+\item{return_averaged_variable}{logical to return the variable for each timestep or average for
+the entire flight.}
+
 \item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
 taking as single argument the stationary period identifier.}
 
 \item{quiet}{logical to hide messages about the progress}
-
-\item{return_average_var}{logical to return the variable for each timestep or average for the
-entire flight.}
 }
 \value{
 A data.frame with columns:

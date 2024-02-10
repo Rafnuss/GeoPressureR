@@ -9,7 +9,7 @@ path2edge(path, tag_graph)
 \arguments{
 \item{path}{a GeoPressureR \code{path} data.frame}
 
-\item{graph}{either a \code{tag} or a \code{graph} GeoPressureR object.}
+\item{tag_graph}{either a \code{tag} or a \code{graph} GeoPressureR object.}
 }
 \value{
 Data.frame of the edge containing:

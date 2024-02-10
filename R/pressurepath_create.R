@@ -113,7 +113,7 @@ pressurepath_create <- function(tag,
   # Assert tag
   tag_assert(tag, "stap")
 
-  assertthat::assert_that(all(variable %in% GeoPressureR:::pressurepath_variable))
+  assertthat::assert_that(all(variable %in% pressurepath_variable))
 
   assertthat::assert_that(era5_dataset %in% c("single-levels", "land", "both"))
 

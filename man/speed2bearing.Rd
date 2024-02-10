@@ -4,7 +4,11 @@
 \alias{speed2bearing}
 \title{Compute the bearing of a speed}
 \usage{
-speed2bearing(speed, speed_ref = 0 + (0+1i), positive = TRUE)
+speed2bearing(
+  speed,
+  speed_ref = complex(real = 0, imaginary = 1),
+  positive = TRUE
+)
 }
 \arguments{
 \item{speed}{speed as complex value}

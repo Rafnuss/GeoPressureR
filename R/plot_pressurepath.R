@@ -50,7 +50,9 @@ plot_pressurepath <- function(pressurepath,
 
     id <- pressurepath$stap_id == 0
     sequence <- seq_len(nrow(pressurepath))
-    pressurepath$stap_id[id] <- approx(sequence[!id], pressurepath$stap_id[!id], sequence[id])$y
+    pressurepath$stap_id[id] <- stats::approx(
+      sequence[!id], pressurepath$stap_id[!id], sequence[id]
+    )$y
   }
 
   assertthat::assert_that(assertthat::has_name(

@@ -5,7 +5,7 @@
 #' edges can be useful to extract flight information specific to a path.
 #'
 #' @param path a GeoPressureR `path` data.frame
-#' @param graph either a `tag` or a `graph` GeoPressureR object.
+#' @param tag_graph either a `tag` or a `graph` GeoPressureR object.
 #'
 #' @return Data.frame of the edge containing:
 #' - `s`: index in 3D (lat-lon-stap) of the origin (source).

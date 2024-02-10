@@ -17,8 +17,8 @@
 #' level (i.e., altitude) of the bird during the flights. This data.frame needs to contain `date` as
 #' POSIXt and `value` in hPa.
 #' @inheritParams tag_download_wind
-#' @param return_average_var logical to return the variable for each timestep or average for the
-#' entire flight.
+#' @param return_averaged_variable logical to return the variable for each timestep or average for
+#' the entire flight.
 #' @param interp_spatial_linear logical to interpolate the variable linearly over space, if `FALSE`
 #' takes the nearest neighbour. ERA5 native resolution is 0.25°
 #' @param rounding_interval temporal resolution on which to query the variable (min). Default is to
@@ -54,7 +54,7 @@ edge_add_wind <- function(
     variable = c("u", "v"),
     rounding_interval = 60,
     interp_spatial_linear = FALSE,
-    return_average_variable = FALSE,
+    return_averaged_variable = FALSE,
     file = \(stap_id) {
       glue::glue("./data/wind/{tag_graph$param$id}/{tag_graph$param$id}_{stap_id}.nc")
     },
@@ -100,7 +100,7 @@ edge_add_wind <- function(
   assertthat::assert_that(all(edge_s[, 2] >= 1 & edge_s[, 2] <= g$dim[2]))
 
   # Prepare the matrix of speed to return
-  if (return_average_variable) {
+  if (return_averaged_variable) {
     var <- matrix(NA, nrow = nrow(edge_s), ncol = length(variable))
   } else {
     var <- list()
@@ -145,7 +145,7 @@ edge_add_wind <- function(
     ratio_stap <- as.matrix(c(0, cumsum(fl_s$duration) / sum(fl_s$duration)))
 
 
-    if (return_average_variable) {
+    if (return_averaged_variable) {
       # Prepare the u- and v- windspeed for each flight (row) and edge (col)
       var_stap <- list()
       for (var_i in seq_len(length(variable))) {
@@ -209,7 +209,7 @@ edge_add_wind <- function(
       lat_int <- lat_s + w2 * replicate(length(w), dlat_se)
       lon_int <- lon_s + w2 * replicate(length(w), dlon_se)
 
-      if (TRUE) { # we use w for both return_average_variable TRUE and FALSE
+      if (TRUE) { # we use w for both return_averaged_variable TRUE and FALSE
         # As we are interesting in the average windspeed experienced during the entire flight, we
         # need to find the weights of each 1hr interval extracted from ERA5. We can estimate these
         # weight assuming a linear integration of the time (trapezoidal rule) or a step integration
@@ -360,7 +360,7 @@ edge_add_wind <- function(
         }
       }
 
-      if (return_average_variable) {
+      if (return_averaged_variable) {
         # Compute the average wind component of the flight accounting for the weighting scheme
         for (var_i in seq_len(length(variable))) {
           var_stap[[var_i]][i_fl, ] <- colSums(var_fl[[var_i]] * w)
@@ -386,7 +386,7 @@ edge_add_wind <- function(
       }
     }
 
-    if (return_average_variable) {
+    if (return_averaged_variable) {
       # Compute the average over all the flight of the transition accounting for the duration of the
       # flight.
       for (var_i in seq_len(length(variable))) {
@@ -399,7 +399,7 @@ edge_add_wind <- function(
     }
   }
 
-  if (!return_average_variable) {
+  if (!return_averaged_variable) {
     var <- do.call(rbind, unlist(unlist(var, recursive = FALSE), recursive = FALSE))
   }
 
