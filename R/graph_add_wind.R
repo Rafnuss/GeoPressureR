@@ -48,7 +48,7 @@ graph_add_wind <- function(
     variable = c("u", "v"),
     rounding_interval = rounding_interval,
     interp_spatial_linear = interp_spatial_linear,
-    return_average_variable = TRUE,
+    return_averaged_variable = TRUE,
     file = file,
     quiet = quiet
   )

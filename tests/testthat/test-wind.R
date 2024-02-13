@@ -98,5 +98,5 @@ edge_add_wind(
   edge_s = edge_most_likely$s,
   edge_t = edge_most_likely$t,
   pressure = tag$pressure,
-  return_average_variable = FALSE
+  return_averaged_variable = FALSE
 )

@@ -16,7 +16,7 @@ server <- function(input, output, session) {
       .tag,
       edge_s = edge$s,
       edge_t = edge$t,
-      return_average_variable = TRUE,
+      return_averaged_variable = TRUE,
       file = .file_wind
     )
     edge$ws <- (uv[, 1] + 1i * uv[, 2]) / 1000 * 60 * 60
