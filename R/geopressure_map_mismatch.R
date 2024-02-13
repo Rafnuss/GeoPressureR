@@ -55,8 +55,12 @@ geopressure_map_mismatch <- function(tag,
   }
 
   if (!quiet) {
-    cli::cli_progress_step("Generate requests for {.val {length(unique(pres$stapelev))}} stapelev \\
-                           (on GeoPressureAPI): {.field {unique(pres$stapelev)}}")
+    cli::cli_progress_step(
+      msg = "Generate requests for {.val {length(unique(pres$stapelev))}} stapelev \\
+    (on GeoPressureAPI): {.field {unique(pres$stapelev)}}",
+      msg_done = "Generate requests for {.val {length(unique(pres$stapelev))}} stapelev \\
+    (on GeoPressureAPI)"
+    )
   }
 
   # Request URLS
