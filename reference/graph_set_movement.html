@@ -173,14 +173,9 @@ optimized hidden Markov model. <em>Methods in Ecology and Evolution</em>, 14, 11
 <span class="r-in"><span>  <span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="geopressure_map.html">geopressure_map</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="geolight_map.html">geolight_map</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in httr2::req_perform(req):</span> Failed to parse error body with method defined in `req_error()`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `httr2::resp_body_json()`:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Unexpected content type "text/html".</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Expecting type "application/json" or suffix "json".</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="va">owd</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="graph_create.html">graph_create</a></span><span class="op">(</span><span class="va">tag</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'tag' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu">graph_set_movement</span><span class="op">(</span><span class="va">graph</span>,</span></span>
 <span class="r-in"><span>  method <span class="op">=</span> <span class="st">"gamma"</span>,</span></span>
@@ -188,9 +183,8 @@ optimized hidden Markov model. <em>Methods in Ecology and Evolution</em>, 14, 11
 <span class="r-in"><span>  scale <span class="op">=</span> <span class="fl">6</span>,</span></span>
 <span class="r-in"><span>  low_speed_fix <span class="op">=</span> <span class="fl">10</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'graph' not found</span>
 <span class="r-in"><span><span class="fu"><a href="plot_graph_movement.html">plot_graph_movement</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'graph' not found</span>
+<span class="r-plt img"><img src="graph_set_movement-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu">graph_set_movement</span><span class="op">(</span><span class="va">graph</span>,</span></span>
 <span class="r-in"><span>  method <span class="op">=</span> <span class="st">"logis"</span>,</span></span>
@@ -198,9 +192,8 @@ optimized hidden Markov model. <em>Methods in Ecology and Evolution</em>, 14, 11
 <span class="r-in"><span>  location <span class="op">=</span> <span class="fl">60</span>,</span></span>
 <span class="r-in"><span>  low_speed_fix <span class="op">=</span> <span class="fl">10</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'graph' not found</span>
 <span class="r-in"><span><span class="fu"><a href="plot_graph_movement.html">plot_graph_movement</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'graph' not found</span>
+<span class="r-plt img"><img src="graph_set_movement-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
