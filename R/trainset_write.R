@@ -32,6 +32,10 @@ trainset_write <- function(df,
   # Remove row with empty element
   df <- df[!is.na(df[[value]]), ]
 
+  # Convert to charachter and ensure that there are no dots (trainset doesn't like them)
+  df[[label]] <- gsub("\\.", "-", as.character(df[[label]]))
+
+
   # Combine the variable
   df_trainset <- data.frame(
     series = df[[series]],
