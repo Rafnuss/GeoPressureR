@@ -105,6 +105,7 @@ each stationary periods stored in a different layer.</p>
 <span class="r-in"><span>    scale <span class="op">=</span> <span class="fl">4</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="geopressure_map.html">geopressure_map</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Careful, you are setting up 5 localhost parallel workers with only 4 CPU cores available for this R process (per ‘system’), which could result in a 125% load. The soft limit is set to 100%. Overusing the CPUs has negative impact on the current R process, but also on all other processes of yours and others running on the same machine. See help("parallelly.options", package = "parallelly") for how to override the soft and hard limits</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">rast.map</span><span class="op">(</span><span class="va">tag</span><span class="op">$</span><span class="va">map_pressure</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
@@ -113,9 +114,9 @@ each stationary periods stored in a different layer.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> extent      : -16, 23, 0, 50  (xmin, xmax, ymin, ymax)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : lon/lat WGS 84 (EPSG:4326) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       :         #1,         #2,         #3,         #4,         #5 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 0.00406242, 0.05795874, 0.08289883, 0.07016245, 0.02307327 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       :           #1,         #2,         #3,         #4,         #5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 0.0000000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 0.0003279974, 0.05795874, 0.08270384, 0.06983411, 0.02090437 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> time        : 2017-07-26 23:57:30 to 2017-08-08 00:12:30 UTC </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
