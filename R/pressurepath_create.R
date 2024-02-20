@@ -195,7 +195,8 @@ pressurepath_create <- function(tag,
     workers = workers
   )
 
-  if (!quiet) cli::cli_progress_step("Generate request on GeoPressureAPI and download csv")
+  if (!quiet) cli::cli_progress_step(
+  "Generate request on {.url glp.mgravey.com/GeoPressure/v2/pressurePath} and download csv")
 
   if (debug) {
     temp_file <- tempfile("log_pressurepath_", fileext = ".json")
