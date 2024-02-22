@@ -32,7 +32,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     ))
     id <- pressure$stap_id == 0
     sequence <- seq_len(nrow(pressure))
-    pressure$stap_id[id] <- approx(sequence[!id], pressure$stap_id[!id], sequence[id])$y
+    pressure$stap_id[id] <- stats::approx(sequence[!id], pressure$stap_id[!id], sequence[id])$y
   }
 
   if (nrow(pressure) < 3) {

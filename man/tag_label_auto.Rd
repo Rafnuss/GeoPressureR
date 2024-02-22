@@ -37,9 +37,9 @@ str(tag$acceleration)
 \href{https://bit.ly/45bthNt}{GeoPressureManual}
 
 Other tag_label: 
+\code{\link{tag_label}()},
 \code{\link{tag_label_read}()},
 \code{\link{tag_label_stap}()},
-\code{\link{tag_label_write}()},
-\code{\link{tag_label}()}
+\code{\link{tag_label_write}()}
 }
 \concept{tag_label}

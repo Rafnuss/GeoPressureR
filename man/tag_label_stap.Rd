@@ -27,14 +27,16 @@ column \code{stap_id} for each sensor data.
 }
 \description{
 This function computes the stationary periods from the pressure and/or acceleration label data.
+In most case, this function should be run directly after \code{tag_label_read()} in order to update
+\code{tag} to correspond to the new label file.
+
+A stationary period is a period during which the bird is considered static relative to the
+spatial resolution of interest (~10-50km). They are defined by being separated by a flight of any
+duration (label \code{"flight"}). The \code{stap_id} is an integer value for stationary periods and decimal
+value for flight. The \code{stap_id} is added as a new column to each sensor data.
 
 If an acceleration data.frame is present and contains a column \code{label}, the stationary period
 will be computed from it, otherwise, it uses the pressure data.frame.
-
-Stationary periods are defined by being separated by a flight (label \code{"flight"}). Flights of any
-duration will be considered.
-
-The function also adds the corresponding \code{stap_id} column to each sensor data.
 }
 \examples{
 setwd(system.file("extdata", package = "GeoPressureR"))
@@ -51,9 +53,9 @@ str(tag$stap)
 \href{https://bit.ly/45gwcVu}{GeoPressureManual}
 
 Other tag_label: 
+\code{\link{tag_label}()},
 \code{\link{tag_label_auto}()},
 \code{\link{tag_label_read}()},
-\code{\link{tag_label_write}()},
-\code{\link{tag_label}()}
+\code{\link{tag_label_write}()}
 }
 \concept{tag_label}

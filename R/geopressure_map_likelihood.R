@@ -90,7 +90,7 @@ geopressure_map_likelihood <- function(tag,
 
   # remove mse maps computed by geopressure_map_mismatch()
   if (!keep_mse) {
-    tag[names(tag) %in% c("map_pressure_mse", "map_pressure_mask")] <- NULL
+    tag[names(tag) == "map_pressure_mse"] <- NULL
     tag$stap <- tag$stap[names(tag$stap) != "nb_sample"]
   }
 

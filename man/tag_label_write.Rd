@@ -48,9 +48,9 @@ tag_label_write(tag)
 \href{https://bit.ly/3QC7IBt}{GeoPressureManual}
 
 Other tag_label: 
+\code{\link{tag_label}()},
 \code{\link{tag_label_auto}()},
 \code{\link{tag_label_read}()},
-\code{\link{tag_label_stap}()},
-\code{\link{tag_label}()}
+\code{\link{tag_label_stap}()}
 }
 \concept{tag_label}

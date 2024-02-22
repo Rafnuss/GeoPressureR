@@ -31,7 +31,7 @@ All variables can be listed with \code{GeoPressureR:::pressurepath_variable}.}
 or \code{"both"}. LAND has greater precision but is not available on water. Using a single one makes
 the query faster.}
 
-\item{preprocess}{logical to use \code{geopressure_map_preprocess}.}
+\item{preprocess}{logical to pre-process pressure data with \code{geopressure_map_preprocess()}.}
 
 \item{timeout}{duration before the code is interrupted both for the request on
 GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}

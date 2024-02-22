@@ -48,7 +48,7 @@
 #' ](https://doi.org/10.24381/cds.adbb2d47), `"land"` [doc](https://doi.org/10.24381/cds.e2161bac)
 #' or `"both"`. LAND has greater precision but is not available on water. Using a single one makes
 #' the query faster.
-#' @param preprocess logical to use `geopressure_map_preprocess`.
+#' @param preprocess logical to pre-process pressure data with `geopressure_map_preprocess()`.
 #' @param quiet logical to hide messages about the progress
 #' @param workers number of parallel requests on GEE. Integer between 1 and 99.
 #' @param debug logical to display additional information to debug a request
