@@ -117,7 +117,7 @@ geopressure_map_mismatch <- function(tag,
   # Perform the call in parallel
   # GEE allows up to 100 requests at the same time, so we set the workers a little bit below
   if (workers == "auto") {
-    workers <- min(90, length(urls))
+    workers <- min(parallel::detectCores(), length(urls))
   } else {
     assertthat::assert_that(workers > 0 & workers < 100)
   }
