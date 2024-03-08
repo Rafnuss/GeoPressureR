@@ -137,7 +137,7 @@ pressurepath_create <- function(tag,
   }
 
   # Remove pressure for stap not provided in path as well as flight
-  # Idenfify flight which have no provided position in path for the stap before and after
+  # Identify flight which have no provided position in path for the stap before and after
   stap_id_interp <- pressure$stap_id
   id <- stap_id_interp == 0
   sequence <- seq_len(nrow(pressure))
@@ -195,8 +195,11 @@ pressurepath_create <- function(tag,
     workers = workers
   )
 
-  if (!quiet) cli::cli_progress_step(
-  "Generate request on {.url glp.mgravey.com/GeoPressure/v2/pressurePath} and download csv")
+  if (!quiet) {
+    cli::cli_progress_step(
+      "Generate request on {.url glp.mgravey.com/GeoPressure/v2/pressurePath} and download csv"
+    )
+  }
 
   if (debug) {
     temp_file <- tempfile("log_pressurepath_", fileext = ".json")
@@ -245,14 +248,21 @@ pressurepath_create <- function(tag,
     pressurepath$surface_pressure <- pressurepath$surface_pressure / 100
 
     # Compute surface_pressure_norm
-    # compute average pressure per stap without including discard
-    df <- pressurepath
-    df$stap_id[df$label == "discard"] <- 0
-    agg <- merge(
-      stats::aggregate(surface_pressure ~ stap_id, data = df, FUN = mean),
-      stats::aggregate(pressure_tag ~ stap_id, data = df, FUN = mean)
+    # Compute average pressure per stap_elev without including discard
+    pp <- pressurepath
+    pp$stapelev <- paste(pp$stap_id,
+      ifelse(startsWith(pp$label, "elev_"), gsub("^.*?elev_", "", pp$label), "0"),
+      sep = "|"
     )
-    id <- match(pressurepath$stap_id, agg$stap_id)
+    # trick to exclude discard from agg but still compute the norm value
+    pp$stapelev_label <- pp$stapelev
+    pp$stapelev_label[pp$label == "discard"] <- 0
+
+    agg <- merge(
+      stats::aggregate(surface_pressure ~ stapelev_label, data = pp, FUN = mean),
+      stats::aggregate(pressure_tag ~ stapelev_label, data = pp, FUN = mean)
+    )
+    id <- match(pp$stapelev, agg$stapelev)
     pressurepath$surface_pressure_norm <- pressurepath$surface_pressure -
       agg$surface_pressure[id] + agg$pressure_tag[id]
   }

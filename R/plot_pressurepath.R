@@ -121,11 +121,11 @@ plot_pressurepath <- function(pressurepath,
         colour = "black"
       ) +
       ggplot2::geom_line(
-        data = pp[pp$stap_id != 0, ],
-        ggplot2::aes(y = .data$surface_pressure_norm, color = .data$stap_id)
+        data = pp[pp$stapelev != "0|0", ],
+        ggplot2::aes(y = .data$surface_pressure_norm, color = .data$stapelev)
       ) +
       ggplot2::geom_point(
-        data = pp[pp$warning & pp$label != "discard" & pp$stap_id != 0, ],
+        data = pp[pp$warning & pp$label != "discard" & pp$stapelev != "0|0", ],
         ggplot2::aes(y = .data$pressure_tag),
         fill = "orange", shape = 24, size = 3
       ) +
@@ -136,7 +136,7 @@ plot_pressurepath <- function(pressurepath,
     # Check if the empirical sd is greater than the sd used in the computation of the map
 
     # Remove error for flight
-    pp <- pp[pp$stap_id == round(pp$stap_id), ]
+    pp <- pp[pp$stapelev != "0|0", ]
 
     pp$sd_param <- sd[pp$stap_id]
     pp$sd_ok <- pp$error_sd > pp$sd_param
@@ -149,7 +149,7 @@ plot_pressurepath <- function(pressurepath,
       tag_era5$stapelev
     ))
 
-    p <- ggplot2::ggplot(pp[pp$label == "", ], ggplot2::aes(x = .data$error)) +
+    p <- ggplot2::ggplot(pp[pp$label != "discard", ], ggplot2::aes(x = .data$error)) +
       ggplot2::geom_histogram(
         ggplot2::aes(fill = .data$sd_ok),
         binwidth = .4
