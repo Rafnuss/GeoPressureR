@@ -65,13 +65,15 @@ plot_pressurepath <- function(pressurepath,
   if (is.null(sd)) {
     sd <- rep(1, times = length(unique(pressurepath$stap_id)))
   }
+  if (length(sd) == 1) {
+    sd <- rep(sd, times = length(unique(pressurepath$stap_id)))
+  }
 
   # Shorter name for the rest of the code
   pp <- pressurepath
 
   # Group by stapelev rather than stap in order to assess the use of elev
-  pp$stap_id[round(pp$stap_id) != pp$stap_id] <- 0
-  pp$stapelev <- paste(pp$stap_id,
+  pp$stapelev <- paste(ifelse(round(pp$stap_id) == pp$stap_id, pp$stap_id, 0),
     ifelse(startsWith(pp$label, "elev_"), gsub("^.*?elev_", "", pp$label), "0"),
     sep = "|"
   )
@@ -102,7 +104,8 @@ plot_pressurepath <- function(pressurepath,
   # knitr::kable(tag_era5, "simple")
 
   if (type %in% c("timeseries", "ts")) {
-    pp$warning <- (abs(pp$error) / sd[ifelse(pp$stap_id == 0, 1, pp$stap_id)]) >= warning_std_thr
+    pp$warning <- (abs(pp$error) / sd[ifelse(pp$stap_id == round(pp$stap_id), 1, pp$stap_id)]) >=
+      warning_std_thr
 
     # convert stapelev to factor for color
     pp$stap_id <- factor(pp$stap_id)
@@ -118,11 +121,11 @@ plot_pressurepath <- function(pressurepath,
         colour = "black"
       ) +
       ggplot2::geom_line(
-        data = pp[pp$stap_id != 0, ],
-        ggplot2::aes(y = .data$surface_pressure_norm, color = .data$stap_id)
+        data = pp[pp$stapelev != "0|0", ],
+        ggplot2::aes(y = .data$surface_pressure_norm, color = .data$stapelev)
       ) +
       ggplot2::geom_point(
-        data = pp[pp$warning & pp$label != "discard" & pp$stap_id != 0, ],
+        data = pp[pp$warning & pp$label != "discard" & pp$stapelev != "0|0", ],
         ggplot2::aes(y = .data$pressure_tag),
         fill = "orange", shape = 24, size = 3
       ) +
@@ -133,9 +136,9 @@ plot_pressurepath <- function(pressurepath,
     # Check if the empirical sd is greater than the sd used in the computation of the map
 
     # Remove error for flight
-    pp <- pp[pp$stap_id != 0, ]
+    pp <- pp[pp$stapelev != "0|0", ]
 
-    pp$sd_param <- sd[ifelse(pp$stap_id != round(pp$stap_id), 1, pp$stap_id)]
+    pp$sd_param <- sd[pp$stap_id]
     pp$sd_ok <- pp$error_sd > pp$sd_param
     pp$stapelev <- factor(pp$stapelev, levels = tag_era5$stapelev)
     pp$warning_p <- pp$sd_param * warning_std_thr
@@ -146,7 +149,7 @@ plot_pressurepath <- function(pressurepath,
       tag_era5$stapelev
     ))
 
-    p <- ggplot2::ggplot(pp[pp$label == "", ], ggplot2::aes(x = .data$error)) +
+    p <- ggplot2::ggplot(pp[pp$label != "discard", ], ggplot2::aes(x = .data$error)) +
       ggplot2::geom_histogram(
         ggplot2::aes(fill = .data$sd_ok),
         binwidth = .4
