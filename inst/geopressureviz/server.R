@@ -6,7 +6,6 @@ server <- function(input, output, session) {
   pressure <- .tag$pressure
   flight = stap2flight(stap)
 
-  print(.file_wind)
   if (is.null(.file_wind)){
     edge = NULL
   } else {
@@ -34,7 +33,6 @@ server <- function(input, output, session) {
   )
   origin_proj <- c(median(lonInEPSG3857), median(latInEPSG3857))
 
-
   session$onSessionEnded(function() {
     stopApp()
   })
@@ -42,6 +40,8 @@ server <- function(input, output, session) {
   observe({
     .GlobalEnv$geopressureviz_path <- reactVal$path
   })
+
+
 
   ## Reactive variable ----
 
@@ -67,11 +67,13 @@ server <- function(input, output, session) {
     return(r)
   }) |> bindEvent(input$map_source)
 
+  # list of the stap_id which are above the threashold of duration and included in the model
   stap_id_include <- reactive({
     min_dur_stap <- ifelse(is.na(input$min_dur_stap), 0, as.numeric(input$min_dur_stap))
     which(stap$duration >= min_dur_stap & stap$include)
   }) |> bindEvent(input$min_dur_stap)
 
+  # index of the current stap_id in the stap_id_include (so not index in all stap_id, only the one to use)
   idx <- reactive({
     which(stap_id_include() == input$stap_id)
   }) |> bindEvent(input$stap_id)
@@ -310,7 +312,7 @@ server <- function(input, output, session) {
       leaflet::clearMarkers()
     stap_model <- stap[stap_id_include(), ]
     path_model <- reactVal$path[stap_id_include(), c("lon", "lat")]
-    fl_dur <- as.numeric(flight$duration[stap_id_include()])
+    fl_dur <- stap2flight(stap, stap_id_include())$duration
     if (is.null(fl_dur)) {
       return()
     }
@@ -345,7 +347,7 @@ server <- function(input, output, session) {
             na.color = "#00000000",
             alpha = TRUE
           ),
-          project = "false"
+          project = FALSE
         )
       }
       proxy <- proxy |>
@@ -376,7 +378,6 @@ server <- function(input, output, session) {
             path_lat_ws = path_model$lat[idx()-1] + (path_model$lat[idx()] - path_model$lat[idx()-1]) * Im(tmp$ws / tmp$gs)
           }
         }
-
         proxy <- proxy |>
           leaflet::addPolylines(
             lng = c(path_model$lon[idx()-1], path_lon_ws, path_model$lon[idx()]),
@@ -404,7 +405,6 @@ server <- function(input, output, session) {
           )
       }
       if (idx() != length(stap_id_include())) {
-
         # find position from wind only
         # path_model$stap_id[idx() + (0:1)]
 
