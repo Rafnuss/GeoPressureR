@@ -129,7 +129,8 @@ geopressureviz <- function(x,
     # If path is a pressurepath
     pressurepath <- path
     path <- merge(tag$stap,
-      unique(pressurepath[pressurepath$stap_id != 0, c("stap_id", "lat", "lon")]),
+      unique(pressurepath[pressurepath$stap_id == round(pressurepath$stap_id),
+                          c("stap_id", "lat", "lon")]),
       all = TRUE
     )
     pressurepath$linetype <- as.factor(1)
