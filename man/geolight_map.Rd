@@ -75,6 +75,7 @@ plot(tag, type = "map_light")
 }
 \seealso{
 Other geolight: 
+\code{\link{path2twilight}()},
 \code{\link{twilight_create}()},
 \code{\link{twilight_label_read}()},
 \code{\link{twilight_label_write}()}

@@ -4,10 +4,18 @@
 \alias{plot_tag_twilight}
 \title{Plot twilight data of a \code{tag}}
 \usage{
-plot_tag_twilight(tag, transform_light = TRUE, plot_plotly = FALSE)
+plot_tag_twilight(
+  tag,
+  twilight_line = NULL,
+  transform_light = TRUE,
+  plot_plotly = FALSE
+)
 }
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object}
+
+\item{twilight_line}{a twilight data.frame typically created with \code{path2twilight()} which is
+displayed as a line}
 
 \item{transform_light}{logical to display a log transformation of light}
 
