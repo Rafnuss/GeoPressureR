@@ -16,13 +16,17 @@
 #' @param pressure pressure measurement of the associated `tag` data used to estimate the pressure
 #' level (i.e., altitude) of the bird during the flights. This data.frame needs to contain `date` as
 #' POSIXt and `value` in hPa.
-#' @inheritParams tag_download_wind
-#' @param return_averaged_variable logical to return the variable for each timestep or average for
-#' the entire flight.
-#' @param interp_spatial_linear logical to interpolate the variable linearly over space, if `FALSE`
-#' takes the nearest neighbour. ERA5 native resolution is 0.25°
+#' @param variable list of the variables to extract from [the ERA5 pressure level](
+#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9)
+#' using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`, , `"w"`, `"ciwc"`, `"clwc"`,
+#'  `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `'vo"`.
 #' @param rounding_interval temporal resolution on which to query the variable (min). Default is to
 #' macth ERA5 native resolution (1hr).
+#' @param interp_spatial_linear logical to interpolate the variable linearly over space, if `FALSE`
+#' takes the nearest neighbour. ERA5 native resolution is 0.25°
+#' @param return_averaged_variable logical to return the variable for each timestep or average for
+#' the entire flight.
+#' @inheritParams tag_download_wind
 #' @param quiet logical to hide messages about the progress
 #'
 #' @return A data.frame with columns:

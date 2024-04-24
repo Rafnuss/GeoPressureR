@@ -458,12 +458,12 @@ plot_tag_twilight <- function(tag,
   names(df) <- mat$day
   df$time <- as.POSIXct(strptime(mat$time, "%H:%M")) # factor(mat$time, levels = mat$time)
   df_long <- stats::reshape(df,
-                            direction = "long",
-                            varying = list(utils::head(names(df), -1)),
-                            v.names = "light",
-                            idvar = "time",
-                            timevar = "date",
-                            times = utils::head(names(df), -1)
+    direction = "long",
+    varying = list(utils::head(names(df), -1)),
+    v.names = "light",
+    idvar = "time",
+    timevar = "date",
+    times = utils::head(names(df), -1)
   )
   df_long$date <- as.Date(df_long$date)
 
@@ -520,7 +520,7 @@ plot_tag_twilight <- function(tag,
       )
   }
 
-  if (!is.null(twilight_line)){
+  if (!is.null(twilight_line)) {
     twll <- twilight_line
     twll$date <- as.Date(twll$twilight)
     twll$time <- as.POSIXct(strptime(format(twll$twilight, "%H:%M"), "%H:%M"))
@@ -531,7 +531,7 @@ plot_tag_twilight <- function(tag,
         data = twll,
         ggplot2::aes(x = .data$date, y = .data$time, group = .data$rise),
         size = 1,
-        color=ifelse(twll$rise,"brown","lightgreen")
+        color = ifelse(twll$rise, "brown", "lightgreen")
       )
   }
 
@@ -541,9 +541,9 @@ plot_tag_twilight <- function(tag,
       name = "Time",
       date_breaks = "1 hour",
       date_labels = "%H:%M",
-      expand = c(0,0)
+      expand = c(0, 0)
     ) +
-    ggplot2::scale_x_date(name="Date", expand = c(0,0))
+    ggplot2::scale_x_date(name = "Date", expand = c(0, 0))
 
   if (plot_plotly) {
     return(plotly::ggplotly(p, dynamicTicks = TRUE))

@@ -15,7 +15,7 @@
 #'
 #' @param stap a stationary period data.frame (see [`tag_label_stap()`]).
 #' @param include_stap_id vector of the stationary period `stap_id` to consider in the flight.
-#' Default is to use `stap$stap_id[stap$include]` or `stap$stap_id` if `model` is not available in
+#' Default is to use `stap$stap_id[stap$include]` or `stap$stap_id` if `include` is not available in
 #' `stap`.
 #' @param format character to return a list `"list"` or a data.frame `"df"` (see description)
 #' @inheritParams stap2duration

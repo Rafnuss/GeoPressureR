@@ -124,8 +124,11 @@ geopressure_timeseries <- function(lat,
     body$endTime <- as.numeric(as.POSIXct(end_time))
   }
 
-  if (!quiet) cli::cli_progress_step(
-    "Generate request on {.url glp.mgravey.com/GeoPressure/v2/timeseries}")
+  if (!quiet) {
+    cli::cli_progress_step(
+      "Generate request on {.url glp.mgravey.com/GeoPressure/v2/timeseries}"
+    )
+  }
 
   if (debug) {
     temp_file <- tempfile("log_geopressure_timeseries_", fileext = ".json")

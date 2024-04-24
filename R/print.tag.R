@@ -90,7 +90,7 @@ print.tag <- function(x, ...) {
             "v" = "Pressure likelihood {.field map_pressure} computed!"
           ))
         } else {
-          if ("map_pressure_mse" %in% names(tag)){
+          if ("map_pressure_mse" %in% names(tag)) {
             fun_map <- "geopressure_map_likelihood"
           } else {
             fun_map <- "geopressure_map"

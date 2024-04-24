@@ -33,12 +33,9 @@ of 3 columns, one for each dimension.}
 level (i.e., altitude) of the bird during the flights. This data.frame needs to contain \code{date} as
 POSIXt and \code{value} in hPa.}
 
-\item{variable}{list of variables to download from \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level}:
-\code{"u_component_of_wind"}, \code{"v_component_of_wind"},  \code{"temperature"}, \code{"fraction_of_cloud_cover"},
-\code{"relative_humidity"}, , \code{"vertical_velocity"}, \code{"specific_cloud_ice_water_content"},
-\code{"specific_cloud_liquid_water_content"}, \code{"specific_humidity"}, \code{"specific_rain_water_content"},
-\code{"specific_snow_water_content"}, \code{"divergence"}, \code{"geopotential"}, \code{"ozone_mass_mixing_ratio"},
-\code{"potential_vorticity"}, \verb{'vorticity"}.}
+\item{variable}{list of the variables to extract from \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level}
+using the \code{shortName} notation: \code{"u"}, \code{"v"},  \code{"t"}, \code{"cc"}, \code{"r"}, , \code{"w"}, \code{"ciwc"}, \code{"clwc"},
+\code{"q"}, \code{"cswc"}, \code{"d"}, \code{"z"}, \code{"o3"}, \code{"pv"}, \verb{'vo"}.}
 
 \item{rounding_interval}{temporal resolution on which to query the variable (min). Default is to
 macth ERA5 native resolution (1hr).}

@@ -92,24 +92,24 @@ graph_create <- function(tag,
 
   # Extract info from tag for simplicity
   stap <- tag$stap
-  stap_model <- which(stap$include)
+  stap_include <- which(stap$include)
 
   # Select only the map for the stap to model
-  lk <- lk[stap_model]
+  lk <- lk[stap_include]
 
   lk_null <- sapply(lk, is.null)
   if (any(lk_null)) {
     cli::cli_abort(c(
       x = "The {.field {likelihood}} in {.var tag} is/are null for stationary periods \\
-       {.var {stap_model[lk_null]}} while those stationary period are required in \\
+       {.var {stap_include[lk_null]}} while those stationary period are required in \\
       {.var stap$include}",
       i = "Check your input and re-run {.fun geopressure_map} if necessary."
     ))
   }
 
-  if (length(stap_model) < 2) {
+  if (length(stap_include) < 2) {
     cli::cli_abort(c(
-      x = "There are only {.var {length(stap_model)}} stationary period{?s} to be modelled \\
+      x = "There are only {.var {length(stap_include)}} stationary period{?s} to be modelled \\
       according to {.var stap$include}.",
       i = "You need at least 3 stationary periods."
     ))
@@ -125,10 +125,10 @@ graph_create <- function(tag,
   # Construct flight
   flight <- stap2flight(stap)
   flight_duration <- as.numeric(flight$duration)
-  assertthat::assert_that(length(flight_duration) == length(stap_model) - 1)
+  assertthat::assert_that(length(flight_duration) == length(stap_include) - 1)
 
   # Compute size
-  sz <- c(g$dim[1], g$dim[2], length(stap_model))
+  sz <- c(g$dim[1], g$dim[2], length(stap_include))
   nll <- sz[1] * sz[2]
 
   # Process likelihood map
@@ -153,13 +153,13 @@ graph_create <- function(tag,
   if (any(is.na(stap_id_0))) {
     cli::cli_abort(c(
       x = "{.var likelihood} is invalid for the stationary period: \\
-      {stap_model[which(is.na(stap_id_0))]}"
+      {stap_include[which(is.na(stap_id_0))]}"
     ))
   }
   if (any(stap_id_0)) {
     cli::cli_abort(c(
       x = "Using the {.var likelihood}  provided has an invalid probability map for the \\
-      stationary period: {stap_model[which(stap_id_0)]}"
+      stationary period: {stap_include[which(stap_id_0)]}"
     ))
   }
 
@@ -179,7 +179,7 @@ graph_create <- function(tag,
   if (any(nds_0)) {
     cli::cli_abort(c(
       x = "Using the {.var thr_likelihood} of {.val {thr_likelihood}}, there are not any nodes \\
-      left at stationary period: {.val {stap_model[which(nds_0)]}}"
+      left at stationary period: {.val {stap_include[which(nds_0)]}}"
     ))
   }
 
@@ -197,8 +197,8 @@ graph_create <- function(tag,
     if (sum(nds[[i_s + 1]]) == 0) {
       cli::cli_abort(c(
         x = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the binary distance \\
-          edges, there are not any nodes left at stationary period {.val {stap_model[i_s + 1]}} \\
-        from stationary period {.val {stap_model[i_s]}}"
+          edges, there are not any nodes left at stationary period {.val {stap_include[i_s + 1]}} \\
+        from stationary period {.val {stap_include[i_s]}}"
       ))
     }
   }
@@ -209,8 +209,8 @@ graph_create <- function(tag,
     if (sum(nds[[i_s - 1]]) == 0) {
       cli::cli_abort(c(
         x = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance \\
-          edges, there are not any nodes left at stationary period {.val {stap_model[i_s - 1]}} \\
-        from stationary period {.val {stap_model[i_s]}}"
+          edges, there are not any nodes left at stationary period {.val {stap_include[i_s - 1]}} \\
+        from stationary period {.val {stap_include[i_s]}}"
       ))
     }
   }
@@ -277,7 +277,7 @@ graph_create <- function(tag,
       if (sum(id) == 0) {
         cli::cli_abort(c(
           x = "Using the {.var thr_g} of {.val {thr_gs}} km/h provided with the exact distance of \\
-          edges, there are not any nodes left for the stationary period: {.val stap_model[i_s]}"
+          edges, there are not any nodes left for the stationary period: {.val stap_include[i_s]}"
         ))
       }
       grt <- grt[id, ]
@@ -298,7 +298,7 @@ graph_create <- function(tag,
       if (sum(id) == 0) {
         cli::cli_abort(c(
           x = "Using the {.var thr_g} of {.val {thr_gs}} km/h provided with the exact distance of \\
-          edges, there are not any nodes left for the stationary period: {.val {stap_model[i_s]}}"
+          edges, there are not any nodes left for the stationary period: {.val {stap_include[i_s]}}"
         ))
       }
 
