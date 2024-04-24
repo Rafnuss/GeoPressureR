@@ -4,12 +4,17 @@
 \alias{path2twilight}
 \title{Compute astronomical twilight from positions and dates}
 \usage{
-path2twilight(path, date = NULL)
+path2twilight(path, date = NULL, solarDep = 0)
 }
 \arguments{
 \item{path}{a GeoPressureR \code{path} or \code{pressurepath} data.frame}
 
-\item{date}{a vector of POSIXt datetime.}
+\item{date}{a vector of POSIXt datetime for which sunrise and sunset are computed. Be default,
+uses the range of \code{path$date} provided.}
+
+\item{solarDep}{a numerical value representing the solar depression angle used to compute sunrise
+and sunset. only for \code{"dawn"}
+and \code{"dusk"}.}
 }
 \value{
 a \code{twilight} data.frame with columns:
@@ -24,18 +29,19 @@ This function compute the theorical twilight (i.e., datetime of sunrise and suns
 locations and for specific date.
 
 We use the \href{https://github.com/adokter/suntools}{suntools} package for this.
+
+By default (\code{solarDep=0}), the computation return sunrise and sunset. But, it is also possible
+to compute different twilights by setting depression angle value greater than 0 (6° for civil,
+12° for nautical and 18° for astronomical).
 }
 \examples{
-owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
-setwd(owd)
-
-# Create twilight data.frame
-tag <- twilight_create(tag)
-
-str(tag$twilight)
-
-plot(tag, type = "twilight")
+path <- data.frame(
+  stap_id = c(1, 2, 3, 4, 5),
+  lat = c(48.9, 47.5, 45.5, 41.5, 37.5),
+  lon = c(17.05, 16.5, 14.5, 16.5, 13.5),
+  start = as.POSIXct(c(1501113450, 1501888650, 1501987950, 1502075550, 1502151150), tzone = "UTC"),
+  end = as.POSIXct(c(1501876050, 1501961250, 1502046750, 1502133150, 1502323050), tzone = "UTC"),
+)
 
 }
 \seealso{

@@ -6,8 +6,16 @@
 #'
 #' We use the [suntools](https://github.com/adokter/suntools) package for this.
 #'
+#' By default (`solarDep=0`), the computation return sunrise and sunset. But, it is also possible
+#' to compute different twilights by setting depression angle value greater than 0 (6° for civil,
+#' 12° for nautical and 18° for astronomical).
+#'
 #' @param path a GeoPressureR `path` or `pressurepath` data.frame
-#' @param date a vector of POSIXt datetime.
+#' @param date a vector of POSIXt datetime for which sunrise and sunset are computed. Be default,
+#' uses the range of `path$date` provided.
+#' @param solarDep a numerical value representing the solar depression angle used to compute sunrise
+#' and sunset. only for `"dawn"`
+#' and `"dusk"`.
 #'
 #' @return a `twilight` data.frame with columns:
 #' - `twilight` (date-time of twilight)
@@ -15,16 +23,13 @@
 #' - `stap_id`.
 #'
 #' @examples
-#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
-#' setwd(owd)
-#'
-#' # Create twilight data.frame
-#' tag <- twilight_create(tag)
-#'
-#' str(tag$twilight)
-#'
-#' plot(tag, type = "twilight")
+#' path <- data.frame(
+#'   stap_id = c(1, 2, 3, 4, 5),
+#'   lat = c(48.9, 47.5, 45.5, 41.5, 37.5),
+#'   lon = c(17.05, 16.5, 14.5, 16.5, 13.5),
+#'   start = as.POSIXct(c(1501113450, 1501888650, 1501987950, 1502075550, 1502151150), tzone = "UTC"),
+#'   end = as.POSIXct(c(1501876050, 1501961250, 1502046750, 1502133150, 1502323050), tzone = "UTC"),
+#' )
 #'
 #' @family geolight
 #' @seealso [GeoPressureManual
@@ -32,7 +37,8 @@
 #' ](https://github.com/adokter/suntools)
 #' @export
 path2twilight <- function(path,
-                          date = NULL) {
+                          date = NULL,
+                          solarDep = 0) {
   assertthat::assert_that(is.data.frame(path))
 
   # pressurepath
@@ -74,27 +80,44 @@ path2twilight <- function(path,
     )
   }
 
-  twl$sunset <- suntools::sunriset(
-    crds = matrix(c(twl$lon, twl$lat), ncol = 2),
-    dateTime = twl$date,
-    direction = "sunset",
-    POSIXct.out = TRUE
-  )$time
+  if (solarDep == 0) {
+    twl$sunset <- suntools::sunriset(
+      crds = matrix(c(twl$lon, twl$lat), ncol = 2),
+      dateTime = twl$date,
+      direction = "sunset",
+      POSIXct.out = TRUE
+    )$time
 
-  twl$sunrise <- suntools::sunriset(
-    crds = matrix(c(twl$lon, twl$lat), ncol = 2),
-    dateTime = twl$date,
-    direction = "sunrise",
-    POSIXct.out = TRUE
-  )$time
+    twl$sunrise <- suntools::sunriset(
+      crds = matrix(c(twl$lon, twl$lat), ncol = 2),
+      dateTime = twl$date,
+      direction = "sunrise",
+      POSIXct.out = TRUE
+    )$time
+  } else {
+    twl$sunrise <- suntools::crepuscule(
+      crds = matrix(c(twl$lon, twl$lat), ncol = 2),
+      dateTime = twl$date,
+      solarDep = solarDep,
+      direction = "dawn",
+      POSIXct.out = TRUE
+    )$time
 
-  out <- data.frame(
+    twl$sunset <- suntools::crepuscule(
+      crds = matrix(c(twl$lon, twl$lat), ncol = 2),
+      dateTime = twl$date,
+      solarDep = solarDep,
+      direction = "dusk",
+      POSIXct.out = TRUE
+    )$time
+  }
+
+  return(data.frame(
     twilight = c(twl$sunrise, twl$sunset),
     rise = c(rep(TRUE, length(twl$sunrise)), rep(FALSE, length(twl$sunset))),
     stap_id = c(stap_id, stap_id),
     lon = c(twl$lon, twl$lon),
     lat = c(twl$lat, twl$lat),
     date = c(twl$date, twl$date)
-  )
-  return(out)
+  ))
 }
