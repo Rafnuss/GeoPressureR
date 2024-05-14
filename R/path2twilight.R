@@ -14,8 +14,7 @@
 #' @param date a vector of POSIXt datetime for which sunrise and sunset are computed. Be default,
 #' uses the range of `path$date` provided.
 #' @param solarDep a numerical value representing the solar depression angle used to compute sunrise
-#' and sunset. only for `"dawn"`
-#' and `"dusk"`.
+#' and sunset.
 #'
 #' @return a `twilight` data.frame with columns:
 #' - `twilight` (date-time of twilight)
@@ -25,11 +24,18 @@
 #' @examples
 #' path <- data.frame(
 #'   stap_id = c(1, 2, 3, 4, 5),
+#'   j = c(1L, 1L, 1L, 1L, 1L),
+#'   ind = c(1652L, 1603L, 1505L, 1609L, 1463L),
 #'   lat = c(48.9, 47.5, 45.5, 41.5, 37.5),
 #'   lon = c(17.05, 16.5, 14.5, 16.5, 13.5),
 #'   start = as.POSIXct(c(1501113450, 1501888650, 1501987950, 1502075550, 1502151150), tzone = "UTC"),
 #'   end = as.POSIXct(c(1501876050, 1501961250, 1502046750, 1502133150, 1502323050), tzone = "UTC"),
+#'   include = c(TRUE, TRUE, TRUE, TRUE, TRUE),
+#'   known = c(TRUE, FALSE, FALSE, FALSE, FALSE),
+#'   interp = c(FALSE, FALSE, FALSE, FALSE, FALSE)
 #' )
+#'
+#' twl <- path2twilight(path)
 #'
 #' @family geolight
 #' @seealso [GeoPressureManual
