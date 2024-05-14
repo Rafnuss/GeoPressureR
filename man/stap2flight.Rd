@@ -16,7 +16,7 @@ stap2flight(
 \item{stap}{a stationary period data.frame (see \code{\link[=tag_label_stap]{tag_label_stap()}}).}
 
 \item{include_stap_id}{vector of the stationary period \code{stap_id} to consider in the flight.
-Default is to use \code{stap$stap_id[stap$include]} or \code{stap$stap_id} if \code{model} is not available in
+Default is to use \code{stap$stap_id[stap$include]} or \code{stap$stap_id} if \code{include} is not available in
 \code{stap}.}
 
 \item{format}{character to return a list \code{"list"} or a data.frame \code{"df"} (see description)}

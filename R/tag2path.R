@@ -99,8 +99,8 @@ tag2path <- function(tag,
       }
     }
 
-    # Compute flight duration of the
-    flight <- stap2flight(tag$stap)
+    # Compute flight duration for all stap (even the non-included)
+    flight <- stap2flight(tag$stap, include_stap_id = tag$stap$stap_id)
 
     # Cummulate the flight duration to get a proxy of the over distance covered
     total_flight <- cumsum(as.numeric(c(0, flight$duration)))

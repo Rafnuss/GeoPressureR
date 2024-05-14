@@ -420,6 +420,8 @@ plot_tag_temperature <- function(tag,
 #' This function display a plot of twilight time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
+#' @param twilight_line a twilight data.frame typically created with `path2twilight()` which is
+#' displayed as a line
 #' @param plot_plotly logical to use `plotly`
 #' @param transform_light logical to display a log transformation of light
 #'
@@ -438,6 +440,7 @@ plot_tag_temperature <- function(tag,
 #'
 #' @export
 plot_tag_twilight <- function(tag,
+                              twilight_line = NULL,
                               transform_light = TRUE,
                               plot_plotly = FALSE) {
   tag_assert(tag, "twilight")
@@ -453,7 +456,7 @@ plot_tag_twilight <- function(tag,
   # Convert to long format data.fram to be able to plot with ggplot
   df <- as.data.frame(mat$value)
   names(df) <- mat$day
-  df$time <- factor(mat$time, levels = mat$time)
+  df$time <- as.POSIXct(strptime(mat$time, "%H:%M")) # factor(mat$time, levels = mat$time)
   df_long <- stats::reshape(df,
     direction = "long",
     varying = list(utils::head(names(df), -1)),
@@ -469,14 +472,12 @@ plot_tag_twilight <- function(tag,
       data = df_long,
       ggplot2::aes(x = .data$date, y = .data$time, fill = .data$light)
     ) +
-    ggplot2::theme_bw() +
-    ggplot2::scale_fill_gradient(low = "black", high = "white") +
-    ggplot2::scale_x_date(name = "Date")
+    ggplot2::scale_fill_gradient(low = "black", high = "white")
 
   if ("twilight" %in% names(tag)) {
     twl <- tag$twilight
     twl$date <- as.Date(twl$twilight)
-    twl$time <- format(twl$twilight, "%H:%M")
+    twl$time <- as.POSIXct(strptime(format(twl$twilight, "%H:%M"), "%H:%M"))
     twl$stap_id <- factor(round(twl$stap_id))
     if ("label" %in% names(twl)) {
       twl$discard <- twl$label == "discard"
@@ -519,18 +520,35 @@ plot_tag_twilight <- function(tag,
       )
   }
 
+  if (!is.null(twilight_line)) {
+    twll <- twilight_line
+    twll$date <- as.Date(twll$twilight)
+    twll$time <- as.POSIXct(strptime(format(twll$twilight, "%H:%M"), "%H:%M"))
+    twll$stap_id <- factor(round(twll$stap_id))
+
+    p <- p +
+      ggplot2::geom_line(
+        data = twll,
+        ggplot2::aes(x = .data$date, y = .data$time, group = .data$rise),
+        size = 1,
+        color = ifelse(twll$rise, "brown", "lightgreen")
+      )
+  }
+
+  p <- p +
+    ggplot2::theme_bw() +
+    ggplot2::scale_y_datetime(
+      name = "Time",
+      date_breaks = "1 hour",
+      date_labels = "%H:%M",
+      expand = c(0, 0)
+    ) +
+    ggplot2::scale_x_date(name = "Date", expand = c(0, 0))
+
   if (plot_plotly) {
-    return(plotly::ggplotly(p + ggplot2::scale_y_discrete(name = "Time"), dynamicTicks = TRUE))
+    return(plotly::ggplotly(p, dynamicTicks = TRUE))
   } else {
     # Setting the breaks seems to mess up plotly
-    p <- p +
-      ggplot2::scale_y_discrete(
-        name = "Time",
-        breaks = format(
-          seq(as.POSIXct("2015-1-1 0:00"), as.POSIXct("2015-1-1 23:00"), by = "hour"),
-          "%H:%M"
-        )
-      )
     return(p)
   }
 }

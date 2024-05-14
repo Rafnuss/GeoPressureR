@@ -104,7 +104,7 @@ twilight_create <- function(tag,
 
   twilight <- data.frame(
     twilight = c(ss, sr),
-    rise = c(!logical(length(ss)), logical(length(sr)))
+    rise = c(logical(length(ss)), !logical(length(sr)))
   )
 
   # order by time

@@ -79,6 +79,7 @@ geolight_map <- function(tag,
 
   # extract for convenience
   twl <- tag$twilight
+  twl <- stats::na.omit(twl)
 
   # Add stap_id if missing
   if (!("stap_id" %in% names(twl))) {
