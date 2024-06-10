@@ -1,13 +1,12 @@
 # nolint start
 server <- function(input, output, session) {
-
   # Extract shorter name for variable
   stap <- .tag$stap
   pressure <- .tag$pressure
-  flight = stap2flight(stap)
+  flight <- stap2flight(stap)
 
-  if (is.null(.file_wind)){
-    edge = NULL
+  if (is.null(.file_wind)) {
+    edge <- NULL
   } else {
     edge <- path2edge(.path, .tag)
 
@@ -112,12 +111,12 @@ server <- function(input, output, session) {
         reactVal$path[stap_id_prev, c("lon", "lat")],
         reactVal$path[as.numeric(input$stap_id), c("lon", "lat")]
       ) / 1000
-      fl_dur_prev = sum(flight$duration[seq(stap_id_prev, as.numeric(input$stap_id)-1)])
-      as= NULL
-      if (!is.null(reactVal$edge)){
-        tmp = reactVal$edge[seq(stap_id_prev, as.numeric(input$stap_id)-1),]
-        if (nrow(tmp)==1){
-          as = paste0("as=",round(abs(tmp$gs - tmp$ws)),"km/h")
+      fl_dur_prev <- sum(flight$duration[seq(stap_id_prev, as.numeric(input$stap_id) - 1)])
+      as <- NULL
+      if (!is.null(reactVal$edge)) {
+        tmp <- reactVal$edge[seq(stap_id_prev, as.numeric(input$stap_id) - 1), ]
+        if (nrow(tmp) == 1) {
+          as <- paste0("as=", round(abs(tmp$gs - tmp$ws)), "km/h")
         }
       }
       HTML(
@@ -141,12 +140,12 @@ server <- function(input, output, session) {
         reactVal$path[as.numeric(input$stap_id), c("lon", "lat")],
         reactVal$path[stap_id_next, c("lon", "lat")]
       ) / 1000
-      fl_dur_next = sum(flight$duration[seq(as.numeric(input$stap_id), stap_id_next -1 )])
-      as = NULL
-      if (!is.null(reactVal$edge)){
-        tmp = reactVal$edge[seq(as.numeric(input$stap_id), stap_id_next -1),]
-        if (nrow(tmp)==1){
-          as = paste0("as=",round(abs(tmp$gs - tmp$ws)),"km/h")
+      fl_dur_next <- sum(flight$duration[seq(as.numeric(input$stap_id), stap_id_next - 1)])
+      as <- NULL
+      if (!is.null(reactVal$edge)) {
+        tmp <- reactVal$edge[seq(as.numeric(input$stap_id), stap_id_next - 1), ]
+        if (nrow(tmp) == 1) {
+          as <- paste0("as=", round(abs(tmp$gs - tmp$ws)), "km/h")
         }
       }
       HTML(
@@ -211,7 +210,7 @@ server <- function(input, output, session) {
     } else {
       shinyjs::show(id = "stap_info_view", anim = T)
       shinyjs::hide(id = "track_info_view", anim = T)
-      if (input$min_dur_stap>0){
+      if (input$min_dur_stap > 0) {
         shinyjs::show(id = "edit_position_interpolate")
       } else {
         shinyjs::hide(id = "edit_position_interpolate")
@@ -263,26 +262,26 @@ server <- function(input, output, session) {
     if (!input$full_track) {
       reactVal$path[as.numeric(input$stap_id), c("lon", "lat")] <- c(click$lng, click$lat)
 
-      if(input$edit_position_interpolate){
-        if (idx() != 1){
+      if (input$edit_position_interpolate) {
+        if (idx() != 1) {
           stap_id_prev <- stap_id_include()[idx() - 1]
         } else {
           stap_id_prev <- as.numeric(input$stap_id)
         }
-        if (idx() != length(stap_id_include())){
+        if (idx() != length(stap_id_include())) {
           stap_id_next <- stap_id_include()[idx() + 1]
         } else {
           stap_id_next <- as.numeric(input$stap_id)
         }
 
-        stap_prev_to_next = seq(stap_id_prev, stap_id_next)
+        stap_prev_to_next <- seq(stap_id_prev, stap_id_next)
 
         # Cummulate the flight duration to get a proxy of the over distance covered
         total_flight <- cumsum(as.numeric(c(0, flight$duration[stap_prev_to_next])))
 
-        stap_interp = !(stap_prev_to_next %in% c(stap_id_prev, as.numeric(input$stap_id), stap_id_next))
+        stap_interp <- !(stap_prev_to_next %in% c(stap_id_prev, as.numeric(input$stap_id), stap_id_next))
 
-        path_prev_to_next =  reactVal$path[stap_prev_to_next,]
+        path_prev_to_next <- reactVal$path[stap_prev_to_next, ]
 
         # Interpolate the lat and lon indices separately using `total_flight` as a spacing between
         # position
@@ -296,8 +295,8 @@ server <- function(input, output, session) {
         reactVal$path[stap_prev_to_next, ] <- path_prev_to_next
       }
 
-      lat_ind = round(stats::approx(g$lat, seq(1, length(g$lat)), reactVal$path$lat, rule = 2)$y)
-      lon_ind = round(stats::approx(g$lon, seq(1, length(g$lon)), reactVal$path$lon, rule = 2)$y)
+      lat_ind <- round(stats::approx(g$lat, seq(1, length(g$lat)), reactVal$path$lat, rule = 2)$y)
+      lon_ind <- round(stats::approx(g$lon, seq(1, length(g$lon)), reactVal$path$lon, rule = 2)$y)
 
       # reactVal$path$ind <- (lon_ind - 1) * g$dim[1] + lat_ind
     }
@@ -368,20 +367,20 @@ server <- function(input, output, session) {
         )
 
       if (idx() != 1) {
-        path_lon_ws = NULL
-        path_lat_ws = NULL
-        if (!is.null(reactVal$edge)){
+        path_lon_ws <- NULL
+        path_lat_ws <- NULL
+        if (!is.null(reactVal$edge)) {
           stap_id_prev <- stap_id_include()[idx() - 1]
-          tmp = reactVal$edge[seq(stap_id_prev, as.numeric(input$stap_id)-1),]
-          if (nrow(tmp)==1){
-            path_lon_ws = path_model$lon[idx()-1] + (path_model$lon[idx()] - path_model$lon[idx()-1]) * Re(tmp$ws / tmp$gs)
-            path_lat_ws = path_model$lat[idx()-1] + (path_model$lat[idx()] - path_model$lat[idx()-1]) * Im(tmp$ws / tmp$gs)
+          tmp <- reactVal$edge[seq(stap_id_prev, as.numeric(input$stap_id) - 1), ]
+          if (nrow(tmp) == 1) {
+            path_lon_ws <- path_model$lon[idx() - 1] + (path_model$lon[idx()] - path_model$lon[idx() - 1]) * Re(tmp$ws / tmp$gs)
+            path_lat_ws <- path_model$lat[idx() - 1] + (path_model$lat[idx()] - path_model$lat[idx() - 1]) * Im(tmp$ws / tmp$gs)
           }
         }
         proxy <- proxy |>
           leaflet::addPolylines(
-            lng = c(path_model$lon[idx()-1], path_lon_ws, path_model$lon[idx()]),
-            lat = c(path_model$lat[idx()-1], path_lat_ws, path_model$lat[idx()]),
+            lng = c(path_model$lon[idx() - 1], path_lon_ws, path_model$lon[idx()]),
+            lat = c(path_model$lat[idx() - 1], path_lat_ws, path_model$lat[idx()]),
             opacity = 1,
             color = "#FFF",
             weight = 3
@@ -469,16 +468,33 @@ server <- function(input, output, session) {
     pressuretimeseries$stap_ref <- stap_id
     pressuretimeseries$col <- stap$col[stap$stap_id == stap_id][1]
 
+    if ("j" %in% names(reactVal$pressurepath)){
+      pressuretimeseries$j <- reactVal$pressurepath$j[1]
+    }
+    if ("ind" %in% names(reactVal$pressurepath)){
+      pressuretimeseries$ind <- NA
+    }
+    if ("include" %in% names(reactVal$pressurepath)){
+      pressuretimeseries$include <- reactVal$pressurepath$include[reactVal$pressurepath$stap_id == stap_id][1]
+    }
+    if ("known" %in% names(reactVal$pressurepath)){
+      pressuretimeseries$known <- reactVal$pressurepath$known[reactVal$pressurepath$stap_id == stap_id][1]
+    }
+
     # update lat lon in case over water
     reactVal$path$lon[stap_id] <- pressuretimeseries$lon[1]
     reactVal$path$lat[stap_id] <- pressuretimeseries$lat[1]
 
     # Merge the two data.frame
     if (nrow(reactVal$pressurepath) > 0) {
-      pressuretimeseries <- pressuretimeseries[, match(
-        names(reactVal$pressurepath),
-        names(pressuretimeseries)
-      )]
+      # Add missing columns with NA values
+      missing_cols <- setdiff(names(reactVal$pressurepath), names(pressuretimeseries))
+      pressuretimeseries[missing_cols] <- NA
+
+      # Remove unwanted columns from pressuretimeseries
+      columns_to_keep <- intersect(names(reactVal$pressurepath), names(pressuretimeseries))
+      pressuretimeseries <- pressuretimeseries[, columns_to_keep]
+
       reactVal$pressurepath <- rbind(reactVal$pressurepath, pressuretimeseries)
     } else {
       reactVal$pressurepath <- pressuretimeseries
