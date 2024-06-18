@@ -138,6 +138,7 @@ reference:
   - stap2duration
   - speed2bearing
   - windsupport
+  - path2twilight
   - geopressureviz
   - GeoPressureR
 

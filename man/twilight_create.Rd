@@ -48,7 +48,6 @@ plot(tag, type = "twilight")
 
 Other geolight: 
 \code{\link{geolight_map}()},
-\code{\link{path2twilight}()},
 \code{\link{twilight_label_read}()},
 \code{\link{twilight_label_write}()}
 }

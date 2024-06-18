@@ -4,7 +4,7 @@
 \alias{path2twilight}
 \title{Compute astronomical twilight from positions and dates}
 \usage{
-path2twilight(path, date = NULL, solarDep = 0)
+path2twilight(path, date = NULL, solarDep = 0, return_long = TRUE)
 }
 \arguments{
 \item{path}{a GeoPressureR \code{path} or \code{pressurepath} data.frame}
@@ -13,19 +13,36 @@ path2twilight(path, date = NULL, solarDep = 0)
 uses the range of \code{path$date} provided.}
 
 \item{solarDep}{a numerical value representing the solar depression angle used to compute sunrise
-and sunset. only for \code{"dawn"}
-and \code{"dusk"}.}
+and sunset.}
+
+\item{return_long}{logical defining the format of the data.frame returned. If \code{TRUE}, returns the
+long format identical to \code{twilight_create()}. If \code{FALSE}, return the sunrise and sunset as
+different column, making the data.frame the same size as \code{date}.}
 }
 \value{
-a \code{twilight} data.frame with columns:
+if \code{return_long == TRUE}, a \code{twilight} data.frame (same as \code{twilight_create()}) with
+columns:
 \itemize{
-\item \code{twilight} (date-time of twilight)
-\item \code{rise} (logical) indicating sunrise (\code{TRUE}) or sunset (\code{FALSE}).
-\item \code{stap_id}.
+\item \code{date} same as input \code{date}
+\item \code{twilight} date-time of twilight
+\item \code{rise} logical indicating sunrise (\code{TRUE}) or sunset (\code{FALSE}).
+\item \code{stap_id} same as \code{path$stap_id}
+\item \code{lat} same as \code{path$lat}
+\item \code{lon} same as \code{path$lon}
+}
+
+if \code{return_long == FALSE}, a data.frame with the same size of \code{date} with columns:
+\itemize{
+\item \code{date} same as input \code{date}
+\item \code{sunrise} date-time of sunrise
+\item \code{sunset} date-time of sunset
+\item \code{stap_id} same as \code{path$stap_id}
+\item \code{lat} same as \code{path$lat}
+\item \code{lon} same as \code{path$lon}
 }
 }
 \description{
-This function compute the theorical twilight (i.e., datetime of sunrise and sunset) at given
+This function compute the theoretical twilight (i.e., datetime of sunrise and sunset) at given
 locations and for specific date.
 
 We use the \href{https://github.com/adokter/suntools}{suntools} package for this.
@@ -37,20 +54,21 @@ to compute different twilights by setting depression angle value greater than 0 
 \examples{
 path <- data.frame(
   stap_id = c(1, 2, 3, 4, 5),
+  j = c(1L, 1L, 1L, 1L, 1L),
+  ind = c(1652L, 1603L, 1505L, 1609L, 1463L),
   lat = c(48.9, 47.5, 45.5, 41.5, 37.5),
   lon = c(17.05, 16.5, 14.5, 16.5, 13.5),
   start = as.POSIXct(c(1501113450, 1501888650, 1501987950, 1502075550, 1502151150), tzone = "UTC"),
   end = as.POSIXct(c(1501876050, 1501961250, 1502046750, 1502133150, 1502323050), tzone = "UTC"),
+  include = c(TRUE, TRUE, TRUE, TRUE, TRUE),
+  known = c(TRUE, FALSE, FALSE, FALSE, FALSE),
+  interp = c(FALSE, FALSE, FALSE, FALSE, FALSE)
 )
+
+twl <- path2twilight(path)
 
 }
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html}{GeoPressureManual }, \href{https://github.com/adokter/suntools}{suntools }
-
-Other geolight: 
-\code{\link{geolight_map}()},
-\code{\link{twilight_create}()},
-\code{\link{twilight_label_read}()},
-\code{\link{twilight_label_write}()}
 }
-\concept{geolight}
+\concept{path, pressurepath}

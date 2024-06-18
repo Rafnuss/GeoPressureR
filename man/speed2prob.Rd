@@ -53,7 +53,6 @@ abline(v = low_speed_fix)
 \seealso{
 Other movement: 
 \code{\link{bird_create}()},
-\code{\link{graph_add_wind}()},
 \code{\link{graph_set_movement}()},
 \code{\link{graph_transition}()},
 \code{\link{plot_graph_movement}()},

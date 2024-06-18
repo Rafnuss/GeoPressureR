@@ -1,7 +1,7 @@
 #' Compute astronomical twilight from positions and dates
 #'
 #' @description
-#' This function compute the theorical twilight (i.e., datetime of sunrise and sunset) at given
+#' This function compute the theoretical twilight (i.e., datetime of sunrise and sunset) at given
 #' locations and for specific date.
 #'
 #' We use the [suntools](https://github.com/adokter/suntools) package for this.
@@ -15,11 +15,26 @@
 #' uses the range of `path$date` provided.
 #' @param solarDep a numerical value representing the solar depression angle used to compute sunrise
 #' and sunset.
+#' @param return_long logical defining the format of the data.frame returned. If `TRUE`, returns the
+#' long format identical to `twilight_create()`. If `FALSE`, return the sunrise and sunset as
+#' different column, making the data.frame the same size as `date`.
 #'
-#' @return a `twilight` data.frame with columns:
-#' - `twilight` (date-time of twilight)
-#' - `rise` (logical) indicating sunrise (`TRUE`) or sunset (`FALSE`).
-#' - `stap_id`.
+#' @return if `return_long == TRUE`, a `twilight` data.frame (same as `twilight_create()`) with
+#' columns:
+#' - `date` same as input `date`
+#' - `twilight` date-time of twilight
+#' - `rise` logical indicating sunrise (`TRUE`) or sunset (`FALSE`).
+#' - `stap_id` same as `path$stap_id`
+#' - `lat` same as `path$lat`
+#' - `lon` same as `path$lon`
+#'
+#' if `return_long == FALSE`, a data.frame with the same size of `date` with columns:
+#' - `date` same as input `date`
+#' - `sunrise` date-time of sunrise
+#' - `sunset` date-time of sunset
+#' - `stap_id` same as `path$stap_id`
+#' - `lat` same as `path$lat`
+#' - `lon` same as `path$lon`
 #'
 #' @examples
 #' path <- data.frame(
@@ -37,14 +52,15 @@
 #'
 #' twl <- path2twilight(path)
 #'
-#' @family geolight
+#' @family path, pressurepath
 #' @seealso [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html), [suntools
 #' ](https://github.com/adokter/suntools)
 #' @export
 path2twilight <- function(path,
                           date = NULL,
-                          solarDep = 0) {
+                          solarDep = 0,
+                          return_long = TRUE) {
   assertthat::assert_that(is.data.frame(path))
 
   # pressurepath
@@ -61,7 +77,8 @@ path2twilight <- function(path,
     twl <- data.frame(
       date = path$date,
       lon = path$lon,
-      lat = path$lat
+      lat = path$lat,
+      stap_id = path$stap_id
     )
   } else {
     # path
@@ -76,7 +93,7 @@ path2twilight <- function(path,
       )
     }
 
-    stap_id <- GeoPressureR:::find_stap(path, date)
+    stap_id <- find_stap(path, date)
 
     twl <- data.frame(
       date = date,
@@ -118,12 +135,21 @@ path2twilight <- function(path,
     )$time
   }
 
-  return(data.frame(
-    twilight = c(twl$sunrise, twl$sunset),
-    rise = c(rep(TRUE, length(twl$sunrise)), rep(FALSE, length(twl$sunset))),
-    stap_id = c(stap_id, stap_id),
-    lon = c(twl$lon, twl$lon),
-    lat = c(twl$lat, twl$lat),
-    date = c(twl$date, twl$date)
-  ))
+  if (return_long) {
+    out <- data.frame(
+      date = c(twl$date, twl$date),
+      twilight = c(twl$sunrise, twl$sunset),
+      rise = c(rep(TRUE, length(twl$sunrise)), rep(FALSE, length(twl$sunset))),
+      stap_id = c(twl$stap_id, twl$stap_id),
+      lon = c(twl$lon, twl$lon),
+      lat = c(twl$lat, twl$lat)
+    )
+
+    # Sort by twilight date/time
+    out <- out[order(out$twilight), ]
+
+    return(out)
+  } else {
+    return(twl)
+  }
 }

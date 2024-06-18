@@ -18,8 +18,7 @@
 #'
 #' @return a `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
-#' @family graph
-#' @family movement
+#' @family graph, movement
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
