@@ -5,7 +5,13 @@ library(GeoPressureR)
 setwd(system.file("extdata", package = "GeoPressureR"))
 
 tag <- tag_create("18LX", quiet = TRUE)
-tag <- twilight_create(tag, twl_offset = 0)
+tag_before_label <- twilight_create(tag, twl_offset = 0)
+tag <- tag_label(tag_before_label, quiet = TRUE)
+
+test_that("Check plot_tag_twilight()", {
+  expect_no_error(plot_tag_twilight(tag_before_label))
+  expect_no_error(plot_tag_twilight(tag))
+})
 
 test_that("Check twilight_create()", {
   expect_true(all(c("twilight", "rise") %in% names(tag$twilight)))

@@ -478,7 +478,7 @@ plot_tag_twilight <- function(tag,
     twl <- tag$twilight
     twl$date <- as.Date(twl$twilight)
     twl$time <- as.POSIXct(strptime(format(twl$twilight, "%H:%M"), "%H:%M"))
-    twl$stap_id <- factor(round(twl$stap_id))
+
     if ("label" %in% names(twl)) {
       twl$discard <- twl$label == "discard"
     } else {
@@ -498,16 +498,30 @@ plot_tag_twilight <- function(tag,
     } else {
       col <- RColorBrewer::brewer.pal(9, "Set1")
 
-      p <- p +
-        ggplot2::geom_point(
-          data = twl,
-          ggplot2::aes(x = .data$date, y = .data$time, colour = .data$stap_id),
-          size = 2,
-          shape = 16
-        ) +
-        ggplot2::scale_color_manual(
-          values = col[seq_along(unique(twl$stap_id)) %% length(col) + 1]
-        )
+      if ("stap_id" %in% names(twl)) {
+        twl$stap_id <- factor(round(twl$stap_id))
+        p <- p +
+          ggplot2::geom_point(
+            data = twl,
+            ggplot2::aes(x = .data$date, y = .data$time, colour = .data$stap_id),
+            size = 2,
+            shape = 16
+          ) +
+          ggplot2::scale_color_manual(
+            values = col[seq_along(unique(twl$stap_id)) %% length(col) + 1]
+          )
+      } else {
+        p <- p +
+          ggplot2::geom_point(
+            data = twl,
+            ggplot2::aes(x = .data$date, y = .data$time),
+            colour = "lightyellow",
+            size = 2,
+            shape = 16
+          )
+      }
+
+
     }
     p <- p +
       ggplot2::geom_point(
