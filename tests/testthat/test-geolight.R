@@ -18,9 +18,13 @@ test_that("Check twilight_create()", {
   expect_true(nrow(tag$twilight) > 0)
 
   expect_no_error(tag_off <- twilight_create(tag, twl_offset = 2))
+  expect_equal(tag_off$param$twl_offset, 2)
 
-  tag_off_0 <- twilight_create(tag)
-  expect_equal(tag_off_0$param$twl_offset * 60 * 60, -3300)
+  expect_no_error(plot_tag_twilight(tag))
+  expect_no_error(plot_tag_twilight(tag_off))
+
+  expect_warning(tag_off <- twilight_create(tag, twl_offset = 3.5))
+  plot_tag_twilight(tag_off)
 })
 
 

@@ -445,18 +445,21 @@ plot_tag_twilight <- function(tag,
                               plot_plotly = FALSE) {
   tag_assert(tag, "twilight")
 
-  l <- tag$light
+  light <- tag$light
   if (transform_light) {
-    l$value <- log(l$value + 0.0001) + abs(min(log(l$value + 0.0001)))
+    light$value <- log(light$value + 0.0001) + abs(min(log(light$value + 0.0001)))
   }
 
   # Compute the matrix representation of light
-  mat <- light2mat(l, twl_offset = tag$param$twl_offset)
+  mat <- light2mat(light, twl_offset = tag$param$twl_offset)
 
   # Convert to long format data.fram to be able to plot with ggplot
   df <- as.data.frame(mat$value)
   names(df) <- mat$day
-  df$time <- as.POSIXct(strptime(mat$time, "%H:%M")) # factor(mat$time, levels = mat$time)
+  time_hour <- as.numeric(substr(mat$time, 1, 2)) + as.numeric(substr(mat$time, 4, 5)) / 60
+  time_hour <- time_hour + 24 * (time_hour < tag$param$twl_offset)
+  df$time <- as.POSIXct(Sys.Date()) + time_hour * 3600 # as.POSIXct(strptime(mat$time, "%H:%M")) # factor(mat$time, levels = mat$time)
+
   df_long <- stats::reshape(df,
     direction = "long",
     varying = list(utils::head(names(df), -1)),
@@ -477,7 +480,9 @@ plot_tag_twilight <- function(tag,
   if ("twilight" %in% names(tag)) {
     twl <- tag$twilight
     twl$date <- as.Date(twl$twilight)
-    twl$time <- as.POSIXct(strptime(format(twl$twilight, "%H:%M"), "%H:%M"))
+    time_hour <- as.numeric(substr(format(twl$twilight, "%H:%M"), 1, 2)) + as.numeric(substr(format(twl$twilight, "%H:%M"), 4, 5)) / 60
+    time_hour <- time_hour + 24 * (time_hour < tag$param$twl_offset)
+    twl$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
 
     if ("label" %in% names(twl)) {
       twl$discard <- twl$label == "discard"
@@ -520,8 +525,6 @@ plot_tag_twilight <- function(tag,
             shape = 16
           )
       }
-
-
     }
     p <- p +
       ggplot2::geom_point(
