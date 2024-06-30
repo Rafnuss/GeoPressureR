@@ -432,11 +432,11 @@ plot_tag_temperature <- function(tag,
 #' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE)
 #'
-#' plot_tag_pressure(tag, plot_plotly = TRUE)
+#' plot_tag_twilight(tag, plot_plotly = TRUE)
 #'
 #' tag <- tag_label(tag, quiet = TRUE)
 #'
-#' plot_tag_pressure(tag)
+#' plot_tag_twilight(tag)
 #'
 #' @export
 plot_tag_twilight <- function(tag,
