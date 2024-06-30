@@ -456,8 +456,8 @@ plot_tag_twilight <- function(tag,
   # Convert to long format data.fram to be able to plot with ggplot
   df <- as.data.frame(mat$value)
   names(df) <- mat$day
-  time_hour <- as.numeric(substr(mat$time, 1, 2)) + as.numeric(substr(mat$time, 4, 5)) / 60
-  time_hour <- time_hour + 24 * (time_hour < tag$param$twl_offset)
+  mat_time_hour <- as.numeric(substr(mat$time, 1, 2)) + as.numeric(substr(mat$time, 4, 5)) / 60
+  time_hour <- mat_time_hour + 24 * (mat_time_hour < mat_time_hour[1])
   df$time <- as.POSIXct(Sys.Date()) + time_hour * 3600 # as.POSIXct(strptime(mat$time, "%H:%M")) # factor(mat$time, levels = mat$time)
 
   df_long <- stats::reshape(df,
@@ -481,7 +481,7 @@ plot_tag_twilight <- function(tag,
     twl <- tag$twilight
     twl$date <- as.Date(twl$twilight)
     time_hour <- as.numeric(substr(format(twl$twilight, "%H:%M"), 1, 2)) + as.numeric(substr(format(twl$twilight, "%H:%M"), 4, 5)) / 60
-    time_hour <- time_hour + 24 * (time_hour < tag$param$twl_offset)
+    time_hour <- time_hour + +24 * (time_hour < mat_time_hour[1])
     twl$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
 
     if ("label" %in% names(twl)) {
