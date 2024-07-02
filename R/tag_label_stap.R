@@ -82,12 +82,18 @@ tag_label_stap <- function(tag,
   )
 
   # Assign to each sensor the stationary period to which it belong to.
-  for (sensor_df in c("pressure", "acceleration", "light")) {
+  for (sensor_df in c("pressure", "acceleration", "light", "twilight")) {
     if (assertthat::has_name(tag, sensor_df)) {
       assertthat::assert_that(is.data.frame(tag[[sensor_df]]))
-      assertthat::assert_that(assertthat::has_name(tag[[sensor_df]], "date"))
-
-      tag[[sensor_df]]$stap_id <- find_stap(tag$stap, tag[[sensor_df]]$date)
+      if ("date" %in% names(tag[[sensor_df]])) {
+        date <- tag[[sensor_df]]$date
+      } else if ("twilight" %in% names(tag[[sensor_df]])) {
+        date <- tag[[sensor_df]]$twilight
+      } else {
+        cli::cli_abort(c("{.field {sensor_df}} needs to have a column {.field date} or \\
+                         {.field twilight}."))
+      }
+      tag[[sensor_df]]$stap_id <- find_stap(tag$stap, date)
     }
   }
 

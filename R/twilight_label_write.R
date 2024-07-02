@@ -31,9 +31,11 @@ twilight_label_write <- function(tag,
 
   # Adapt variable
   twilight$series <- ifelse(twilight$rise, "Rise", "Set")
-  twilight$value <- (as.numeric(format(twilight$twilight, "%H")) * 60 +
-    as.numeric(format(twilight$twilight, "%M")) - tag$param$twl_offset
-      / 60 + 60 * 12) %% (60 * 24)
+  twilight$value <- as.numeric(format(twilight$twilight, "%H")) * 60 +
+    as.numeric(format(twilight$twilight, "%M"))
+
+  # Normalize the value with offset to be more smooth
+  twilight$value <- (twilight$value - tag$param$twl_offset) %% (24 * 60)
 
   if (!assertthat::has_name(twilight, "label")) {
     if (assertthat::has_name(twilight, "stap_id")) {

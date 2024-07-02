@@ -432,11 +432,11 @@ plot_tag_temperature <- function(tag,
 #' setwd(system.file("extdata", package = "GeoPressureR"))
 #' tag <- tag_create("18LX", quiet = TRUE)
 #'
-#' plot_tag_pressure(tag, plot_plotly = TRUE)
+#' plot_tag_twilight(tag, plot_plotly = TRUE)
 #'
 #' tag <- tag_label(tag, quiet = TRUE)
 #'
-#' plot_tag_pressure(tag)
+#' plot_tag_twilight(tag)
 #'
 #' @export
 plot_tag_twilight <- function(tag,
@@ -445,18 +445,21 @@ plot_tag_twilight <- function(tag,
                               plot_plotly = FALSE) {
   tag_assert(tag, "twilight")
 
-  l <- tag$light
+  light <- tag$light
   if (transform_light) {
-    l$value <- log(l$value + 0.0001) + abs(min(log(l$value + 0.0001)))
+    light$value <- log(light$value + 0.0001) + abs(min(log(light$value + 0.0001)))
   }
 
   # Compute the matrix representation of light
-  mat <- light2mat(l, twl_offset = tag$param$twl_offset)
+  mat <- light2mat(light, twl_offset = tag$param$twl_offset)
 
   # Convert to long format data.fram to be able to plot with ggplot
   df <- as.data.frame(mat$value)
   names(df) <- mat$day
-  df$time <- as.POSIXct(strptime(mat$time, "%H:%M")) # factor(mat$time, levels = mat$time)
+  mat_time_hour <- as.numeric(substr(mat$time, 1, 2)) + as.numeric(substr(mat$time, 4, 5)) / 60
+  time_hour <- mat_time_hour + 24 * (mat_time_hour < mat_time_hour[1])
+  df$time <- as.POSIXct(Sys.Date()) + time_hour * 3600 # as.POSIXct(strptime(mat$time, "%H:%M")) # factor(mat$time, levels = mat$time)
+
   df_long <- stats::reshape(df,
     direction = "long",
     varying = list(utils::head(names(df), -1)),
@@ -477,8 +480,10 @@ plot_tag_twilight <- function(tag,
   if ("twilight" %in% names(tag)) {
     twl <- tag$twilight
     twl$date <- as.Date(twl$twilight)
-    twl$time <- as.POSIXct(strptime(format(twl$twilight, "%H:%M"), "%H:%M"))
-    twl$stap_id <- factor(round(twl$stap_id))
+    time_hour <- as.numeric(substr(format(twl$twilight, "%H:%M"), 1, 2)) + as.numeric(substr(format(twl$twilight, "%H:%M"), 4, 5)) / 60
+    time_hour <- time_hour + +24 * (time_hour < mat_time_hour[1])
+    twl$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
+
     if ("label" %in% names(twl)) {
       twl$discard <- twl$label == "discard"
     } else {
@@ -498,16 +503,28 @@ plot_tag_twilight <- function(tag,
     } else {
       col <- RColorBrewer::brewer.pal(9, "Set1")
 
-      p <- p +
-        ggplot2::geom_point(
-          data = twl,
-          ggplot2::aes(x = .data$date, y = .data$time, colour = .data$stap_id),
-          size = 2,
-          shape = 16
-        ) +
-        ggplot2::scale_color_manual(
-          values = col[seq_along(unique(twl$stap_id)) %% length(col) + 1]
-        )
+      if ("stap_id" %in% names(twl)) {
+        twl$stap_id <- factor(round(twl$stap_id))
+        p <- p +
+          ggplot2::geom_point(
+            data = twl,
+            ggplot2::aes(x = .data$date, y = .data$time, colour = .data$stap_id),
+            size = 2,
+            shape = 16
+          ) +
+          ggplot2::scale_color_manual(
+            values = col[seq_along(unique(twl$stap_id)) %% length(col) + 1]
+          )
+      } else {
+        p <- p +
+          ggplot2::geom_point(
+            data = twl,
+            ggplot2::aes(x = .data$date, y = .data$time, color = .data$rise),
+            size = 2,
+            shape = 16
+          ) +
+          ggplot2::scale_color_manual(values = c("TRUE" = "lightyellow", "FALSE" = "orange"))
+      }
     }
     p <- p +
       ggplot2::geom_point(
