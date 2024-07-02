@@ -519,11 +519,11 @@ plot_tag_twilight <- function(tag,
         p <- p +
           ggplot2::geom_point(
             data = twl,
-            ggplot2::aes(x = .data$date, y = .data$time),
-            colour = "lightyellow",
+            ggplot2::aes(x = .data$date, y = .data$time, color = .data$rise),
             size = 2,
             shape = 16
-          )
+          ) +
+          ggplot2::scale_color_manual(values = c("TRUE" = "lightyellow", "FALSE" = "orange"))
       }
     }
     p <- p +
