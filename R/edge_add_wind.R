@@ -268,7 +268,7 @@ edge_add_wind <- function(
       for (i_time in seq_len(length(t_q))) {
         # find the two pressure level to query (one above, one under) based on the geolocator
         # pressure at this timestep
-        p_q[i_time] <- stats::approx(pressure$date, pressure$value, t_q[i_time])$y
+        p_q[i_time] <- stats::approx(pressure$date, pressure$value, t_q[i_time], rule = 2)$y
         tmp <- which(pres <= p_q[i_time])
         id_pres <- tmp[which.min(abs(pres[tmp] - p_q[i_time]))]
         # if the pressure is higher than the highest level (i.e. bird below the ground level

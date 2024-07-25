@@ -22,7 +22,6 @@ This function display a plot of pressure time series recorded by a tag
 \seealso{
 Other movement: 
 \code{\link{bird_create}()},
-\code{\link{graph_add_wind}()},
 \code{\link{graph_set_movement}()},
 \code{\link{graph_transition}()},
 \code{\link{speed2prob}()},

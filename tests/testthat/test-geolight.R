@@ -5,16 +5,26 @@ library(GeoPressureR)
 setwd(system.file("extdata", package = "GeoPressureR"))
 
 tag <- tag_create("18LX", quiet = TRUE)
-tag <- twilight_create(tag, twl_offset = 0)
+tag_before_label <- twilight_create(tag, twl_offset = 0)
+tag <- tag_label(tag_before_label, quiet = TRUE)
+
+test_that("Check plot_tag_twilight()", {
+  expect_no_error(plot_tag_twilight(tag_before_label))
+  expect_no_error(plot_tag_twilight(tag))
+})
 
 test_that("Check twilight_create()", {
   expect_true(all(c("twilight", "rise") %in% names(tag$twilight)))
   expect_true(nrow(tag$twilight) > 0)
 
   expect_no_error(tag_off <- twilight_create(tag, twl_offset = 2))
+  expect_equal(tag_off$param$twl_offset, 2)
 
-  tag_off_0 <- twilight_create(tag)
-  expect_equal(tag_off_0$param$twl_offset * 60 * 60, -3300)
+  expect_no_error(plot_tag_twilight(tag))
+  expect_no_error(plot_tag_twilight(tag_off))
+
+  expect_warning(tag_off <- twilight_create(tag, twl_offset = 3.5))
+  plot_tag_twilight(tag_off)
 })
 
 

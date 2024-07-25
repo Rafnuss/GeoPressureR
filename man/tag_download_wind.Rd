@@ -72,7 +72,6 @@ retrieve your API key on \url{https://cds.climate.copernicus.eu/user/} and save 
 
 Other movement: 
 \code{\link{bird_create}()},
-\code{\link{graph_add_wind}()},
 \code{\link{graph_set_movement}()},
 \code{\link{graph_transition}()},
 \code{\link{plot_graph_movement}()},

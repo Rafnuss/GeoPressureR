@@ -136,6 +136,7 @@ geopressureviz <- function(x,
       all = TRUE
     )
     pressurepath$linetype <- as.factor(1)
+    pressurepath$col <- NULL # Reset col if entered before
     pressurepath <- merge(
       pressurepath,
       tag$stap[, names(tag$stap) %in% c("stap_id", "col")],

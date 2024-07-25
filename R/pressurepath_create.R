@@ -44,10 +44,13 @@
 #' `"u_component_of_wind_10m"`, `"v_component_of_wind_10m"`, `"u_component_of_wind_100m"`,
 #' `"v_component_of_wind_100m"`, `"total_cloud_cover"`, `"total_precipitation"`, `"land_sea_mask"`.
 #' All variables can be listed with `GeoPressureR:::pressurepath_variable`.
-#' @param era5_dataset select the dataset to use: `"single-levels"` [doc
-#' ](https://doi.org/10.24381/cds.adbb2d47), `"land"` [doc](https://doi.org/10.24381/cds.e2161bac)
-#' or `"both"`. LAND has greater precision but is not available on water. Using a single one makes
-#' the query faster.
+#' @param solarDep a numerical value representing the solar depression angle used to compute sunrise
+#' and sunset. If `NULL`, does not compute sunrise sunset.
+#' @param era5_dataset select the dataset to use: `"single-levels"` for [ERA5 hourly data on single
+#' levels](https://doi.org/10.24381/cds.adbb2d47), `"land"` for [ERA5-Land hourly data](
+#' https://doi.org/10.24381/cds.e2161bac) or `"both"` to use land where available and sing-levels
+#' otherwise (i.e. over water). LAND has greater precision but is not available on water. Using a
+#' single one makes the query faster.
 #' @param preprocess logical to pre-process pressure data with `geopressure_map_preprocess()`.
 #' @param quiet logical to hide messages about the progress
 #' @param workers number of parallel requests on GEE. Integer between 1 and 99.
@@ -69,6 +72,8 @@
 #' - `surface_pressure` pressure retrieved from ERA5.
 #' - `surface_pressure_norm` pressure retrieved from ERA5 normalized to the average of
 #' `pressure_tag` over the stationary period.
+#' - `sunrise` datetime of the sunrise according to `solarDep`.
+#' - `sunset` datetime of the sunset according to `solarDep`.
 #' - `...` any other ERA5 variable requested by `variable`
 #'
 #' @examples
@@ -101,6 +106,7 @@
 pressurepath_create <- function(tag,
                                 path = tag2path(tag),
                                 variable = c("altitude", "surface_pressure"),
+                                solarDep = 0,
                                 era5_dataset = "both",
                                 preprocess = FALSE,
                                 timeout = 60 * 5,
@@ -266,6 +272,17 @@ pressurepath_create <- function(tag,
     pressurepath$surface_pressure_norm <- pressurepath$surface_pressure -
       agg$surface_pressure[id] + agg$pressure_tag[id]
   }
+
+  if (!is.null(solarDep)) {
+    # Add sunset and sunrise information
+    twl <- path2twilight(pressurepath, solarDep = solarDep, return_long = FALSE)
+
+    pressurepath <- merge(
+      pressurepath,
+      twl[, c("date", "sunset", "sunrise")]
+    )
+  }
+
 
   # Add additional parameter to pressurepath
   attr(pressurepath, "id") <- tag$param$id

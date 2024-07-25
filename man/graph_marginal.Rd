@@ -55,7 +55,6 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \href{https://bit.ly/3sd20vC}{GeoPressureManual}
 
 Other graph: 
-\code{\link{graph_add_wind}()},
 \code{\link{graph_create}()},
 \code{\link{graph_most_likely}()},
 \code{\link{graph_set_movement}()},
