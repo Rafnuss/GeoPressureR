@@ -33,7 +33,8 @@ tag2likelihood <- function(tag, likelihood = NULL) {
 
   authorized_lk <- c(
     "map_pressure", "map_light", "map_pressure_mse", "map_pressure_mask",
-    "mask_water", "map_marginal"
+    "mask_water", "map_marginal", "map_magnetic", "map_magnetic_intensity",
+    "map_magnetic_inclination"
   )
 
   # Automatic determination
@@ -58,6 +59,7 @@ tag2likelihood <- function(tag, likelihood = NULL) {
     # Accept wrong name for pressure and light
     likelihood[likelihood == "pressure"] <- "map_pressure"
     likelihood[likelihood == "light"] <- "map_light"
+    likelihood[likelihood == "magnetic"] <- "map_magnetic"
 
     if (any(!(likelihood %in% authorized_lk))) {
       cli::cli_abort(c(

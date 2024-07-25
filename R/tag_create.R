@@ -599,7 +599,7 @@ tag_create_dto <- function(sensor_path,
 tag_create_crop <- function(tag,
                             crop_start,
                             crop_end) {
-  for (sensor in c("pressure", "light", "acceleration", "temperature")) {
+  for (sensor in c("pressure", "light", "acceleration", "temperature", "magnetic")) {
     if (sensor %in% names(tag)) {
       # Crop time
       if (!is.null(crop_start)) {

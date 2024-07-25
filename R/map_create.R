@@ -70,8 +70,8 @@ map_create <- function(data,
 
   assertthat::assert_that(is.character(type))
   assertthat::assert_that(type %in% c(
-    "unknown", "pressure", "light", "pressure_mse", "water_mask",
-    "pressure_mask", "marginal"
+    "unknown", "pressure", "light", "magnetic", "pressure_mse", "water_mask",
+    "pressure_mask", "magnetic_intensity", "magnetic_inclination", "marginal"
   ))
 
   # Define the mask of water

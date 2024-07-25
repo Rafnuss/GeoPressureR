@@ -103,16 +103,22 @@ plot.map <- function(x,
         palette <- "GnBu"
       } else if ("light" == map$type) {
         palette <- "OrRd"
+      } else if ("magnetic" == map$type) {
+        palette <- "RdPu"
       } else if ("pressure_mse" == map$type) {
         palette <- "BuPu"
       } else if ("pressure_mask" == map$type) {
         palette <- "YlOrBr"
+      } else if ("magnetic_inclination" == map$type) {
+        palette <- "YlGnBu"
+      } else if ("magnetic_intensity" == map$type) {
+        palette <- "YlGn"
       } else if ("mask_water" == map$type) {
         palette <- "Greys"
       } else if ("marginal" == map$type) {
         palette <- "plasma"
       } else {
-        palette <- "plasma"
+        palette <- "viridis"
       }
     }
 

@@ -104,6 +104,9 @@ geopressureviz <- function(x,
     "Pres. mask" = "map_pressure_mask",
     "Pressure" = "map_pressure",
     "Light" = "map_light",
+    "Mag. incl." = "map_magnetic_inclination",
+    "Mag. int." = "map_magnetic_intensity",
+    "Magnetic" = "map_magnetic",
     "Pres.&Light" = c("map_pressure", "map_light"),
     "Marginal" = "map_marginal"
   )

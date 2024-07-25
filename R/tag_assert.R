@@ -40,6 +40,10 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
     msg <- c(
       "x" = "The {.var tag} object does not have {.field acceleration} data."
     )
+  } else if (condition == "magnetic") {
+    msg <- c(
+      "x" = "The {.var tag} object does not have {.field magnetic} data."
+    )
   } else if (condition == "label") {
     msg <- c(
       "x" = "The {.var tag} object has not yet been labelled.",
@@ -108,6 +112,9 @@ tag_status <- function(tag) {
   }
   if (assertthat::has_name(tag, "acceleration")) {
     status <- append(status, "acceleration")
+  }
+  if (assertthat::has_name(tag, "magnetic")) {
+    status <- append(status, "magnetic")
   }
   if (assertthat::has_name(tag$pressure, "label")) {
     status <- append(status, "label")
