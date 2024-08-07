@@ -16,8 +16,8 @@
 #' @param pressure pressure measurement of the associated `tag` data used to estimate the pressure
 #' level (i.e., altitude) of the bird during the flights. This data.frame needs to contain `date` as
 #' POSIXt and `value` in hPa.
-#' @param variable list of the variables to extract from [the ERA5 pressure level](
-#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9)
+#' @param variable list of the variables to extract from [the ERA5 pressure level
+#' ](https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9)
 #' using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`, , `"w"`, `"ciwc"`, `"clwc"`,
 #'  `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `'vo"`.
 #' @param rounding_interval temporal resolution on which to query the variable (min). Default is to
@@ -59,9 +59,9 @@ edge_add_wind <- function(
     rounding_interval = 60,
     interp_spatial_linear = FALSE,
     return_averaged_variable = FALSE,
-    file = \(stap_id) {
-      glue::glue("./data/wind/{tag_graph$param$id}/{tag_graph$param$id}_{stap_id}.nc")
-    },
+    file = \(stap_id) glue::glue(
+      "./data/wind/{tag_graph$param$id}/{tag_graph$param$id}_{stap_id}.nc"
+    ),
     quiet = FALSE) {
   if (is.null(pressure) && inherits(tag_graph, "tag")) {
     pressure <- tag_graph$pressure

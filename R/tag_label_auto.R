@@ -24,7 +24,9 @@
 #' @seealso [GeoPressureManual](https://bit.ly/45bthNt)
 #' @export
 tag_label_auto <- function(tag,
-                           min_duration = 30) {
+                           min_duration = 30,
+                           thr_reclassify = 0.1,
+                           post_proc_window = 2) {
   tag_assert(tag)
   if (!assertthat::has_name(tag$pressure, "label")) {
     tag$pressure$label <- ""
@@ -52,8 +54,48 @@ tag_label_auto <- function(tag,
     # min_duration
     tmp <- sapply(split(act_mig, act_id), unique) & table(act_id) * dt > min_duration
 
+    is_flight <- as.vector(tmp[act_id])
+
+    # Post-processing to improve classification of low activity migration, typically occuring when
+    # bird glides in between a long flight.
+
+    # Find a threashold of activity from which a low activity could actually be migration.
+    centers <- as.vector(km$centers)
+    thr_0 <- min(centers) + thr_reclassify * abs(diff(centers))
+
+    # Classify these as NA for now
+    is_flight[thr_0 < tag$acceleration$value & !is_flight] <- NA
+
+    # Find if the previous and next (non-NA) is a flight or not.
+    prev_isna <- approx(seq_along(is_flight)[!is.na(is_flight)], is_flight[!is.na(is_flight)],
+      seq_along(is_flight)[is.na(is_flight)],
+      method = "constant", rule = 2, f = 0
+    )$y
+
+    next_isna <- approx(seq_along(is_flight)[!is.na(is_flight)], is_flight[!is.na(is_flight)],
+      seq_along(is_flight)[is.na(is_flight)],
+      method = "constant", rule = 2, f = 1
+    )$y
+
+    # Classify as migratory flight if next or previous is migration.
+    is_flight[is.na(is_flight)] <- prev_isna | next_isna
+
+    # In addition, consider in flight if there is previous and next is in flight
+    for (i in seq_len(length(is_flight))) {
+      if (!is_flight[i]) {
+        # Define the range of neighbors
+        start_idx <- max(1, i - post_proc_window)
+        end_idx <- min(length(is_flight), i + post_proc_window)
+
+        # Check if any of the neighbors are TRUE
+        if (any(is_flight[start_idx:i]) && any(is_flight[i:end_idx])) {
+          is_flight[i] <- TRUE
+        }
+      }
+    }
+
     # Classify acceleration accordingly
-    tag$acceleration$label <- ifelse(tmp[act_id], "flight", "")
+    tag$acceleration$label <- ifelse(is_flight, "flight", "")
   }
   return(tag)
 }

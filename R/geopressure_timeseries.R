@@ -145,7 +145,8 @@ geopressure_timeseries <- function(lat,
         print(httr2::resp_body_json(resp))
       }
       c(
-        "x" = "Error with your request on {.url https://glp.mgravey.com/GeoPressure/v2/timeseries/}",
+        "x" = "Error with your request on \
+        {.url https://glp.mgravey.com/GeoPressure/v2/timeseries/}",
         ">" = httr2::resp_body_json(resp)$errorMessage,
         "i" = "Please try again with `debug=TRUE`"
       )

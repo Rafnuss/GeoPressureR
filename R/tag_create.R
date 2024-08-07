@@ -148,26 +148,26 @@ tag_create <- function(id,
     tag <- tag_create_soi(
       tag,
       directory = directory,
-      pressure_file = ifelse(is.null(pressure_file), "*.pressure", pressure_file),
-      light_file = ifelse(is.null(light_file), "*.glf", light_file),
-      acceleration_file = ifelse(is.null(acceleration_file), "*.acceleration", acceleration_file),
-      temperature_file = ifelse(is.null(temperature_file), "*.temperature", temperature_file),
+      pressure_file = pressure_file,
+      light_file = light_file,
+      acceleration_file = acceleration_file,
+      temperature_file = temperature_file,
       quiet = quiet
     )
   } else if (manufacturer == "migratetech") {
     tag <- tag_create_migratetech(
       tag,
       directory = directory,
-      deg_file = ifelse(is.null(pressure_file), "*.deg", pressure_file),
-      light_file = ifelse(is.null(light_file), "*.lux", light_file),
+      deg_file = pressure_file,
+      light_file = light_file,
       quiet = quiet
     )
   } else if (manufacturer == "lund") {
     tag <- tag_create_lund(
       tag,
       directory = directory,
-      pressure_file = ifelse(is.null(pressure_file), "_press.xlsx", pressure_file),
-      acceleration_light_file = ifelse(is.null(acceleration_file), "_acc.xlsx", acceleration_file),
+      pressure_file = pressure_file,
+      acceleration_light_file = acceleration_file,
       quiet = quiet
     )
   } else if (manufacturer == "manual") {
@@ -206,13 +206,16 @@ tag_create <- function(id,
 #' @noRd
 tag_create_soi <- function(tag,
                            directory,
-                           pressure_file,
-                           light_file,
-                           acceleration_file,
-                           temperature_file,
+                           pressure_file = NULL,
+                           light_file = NULL,
+                           acceleration_file = NULL,
+                           temperature_file = NULL,
                            quiet) {
   # Read Pressure
-  pressure_path <- tag_create_detect(pressure_file, directory)
+  if (is.null(pressure_file)) {
+    pressure_file <- "*.pressure"
+  }
+  pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
   if (is.null(pressure_path)) {
     cli::cli_abort(c(
       "x" = "There are no pressure file {.val {pressure_path}}",
@@ -222,20 +225,32 @@ tag_create_soi <- function(tag,
   tag$pressure <- tag_create_dto(pressure_path, quiet = quiet)
 
   # Read light
-  light_path <- tag_create_detect(light_file, directory)
+  if (is.null(light_file)) {
+    light_path <- tag_create_detect("*.glf", directory, quiet = TRUE)
+  } else {
+    light_path <- tag_create_detect(light_file, directory, quiet = quiet)
+  }
   if (!is.null(light_path)) {
     tag$light <-
       tag_create_dto(light_path, quiet = quiet)
   }
 
   # Read acceleration
-  acceleration_path <- tag_create_detect(acceleration_file, directory)
+  if (is.null(light_file)) {
+    acceleration_path <- tag_create_detect("*.acceleration", directory, quiet = TRUE)
+  } else {
+    acceleration_path <- tag_create_detect(acceleration_file, directory, quiet = quiet)
+  }
   if (!is.null(acceleration_path)) {
     tag$acceleration <- tag_create_dto(acceleration_path, col = 4, quiet = quiet)
   }
 
   # Read temperature
-  temperature_path <- tag_create_detect(temperature_file, directory)
+  if (is.null(temperature_file)) {
+    temperature_path <- tag_create_detect("*.temperature", directory, quiet = TRUE)
+  } else {
+    temperature_path <- tag_create_detect(temperature_file, directory, quiet = quiet)
+  }
   if (!is.null(temperature_path)) {
     tag$temperature <- tag_create_dto(temperature_path, col = 3, quiet = quiet)
   }
@@ -245,6 +260,11 @@ tag_create_soi <- function(tag,
   tag$param$light_file <- light_path
   tag$param$acceleration_file <- acceleration_path
   tag$param$temperature_file <- temperature_path
+
+  setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
+  if (!is.null(setting_path)) {
+    tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
+  }
 
   return(tag)
 }
@@ -256,11 +276,13 @@ tag_create_soi <- function(tag,
 tag_create_migratetech <- function(tag,
                                    directory,
                                    deg_file,
-                                   light_file,
+                                   light_file = NULL,
                                    quiet) {
   # Read Pressure
-  # Check that it is a valid Migrate Technology file
-  deg_path <- tag_create_detect(deg_file, directory)
+  if (is.null(deg_file)) {
+    deg_file <- "*.deg"
+  }
+  deg_path <- tag_create_detect(deg_file, directory, quiet = quiet)
   if (is.null(deg_path)) {
     cli::cli_abort(c(
       "x" = "There are no pressure file {.val {deg_file}}",
@@ -327,7 +349,11 @@ tag_create_migratetech <- function(tag,
   }
 
   # Read light
-  light_path <- tag_create_detect(light_file, directory)
+  if (is.null(light_file)) {
+    light_path <- tag_create_detect("*.lux", directory, quiet = TRUE)
+  } else {
+    light_path <- tag_create_detect(light_file, directory, quiet = quiet)
+  }
   if (!is.null(light_path)) {
     line16 <- readLines(light_path, n = 16)[[16]]
     drift <- abs(as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60)
@@ -376,11 +402,14 @@ tag_create_migratetech <- function(tag,
 #' @noRd
 tag_create_lund <- function(tag,
                             directory,
-                            pressure_file,
-                            acceleration_light_file,
+                            pressure_file = NULL,
+                            acceleration_light_file = NULL,
                             quiet) {
   # Read Pressure
-  pressure_path <- tag_create_detect(pressure_file, directory)
+  if (is.null(pressure_file)) {
+    pressure_file <- "_press.xlsx"
+  }
+  pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
   if (is.null(pressure_path)) {
     cli::cli_abort(c(
       "x" = "There are no pressure file {.val {pressure_path}}",
@@ -398,7 +427,11 @@ tag_create_lund <- function(tag,
 
 
   # Read light
-  acc_light_path <- tag_create_detect(acceleration_light_file, directory)
+  if (is.null(acceleration_light_file)) {
+    acc_light_path <- tag_create_detect("_acc.xlsx", directory, quiet = TRUE)
+  } else {
+    acc_light_path <- tag_create_detect(acceleration_light_file, directory, quiet = quiet)
+  }
   if (!is.null(acc_light_path)) {
     xls <- readxl::read_excel(acc_light_path,
       sheet = "Light", skip = 1,
@@ -436,9 +469,9 @@ tag_create_lund <- function(tag,
 tag_create_manual <- function(tag,
                               directory,
                               pressure_file,
-                              light_file,
-                              acceleration_file,
-                              temperature_file,
+                              light_file = NULL,
+                              acceleration_file = NULL,
+                              temperature_file = NULL,
                               quiet) {
   # Read Pressure
   assertthat::assert_that(is.data.frame(pressure_file))
@@ -488,7 +521,7 @@ tag_create_manual <- function(tag,
 
 # Detect full path from the argument file.
 #' @noRd
-tag_create_detect <- function(file, directory) {
+tag_create_detect <- function(file, directory, quiet = TRUE) {
   if (is.null(file)) {
     return(NULL)
   }
@@ -507,10 +540,12 @@ tag_create_detect <- function(file, directory) {
   path <- path[!grepl("~\\$", path)]
 
   if (length(path) == 0) {
-    cli::cli_warn(c(
-      "!" = glue::glue("No file is matching '", file, "'."),
-      ">" = "This sensor will be ignored.\f"
-    ))
+    if (!quiet) {
+      cli::cli_warn(c(
+        "!" = glue::glue("No file is matching '", file, "'."),
+        ">" = "This sensor will be ignored.\f"
+      ))
+    }
     return(NULL)
   }
   if (length(path) > 1) {
@@ -564,7 +599,7 @@ tag_create_dto <- function(sensor_path,
 tag_create_crop <- function(tag,
                             crop_start,
                             crop_end) {
-  for (sensor in c("pressure", "light", "acceleration")) {
+  for (sensor in c("pressure", "light", "acceleration", "temperature")) {
     if (sensor %in% names(tag)) {
       # Crop time
       if (!is.null(crop_start)) {
