@@ -13,10 +13,8 @@ edge_add_wind(
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
   return_averaged_variable = FALSE,
-  file = function(stap_id) {
-    
-    glue::glue("./data/wind/{tag_graph$param$id}/{tag_graph$param$id}_{stap_id}.nc")
- },
+  file = function(stap_id)
+    glue::glue("./data/wind/{tag_graph$param$id}/{tag_graph$param$id}_{stap_id}.nc"),
   quiet = FALSE
 )
 }
@@ -33,7 +31,7 @@ of 3 columns, one for each dimension.}
 level (i.e., altitude) of the bird during the flights. This data.frame needs to contain \code{date} as
 POSIXt and \code{value} in hPa.}
 
-\item{variable}{list of the variables to extract from \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level}
+\item{variable}{list of the variables to extract from \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level }
 using the \code{shortName} notation: \code{"u"}, \code{"v"},  \code{"t"}, \code{"cc"}, \code{"r"}, , \code{"w"}, \code{"ciwc"}, \code{"clwc"},
 \code{"q"}, \code{"cswc"}, \code{"d"}, \code{"z"}, \code{"o3"}, \code{"pv"}, \verb{'vo"}.}
 
