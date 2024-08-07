@@ -8,6 +8,7 @@ plot_tag_twilight(
   tag,
   twilight_line = NULL,
   transform_light = TRUE,
+  twl_offset = NULL,
   plot_plotly = FALSE
 )
 }
@@ -17,7 +18,10 @@ plot_tag_twilight(
 \item{twilight_line}{a twilight data.frame typically created with \code{path2twilight()} which is
 displayed as a line}
 
-\item{transform_light}{logical to display a log transformation of light}
+\item{transform_light}{logical to use a log transformation of light}
+
+\item{twl_offset}{Shift of the middle of the night compared to 00:00 UTC (in hours). If not
+provided, it uses the middle of all nights.}
 
 \item{plot_plotly}{logical to use \code{plotly}}
 }

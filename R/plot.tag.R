@@ -423,7 +423,7 @@ plot_tag_temperature <- function(tag,
 #' @param twilight_line a twilight data.frame typically created with `path2twilight()` which is
 #' displayed as a line
 #' @param plot_plotly logical to use `plotly`
-#' @param transform_light logical to display a log transformation of light
+#' @inheritParams twilight_create
 #'
 #' @return a plot object.
 #'
@@ -442,16 +442,28 @@ plot_tag_temperature <- function(tag,
 plot_tag_twilight <- function(tag,
                               twilight_line = NULL,
                               transform_light = TRUE,
+                              twl_offset = NULL,
                               plot_plotly = FALSE) {
-  tag_assert(tag, "twilight")
+  # We need to have light data, if twilight is not yet computed, we can still display the mat image
+  tag_assert(tag, "light")
 
   light <- tag$light
   if (transform_light) {
-    light$value <- log(light$value + 0.0001) + abs(min(log(light$value + 0.0001)))
+    light$value <- twilight_create_transform_light(light$value)
+  }
+
+  # Use by order of priority: (1) twl_offset provided in this function, (2) tag$param$twl_offset,
+  # (3) guess from light data
+  if (is.null(twl_offset)) {
+    if ("twl_offset" %in% names(tag$param)) {
+      twl_offset <- tag$param$twl_offset
+    } else {
+      twl_offset <- twilight_create_guess_offset(light)
+    }
   }
 
   # Compute the matrix representation of light
-  mat <- light2mat(light, twl_offset = tag$param$twl_offset)
+  mat <- light2mat(light, twl_offset = twl_offset)
 
   # Convert to long format data.fram to be able to plot with ggplot
   df <- as.data.frame(mat$value)
