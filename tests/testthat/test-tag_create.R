@@ -32,8 +32,8 @@ test_that("tag_create() | default", {
   expect_gt(nrow(tag$light), 0)
   expect_gt(nrow(tag$acceleration), 0)
 
-  expect_error(expect_warning(tag_create(id = "18LX", pressure_file = "wrong_file", quiet = TRUE)))
-  expect_warning(tag_create(id = "18LX", light_file = "wrong_file", quiet = TRUE))
+  expect_error(expect_warning(tag_create(id = "18LX", pressure_file = "wrong_file")))
+  expect_warning(tag_create(id = "18LX", light_file = "wrong_file"))
 
   # Check crop
   expect_error(tag_create(

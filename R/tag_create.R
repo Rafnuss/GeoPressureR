@@ -261,10 +261,10 @@ tag_create_soi <- function(tag,
   tag$param$acceleration_file <- acceleration_path
   tag$param$temperature_file <- temperature_path
 
-  tryCatch({
-    setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
+  setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
+  if (!is.null(setting_path)) {
     tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
-  })
+  }
 
   return(tag)
 }

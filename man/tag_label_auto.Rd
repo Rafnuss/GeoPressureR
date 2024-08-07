@@ -4,7 +4,12 @@
 \alias{tag_label_auto}
 \title{Automatic labelling of a \code{tag}}
 \usage{
-tag_label_auto(tag, min_duration = 30)
+tag_label_auto(
+  tag,
+  min_duration = 30,
+  thr_reclassify = 0.1,
+  post_proc_window = 2
+)
 }
 \arguments{
 \item{tag}{a GeoPressure \code{tag} object.}
