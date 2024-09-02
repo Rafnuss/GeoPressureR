@@ -143,5 +143,9 @@ tag2path <- function(tag,
 
   path$interp <- path_interp
 
+  # Assign the type of path
+  attr(path, "type") <- "tag"
+  attr(path, "likelihood") <- map$type
+
   return(path)
 }

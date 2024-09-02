@@ -151,6 +151,9 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   # Convert the index of the path in a path data.frame
   path <- ind2path(path_ind2d_full, graph)
 
+  # Assign the type of path
+  attr(path, "type") <- "most_likely"
+
   if (!quiet) {
     cli::cli_alert_success("All done")
   }
