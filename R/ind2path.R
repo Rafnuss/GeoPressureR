@@ -13,7 +13,7 @@
 #' approximated to the map resolution in order to corresponds to integer index.
 #' @return A path data.frame
 #' - `stap_id` stationary period identification
-#' - `j` identification for each trajectory (1 to $nj$).
+#' - `j` identification for each trajectory (`1` to `nj`).
 #' - `lat` Latitude,
 #' - `lon` longitude
 #' - `...` other columns from `stap`

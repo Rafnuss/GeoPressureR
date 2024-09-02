@@ -65,6 +65,7 @@ path2edge <- function(path, tag_graph) {
 
   # construct the edge of the path as data.frame
   edge <- data.frame(
+    j = rep(seq_len(nj), length(stap_id_included) - 1),
     stap_s = as.vector(utils::head(stap3d, c(nj, -1))),
     stap_t = as.vector(utils::tail(stap3d, c(nj, -1))),
     s = as.vector(utils::head(ind3d, c(nj, -1))),

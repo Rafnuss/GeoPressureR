@@ -14,6 +14,9 @@ tag_create(
   light_file = NULL,
   acceleration_file = NULL,
   temperature_file = NULL,
+  airtemperature_file = NULL,
+  magnetic_file = NULL,
+  assert_pressure = TRUE,
   quiet = FALSE
 )
 }
@@ -40,15 +43,32 @@ with extensions (e.g., \code{"*.acceleration"}, \code{"*.deg"} or \code{"*_acc.x
 \item{temperature_file}{name of the file with temperature data. Full pathname  or finishing
 with extensions (e.g., \code{"*.temperature"}, \code{"*.deg"}).}
 
+\item{magnetic_file}{name of the file with magnetic/accelerometer data. Full pathname  or
+finishing with extensions (e.g., \code{"*.magnetic"}).}
+
+\item{assert_pressure}{logical to check that the return tag has pressure data.}
+
 \item{quiet}{logical to hide messages about the progress.}
+
+\item{iartemperature_file}{name of the file with air temperature data. Full pathname  or
+finishing with extensions (e.g., \code{"*.airtemperature"}).}
 }
 \value{
 a GeoPressureR \code{tag} object containing
 \itemize{
 \item \code{param} parameter object (see \link{param_create})
-\item \code{pressure} data.frame with columns for \code{date} and \code{value}
+\item \code{pressure} data.frame with columns: \code{date} and \code{value}
 \item \code{light} (optional) same structure as pressure
-\item \code{acceleration} (optional) same structure as pressure
+\item \code{temperature} (optional) same structure as pressure
+\item \code{airtemperature} (optional) same structure as pressure
+\item \code{acceleration} (optional) data.frame with columns: \code{date}, \code{value}, \code{act} and \code{pit}.
+\itemize{
+\item \code{value} is the activity computed as the sum of the difference in acceleration on the z-axis
+(i.e. jiggle). In the SOI sensor, it is summarised from 32 measurements at 10Hz
+\item \code{pitch} is the relative position of the bird’s body relative to the z axis. In the SOI
+sensor, it is an average over 32 measurements at 10Hz.
+}
+\item \code{magnetic} (optional) data.frame with columns: \code{date}, \code{mX}, \code{mY}, \code{mZ}, \code{gX}, \code{gY} and \code{gZ}
 }
 }
 \description{

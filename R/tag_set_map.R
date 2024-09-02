@@ -35,7 +35,7 @@
 #' stationary period using `stap_id = -1`.
 #' @return A GeoPressureR `tag` object with:
 #' - `stap`: Data.frame of all stationary periods with three new columns: `known_lat` and
-#' `known_lon` define the known position during these stationary periods, and `model` defines
+#' `known_lon` define the known position during these stationary periods, and `include` defines
 #' whether the likelihood map of this stationary period should be computed and later used in the
 #' graph.
 #' - `extent` same as input parameter `extent`

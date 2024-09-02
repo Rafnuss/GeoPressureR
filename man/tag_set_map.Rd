@@ -38,7 +38,7 @@ hours).}
 A GeoPressureR \code{tag} object with:
 \itemize{
 \item \code{stap}: Data.frame of all stationary periods with three new columns: \code{known_lat} and
-\code{known_lon} define the known position during these stationary periods, and \code{model} defines
+\code{known_lon} define the known position during these stationary periods, and \code{include} defines
 whether the likelihood map of this stationary period should be computed and later used in the
 graph.
 \item \code{extent} same as input parameter \code{extent}

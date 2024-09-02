@@ -26,7 +26,7 @@ twilight_label_write <- function(tag,
   # Check twilight
   tag_assert(tag, "twilight")
 
-  # Extract twilight to convinience
+  # Extract twilight to convenience
   twilight <- tag$twilight
 
   # Adapt variable

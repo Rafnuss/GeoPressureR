@@ -1,10 +1,10 @@
 #' Compute wind support and drift
 #'
 #' @description
-#' Wind support, or wind profit, is the projection of the wind vector $\vec{v}_w$ onto the
-#' groundspeed vector $\vec{v}_g$,
-#' \text{Wind Support} = \frac{\vec{v}_g \cdot \vec{v}_w}{|\vec{v}_g|},
-#' with $\cdot$ being the [cross product](https://en.wikipedia.org/wiki/Dot_product).
+#' Wind support, or wind profit, is the projection of the wind vector \eqn{\vec{v}_w} onto the
+#' groundspeed vector \eqn{\vec{v}_g},
+#' \deqn{\text{Wind Support} = \frac{\vec{v}_g \cdot \vec{v}_w}{|\vec{v}_g|}},
+#' with \eqn{\cdot} being the [cross product](https://en.wikipedia.org/wiki/Dot_product).
 #'
 #' A positive value indicates that wind was blowing in the direction of movement, while a negative
 #' one indicates a head wind.
@@ -14,8 +14,8 @@
 #'
 #' Alternatively to wind support, you can compute the drift (or crosswind component) value with
 #' `drift = TRUE`,
-#' \text{Drift} = \frac{|\vec{v}_g \times \vec{v}_w|}{|\vec{v}_g|},
-#' with $\times$ being the [cross product](https://en.wikipedia.org/wiki/Cross_product).
+#' \deqn{\text{Drift} = \frac{|\vec{v}_g \times \vec{v}_w|}{|\vec{v}_g|}},
+#' with \eqn{\times} being the [cross product](https://en.wikipedia.org/wiki/Cross_product).
 #'
 #' A positive value of drift indicates that the wind is pushing the bird to the right of its
 #' intended path, while a negative indicates that the wind is pushing the bird to the left.

@@ -18,7 +18,7 @@ approximated to the map resolution in order to corresponds to integer index.}
 A path data.frame
 \itemize{
 \item \code{stap_id} stationary period identification
-\item \code{j} identification for each trajectory (1 to $nj$).
+\item \code{j} identification for each trajectory (\code{1} to \code{nj}).
 \item \code{lat} Latitude,
 \item \code{lon} longitude
 \item \code{...} other columns from \code{stap}

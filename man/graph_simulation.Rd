@@ -24,7 +24,6 @@ Path data.frame containing the columns
 \item \code{start} datetime of the start of the stationary period (same as in \code{stap})
 \item \code{end} datetime of the end of the stationary period (same as in \code{stap})
 \item \code{include} logical if stationary period was modelled (same as in \code{stap})
-\item \verb{nb_sample known} number of datapoint used to compute pressure (same as in \code{stap})
 }
 }
 \description{
