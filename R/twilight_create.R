@@ -121,19 +121,19 @@ twilight_create <- function(tag,
 
 #' @noRd
 twilight_create_transform_light <- function(value) {
-  log(value + 0.0001) + abs(min(log(value + 0.0001)))
+  log(value + 0.0001) + abs(min(log(value + 0.0001), na.rm = TRUE))
 }
 
 #' @noRd
 twilight_create_guess_offset <- function(light, twl_thr = NULL) {
   if (is.null(twl_thr)) {
-    twl_thr <- min(light$value[light$value > 0])
+    twl_thr <- min(light$value[light$value > 0], na.rm = TRUE)
   }
 
   mat <- light2mat(light, twl_offset = 0)
   l <- mat$value >= twl_thr
   tmp <- rowMeans(l, na.rm = TRUE)
-  offset_id <- round(sum(tmp * seq_len(dim(mat$value)[1])) / sum(tmp))
+  offset_id <- round(sum(tmp * seq_len(dim(mat$value)[1]), na.rm = TRUE) / sum(tmp, na.rm = TRUE))
   twl_offset <- (mat$res * offset_id - 60 * 60 * 12) / 60 / 60
 
   return(twl_offset)

@@ -336,7 +336,7 @@ plot_tag_light <- function(tag,
 
   l <- tag$light
   if (transform_light) {
-    l$value <- log(l$value + 0.0001) + abs(min(log(l$value + 0.0001)))
+    l$value <- twilight_create_transform_light(l$value)
   }
 
   p <- ggplot2::ggplot() +
