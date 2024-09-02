@@ -108,13 +108,19 @@ tag_status <- function(tag) {
     status <- append(status, c("read", "pressure"))
   }
   if (assertthat::has_name(tag, "light")) {
-    status <- append(status, "light")
+    status <- append(status, c("read", "light"))
   }
   if (assertthat::has_name(tag, "acceleration")) {
-    status <- append(status, "acceleration")
+    status <- append(status, c("read", "acceleration"))
+  }
+  if (assertthat::has_name(tag, "temperature")) {
+    status <- append(status, c("read", "temperature"))
+  }
+  if (assertthat::has_name(tag, "airtemperature")) {
+    status <- append(status, c("read", "airtemperature"))
   }
   if (assertthat::has_name(tag, "magnetic")) {
-    status <- append(status, "magnetic")
+    status <- append(status, c("read", "magnetic"))
   }
   if (assertthat::has_name(tag$pressure, "label")) {
     status <- append(status, "label")

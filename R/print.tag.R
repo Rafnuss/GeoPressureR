@@ -36,7 +36,9 @@ print.tag <- function(x, ...) {
     cli::cli_h3("Sensors data")
     cli::cli_text("Manufacturer: {tag$param$manufacturer}")
     cli::cli_text("Date range: {tag$pressure$date[1]} to {tail(tag$pressure$date,1)}")
-    cli::cli_bullets(c("*" = "{.field pressure}: {nrow(tag$pressure)} datapoints"))
+    if ("pressure" %in% names(tag)) {
+      cli::cli_bullets(c("*" = "{.field pressure}: {nrow(tag$pressure)} datapoints"))
+    }
     if ("acceleration" %in% names(tag)) {
       cli::cli_bullets(c("*" = "{.field acceleration}: {nrow(tag$acceleration)} datapoints"))
     }
@@ -45,6 +47,9 @@ print.tag <- function(x, ...) {
     }
     if ("temperature" %in% names(tag)) {
       cli::cli_bullets(c("*" = "{.field temperature}: {nrow(tag$temperature)} datapoints"))
+    }
+    if ("airtemperature" %in% names(tag)) {
+      cli::cli_bullets(c("*" = "{.field airtemperature}: {nrow(tag$airtemperature)} datapoints"))
     }
     if ("magnetic" %in% names(tag)) {
       cli::cli_bullets(c("*" = "{.field magnetic}: {nrow(tag$magnetic)} datapoints"))

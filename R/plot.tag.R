@@ -72,8 +72,14 @@ plot.tag <- function(x, type = NULL, ...) {
     status <- tag_status(tag)
     if ("map_pressure" %in% status) {
       type <- "map"
-    } else {
+    } else if ("pressure" %in% status){
       type <- "pressure"
+    } else if ("light" %in% status){
+      type <- "light"
+    } else if ("acceleration" %in% status){
+      type <- "acceleration"
+    } else if ("temperature" %in% status){
+      type <- "temperature"
     }
   }
 
