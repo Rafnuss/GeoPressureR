@@ -75,7 +75,7 @@ tag_set_map <- function(tag,
                           known_lat = double(),
                           known_lon = double()
                         ),
-                        include_stap_id = tag$stap$stap_id,
+                        include_stap_id = NULL,
                         include_min_duration = 0) {
   tag_assert(tag, "stap")
 
@@ -107,6 +107,9 @@ tag_set_map <- function(tag,
   assertthat::assert_that(all(unique(known$stap_id) == known$stap_id))
 
   # Define which stationary periods to include
+  if (is.null(include_stap_id)){
+    include_stap_id = tag$stap$stap_id
+  }
   assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
   assertthat::assert_that(is.numeric(include_min_duration))
   include_min_duration_id <- stap$stap_id[stap2duration(stap, units = "hours") >
