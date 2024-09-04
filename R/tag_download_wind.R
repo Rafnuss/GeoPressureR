@@ -3,7 +3,7 @@
 #' @description
 #' This function download data associated to each flight from the [ERA5 hourly pressure levels](
 #' https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview)
-#' with the [Climate Data Store (CDS)](https://cds.climate.copernicus.eu) and through the [`ecmwfr`
+#' with the [Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) and through the [`ecmwfr`
 #' R package](https://bluegreen-labs.github.io/ecmwfr/index.html).
 #'
 #' [Any variable available from the ERA5 pressure level](
@@ -22,8 +22,7 @@
 #' ](https://cds.climate.copernicus.eu/user/) and save them in your environment file
 #' (i.e., `.Renviron`). You can open this file with `usethis::edit_r_environ()` and add:
 #' \code{
-#'   cds_user = "{UID}"
-#'   cds_key = "{API Key}"
+#'   cds_token = "{Personal Access Token}"
 #' }
 #'
 #' @param tag a GeoPressureR `tag` object.
@@ -38,9 +37,7 @@
 #' `"specific_cloud_liquid_water_content"`, `"specific_humidity"`, `"specific_rain_water_content"`,
 #' `"specific_snow_water_content"`, `"divergence"`, `"geopotential"`, `"ozone_mass_mixing_ratio"`,
 #' `"potential_vorticity"`, `'vorticity"`.
-#' @param cds_user ECMWF user name (UID value) available from [your user page
-#' ](https://cds.climate.copernicus.eu/user/). See `wf_set_key()`.
-#' @param cds_key ECMWF API Key available from [your user page
+#' @param cds_token CDS Personal Access Token available from [your user page
 #' ](https://cds.climate.copernicus.eu/user/). See `wf_set_key()`.
 #' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
 #' taking as single argument the stationary period identifier.
@@ -58,8 +55,7 @@ tag_download_wind <- function(
     extent = tag$param$extent,
     include_stap_id = NULL,
     variable = c("u_component_of_wind", "v_component_of_wind"),
-    cds_key = Sys.getenv("cds_key"),
-    cds_user = Sys.getenv("cds_user"),
+    cds_token = Sys.getenv("cds_token"),
     file = \(stap_id) glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
     overwrite = FALSE) {
   tag_assert(tag, "setmap")
@@ -101,7 +97,7 @@ tag_download_wind <- function(
     ))
   }
 
-  ecmwfr::wf_set_key(user = cds_user, key = cds_key, service = "cds")
+  ecmwfr::wf_set_key(key = cds_token)
 
   if (any(file.exists(file(include_stap_id))) && !overwrite) {
     # nolint start
