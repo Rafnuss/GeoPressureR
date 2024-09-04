@@ -58,6 +58,10 @@ graph_simulation <- function(graph,
                              quiet = FALSE) {
   graph_assert(graph, "full")
 
+  if (!is.numeric(nj) || nj <= 0) {
+    cli::cli_abort("{.var nj} must be a positive number.")
+  }
+
   # Compute the matrix TO
   if (!quiet) {
     cli::cli_progress_step("Compute movement model")
