@@ -32,7 +32,7 @@
 #' hours).
 #' @param known data.frame containing the known positions of the bird (e.g., equipment or retrieval
 #' site) with columns `stap_id`, `known_lat` and `known_lon`. You can set position of the last
-#' stationary period using `stap_id = -1`.
+#' stationary period using `stap_id = -1`. Also accept list which are converted as data.frame.
 #' @return A GeoPressureR `tag` object with:
 #' - `stap`: Data.frame of all stationary periods with three new columns: `known_lat` and
 #' `known_lon` define the known position during these stationary periods, and `include` defines
@@ -88,6 +88,9 @@ tag_set_map <- function(tag,
   map_expand(extent, scale)
 
   # Check known
+  if (is.list(known)){
+    known = do.call(rbind, lapply(known, as.data.frame))
+  }
   assertthat::assert_that(is.data.frame(known))
   assertthat::assert_that(assertthat::has_name(known, "stap_id"))
   assertthat::assert_that(assertthat::has_name(known, "known_lat"))
@@ -107,8 +110,8 @@ tag_set_map <- function(tag,
   assertthat::assert_that(all(unique(known$stap_id) == known$stap_id))
 
   # Define which stationary periods to include
-  if (is.null(include_stap_id)){
-    include_stap_id = tag$stap$stap_id
+  if (is.null(include_stap_id)) {
+    include_stap_id <- tag$stap$stap_id
   }
   assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
   assertthat::assert_that(is.numeric(include_min_duration))
