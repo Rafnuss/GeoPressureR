@@ -18,7 +18,7 @@ Imports:
     assertthat,
     EBImage,
     cli,
-    ecmwfr,
+    ecmwfr (>= 2.0.0),
     future,
     geosphere,
     glue,
