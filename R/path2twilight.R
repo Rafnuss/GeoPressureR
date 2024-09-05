@@ -6,15 +6,15 @@
 #'
 #' We use the [suntools](https://github.com/adokter/suntools) package for this.
 #'
-#' By default (`solarDep=0`), the computation return sunrise and sunset. But, it is also possible
+#' By default (`solar_dep=0`), the computation return sunrise and sunset. But, it is also possible
 #' to compute different twilights by setting depression angle value greater than 0 (6° for civil,
 #' 12° for nautical and 18° for astronomical).
 #'
 #' @param path a GeoPressureR `path` or `pressurepath` data.frame
 #' @param date a vector of POSIXt datetime for which sunrise and sunset are computed. Be default,
 #' uses the range of `path$date` provided.
-#' @param solarDep a numerical value representing the solar depression angle used to compute sunrise
-#' and sunset.
+#' @param solar_dep a numerical value representing the solar depression angle used to compute
+#' sunrise and sunset.
 #' @param return_long logical defining the format of the data.frame returned. If `TRUE`, returns the
 #' long format identical to `twilight_create()`. If `FALSE`, return the sunrise and sunset as
 #' different column, making the data.frame the same size as `date`.
@@ -62,7 +62,7 @@
 #' @export
 path2twilight <- function(path,
                           date = NULL,
-                          solarDep = 0,
+                          solar_dep = 0,
                           return_long = TRUE) {
   assertthat::assert_that(is.data.frame(path))
 
@@ -106,7 +106,7 @@ path2twilight <- function(path,
     )
   }
 
-  if (solarDep == 0) {
+  if (solar_dep == 0) {
     twl$sunset <- suntools::sunriset(
       crds = matrix(c(twl$lon, twl$lat), ncol = 2),
       dateTime = twl$date,
@@ -124,7 +124,7 @@ path2twilight <- function(path,
     twl$sunrise <- suntools::crepuscule(
       crds = matrix(c(twl$lon, twl$lat), ncol = 2),
       dateTime = twl$date,
-      solarDep = solarDep,
+      solarDep = solar_dep,
       direction = "dawn",
       POSIXct.out = TRUE
     )$time
@@ -132,7 +132,7 @@ path2twilight <- function(path,
     twl$sunset <- suntools::crepuscule(
       crds = matrix(c(twl$lon, twl$lat), ncol = 2),
       dateTime = twl$date,
-      solarDep = solarDep,
+      solarDep = solar_dep,
       direction = "dusk",
       POSIXct.out = TRUE
     )$time

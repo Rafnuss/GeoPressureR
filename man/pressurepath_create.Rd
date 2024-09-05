@@ -8,7 +8,7 @@ pressurepath_create(
   tag,
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
-  solarDep = 0,
+  solar_dep = 0,
   era5_dataset = "both",
   preprocess = FALSE,
   timeout = 60 * 5,
@@ -28,8 +28,8 @@ The most commonly used variables:\code{"altitude"}, \code{"surface_pressure"}, \
 \code{"v_component_of_wind_100m"}, \code{"total_cloud_cover"}, \code{"total_precipitation"}, \code{"land_sea_mask"}.
 All variables can be listed with \code{GeoPressureR:::pressurepath_variable}.}
 
-\item{solarDep}{a numerical value representing the solar depression angle used to compute sunrise
-and sunset. If \code{NULL}, does not compute sunrise sunset.}
+\item{solar_dep}{a numerical value representing the solar depression angle used to compute
+sunrise and sunset. If \code{NULL}, does not compute sunrise sunset.}
 
 \item{era5_dataset}{select the dataset to use: \code{"single-levels"} for \href{https://doi.org/10.24381/cds.adbb2d47}{ERA5 hourly data on single levels}, \code{"land"} for \href{https://doi.org/10.24381/cds.e2161bac}{ERA5-Land hourly data} or \code{"both"} to use land where available and sing-levels
 otherwise (i.e. over water). LAND has greater precision but is not available on water. Using a
@@ -62,8 +62,8 @@ A GeoPressureR \code{pressurepath} data.frame with columns:
 \item \code{surface_pressure} pressure retrieved from ERA5.
 \item \code{surface_pressure_norm} pressure retrieved from ERA5 normalized to the average of
 \code{pressure_tag} over the stationary period.
-\item \code{sunrise} datetime of the sunrise according to \code{solarDep}.
-\item \code{sunset} datetime of the sunset according to \code{solarDep}.
+\item \code{sunrise} datetime of the sunrise according to \code{solar_dep}.
+\item \code{sunset} datetime of the sunset according to \code{solar_dep}.
 \item \code{...} any other ERA5 variable requested by \code{variable}
 }
 }
