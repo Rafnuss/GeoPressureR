@@ -72,13 +72,13 @@ plot.tag <- function(x, type = NULL, ...) {
     status <- tag_status(tag)
     if ("map_pressure" %in% status) {
       type <- "map"
-    } else if ("pressure" %in% status){
+    } else if ("pressure" %in% status) {
       type <- "pressure"
-    } else if ("light" %in% status){
+    } else if ("light" %in% status) {
       type <- "light"
-    } else if ("acceleration" %in% status){
+    } else if ("acceleration" %in% status) {
       type <- "acceleration"
-    } else if ("temperature" %in% status){
+    } else if ("temperature" %in% status) {
       type <- "temperature"
     }
   }
@@ -342,7 +342,7 @@ plot_tag_light <- function(tag,
 
   l <- tag$light
   if (transform_light) {
-    l$value <- twilight_create_transform_light(l$value)
+    l$value <- twilight_create_transform(l$value)
   }
 
   p <- ggplot2::ggplot() +
@@ -455,7 +455,7 @@ plot_tag_twilight <- function(tag,
 
   light <- tag$light
   if (transform_light) {
-    light$value <- twilight_create_transform_light(light$value)
+    light$value <- twilight_create_transform(light$value)
   }
 
   # Use by order of priority: (1) twl_offset provided in this function, (2) tag$param$twl_offset,
@@ -560,15 +560,24 @@ plot_tag_twilight <- function(tag,
   if (!is.null(twilight_line)) {
     twll <- twilight_line
     twll$date <- as.Date(twll$twilight)
-    twll$time <- as.POSIXct(strptime(format(twll$twilight, "%H:%M"), "%H:%M"))
+    time_hour <- as.numeric(substr(format(twll$twilight, "%H:%M"), 1, 2)) +
+      as.numeric(substr(format(twll$twilight, "%H:%M"), 4, 5)) / 60
+    time_hour <- time_hour + +24 * (time_hour < mat_time_hour[1])
+    twll$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
     twll$stap_id <- factor(round(twll$stap_id))
 
     p <- p +
       ggplot2::geom_line(
-        data = twll,
-        ggplot2::aes(x = .data$date, y = .data$time, group = .data$rise),
-        size = 1,
-        color = ifelse(twll$rise, "brown", "lightgreen")
+        data = twll[twll$rise, ],
+        ggplot2::aes(x = .data$date, y = .data$time),
+        linewidth = 1,
+        color = "brown"
+      ) +
+      ggplot2::geom_line(
+        data = twll[!twll$rise, ],
+        ggplot2::aes(x = .data$date, y = .data$time),
+        linewidth = 1,
+        color = "lightgreen"
       )
   }
 

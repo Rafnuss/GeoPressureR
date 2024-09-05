@@ -1,6 +1,7 @@
 linters: linters_with_defaults(
   line_length_linter(100),
   commented_code_linter = NULL,
-  spaces_left_parentheses_linter = NULL,
-  indentation_linter = NULL,
-  cyclocomp_linter = NULL)
+  # spaces_left_parentheses_linter = NULL,
+  indentation_linter = NULL, # https://github.com/r-lib/lintr/issues/2007, https://github.com/r-lib/styler/issues/1065
+  cyclocomp_linter(100)
+  )

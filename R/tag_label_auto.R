@@ -1,8 +1,19 @@
 #' Automatic labelling of a `tag`
 #'
 #' This function uses acceleration data to classify migratory flights. The function uses a
-#' `k=2` mean clustering ([`kmeans()`]) to identify high activity periods. Periods lasting more than
-#' `min_duration` are then considered to be migratory flight.
+#' `k=2` mean clustering ([`kmeans()`]) to identify high activity periods. Periods of high activity
+#'  lasting more than `min_duration` are then considered to be migratory flight.
+#'
+#' Additionally, we perform a post-processing step to improve the classification of low-activity
+#' period happening during a migration flight (e.g. gliding phase):
+#' 1. Mid-activity surrounded by flights. The kmeans classification classify high-activity all
+#' values above 50% of the distance between the two clusters. Here, we classify as mid-activity
+#' non-flight activity data which value are greater than `thr_reclassify` of the distance between
+#' the two kmeans clusters. Any periods of mid-activity surrounded by flight are also considered
+#' as flights.
+#' 2. To avoid stap lasting only a few datapoints, we also classify any datapoint
+#' which is surrounded by a flight before and after, within a window of +/- `post_proc_window`
+#' points. As a result, no stap will be shorter than `(2 * post_proc_window + 1) * dt`.
 #'
 #' This function is inspired by the function `classify_flap` from the
 #' [PAMlr package](https://github.com/KiranLDA/PAMlr).
@@ -10,6 +21,10 @@
 #' @inheritParams tag_label
 #' @param min_duration Minimal duration (in minutes) to consider a high activity as migratory
 #' flight.
+#' @param thr_reclassify Post-processing threshold of activity considered for re-classification.
+#' Typically between `0` and `0.5` (no effect). See post-processing for details.
+#' @param post_proc_window Post-processing windows considered for re-classification. Typically `0`
+#' (no effect) to `5` in unit of the temporal resolution. See post-processing for details.
 #' @return Same data logger list than input `tag`, but with the column `label` filled with
 #' `"flight"` in the acceleration data.frame when a sustained high-activity period is detected.
 #'
@@ -56,7 +71,7 @@ tag_label_auto <- function(tag,
 
     is_flight <- as.vector(tmp[act_id])
 
-    # Post-processing to improve classification of low activity migration, typically occuring when
+    # Post-processing to improve classification of low activity migration, typically occurring when
     # bird glides in between a long flight.
 
     # Find a threashold of activity from which a low activity could actually be migration.
@@ -67,12 +82,16 @@ tag_label_auto <- function(tag,
     is_flight[thr_0 < tag$acceleration$value & !is_flight] <- NA
 
     # Find if the previous and next (non-NA) is a flight or not.
-    prev_isna <- approx(seq_along(is_flight)[!is.na(is_flight)], is_flight[!is.na(is_flight)],
+    prev_isna <- stats::approx(
+      seq_along(is_flight)[!is.na(is_flight)],
+      is_flight[!is.na(is_flight)],
       seq_along(is_flight)[is.na(is_flight)],
       method = "constant", rule = 2, f = 0
     )$y
 
-    next_isna <- approx(seq_along(is_flight)[!is.na(is_flight)], is_flight[!is.na(is_flight)],
+    next_isna <- stats::approx(
+      seq_along(is_flight)[!is.na(is_flight)],
+      is_flight[!is.na(is_flight)],
       seq_along(is_flight)[is.na(is_flight)],
       method = "constant", rule = 2, f = 1
     )$y
@@ -83,11 +102,11 @@ tag_label_auto <- function(tag,
     # In addition, consider in flight if there is previous and next is in flight
     for (i in seq_len(length(is_flight))) {
       if (!is_flight[i]) {
-        # Define the range of neighbors
+        # Define the range of neighbours
         start_idx <- max(1, i - post_proc_window)
         end_idx <- min(length(is_flight), i + post_proc_window)
 
-        # Check if any of the neighbors are TRUE
+        # Check if any of the neighbours are TRUE
         if (any(is_flight[start_idx:i]) && any(is_flight[i:end_idx])) {
           is_flight[i] <- TRUE
         }

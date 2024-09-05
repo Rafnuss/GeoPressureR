@@ -1,9 +1,11 @@
 #' Create a `tag` object
 #'
 #' @description
-#' Create a GeoPressureR `tag` object from the data collected by a tracking device. This data needs
-#' to include at least pressure and optionally a light and/or acceleration.
+#' Create a GeoPressureR `tag` object from the data collected by a tracking device. The function
+#' can read automatically data formatted by SOI, Migratetech or Lun CAnMove (see details below) but
+#' also accept manual data.frame as input. Pressure data is required for the GeoPressureR workflow.
 #'
+#' @details
 #' The current implementation can read files from the following three manufacturer:
 #' - [Swiss Ornithological Institute (`soi`)](https://bit.ly/3QI6tkk)
 #'    - `pressure_file = "*.pressure"`
@@ -18,11 +20,14 @@
 #'    - `light_file = "*_acc.xlsx"` (optional)
 #'    - `acceleration_file = "*_acc.xlsx"` (optional)
 #'
-#'  You can also enter the data manually (`manufacturer = "manual"`) by providing the data.frame to
-#'  `pressure_file`:
-#'    - `pressure_file`: data.frame with column date and value.
-#'    - `light_file`: (optional) data.frame with column date and value.
-#'    - `acceleration_file`: (optional) data.frame with column date and value.
+#' You can also enter the data manually (`manufacturer = "manual"`) by providing the data.frame to
+#' `pressure_file`:
+#'   - `pressure_file`: data.frame with column date and value.
+#'   - `light_file`: (optional) data.frame with column date and value.
+#'   - `acceleration_file`: (optional) data.frame with column date and value.
+#'
+#' You can still create a `tag` without pressure data using `assert_pressure = TRUE`. This `tag`
+#' won't be able to run the traditional GeoPressureR workflow, but you can still do some analysis.
 #'
 #' By default `manufacturer = NULL`, the manufacturer is determined automatically from the content
 #' of the `directory`. You can also specify manually the file with a full pathname or the file
@@ -200,12 +205,12 @@ tag_create <- function(id,
     )
   }
 
-  if (assert_pressure){
+  if (assert_pressure) {
     tag_assert(tag, "pressure")
   }
 
   ## Crop date
-  tag <- tag_create_crop(tag, crop_start = crop_start, crop_end = crop_end, quiet=quiet)
+  tag <- tag_create_crop(tag, crop_start = crop_start, crop_end = crop_end, quiet = quiet)
 
   # Add parameter information
   tag$param$manufacturer <- manufacturer
@@ -568,7 +573,10 @@ tag_create_manual <- function(tag,
 
   # Read magnetism
   if (!is.null(magnetic_file)) {
-    assertthat::assert_that(assertthat::has_name(magnetic_file, c("date", "mX", "mY", "mZ", "gX", "gY", "gZ")))
+    assertthat::assert_that(assertthat::has_name(
+      magnetic_file,
+      c("date", "mX", "mY", "mZ", "gX", "gY", "gZ")
+    ))
     assertthat::assert_that(inherits(magnetic_file$date, "POSIXct"))
     assertthat::assert_that(assertthat::are_equal(attr(magnetic_file$date, "tzone"), "UTC"))
     tag$magnetic <- magnetic_file
@@ -670,7 +678,7 @@ tag_create_crop <- function(tag,
         tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date < as.POSIXct(crop_end), ]
       }
 
-      if (!quiet){
+      if (!quiet) {
         # Check irregular time
         if (length(unique(diff(tag[[sensor]]$date))) > 1) {
           # nolint start

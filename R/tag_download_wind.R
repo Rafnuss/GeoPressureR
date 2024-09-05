@@ -31,9 +31,9 @@
 #' @param include_stap_id stationary period identifiers of the start of the flight to download.
 #' Default is to download all flights.
 #' @param variable list of variables to download from [the ERA5 pressure level](
-#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9):
-#' `"u_component_of_wind"`, `"v_component_of_wind"`,  `"temperature"`, `"fraction_of_cloud_cover"`,
-#' `"relative_humidity"`, , `"vertical_velocity"`, `"specific_cloud_ice_water_content"`,
+#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9)
+#' : `"u_component_of_wind"`, `"v_component_of_wind"`,  `"temperature"`, `"fraction_of_cloud_cover"`
+#' , `"relative_humidity"`, , `"vertical_velocity"`, `"specific_cloud_ice_water_content"`,
 #' `"specific_cloud_liquid_water_content"`, `"specific_humidity"`, `"specific_rain_water_content"`,
 #' `"specific_snow_water_content"`, `"divergence"`, `"geopotential"`, `"ozone_mass_mixing_ratio"`,
 #' `"potential_vorticity"`, `'vorticity"`.

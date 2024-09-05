@@ -9,7 +9,7 @@ tag_set_map(
   extent,
   scale = 10,
   known = data.frame(stap_id = integer(), known_lat = double(), known_lon = double()),
-  include_stap_id = tag$stap$stap_id,
+  include_stap_id = NULL,
   include_min_duration = 0
 )
 }
@@ -26,7 +26,7 @@ scale on the \href{https://developers.google.com/earth-engine/guides/scale}{Goog
 
 \item{known}{data.frame containing the known positions of the bird (e.g., equipment or retrieval
 site) with columns \code{stap_id}, \code{known_lat} and \code{known_lon}. You can set position of the last
-stationary period using \code{stap_id = -1}.}
+stationary period using \code{stap_id = -1}. Also accept list which are converted as data.frame.}
 
 \item{include_stap_id}{vector of \code{stap_id} defining which stationary period to model, that is,
 to compute in the likelihood map and use in the graph.}

@@ -47,11 +47,11 @@ twilight_create <- function(tag,
   assertthat::assert_that(is.numeric(light$value))
 
   if (transform_light) {
-    light$value <- twilight_create_transform_light(light$value)
+    light$value <- twilight_create_transform(light$value)
   }
 
   if (is.null(twl_thr)) {
-    twl_thr <- min(light$value[light$value > 0])
+    twl_thr <- min(light$value[light$value > 0], na.rm = TRUE)
   }
   assertthat::assert_that(is.numeric(twl_thr))
 
@@ -84,7 +84,8 @@ twilight_create <- function(tag,
   sr <- as.POSIXct(mat$date[id_sr_r], origin = "1970-01-01", tz = "UTC")
 
   # Find the last light
-  id_ss <- dim(l)[1] - apply(l[nrow(l):1, ], 2, which.max)
+  # id_ss <- dim(l)[1] - apply(l[nrow(l):1, ], 2, which.max)
+  id_ss <- dim(l)[1] - apply(l[rev(seq_len(nrow(l))), ], 2, which.max)
   id_ss_s <- id_ss + (seq_len(dim(l)[2]) - 1) * dim(l)[1]
   # check that this value was measured and above the threshold
   id <- mat$value[id_ss_s + 1] >= twl_thr
@@ -120,7 +121,7 @@ twilight_create <- function(tag,
 }
 
 #' @noRd
-twilight_create_transform_light <- function(value) {
+twilight_create_transform <- function(value) {
   log(value + 0.0001) + abs(min(log(value + 0.0001), na.rm = TRUE))
 }
 

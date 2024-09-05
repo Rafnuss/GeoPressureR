@@ -88,8 +88,8 @@ tag_set_map <- function(tag,
   map_expand(extent, scale)
 
   # Check known
-  if (is.list(known)){
-    known = do.call(rbind, lapply(known, as.data.frame))
+  if (is.list(known) && !is.data.frame(known)) {
+    known <- do.call(rbind, lapply(known, as.data.frame))
   }
   assertthat::assert_that(is.data.frame(known))
   assertthat::assert_that(assertthat::has_name(known, "stap_id"))
@@ -172,9 +172,10 @@ tag_set_map <- function(tag,
   }
 
   # Add known to stap
-  # remove first known_lat and lon if they exist to be able to merge the table without duplicate
-  stap <- stap[, !(names(stap) %in% c("known_lat", "known_lon"))]
-  stap <- merge(stap, known, by = "stap_id", all.x = TRUE)
+  # remove all duplicate names to merge the table without duplicate
+  stap <- stap[, !(names(stap) %in% c("known_lat", "known_lon", "include"))]
+  known <- known[, !(names(known) %in% c("start", "end"))]
+  stap <- merge(stap, known, all.x = TRUE)
 
   # Add the vector of stap to include
   stap$include <- stap_include
