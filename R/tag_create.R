@@ -467,7 +467,7 @@ tag_create_lund <- function(tag,
     value = xls$`Pressure [hPa]`
   )
   if (!quiet) {
-    cli::cli_inform(c("v" = "Read {.file {pressure_path}}\f"))
+    cli::cli_inform(c("v" = "Read {.file {pressure_path}}"))
   }
 
 
@@ -495,7 +495,7 @@ tag_create_lund <- function(tag,
     )
 
     if (!quiet) {
-      cli::cli_inform(c("v" = "Read {.file {acc_light_path}}\f"))
+      cli::cli_inform(c("v" = "Read {.file {acc_light_path}}"))
     }
   }
 
@@ -529,7 +529,7 @@ tag_create_manual <- function(tag,
     if (min(pressure_file$value, na.rm = TRUE) < 250 ||
       1100 < max(pressure_file$value, na.rm = TRUE)) {
       cli::cli_warn("Pressure observation should be between 250 hPa (~10000m) and 1100 hPa \\
-    (sea level at 1013hPa). Check unit of pressure data.frame provided.\f")
+    (sea level at 1013hPa). Check unit of pressure data.frame provided.")
     }
     tag$pressure <- pressure_file
     tag$param$pressure_file <- "manual"
@@ -611,7 +611,7 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
     if (!quiet) {
       cli::cli_warn(c(
         "!" = glue::glue("No file is matching '", file, "'."),
-        ">" = "This sensor will be ignored.\f"
+        ">" = "This sensor will be ignored."
       ))
     }
     return(NULL)
@@ -619,7 +619,7 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
   if (length(path) > 1) {
     cli::cli_warn(c(
       "!" = "Multiple files matching {.var {file}}: {.file {path}}",
-      ">" = "The function will continue with the first one.\f"
+      ">" = "The function will continue with the first one."
     ))
     return(path[1])
   }
@@ -657,7 +657,7 @@ tag_create_dto <- function(sensor_path,
   }
 
   if (!quiet) {
-    cli::cli_inform(c("v" = "Read {.file {sensor_path}}\f"))
+    cli::cli_inform(c("v" = "Read {.file {sensor_path}}"))
   }
   return(df)
 }
@@ -684,7 +684,7 @@ tag_create_crop <- function(tag,
           # nolint start
           dtime <- as.numeric(diff(tag[[sensor]]$date))
           cli::cli_warn("Irregular time spacing for {.field {sensor}}: \\
-                  {tag[[sensor]]$date[which(dtime != dtime[1])]}.\f")
+                  {tag[[sensor]]$date[which(dtime != dtime[1])]}.")
           # nolint end
         }
 

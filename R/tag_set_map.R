@@ -150,12 +150,12 @@ tag_set_map <- function(tag,
             "!" = "The old parameters have been overwitten with the new ones and the likelihood \\
             map have been deleted.",
             ">" = "Run {.fun geopressure_map} and/or {.fun geolight_map} again to create the new \\
-            likelihood maps\f"
+            likelihood maps"
           ))
         } else {
           cli::cli_warn(c(
             "x" = "No modification were made.",
-            ">" = "This function return the original (unmodified) {.var tag}.\f"
+            ">" = "This function return the original (unmodified) {.var tag}."
           ))
           # If no, stop and return the existing tag
           return(tag)
@@ -165,7 +165,7 @@ tag_set_map <- function(tag,
           "!" = "{.fun setmap} has already been run on this {.var tag} object and the input \\
           parameters are different.",
           ">" = "The old parameters ({.var scale}, {.var extent}, {.var tag$known} or \\
-          {.var tag$include}) will be overwitten with the new ones.\f"
+          {.var tag$include}) will be overwitten with the new ones."
         ))
       }
     }
@@ -183,7 +183,7 @@ tag_set_map <- function(tag,
   if (all(!stap$include)) {
     cli::cli_warn(c(
       "x" = "All stationary periods have been excluded from the computation",
-      ">" = "Check {.var include_stap_id} {.var include_min_duration}.\f"
+      ">" = "Check {.var include_stap_id} {.var include_min_duration}."
     ))
   }
 

@@ -58,7 +58,7 @@ tag_label_stap <- function(tag,
       cli::cli_warn("The stationary periods will be estimated from acceleration data and the
         label {.val flight} from pressure will be ignored. It is best practise to remove
         {.val flight} in  pressure data if you are using acceleration. Remove label column in
-        acceleration data to use pressure label.\f")
+        acceleration data to use pressure label.")
     }
   } else {
     sensor <- tag$pressure
@@ -104,7 +104,7 @@ tag_label_stap <- function(tag,
       cli::cli_warn(c(
         "!" = "There is only a single stationary period.",
         i = "Check that you are using {.val flight} in the label file and labelling the correct \\
-        series ({.field pressure} or {.field acceleration}).\f"
+        series ({.field pressure} or {.field acceleration})."
       ))
     }
 

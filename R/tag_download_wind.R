@@ -69,7 +69,7 @@ tag_download_wind <- function(
     dir.create(directory, recursive = TRUE)
     cli::cli_warn(c(
       "!" = "The directory {.file {directory}} did not exist.",
-      ">" = "We created the directory.\f"
+      ">" = "We created the directory."
     ))
   }
 
@@ -92,7 +92,7 @@ tag_download_wind <- function(
     cli::cli_warn(c(
       "!" = "{.var include_stap_id} included the last stationary period for which no wind can be \\
       computed.",
-      ">" = "We removed this stationary period.\f"
+      ">" = "We removed this stationary period."
     ))
   }
 

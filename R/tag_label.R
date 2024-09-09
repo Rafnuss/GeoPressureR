@@ -67,7 +67,7 @@ tag_label <- function(tag,
 
     # Suggest to write the file
     file_default <- glue::glue("./data/tag-label/{tag$param$id}.csv")
-    cli::cli_inform(c("!" = "The label file {.file {file}} does not exist.\f"))
+    cli::cli_inform(c("!" = "The label file {.file {file}} does not exist."))
     choices <- list(
       "1" = "No",
       "2" = glue::glue("Yes, in `{file_default}` (default)"),
@@ -83,13 +83,13 @@ tag_label <- function(tag,
 
     # Stop the function
     cli::cli_warn(c(
-      ">" = "Return the original {.var tag} unmodified.\f"
+      ">" = "Return the original {.var tag} unmodified."
     ))
     return(tag)
   } else {
     # Check if label has already been setmap
     if ("setmap" %in% tag_status(tag)) {
-      cli::cli_inform(c("!" = "The setmap has already been defined for {.var tag}.\f"))
+      cli::cli_inform(c("!" = "The setmap has already been defined for {.var tag}."))
       choices <- list(
         "1" = glue::glue("No, return the original `tag`"),
         "2" = glue::glue("Yes, read the new label, but start `tag` from scratch"),
