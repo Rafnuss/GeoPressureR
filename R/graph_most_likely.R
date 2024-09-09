@@ -98,9 +98,11 @@ graph_most_likely <- function(graph, quiet = FALSE) {
     i_s <- 0
     cli::cli_progress_bar(
       "Compute most likely position for stationary period:",
-      format = "{cli::pb_name} {i_s}/{length(node_stap)} {cli::pb_bar} {cli::pb_percent} | \\
+      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_s}/{length(node_stap)} \\
+      {cli::pb_bar} {cli::pb_percent} | \\
       {cli::pb_eta_str} [{cli::pb_elapsed}]",
-      format_done = "Compute most likely position for stationary periods [{cli::pb_elapsed}]",
+      format_done = "{cli::col_green(cli::symbol$tick)} Compute most likely position for \\
+      stationary periods {cli::col_white('[', cli::pb_elapsed, ']')}",
       clear = FALSE,
       total = sum(n_edge)
     )
@@ -154,6 +156,7 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   attr(path, "type") <- "most_likely"
 
   if (!quiet) {
+    cli::cli_progress_done()
     cli::cli_alert_success("All done")
   }
 

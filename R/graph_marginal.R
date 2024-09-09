@@ -116,6 +116,7 @@ graph_marginal <- function(graph, quiet = FALSE) {
   )
 
   if (!quiet) {
+    cli::cli_progress_done()
     cli::cli_alert_success("All done")
   }
 

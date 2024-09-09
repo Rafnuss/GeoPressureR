@@ -118,9 +118,10 @@ graph_simulation <- function(graph,
     i_s <- 1
     cli::cli_progress_bar(
       "Simulate positions for stationary period:",
-      format = "{cli::pb_name} {i_s}/{graph$sz[3]} {cli::pb_bar} {cli::pb_percent} | \\
-      {cli::pb_eta_str} [{cli::pb_elapsed}]",
-      format_done = "Simulate positions for stationary periods [{cli::pb_elapsed}]",
+      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_s}/{graph$sz[3]} \\
+      {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "{cli::col_green(cli::symbol$tick)} Simulate positions for stationary periods \\
+      {cli::col_white('[', cli::pb_elapsed, ']')}",
       clear = FALSE,
       total = graph$sz[3]
     )
@@ -174,6 +175,7 @@ graph_simulation <- function(graph,
   attr(path, "type") <- "simulation"
 
   if (!quiet) {
+    cli::cli_progress_done()
     cli::cli_alert_success("All done")
   }
 
