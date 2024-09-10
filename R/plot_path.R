@@ -39,7 +39,7 @@ plot_path <- function(path,
   if (!("j" %in% names(path))) path$j <- 1
 
   if (plot_leaflet) {
-    leaflet::leaflet(width = "100%") |>
+    leaflet::leaflet(height = 600) |>
       leaflet::addProviderTiles(provider = provider, options = provider_options) |>
       plot_path_leaflet(path, ...)
   } else {

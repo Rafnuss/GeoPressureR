@@ -95,7 +95,7 @@ plot.map <- function(x,
     grp <- glue::glue("#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - \\
                       {format(map$stap$end , format = '%d %b %H:%M')}")
 
-    lmap <- leaflet::leaflet(width = "100%") |>
+    lmap <- leaflet::leaflet(height = 600) |>
       leaflet::addProviderTiles(provider = provider, options = provider_options)
 
     if (palette == "auto") {
