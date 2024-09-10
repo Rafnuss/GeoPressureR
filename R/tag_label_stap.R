@@ -112,7 +112,7 @@ tag_label_stap <- function(tag,
     stap$duration_time <- stap2duration(stap, return_numeric = FALSE)
 
     stap_warning <- stap[stap$duration_num <= warning_stap_duration, ]
-    cli::cli_h3("Short stationary periods (<{warning_stap_duration}hr):")
+    cli::cli_rule("Short stationary periods ({.strong <{warning_stap_duration}hr}):")
     if (nrow(stap_warning) > 0) {
       for (i in seq_len(nrow(stap_warning))) {
         # nolint start
@@ -133,7 +133,7 @@ tag_label_stap <- function(tag,
     flight <- stap2flight(stap, units = "hours", return_numeric = FALSE)
     flight_warning <- flight[as.numeric(flight$duration, units = "hours") <=
       warning_flight_duration, ]
-    cli::cli_h3("Short flights (<{warning_flight_duration}hr):")
+    cli::cli_rule("Short flights ({.strong <{warning_flight_duration}hr}):")
     if (nrow(flight_warning) > 0) {
       for (i in seq_len(nrow(flight_warning))) {
         # nolint start
