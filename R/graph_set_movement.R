@@ -81,6 +81,10 @@ graph_set_movement <- function(graph,
   assertthat::assert_that(is.character(method))
   assertthat::assert_that(any(c("gamma", "power", "logis") == method))
   assertthat::assert_that(is.function(power2prob))
+  assertthat::assert_that(is.numeric(shape))
+  assertthat::assert_that(is.numeric(scale))
+  assertthat::assert_that(is.numeric(location))
+  assertthat::assert_that(is.numeric(low_speed_fix))
 
   mvt <- list(
     type = type,
@@ -96,7 +100,6 @@ graph_set_movement <- function(graph,
     mvt$location <- location
   } else if (method == "power") {
     assertthat::assert_that(inherits(bird, "bird"))
-    assertthat::assert_that(is.function(power2prob))
     mvt$bird <- bird
 
     attr(power2prob, "srcref") <- NULL
