@@ -68,7 +68,7 @@ ind2path <- function(ind,
   path0 <- data.frame(
     stap_id = rep(stap$stap_id, each = dim(ind)[1]),
     j = rep(seq_len(dim(ind)[1]), times = dim(ind)[2]),
-    ind = as.vector(ind),
+    ind = as.integer(as.vector(ind)),
     lat = g$lat[ind_lat],
     lon = g$lon[ind_lon]
   )
