@@ -123,5 +123,7 @@ path2edge <- function(path, tag_graph) {
   # Sort by stap_s
   edge <- edge[order(edge$stap_s), ]
 
+  attr(edge, "type") <- attr(path, "type")
+
   return(edge)
 }
