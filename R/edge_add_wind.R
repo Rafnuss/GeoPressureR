@@ -16,8 +16,8 @@
 #' @param pressure pressure measurement of the associated `tag` data used to estimate the pressure
 #' level (i.e., altitude) of the bird during the flights. This data.frame needs to contain `date` as
 #' POSIXt and `value` in hPa.
-#' @param variable list of the variables to extract from [the ERA5 pressure level](https://
-#' confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9)
+#' @param variable list of the variables to extract from [the ERA5 pressure level](
+#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9)
 #' using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`, , `"w"`, `"ciwc"`, `"clwc"`,
 #'  `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `'vo"`.
 #' @param rounding_interval temporal resolution on which to query the variable (min). Default is to
