@@ -2,15 +2,27 @@
 #'
 #' @description
 #' Create a GeoPressureR `tag` object from the data collected by a tracking device. The function
-#' can read automatically data formatted by SOI, Migratetech or Lun CAnMove (see details below) but
-#' also accept manual data.frame as input. Pressure data is required for the GeoPressureR workflow.
+#' can read data formatted according to three manufacturers SOI, Migratetech or Lun CAnMove, as
+#' well as according to the GeoLocator Data package standard and also accept manual data.frame as
+#' input. Pressure data is required for the GeoPressureR workflow but can be allowed to be missing
+#' with `assert_pressure = FALSE`.
 #'
 #' @details
-#' The current implementation can read files from the following three manufacturer:
+#' The current implementation can read files from the following three sources:
+#' - [GeoLocator Data Package (`gldp`)](https://raphaelnussbaumer.com/GeoLocator-DP/)
+#'    - `pressure_file = "pressure.csv"`(optional)
+#'    - `light_file = "light.csv"` (optional)
+#'    - `acceleration_file = "acceleration.csv"` (optional)
+#'    - `temperature_file = "temperature.csv"` (optional)
+#'    - `airtemperature_file = "airtemperature.csv"` (optional)
+#'    - `magnetic_file = "magnetic.csv"` (optional)
 #' - [Swiss Ornithological Institute (`soi`)](https://bit.ly/3QI6tkk)
 #'    - `pressure_file = "*.pressure"`
 #'    - `light_file = "*.glf"` (optional)
 #'    - `acceleration_file = "*.acceleration"` (optional)
+#'    - `temperature = "*.temperature"` (optional)
+#'    - `airtemperature = "*.airtemperature"` (optional)
+#'    - `magnetic = "*.magnetic"` (optional)
 #' - [Migrate Technology (`migratetech`)](http://www.migratetech.co.uk/):
 #'    - `pressure_file = "*.deg"`
 #'    - `light_file = "*.lux"` (optional)
@@ -31,7 +43,7 @@
 #'
 #' By default `manufacturer = NULL`, the manufacturer is determined automatically from the content
 #' of the `directory`. You can also specify manually the file with a full pathname or the file
-#' extension using a [regex] expression (e.g., `"*.pressure"` matches any file ending with
+#' extension using a regex expression (e.g., `"*.pressure"` matches any file ending with
 #' `pressure`).
 #'
 #' Please create [an issue on Github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you
@@ -61,7 +73,7 @@
 #' @param assert_pressure logical to check that the return tag has pressure data.
 #'
 #' @return a GeoPressureR `tag` object containing
-#' - `param` parameter object (see [param_create])
+#' - `param` parameter object (see [param_create()])
 #' - `pressure` data.frame with columns: `date` and `value`
 #' - `light` (optional) same structure as pressure
 #' - `temperature` (optional) same structure as pressure
@@ -71,7 +83,6 @@
 #'    (i.e. jiggle). In the SOI sensor, it is summarised from 32 measurements at 10Hz
 #'    - `pitch` is the relative position of the bird’s body relative to the z axis. In the SOI
 #'    sensor, it is an average over 32 measurements at 10Hz.
-
 #' - `magnetic` (optional) data.frame with columns: `date`, `mX`, `mY`, `mZ`, `gX`, `gY` and `gZ`
 #'
 #' @examples
@@ -136,7 +147,9 @@ tag_create <- function(id,
       manufacturer <- "manual"
     } else {
       assertthat::assert_that(assertthat::is.dir(directory))
-      if (any(grepl("\\.(pressure|glf)$", list.files(directory)))) {
+      if (any(grepl("pressure\\.csv$|light\\.csv$", list.files(directory)))) {
+        manufacturer <- "datapackage"
+      } else if (any(grepl("\\.(pressure|glf)$", list.files(directory)))) {
         manufacturer <- "soi"
       } else if (any(grepl("\\.deg$", list.files(directory)))) {
         manufacturer <- "migratetech"
@@ -144,16 +157,16 @@ tag_create <- function(id,
         manufacturer <- "lund"
       } else {
         cli::cli_abort(c(
-          "x" = "We were not able to determine the {.var manufacturer} of tag from the directory \\
+          "x" = "We were not able to determine the {.var manufacturer} of tag from the directory
         {.file {directory}}",
-          ">" = "Check that this directory contains the file with pressure data (i.e., with \\
-        extension {.val .pressure}, {.val .glf}, {.val .deg} or {.val _press.xlsx})"
+          ">" = "Check that this directory contains the file with pressure data (i.e., with
+        extension {.val .csv}, {.val .pressure}, {.val .glf}, {.val .deg} or {.val _press.xlsx})"
         ))
       }
     }
   }
   assertthat::assert_that(is.character(manufacturer))
-  manufacturer_possible <- c("auto", "soi", "migratetech", "lund", "manual")
+  manufacturer_possible <- c("auto", "datapackage", "soi", "migratetech", "lund", "manual")
   if (!any(manufacturer %in% manufacturer_possible)) {
     cli::cli_abort(c(
       "x" = "{.var manufacturer} needs to be one of {.val {manufacturer_possible}}"
@@ -163,7 +176,19 @@ tag_create <- function(id,
   # Create tag
   tag <- structure(list(param = param_create(id = id)), class = "tag")
 
-  if (manufacturer == "soi") {
+  if (manufacturer == "datapackage") {
+    tag <- tag_create_dp(
+      tag,
+      directory = directory,
+      pressure_file = pressure_file,
+      light_file = light_file,
+      acceleration_file = acceleration_file,
+      temperature_file = temperature_file,
+      airtemperature_file = airtemperature_file,
+      magnetic_file = magnetic_file,
+      quiet = quiet
+    )
+  } else if (manufacturer == "soi") {
     tag <- tag_create_soi(
       tag,
       directory = directory,
@@ -222,8 +247,96 @@ tag_create <- function(id,
 }
 
 
+# Read GeoLocator Data Package files
+#' @noRd
+tag_create_dp <- function(tag,
+                          directory,
+                          pressure_file = NULL,
+                          light_file = NULL,
+                          acceleration_file = NULL,
+                          temperature_file = NULL,
+                          airtemperature_file = NULL,
+                          magnetic_file = NULL,
+                          quiet) {
+  # Read Pressure
+  if (is.null(pressure_file)) {
+    pressure_path <- "pressure.csv"
+  }
+  pressure_path <- file.path(directory, "pressure.csv")
+  if (file.exists(pressure_path)) {
+    tag$pressure <- tag_create_csv(pressure_path,
+                                   col_name = c("datetime", "value"),
+                                   quiet = quiet)
+  }
 
-# Read Swiss Ornithological Institutue (SOI) tag files
+  # Read light
+  if (is.null(light_file)) {
+    light_file <- "light.csv"
+  }
+  light_path <- file.path(directory, light_file)
+  if (file.exists(light_path)) {
+    tag$light <- tag_create_csv(light_path,
+                                col_name = c("datetime", "value"),
+                                quiet = quiet)
+  }
+
+  # Read acceleration
+  if (is.null(acceleration_file)) {
+    acceleration_file <- "acceleration.csv"
+  }
+  acceleration_path <- file.path(directory, acceleration_file)
+  if (file.exists(acceleration_path)) {
+    tag$acceleration <- tag_create_csv(acceleration_path,
+                                       col_name = c("datetime", "value", "pitch"),
+                                       quiet = quiet)
+  }
+
+  # Read temperature
+  if (is.null(temperature_file)) {
+    temperature_file <- "temperature.csv"
+  }
+  temperature_path <- file.path(directory, temperature_file)
+  if (file.exists(temperature_path)) {
+    tag$temperature <- tag_create_csv(temperature_path,
+                                      col_name = c("datetime", "value"),
+                                      quiet = quiet)
+  }
+
+  # Read air temperature
+  if (is.null(airtemperature_file)) {
+    airtemperature_file <- "airtemperature.csv"
+  }
+  airtemperature_path <- file.path(directory, airtemperature_file)
+  if (file.exists(airtemperature_path)) {
+    tag$airtemperature <- tag_create_csv(airtemperature_path,
+                                         col_name = c("datetime", "value"),
+                                         quiet = quiet)
+  }
+
+  # Read magnetism
+  if (is.null(magnetic_file)) {
+    magnetic_file <- "magnetic.csv"
+  }
+  magnetic_path <- file.path(directory, magnetic_file)
+  if (file.exists(magnetic_path)) {
+    tag$magnetic <- tag_create_csv(magnetic_path,
+                                   col_name = c("datetime", "gX", "gY", "gZ", "mX", "mY", "mZ"),
+                                   quiet = quiet)
+  }
+
+  # Add parameter information
+  tag$param$tag_create$pressure_file <- pressure_path
+  tag$param$tag_create$light_file <- light_path
+  tag$param$tag_create$acceleration_file <- acceleration_path
+  tag$param$tag_create$temperature_file <- temperature_path
+  tag$param$tag_create$airtemperature_file <- airtemperature_path
+  tag$param$tag_create$magnetic_file <- magnetic_path
+
+  return(tag)
+}
+
+
+# Read Swiss Ornithological Institute (SOI) tag files
 #' @noRd
 tag_create_soi <- function(tag,
                            directory,
@@ -234,7 +347,6 @@ tag_create_soi <- function(tag,
                            airtemperature_file = NULL,
                            magnetic_file = NULL,
                            quiet) {
-  # Read Pressure
   # Read Pressure
   if (is.null(pressure_file)) {
     pressure_path <- tag_create_detect("*.pressure", directory, quiet = TRUE)
@@ -257,7 +369,7 @@ tag_create_soi <- function(tag,
   }
 
   # Read acceleration
-  if (is.null(light_file)) {
+  if (is.null(acceleration_file)) {
     acceleration_path <- tag_create_detect("*.acceleration", directory, quiet = TRUE)
   } else {
     acceleration_path <- tag_create_detect(acceleration_file, directory, quiet = quiet)
@@ -661,6 +773,31 @@ tag_create_dto <- function(sensor_path,
   }
   return(df)
 }
+
+#' Read data file with a CSV format
+#' @noRd
+tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
+  df <- utils::read.csv(sensor_path)
+
+  # Check if all specified columns are present
+  missing_cols <- setdiff(col_name, names(df))
+  if (length(missing_cols) > 0) {
+    cli::cli_abort(glue::glue("The following columns are missing in {.file {sensor_path}}:\\
+                              {glue::glue_collapse(missing_cols, ', ')}"))
+
+  }
+
+  df$datetime <- as.POSIXct(
+    ifelse(grepl(" ", df$datetime), df$datetime, paste0(df$datetime, " 00:00:00")),
+    format="%Y-%m-%d %H:%M:%S", tz = "UTC")
+
+  if (!quiet) {
+    cli::cli_inform(c("v" = "Read {.file {sensor_path}}"))
+  }
+
+  return(df)
+}
+
 
 #' Crop sensor data.frame
 #' @noRd
