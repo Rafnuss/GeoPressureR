@@ -37,7 +37,7 @@ path2edge <- function(path, tag_graph) {
   stap <- tag_graph$stap
   assertthat::assert_that(all(unique(path$stap_id) == stap$stap_id))
 
-  g <- map_expand(tag_graph$param$extent, tag_graph$param$scale)
+  g <- map_expand(tag_graph$param$tag_set_map$extent, tag_graph$param$tag_set_map$scale)
 
   # Number of paths
   if ("j" %in% names(path)) {

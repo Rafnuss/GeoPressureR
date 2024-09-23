@@ -2,7 +2,6 @@
 % Please edit documentation in R/geopressurer.R
 \docType{package}
 \name{GeoPressureR}
-\alias{GeoPressureR-package}
 \alias{GeoPressureR}
 \title{GeoPressureR: Global positioning by atmospheric pressure.}
 \description{

@@ -20,7 +20,7 @@ Rstudio.}
 }
 \value{
 The updated path visualized in the app. Can also be retrieved with
-\code{.GlobalEnv$geopressureviz_path}
+\code{.GlobalEnv$path_geopressureviz}
 }
 \description{
 GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
@@ -32,7 +32,7 @@ time series for individual stationary period to test manual what seems the optim
 GeoPressureViz can be started based on a \code{.Rdata} file containing at least \code{tag}, but also
 optionally \code{marginal} and/or \code{path} (\code{path_most_likely} is also accepted).
 
-You can retrieved the edited path from the global environment variable \code{geopressureviz_path}.
+You can retrieved the edited path from the global environment variable \code{path_geopressureviz}.
 
 Learn more about GeoPressureViz in the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual } or with
 this \href{https://rafnuss.shinyapps.io/GeoPressureViz/}{demo of the Great Reed Warbler (18LX)}.

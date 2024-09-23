@@ -75,7 +75,7 @@ tag2path <- function(tag,
     path_interp[!is.na(tag$stap$known_lon) & use_known] <- FALSE
 
     # Compute the grid information used for known or interp
-    g <- map_expand(tag$param$extent, tag$param$scale)
+    g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
 
     # Compute the latitude and longitude ind
     lat_ind <- arrayInd(ind, g$dim)[, 1]

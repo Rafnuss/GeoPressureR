@@ -108,8 +108,8 @@ graph_marginal <- function(graph, quiet = FALSE) {
 
   marginal <- map_create(
     data = marginal_data,
-    extent = graph$param$extent,
-    scale = graph$param$scale,
+    extent = graph$param$tag_set_map$extent,
+    scale = graph$param$tag_set_map$scale,
     stap = graph$stap,
     id = graph$param$id,
     type = "marginal"

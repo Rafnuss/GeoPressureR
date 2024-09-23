@@ -42,8 +42,8 @@ test_that("check graph_set_movement() with groundspeed/gamma", {
     retrieval = NULL, extent = NULL, scale = NULL, mask_water = NULL
   ), class = "graph")
   graph <- graph_set_movement(graph)
-  expect_no_error(speed2prob(speed, graph$param$movement))
-  expect_no_error(speed2prob(speed + 1 * 1i, graph$param$movement))
+  expect_no_error(speed2prob(speed, graph$param$graph_set_movement))
+  expect_no_error(speed2prob(speed + 1 * 1i, graph$param$graph_set_movement))
   expect_no_error(graph_set_movement(graph, shape = 8, scale = 2))
   expect_no_error(graph_set_movement(graph, low_speed_fix = 0))
   expect_no_error(graph_set_movement(graph, power2prob = \(power) (1 / power)^6))

@@ -53,7 +53,7 @@
 #' @export
 tag_download_wind <- function(
     tag,
-    extent = tag$param$extent,
+    extent = tag$param$tag_set_map$extent,
     include_stap_id = NULL,
     variable = c("u_component_of_wind", "v_component_of_wind"),
     cds_token = Sys.getenv("cds_token"),

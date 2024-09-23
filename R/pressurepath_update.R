@@ -94,7 +94,7 @@ pressurepath_update <- function(pressurepath,
   # Add additional parameter to pressurepath
   attr(pressurepath_new, "id") <- tag$param$id
   attr(pressurepath_new, "preprocess") <- preprocess
-  attr(pressurepath_new, "sd") <- tag$param$sd
+  attr(pressurepath_new, "sd") <- tag$param$geopressure_map$sd
 
   return(pressurepath_new)
 }

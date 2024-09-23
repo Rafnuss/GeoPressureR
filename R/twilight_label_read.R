@@ -32,7 +32,7 @@ twilight_label_read <- function(
     timestamp = "twilight"
   )
 
-  tag$param$twilight_file <- file
+  tag$param$twilight_label_read$file <- file
 
   return(tag)
 }

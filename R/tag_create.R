@@ -213,10 +213,10 @@ tag_create <- function(id,
   tag <- tag_create_crop(tag, crop_start = crop_start, crop_end = crop_end, quiet = quiet)
 
   # Add parameter information
-  tag$param$manufacturer <- manufacturer
-  tag$param$crop_start <- crop_start
-  tag$param$crop_end <- crop_end
-  tag$param$directory <- directory
+  tag$param$tag_create$manufacturer <- manufacturer
+  tag$param$tag_create$crop_start <- crop_start
+  tag$param$tag_create$crop_end <- crop_end
+  tag$param$tag_create$directory <- directory
 
   return(tag)
 }
@@ -299,12 +299,12 @@ tag_create_soi <- function(tag,
   }
 
   # Add parameter information
-  tag$param$pressure_file <- pressure_path
-  tag$param$light_file <- light_path
-  tag$param$acceleration_file <- acceleration_path
-  tag$param$temperature_file <- temperature_path
-  tag$param$airtemperature_file <- airtemperature_path
-  tag$param$magnetic_file <- magnetic_path
+  tag$param$tag_create$pressure_file <- pressure_path
+  tag$param$tag_create$light_file <- light_path
+  tag$param$tag_create$acceleration_file <- acceleration_path
+  tag$param$tag_create$temperature_file <- temperature_path
+  tag$param$tag_create$airtemperature_file <- airtemperature_path
+  tag$param$tag_create$magnetic_file <- magnetic_path
 
   setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
   if (!is.null(setting_path)) {
@@ -379,7 +379,7 @@ tag_create_migratetech <- function(tag,
       date_format = "%d/%m/%Y %H:%M:%S",
       quiet = quiet
     )
-    tag$param$acceleration_file <- deg_path
+    tag$param$tag_create$acceleration_file <- deg_path
   }
 
   # Read temperature
@@ -390,7 +390,7 @@ tag_create_migratetech <- function(tag,
       date_format = "%d/%m/%Y %H:%M:%S",
       quiet = quiet
     )
-    tag$param$temperature_file <- deg_path
+    tag$param$tag_create$temperature_file <- deg_path
   }
 
   # Read light
@@ -435,8 +435,8 @@ tag_create_migratetech <- function(tag,
   }
 
   # Add parameter information
-  tag$param$pressure_file <- deg_path
-  tag$param$light_file <- light_path
+  tag$param$tag_create$pressure_file <- deg_path
+  tag$param$tag_create$light_file <- light_path
 
   return(tag)
 }
@@ -500,9 +500,9 @@ tag_create_lund <- function(tag,
   }
 
   # Add parameter information
-  tag$param$pressure_file <- pressure_path
-  tag$param$light_file <- acc_light_path
-  tag$param$acceleration_file <- acc_light_path
+  tag$param$tag_create$pressure_file <- pressure_path
+  tag$param$tag_create$light_file <- acc_light_path
+  tag$param$tag_create$acceleration_file <- acc_light_path
 
   return(tag)
 }
@@ -532,7 +532,7 @@ tag_create_manual <- function(tag,
     (sea level at 1013hPa). Check unit of pressure data.frame provided.")
     }
     tag$pressure <- pressure_file
-    tag$param$pressure_file <- "manual"
+    tag$param$tag_create$pressure_file <- "manual"
   }
 
   # Read light
@@ -541,7 +541,7 @@ tag_create_manual <- function(tag,
     assertthat::assert_that(inherits(light_file$date, "POSIXct"))
     assertthat::assert_that(assertthat::are_equal(attr(light_file$date, "tzone"), "UTC"))
     tag$light <- light_file
-    tag$param$light_file <- "manual"
+    tag$param$tag_create$light_file <- "manual"
   }
 
   # Read acceleration
@@ -550,7 +550,7 @@ tag_create_manual <- function(tag,
     assertthat::assert_that(inherits(acceleration_file$date, "POSIXct"))
     assertthat::assert_that(assertthat::are_equal(attr(acceleration_file$date, "tzone"), "UTC"))
     tag$acceleration <- acceleration_file
-    tag$param$acceleration_file <- "manual"
+    tag$param$tag_create$acceleration_file <- "manual"
   }
 
   # Read acceleration
@@ -559,7 +559,7 @@ tag_create_manual <- function(tag,
     assertthat::assert_that(inherits(temperature_file$date, "POSIXct"))
     assertthat::assert_that(assertthat::are_equal(attr(temperature_file$date, "tzone"), "UTC"))
     tag$temperature <- temperature_file
-    tag$param$temperature_file <- "manual"
+    tag$param$tag_create$temperature_file <- "manual"
   }
 
   # Read air temperature
@@ -568,7 +568,7 @@ tag_create_manual <- function(tag,
     assertthat::assert_that(inherits(airtemperature_file$date, "POSIXct"))
     assertthat::assert_that(assertthat::are_equal(attr(airtemperature_file$date, "tzone"), "UTC"))
     tag$airtemperature <- airtemperature_file
-    tag$param$airtemperature_file <- "manual"
+    tag$param$tag_create$airtemperature_file <- "manual"
   }
 
   # Read magnetism
@@ -580,7 +580,7 @@ tag_create_manual <- function(tag,
     assertthat::assert_that(inherits(magnetic_file$date, "POSIXct"))
     assertthat::assert_that(assertthat::are_equal(attr(magnetic_file$date, "tzone"), "UTC"))
     tag$magnetic <- magnetic_file
-    tag$param$magnetic_file <- "manual"
+    tag$param$tag_create$magnetic_file <- "manual"
   }
 
   return(tag)

@@ -43,13 +43,13 @@ tag_update <- function(tag,
   # Re-create the original tag before label
   tag_new <- tag_create(
     id = tag$param$id,
-    manufacturer = NULL,
+    manufacturer = tag$param$tag_create$manufacturer,
     directory = glue::glue("./data/raw-tag/{tag$param$id}/"),
-    crop_start = tag$param$crop_start,
-    crop_end = tag$param$crop_end,
-    pressure_file = tag$param$pressure_file,
-    light_file = tag$param$light_file,
-    acceleration_file = tag$param$acceleration_file,
+    crop_start = tag$param$tag_create$crop_start,
+    crop_end = tag$param$tag_create$crop_end,
+    pressure_file = tag$param$tag_create$pressure_file,
+    light_file = tag$param$tag_create$light_file,
+    acceleration_file = tag$param$tag_create$acceleration_file,
     quiet = TRUE
   )
 
@@ -58,11 +58,13 @@ tag_update <- function(tag,
   tag_new <- tag_label_stap(tag_new, quiet = TRUE)
 
   # check length of sd
-  if (length(tag$param$sd) != 1 && length(tag$param$sd) != nrow(tag_new$stap)) {
+  if (length(tag$param$geopressure_map$sd) != 1 &&
+    length(tag$param$geopressure_map$sd) != nrow(tag_new$stap)) {
     cli::cli_abort(c(
-      "x" = "{.var tag$param$sd} is of length {.val {length(tag$param$sd)}}.",
-      ">" = "{.var tag$param$sd} needs to be of length {.val {1}} or {.val {nrow(tag_new$stap)}} \\
-      ({.code nrow(tag_new$stap)})."
+      "x" = "{.var tag$param$geopressure_map$sd} is of length
+      {.val {length(tag$param$geopressure_map$sd)}}.",
+      ">" = "{.var tag$param$geopressure_map$sd} needs to be of length
+      {.val {1}} or {.val {nrow(tag_new$stap)}} ({.code nrow(tag_new$stap)})."
     ))
   }
 
@@ -78,7 +80,7 @@ tag_update <- function(tag,
     # Use the same original known
     # We will only processed by assuming that the known stap_id have not changed
     # (discard of pressure is ok to have change)
-    known <- tag$param$known
+    known <- tag$param$tag_set_map$known
   }
 
   # Check that the the known stap_id have not changed. Only check for stap_id more than 1 to avoid
@@ -95,13 +97,13 @@ tag_update <- function(tag,
 
   # Deal with include
   if (is.null(include_stap_id)) {
-    if (is.null(tag$param$include_stap_id)) {
-      # If no include_sta_id were specify on creation of tag, tag$param$include_stap_id was set as
-      # NULL. In this case, we use the default value of including all stap_id.
+    if (is.null(tag$param$tag_set_map$include_stap_id)) {
+      # If no include_sta_id were specify on creation of tag, tag$param$tag_set_map$include_stap_id
+      # was set as NULL. In this case, we use the default value of including all stap_id.
       include_stap_id <- tag_new$stap$stap_id
     } else {
       # If include_stap_id was specific, then use the same one
-      include_stap_id <- tag$param$include_stap_id
+      include_stap_id <- tag$param$tag_set_map$include_stap_id
     }
   }
 
@@ -118,10 +120,10 @@ tag_update <- function(tag,
 
   # Build the new tag_new as it would look like without using update
   tag_new <- tag_set_map(tag_new,
-    extent = tag$param$extent,
-    scale = tag$param$scale,
+    extent = tag$param$tag_set_map$extent,
+    scale = tag$param$tag_set_map$scale,
     known = known,
-    include_min_duration = tag$param$include_min_duration,
+    include_min_duration = tag$param$tag_set_map$include_min_duration,
     include_stap_id = include_stap_id
   )
 
@@ -154,22 +156,23 @@ tag_update <- function(tag,
 
   # Build the new map
   tag_new_include <- geopressure_map(tag_new_include,
-    max_sample = tag$param$max_sample,
-    margin = tag$param$margin,
-    sd = tag$param$sd,
-    thr_mask = tag$param$thr_mask,
-    log_linear_pooling_weight = tag$param$log_linear_pooling_weight,
+    max_sample = tag$param$geopressure_map$max_sample,
+    margin = tag$param$geopressure_map$margin,
+    sd = tag$param$geopressure_map$sd,
+    thr_mask = tag$param$geopressure_map$thr_mask,
+    log_linear_pooling_weight = tag$param$geopressure_map$log_linear_pooling_weight,
     keep_mask = "map_pressure_mask" %in% names(tag),
     keep_mse = "map_pressure_mse" %in% names(tag),
     quiet = quiet
   )
 
   # Retrieve sd
-  tag_new$param$max_sample <- tag_new_include$param$max_sample
-  tag_new$param$margin <- tag_new_include$param$margin
-  tag_new$param$sd <- tag_new_include$param$sd
-  tag_new$param$thr_mask <- tag_new_include$param$thr_mask
-  tag_new$param$log_linear_pooling_weight <- tag_new_include$param$log_linear_pooling_weight
+  tag_new$param$geopressure_map$max_sample <- tag_new_include$param$geopressure_map$max_sample
+  tag_new$param$geopressure_map$margin <- tag_new_include$param$geopressure_map$margin
+  tag_new$param$geopressure_map$sd <- tag_new_include$param$geopressure_map$sd
+  tag_new$param$geopressure_map$thr_mask <- tag_new_include$param$geopressure_map$thr_mask
+  tag_new$param$geopressure_map$log_linear_pooling_weight <-
+    tag_new_include$param$geopressure_map$log_linear_pooling_weight
 
   if ("nb_sample" %in% names(tag$stap)) {
     tag_new$stap$nb_sample <- tag_new_include$stap$nb_sample
@@ -208,11 +211,12 @@ tag_update <- function(tag,
       tag_new$twilight <- tag$twilight
       tag_new$map_light <- tag$map_light
 
-      tag_new$param$twl_thr <- tag_new_include$param$twl_thr
-      tag_new$param$twl_offset <- tag_new_include$param$twl_offset
-      tag_new$param$twilight_file <- tag_new_include$param$twilight_file
-      tag_new$param$twl_calib_adjust <- tag_new_include$param$twl_calib_adjust
-      tag_new$param$twl_llp <- tag_new_include$param$twl_llp
+      tag_new$param$twilight_create$twl_thr <- tag_new_include$param$twilight_create$twl_thr
+      tag_new$param$twilight_create$twl_offset <- tag_new_include$param$twilight_create$twl_offset
+      tag_new$param$twilight_label_read$file <- tag_new_include$param$twilight_label_read$file
+      tag_new$param$twilight_label_read$geolight_map <-
+        tag_new_include$param$twilight_label_read$geolight_map
+      tag_new$param$geolight_map$twl_llp <- tag_new_include$param$geolight_map$twl_llp
     }
   }
 

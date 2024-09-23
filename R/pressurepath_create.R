@@ -283,10 +283,10 @@ pressurepath_create <- function(tag,
     )
   }
 
-
   # Add additional parameter to pressurepath
   attr(pressurepath, "id") <- tag$param$id
   attr(pressurepath, "preprocess") <- preprocess
-  attr(pressurepath, "sd") <- tag$param$sd
+  attr(pressurepath, "sd") <- tag$param$geopressure_map$sd
+  attr(pressurepath, "type") <- attr(path, "type")
   return(pressurepath)
 }

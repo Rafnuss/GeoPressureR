@@ -8,7 +8,7 @@
 #' GeoPressureViz can be started based on a `.Rdata` file containing at least `tag`, but also
 #' optionally `marginal` and/or `path` (`path_most_likely` is also accepted).
 #'
-#' You can retrieved the edited path from the global environment variable `geopressureviz_path`.
+#' You can retrieved the edited path from the global environment variable `path_geopressureviz`.
 #'
 #' Learn more about GeoPressureViz in the [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
@@ -23,7 +23,7 @@
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
 #' Rstudio.
 #' @return The updated path visualized in the app. Can also be retrieved with
-#' `.GlobalEnv$geopressureviz_path`
+#' `.GlobalEnv$path_geopressureviz`
 #'
 #' @seealso [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
@@ -189,5 +189,5 @@ geopressureviz <- function(x,
     launch.browser = launch_browser
   )
 
-  return(invisible(.GlobalEnv$geopressureviz_path))
+  return(invisible(.GlobalEnv$path_geopressureviz))
 }

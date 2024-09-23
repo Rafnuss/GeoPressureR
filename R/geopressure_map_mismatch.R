@@ -37,11 +37,11 @@ geopressure_map_mismatch <- function(tag,
     time = as.numeric(as.POSIXct(pres$date)),
     label = pres$stapelev,
     pressure = round(pres$value * 100), # convert from hPa to Pa
-    W = tag$param$extent[1],
-    E = tag$param$extent[2],
-    S = tag$param$extent[3],
-    N = tag$param$extent[4],
-    scale = tag$param$scale,
+    W = tag$param$tag_set_map$extent[1],
+    E = tag$param$tag_set_map$extent[2],
+    S = tag$param$tag_set_map$extent[3],
+    N = tag$param$tag_set_map$extent[4],
+    scale = tag$param$tag_set_map$scale,
     max_sample = max_sample,
     margin = margin,
     includeMask = keep_mask,
@@ -237,8 +237,8 @@ geopressure_map_mismatch <- function(tag,
   # Add attribute
   tag$map_pressure_mse <- map_create(
     data = mse,
-    extent = tag$param$extent,
-    scale = tag$param$scale,
+    extent = tag$param$tag_set_map$extent,
+    scale = tag$param$tag_set_map$scale,
     stap = tag$stap,
     id = tag$param$id,
     type = "pressure_mse"
@@ -247,8 +247,8 @@ geopressure_map_mismatch <- function(tag,
   if (keep_mask) {
     tag$map_pressure_mask <- map_create(
       data = mask,
-      extent = tag$param$extent,
-      scale = tag$param$scale,
+      extent = tag$param$tag_set_map$extent,
+      scale = tag$param$tag_set_map$scale,
       stap = tag$stap,
       id = tag$param$id,
       type = "pressure_mask"
@@ -256,9 +256,15 @@ geopressure_map_mismatch <- function(tag,
   }
 
   # keep parameters used
-  tag$param$max_sample <- max_sample
-  tag$param$margin <- margin
-  tag$param$thr_mask <- thr_mask
+  tag$param$geopressure_map <- list(
+    max_sample = max_sample,
+    margin = margin,
+    keep_mask = keep_mask,
+    thr_mask = thr_mask,
+    timeout = timeout,
+    workers = workers,
+    compute_known = compute_known
+  )
 
   # return the pressure_mismatch in the same order than requested
   return(tag)

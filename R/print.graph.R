@@ -35,7 +35,7 @@ print.graph <- function(x, ...) {
                 `graph${.field field}`).")
 
   # Param
-  cli::cli_h3("Parameter {.field param}")
+  cli::cli_h3("Parameters {.field param}")
   cli::cli_text("Run {.code graph$param} to display full table")
 
   cli::cli_h3("Stationary periods {.field stap}")
@@ -48,13 +48,14 @@ print.graph <- function(x, ...) {
 
   cli::cli_h3("Map")
   # nolint start
-  geo <- map_expand(graph$param$extent, graph$param$scale)
+  geo <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)
   cli::cli_bullets(c(
-    "*" = "Extent (W, E, S, N): {.val {graph$param$extent[1]}}\u00b0, \\
-        {.val {graph$param$extent[2]}}\u00b0, {.val {graph$param$extent[3]}}\u00b0, \\
-        {.val {graph$param$extent[4]}}\u00b0",
-    "*" = "Dimensions (lat x lon): {.val {geo$dim[1]}} x {.val {geo$dim[2]}} (res. \\
-          {.val {1/graph$param$scale}}\u00b0)"
+    "*" = "Extent (W, E, S, N): {.val {graph$param$tag_set_map$extent[1]}}\u00b0,
+        {.val {graph$param$tag_set_map$extent[2]}}\u00b0,
+        {.val {graph$param$tag_set_map$extent[3]}}\u00b0,
+        {.val {graph$param$tag_set_map$extent[4]}}\u00b0",
+    "*" = "Dimensions (lat x lon): {.val {geo$dim[1]}} x {.val {geo$dim[2]}} (res.
+          {.val {1/graph$param$tag_set_map$scale}}\u00b0)"
   ))
   # nolint end
 
@@ -74,7 +75,8 @@ print.graph <- function(x, ...) {
   }
 
   if ("movement" %in% names(graph$param)) {
-    cli::cli_bullets(c("v" = "Movement model defined for {.field {graph$param$movement$type}}"))
+    cli::cli_bullets(c("v" = "Movement model defined for
+                      {.field {graph$param$graph_set_movement$type}}"))
   } else {
     cli::cli_bullets(c("x" = "No movement model defined. Use {.fun graph_set_movement}"))
   }

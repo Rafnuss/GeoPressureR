@@ -115,7 +115,7 @@ graph_create <- function(tag,
     ))
   }
 
-  g <- map_expand(tag$param$extent, tag$param$scale)
+  g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
 
   # Approximate resolution of the grid from ° to in km
   # Assume uniform grid in lat-lon
@@ -348,9 +348,11 @@ graph_create <- function(tag,
 
   # Create the param from tag
   graph$param <- tag$param
-  graph$param$likelihood <- likelihood
-  graph$param$thr_likelihood <- thr_likelihood
-  graph$param$thr_gs <- thr_gs
+  graph$param$graph_create <- list(
+    thr_likelihood = thr_likelihood,
+    thr_gs = thr_gs,
+    likelihood = likelihood
+  )
 
   return(graph)
 }

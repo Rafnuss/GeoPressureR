@@ -89,7 +89,7 @@ tag_set_map <- function(tag,
 
   # Check known
   if (is.list(known) && !is.data.frame(known)) {
-    known <- do.call(rbind, lapply(known, as.data.frame))
+    known <- as.data.frame(known)
   }
   assertthat::assert_that(is.data.frame(known))
   assertthat::assert_that(assertthat::has_name(known, "stap_id"))
@@ -127,10 +127,11 @@ tag_set_map <- function(tag,
   if ("extent" %in% names(tag) || "known_lat" %in% names(stap) || "scale" %in% names(tag) ||
     "include" %in% names(stap)) {
     # Check if value are changing
-    chg_known <- nrow(known0) != nrow(tag$param$known) || any(known0 != tag$param$known)
+    chg_known <- nrow(known0) != nrow(tag$param$tag_set_map$known) ||
+      any(known0 != tag$param$tag_set_map$known)
     chg_include <- any(stap$include != stap_include)
-    chg_extent <- any(extent != tag$param$extent)
-    chg_scale <- scale != tag$param$scale
+    chg_extent <- any(extent != tag$param$tag_set_map$extent)
+    chg_scale <- scale != tag$param$tag_set_map$scale
 
     # Check if known has changed
     if (chg_known || chg_extent || chg_scale || chg_include) {
@@ -189,15 +190,17 @@ tag_set_map <- function(tag,
 
   # Add parameters to stap
   tag$stap <- stap
-  tag$param$scale <- scale
-  tag$param$extent <- extent
-  tag$param$known <- known0
-  tag$param$include_stap_id <- NULL
+  tag$param$tag_set_map <- list(
+    extent = extent,
+    scale = scale,
+    known = known0,
+    include_stap_id = NULL,
+    include_min_duration = include_min_duration
+  )
   if (length(include_stap_id) != length(tag$stap$stap_id) ||
     any(include_stap_id != tag$stap$stap_id)) {
-    tag$param$include_stap_id <- include_stap_id
+    tag$param$tag_set_map$include_stap_id <- include_stap_id
   }
-  tag$param$include_min_duration <- include_min_duration
 
   return(tag)
 }

@@ -109,7 +109,7 @@ graph_set_movement <- function(graph,
   }
 
   # Add the movement list to the graph
-  graph$param$movement <- mvt
+  graph$param$graph_set_movement <- mvt
 
   # Test that everything is correct
   graph_transition(graph)

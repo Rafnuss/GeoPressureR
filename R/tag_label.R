@@ -108,11 +108,11 @@ tag_label <- function(tag,
       } else if (res == 2) {
         tag <- tag_create(
           id = tag$param$id,
-          pressure_file = tag$param$pressure_file,
-          light_file = tag$param$light_file,
-          acceleration_file = tag$param$acceleration_file,
-          crop_start = tag$param$crop_start,
-          crop_end = tag$param$crop_end,
+          pressure_file = tag$param$tag_create$pressure_file,
+          light_file = tag$param$tag_create$light_file,
+          acceleration_file = tag$param$tag_create$acceleration_file,
+          crop_start = tag$param$tag_create$crop_start,
+          crop_end = tag$param$tag_create$crop_end,
           quiet = TRUE
         )
       }

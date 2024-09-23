@@ -50,7 +50,7 @@ ind2path <- function(ind,
   stap <- tag_graph$stap
 
   # Compute the grid information
-  g <- map_expand(tag_graph$param$extent, tag_graph$param$scale)
+  g <- map_expand(tag_graph$param$tag_set_map$extent, tag_graph$param$tag_set_map$scale)
 
   # Check path
   assertthat::assert_that(is.numeric(ind))

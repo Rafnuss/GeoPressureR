@@ -74,7 +74,7 @@ edge_add_wind <- function(
   )
 
   # Compute lat-lon coordinate of the grid
-  g <- map_expand(tag_graph$param$extent, tag_graph$param$scale)
+  g <- map_expand(tag_graph$param$tag_set_map$extent, tag_graph$param$tag_set_map$scale)
 
   # Compute flight from stap
   flight <- stap2flight(tag_graph$stap, format = "list")
@@ -119,9 +119,10 @@ edge_add_wind <- function(
     i_stap <- 0
     cli::cli_progress_bar(
       "Compute wind speed for edges of stationary period:",
-      format = "{cli::pb_name} {i_stap}/{length(flight)} {cli::pb_bar} {cli::pb_percent} | \\
-      {cli::pb_eta_str} [{cli::pb_elapsed}]",
-      format_done = "Compute wind speed for edges of stationary periods [{cli::pb_elapsed}]",
+      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_stap}/{length(flight)} \\
+      {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "{cli::col_green(cli::symbol$tick)} Compute wind speed for edges of \\
+      stationary periods {cli::col_white('[', cli::pb_elapsed, ']')}",
       clear = FALSE,
       total = sum(table_edge_s)
     )
@@ -422,7 +423,7 @@ edge_add_wind_check <- function(
   assertthat::assert_that(inherits(tag_graph, "tag") | inherits(tag_graph, "graph"))
 
   # Compute lat-lon coordinate of the grid
-  g <- map_expand(tag_graph$param$extent, tag_graph$param$scale)
+  g <- map_expand(tag_graph$param$tag_set_map$extent, tag_graph$param$tag_set_map$scale)
 
   # Compute flight from stap
   flight <- stap2flight(tag_graph$stap, format = "list")

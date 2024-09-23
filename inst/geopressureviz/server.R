@@ -37,7 +37,7 @@ server <- function(input, output, session) {
   })
 
   observe({
-    .GlobalEnv$geopressureviz_path <- reactVal$path
+    .GlobalEnv$path_geopressureviz <- reactVal$path
   })
 
 

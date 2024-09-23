@@ -114,8 +114,8 @@ twilight_create <- function(tag,
 
   tag$twilight <- twilight
   tag$param$twl_transform_light <- transform_light
-  tag$param$twl_offset <- twl_offset
-  tag$param$twl_thr <- twl_thr
+  tag$param$twilight_create$twl_offset <- twl_offset
+  tag$param$twilight_create$twl_thr <- twl_thr
 
   return(tag)
 }

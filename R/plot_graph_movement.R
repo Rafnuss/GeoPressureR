@@ -18,11 +18,11 @@ plot_graph_movement <- function(graph,
 
   d <- data.frame(
     speed = speed,
-    prob = speed2prob(speed, graph$param$movement)
+    prob = speed2prob(speed, graph$param$graph_set_movement)
   )
-  lsf <- data.frame(low_speed_fix = graph$param$movement$low_speed_fix)
+  lsf <- data.frame(low_speed_fix = graph$param$graph_set_movement$low_speed_fix)
 
-  if (graph$param$movement$type == "as") {
+  if (graph$param$graph_set_movement$type == "as") {
     xlab <- "Airspeed [km/h]"
   } else {
     xlab <- "Groundspeed [km/h]"
