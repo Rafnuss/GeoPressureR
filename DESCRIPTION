@@ -35,7 +35,8 @@ Imports:
     stats,
     suntools,
     terra,
-    utils
+    utils,
+    lifecycle
 Suggests: 
     BiocManager,
     covr,
