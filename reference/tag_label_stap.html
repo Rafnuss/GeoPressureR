@@ -29,7 +29,7 @@ will be computed from it, otherwise, it uses the pressure data.frame.'><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -119,11 +119,9 @@ column <code>stap_id</code> for each sensor data.</p>
 <span class="r-in"><span>  <span class="fu"><a href="tag_label_read.html">tag_label_read</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu">tag_label_stap</span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Short stationary periods (&lt;6hr): </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Short stationary periods (<span style="font-weight: bold;">&lt;6hr</span>): ────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> All 5 stationary periods duration are above 6 hours.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Short flights (&lt;2hr): </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Short flights (<span style="font-weight: bold;">&lt;2hr</span>): ───────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> All 4 flights duration are above 2 hours.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
@@ -131,7 +129,7 @@ column <code>stap_id</code> for each sensor data.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ param       :List of 9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ id                  : chr "18LX"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ GeoPressureR_version:Classes 'package_version', 'numeric_version'  hidden list of 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int [1:3] 3 2 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int [1:3] 3 3 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pressure_file       : chr "./data/raw-tag/18LX/18LX_20180725.pressure"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ light_file          : chr "./data/raw-tag/18LX/18LX_20180725.glf"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ acceleration_file   : chr "./data/raw-tag/18LX/18LX_20180725.acceleration"</span>
@@ -149,9 +147,10 @@ column <code>stap_id</code> for each sensor data.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ date   : POSIXct[1:4032], format: "2017-07-27 00:00:00" "2017-07-27 00:05:00" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ value  : int [1:4032] 0 0 0 0 0 0 0 0 0 0 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stap_id: num [1:4032] 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ acceleration:'data.frame':	4032 obs. of  4 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ acceleration:'data.frame':	4032 obs. of  5 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ date   : POSIXct[1:4032], format: "2017-07-27 00:00:00" "2017-07-27 00:05:00" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ value  : int [1:4032] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pitch  : int [1:4032] 26 27 27 28 28 28 28 27 28 27 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ label  : chr [1:4032] "" "" "" "" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stap_id: num [1:4032] 1 1 1 1 1 1 1 1 1 1 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ temperature :'data.frame':	2448 obs. of  2 variables:</span>
@@ -179,7 +178,7 @@ column <code>stap_id</code> for each sensor data.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer></div>
