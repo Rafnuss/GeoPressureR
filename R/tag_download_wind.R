@@ -7,7 +7,7 @@
 #' R package](https://bluegreen-labs.github.io/ecmwfr/index.html).
 #'
 #' [Any variable available from the ERA5 pressure level](
-#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9)
+#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9) # nolint
 #' can be downloaded.
 #'
 #' The flights are determined from the stationary periods classified `tag$stap`. It request a
@@ -31,7 +31,7 @@
 #' @param include_stap_id stationary period identifiers of the start of the flight to download.
 #' Default is to download all flights.
 #' @param variable list of variables to download from [the ERA5 pressure level](
-#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9)
+#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9) # nolint
 #' : `"u_component_of_wind"`, `"v_component_of_wind"`,  `"temperature"`, `"fraction_of_cloud_cover"`
 #' , `"relative_humidity"`, , `"vertical_velocity"`, `"specific_cloud_ice_water_content"`,
 #' `"specific_cloud_liquid_water_content"`, `"specific_humidity"`, `"specific_rain_water_content"`,

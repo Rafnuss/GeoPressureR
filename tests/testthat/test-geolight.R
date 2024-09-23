@@ -57,8 +57,8 @@ test_that("Check geolight_map() with stap", {
 
 
 test_that("Check non exported function", {
-  sun <- GeoPressureR:::geolight_solar(tag$twilight$twilight)
-  z <- GeoPressureR:::geolight_zenith(sun, lon = 0, lat = 0)
-  z <- GeoPressureR:::geolight_refracted(z)
+  sun <- geolight_solar(tag$twilight$twilight)
+  z <- geolight_zenith(sun, lon = 0, lat = 0)
+  z <- geolight_refracted(z)
   expect_vector(z)
 })

@@ -40,7 +40,7 @@ tag <- structure(list(
 
 test_that("tag_set_map() | no known", {
   tag_no_known <- tag_set_map(tag, extent, scale)
-  expect_true(assertthat::has_name(tag_no_known$param, c("id", "scale", "extent")))
+  expect_true(assertthat::has_name(tag_no_known$param$tag_set_map, c("scale", "extent")))
   expect_true(all(tag_no_known$stap$include))
   expect_true(all(is.na(tag_no_known$stap$known_lat)))
 })
