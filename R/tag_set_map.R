@@ -32,10 +32,10 @@
 #' hours).
 #' @param known data.frame containing the known positions of the bird (e.g., equipment or retrieval
 #' site) with columns `stap_id`, `known_lat` and `known_lon`. You can set position of the last
-#' stationary period using `stap_id = -1`.
+#' stationary period using `stap_id = -1`. Also accept list which are converted as data.frame.
 #' @return A GeoPressureR `tag` object with:
 #' - `stap`: Data.frame of all stationary periods with three new columns: `known_lat` and
-#' `known_lon` define the known position during these stationary periods, and `model` defines
+#' `known_lon` define the known position during these stationary periods, and `include` defines
 #' whether the likelihood map of this stationary period should be computed and later used in the
 #' graph.
 #' - `extent` same as input parameter `extent`
@@ -75,7 +75,7 @@ tag_set_map <- function(tag,
                           known_lat = double(),
                           known_lon = double()
                         ),
-                        include_stap_id = tag$stap$stap_id,
+                        include_stap_id = NULL,
                         include_min_duration = 0) {
   tag_assert(tag, "stap")
 
@@ -88,6 +88,9 @@ tag_set_map <- function(tag,
   map_expand(extent, scale)
 
   # Check known
+  if (is.list(known) && !is.data.frame(known)) {
+    known <- do.call(rbind, lapply(known, as.data.frame))
+  }
   assertthat::assert_that(is.data.frame(known))
   assertthat::assert_that(assertthat::has_name(known, "stap_id"))
   assertthat::assert_that(assertthat::has_name(known, "known_lat"))
@@ -107,6 +110,9 @@ tag_set_map <- function(tag,
   assertthat::assert_that(all(unique(known$stap_id) == known$stap_id))
 
   # Define which stationary periods to include
+  if (is.null(include_stap_id)) {
+    include_stap_id <- tag$stap$stap_id
+  }
   assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
   assertthat::assert_that(is.numeric(include_min_duration))
   include_min_duration_id <- stap$stap_id[stap2duration(stap, units = "hours") >
@@ -144,12 +150,12 @@ tag_set_map <- function(tag,
             "!" = "The old parameters have been overwitten with the new ones and the likelihood \\
             map have been deleted.",
             ">" = "Run {.fun geopressure_map} and/or {.fun geolight_map} again to create the new \\
-            likelihood maps\f"
+            likelihood maps"
           ))
         } else {
           cli::cli_warn(c(
             "x" = "No modification were made.",
-            ">" = "This function return the original (unmodified) {.var tag}.\f"
+            ">" = "This function return the original (unmodified) {.var tag}."
           ))
           # If no, stop and return the existing tag
           return(tag)
@@ -159,16 +165,17 @@ tag_set_map <- function(tag,
           "!" = "{.fun setmap} has already been run on this {.var tag} object and the input \\
           parameters are different.",
           ">" = "The old parameters ({.var scale}, {.var extent}, {.var tag$known} or \\
-          {.var tag$include}) will be overwitten with the new ones.\f"
+          {.var tag$include}) will be overwitten with the new ones."
         ))
       }
     }
   }
 
   # Add known to stap
-  # remove first known_lat and lon if they exist to be able to merge the table without duplicate
-  stap <- stap[, !(names(stap) %in% c("known_lat", "known_lon"))]
-  stap <- merge(stap, known, by = "stap_id", all.x = TRUE)
+  # remove all duplicate names to merge the table without duplicate
+  stap <- stap[, !(names(stap) %in% c("known_lat", "known_lon", "include"))]
+  known <- known[, !(names(known) %in% c("start", "end"))]
+  stap <- merge(stap, known, all.x = TRUE)
 
   # Add the vector of stap to include
   stap$include <- stap_include
@@ -176,7 +183,7 @@ tag_set_map <- function(tag,
   if (all(!stap$include)) {
     cli::cli_warn(c(
       "x" = "All stationary periods have been excluded from the computation",
-      ">" = "Check {.var include_stap_id} {.var include_min_duration}.\f"
+      ">" = "Check {.var include_stap_id} {.var include_min_duration}."
     ))
   }
 

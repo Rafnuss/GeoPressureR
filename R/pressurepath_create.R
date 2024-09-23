@@ -44,8 +44,8 @@
 #' `"u_component_of_wind_10m"`, `"v_component_of_wind_10m"`, `"u_component_of_wind_100m"`,
 #' `"v_component_of_wind_100m"`, `"total_cloud_cover"`, `"total_precipitation"`, `"land_sea_mask"`.
 #' All variables can be listed with `GeoPressureR:::pressurepath_variable`.
-#' @param solarDep a numerical value representing the solar depression angle used to compute sunrise
-#' and sunset. If `NULL`, does not compute sunrise sunset.
+#' @param solar_dep a numerical value representing the solar depression angle used to compute
+#' sunrise and sunset. If `NULL`, does not compute sunrise sunset.
 #' @param era5_dataset select the dataset to use: `"single-levels"` for [ERA5 hourly data on single
 #' levels](https://doi.org/10.24381/cds.adbb2d47), `"land"` for [ERA5-Land hourly data](
 #' https://doi.org/10.24381/cds.e2161bac) or `"both"` to use land where available and sing-levels
@@ -72,8 +72,8 @@
 #' - `surface_pressure` pressure retrieved from ERA5.
 #' - `surface_pressure_norm` pressure retrieved from ERA5 normalized to the average of
 #' `pressure_tag` over the stationary period.
-#' - `sunrise` datetime of the sunrise according to `solarDep`.
-#' - `sunset` datetime of the sunset according to `solarDep`.
+#' - `sunrise` datetime of the sunrise according to `solar_dep`.
+#' - `sunset` datetime of the sunset according to `solar_dep`.
 #' - `...` any other ERA5 variable requested by `variable`
 #'
 #' @examples
@@ -106,7 +106,7 @@
 pressurepath_create <- function(tag,
                                 path = tag2path(tag),
                                 variable = c("altitude", "surface_pressure"),
-                                solarDep = 0,
+                                solar_dep = 0,
                                 era5_dataset = "both",
                                 preprocess = FALSE,
                                 timeout = 60 * 5,
@@ -139,7 +139,7 @@ pressurepath_create <- function(tag,
     cli::cli_abort("{.var path} is empty.")
   }
   if (!all(path$stap_id %in% pressure$stap_id)) {
-    cli::cli_warn("Some {.field stap_id} of {.var path} are not present in {.var tag$pressure}.\f")
+    cli::cli_warn("Some {.field stap_id} of {.var path} are not present in {.var tag$pressure}.")
   }
 
   # Remove pressure for stap not provided in path as well as flight
@@ -273,9 +273,9 @@ pressurepath_create <- function(tag,
       agg$surface_pressure[id] + agg$pressure_tag[id]
   }
 
-  if (!is.null(solarDep)) {
+  if (!is.null(solar_dep)) {
     # Add sunset and sunrise information
-    twl <- path2twilight(pressurepath, solarDep = solarDep, return_long = FALSE)
+    twl <- path2twilight(pressurepath, solar_dep = solar_dep, return_long = FALSE)
 
     pressurepath <- merge(
       pressurepath,

@@ -95,7 +95,7 @@ plot.map <- function(x,
     grp <- glue::glue("#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - \\
                       {format(map$stap$end , format = '%d %b %H:%M')}")
 
-    lmap <- leaflet::leaflet(width = "100%") |>
+    lmap <- leaflet::leaflet(height = 600) |>
       leaflet::addProviderTiles(provider = provider, options = provider_options)
 
     if (palette == "auto") {
@@ -103,16 +103,22 @@ plot.map <- function(x,
         palette <- "GnBu"
       } else if ("light" == map$type) {
         palette <- "OrRd"
+      } else if ("magnetic" == map$type) {
+        palette <- "RdPu"
       } else if ("pressure_mse" == map$type) {
         palette <- "BuPu"
       } else if ("pressure_mask" == map$type) {
         palette <- "YlOrBr"
+      } else if ("magnetic_inclination" == map$type) {
+        palette <- "YlGnBu"
+      } else if ("magnetic_intensity" == map$type) {
+        palette <- "YlGn"
       } else if ("mask_water" == map$type) {
         palette <- "Greys"
       } else if ("marginal" == map$type) {
         palette <- "plasma"
       } else {
-        palette <- "plasma"
+        palette <- "viridis"
       }
     }
 

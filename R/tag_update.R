@@ -147,7 +147,7 @@ tag_update <- function(tag,
   if (all(!tag_new_include$stap$include)) {
     cli::cli_warn(c(
       "!" = "There are no changes with the new label file",
-      ">" = "the original {.var tag} will be returned.\f"
+      ">" = "the original {.var tag} will be returned."
     ))
     return(tag)
   }
@@ -200,7 +200,7 @@ tag_update <- function(tag,
   if ("map_light" %in% names(tag)) {
     if (any(is.na(stap_new$old_stap_id)) || any(stap_new$stap_id != stap_new$old_stap_id)) {
       cli::cli_warn("Light map {.code tag$map_light} was deleted as some stationary periods have \\
-                    changed.\f")
+                    changed.")
       tag_new$map_light <- NULL
       tag_new$twilight <- NULL
     } else {

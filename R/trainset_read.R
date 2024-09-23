@@ -42,7 +42,7 @@ trainset_read <- function(df,
   if (nrow(csv) == 0) {
     cli::cli_warn(c(
       i = "The labelization file does not contains label for {series}. ",
-      ">" = "No labels are added to {series}.\f"
+      ">" = "No labels are added to {series}."
     ))
     return(df)
   }
@@ -65,7 +65,7 @@ trainset_read <- function(df,
     cli::cli_warn(c(
       i = "The labelization file{series_name} is missing {missing_pres} timesteps and includes
       {nrow(csv) - nrow(df) + missing_pres} timestep which are not nedded. ",
-      ">" = "We assumed no discard during the timestep missing.\f"
+      ">" = "We assumed no discard during the timestep missing."
     ))
     # nolint end
   }

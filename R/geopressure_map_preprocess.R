@@ -51,7 +51,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
 
   if (length(unique(diff(pressure$date))) > 1) {
     cli::cli_warn("Pressure data is not on a regular interval. The code should still
-    technically work, but it might be the cause of an error later.\f")
+    technically work, but it might be the cause of an error later.")
   }
 
   # Filter stap to model
@@ -87,12 +87,12 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   if (max(pressure$date) > Sys.time() - 3 * 30 * 24 * 60 * 60) {
     cli::cli_warn("There are potentially not yet pressure data on the Google Earth \\
                            Engine server for the latest stationary period. Please allow for \\
-                           around 3 months before the data becomes available.\f")
+                           around 3 months before the data becomes available.")
   }
 
   if (min(pressure$value, na.rm = TRUE) < 250 || 1100 < max(pressure$value, na.rm = TRUE)) {
     cli::cli_warn("Pressure observation should be between 250 hPa (~10000m) and 1100 hPa \\
-    (sea level at 1013hPa). Check unit returned by {.fun tag_create}.\f")
+    (sea level at 1013hPa). Check unit returned by {.fun tag_create}.")
   }
 
   # Create the stapelev of pressure to query: stationary period and elevation

@@ -58,7 +58,7 @@ tag_label_stap <- function(tag,
       cli::cli_warn("The stationary periods will be estimated from acceleration data and the
         label {.val flight} from pressure will be ignored. It is best practise to remove
         {.val flight} in  pressure data if you are using acceleration. Remove label column in
-        acceleration data to use pressure label.\f")
+        acceleration data to use pressure label.")
     }
   } else {
     sensor <- tag$pressure
@@ -82,7 +82,7 @@ tag_label_stap <- function(tag,
   )
 
   # Assign to each sensor the stationary period to which it belong to.
-  for (sensor_df in c("pressure", "acceleration", "light", "twilight")) {
+  for (sensor_df in c("pressure", "acceleration", "light", "twilight", "magnetic")) {
     if (assertthat::has_name(tag, sensor_df)) {
       assertthat::assert_that(is.data.frame(tag[[sensor_df]]))
       if ("date" %in% names(tag[[sensor_df]])) {
@@ -104,7 +104,7 @@ tag_label_stap <- function(tag,
       cli::cli_warn(c(
         "!" = "There is only a single stationary period.",
         i = "Check that you are using {.val flight} in the label file and labelling the correct \\
-        series ({.field pressure} or {.field acceleration}).\f"
+        series ({.field pressure} or {.field acceleration})."
       ))
     }
 
@@ -112,7 +112,7 @@ tag_label_stap <- function(tag,
     stap$duration_time <- stap2duration(stap, return_numeric = FALSE)
 
     stap_warning <- stap[stap$duration_num <= warning_stap_duration, ]
-    cli::cli_h3("Short stationary periods (<{warning_stap_duration}hr):")
+    cli::cli_rule("Short stationary periods ({.strong <{warning_stap_duration}hr}):")
     if (nrow(stap_warning) > 0) {
       for (i in seq_len(nrow(stap_warning))) {
         # nolint start
@@ -133,7 +133,7 @@ tag_label_stap <- function(tag,
     flight <- stap2flight(stap, units = "hours", return_numeric = FALSE)
     flight_warning <- flight[as.numeric(flight$duration, units = "hours") <=
       warning_flight_duration, ]
-    cli::cli_h3("Short flights (<{warning_flight_duration}hr):")
+    cli::cli_rule("Short flights ({.strong <{warning_flight_duration}hr}):")
     if (nrow(flight_warning) > 0) {
       for (i in seq_len(nrow(flight_warning))) {
         # nolint start

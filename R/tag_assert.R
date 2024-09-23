@@ -28,56 +28,64 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
 
   if (condition == "tag") {
     msg <- c("x" = "tag is not a {.var tag} object.")
-  } else if (condition == "pressure") {
-    msg <- c(
-      "x" = "The {.var tag} object does not have {.field pressure} data."
-    )
-  } else if (condition == "light") {
-    msg <- c(
-      "x" = "The {.var tag} object does not have {.field light} data."
-    )
-  } else if (condition == "acceleration") {
-    msg <- c(
-      "x" = "The {.var tag} object does not have {.field acceleration} data."
-    )
-  } else if (condition == "label") {
-    msg <- c(
-      "x" = "The {.var tag} object has not yet been labelled.",
-      ">" = "Use {.fun tag_label} to define the stationary periods."
-    )
-  } else if (condition == "stap") {
-    msg <- c(
-      "x" = "The stationary period have not yet been computed for {.var tag}.",
-      ">" = "Use {.fun tag_label} to define the stationary periods."
-    )
-  } else if (condition == "setmap") {
-    msg <- c(
-      "x" = "The parameters for the geographical and stationary period have not been yet been \\
-      defined in {.var tag}.",
-      ">" = "Use {.fun tag_set_map} to define them."
-    )
-  } else if (condition == "map_pressure") {
-    msg <- c(
-      "x" = "The pressure likelihood map has not yet been computed for {.var tag}.",
-      ">" = "Use {.fun geopressure_map} to compute the maps."
-    )
-  } else if (condition == "map_pressure_mse") {
-    msg <- c(
-      "x" = "The pressure mean square error map has not yet been computed for {.var tag}.",
-      ">" = "Use {.fun geopressure_map_mismatch} to compute the maps."
-    )
-  } else if (condition == "twilight") {
-    msg <- c(
-      "x" = "The twilight has not yet been computed for {.var tag}",
-      ">" = "Use {.fun twilight_create} to compute the twilight"
-    )
-  } else if (condition == "map_light") {
-    msg <- c(
-      "x" = "The light likelihood map has not yet been computed for {.var tag}.",
-      ">" = "Use {.fun geolight_map} to compute the maps."
-    )
   } else {
-    stop(glue::glue("condition {.var condition} is unknown"))
+    # For all other condition, first check if tag is indeed a tag
+    tag_assert(tag)
+    if (condition == "pressure") {
+      msg <- c(
+        "x" = "The {.var tag} object does not have {.field pressure} data."
+      )
+    } else if (condition == "light") {
+      msg <- c(
+        "x" = "The {.var tag} object does not have {.field light} data."
+      )
+    } else if (condition == "acceleration") {
+      msg <- c(
+        "x" = "The {.var tag} object does not have {.field acceleration} data."
+      )
+    } else if (condition == "magnetic") {
+      msg <- c(
+        "x" = "The {.var tag} object does not have {.field magnetic} data."
+      )
+    } else if (condition == "label") {
+      msg <- c(
+        "x" = "The {.var tag} object has not yet been labelled.",
+        ">" = "Use {.fun tag_label} to define the stationary periods."
+      )
+    } else if (condition == "stap") {
+      msg <- c(
+        "x" = "The stationary period have not yet been computed for {.var tag}.",
+        ">" = "Use {.fun tag_label} to define the stationary periods."
+      )
+    } else if (condition == "setmap") {
+      msg <- c(
+        "x" = "The parameters for the geographical and stationary period have not been yet been \\
+      defined in {.var tag}.",
+        ">" = "Use {.fun tag_set_map} to define them."
+      )
+    } else if (condition == "map_pressure") {
+      msg <- c(
+        "x" = "The pressure likelihood map has not yet been computed for {.var tag}.",
+        ">" = "Use {.fun geopressure_map} to compute the maps."
+      )
+    } else if (condition == "map_pressure_mse") {
+      msg <- c(
+        "x" = "The pressure mean square error map has not yet been computed for {.var tag}.",
+        ">" = "Use {.fun geopressure_map_mismatch} to compute the maps."
+      )
+    } else if (condition == "twilight") {
+      msg <- c(
+        "x" = "The twilight has not yet been computed for {.var tag}",
+        ">" = "Use {.fun twilight_create} to compute the twilight"
+      )
+    } else if (condition == "map_light") {
+      msg <- c(
+        "x" = "The light likelihood map has not yet been computed for {.var tag}.",
+        ">" = "Use {.fun geolight_map} to compute the maps."
+      )
+    } else {
+      stop(glue::glue("condition {.var condition} is unknown"))
+    }
   }
 
   if (condition %in% status) {
@@ -104,10 +112,19 @@ tag_status <- function(tag) {
     status <- append(status, c("read", "pressure"))
   }
   if (assertthat::has_name(tag, "light")) {
-    status <- append(status, "light")
+    status <- append(status, c("read", "light"))
   }
   if (assertthat::has_name(tag, "acceleration")) {
-    status <- append(status, "acceleration")
+    status <- append(status, c("read", "acceleration"))
+  }
+  if (assertthat::has_name(tag, "temperature")) {
+    status <- append(status, c("read", "temperature"))
+  }
+  if (assertthat::has_name(tag, "airtemperature")) {
+    status <- append(status, c("read", "airtemperature"))
+  }
+  if (assertthat::has_name(tag, "magnetic")) {
+    status <- append(status, c("read", "magnetic"))
   }
   if (assertthat::has_name(tag$pressure, "label")) {
     status <- append(status, "label")

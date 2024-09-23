@@ -47,21 +47,17 @@ twilight_create <- function(tag,
   assertthat::assert_that(is.numeric(light$value))
 
   if (transform_light) {
-    light$value <- log(light$value + 0.0001) + abs(min(log(light$value + 0.0001)))
+    light$value <- twilight_create_transform(light$value)
   }
 
   if (is.null(twl_thr)) {
-    twl_thr <- min(light$value[light$value > 0])
+    twl_thr <- min(light$value[light$value > 0], na.rm = TRUE)
   }
   assertthat::assert_that(is.numeric(twl_thr))
 
   # add padding of time to center if night are not at 00:00 UTC
   if (is.null(twl_offset)) {
-    mat <- light2mat(light, twl_offset = 0)
-    l <- mat$value >= twl_thr
-    tmp <- rowMeans(l, na.rm = TRUE)
-    offset_id <- round(sum(tmp * seq_len(dim(mat$value)[1])) / sum(tmp))
-    twl_offset <- (mat$res * offset_id - 60 * 60 * 12) / 60 / 60
+    twl_offset <- twilight_create_guess_offset(light, twl_thr = twl_thr)
   }
 
   # Use light2mat() to reshape light into a matrix
@@ -82,13 +78,14 @@ twilight_create <- function(tag,
   if (any(id_sr == 1)) {
     cli::cli_warn(c(
       "!" = "{sum(id_sr == 1)} twilights are set at midnight (relative to {.var twl_offset}).",
-      "i" = "There is likely a problem with {.var twl_offset = {twl_offset}}.\f"
+      "i" = "There is likely a problem with {.var twl_offset = {twl_offset}}."
     ))
   }
   sr <- as.POSIXct(mat$date[id_sr_r], origin = "1970-01-01", tz = "UTC")
 
   # Find the last light
-  id_ss <- dim(l)[1] - apply(l[nrow(l):1, ], 2, which.max)
+  # id_ss <- dim(l)[1] - apply(l[nrow(l):1, ], 2, which.max)
+  id_ss <- dim(l)[1] - apply(l[rev(seq_len(nrow(l))), ], 2, which.max)
   id_ss_s <- id_ss + (seq_len(dim(l)[2]) - 1) * dim(l)[1]
   # check that this value was measured and above the threshold
   id <- mat$value[id_ss_s + 1] >= twl_thr
@@ -97,7 +94,7 @@ twilight_create <- function(tag,
   if (any(id_ss == dim(l)[1])) {
     cli::cli_warn(c(
       "!" = "{sum(id_ss == 1)} twilights are set at midnight (relative to {.var twl_offset}).",
-      "i" = "There is likely a problem with {.var twl_offset = {twl_offset}}.\f"
+      "i" = "There is likely a problem with {.var twl_offset = {twl_offset}}."
     ))
   }
   ss <- as.POSIXct(mat$date[id_ss_s + 1], origin = "1970-01-01", tz = "UTC")
@@ -116,8 +113,29 @@ twilight_create <- function(tag,
   }
 
   tag$twilight <- twilight
+  tag$param$twl_transform_light <- transform_light
   tag$param$twl_offset <- twl_offset
   tag$param$twl_thr <- twl_thr
 
   return(tag)
+}
+
+#' @noRd
+twilight_create_transform <- function(value) {
+  log(value + 0.0001) + abs(min(log(value + 0.0001), na.rm = TRUE))
+}
+
+#' @noRd
+twilight_create_guess_offset <- function(light, twl_thr = NULL) {
+  if (is.null(twl_thr)) {
+    twl_thr <- min(light$value[light$value > 0], na.rm = TRUE)
+  }
+
+  mat <- light2mat(light, twl_offset = 0)
+  l <- mat$value >= twl_thr
+  tmp <- rowMeans(l, na.rm = TRUE)
+  offset_id <- round(sum(tmp * seq_len(dim(mat$value)[1]), na.rm = TRUE) / sum(tmp, na.rm = TRUE))
+  twl_offset <- (mat$res * offset_id - 60 * 60 * 12) / 60 / 60
+
+  return(twl_offset)
 }

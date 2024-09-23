@@ -14,6 +14,9 @@ tag_create(
   light_file = NULL,
   acceleration_file = NULL,
   temperature_file = NULL,
+  airtemperature_file = NULL,
+  magnetic_file = NULL,
+  assert_pressure = TRUE,
   quiet = FALSE
 )
 }
@@ -40,21 +43,40 @@ with extensions (e.g., \code{"*.acceleration"}, \code{"*.deg"} or \code{"*_acc.x
 \item{temperature_file}{name of the file with temperature data. Full pathname  or finishing
 with extensions (e.g., \code{"*.temperature"}, \code{"*.deg"}).}
 
+\item{airtemperature_file}{name of the file with air temperature data. Full pathname  or
+finishing with extensions (e.g., \code{"*.airtemperature"}).}
+
+\item{magnetic_file}{name of the file with magnetic/accelerometer data. Full pathname  or
+finishing with extensions (e.g., \code{"*.magnetic"}).}
+
+\item{assert_pressure}{logical to check that the return tag has pressure data.}
+
 \item{quiet}{logical to hide messages about the progress.}
 }
 \value{
 a GeoPressureR \code{tag} object containing
 \itemize{
 \item \code{param} parameter object (see \link{param_create})
-\item \code{pressure} data.frame with columns for \code{date} and \code{value}
+\item \code{pressure} data.frame with columns: \code{date} and \code{value}
 \item \code{light} (optional) same structure as pressure
-\item \code{acceleration} (optional) same structure as pressure
+\item \code{temperature} (optional) same structure as pressure
+\item \code{airtemperature} (optional) same structure as pressure
+\item \code{acceleration} (optional) data.frame with columns: \code{date}, \code{value}, \code{act} and \code{pit}.
+\itemize{
+\item \code{value} is the activity computed as the sum of the difference in acceleration on the z-axis
+(i.e. jiggle). In the SOI sensor, it is summarised from 32 measurements at 10Hz
+\item \code{pitch} is the relative position of the bird’s body relative to the z axis. In the SOI
+sensor, it is an average over 32 measurements at 10Hz.
+}
+\item \code{magnetic} (optional) data.frame with columns: \code{date}, \code{mX}, \code{mY}, \code{mZ}, \code{gX}, \code{gY} and \code{gZ}
 }
 }
 \description{
-Create a GeoPressureR \code{tag} object from the data collected by a tracking device. This data needs
-to include at least pressure and optionally a light and/or acceleration.
-
+Create a GeoPressureR \code{tag} object from the data collected by a tracking device. The function
+can read automatically data formatted by SOI, Migratetech or Lun CAnMove (see details below) but
+also accept manual data.frame as input. Pressure data is required for the GeoPressureR workflow.
+}
+\details{
 The current implementation can read files from the following three manufacturer:
 \itemize{
 \item \href{https://bit.ly/3QI6tkk}{Swiss Ornithological Institute (\code{soi})}
@@ -84,6 +106,9 @@ You can also enter the data manually (\code{manufacturer = "manual"}) by providi
 \item \code{light_file}: (optional) data.frame with column date and value.
 \item \code{acceleration_file}: (optional) data.frame with column date and value.
 }
+
+You can still create a \code{tag} without pressure data using \code{assert_pressure = TRUE}. This \code{tag}
+won't be able to run the traditional GeoPressureR workflow, but you can still do some analysis.
 
 By default \code{manufacturer = NULL}, the manufacturer is determined automatically from the content
 of the \code{directory}. You can also specify manually the file with a full pathname or the file

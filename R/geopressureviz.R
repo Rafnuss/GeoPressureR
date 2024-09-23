@@ -104,6 +104,9 @@ geopressureviz <- function(x,
     "Pres. mask" = "map_pressure_mask",
     "Pressure" = "map_pressure",
     "Light" = "map_light",
+    "Mag. incl." = "map_magnetic_inclination",
+    "Mag. int." = "map_magnetic_intensity",
+    "Magnetic" = "map_magnetic",
     "Pres.&Light" = c("map_pressure", "map_light"),
     "Marginal" = "map_marginal"
   )
@@ -146,6 +149,9 @@ geopressureviz <- function(x,
     # path is a path
     pressurepath <- data.frame()
   }
+
+  # Assign the type of path
+  attr(path, "type") <- "geopressureviz"
 
   # out <- tryCatch(GeoPressureR:::edge_add_wind_check(tag), error = function(e) e)
   # if(any(class(out) == "error")){

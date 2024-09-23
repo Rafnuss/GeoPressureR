@@ -94,7 +94,7 @@ tag2path <- function(tag,
         cli::cli_warn(c(
           "!" = "First and/or last modelled stationary periods ({.val {tag$stap$stap_id[fal]}}) \\
          are shorter than {.val {interp}} day{?s} but cannot be interpolated.",
-          ">" = "They will not be interpolated.\f"
+          ">" = "They will not be interpolated."
         ))
       }
     }
@@ -142,6 +142,10 @@ tag2path <- function(tag,
   path <- ind2path(ind, tag, use_known = use_known)
 
   path$interp <- path_interp
+
+  # Assign the type of path
+  attr(path, "type") <- "tag"
+  attr(path, "likelihood") <- map$type
 
   return(path)
 }

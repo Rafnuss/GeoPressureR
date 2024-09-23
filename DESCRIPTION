@@ -1,6 +1,6 @@
 Package: GeoPressureR
 Title: Global Positioning by Atmospheric Pressure
-Version: 3.2.3
+Version: 3.3.0
 Authors@R: c(
     person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8185-1020")),
@@ -16,20 +16,20 @@ Depends:
     R (>= 4.1.0)
 Imports: 
     assertthat,
-    EBImage,
     cli,
-    ecmwfr,
+    ecmwfr (>= 2.0.0),
+    EBImage,
     future,
     geosphere,
-    glue,
     ggplot2,
+    glue,
     httr2 (>= 1.0.0),
-    leaflet (>= 2.2.0),
-    plotly,
     jsonlite,
+    leaflet (>= 2.2.0),
     Matrix,
     methods,
     ncdf4,
+    plotly,
     pracma,
     RColorBrewer,
     stats,
@@ -38,16 +38,16 @@ Imports:
     utils
 Suggests: 
     BiocManager,
+    covr,
     knitr,
     leaflet.extras,
     leaflet.providers,
     maps,
-    testthat (>= 3.0.0),
-    shinyjs,
-    shiny,
     readxl,
+    shiny,
+    shinyjs,
     shinyWidgets,
-    covr
+    testthat (>= 3.0.0)
 biocViews:
 Config/testthat/edition: 3
 Encoding: UTF-8

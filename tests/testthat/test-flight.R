@@ -32,7 +32,7 @@ test_that("check hybrid call", {
 
 test_that("check speed2power()", {
   bird <- bird_create("Acrocephalus arundinaceus")
-  expect_no_error(GeoPressureR:::speed2power(seq(0, 20), bird))
+  expect_no_error(speed2power(seq(0, 20), bird))
 })
 
 test_that("check graph_set_movement() with groundspeed/gamma", {

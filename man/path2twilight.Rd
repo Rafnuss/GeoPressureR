@@ -4,7 +4,7 @@
 \alias{path2twilight}
 \title{Compute astronomical twilight from positions and dates}
 \usage{
-path2twilight(path, date = NULL, solarDep = 0, return_long = TRUE)
+path2twilight(path, date = NULL, solar_dep = 0, return_long = TRUE)
 }
 \arguments{
 \item{path}{a GeoPressureR \code{path} or \code{pressurepath} data.frame}
@@ -12,8 +12,8 @@ path2twilight(path, date = NULL, solarDep = 0, return_long = TRUE)
 \item{date}{a vector of POSIXt datetime for which sunrise and sunset are computed. Be default,
 uses the range of \code{path$date} provided.}
 
-\item{solarDep}{a numerical value representing the solar depression angle used to compute sunrise
-and sunset.}
+\item{solar_dep}{a numerical value representing the solar depression angle used to compute
+sunrise and sunset.}
 
 \item{return_long}{logical defining the format of the data.frame returned. If \code{TRUE}, returns the
 long format identical to \code{twilight_create()}. If \code{FALSE}, return the sunrise and sunset as
@@ -47,7 +47,7 @@ locations and for specific date.
 
 We use the \href{https://github.com/adokter/suntools}{suntools} package for this.
 
-By default (\code{solarDep=0}), the computation return sunrise and sunset. But, it is also possible
+By default (\code{solar_dep=0}), the computation return sunrise and sunset. But, it is also possible
 to compute different twilights by setting depression angle value greater than 0 (6° for civil,
 12° for nautical and 18° for astronomical).
 }

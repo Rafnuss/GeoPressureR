@@ -121,7 +121,7 @@ geolight_map <- function(tag,
 
   # Only select twilight that we are interested of: not known and/or not in flight
   if (compute_known) {
-    twl_clean_comp <- twl_clean[twl_clean$stap_id %in% stap$stap_id[is.na(stap$known_lat)], ]
+    twl_clean_comp <- twl_clean[twl_clean$stap_id %in% stap$stap_id[!is.na(stap$known_lat)], ]
   } else {
     twl_clean_comp <- twl_clean[twl_clean$stap_id %in% stap$stap_id, ]
   }

@@ -9,8 +9,7 @@ tag_download_wind(
   extent = tag$param$extent,
   include_stap_id = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
-  cds_key = Sys.getenv("cds_key"),
-  cds_user = Sys.getenv("cds_user"),
+  cds_token = Sys.getenv("cds_token"),
   file = function(stap_id)
     glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
   overwrite = FALSE
@@ -25,16 +24,14 @@ Vector of length 4 \code{c(xmin, xmax, ymin, ymax)} or \code{c(W, E, S, N)}.}
 \item{include_stap_id}{stationary period identifiers of the start of the flight to download.
 Default is to download all flights.}
 
-\item{variable}{list of variables to download from \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level}:
-\code{"u_component_of_wind"}, \code{"v_component_of_wind"},  \code{"temperature"}, \code{"fraction_of_cloud_cover"},
-\code{"relative_humidity"}, , \code{"vertical_velocity"}, \code{"specific_cloud_ice_water_content"},
+\item{variable}{list of variables to download from \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level} # nolint
+: \code{"u_component_of_wind"}, \code{"v_component_of_wind"},  \code{"temperature"}, \code{"fraction_of_cloud_cover"}
+, \code{"relative_humidity"}, , \code{"vertical_velocity"}, \code{"specific_cloud_ice_water_content"},
 \code{"specific_cloud_liquid_water_content"}, \code{"specific_humidity"}, \code{"specific_rain_water_content"},
 \code{"specific_snow_water_content"}, \code{"divergence"}, \code{"geopotential"}, \code{"ozone_mass_mixing_ratio"},
 \code{"potential_vorticity"}, \verb{'vorticity"}.}
 
-\item{cds_key}{ECMWF API Key available from \href{https://cds.climate.copernicus.eu/user/}{your user page }. See \code{wf_set_key()}.}
-
-\item{cds_user}{ECMWF user name (UID value) available from \href{https://cds.climate.copernicus.eu/user/}{your user page }. See \code{wf_set_key()}.}
+\item{cds_token}{CDS Personal Access Token available from \href{https://cds.climate.copernicus.eu/user/}{your user page }. See \code{wf_set_key()}.}
 
 \item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
 taking as single argument the stationary period identifier.}
@@ -47,9 +44,9 @@ information
 }
 \description{
 This function download data associated to each flight from the \href{https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview}{ERA5 hourly pressure levels}
-with the \href{https://cds.climate.copernicus.eu}{Climate Data Store (CDS)} and through the \href{https://bluegreen-labs.github.io/ecmwfr/index.html}{\code{ecmwfr} R package}.
+with the \href{https://cds.climate.copernicus.eu/}{Climate Data Store (CDS)} and through the \href{https://bluegreen-labs.github.io/ecmwfr/index.html}{\code{ecmwfr} R package}.
 
-\href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#ERA5:datadocumentation-Table9}{Any variable available from the ERA5 pressure level}
+\href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#ERA5:datadocumentation-Table9}{Any variable available from the ERA5 pressure level} # nolint
 can be downloaded.
 
 The flights are determined from the stationary periods classified \code{tag$stap}. It request a
@@ -62,12 +59,11 @@ on \url{https://cds.climate.copernicus.eu}. Once created, you can
 retrieve your API key on \url{https://cds.climate.copernicus.eu/user/} and save them in your environment file
 (i.e., \code{.Renviron}). You can open this file with \code{usethis::edit_r_environ()} and add:
 \code{
-  cds_user = "{UID}"
-  cds_key = "{API Key}"
+  cds_token = "{Personal Access Token}"
 }
 }
 \seealso{
-\href{https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html}{\code{wf_request()}},
+\href{https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html}{\code{wf_request_batch()} },
 \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual }
 
 Other movement: 

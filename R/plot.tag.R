@@ -72,8 +72,14 @@ plot.tag <- function(x, type = NULL, ...) {
     status <- tag_status(tag)
     if ("map_pressure" %in% status) {
       type <- "map"
-    } else {
+    } else if ("pressure" %in% status) {
       type <- "pressure"
+    } else if ("light" %in% status) {
+      type <- "light"
+    } else if ("acceleration" %in% status) {
+      type <- "acceleration"
+    } else if ("temperature" %in% status) {
+      type <- "temperature"
     }
   }
 
@@ -336,7 +342,7 @@ plot_tag_light <- function(tag,
 
   l <- tag$light
   if (transform_light) {
-    l$value <- log(l$value + 0.0001) + abs(min(log(l$value + 0.0001)))
+    l$value <- twilight_create_transform(l$value)
   }
 
   p <- ggplot2::ggplot() +
@@ -423,7 +429,7 @@ plot_tag_temperature <- function(tag,
 #' @param twilight_line a twilight data.frame typically created with `path2twilight()` which is
 #' displayed as a line
 #' @param plot_plotly logical to use `plotly`
-#' @param transform_light logical to display a log transformation of light
+#' @inheritParams twilight_create
 #'
 #' @return a plot object.
 #'
@@ -442,16 +448,28 @@ plot_tag_temperature <- function(tag,
 plot_tag_twilight <- function(tag,
                               twilight_line = NULL,
                               transform_light = TRUE,
+                              twl_offset = NULL,
                               plot_plotly = FALSE) {
-  tag_assert(tag, "twilight")
+  # We need to have light data, if twilight is not yet computed, we can still display the mat image
+  tag_assert(tag, "light")
 
   light <- tag$light
   if (transform_light) {
-    light$value <- log(light$value + 0.0001) + abs(min(log(light$value + 0.0001)))
+    light$value <- twilight_create_transform(light$value)
+  }
+
+  # Use by order of priority: (1) twl_offset provided in this function, (2) tag$param$twl_offset,
+  # (3) guess from light data
+  if (is.null(twl_offset)) {
+    if ("twl_offset" %in% names(tag$param)) {
+      twl_offset <- tag$param$twl_offset
+    } else {
+      twl_offset <- twilight_create_guess_offset(light)
+    }
   }
 
   # Compute the matrix representation of light
-  mat <- light2mat(light, twl_offset = tag$param$twl_offset)
+  mat <- light2mat(light, twl_offset = twl_offset)
 
   # Convert to long format data.fram to be able to plot with ggplot
   df <- as.data.frame(mat$value)
@@ -542,15 +560,24 @@ plot_tag_twilight <- function(tag,
   if (!is.null(twilight_line)) {
     twll <- twilight_line
     twll$date <- as.Date(twll$twilight)
-    twll$time <- as.POSIXct(strptime(format(twll$twilight, "%H:%M"), "%H:%M"))
+    time_hour <- as.numeric(substr(format(twll$twilight, "%H:%M"), 1, 2)) +
+      as.numeric(substr(format(twll$twilight, "%H:%M"), 4, 5)) / 60
+    time_hour <- time_hour + +24 * (time_hour < mat_time_hour[1])
+    twll$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
     twll$stap_id <- factor(round(twll$stap_id))
 
     p <- p +
       ggplot2::geom_line(
-        data = twll,
-        ggplot2::aes(x = .data$date, y = .data$time, group = .data$rise),
-        size = 1,
-        color = ifelse(twll$rise, "brown", "lightgreen")
+        data = twll[twll$rise, ],
+        ggplot2::aes(x = .data$date, y = .data$time),
+        linewidth = 1,
+        color = "brown"
+      ) +
+      ggplot2::geom_line(
+        data = twll[!twll$rise, ],
+        ggplot2::aes(x = .data$date, y = .data$time),
+        linewidth = 1,
+        color = "lightgreen"
       )
   }
 

@@ -14,16 +14,30 @@ windsupport(windspeed, groundspeed, drift = FALSE)
 \item{drift}{return drift instead of windsupport}
 }
 \value{
-wind support vector as complex value (same unit as \code{gs} and \code{ws})
+wind support as scalar value (same unit as \code{gs} and \code{ws})
 }
 \description{
-Compute the wind support (or wind profit) from groundspeed and windspeed.
+Wind support, or wind profit, is the projection of the wind vector \eqn{\vec{v}_w} onto the
+groundspeed vector \eqn{\vec{v}_g},
+\deqn{\text{Wind Support} = \frac{\vec{v}_g \cdot \vec{v}_w}{|\vec{v}_g|}},
+with \eqn{\cdot} being the \href{https://en.wikipedia.org/wiki/Dot_product}{cross product}.
 
-All speed vectors are expressed as complex value where the real part corresponds to the east-west
-component and imaginary part to the north-south component. You can use \code{abs()} (or \code{Mod()}) to
-compute the norm (or absolute value) of the speed vector and \code{speed_to_bearing()} to compute the
-bearing/orientation of the speed vector. The latter simply compute the trigonometric angle of the
-speed vector with \code{Arg()} and convert this angle to a bearing (North = 0° instead of 90°).
+A positive value indicates that wind was blowing in the direction of movement, while a negative
+one indicates a head wind.
 
-Alternatively, if \code{drift = TRUE}, the function return the drift instead of wind support.
+\code{windspeed} and \code{groundspeed} should be expressed as complex value where the real part
+corresponds to the east-west component and imaginary part to the north-south component.
+
+Alternatively to wind support, you can compute the drift (or crosswind component) value with
+\code{drift = TRUE},
+\deqn{\text{Drift} = \frac{|\vec{v}_g \times \vec{v}_w|}{|\vec{v}_g|}},
+with \eqn{\times} being the \href{https://en.wikipedia.org/wiki/Cross_product}{cross product}.
+
+A positive value of drift indicates that the wind is pushing the bird to the right of its
+intended path, while a negative indicates that the wind is pushing the bird to the left.
+
+You can use \code{abs()} (or \code{Mod()}) to compute the norm (or absolute value) of the speed vector and
+\code{speed_to_bearing()} to compute the bearing/orientation of the speed vector. The latter
+computes the trigonometric angle of the speed vector with \code{Arg()} and convert this angle to a
+bearing (North = 0° instead of 90°).
 }

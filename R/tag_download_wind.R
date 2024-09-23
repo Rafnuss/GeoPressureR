@@ -3,11 +3,11 @@
 #' @description
 #' This function download data associated to each flight from the [ERA5 hourly pressure levels](
 #' https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview)
-#' with the [Climate Data Store (CDS)](https://cds.climate.copernicus.eu) and through the [`ecmwfr`
+#' with the [Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) and through the [`ecmwfr`
 #' R package](https://bluegreen-labs.github.io/ecmwfr/index.html).
 #'
 #' [Any variable available from the ERA5 pressure level](
-#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9)
+#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9) # nolint
 #' can be downloaded.
 #'
 #' The flights are determined from the stationary periods classified `tag$stap`. It request a
@@ -22,8 +22,7 @@
 #' ](https://cds.climate.copernicus.eu/user/) and save them in your environment file
 #' (i.e., `.Renviron`). You can open this file with `usethis::edit_r_environ()` and add:
 #' \code{
-#'   cds_user = "{UID}"
-#'   cds_key = "{API Key}"
+#'   cds_token = "{Personal Access Token}"
 #' }
 #'
 #' @param tag a GeoPressureR `tag` object.
@@ -32,15 +31,13 @@
 #' @param include_stap_id stationary period identifiers of the start of the flight to download.
 #' Default is to download all flights.
 #' @param variable list of variables to download from [the ERA5 pressure level](
-#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9):
-#' `"u_component_of_wind"`, `"v_component_of_wind"`,  `"temperature"`, `"fraction_of_cloud_cover"`,
-#' `"relative_humidity"`, , `"vertical_velocity"`, `"specific_cloud_ice_water_content"`,
+#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9) # nolint
+#' : `"u_component_of_wind"`, `"v_component_of_wind"`,  `"temperature"`, `"fraction_of_cloud_cover"`
+#' , `"relative_humidity"`, , `"vertical_velocity"`, `"specific_cloud_ice_water_content"`,
 #' `"specific_cloud_liquid_water_content"`, `"specific_humidity"`, `"specific_rain_water_content"`,
 #' `"specific_snow_water_content"`, `"divergence"`, `"geopotential"`, `"ozone_mass_mixing_ratio"`,
 #' `"potential_vorticity"`, `'vorticity"`.
-#' @param cds_user ECMWF user name (UID value) available from [your user page
-#' ](https://cds.climate.copernicus.eu/user/). See `wf_set_key()`.
-#' @param cds_key ECMWF API Key available from [your user page
+#' @param cds_token CDS Personal Access Token available from [your user page
 #' ](https://cds.climate.copernicus.eu/user/). See `wf_set_key()`.
 #' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
 #' taking as single argument the stationary period identifier.
@@ -49,7 +46,8 @@
 #' information
 #'
 #' @family movement
-#' @seealso [`wf_request()`](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),
+#' @seealso [`wf_request_batch()`
+#' ](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),
 #' [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
@@ -58,8 +56,7 @@ tag_download_wind <- function(
     extent = tag$param$extent,
     include_stap_id = NULL,
     variable = c("u_component_of_wind", "v_component_of_wind"),
-    cds_key = Sys.getenv("cds_key"),
-    cds_user = Sys.getenv("cds_user"),
+    cds_token = Sys.getenv("cds_token"),
     file = \(stap_id) glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
     overwrite = FALSE) {
   tag_assert(tag, "setmap")
@@ -74,7 +71,7 @@ tag_download_wind <- function(
     dir.create(directory, recursive = TRUE)
     cli::cli_warn(c(
       "!" = "The directory {.file {directory}} did not exist.",
-      ">" = "We created the directory.\f"
+      ">" = "We created the directory."
     ))
   }
 
@@ -97,11 +94,11 @@ tag_download_wind <- function(
     cli::cli_warn(c(
       "!" = "{.var include_stap_id} included the last stationary period for which no wind can be \\
       computed.",
-      ">" = "We removed this stationary period.\f"
+      ">" = "We removed this stationary period."
     ))
   }
 
-  ecmwfr::wf_set_key(user = cds_user, key = cds_key, service = "cds")
+  ecmwfr::wf_set_key(key = cds_token)
 
   if (any(file.exists(file(include_stap_id))) && !overwrite) {
     # nolint start

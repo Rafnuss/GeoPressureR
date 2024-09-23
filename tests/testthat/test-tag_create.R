@@ -36,10 +36,10 @@ test_that("tag_create() | default", {
   expect_warning(tag_create(id = "18LX", light_file = "wrong_file"))
 
   # Check crop
-  expect_error(tag_create(
+  expect_warning(expect_warning(expect_warning(expect_warning(tag_create(
     id = "18LX",
-    crop_start = "2019-06-20", crop_end = "2018-05-02", quiet = TRUE
-  ))
+    crop_start = "2019-06-20", crop_end = "2018-05-02"
+  )))))
 })
 
 test_that("tag_create() | Migrate Technology", {

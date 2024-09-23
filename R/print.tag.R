@@ -36,18 +36,46 @@ print.tag <- function(x, ...) {
     cli::cli_h3("Sensors data")
     cli::cli_text("Manufacturer: {tag$param$manufacturer}")
     cli::cli_text("Date range: {tag$pressure$date[1]} to {tail(tag$pressure$date,1)}")
-    cli::cli_bullets(c("*" = "{.field pressure}: {nrow(tag$pressure)} datapoints"))
+    if ("pressure" %in% names(tag)) {
+      cli::cli_bullets(
+        c("*" = "{.field pressure}: {format(nrow(tag$pressure), big.mark = ',')} datapoints")
+      )
+    }
     if ("acceleration" %in% names(tag)) {
-      cli::cli_bullets(c("*" = "{.field acceleration}: {nrow(tag$acceleration)} datapoints"))
+      cli::cli_bullets(
+        c(
+          "*" =
+            "{.field acceleration}: {format(nrow(tag$acceleration), big.mark = ',')} datapoints"
+        )
+      )
     }
     if ("light" %in% names(tag)) {
-      cli::cli_bullets(c("*" = "{.field light}: {nrow(tag$light)} datapoints"))
+      cli::cli_bullets(
+        c("*" = "{.field light}: {format(nrow(tag$light), big.mark = ',')} datapoints")
+      )
     }
     if ("temperature" %in% names(tag)) {
-      cli::cli_bullets(c("*" = "{.field temperature}: {nrow(tag$temperature)} datapoints"))
+      cli::cli_bullets(
+        c("*" = "{.field temperature}: {format(nrow(tag$temperature), big.mark = ',')} datapoints")
+      )
+    }
+    if ("airtemperature" %in% names(tag)) {
+      cli::cli_bullets(
+        c(
+          "*" =
+            "{.field airtemperature}: {format(nrow(tag$airtemperature), big.mark = ',')} datapoints"
+        )
+      )
+    }
+    if ("magnetic" %in% names(tag)) {
+      cli::cli_bullets(
+        c("*" = "{.field magnetic}: {format(nrow(tag$magnetic), big.mark = ',')} datapoints")
+      )
     }
     if ("twilight" %in% names(tag)) {
-      cli::cli_bullets(c("*" = "{.field twilight}: {nrow(tag$twilight)} datapoints"))
+      cli::cli_bullets(
+        c("*" = "{.field twilight}: {format(nrow(tag$twilight), big.mark = ',')} datapoints")
+      )
     }
 
     # Stationary periods
@@ -90,6 +118,7 @@ print.tag <- function(x, ...) {
             "v" = "Pressure likelihood {.field map_pressure} computed!"
           ))
         } else {
+          # nolint start
           if ("map_pressure_mse" %in% names(tag)) {
             fun_map <- "geopressure_map_likelihood"
           } else {
@@ -98,6 +127,7 @@ print.tag <- function(x, ...) {
           cli::cli_bullets(c(
             "x" = "No pressure likelihood computed yet. Use {.fun {fun_map}}."
           ))
+          # nolint end
         }
         if ("map_light" %in% status) {
           cli::cli_bullets(c("v" = "Light likelihood {.field map_light} computed!"))

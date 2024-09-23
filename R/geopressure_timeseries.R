@@ -165,7 +165,7 @@ geopressure_timeseries <- function(lat,
     cli::cli_inform(c("!" = "Requested position is on water and will be move to the closet point \\
       on shore \\
       ({.url https://www.google.com/maps/dir/{lat},{lon}/{resp_data$lat},{resp_data$lon}}) \\
-      located {round(resp_data$distInter / 1000)} km away.\f"))
+      located {round(resp_data$distInter / 1000)} km away."))
   }
 
   if (!quiet) cli::cli_progress_step("Sending request")
@@ -212,7 +212,7 @@ geopressure_timeseries <- function(lat,
     if (nrow(out) != nrow(pressure)) {
       cli::cli_warn(
         "The returned data.frame is had a different number of element than the requested\\
-        pressure.\f"
+        pressure."
       )
     }
 

@@ -20,87 +20,88 @@ print.param <- function(x, ...) {
   param <- x
 
   cli::cli_h1("GeoPressureR `param` object for {.field id}: {param$id}")
-  cli::cli_text("{.strong Note}: All {.field green} texts are fields of `param` (i.e., \\
-                `param${.field field}`).")
-
-  cli::cli_bullets(c(
-    "*" = "{.field GeoPressureR_version}: {.val {param$GeoPressureR_version}}"
+  cli::cli_text(cli::col_grey(
+    "{.strong Note}: All {.field green} texts are fields of `param` (i.e., `param${.field field}`)."
   ))
+
+  bullets(param, "GeoPressureR_version")
 
   cli::cli_h3("Sensors data {.fun tag_create}")
-  cli::cli_bullets(c(
-    "*" = "{.field manufacturer}: {.val {call2deparse(param$manufacturer)}}",
-    "*" = "{.field crop_start}: {.val {param$crop_start}}",
-    "*" = "{.field crop_end}: {.val {param$crop_end}}",
-    "*" = "{.field directory}: {.val {call2deparse(param$directory)}}",
-    "*" = "{.field pressure_file}: {.val {param$pressure_file}}",
-    "*" = "{.field light_file}: {.val {param$light_file}}",
-    "*" = "{.field acceleration_file}: {.val {param$acceleration_file}}"
-  ))
+  bullets(param, "crop_start")
+  bullets(param, "crop_end")
+  bullets(param, "directory")
+  bullets(param, "pressure_file")
+  bullets(param, "light_file")
+  bullets(param, "acceleration_file")
+  bullets(param, "temperature_file")
+  bullets(param, "airtemperature_file")
+  bullets(param, "magnetic_file")
 
-  cli::cli_h3("tag label {.fun tag_label}")
-  cli::cli_bullets(c("*" = "{.field label_file}: {.val {call2deparse(param$label_file)}}"))
+
+  cli::cli_h3("Tag label {.fun tag_label}")
+  bullets(param, "label_file")
 
   cli::cli_h3("Stationary period definition {.fun tag_set_map}")
-  cli::cli_bullets(c("*" = "{.field known}:"))
-  print(param$known)
-  cli::cli_bullets(c(
-    "*" = "{.field include_stap_id}: {.val {call2deparse(param$include_stap_id)}}",
-    "*" = "{.field include_min_duration}: {.val {param$include_min_duration}}"
-  ))
+  bullets(param, "extent")
+  bullets(param, "scale")
+  bullets(param, "known")
 
-  cli::cli_h3("Geographical parameters {.fun geo_expend}")
-  cli::cli_bullets(c(
-    "*" = "{.field extent}: {.val {param$extent}}",
-    "*" = "{.field scale}: {.val {param$scale}}"
-  ))
+  bullets(param, "include_stap_id")
+  bullets(param, "include_min_duration")
+
 
   cli::cli_h3("Geopressure {.fun geopressure_map}")
-  cli::cli_bullets(c(
-    "*" = "{.field max_sample}: {.val {param$max_sample}}",
-    "*" = "{.field margin}: {.val {param$margin}}",
-    "*" = "{.field sd}: {.val {param$sd}}",
-    "*" = "{.field thr_mask}: {.val {param$thr_mask}}",
-    "*" = "{.field log_linear_pooling_weight}: {.val \\
-    {call2deparse(param$log_linear_pooling_weight)}}"
-  ))
 
-  cli::cli_h3("Twilight & Geolight {.fun twilight_create}")
-  cli::cli_bullets(c(
-    "*" = "{.field twl_thr}: {.val {param$twl_thr}}",
-    "*" = "{.field twl_offset}: {.val {param$twl_offset}}",
-    "*" = "{.field twilight_file}: {.val {param$twilight_file}}",
-    "*" = "{.field twl_calib_adjust}: {.val {param$twl_calib_adjust}}",
-    "*" = "{.field twl_llp}: {.val {call2deparse(param$twl_llp)}}"
-  ))
+  bullets(param, "max_sample")
+  bullets(param, "margin")
+  bullets(param, "sd")
+  bullets(param, "thr_mask")
+  bullets(param, "log_linear_pooling_weight")
+
+  cli::cli_h3("Twilight & Geolight {.fun twilight_create} {.fun geolight_map}")
+
+  bullets(param, "twl_thr")
+  bullets(param, "twl_offset")
+  bullets(param, "twilight_file")
+  bullets(param, "twl_calib_adjust")
+  bullets(param, "twl_llp")
 
   cli::cli_h3("Graph {.fun graph_create}")
-  cli::cli_bullets(c(
-    "*" = "{.field thr_likelihood}: {.val {param$thr_likelihood}}",
-    "*" = "{.field thr_gs}: {.val {param$thr_gs}}"
-  ))
+
+  bullets(param, "thr_likelihood")
+  bullets(param, "thr_gs")
 
   cli::cli_h3("Movement model & wind {.fun graph_add_wind} {.fun graph_movement}")
-  cli::cli_bullets(c(
-    "*" = "{.field thr_as}: {.val {param$thr_as}}",
-    "*" = "{.field wind_file}: {.val {call2deparse(param$wind_file)}}",
-    "*" = "{.field type}: {.val {param$movement$type}}",
-    "*" = "{.field method}: {.val {param$movement$method}}",
-    "*" = "{.field shape}: {.val {param$movement$shape}}",
-    "*" = "{.field scale}: {.val {param$movement$scale}}",
-    "*" = "{.field location}: {.val {param$movement$location}}",
-    "*" = "{.field bird}: {.val {param$movement$bird}}",
-    "*" = "{.field power2prob}: {.val {call2deparse(param$movement$power2prob)}}",
-    "*" = "{.field low_speed_fix}: {.val {param$movement$low_speed_fix}}"
-  ))
+  bullets(param, "thr_as")
+  bullets(param, "wind_file")
+  bullets(param$movement, "type")
+  bullets(param$movement, "method")
+  bullets(param$movement, "shape")
+  bullets(param$movement, "scale")
+  bullets(param$movement, "location")
+  bullets(param$movement, "bird")
+  bullets(param$movement, "power2prob")
+  bullets(param$movement, "low_speed_fix")
 
   return(invisible(param))
 }
 
-call2deparse <- function(x) {
-  if (is.call(x) || is.function(x)) {
-    deparse(x)
+bullets <- function(param, x) {
+  val <- param[[x]]
+  if (x == "extent") {
+    cli::cli_bullets(c("*" = "{.field {x}}: [W:{.val {val[1]}}, E:{.val {val[2]}}, \\
+                       S:{.val {val[3]}}, N:{.val {val[4]}}]"))
+  } else if (is.call(val) || is.function(val)) {
+    cli::cli_bullets(c("*" = "{.field {x}}: {.code {glue::glue_collapse(deparse(val))}}"))
+  } else if (is.data.frame(val)) {
+    cli::cli_bullets(c("*" = "{.field {x}}:"))
+    cli::cat_print(val)
+  } else if (is.list(val) & length(val) > 1) {
+    cli::cli_bullets(c("*" = "{.field {x}}:"))
+    for (n in names(val)) {
+      cli::cli_bullets(c(" " = "{.field {n}}: {.val {val[[n]]}}"))
+    }
   } else {
-    x
+    cli::cli_bullets(c("*" = "{.field {x}}: {.val {val}}"))
   }
 }

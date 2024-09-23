@@ -348,6 +348,7 @@ graph_create <- function(tag,
 
   # Create the param from tag
   graph$param <- tag$param
+  graph$param$likelihood <- likelihood
   graph$param$thr_likelihood <- thr_likelihood
   graph$param$thr_gs <- thr_gs
 

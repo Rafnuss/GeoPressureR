@@ -20,7 +20,6 @@
 #' - `start` datetime of the start of the stationary period (same as in `stap`)
 #' - `end` datetime of the end of the stationary period (same as in `stap`)
 #' - `include` logical if stationary period was modelled (same as in `stap`)
-#' - `nb_sample known` number of datapoint used to compute pressure (same as in `stap`)
 #'
 #' @examples
 #' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
@@ -58,6 +57,10 @@ graph_simulation <- function(graph,
                              nj = 10,
                              quiet = FALSE) {
   graph_assert(graph, "full")
+
+  if (!is.numeric(nj) || nj <= 0) {
+    cli::cli_abort("{.var nj} must be a positive number.")
+  }
 
   # Compute the matrix TO
   if (!quiet) {
@@ -115,9 +118,10 @@ graph_simulation <- function(graph,
     i_s <- 1
     cli::cli_progress_bar(
       "Simulate positions for stationary period:",
-      format = "{cli::pb_name} {i_s}/{graph$sz[3]} {cli::pb_bar} {cli::pb_percent} | \\
-      {cli::pb_eta_str} [{cli::pb_elapsed}]",
-      format_done = "Simulate positions for stationary periods [{cli::pb_elapsed}]",
+      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_s}/{graph$sz[3]} \\
+      {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "{cli::col_green(cli::symbol$tick)} Simulate positions for stationary periods \\
+      {cli::col_white('[', cli::pb_elapsed, ']')}",
       clear = FALSE,
       total = graph$sz[3]
     )
@@ -167,7 +171,11 @@ graph_simulation <- function(graph,
   # Convert the index of the path in a path data.frame
   path <- ind2path(path_ind2d_full, graph)
 
+  # Assign the type of path
+  attr(path, "type") <- "simulation"
+
   if (!quiet) {
+    cli::cli_progress_done()
     cli::cli_alert_success("All done")
   }
 

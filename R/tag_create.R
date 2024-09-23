@@ -1,9 +1,11 @@
 #' Create a `tag` object
 #'
 #' @description
-#' Create a GeoPressureR `tag` object from the data collected by a tracking device. This data needs
-#' to include at least pressure and optionally a light and/or acceleration.
+#' Create a GeoPressureR `tag` object from the data collected by a tracking device. The function
+#' can read automatically data formatted by SOI, Migratetech or Lun CAnMove (see details below) but
+#' also accept manual data.frame as input. Pressure data is required for the GeoPressureR workflow.
 #'
+#' @details
 #' The current implementation can read files from the following three manufacturer:
 #' - [Swiss Ornithological Institute (`soi`)](https://bit.ly/3QI6tkk)
 #'    - `pressure_file = "*.pressure"`
@@ -18,11 +20,14 @@
 #'    - `light_file = "*_acc.xlsx"` (optional)
 #'    - `acceleration_file = "*_acc.xlsx"` (optional)
 #'
-#'  You can also enter the data manually (`manufacturer = "manual"`) by providing the data.frame to
-#'  `pressure_file`:
-#'    - `pressure_file`: data.frame with column date and value.
-#'    - `light_file`: (optional) data.frame with column date and value.
-#'    - `acceleration_file`: (optional) data.frame with column date and value.
+#' You can also enter the data manually (`manufacturer = "manual"`) by providing the data.frame to
+#' `pressure_file`:
+#'   - `pressure_file`: data.frame with column date and value.
+#'   - `light_file`: (optional) data.frame with column date and value.
+#'   - `acceleration_file`: (optional) data.frame with column date and value.
+#'
+#' You can still create a `tag` without pressure data using `assert_pressure = TRUE`. This `tag`
+#' won't be able to run the traditional GeoPressureR workflow, but you can still do some analysis.
 #'
 #' By default `manufacturer = NULL`, the manufacturer is determined automatically from the content
 #' of the `directory`. You can also specify manually the file with a full pathname or the file
@@ -46,15 +51,28 @@
 #' with extensions (e.g., `"*.acceleration"`, `"*.deg"` or `"*_acc.xlsx"`).
 #' @param temperature_file name of the file with temperature data. Full pathname  or finishing
 #' with extensions (e.g., `"*.temperature"`, `"*.deg"`).
+#' @param airtemperature_file name of the file with air temperature data. Full pathname  or
+#' finishing with extensions (e.g., `"*.airtemperature"`).
+#' @param magnetic_file name of the file with magnetic/accelerometer data. Full pathname  or
+#' finishing with extensions (e.g., `"*.magnetic"`).
 #' @param crop_start remove all data before this date (POSIXct or character in UTC).
 #' @param crop_end remove all data after this date (POSIXct or character in UTC).
 #' @param quiet logical to hide messages about the progress.
+#' @param assert_pressure logical to check that the return tag has pressure data.
 #'
 #' @return a GeoPressureR `tag` object containing
 #' - `param` parameter object (see [param_create])
-#' - `pressure` data.frame with columns for `date` and `value`
+#' - `pressure` data.frame with columns: `date` and `value`
 #' - `light` (optional) same structure as pressure
-#' - `acceleration` (optional) same structure as pressure
+#' - `temperature` (optional) same structure as pressure
+#' - `airtemperature` (optional) same structure as pressure
+#' - `acceleration` (optional) data.frame with columns: `date`, `value`, `act` and `pit`.
+#'    - `value` is the activity computed as the sum of the difference in acceleration on the z-axis
+#'    (i.e. jiggle). In the SOI sensor, it is summarised from 32 measurements at 10Hz
+#'    - `pitch` is the relative position of the bird’s body relative to the z axis. In the SOI
+#'    sensor, it is an average over 32 measurements at 10Hz.
+
+#' - `magnetic` (optional) data.frame with columns: `date`, `mX`, `mY`, `mZ`, `gX`, `gY` and `gZ`
 #'
 #' @examples
 #' setwd(system.file("extdata", package = "GeoPressureR"))
@@ -106,6 +124,9 @@ tag_create <- function(id,
                        light_file = NULL,
                        acceleration_file = NULL,
                        temperature_file = NULL,
+                       airtemperature_file = NULL,
+                       magnetic_file = NULL,
+                       assert_pressure = TRUE,
                        quiet = FALSE) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
@@ -115,7 +136,7 @@ tag_create <- function(id,
       manufacturer <- "manual"
     } else {
       assertthat::assert_that(assertthat::is.dir(directory))
-      if (any(grepl("\\.pressure$", list.files(directory)))) {
+      if (any(grepl("\\.(pressure|glf)$", list.files(directory)))) {
         manufacturer <- "soi"
       } else if (any(grepl("\\.deg$", list.files(directory)))) {
         manufacturer <- "migratetech"
@@ -124,9 +145,9 @@ tag_create <- function(id,
       } else {
         cli::cli_abort(c(
           "x" = "We were not able to determine the {.var manufacturer} of tag from the directory \\
-        {.field {directory}}",
+        {.file {directory}}",
           ">" = "Check that this directory contains the file with pressure data (i.e., with \\
-        extension {.val .pressure}, {.val .deg} or {.val _press.xlsx})"
+        extension {.val .pressure}, {.val .glf}, {.val .deg} or {.val _press.xlsx})"
         ))
       }
     }
@@ -140,9 +161,7 @@ tag_create <- function(id,
   }
 
   # Create tag
-  tag <- structure(list(
-    param = param_create(id = id)
-  ), class = "tag")
+  tag <- structure(list(param = param_create(id = id)), class = "tag")
 
   if (manufacturer == "soi") {
     tag <- tag_create_soi(
@@ -152,6 +171,8 @@ tag_create <- function(id,
       light_file = light_file,
       acceleration_file = acceleration_file,
       temperature_file = temperature_file,
+      airtemperature_file = airtemperature_file,
+      magnetic_file = magnetic_file,
       quiet = quiet
     )
   } else if (manufacturer == "migratetech") {
@@ -178,18 +199,18 @@ tag_create <- function(id,
       light_file = light_file,
       acceleration_file = acceleration_file,
       temperature_file = temperature_file,
+      airtemperature_file = airtemperature_file,
+      magnetic_file = magnetic_file,
       quiet = quiet
     )
   }
 
-  ## Crop date
-  tag <- tag_create_crop(tag, crop_start = crop_start, crop_end = crop_end)
-  if (nrow(tag$pressure) == 0) {
-    cli::cli_abort(c(
-      "!" = "Empty {.field pressure} sensor dataset",
-      ">" = "Check crop date."
-    ))
+  if (assert_pressure) {
+    tag_assert(tag, "pressure")
   }
+
+  ## Crop date
+  tag <- tag_create_crop(tag, crop_start = crop_start, crop_end = crop_end, quiet = quiet)
 
   # Add parameter information
   tag$param$manufacturer <- manufacturer
@@ -210,19 +231,19 @@ tag_create_soi <- function(tag,
                            light_file = NULL,
                            acceleration_file = NULL,
                            temperature_file = NULL,
+                           airtemperature_file = NULL,
+                           magnetic_file = NULL,
                            quiet) {
   # Read Pressure
+  # Read Pressure
   if (is.null(pressure_file)) {
-    pressure_file <- "*.pressure"
+    pressure_path <- tag_create_detect("*.pressure", directory, quiet = TRUE)
+  } else {
+    pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
   }
-  pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
-  if (is.null(pressure_path)) {
-    cli::cli_abort(c(
-      "x" = "There are no pressure file {.val {pressure_path}}",
-      "!" = "Pressure file are required!"
-    ))
+  if (!is.null(pressure_path)) {
+    tag$pressure <- tag_create_dto(pressure_path, quiet = quiet)
   }
-  tag$pressure <- tag_create_dto(pressure_path, quiet = quiet)
 
   # Read light
   if (is.null(light_file)) {
@@ -242,7 +263,8 @@ tag_create_soi <- function(tag,
     acceleration_path <- tag_create_detect(acceleration_file, directory, quiet = quiet)
   }
   if (!is.null(acceleration_path)) {
-    tag$acceleration <- tag_create_dto(acceleration_path, col = 4, quiet = quiet)
+    tag$acceleration <- tag_create_dto(acceleration_path, col = c(4, 3), quiet = quiet)
+    names(tag$acceleration) <- c("date", "value", "pitch")
   }
 
   # Read temperature
@@ -255,11 +277,34 @@ tag_create_soi <- function(tag,
     tag$temperature <- tag_create_dto(temperature_path, col = 3, quiet = quiet)
   }
 
+  # Read air temperature
+  if (is.null(airtemperature_file)) {
+    airtemperature_path <- tag_create_detect("*.airtemperature", directory, quiet = TRUE)
+  } else {
+    airtemperature_path <- tag_create_detect(airtemperature_file, directory, quiet = quiet)
+  }
+  if (!is.null(airtemperature_path)) {
+    tag$airtemperature <- tag_create_dto(airtemperature_path, col = 3, quiet = quiet)
+  }
+
+  # Read magnetism
+  if (is.null(magnetic_file)) {
+    magnetic_path <- tag_create_detect("*.magnetic", directory, quiet = TRUE)
+  } else {
+    magnetic_path <- tag_create_detect(magnetic_file, directory, quiet = quiet)
+  }
+  if (!is.null(magnetic_path)) {
+    tag$magnetic <- tag_create_dto(magnetic_path, col = seq(4, 9), quiet = quiet)
+    names(tag$magnetic) <- c("date", "mX", "mY", "mZ", "gX", "gY", "gZ")
+  }
+
   # Add parameter information
   tag$param$pressure_file <- pressure_path
   tag$param$light_file <- light_path
   tag$param$acceleration_file <- acceleration_path
   tag$param$temperature_file <- temperature_path
+  tag$param$airtemperature_file <- airtemperature_path
+  tag$param$magnetic_file <- magnetic_path
 
   setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
   if (!is.null(setting_path)) {
@@ -275,7 +320,7 @@ tag_create_soi <- function(tag,
 #' @noRd
 tag_create_migratetech <- function(tag,
                                    directory,
-                                   deg_file,
+                                   deg_file = NULL,
                                    light_file = NULL,
                                    quiet) {
   # Read Pressure
@@ -285,8 +330,8 @@ tag_create_migratetech <- function(tag,
   deg_path <- tag_create_detect(deg_file, directory, quiet = quiet)
   if (is.null(deg_path)) {
     cli::cli_abort(c(
-      "x" = "There are no pressure file {.val {deg_file}}",
-      "!" = "Pressure file are required!"
+      "x" = "There are no file {.val {deg_file}}",
+      "!" = "{.var deg_file} is required!"
     ))
   }
   assertthat::assert_that(grepl("Migrate Technology", readLines(deg_path, n = 1)))
@@ -412,8 +457,8 @@ tag_create_lund <- function(tag,
   pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
   if (is.null(pressure_path)) {
     cli::cli_abort(c(
-      "x" = "There are no pressure file {.val {pressure_path}}",
-      "!" = "Pressure file are required"
+      "x" = "There are no file {.val {pressure_path}}",
+      "!" = "{.var pressure_path} is required"
     ))
   }
   xls <- readxl::read_excel(pressure_path, .name_repair = "unique_quiet")
@@ -422,7 +467,7 @@ tag_create_lund <- function(tag,
     value = xls$`Pressure [hPa]`
   )
   if (!quiet) {
-    cli::cli_inform(c("v" = "Read {.file {pressure_path}}\f"))
+    cli::cli_inform(c("v" = "Read {.file {pressure_path}}"))
   }
 
 
@@ -450,7 +495,7 @@ tag_create_lund <- function(tag,
     )
 
     if (!quiet) {
-      cli::cli_inform(c("v" = "Read {.file {acc_light_path}}\f"))
+      cli::cli_inform(c("v" = "Read {.file {acc_light_path}}"))
     }
   }
 
@@ -468,22 +513,27 @@ tag_create_lund <- function(tag,
 #' @noRd
 tag_create_manual <- function(tag,
                               directory,
-                              pressure_file,
+                              pressure_file = NULL,
                               light_file = NULL,
                               acceleration_file = NULL,
                               temperature_file = NULL,
+                              airtemperature_file = NULL,
+                              magnetic_file = NULL,
                               quiet) {
   # Read Pressure
-  assertthat::assert_that(is.data.frame(pressure_file))
-  assertthat::assert_that(assertthat::has_name(pressure_file, c("date", "value")))
-  assertthat::assert_that(inherits(pressure_file$date, "POSIXct"))
-  assertthat::assert_that(assertthat::are_equal(attr(pressure_file$date, "tzone"), "UTC"))
-  if (min(pressure_file$value, na.rm = TRUE) < 250 ||
-    1100 < max(pressure_file$value, na.rm = TRUE)) {
-    cli::cli_warn("Pressure observation should be between 250 hPa (~10000m) and 1100 hPa \\
-  (sea level at 1013hPa). Check unit of pressure data.frame provided.\f")
+  if (!is.null(pressure_file)) {
+    assertthat::assert_that(is.data.frame(pressure_file))
+    assertthat::assert_that(assertthat::has_name(pressure_file, c("date", "value")))
+    assertthat::assert_that(inherits(pressure_file$date, "POSIXct"))
+    assertthat::assert_that(assertthat::are_equal(attr(pressure_file$date, "tzone"), "UTC"))
+    if (min(pressure_file$value, na.rm = TRUE) < 250 ||
+      1100 < max(pressure_file$value, na.rm = TRUE)) {
+      cli::cli_warn("Pressure observation should be between 250 hPa (~10000m) and 1100 hPa \\
+    (sea level at 1013hPa). Check unit of pressure data.frame provided.")
+    }
+    tag$pressure <- pressure_file
+    tag$param$pressure_file <- "manual"
   }
-  tag$pressure <- pressure_file
 
   # Read light
   if (!is.null(light_file)) {
@@ -491,6 +541,7 @@ tag_create_manual <- function(tag,
     assertthat::assert_that(inherits(light_file$date, "POSIXct"))
     assertthat::assert_that(assertthat::are_equal(attr(light_file$date, "tzone"), "UTC"))
     tag$light <- light_file
+    tag$param$light_file <- "manual"
   }
 
   # Read acceleration
@@ -499,6 +550,7 @@ tag_create_manual <- function(tag,
     assertthat::assert_that(inherits(acceleration_file$date, "POSIXct"))
     assertthat::assert_that(assertthat::are_equal(attr(acceleration_file$date, "tzone"), "UTC"))
     tag$acceleration <- acceleration_file
+    tag$param$acceleration_file <- "manual"
   }
 
   # Read acceleration
@@ -507,13 +559,29 @@ tag_create_manual <- function(tag,
     assertthat::assert_that(inherits(temperature_file$date, "POSIXct"))
     assertthat::assert_that(assertthat::are_equal(attr(temperature_file$date, "tzone"), "UTC"))
     tag$temperature <- temperature_file
+    tag$param$temperature_file <- "manual"
   }
 
-  # Add parameter information
-  tag$param$pressure_file <- "manual"
-  tag$param$light_file <- "manual"
-  tag$param$acceleration_file <- "manual"
-  tag$param$temperature_file <- "manual"
+  # Read air temperature
+  if (!is.null(airtemperature_file)) {
+    assertthat::assert_that(assertthat::has_name(airtemperature_file, c("date", "value")))
+    assertthat::assert_that(inherits(airtemperature_file$date, "POSIXct"))
+    assertthat::assert_that(assertthat::are_equal(attr(airtemperature_file$date, "tzone"), "UTC"))
+    tag$airtemperature <- airtemperature_file
+    tag$param$airtemperature_file <- "manual"
+  }
+
+  # Read magnetism
+  if (!is.null(magnetic_file)) {
+    assertthat::assert_that(assertthat::has_name(
+      magnetic_file,
+      c("date", "mX", "mY", "mZ", "gX", "gY", "gZ")
+    ))
+    assertthat::assert_that(inherits(magnetic_file$date, "POSIXct"))
+    assertthat::assert_that(assertthat::are_equal(attr(magnetic_file$date, "tzone"), "UTC"))
+    tag$magnetic <- magnetic_file
+    tag$param$magnetic_file <- "manual"
+  }
 
   return(tag)
 }
@@ -543,7 +611,7 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
     if (!quiet) {
       cli::cli_warn(c(
         "!" = glue::glue("No file is matching '", file, "'."),
-        ">" = "This sensor will be ignored.\f"
+        ">" = "This sensor will be ignored."
       ))
     }
     return(NULL)
@@ -551,7 +619,7 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
   if (length(path) > 1) {
     cli::cli_warn(c(
       "!" = "Multiple files matching {.var {file}}: {.file {path}}",
-      ">" = "The function will continue with the first one.\f"
+      ">" = "The function will continue with the first one."
     ))
     return(path[1])
   }
@@ -589,7 +657,7 @@ tag_create_dto <- function(sensor_path,
   }
 
   if (!quiet) {
-    cli::cli_inform(c("v" = "Read {.file {sensor_path}}\f"))
+    cli::cli_inform(c("v" = "Read {.file {sensor_path}}"))
   }
   return(df)
 }
@@ -598,8 +666,9 @@ tag_create_dto <- function(sensor_path,
 #' @noRd
 tag_create_crop <- function(tag,
                             crop_start,
-                            crop_end) {
-  for (sensor in c("pressure", "light", "acceleration", "temperature")) {
+                            crop_end,
+                            quiet) {
+  for (sensor in c("pressure", "light", "acceleration", "temperature", "magnetic")) {
     if (sensor %in% names(tag)) {
       # Crop time
       if (!is.null(crop_start)) {
@@ -609,13 +678,22 @@ tag_create_crop <- function(tag,
         tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date < as.POSIXct(crop_end), ]
       }
 
-      # Check irregular time
-      if (length(unique(diff(tag[[sensor]]$date))) > 1) {
-        # nolint start
-        dtime <- as.numeric(diff(tag[[sensor]]$date))
-        cli::cli_warn("Irregular time spacing for {.field {sensor}}: \\
-                  {tag[[sensor]]$date[which(dtime != dtime[1])]}.\f")
-        # nolint end
+      if (!quiet) {
+        # Check irregular time
+        if (length(unique(diff(tag[[sensor]]$date))) > 1) {
+          # nolint start
+          dtime <- as.numeric(diff(tag[[sensor]]$date))
+          cli::cli_warn("Irregular time spacing for {.field {sensor}}: \\
+                  {tag[[sensor]]$date[which(dtime != dtime[1])]}.")
+          # nolint end
+        }
+
+        if (nrow(tag[[sensor]]) == 0) {
+          cli::cli_warn(c(
+            "!" = "Empty {.field {sensor}} sensor dataset",
+            ">" = "Check crop date."
+          ))
+        }
       }
     }
   }

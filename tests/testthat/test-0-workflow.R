@@ -62,6 +62,7 @@ test_that("workflow | full", {
   expect_no_error(plot_graph_movement(graph))
 
   expect_no_error(plot_path(path_most_likely))
+  expect_no_error(plot_path(path_most_likely, plot_leaflet = FALSE))
 })
 
 test_that("workflow | Missing pressure value", {

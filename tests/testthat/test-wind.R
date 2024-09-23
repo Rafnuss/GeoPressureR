@@ -23,7 +23,7 @@ tag <- tag_create("18LX", quiet = TRUE) |>
 test_that("tag_download_wind() | special setting", {
   tmp <- tag_download_wind(tag, variable = c("u", "temperature"), include_stap_id = 1)
 
-  GeoPressureR:::edge_add_wind_check(tag)
+  edge_add_wind_check(tag)
 })
 
 tag_download_wind(tag)
