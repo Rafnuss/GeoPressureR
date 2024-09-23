@@ -265,8 +265,9 @@ tag_create_dp <- function(tag,
   pressure_path <- file.path(directory, "pressure.csv")
   if (file.exists(pressure_path)) {
     tag$pressure <- tag_create_csv(pressure_path,
-                                   col_name = c("datetime", "value"),
-                                   quiet = quiet)
+      col_name = c("datetime", "value"),
+      quiet = quiet
+    )
   }
 
   # Read light
@@ -276,8 +277,9 @@ tag_create_dp <- function(tag,
   light_path <- file.path(directory, light_file)
   if (file.exists(light_path)) {
     tag$light <- tag_create_csv(light_path,
-                                col_name = c("datetime", "value"),
-                                quiet = quiet)
+      col_name = c("datetime", "value"),
+      quiet = quiet
+    )
   }
 
   # Read acceleration
@@ -287,8 +289,9 @@ tag_create_dp <- function(tag,
   acceleration_path <- file.path(directory, acceleration_file)
   if (file.exists(acceleration_path)) {
     tag$acceleration <- tag_create_csv(acceleration_path,
-                                       col_name = c("datetime", "value", "pitch"),
-                                       quiet = quiet)
+      col_name = c("datetime", "value", "pitch"),
+      quiet = quiet
+    )
   }
 
   # Read temperature
@@ -298,8 +301,9 @@ tag_create_dp <- function(tag,
   temperature_path <- file.path(directory, temperature_file)
   if (file.exists(temperature_path)) {
     tag$temperature <- tag_create_csv(temperature_path,
-                                      col_name = c("datetime", "value"),
-                                      quiet = quiet)
+      col_name = c("datetime", "value"),
+      quiet = quiet
+    )
   }
 
   # Read air temperature
@@ -309,8 +313,9 @@ tag_create_dp <- function(tag,
   airtemperature_path <- file.path(directory, airtemperature_file)
   if (file.exists(airtemperature_path)) {
     tag$airtemperature <- tag_create_csv(airtemperature_path,
-                                         col_name = c("datetime", "value"),
-                                         quiet = quiet)
+      col_name = c("datetime", "value"),
+      quiet = quiet
+    )
   }
 
   # Read magnetism
@@ -320,8 +325,9 @@ tag_create_dp <- function(tag,
   magnetic_path <- file.path(directory, magnetic_file)
   if (file.exists(magnetic_path)) {
     tag$magnetic <- tag_create_csv(magnetic_path,
-                                   col_name = c("datetime", "gX", "gY", "gZ", "mX", "mY", "mZ"),
-                                   quiet = quiet)
+      col_name = c("datetime", "gX", "gY", "gZ", "mX", "mY", "mZ"),
+      quiet = quiet
+    )
   }
 
   # Add parameter information
@@ -784,12 +790,12 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
   if (length(missing_cols) > 0) {
     cli::cli_abort(glue::glue("The following columns are missing in {.file {sensor_path}}:\\
                               {glue::glue_collapse(missing_cols, ', ')}"))
-
   }
 
   df$datetime <- as.POSIXct(
     ifelse(grepl(" ", df$datetime), df$datetime, paste0(df$datetime, " 00:00:00")),
-    format="%Y-%m-%d %H:%M:%S", tz = "UTC")
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC"
+  )
 
   if (!quiet) {
     cli::cli_inform(c("v" = "Read {.file {sensor_path}}"))
