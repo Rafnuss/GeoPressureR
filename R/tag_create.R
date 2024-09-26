@@ -836,8 +836,10 @@ tag_create_crop <- function(tag,
                             crop_start,
                             crop_end,
                             quiet) {
-  for (sensor in c("pressure", "light", "acceleration", "temperature_internal",
-                   "temperature_external", "magnetic")) {
+  for (sensor in c(
+    "pressure", "light", "acceleration", "temperature_internal",
+    "temperature_external", "magnetic"
+  )) {
     if (sensor %in% names(tag)) {
       # Crop time
       if (!is.null(crop_start)) {

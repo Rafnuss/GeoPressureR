@@ -288,8 +288,8 @@ plot_tag_acceleration <- function(tag,
 
   assertthat::assert_that(variable %in% c("activity", "value", "pitch"))
 
-  if (variable=="activity"){
-    variable = "value"
+  if (variable == "activity") {
+    variable <- "value"
   }
 
   # If not label, use default auto_label
