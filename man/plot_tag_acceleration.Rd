@@ -6,6 +6,7 @@
 \usage{
 plot_tag_acceleration(
   tag,
+  variable = "activity",
   plot_plotly = TRUE,
   label_auto = TRUE,
   min_duration = 30
@@ -13,6 +14,8 @@ plot_tag_acceleration(
 }
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object}
+
+\item{variable}{type of acceleration variable to plot \code{"activity"} (or \code{"value"}) or \code{"pitch"}}
 
 \item{plot_plotly}{logical to use \code{plotly}}
 

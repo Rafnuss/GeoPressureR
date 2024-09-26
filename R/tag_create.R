@@ -13,8 +13,8 @@
 #'    - `pressure_file = "pressure.csv"`(optional)
 #'    - `light_file = "light.csv"` (optional)
 #'    - `acceleration_file = "acceleration.csv"` (optional)
-#'    - `temperature_file = "temperature.csv"` (optional)
-#'    - `airtemperature_file = "airtemperature.csv"` (optional)
+#'    - `temperature_external_file = "temperature.csv"` (optional)
+#'    - `temperature_external_file = "airtemperature.csv"` (optional)
 #'    - `magnetic_file = "magnetic.csv"` (optional)
 #' - [Swiss Ornithological Institute (`soi`)](https://bit.ly/3QI6tkk)
 #'    - `pressure_file = "*.pressure"`
@@ -61,10 +61,12 @@
 #' with extensions (e.g., `"*.glf"`, `"*.lux"` or `"*_acc.xlsx"`).
 #' @param acceleration_file name of the file with acceleration data. Full pathname  or finishing
 #' with extensions (e.g., `"*.acceleration"`, `"*.deg"` or `"*_acc.xlsx"`).
-#' @param temperature_file name of the file with temperature data. Full pathname  or finishing
-#' with extensions (e.g., `"*.temperature"`, `"*.deg"`).
-#' @param airtemperature_file name of the file with air temperature data. Full pathname  or
-#' finishing with extensions (e.g., `"*.airtemperature"`).
+#' @param temperature_external_file name of the file with temperature data. Full pathname  or
+#' finishing with extensions (e.g., `"*.temperature"`, `"*.airtemperature"` or `"*.deg"`). External
+#' or air temperature is generally for temperature sensor on directed outward from the bird.
+#' @param temperature_internal_file name of the file with temperature data . Full pathname  or
+#' finishing with extensions (e.g., `"*.bodytemperature"`). Internal or body temperature is
+#' generally for temperature sensor on directed inward (between bird and tag).
 #' @param magnetic_file name of the file with magnetic/accelerometer data. Full pathname  or
 #' finishing with extensions (e.g., `"*.magnetic"`).
 #' @param crop_start remove all data before this date (POSIXct or character in UTC).
@@ -76,8 +78,8 @@
 #' - `param` parameter object (see [param_create()])
 #' - `pressure` data.frame with columns: `date` and `value`
 #' - `light` (optional) same structure as pressure
-#' - `temperature` (optional) same structure as pressure
-#' - `airtemperature` (optional) same structure as pressure
+#' - `temperature_external` (optional) same structure as pressure
+#' - `temperature_internal` (optional) same structure as pressure
 #' - `acceleration` (optional) data.frame with columns: `date`, `value`, `act` and `pit`.
 #'    - `value` is the activity computed as the sum of the difference in acceleration on the z-axis
 #'    (i.e. jiggle). In the SOI sensor, it is summarised from 32 measurements at 10Hz
@@ -134,8 +136,8 @@ tag_create <- function(id,
                        pressure_file = NULL,
                        light_file = NULL,
                        acceleration_file = NULL,
-                       temperature_file = NULL,
-                       airtemperature_file = NULL,
+                       temperature_external_file = NULL,
+                       temperature_internal_file = NULL,
                        magnetic_file = NULL,
                        assert_pressure = TRUE,
                        quiet = FALSE) {
@@ -183,8 +185,8 @@ tag_create <- function(id,
       pressure_file = pressure_file,
       light_file = light_file,
       acceleration_file = acceleration_file,
-      temperature_file = temperature_file,
-      airtemperature_file = airtemperature_file,
+      temperature_external_file = temperature_external_file,
+      temperature_internal_file = temperature_internal_file,
       magnetic_file = magnetic_file,
       quiet = quiet
     )
@@ -195,8 +197,8 @@ tag_create <- function(id,
       pressure_file = pressure_file,
       light_file = light_file,
       acceleration_file = acceleration_file,
-      temperature_file = temperature_file,
-      airtemperature_file = airtemperature_file,
+      temperature_external_file = temperature_external_file,
+      temperature_internal_file = temperature_internal_file,
       magnetic_file = magnetic_file,
       quiet = quiet
     )
@@ -223,8 +225,8 @@ tag_create <- function(id,
       pressure_file = pressure_file,
       light_file = light_file,
       acceleration_file = acceleration_file,
-      temperature_file = temperature_file,
-      airtemperature_file = airtemperature_file,
+      temperature_external_file = temperature_external_file,
+      temperature_internal_file = temperature_internal_file,
       magnetic_file = magnetic_file,
       quiet = quiet
     )
@@ -254,8 +256,8 @@ tag_create_dp <- function(tag,
                           pressure_file = NULL,
                           light_file = NULL,
                           acceleration_file = NULL,
-                          temperature_file = NULL,
-                          airtemperature_file = NULL,
+                          temperature_external_file = NULL,
+                          temperature_internal_file = NULL,
                           magnetic_file = NULL,
                           quiet) {
   # Read Pressure
@@ -294,25 +296,25 @@ tag_create_dp <- function(tag,
     )
   }
 
-  # Read temperature
-  if (is.null(temperature_file)) {
-    temperature_file <- "temperature.csv"
+  # Read external temperature
+  if (is.null(temperature_external_file)) {
+    temperature_external_file <- "temperature_external.csv"
   }
-  temperature_path <- file.path(directory, temperature_file)
-  if (file.exists(temperature_path)) {
-    tag$temperature <- tag_create_csv(temperature_path,
+  temperature_external_path <- file.path(directory, temperature_external_file)
+  if (file.exists(temperature_external_path)) {
+    tag$temperature_external <- tag_create_csv(temperature_external_path,
       col_name = c("datetime", "value"),
       quiet = quiet
     )
   }
 
-  # Read air temperature
-  if (is.null(airtemperature_file)) {
-    airtemperature_file <- "airtemperature.csv"
+  # Read internal temperature
+  if (is.null(temperature_internal_file)) {
+    temperature_internal_file <- "temperature_internal.csv"
   }
-  airtemperature_path <- file.path(directory, airtemperature_file)
-  if (file.exists(airtemperature_path)) {
-    tag$airtemperature <- tag_create_csv(airtemperature_path,
+  temperature_internal_path <- file.path(directory, temperature_internal_file)
+  if (file.exists(temperature_internal_path)) {
+    tag$temperature_internal <- tag_create_csv(temperature_internal_path,
       col_name = c("datetime", "value"),
       quiet = quiet
     )
@@ -324,8 +326,12 @@ tag_create_dp <- function(tag,
   }
   magnetic_path <- file.path(directory, magnetic_file)
   if (file.exists(magnetic_path)) {
-    tag$magnetic <- tag_create_csv(magnetic_path,
-      col_name = c("datetime", "gX", "gY", "gZ", "mX", "mY", "mZ"),
+    tag$magnetic <- tag_create_csv(
+      magnetic_path,
+      col_name = c(
+        "datetime", "acceleration_x", "acceleration_y", "acceleration_z", "magnetic_x",
+        "magnetic_y", "magnetic_z"
+      ),
       quiet = quiet
     )
   }
@@ -334,8 +340,8 @@ tag_create_dp <- function(tag,
   tag$param$tag_create$pressure_file <- pressure_path
   tag$param$tag_create$light_file <- light_path
   tag$param$tag_create$acceleration_file <- acceleration_path
-  tag$param$tag_create$temperature_file <- temperature_path
-  tag$param$tag_create$airtemperature_file <- airtemperature_path
+  tag$param$tag_create$temperature_external_file <- temperature_external_path
+  tag$param$tag_create$temperature_internal_file <- temperature_internal_path
   tag$param$tag_create$magnetic_file <- magnetic_path
 
   return(tag)
@@ -349,8 +355,8 @@ tag_create_soi <- function(tag,
                            pressure_file = NULL,
                            light_file = NULL,
                            acceleration_file = NULL,
-                           temperature_file = NULL,
-                           airtemperature_file = NULL,
+                           temperature_external_file = NULL,
+                           temperature_internal_file = NULL,
                            magnetic_file = NULL,
                            quiet) {
   # Read Pressure
@@ -385,24 +391,31 @@ tag_create_soi <- function(tag,
     names(tag$acceleration) <- c("date", "value", "pitch")
   }
 
-  # Read temperature
-  if (is.null(temperature_file)) {
-    temperature_path <- tag_create_detect("*.temperature", directory, quiet = TRUE)
+  # Read External temperature
+  if (is.null(temperature_external_file)) {
+    temperature_external_path <- tag_create_detect("*.temperature", directory, quiet = TRUE)
+    if (is.null(temperature_external_path)) {
+      temperature_external_path <- tag_create_detect("*.airtemperature", directory, quiet = TRUE)
+    }
   } else {
-    temperature_path <- tag_create_detect(temperature_file, directory, quiet = quiet)
+    temperature_external_path <- tag_create_detect(temperature_external_file, directory,
+      quiet = quiet
+    )
   }
-  if (!is.null(temperature_path)) {
-    tag$temperature <- tag_create_dto(temperature_path, col = 3, quiet = quiet)
+  if (!is.null(temperature_external_path)) {
+    tag$temperature_external <- tag_create_dto(temperature_external_path, col = 3, quiet = quiet)
   }
 
-  # Read air temperature
-  if (is.null(airtemperature_file)) {
-    airtemperature_path <- tag_create_detect("*.airtemperature", directory, quiet = TRUE)
+  # Read Internal temperature
+  if (is.null(temperature_internal_file)) {
+    temperature_internal_path <- tag_create_detect("*.bodytemperature", directory, quiet = TRUE)
   } else {
-    airtemperature_path <- tag_create_detect(airtemperature_file, directory, quiet = quiet)
+    temperature_internal_path <- tag_create_detect(temperature_internal_file, directory,
+      quiet = quiet
+    )
   }
-  if (!is.null(airtemperature_path)) {
-    tag$airtemperature <- tag_create_dto(airtemperature_path, col = 3, quiet = quiet)
+  if (!is.null(temperature_internal_path)) {
+    tag$temperature_internal <- tag_create_dto(temperature_internal_path, col = 3, quiet = quiet)
   }
 
   # Read magnetism
@@ -413,15 +426,18 @@ tag_create_soi <- function(tag,
   }
   if (!is.null(magnetic_path)) {
     tag$magnetic <- tag_create_dto(magnetic_path, col = seq(4, 9), quiet = quiet)
-    names(tag$magnetic) <- c("date", "mX", "mY", "mZ", "gX", "gY", "gZ")
+    names(tag$magnetic) <- c(
+      "date", "acceleration_x", "acceleration_y", "acceleration_z",
+      "magnetic_x", "magnetic_y", "magnetic_z"
+    )
   }
 
   # Add parameter information
   tag$param$tag_create$pressure_file <- pressure_path
   tag$param$tag_create$light_file <- light_path
   tag$param$tag_create$acceleration_file <- acceleration_path
-  tag$param$tag_create$temperature_file <- temperature_path
-  tag$param$tag_create$airtemperature_file <- airtemperature_path
+  tag$param$tag_create$temperature_external_file <- temperature_external_path
+  tag$param$tag_create$temperature_internal_file <- temperature_internal_path
   tag$param$tag_create$magnetic_file <- magnetic_path
 
   setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
@@ -508,7 +524,7 @@ tag_create_migratetech <- function(tag,
       date_format = "%d/%m/%Y %H:%M:%S",
       quiet = quiet
     )
-    tag$param$tag_create$temperature_file <- deg_path
+    tag$param$tag_create$temperature_external_file <- deg_path
   }
 
   # Read light
@@ -634,8 +650,8 @@ tag_create_manual <- function(tag,
                               pressure_file = NULL,
                               light_file = NULL,
                               acceleration_file = NULL,
-                              temperature_file = NULL,
-                              airtemperature_file = NULL,
+                              temperature_external_file = NULL,
+                              temperature_internal_file = NULL,
                               magnetic_file = NULL,
                               quiet) {
   # Read Pressure
@@ -672,28 +688,37 @@ tag_create_manual <- function(tag,
   }
 
   # Read acceleration
-  if (!is.null(temperature_file)) {
-    assertthat::assert_that(assertthat::has_name(temperature_file, c("date", "value")))
-    assertthat::assert_that(inherits(temperature_file$date, "POSIXct"))
-    assertthat::assert_that(assertthat::are_equal(attr(temperature_file$date, "tzone"), "UTC"))
-    tag$temperature <- temperature_file
-    tag$param$tag_create$temperature_file <- "manual"
+  if (!is.null(temperature_external_file)) {
+    assertthat::assert_that(assertthat::has_name(temperature_external_file, c("date", "value")))
+    assertthat::assert_that(inherits(temperature_external_file$date, "POSIXct"))
+    assertthat::assert_that(assertthat::are_equal(
+      attr(temperature_external_file$date, "tzone"),
+      "UTC"
+    ))
+    tag$temperature <- temperature_external_file
+    tag$param$tag_create$temperature_external_file <- "manual"
   }
 
   # Read air temperature
-  if (!is.null(airtemperature_file)) {
-    assertthat::assert_that(assertthat::has_name(airtemperature_file, c("date", "value")))
-    assertthat::assert_that(inherits(airtemperature_file$date, "POSIXct"))
-    assertthat::assert_that(assertthat::are_equal(attr(airtemperature_file$date, "tzone"), "UTC"))
-    tag$airtemperature <- airtemperature_file
-    tag$param$tag_create$airtemperature_file <- "manual"
+  if (!is.null(temperature_external_file)) {
+    assertthat::assert_that(assertthat::has_name(temperature_external_file, c("date", "value")))
+    assertthat::assert_that(inherits(temperature_external_file$date, "POSIXct"))
+    assertthat::assert_that(assertthat::are_equal(
+      attr(temperature_external_file$date, "tzone"),
+      "UTC"
+    ))
+    tag$airtemperature <- temperature_external_file
+    tag$param$tag_create$temperature_external_file <- "manual"
   }
 
   # Read magnetism
   if (!is.null(magnetic_file)) {
     assertthat::assert_that(assertthat::has_name(
       magnetic_file,
-      c("date", "mX", "mY", "mZ", "gX", "gY", "gZ")
+      c(
+        "date", "acceleration_x", "acceleration_y", "acceleration_z", "magnetic_x", "magnetic_y",
+        "magnetic_z"
+      )
     ))
     assertthat::assert_that(inherits(magnetic_file$date, "POSIXct"))
     assertthat::assert_that(assertthat::are_equal(attr(magnetic_file$date, "tzone"), "UTC"))
@@ -811,7 +836,8 @@ tag_create_crop <- function(tag,
                             crop_start,
                             crop_end,
                             quiet) {
-  for (sensor in c("pressure", "light", "acceleration", "temperature", "magnetic")) {
+  for (sensor in c("pressure", "light", "acceleration", "temperature_internal",
+                   "temperature_external", "magnetic")) {
     if (sensor %in% names(tag)) {
       # Crop time
       if (!is.null(crop_start)) {

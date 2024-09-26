@@ -78,8 +78,8 @@ plot.tag <- function(x, type = NULL, ...) {
       type <- "light"
     } else if ("acceleration" %in% status) {
       type <- "acceleration"
-    } else if ("temperature" %in% status) {
-      type <- "temperature"
+    } else if ("temperature_external" %in% status) {
+      type <- "temperature_external"
     }
   }
 
@@ -262,6 +262,7 @@ plot_tag_pressure <- function(tag,
 #' This function display a plot of acceleration time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
+#' @param variable type of acceleration variable to plot `"activity"` (or `"value"`) or `"pitch"`
 #' @param plot_plotly logical to use `plotly`
 #' @param label_auto logical to compute and plot the flight label using `tag_label_auto()`. Only if
 #' labels are not already present on tag$acceleration$label
@@ -278,11 +279,18 @@ plot_tag_pressure <- function(tag,
 #'
 #' @export
 plot_tag_acceleration <- function(tag,
+                                  variable = "activity",
                                   plot_plotly = TRUE,
                                   label_auto = TRUE,
                                   min_duration = 30) {
   tag_assert(tag)
   assertthat::assert_that(assertthat::has_name(tag, "acceleration"))
+
+  assertthat::assert_that(variable %in% c("activity", "value", "pitch"))
+
+  if (variable=="activity"){
+    variable = "value"
+  }
 
   # If not label, use default auto_label
   if (!("label" %in% names(tag$acceleration)) && label_auto) {
@@ -292,18 +300,18 @@ plot_tag_acceleration <- function(tag,
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
       data = tag$acceleration,
-      ggplot2::aes(x = .data$date, y = .data$value),
+      ggplot2::aes(x = .data$date, y = .data[[variable]]),
       color = "black"
     ) +
     ggplot2::theme_bw() +
-    ggplot2::scale_y_continuous(name = "Acceleration") +
+    ggplot2::scale_y_continuous(name = glue::glue("Acceleration - {variable}")) +
     ggplot2::theme(legend.position = "none")
 
   if ("label" %in% names(tag$acceleration)) {
     p <- p +
       ggplot2::geom_point(
         data = tag$acceleration[tag$acceleration$label == "flight", ],
-        ggplot2::aes(x = .data$date, y = .data$value),
+        ggplot2::aes(x = .data$date, y = .data[[variable]]),
         fill = "red", shape = 23, size = 2,
       )
   }
@@ -382,6 +390,7 @@ plot_tag_light <- function(tag,
 #' This function display a plot of temperature time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
+#' @param variable temperature variable to plot `"external"` or `"internal"`
 #' @param plot_plotly logical to use `plotly`
 #' @param label_auto logical to compute and plot the flight label using `tag_label_auto()`. Only if
 #' labels are not already present on tag$temperature$label
@@ -398,20 +407,29 @@ plot_tag_light <- function(tag,
 #'
 #' @export
 plot_tag_temperature <- function(tag,
+                                 variable = "external",
                                  plot_plotly = TRUE,
                                  label_auto = TRUE,
                                  min_duration = 30) {
   tag_assert(tag)
-  assertthat::assert_that(assertthat::has_name(tag, "temperature"))
+  if (variable == "external" || variable == "temperature_external") {
+    assertthat::assert_that(assertthat::has_name(tag, "temperature_external"))
+    temp <- tag$temperature_external
+  } else if (variable == "internal" || variable == "temperature_internal") {
+    assertthat::assert_that(assertthat::has_name(tag, "temperature_internal"))
+    temp <- tag$temperature_internal
+  } else {
+    cli::cli_abort("{.field variable} should be either {.val 'external'} or {.val 'internal'}")
+  }
 
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
-      data = tag$temperature,
+      data = temp,
       ggplot2::aes(x = .data$date, y = .data$value),
       color = "black"
     ) +
     ggplot2::theme_bw() +
-    ggplot2::scale_y_continuous(name = "Temparature") +
+    ggplot2::scale_y_continuous(name = variable) +
     ggplot2::theme(legend.position = "none")
 
   if (plot_plotly) {

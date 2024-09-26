@@ -54,16 +54,18 @@ print.tag <- function(x, ...) {
         c("*" = "{.field light}: {format(nrow(tag$light), big.mark = ',')} datapoints")
       )
     }
-    if ("temperature" %in% names(tag)) {
+    if ("temperature_external" %in% names(tag)) {
       cli::cli_bullets(
-        c("*" = "{.field temperature}: {format(nrow(tag$temperature), big.mark = ',')} datapoints")
+        c("*" = "{.field temperature_external}:
+          {format(nrow(tag$temperature_external), big.mark = ',')} datapoints")
       )
     }
-    if ("airtemperature" %in% names(tag)) {
+    if ("temperature_internal" %in% names(tag)) {
       cli::cli_bullets(
         c(
           "*" =
-            "{.field airtemperature}: {format(nrow(tag$airtemperature), big.mark = ',')} datapoints"
+            "{.field temperature_internal}:
+          {format(nrow(tag$temperature_internal), big.mark = ',')} datapoints"
         )
       )
     }

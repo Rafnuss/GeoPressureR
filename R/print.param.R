@@ -33,8 +33,8 @@ print.param <- function(x, ...) {
   bullets(param$tag_create, "pressure_file")
   bullets(param$tag_create, "light_file")
   bullets(param$tag_create, "acceleration_file")
-  bullets(param$tag_create, "temperature_file")
-  bullets(param$tag_create, "airtemperature_file")
+  bullets(param$tag_create, "temperature_external_file")
+  bullets(param$tag_create, "temperature_internal_file")
   bullets(param$tag_create, "magnetic_file")
 
 

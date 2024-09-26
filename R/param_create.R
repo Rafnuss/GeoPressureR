@@ -34,8 +34,8 @@ param_create <- function(id, default = FALSE, ...) {
         pressure_file = formals(tag_create)$pressure_file,
         light_file = formals(tag_create)$light_file,
         acceleration_file = formals(tag_create)$acceleration_file,
-        temperature_file = formals(tag_create)$temperature_file,
-        airtemperature_file = formals(tag_create)$airtemperature_file,
+        temperature_external_file = formals(tag_create)$temperature_external_file,
+        temperature_internal_file = formals(tag_create)$temperature_internal_file,
         magnetic_file = formals(tag_create)$magnetic_file,
         assert_pressure = formals(tag_create)$assert_pressure
       ),
