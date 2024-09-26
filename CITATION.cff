@@ -145,6 +145,18 @@ references:
   year: '2024'
   doi: 10.32614/CRAN.package.cli
 - type: software
+  title: config
+  abstract: 'config: Manage Environment Specific Configuration Values'
+  notes: Imports
+  url: https://rstudio.github.io/config/
+  repository: https://CRAN.R-project.org/package=config
+  authors:
+  - family-names: Allaire
+    given-names: JJ
+    email: jj@rstudio.com
+  year: '2024'
+  doi: 10.32614/CRAN.package.config
+- type: software
   title: ecmwfr
   abstract: 'ecmwfr: Interface to ''ECMWF'' and ''CDS'' Data Web Services'
   notes: Imports

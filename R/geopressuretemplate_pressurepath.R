@@ -1,7 +1,7 @@
 #' @rdname geopressuretemplate
 #' @family geopressuretemplate
 #' @export
-geopressuretemplate_pressurepath <- function(
+geopressuretemplate_pressurepath <- function( # nolint
     id,
     config = config::get(config = id),
     quiet = FALSE,

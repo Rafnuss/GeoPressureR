@@ -139,7 +139,7 @@ reference:
   contents:
   - param_create
   - print.param
-- title: GeoPressureR utilities
+- title: Utilities
   desc: General utility functions of the package.
   contents:
   - stap2flight

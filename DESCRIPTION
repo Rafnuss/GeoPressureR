@@ -17,6 +17,7 @@ Depends:
 Imports: 
     assertthat,
     cli,
+    config,
     ecmwfr (>= 2.0.0),
     EBImage,
     future,
