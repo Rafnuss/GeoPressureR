@@ -16,10 +16,10 @@
 #' https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests)
 #' is used to download all files at the same time (up to 20 requests in parallel).
 #'
-#' To be able to download data from the Climate Data Store (CDS), you will need to create an account
-#' on [https://cds.climate.copernicus.eu](https://cds.climate.copernicus.eu). Once created, you can
-#' retrieve your API key on [https://cds.climate.copernicus.eu/user/
-#' ](https://cds.climate.copernicus.eu/user/) and save them in your environment file
+#' To be able to download data from the Climate Data Store (CDS), you will need to create an ECMWF
+#' account on [https://www.ecmwf.int/](https://www.ecmwf.int/). Once created, you can
+#' retrieve your Personal Access Token on [https://cds.climate.copernicus.eu/profile
+#' ](https://cds.climate.copernicus.eu/profile) and save them in your environment file
 #' (i.e., `.Renviron`). You can open this file with `usethis::edit_r_environ()` and add:
 #' \code{
 #'   cds_token = "{Personal Access Token}"
