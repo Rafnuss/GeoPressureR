@@ -11,6 +11,18 @@ geopressuretemplate_tag <- function(
   # Create the config file
   config <- geopressuretemplate_config(id, config = config, assert_graph = assert_graph, ...)
 
+  # Check if folder exist
+  dir_file <- dirname(file)
+  if (!dir.exists(dir_file)) {
+    cli::cli_inform(c("!" = "The directory {.file {dir_file}} does not exists."))
+    res <- utils::askYesNo("Do you want to create it?")
+    if (res) {
+      dir.create(dir_file)
+    } else {
+      cli::cli_abort("Please create the directory and run the function again.")
+    }
+  }
+
   if (!quiet) {
     cli::cli_h2("Prepare tag")
   }
