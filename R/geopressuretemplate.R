@@ -86,7 +86,6 @@ geopressuretemplate <- function(
     quiet = FALSE,
     file = glue::glue("./data/interim/{id}.RData"),
     ...) {
-
   if (!quiet) {
     cli::cli_h1("Running geopressuretemplate for {id}")
   }
@@ -119,5 +118,4 @@ geopressuretemplate <- function(
   )
 
   invisible(file)
-
 }
