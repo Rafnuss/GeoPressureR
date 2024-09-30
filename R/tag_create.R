@@ -843,10 +843,10 @@ tag_create_crop <- function(tag,
     if (sensor %in% names(tag)) {
       # Crop time
       if (!is.null(crop_start)) {
-        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date >= as.POSIXct(crop_start), ]
+        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date >= as.POSIXct(crop_start, tz="UTC"), ]
       }
       if (!is.null(crop_end)) {
-        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date < as.POSIXct(crop_end), ]
+        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date < as.POSIXct(crop_end, tz="UTC"), ]
       }
 
       if (!quiet) {
