@@ -54,9 +54,9 @@ single file for each flight using the exact time (hourly basis) and pressure (al
 the download more efficient, \href{https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests}{\code{wf_request_batch()}}
 is used to download all files at the same time (up to 20 requests in parallel).
 
-To be able to download data from the Climate Data Store (CDS), you will need to create an account
-on \url{https://cds.climate.copernicus.eu}. Once created, you can
-retrieve your API key on \url{https://cds.climate.copernicus.eu/user/} and save them in your environment file
+To be able to download data from the Climate Data Store (CDS), you will need to create an ECMWF
+account on \url{https://www.ecmwf.int/}. Once created, you can
+retrieve your Personal Access Token on \url{https://cds.climate.copernicus.eu/profile} and save them in your environment file
 (i.e., \code{.Renviron}). You can open this file with \code{usethis::edit_r_environ()} and add:
 \code{
   cds_token = "{Personal Access Token}"

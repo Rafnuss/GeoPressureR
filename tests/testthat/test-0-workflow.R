@@ -73,7 +73,6 @@ test_that("workflow | with elev_", {
 
 
 test_that("workflow | modelled fewer", {
-  geopressuretemplate("18LX", )
   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
   tag <- tag_set_map(tag,
     extent = c(-16, 23, 0, 50),

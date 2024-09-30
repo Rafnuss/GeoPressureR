@@ -86,18 +86,14 @@ geopressuretemplate <- function(
     quiet = FALSE,
     file = glue::glue("./data/interim/{id}.RData"),
     ...) {
-  # con <- file(glue::glue("./data/interim/log_{id}.log"))
-  # sink(con, append=TRUE, split = TRUE)
-  # sink(con, append=TRUE, type="message")
-  # sink(con, append=TRUE, type="output")
 
   if (!quiet) {
     cli::cli_h1("Running geopressuretemplate for {id}")
   }
 
   # Create the tag
-  tag <- geopressuretemplate_tag(
-    id,
+  geopressuretemplate_tag(
+    id = id,
     config = config,
     quiet = quiet,
     saveit = FALSE,
@@ -107,33 +103,21 @@ geopressuretemplate <- function(
 
   # Create and process the graph using the computed or loaded tag
   geopressuretemplate_graph(
-    id,
+    id = id,
     config = config,
-    tag = tag,
-    quiet = quiet,
-    file = file,
-    ...
-  )
-
-  geopressuretemplate_graph(
-    id,
-    config = config,
-    tag = tag,
     quiet = quiet,
     file = file,
     ...
   )
 
   geopressuretemplate_pressurepath(
-    id,
+    id = id,
     config = config,
     quiet = quiet,
     file = file,
     ...
   )
 
-  # sink()
-  # sink(type="message")
-  # sink(type="output")
-  # close(con)
+  invisible(file)
+
 }
