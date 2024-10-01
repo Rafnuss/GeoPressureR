@@ -58,7 +58,5 @@ geopressuretemplate_config <- function(id,
     }
   }
 
-  c$GeoPressureTemplate_version <- utils::packageVersion("GeoPressureTemplate")
-
   return(c)
 }
