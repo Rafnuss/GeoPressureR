@@ -9,7 +9,7 @@ setwd(system.file("extdata", package = "GeoPressureR"))
 tag <- geopressuretemplate_tag("18LX", quiet = TRUE)
 
 test_that("tag_download_wind() | special setting", {
-  tmp <- tag_download_wind(tag, variable = c("u_component_of_wind","v_component_of_wind", "temperature"), include_stap_id = 1)
+  tmp <- tag_download_wind(tag, variable = c("u_component_of_wind", "v_component_of_wind", "temperature"), include_stap_id = 1)
 
   GeoPressureR:::edge_add_wind_check(tag)
 })
