@@ -171,10 +171,19 @@ edge_add_wind <- function(
       nc <- ncdf4::nc_open(file(i_s))
 
       # Read data from netCDF file and convert the time of data to posixt
-      time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60,
-        origin = "1900-01-01", tz = "UTC"
-      )
-      pres <- ncdf4::ncvar_get(nc, "level")
+      # Fix to use the correct time variable ("time" until the new CDS, then "time_valid")
+      if ("time" %in% names(nc$dim)) {
+        time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60, origin = "1900-01-01", tz = "UTC")
+      } else if ("time_valid" %in% names(nc$dim)) {
+        time <- as.POSIXct(ncdf4::ncvar_get(nc, "valid_time"), origin = "1970-01-01", tz = "UTC")
+      } else {
+        cli::cli_abort(c(
+          x = "Time variable not found in {.file {file(i_s)}}",
+          "i" = "Available variable{?s} {?is/are} {.var {names(nc$dim)}}."
+        ))
+      }
+      pres_var <- names(nc$dim)[grepl("*level", names(nc$dim))]
+      pres <- ncdf4::ncvar_get(nc, pres_var)
       lat <- ncdf4::ncvar_get(nc, "latitude")
       dlat <- abs(lat[2] - lat[1])
       lon <- ncdf4::ncvar_get(nc, "longitude")
@@ -461,7 +470,17 @@ edge_add_wind_check <- function(
         ))
       }
 
-      time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60, origin = "1900-01-01", tz = "UTC")
+      # Check that the time is matching
+      if ("time" %in% names(nc$dim)) {
+        time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60, origin = "1900-01-01", tz = "UTC")
+      } else if ("valid_time" %in% names(nc$dim)) {
+        time <- as.POSIXct(ncdf4::ncvar_get(nc, "valid_time"), origin = "1970-01-01", tz = "UTC")
+      } else {
+        cli::cli_abort(c(
+          x = "Time variable not found in {.file {file(i_s)}}",
+          "i" = "Available variable{?s} {?is/are} {.var {names(nc$dim)}}."
+        ))
+      }
       t_s <- as.POSIXct(format(fl_s$start[i_fl], "%Y-%m-%d %H:00:00"), tz = "UTC")
       t_e <- as.POSIXct(format(fl_s$end[i_fl] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
       if (!(min(time) <= t_e && max(time) >= t_s)) {
@@ -472,7 +491,8 @@ edge_add_wind_check <- function(
         ))
       }
 
-      pres <- ncdf4::ncvar_get(nc, "level")
+      pres_var <- names(nc$dim)[grepl("*level", names(nc$dim))]
+      pres <- ncdf4::ncvar_get(nc, pres_var)
       pres_value <- pressure$value[pressure$date > t_s & pressure$date < t_e]
       if (length(pres_value) == 0 ||
         !(min(pres) <= min(pres_value) &&
