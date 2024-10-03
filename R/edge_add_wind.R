@@ -171,10 +171,10 @@ edge_add_wind <- function(
       nc <- ncdf4::nc_open(file(i_s))
 
       # Read data from netCDF file and convert the time of data to posixt
-      # Fix to use the correct time variable ("time" until the new CDS, then "time_valid")
+      # Fix to use the correct time variable ("time" until the new CDS, then "valid_time")
       if ("time" %in% names(nc$dim)) {
         time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60, origin = "1900-01-01", tz = "UTC")
-      } else if ("time_valid" %in% names(nc$dim)) {
+      } else if ("valid_time" %in% names(nc$dim)) {
         time <- as.POSIXct(ncdf4::ncvar_get(nc, "valid_time"), origin = "1970-01-01", tz = "UTC")
       } else {
         cli::cli_abort(c(
