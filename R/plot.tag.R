@@ -26,12 +26,12 @@
 #' @return a plot, ggplotly or leaflet object.
 #'
 #' @examples
-#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |>
-#'   tag_label(quiet = TRUE) |>
-#'   twilight_create() |>
-#'   twilight_label_read()
-#' setwd(owd)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     twilight_create() |>
+#'     twilight_label_read()
+#' })
 #'
 #' # By default, plot will display the time series of pressure
 #' plot(tag)
@@ -130,15 +130,15 @@ plot.tag <- function(x, type = NULL, ...) {
 #'
 #' @family plot_tag
 #' @examples
-#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE)
-#' setwd(owd)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE)
+#' })
 #'
 #' plot_tag_pressure(tag, plot_plotly = FALSE)
 #'
-#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_label(tag, quiet = TRUE)
-#' setwd(owd)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_label(tag, quiet = TRUE)
+#' })
 #'
 #' plot_tag_pressure(tag)
 #' @export
@@ -272,8 +272,9 @@ plot_tag_pressure <- function(tag,
 #'
 #' @family plot_tag
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE)
+#' })
 #'
 #' plot_tag_acceleration(tag)
 #'
@@ -336,8 +337,9 @@ plot_tag_acceleration <- function(tag,
 #'
 #' @family plot_tag
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE)
+#' })
 #'
 #' plot_tag_light(tag)
 #'
@@ -400,8 +402,9 @@ plot_tag_light <- function(tag,
 #'
 #' @family plot_tag
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE)
+#' })
 #'
 #' plot_tag_temperature(tag)
 #'
@@ -453,15 +456,15 @@ plot_tag_temperature <- function(tag,
 #'
 #' @family plot_tag
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE)
 #'
-#' plot_tag_twilight(tag, plot_plotly = TRUE)
+#'   plot_tag_twilight(tag, plot_plotly = TRUE)
 #'
-#' tag <- tag_label(tag, quiet = TRUE)
+#'   tag <- tag_label(tag, quiet = TRUE)
 #'
-#' plot_tag_twilight(tag)
-#'
+#'   plot_tag_twilight(tag)
+#' })
 #' @export
 plot_tag_twilight <- function(tag,
                               twilight_line = NULL,

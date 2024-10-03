@@ -2,7 +2,6 @@
 #' @family geopressuretemplate
 #' @export
 geopressuretemplate_pressurepath <- function(
-    # nolint
     id,
     config = config::get(config = id),
     quiet = FALSE,
@@ -32,7 +31,7 @@ geopressuretemplate_pressurepath <- function(
     if ("most_likely" %in% config$geopressuretemplate$pressurepath &&
       "path_most_likely" %in% save_list) {
       path_most_likely <- get("path_most_likely")
-      pressurepath_most_likely <- pressurepath_create(
+      pressurepath_most_likely <- pressurepath_create( # nolint
         tag,
         path = path_most_likely,
         variable = config$pressurepath_create$variable,
@@ -45,7 +44,7 @@ geopressuretemplate_pressurepath <- function(
     if ("geopressureviz" %in% config$geopressuretemplate$pressurepath &&
       "path_geopressureviz" %in% save_list) {
       path_geopressureviz <- get("path_geopressureviz")
-      pressurepath_geopressureviz <- pressurepath_create(
+      pressurepath_geopressureviz <- pressurepath_create( # nolint
         tag,
         path = path_geopressureviz,
         variable = config$pressurepath_create$variable,

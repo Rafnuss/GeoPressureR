@@ -18,7 +18,7 @@
 #'
 #' Instead of calibrating the twilight errors in terms of duration, we directly model the zenith
 #' angle error. We use a kernel distribution to fit the zenith angle during the known stationary
-#' period(s). The `twl_calib_adjust` parameter allows to manually adjust how smooth you want the
+#' period(s). The `twl_calib_adjust` parameter allows to mararnually adjust how smooth you want the
 #' fit of the zenith angle to be. Because the zenith angle error model is fitted with data from the
 #' calibration site only, and we are using it for all locations of the bird’s journey, it is safer
 #' to assume a broader/smoother distribution.
@@ -33,25 +33,26 @@
 #' @return a `tag` with the likelihood of light as `tag$map_light`
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' # Read geolocator data and build twilight
-#' tag <- tag_create("18LX", quiet = TRUE) |>
-#'   tag_label(quiet = TRUE) |>
-#'   tag_set_map(
-#'     extent = c(-16, 23, 0, 50),
-#'     scale = 10,
-#'     known = data.frame(
-#'       stap_id = 1,
-#'       known_lon = 17.05,
-#'       known_lat = 48.9
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   # Read geolocator data and build twilight
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     tag_set_map(
+#'       extent = c(-16, 23, 0, 50),
+#'       scale = 10,
+#'       known = data.frame(
+#'         stap_id = 1,
+#'         known_lon = 17.05,
+#'         known_lat = 48.9
+#'       )
 #'     )
-#'   )
 #'
-#' # Compute the twilight
-#' tag <- twilight_create(tag) |> twilight_label_read()
+#'   # Compute the twilight
+#'   tag <- twilight_create(tag) |> twilight_label_read()
 #'
-#' # Compute likelihood map
-#' tag <- geolight_map(tag, quiet = TRUE)
+#'   # Compute likelihood map
+#'   tag <- geolight_map(tag, quiet = TRUE)
+#' })
 #'
 #' plot(tag, type = "map_light")
 #' @family geolight

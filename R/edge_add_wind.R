@@ -16,10 +16,9 @@
 #' @param pressure pressure measurement of the associated `tag` data used to estimate the pressure
 #' level (i.e., altitude) of the bird during the flights. This data.frame needs to contain `date` as
 #' POSIXt and `value` in hPa.
-#' @param variable list of the variables to extract from [the ERA5 pressure level](
-#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9) # nolint
-#' using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`, , `"w"`, `"ciwc"`, `"clwc"`,
-#'  `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `'vo"`.
+#' @param variable list of the variables to extract from [the ERA5 pressure level
+#' ](https://bit.ly/3BrwLBM) using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`,
+#' `"w"`, `"ciwc"`, `"clwc"`, `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `'vo"`.
 #' @param rounding_interval temporal resolution on which to query the variable (min). Default is to
 #' macth ERA5 native resolution (1hr).
 #' @param interp_spatial_linear logical to interpolate the variable linearly over space, if `FALSE`
@@ -173,7 +172,9 @@ edge_add_wind <- function(
       # Read data from netCDF file and convert the time of data to posixt
       # Fix to use the correct time variable ("time" until the new CDS, then "valid_time")
       if ("time" %in% names(nc$dim)) {
-        time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60, origin = "1900-01-01", tz = "UTC")
+        time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60,
+          origin = "1900-01-01", tz = "UTC"
+        )
       } else if ("valid_time" %in% names(nc$dim)) {
         time <- as.POSIXct(ncdf4::ncvar_get(nc, "valid_time"), origin = "1970-01-01", tz = "UTC")
       } else {
@@ -472,7 +473,9 @@ edge_add_wind_check <- function(
 
       # Check that the time is matching
       if ("time" %in% names(nc$dim)) {
-        time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60, origin = "1900-01-01", tz = "UTC")
+        time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60,
+          origin = "1900-01-01", tz = "UTC"
+        )
       } else if ("valid_time" %in% names(nc$dim)) {
         time <- as.POSIXct(ncdf4::ncvar_get(nc, "valid_time"), origin = "1970-01-01", tz = "UTC")
       } else {

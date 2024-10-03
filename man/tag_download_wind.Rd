@@ -24,12 +24,12 @@ Vector of length 4 \code{c(xmin, xmax, ymin, ymax)} or \code{c(W, E, S, N)}.}
 \item{include_stap_id}{stationary period identifiers of the start of the flight to download.
 Default is to download all flights.}
 
-\item{variable}{list of variables to download from \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level} # nolint
-: \code{"u_component_of_wind"}, \code{"v_component_of_wind"},  \code{"temperature"}, \code{"fraction_of_cloud_cover"}
-, \code{"relative_humidity"}, , \code{"vertical_velocity"}, \code{"specific_cloud_ice_water_content"},
-\code{"specific_cloud_liquid_water_content"}, \code{"specific_humidity"}, \code{"specific_rain_water_content"},
-\code{"specific_snow_water_content"}, \code{"divergence"}, \code{"geopotential"}, \code{"ozone_mass_mixing_ratio"},
-\code{"potential_vorticity"}, \verb{'vorticity"}.}
+\item{variable}{list of variables to download from \href{https://bit.ly/3BrwLBM}{the ERA5 pressure level }: \code{"u_component_of_wind"}, \code{"v_component_of_wind"},  \code{"temperature"},
+\code{"fraction_of_cloud_cover"}, \code{"relative_humidity"}, , \code{"vertical_velocity"},
+\code{"specific_cloud_ice_water_content"}, \code{"specific_cloud_liquid_water_content"},
+\code{"specific_humidity"}, \code{"specific_rain_water_content"}, \code{"specific_snow_water_content"},
+\code{"divergence"}, \code{"geopotential"}, \code{"ozone_mass_mixing_ratio"}, \code{"potential_vorticity"},
+\verb{'vorticity"}.}
 
 \item{cds_token}{CDS Personal Access Token available from \href{https://cds.climate.copernicus.eu/user/}{your user page }. See \code{wf_set_key()}.}
 
@@ -46,8 +46,7 @@ information
 This function download data associated to each flight from the \href{https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview}{ERA5 hourly pressure levels}
 with the \href{https://cds.climate.copernicus.eu/}{Climate Data Store (CDS)} and through the \href{https://bluegreen-labs.github.io/ecmwfr/index.html}{\code{ecmwfr} R package}.
 
-\href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#ERA5:datadocumentation-Table9}{Any variable available from the ERA5 pressure level} # nolint
-can be downloaded.
+\href{https://bit.ly/3BrwLBM}{Any variable available from the ERA5 pressure level} can be downloaded.
 
 The flights are determined from the stationary periods classified \code{tag$stap}. It request a
 single file for each flight using the exact time (hourly basis) and pressure (altitude). To make

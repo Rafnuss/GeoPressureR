@@ -15,7 +15,7 @@
 #' @return A GeoPressureR `param` list
 #'
 #' @examples
-#' param <- param_create("18LX", extent = c(0, 0, 1, 1))
+#' param <- param_create("18LX", default = TRUE)
 #' print(param)
 #'
 #' @family param

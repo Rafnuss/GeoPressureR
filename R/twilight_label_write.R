@@ -10,14 +10,15 @@
 #' @return None
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |>
-#'   tag_label(quiet = TRUE) |>
-#'   twilight_create()
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     twilight_create()
 #'
-#' label_file <- twilight_label_write(tag)
+#'   label_file <- twilight_label_write(tag)
 #'
-#' str(read.csv(label_file))
+#'   str(read.csv(label_file))
+#' })
 #' @family geolight
 #' @export
 twilight_label_write <- function(tag,

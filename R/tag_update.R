@@ -16,20 +16,21 @@
 #'
 #' @return The updated `tag` object
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |>
-#'   tag_label(quiet = TRUE) |>
-#'   tag_set_map(extent = c(-16, 23, 0, 50), scale = 1) |>
-#'   geopressure_map(quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     tag_set_map(extent = c(-16, 23, 0, 50), scale = 1) |>
+#'     geopressure_map(quiet = TRUE)
 #'
-#' print(tag)
+#'   print(tag)
 #'
-#' tag <- tag_update(tag,
-#'   file = "./data/tag-label/18LX-labeled-updated.csv",
-#'   quiet = TRUE
-#' )
+#'   tag <- tag_update(tag,
+#'     file = "./data/tag-label/18LX-labeled-updated.csv",
+#'     quiet = TRUE
+#'   )
 #'
-#' print(tag)
+#'   print(tag)
+#' })
 #' @family tag
 #' @export
 tag_update <- function(tag,

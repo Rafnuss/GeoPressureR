@@ -29,11 +29,12 @@
 #' `"flight"` in the acceleration data.frame when a sustained high-activity period is detected.
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE)
 #'
-#' tag <- tag_label_auto(tag, min_duration = 15)
-#' str(tag$acceleration)
+#'   tag <- tag_label_auto(tag, min_duration = 15)
+#'   str(tag$acceleration)
+#' })
 #'
 #' @family tag_label
 #' @seealso [GeoPressureManual](https://bit.ly/45bthNt)

@@ -30,15 +30,15 @@ a plot or ggplotly object.
 This function display a plot of pressure time series recorded by a tag
 }
 \examples{
-owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE)
-setwd(owd)
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE)
+})
 
 plot_tag_pressure(tag, plot_plotly = FALSE)
 
-owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_label(tag, quiet = TRUE)
-setwd(owd)
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_label(tag, quiet = TRUE)
+})
 
 plot_tag_pressure(tag)
 }

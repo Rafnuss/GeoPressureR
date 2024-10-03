@@ -53,7 +53,7 @@
 #'     - `graph_most_likely()`: Computes the most likely path based on the movement model.
 #' 6. If `"simulation"` is in `config$geopressuretemplate$outputs`:
 #'     - `graph_simulation()`: Runs simulations to model multiple possible paths.
-#' 7. \*`save()`: Saves the computed graph and associated objects in `data/interim/{id}.Rdata`
+#' 7. `save()`: Saves the computed graph and associated objects in `data/interim/{id}.Rdata`
 #'
 #' * **Pressure Path Processing [`geopressuretemplate_pressurepath()`]**: Computes pressurepaths
 #' (`pressurepath_create`) using the content of the `Rdata` file and appending the pressurepath
@@ -75,7 +75,7 @@
 #' @examples
 #' \dontrun{
 #' # Run the complete geopressuretemplate workflow
-#' geopressuretemplate("example_id", quiet = TRUE)
+#' geopressuretemplate("18LX", quiet = TRUE)
 #' }
 #'
 #' @family geopressuretemplate

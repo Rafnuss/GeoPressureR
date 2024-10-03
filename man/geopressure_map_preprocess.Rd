@@ -27,9 +27,9 @@ This function is used within \code{\link[=geopressure_map_mismatch]{geopressure_
 pressure data sent to the GeoPressureAPI.
 }
 \examples{
-owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
-setwd(owd)
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+})
 
 pressure_processed <- geopressure_map_preprocess(tag)
 str(pressure_processed)

@@ -30,17 +30,18 @@
 #' grouped by elevation layer (`elev_*`)
 #' - `stap_id` stationary period of the measurement matching the `tag$stap`.
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE)
 #'
-#' print(tag)
+#'   print(tag)
 #'
-#' tag <- tag_label(tag)
+#'   tag <- tag_label(tag)
 #'
-#' print(tag)
+#'   print(tag)
 #'
-#' # The labelled `tag` contains additional column on the sensor data.frame
-#' str(tag)
+#'   # The labelled `tag` contains additional column on the sensor data.frame
+#'   str(tag)
+#' })
 #'
 #' @family tag_label
 #' @seealso [GeoPressureManual

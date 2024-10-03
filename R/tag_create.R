@@ -88,42 +88,42 @@
 #' - `magnetic` (optional) data.frame with columns: `date`, `mX`, `mY`, `mZ`, `gX`, `gY` and `gZ`
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   # Read all sensor file
+#'   tag <- tag_create("18LX")
 #'
-#' # Read all sensor file
-#' tag <- tag_create("18LX")
+#'   print(tag)
 #'
-#' print(tag)
+#'   # Read only pressure and crop date
+#'   tag <- tag_create("18LX",
+#'     light_file = NULL,
+#'     acceleration_file = NULL,
+#'     crop_start = "2017-08-01",
+#'     crop_end = "2017-08-05"
+#'   )
 #'
-#' # Read only pressure and crop date
-#' tag <- tag_create("18LX",
-#'   light_file = NULL,
-#'   acceleration_file = NULL,
-#'   crop_start = "2017-08-01",
-#'   crop_end = "2017-08-05"
-#' )
+#'   print(tag)
 #'
-#' print(tag)
+#'   # You can also specify the exact file in case multiple files with the
+#'   # same extension exist in your directory (migratetech data)
+#'   tag <- tag_create("CB621",
+#'     pressure_file = "CB621_BAR.deg",
+#'     light_file = "CB621.lux",
+#'     acceleration_file = NULL
+#'   )
 #'
-#' # You can also specify the exact file in case multiple files with the
-#' # same extension exist in your directory (migratetech data)
-#' tag <- tag_create("CB621",
-#'   pressure_file = "CB621_BAR.deg",
-#'   light_file = "CB621.lux",
-#'   acceleration_file = NULL
-#' )
+#'   print(tag)
 #'
-#' print(tag)
-#'
-#' # You can specify the data manually with
-#' pressure <- data.frame(
-#'   date = as.POSIXct(c(
-#'     "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
-#'     "2017-06-20 02:00:00 UTC", "2017-06-20 03:00:00 UTC"
-#'   ), tz = "UTC"),
-#'   value = c(1000, 1000, 1000, 1000)
-#' )
-#' tag_create(id = "xxx", pressure_file = pressure)
+#'   # You can specify the data manually with
+#'   pressure <- data.frame(
+#'     date = as.POSIXct(c(
+#'       "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
+#'       "2017-06-20 02:00:00 UTC", "2017-06-20 03:00:00 UTC"
+#'     ), tz = "UTC"),
+#'     value = c(1000, 1000, 1000, 1000)
+#'   )
+#'   tag_create(id = "xxx", pressure_file = pressure)
+#' })
 #'
 #' @family tag
 #' @seealso [GeoPressureManual](https://bit.ly/4462jpr)

@@ -67,15 +67,15 @@ projection with a finer resolution. The argument \code{fac_res_proj} controls th
 resolution between the original map to the projected map.
 }
 \examples{
-owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE) |>
-  tag_label(quiet = TRUE) |>
-  tag_set_map(
-    extent = c(-16, 23, 0, 50),
-    scale = 4
-  ) |>
-  geopressure_map(quiet = TRUE)
-setwd(owd)
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |>
+    tag_label(quiet = TRUE) |>
+    tag_set_map(
+      extent = c(-16, 23, 0, 50),
+      scale = 4
+    ) |>
+    geopressure_map(quiet = TRUE)
+})
 
 plot(tag$map_pressure)
 

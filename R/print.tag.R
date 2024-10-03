@@ -8,9 +8,9 @@
 #' @return `tag` is returned invisibly and unchanged
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#'
-#' tag <- tag_create("18LX", quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE)
+#' })
 #'
 #' print(tag)
 #'

@@ -37,10 +37,11 @@ modified map object
 This function plots a \code{path} data.frame. This function is used in \code{\link[=plot.map]{plot.map()}}.
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE) |>
-  tag_label(quiet = TRUE) |>
-  tag_set_map(c(-16, 23, 0, 50), scale = 1)
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |>
+    tag_label(quiet = TRUE) |>
+    tag_set_map(c(-16, 23, 0, 50), scale = 1)
+})
 path <- ind2path(c(1652, 1603, 1755, 1708, 1607), tag)
 
 plot_path(path)

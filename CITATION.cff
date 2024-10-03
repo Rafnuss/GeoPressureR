@@ -122,17 +122,6 @@ references:
   year: '2024'
   version: '>= 4.1.0'
 - type: software
-  title: assertthat
-  abstract: 'assertthat: Easy Pre and Post Assertions'
-  notes: Imports
-  repository: https://CRAN.R-project.org/package=assertthat
-  authors:
-  - family-names: Wickham
-    given-names: Hadley
-    email: hadley@rstudio.com
-  year: '2024'
-  doi: 10.32614/CRAN.package.assertthat
-- type: software
   title: cli
   abstract: 'cli: Helpers for Developing Command Line Interfaces'
   notes: Imports
@@ -167,9 +156,9 @@ references:
     given-names: Koen
     email: koen.hufkens@gmail.com
     orcid: https://orcid.org/0000-0002-5070-8109
+  year: '2024'
   doi: 10.32614/CRAN.package.ecmwfr
   version: '>= 2.0.0'
-  year: '2024'
 - type: software
   title: EBImage
   abstract: 'EBImage: Image processing and analysis toolbox for R'
@@ -296,7 +285,7 @@ references:
   authors:
   - family-names: Ooms
     given-names: Jeroen
-    email: jeroen@berkeley.edu
+    email: jeroenooms@gmail.com
     orcid: https://orcid.org/0000-0002-4035-0289
   year: '2024'
   doi: 10.32614/CRAN.package.jsonlite
@@ -322,6 +311,22 @@ references:
   year: '2024'
   doi: 10.32614/CRAN.package.leaflet
   version: '>= 2.2.0'
+- type: software
+  title: lifecycle
+  abstract: 'lifecycle: Manage the Life Cycle of your Package Functions'
+  notes: Imports
+  url: https://lifecycle.r-lib.org/
+  repository: https://CRAN.R-project.org/package=lifecycle
+  authors:
+  - family-names: Henry
+    given-names: Lionel
+    email: lionel@posit.co
+  - family-names: Wickham
+    given-names: Hadley
+    email: hadley@posit.co
+    orcid: https://orcid.org/0000-0003-4757-117X
+  year: '2024'
+  doi: 10.32614/CRAN.package.lifecycle
 - type: software
   title: Matrix
   abstract: 'Matrix: Sparse and Dense Matrix Classes and Methods'
@@ -468,21 +473,16 @@ references:
     address: Vienna, Austria
   year: '2024'
 - type: software
-  title: lifecycle
-  abstract: 'lifecycle: Manage the Life Cycle of your Package Functions'
-  notes: Imports
-  url: https://lifecycle.r-lib.org/
-  repository: https://CRAN.R-project.org/package=lifecycle
+  title: assertthat
+  abstract: 'assertthat: Easy Pre and Post Assertions'
+  notes: Suggests
+  repository: https://CRAN.R-project.org/package=assertthat
   authors:
-  - family-names: Henry
-    given-names: Lionel
-    email: lionel@posit.co
   - family-names: Wickham
     given-names: Hadley
-    email: hadley@posit.co
-    orcid: https://orcid.org/0000-0003-4757-117X
+    email: hadley@rstudio.com
   year: '2024'
-  doi: 10.32614/CRAN.package.lifecycle
+  doi: 10.32614/CRAN.package.assertthat
 - type: software
   title: BiocManager
   abstract: 'BiocManager: Access the Bioconductor Project Package Repository'
@@ -668,4 +668,29 @@ references:
   year: '2024'
   doi: 10.32614/CRAN.package.testthat
   version: '>= 3.0.0'
+- type: software
+  title: withr
+  abstract: 'withr: Run Code ''With'' Temporarily Modified Global State'
+  notes: Suggests
+  url: https://withr.r-lib.org
+  repository: https://CRAN.R-project.org/package=withr
+  authors:
+  - family-names: Hester
+    given-names: Jim
+  - family-names: Henry
+    given-names: Lionel
+    email: lionel@posit.co
+  - family-names: Müller
+    given-names: Kirill
+    email: krlmlr+r@mailbox.org
+  - family-names: Ushey
+    given-names: Kevin
+    email: kevinushey@gmail.com
+  - family-names: Wickham
+    given-names: Hadley
+    email: hadley@posit.co
+  - family-names: Chang
+    given-names: Winston
+  year: '2024'
+  doi: 10.32614/CRAN.package.withr
 

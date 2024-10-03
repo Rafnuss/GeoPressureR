@@ -130,7 +130,7 @@ marginal distributions, most likely paths, and simulation paths can be computed.
 \itemize{
 \item \code{graph_simulation()}: Runs simulations to model multiple possible paths.
 }
-\item \*\code{save()}: Saves the computed graph and associated objects in \verb{data/interim/\{id\}.Rdata}
+\item \code{save()}: Saves the computed graph and associated objects in \verb{data/interim/\{id\}.Rdata}
 }
 \itemize{
 \item \strong{Pressure Path Processing \code{\link[=geopressuretemplate_pressurepath]{geopressuretemplate_pressurepath()}}}: Computes pressurepaths
@@ -150,7 +150,7 @@ the \code{geopressuretemplate} workflow.
 \examples{
 \dontrun{
 # Run the complete geopressuretemplate workflow
-geopressuretemplate("example_id", quiet = TRUE)
+geopressuretemplate("18LX", quiet = TRUE)
 }
 
 }

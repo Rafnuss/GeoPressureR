@@ -91,7 +91,7 @@ geopressuretemplate_graph <- function(
 
 
   # Store the graph parameters
-  param <- graph$param
+  param <- graph$param # nolint
 
   # Initialize a list to keep track of outputs to be saved
   save_list <- c("tag", "param")
@@ -103,7 +103,7 @@ geopressuretemplate_graph <- function(
         if (!quiet) {
           cli::cli_h2("Compute marginal map")
         }
-        marginal <- graph_marginal(graph, quiet = quiet)
+        marginal <- graph_marginal(graph, quiet = quiet) # nolint
         save_list <- c(save_list, "marginal")
       }
 
@@ -113,7 +113,7 @@ geopressuretemplate_graph <- function(
           cli::cli_h2("Compute most likely path")
         }
         path_most_likely <- graph_most_likely(graph, quiet = quiet)
-        edge_most_likely <- path2edge(path_most_likely, graph)
+        edge_most_likely <- path2edge(path_most_likely, graph) # nolint
         save_list <- c(save_list, "path_most_likely", "edge_most_likely")
       }
 
@@ -127,7 +127,7 @@ geopressuretemplate_graph <- function(
           nj = config$graph_simulation$nj,
           quiet = quiet
         )
-        edge_simulation <- path2edge(path_simulation, graph)
+        edge_simulation <- path2edge(path_simulation, graph) # nolint
         save_list <- c(save_list, "path_simulation", "edge_simulation")
       }
     },
