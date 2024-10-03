@@ -86,7 +86,7 @@ Positions during the flight are estimated by linear interpolation of the positio
 before and after. \code{pressurepath_create()} does not return measurement for stationary periods
 which are not provided in \code{path} as well as the flight before and after.
 
-\code{pressurepath_create()} also return the altitude of the bird along its trajectory. The altitude
+also return the altitude of the bird along its trajectory. The altitude
 \eqn{z_{tag}} (a.s.l.) is computed from the tag pressure \eqn{P_{tag}}, using the barometric
 equation \deqn{ z_{{tag}}(x)=z_{ERA5}(x) + \frac{T_{ERA5}(x)}{L_b}  \left(
 \frac{P_{tag}}{P_{ERA5}(x)} \right)^{\frac{RL_b}{g M}-1},}
@@ -101,6 +101,10 @@ the tag pressure \eqn{P_{tag}}, the function also returns the ERA pressure norma
 the tag mean pressure measurement as \code{surface_pressure_norm}.
 \deqn{ P_{ERA5,0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{tag}[t]\right) -
 \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\boldsymbol{x})[i]-P_{tag}[i] \right).}
+
+\code{pressurepath_create()} also computes the local sunrise and sunset times for each timestep
+according to the position of the path using \code{path2twilight()}. Sunrise and sunset are defined
+by the solar depression angle \code{solar_dep}.
 }
 \examples{
 setwd(system.file("extdata", package = "GeoPressureR"))
