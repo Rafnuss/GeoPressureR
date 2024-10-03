@@ -1,3 +1,27 @@
+# GeoPressureR v3.3
+
+## Major
+- Read all sensors type and allow reading sensor without pressure `assert_pressure = FALSE` (https://github.com/Rafnuss/GeoPressureR/pull/123/commits/d11f8cc4774b4c91c27318c43d438823b681066e, https://github.com/Rafnuss/GeoPressureR/pull/123/commits/85ffe940ec46af8cd56592c2d641f25d19712129)
+- [Update to ecmwfr v2. Change to cds_token](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/4253e04f9ed16e3b06d45edfda0b2a0900d31d0c)
+- [Improvement of tag_label_auto() with post-processing step](https://github.com/Rafnuss/GeoPressureR/commit/69c26adf559fc1bc7c2690346de41f6732f9eda5)
+- [Create path2twilight.R](https://github.com/Rafnuss/GeoPressureR/commit/eff97315c5eca3dff03736e7d40efad30b209819) and [Add twilight_line in plot_twilight](https://github.com/Rafnuss/GeoPressureR/commit/b21aa06ceff257ec4473a3af530a8ba7cef5e225)
+
+## Minor:
+- [Fix issue with tag_plot_twilight() when twilight was not yet computed](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/6de3af2a97e27763c5a70a0e570c91921b699f01)
+- [Update documentation of windsupport/drift](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/93ec8a579e12fb39fe034d108f8afa89150e700d)
+- [Make twilight works with NA in light](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/3a704fd054127cbc72e303091a4755bcbd31eaf0)
+- [Add type to path as attribute](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/e900e518d39a0e1b44a98f98b81aa1ffef17c760)
+- [Accept known as list and convert it if so](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/22307d41014da8c2ddfbd10861078f89b7426451)
+- [Fix bug in compute_known in geolight_map()](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/e4b02796a8932f014aaa0fc212631d1dd24c8a52)
+- Improve progress_bar, remove extra `\f`, improve `print` 
+- [Change default map height](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/7fc311be6cacafef9c3954700f1deb68f97c77b2)
+- [fix plot_twilight() for twl_offset](https://github.com/Rafnuss/GeoPressureR/commit/2734537e7997555200f05eb30b451520e1c1cfb7)
+- [update all actions](https://github.com/Rafnuss/GeoPressureR/commit/076b3568d191e60d96a3a4703b7709a947dae66c)
+
+## Full Changelog
+
+[https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0...v3.3.0](https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0...v3.3.0)
+
 # GeoPressureR v3.2
 ## Major
 - Use the new GeoPressureAPI pressurepath entry point for `geopressurepath_create()`
@@ -21,9 +45,9 @@
 - Only download wind data for non-existing file by default (instead of all flights) https://github.com/Rafnuss/GeoPressureR/commit/b6a2c41420bef2354a9ace640adffcb4e79e1aa1
 - Remove `pressurepath2altitude()` now computed in `pressurepath_create()`
 
-**Full Changelog**: https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0...v3.1.0
 ## Full Changelog
-[https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0...v3.1.0](https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0...v3.1.0)
+
+[https://github.com/Rafnuss/GeoPressureR/compare/v3.1.0...v3.2.0](https://github.com/Rafnuss/GeoPressureR/compare/v3.1.0...v3.2.0)
 
 
 # GeoPressureR v3.1
