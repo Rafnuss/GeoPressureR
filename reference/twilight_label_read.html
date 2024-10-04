@@ -15,7 +15,7 @@ and update the twilight data tag$twilight."><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,7 +36,7 @@ and update the twilight data tag$twilight."><meta property="og:image" content="h
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Read a twilight label file</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.3.0/R/twilight_label_read.R" class="external-link"><code>R/twilight_label_read.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/twilight_label_read.R" class="external-link"><code>R/twilight_label_read.R</code></a></small>
       <div class="d-none name"><code>twilight_label_read.Rd</code></div>
     </div>
 
@@ -79,13 +79,13 @@ and update the twilight data <code>tag$twilight</code>.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">owd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_create.html">tag_create</a></span><span class="op">(</span><span class="st">"18LX"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="tag_label.html">tag_label</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="twilight_create.html">twilight_create</a></span><span class="op">(</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_dir.html" class="external-link">with_dir</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span>, <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_create.html">tag_create</a></span><span class="op">(</span><span class="st">"18LX"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="tag_label.html">tag_label</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="twilight_create.html">twilight_create</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">tag_labelled</span> <span class="op">&lt;-</span> <span class="fu">twilight_label_read</span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="va">owd</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">tag_labelled</span> <span class="op">&lt;-</span> <span class="fu">twilight_label_read</span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tag</span>, type <span class="op">=</span> <span class="st">"twilight"</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Before label"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="twilight_label_read-1.png" alt="" width="700" height="433"></span>

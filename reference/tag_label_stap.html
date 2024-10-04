@@ -29,7 +29,7 @@ will be computed from it, otherwise, it uses the pressure data.frame.'><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,7 @@ will be computed from it, otherwise, it uses the pressure data.frame.'><meta pro
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Create stationary periods from a tag label</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.3.0/R/tag_label_stap.R" class="external-link"><code>R/tag_label_stap.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/tag_label_stap.R" class="external-link"><code>R/tag_label_stap.R</code></a></small>
       <div class="d-none name"><code>tag_label_stap.Rd</code></div>
     </div>
 
@@ -114,55 +114,57 @@ column <code>stap_id</code> for each sensor data.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_create.html">tag_create</a></span><span class="op">(</span><span class="st">"18LX"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="tag_label_read.html">tag_label_read</a></span><span class="op">(</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_dir.html" class="external-link">with_dir</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span>, <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_create.html">tag_create</a></span><span class="op">(</span><span class="st">"18LX"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="tag_label_read.html">tag_label_read</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu">tag_label_stap</span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu">tag_label_stap</span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">tag</span><span class="op">$</span><span class="va">stap</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Short stationary periods (<span style="font-weight: bold;">&lt;6hr</span>): ────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> All 5 stationary periods duration are above 6 hours.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Short flights (<span style="font-weight: bold;">&lt;2hr</span>): ───────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> All 4 flights duration are above 2 hours.</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> List of 6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ param       :List of 9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ param               :List of 4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ id                  : chr "18LX"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ GeoPressureR_version:Classes 'package_version', 'numeric_version'  hidden list of 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int [1:3] 3 3 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pressure_file       : chr "./data/raw-tag/18LX/18LX_20180725.pressure"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ light_file          : chr "./data/raw-tag/18LX/18LX_20180725.glf"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ acceleration_file   : chr "./data/raw-tag/18LX/18LX_20180725.acceleration"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ temperature_file    : chr "./data/raw-tag/18LX/18LX_20180725.temperature"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ manufacturer        : chr "soi"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ directory           : 'glue' chr "./data/raw-tag/18LX"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int [1:3] 3 3 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ tag_create          :List of 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ pressure_file            : chr "./data/raw-tag/18LX/18LX_20180725.pressure"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ light_file               : chr "./data/raw-tag/18LX/18LX_20180725.glf"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ acceleration_file        : chr "./data/raw-tag/18LX/18LX_20180725.acceleration"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ temperature_external_file: chr "./data/raw-tag/18LX/18LX_20180725.temperature"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ manufacturer             : chr "soi"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ directory                : 'glue' chr "./data/raw-tag/18LX"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ label_file          : 'glue' chr "./data/tag-label/18LX-labeled.csv"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "class")= chr "param"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure    :'data.frame':	672 obs. of  4 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure            :'data.frame':	672 obs. of  4 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ date   : POSIXct[1:672], format: "2017-07-27 00:00:00" "2017-07-27 00:30:00" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ value  : int [1:672] 989 989 990 990 989 989 990 990 991 990 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ label  : chr [1:672] "" "" "" "" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stap_id: num [1:672] 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ light       :'data.frame':	4032 obs. of  3 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ light               :'data.frame':	4032 obs. of  3 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ date   : POSIXct[1:4032], format: "2017-07-27 00:00:00" "2017-07-27 00:05:00" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ value  : int [1:4032] 0 0 0 0 0 0 0 0 0 0 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stap_id: num [1:4032] 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ acceleration:'data.frame':	4032 obs. of  5 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ acceleration        :'data.frame':	4032 obs. of  5 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ date   : POSIXct[1:4032], format: "2017-07-27 00:00:00" "2017-07-27 00:05:00" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ value  : int [1:4032] 0 0 0 0 0 0 0 0 0 0 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pitch  : int [1:4032] 26 27 27 28 28 28 28 27 28 27 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ label  : chr [1:4032] "" "" "" "" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stap_id: num [1:4032] 1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ temperature :'data.frame':	2448 obs. of  2 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ temperature_external:'data.frame':	2448 obs. of  2 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ date : POSIXct[1:2448], format: "2017-06-20 00:00:00" "2017-06-20 00:30:00" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ value: int [1:2448] 32 32 32 32 32 33 33 32 33 32 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ stap        :'data.frame':	5 obs. of  3 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ stap                :'data.frame':	5 obs. of  3 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stap_id: num [1:5] 1 2 3 4 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ start  : POSIXct[1:5], format: "2017-07-26 23:57:30" "2017-08-04 23:17:30" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ end    : POSIXct[1:5], format: "2017-08-04 19:47:30" "2017-08-05 19:27:30" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "class")= chr "tag"</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">tag</span><span class="op">$</span><span class="va">stap</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 'data.frame':	5 obs. of  3 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ stap_id: num  1 2 3 4 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ start  : POSIXct, format: "2017-07-26 23:57:30" "2017-08-04 23:17:30" ...</span>

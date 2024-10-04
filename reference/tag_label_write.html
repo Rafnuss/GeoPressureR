@@ -21,7 +21,7 @@ series to be visualized on TRAINSET, but without impacting the labelling process
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,7 +42,7 @@ series to be visualized on TRAINSET, but without impacting the labelling process
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Write a tag label file</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.3.0/R/tag_label_write.R" class="external-link"><code>R/tag_label_write.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/tag_label_write.R" class="external-link"><code>R/tag_label_write.R</code></a></small>
       <div class="d-none name"><code>tag_label_write.Rd</code></div>
     </div>
 
@@ -95,27 +95,28 @@ series to be visualized on TRAINSET, but without impacting the labelling process
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_create.html">tag_create</a></span><span class="op">(</span><span class="st">"18LX"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_dir.html" class="external-link">with_dir</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span>, <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_create.html">tag_create</a></span><span class="op">(</span><span class="st">"18LX"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Writing unlabelled tag will initialize the labelling for trainset</span></span></span>
-<span class="r-in"><span><span class="fu">tag_label_write</span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># Writing unlabelled tag will initialize the labelling for trainset</span></span></span>
+<span class="r-in"><span>  <span class="fu">tag_label_write</span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Writing unlabelled tag will initialize the labelling for trainset</span></span></span>
+<span class="r-in"><span>  <span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_label_auto.html">tag_label_auto</a></span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">tag_label_write</span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Writing labelled tag will use the existing labels</span></span></span>
+<span class="r-in"><span>  <span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_label.html">tag_label</a></span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">tag_label_write</span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> No label data.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> → Initialize automatically label using `tag_label_auto()`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">./data/tag-label/18LX.csv</span> written successfully.</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Writing unlabelled tag will initialize the labelling for trainset</span></span></span>
-<span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_label_auto.html">tag_label_auto</a></span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">tag_label_write</span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">./data/tag-label/18LX.csv</span> written successfully.</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Writing labelled tag will use the existing labels</span></span></span>
-<span class="r-in"><span><span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_label.html">tag_label</a></span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Short stationary periods (<span style="font-weight: bold;">&lt;6hr</span>): ────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> All 5 stationary periods duration are above 6 hours.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Short flights (<span style="font-weight: bold;">&lt;2hr</span>): ───────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> All 4 flights duration are above 2 hours.</span>
-<span class="r-in"><span><span class="fu">tag_label_write</span><span class="op">(</span><span class="va">tag</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">./data/tag-label/18LX.csv</span> written successfully.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

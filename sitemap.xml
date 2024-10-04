@@ -5,6 +5,7 @@
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/authors.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/index.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/news/index.html</loc></url>
+<url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/GeoPressureR-package.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/GeoPressureR.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/bird_create.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/edge_add_wind.html</loc></url>
@@ -12,6 +13,7 @@
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map_preprocess.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_timeseries.html</loc></url>
+<url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressuretemplate.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/geopressureviz.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/graph_add_wind.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/graph_assert.html</loc></url>

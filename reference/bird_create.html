@@ -21,7 +21,7 @@ name from the Clements Checklist."><meta property="og:image" content="https://ra
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,7 +42,7 @@ name from the Clements Checklist."><meta property="og:image" content="https://ra
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Create bird flight traits</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.3.0/R/bird_create.R" class="external-link"><code>R/bird_create.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/bird_create.R" class="external-link"><code>R/bird_create.R</code></a></small>
       <div class="d-none name"><code>bird_create.Rd</code></div>
     </div>
 
@@ -57,12 +57,13 @@ name from <a href="https://www.birds.cornell.edu/clementschecklist/" class="exte
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">bird_create</span><span class="op">(</span></span>
-<span>  <span class="va">species_name</span>,</span>
+<span>  <span class="va">scientific_name</span>,</span>
 <span>  mass <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  wing_span <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  wing_aspect <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  wing_area <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  body_frontal_area <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  body_frontal_area <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  species_name <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -70,28 +71,32 @@ name from <a href="https://www.birds.cornell.edu/clementschecklist/" class="exte
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-species-name">species_name<a class="anchor" aria-label="anchor" href="#arg-species-name"></a></dt>
+<dl><dt id="arg-scientific-name">scientific_name<a class="anchor" aria-label="anchor" href="#arg-scientific-name"></a></dt>
 <dd><p>Scientific name of the species</p></dd>
 
 
 <dt id="arg-mass">mass<a class="anchor" aria-label="anchor" href="#arg-mass"></a></dt>
-<dd><p>Mass of the bird in kilograms.</p></dd>
+<dd><p>Mass of the bird in kilograms</p></dd>
 
 
 <dt id="arg-wing-span">wing_span<a class="anchor" aria-label="anchor" href="#arg-wing-span"></a></dt>
-<dd><p>Wing span in meters.</p></dd>
+<dd><p>Wing span in meters</p></dd>
 
 
 <dt id="arg-wing-aspect">wing_aspect<a class="anchor" aria-label="anchor" href="#arg-wing-aspect"></a></dt>
-<dd><p>Wing aspect ratio (no unit).</p></dd>
+<dd><p>Wing aspect ratio (no unit)</p></dd>
 
 
 <dt id="arg-wing-area">wing_area<a class="anchor" aria-label="anchor" href="#arg-wing-area"></a></dt>
-<dd><p>Wing area in meter square.</p></dd>
+<dd><p>Wing area in meter square</p></dd>
 
 
 <dt id="arg-body-frontal-area">body_frontal_area<a class="anchor" aria-label="anchor" href="#arg-body-frontal-area"></a></dt>
-<dd><p>Body frontal area in meter square.</p></dd>
+<dd><p>Body frontal area in meter square</p></dd>
+
+
+<dt id="arg-species-name">species_name<a class="anchor" aria-label="anchor" href="#arg-species-name"></a></dt>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use <code>scientific_name</code> instead</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -116,7 +121,7 @@ name from <a href="https://www.birds.cornell.edu/clementschecklist/" class="exte
 <span class="r-in"><span><span class="fu">bird_create</span><span class="op">(</span><span class="st">"Acrocephalus arundinaceus"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `bird` object</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Species: Acrocephalus arundinaceus</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Scientific name: Acrocephalus arundinaceus</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Mass: 0.03 (kg).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Body frontal area: 0 (m^2).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Wing span: 0.2 (m).</span>
@@ -126,7 +131,7 @@ name from <a href="https://www.birds.cornell.edu/clementschecklist/" class="exte
 <span class="r-in"><span><span class="fu">bird_create</span><span class="op">(</span><span class="st">"Acrocephalus arundinaceus"</span>, wing_aspect <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `bird` object</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Species: Acrocephalus arundinaceus</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Scientific name: Acrocephalus arundinaceus</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Mass: 0.03 (kg).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Body frontal area: 0 (m^2).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Wing span: 0.2 (m).</span>
@@ -134,13 +139,13 @@ name from <a href="https://www.birds.cornell.edu/clementschecklist/" class="exte
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Import your own bird. You will need mass, and at least two of wing_span,</span></span></span>
 <span class="r-in"><span><span class="co"># wing_aspect or wing_area.</span></span></span>
-<span class="r-in"><span><span class="fu">bird_create</span><span class="op">(</span><span class="st">"custum_bird"</span>, mass <span class="op">=</span> <span class="fl">1</span>, wing_span <span class="op">=</span> <span class="fl">1</span>, wing_aspect <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">bird_create</span><span class="op">(</span><span class="st">"Madynuss nutshell"</span>, mass <span class="op">=</span> <span class="fl">8</span>, wing_span <span class="op">=</span> <span class="fl">0.2</span>, wing_aspect <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `bird` object</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Species: custum_bird</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Mass: 1 (kg).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Scientific name: Madynuss nutshell</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Mass: 8 (kg).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Body frontal area: 0 (m^2).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Wing span: 1 (m).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Wing span: 0.2 (m).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Wing aspect: 4 (-).</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

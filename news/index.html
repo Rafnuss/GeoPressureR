@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,9 +34,39 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.3.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="3.3" id="geopressurer-v33">GeoPressureR v3.3<a class="anchor" aria-label="anchor" href="#geopressurer-v33"></a></h2>
+<div class="section level3">
+<h3 id="major-3-3">Major<a class="anchor" aria-label="anchor" href="#major-3-3"></a></h3>
+<ul><li>Read all sensors type and allow reading sensor without pressure <code>assert_pressure = FALSE</code> (<a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/d11f8cc4774b4c91c27318c43d438823b681066e" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/pull/123/commits/d11f8cc4774b4c91c27318c43d438823b681066e</a>, <a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/85ffe940ec46af8cd56592c2d641f25d19712129" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/pull/123/commits/85ffe940ec46af8cd56592c2d641f25d19712129</a>)</li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/4253e04f9ed16e3b06d45edfda0b2a0900d31d0c" class="external-link">Update to ecmwfr v2. Change to cds_token</a></li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/commit/69c26adf559fc1bc7c2690346de41f6732f9eda5" class="external-link">Improvement of tag_label_auto() with post-processing step</a></li>
+<li>
+<a href="https://github.com/Rafnuss/GeoPressureR/commit/eff97315c5eca3dff03736e7d40efad30b209819" class="external-link">Create path2twilight.R</a> and <a href="https://github.com/Rafnuss/GeoPressureR/commit/b21aa06ceff257ec4473a3af530a8ba7cef5e225" class="external-link">Add twilight_line in plot_twilight</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-3-3">Minor:<a class="anchor" aria-label="anchor" href="#minor-3-3"></a></h3>
+<ul><li><a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/6de3af2a97e27763c5a70a0e570c91921b699f01" class="external-link">Fix issue with tag_plot_twilight() when twilight was not yet computed</a></li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/93ec8a579e12fb39fe034d108f8afa89150e700d" class="external-link">Update documentation of windsupport/drift</a></li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/3a704fd054127cbc72e303091a4755bcbd31eaf0" class="external-link">Make twilight works with NA in light</a></li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/e900e518d39a0e1b44a98f98b81aa1ffef17c760" class="external-link">Add type to path as attribute</a></li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/22307d41014da8c2ddfbd10861078f89b7426451" class="external-link">Accept known as list and convert it if so</a></li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/e4b02796a8932f014aaa0fc212631d1dd24c8a52" class="external-link">Fix bug in compute_known in geolight_map()</a></li>
+<li>Improve progress_bar, remove extra <code>\f</code>, improve <code>print</code>
+</li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/7fc311be6cacafef9c3954700f1deb68f97c77b2" class="external-link">Change default map height</a></li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/commit/2734537e7997555200f05eb30b451520e1c1cfb7" class="external-link">fix plot_twilight() for twl_offset</a></li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/commit/076b3568d191e60d96a3a4703b7709a947dae66c" class="external-link">update all actions</a></li>
+</ul></div>
+<div class="section level3">
+<h3 id="full-changelog-3-3">Full Changelog<a class="anchor" aria-label="anchor" href="#full-changelog-3-3"></a></h3>
+<p><a href="https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0...v3.3.0" class="external-link">https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0…v3.3.0</a></p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="3.2" id="geopressurer-v32">GeoPressureR v3.2<a class="anchor" aria-label="anchor" href="#geopressurer-v32"></a></h2>
 <div class="section level3">
@@ -49,7 +79,7 @@
 </li>
 <li>Migrate from <code>httr</code>to <code>httr2</code>
 </li>
-<li>Fix major bug with saving enviremnt variable in param <a href="https://github.com/Rafnuss/GeoPressureR/commit/9bcbf790a7de133448c738db272bf136dc831f8f" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/9bcbf790a7de133448c738db272bf136dc831f8f</a>
+<li>Fix major bug with saving environment variable in param <a href="https://github.com/Rafnuss/GeoPressureR/commit/9bcbf790a7de133448c738db272bf136dc831f8f" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/9bcbf790a7de133448c738db272bf136dc831f8f</a>
 </li>
 <li>Add functions <code><a href="../reference/speed2bearing.html">speed2bearing()</a></code> and <code><a href="../reference/windsupport.html">windsupport()</a></code> <a href="https://github.com/Rafnuss/GeoPressureR/commit/fe244f6057db14b6a286c0a77aaaef4c5ec0152c" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/commit/fe244f6057db14b6a286c0a77aaaef4c5ec0152c</a>
 </li>
@@ -78,7 +108,10 @@
 </li>
 <li>Remove <code>pressurepath2altitude()</code> now computed in <code><a href="../reference/pressurepath_create.html">pressurepath_create()</a></code>
 </li>
-</ul><p><strong>Full Changelog</strong>: <a href="https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0</a>…v3.1.0 ## Full Changelog <a href="https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0...v3.1.0" class="external-link">https://github.com/Rafnuss/GeoPressureR/compare/v3.2.0…v3.1.0</a></p>
+</ul></div>
+<div class="section level3">
+<h3 id="full-changelog-3-2">Full Changelog<a class="anchor" aria-label="anchor" href="#full-changelog-3-2"></a></h3>
+<p><a href="https://github.com/Rafnuss/GeoPressureR/compare/v3.1.0...v3.2.0" class="external-link">https://github.com/Rafnuss/GeoPressureR/compare/v3.1.0…v3.2.0</a></p>
 </div>
 </div>
     <div class="section level2">
