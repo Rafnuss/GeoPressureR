@@ -2,11 +2,11 @@
 #'
 #' @description
 #' This function convert a speed vector represented in complex number into a bearing angle (0°=N ;
-#' 90°=E...). This conversion is needed because trigonomtric angle are different than bearing.
+#' 90°=E...). This conversion is needed because trigonometric angle are different than bearing.
 #'
 #' @param speed speed as complex value
 #' @param speed_ref reference vector of the angle. Default is the North in order to return bearing.
-#' Normal trigonometriy should be `speed_ref = 1`
+#' Use `speed_ref = 1` for trigonometric orientation (clockwise from East).
 #' @param positive logical to ensure the bearing is positive between 0-360 degree.
 #'
 #' @return bearing angle in degree

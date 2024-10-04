@@ -13,8 +13,8 @@ tag_create(
   pressure_file = NULL,
   light_file = NULL,
   acceleration_file = NULL,
-  temperature_file = NULL,
-  airtemperature_file = NULL,
+  temperature_external_file = NULL,
+  temperature_internal_file = NULL,
   magnetic_file = NULL,
   assert_pressure = TRUE,
   quiet = FALSE
@@ -40,11 +40,13 @@ with extensions (e.g., \code{"*.glf"}, \code{"*.lux"} or \code{"*_acc.xlsx"}).}
 \item{acceleration_file}{name of the file with acceleration data. Full pathname  or finishing
 with extensions (e.g., \code{"*.acceleration"}, \code{"*.deg"} or \code{"*_acc.xlsx"}).}
 
-\item{temperature_file}{name of the file with temperature data. Full pathname  or finishing
-with extensions (e.g., \code{"*.temperature"}, \code{"*.deg"}).}
+\item{temperature_external_file}{name of the file with temperature data. Full pathname  or
+finishing with extensions (e.g., \code{"*.temperature"}, \code{"*.airtemperature"} or \code{"*.deg"}). External
+or air temperature is generally for temperature sensor on directed outward from the bird.}
 
-\item{airtemperature_file}{name of the file with air temperature data. Full pathname  or
-finishing with extensions (e.g., \code{"*.airtemperature"}).}
+\item{temperature_internal_file}{name of the file with temperature data . Full pathname  or
+finishing with extensions (e.g., \code{"*.bodytemperature"}). Internal or body temperature is
+generally for temperature sensor on directed inward (between bird and tag).}
 
 \item{magnetic_file}{name of the file with magnetic/accelerometer data. Full pathname  or
 finishing with extensions (e.g., \code{"*.magnetic"}).}
@@ -56,11 +58,11 @@ finishing with extensions (e.g., \code{"*.magnetic"}).}
 \value{
 a GeoPressureR \code{tag} object containing
 \itemize{
-\item \code{param} parameter object (see \link{param_create})
+\item \code{param} parameter object (see \code{\link[=param_create]{param_create()}})
 \item \code{pressure} data.frame with columns: \code{date} and \code{value}
 \item \code{light} (optional) same structure as pressure
-\item \code{temperature} (optional) same structure as pressure
-\item \code{airtemperature} (optional) same structure as pressure
+\item \code{temperature_external} (optional) same structure as pressure
+\item \code{temperature_internal} (optional) same structure as pressure
 \item \code{acceleration} (optional) data.frame with columns: \code{date}, \code{value}, \code{act} and \code{pit}.
 \itemize{
 \item \code{value} is the activity computed as the sum of the difference in acceleration on the z-axis
@@ -68,22 +70,37 @@ a GeoPressureR \code{tag} object containing
 \item \code{pitch} is the relative position of the bird’s body relative to the z axis. In the SOI
 sensor, it is an average over 32 measurements at 10Hz.
 }
-\item \code{magnetic} (optional) data.frame with columns: \code{date}, \code{mX}, \code{mY}, \code{mZ}, \code{gX}, \code{gY} and \code{gZ}
+\item \code{magnetic} (optional) data.frame with columns: \code{date}, \code{magnetic_x}, \code{magnetic_y}, \code{magnetic_z}
+, \code{acceleration_x}, \code{acceleration_y} and \code{acceleration_z}
 }
 }
 \description{
 Create a GeoPressureR \code{tag} object from the data collected by a tracking device. The function
-can read automatically data formatted by SOI, Migratetech or Lun CAnMove (see details below) but
-also accept manual data.frame as input. Pressure data is required for the GeoPressureR workflow.
+can read data formatted according to three manufacturers SOI, Migratetech or Lund CAnMove, as
+well as according to the GeoLocator Data package standard and also accept manual data.frame as
+input. Pressure data is required for the GeoPressureR workflow but can be allowed to be missing
+with \code{assert_pressure = FALSE}.
 }
 \details{
-The current implementation can read files from the following three manufacturer:
+The current implementation can read files from the following three sources:
 \itemize{
+\item \href{https://raphaelnussbaumer.com/GeoLocator-DP/}{GeoLocator Data Package (\code{gldp})}
+\itemize{
+\item \code{pressure_file = "pressure.csv"}(optional)
+\item \code{light_file = "light.csv"} (optional)
+\item \code{acceleration_file = "acceleration.csv"} (optional)
+\item \code{temperature_external_file = "temperature.csv"} (optional)
+\item \code{temperature_external_file = "airtemperature.csv"} (optional)
+\item \code{magnetic_file = "magnetic.csv"} (optional)
+}
 \item \href{https://bit.ly/3QI6tkk}{Swiss Ornithological Institute (\code{soi})}
 \itemize{
 \item \code{pressure_file = "*.pressure"}
 \item \code{light_file = "*.glf"} (optional)
 \item \code{acceleration_file = "*.acceleration"} (optional)
+\item \code{temperature = "*.temperature"} (optional)
+\item \code{airtemperature = "*.airtemperature"} (optional)
+\item \code{magnetic = "*.magnetic"} (optional)
 }
 \item \href{http://www.migratetech.co.uk/}{Migrate Technology (\code{migratetech})}:
 \itemize{
@@ -112,7 +129,7 @@ won't be able to run the traditional GeoPressureR workflow, but you can still do
 
 By default \code{manufacturer = NULL}, the manufacturer is determined automatically from the content
 of the \code{directory}. You can also specify manually the file with a full pathname or the file
-extension using a \link{regex} expression (e.g., \code{"*.pressure"} matches any file ending with
+extension using a regex expression (e.g., \code{"*.pressure"} matches any file ending with
 \code{pressure}).
 
 Please create \href{https://github.com/Rafnuss/GeoPressureR/issues/new}{an issue on Github} if you
@@ -122,42 +139,42 @@ This function can be used to crop the data at specific date, for instance to rem
 or post-retrieval data.
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  # Read all sensor file
+  tag <- tag_create("18LX")
 
-# Read all sensor file
-tag <- tag_create("18LX")
+  print(tag)
 
-print(tag)
+  # Read only pressure and crop date
+  tag <- tag_create("18LX",
+    light_file = NULL,
+    acceleration_file = NULL,
+    crop_start = "2017-08-01",
+    crop_end = "2017-08-05"
+  )
 
-# Read only pressure and crop date
-tag <- tag_create("18LX",
-  light_file = NULL,
-  acceleration_file = NULL,
-  crop_start = "2017-08-01",
-  crop_end = "2017-08-05"
-)
+  print(tag)
 
-print(tag)
+  # You can also specify the exact file in case multiple files with the
+  # same extension exist in your directory (migratetech data)
+  tag <- tag_create("CB621",
+    pressure_file = "CB621_BAR.deg",
+    light_file = "CB621.lux",
+    acceleration_file = NULL
+  )
 
-# You can also specify the exact file in case multiple files with the
-# same extension exist in your directory (migratetech data)
-tag <- tag_create("CB621",
-  pressure_file = "CB621_BAR.deg",
-  light_file = "CB621.lux",
-  acceleration_file = NULL
-)
+  print(tag)
 
-print(tag)
-
-# You can specify the data manually with
-pressure <- data.frame(
-  date = as.POSIXct(c(
-    "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
-    "2017-06-20 02:00:00 UTC", "2017-06-20 03:00:00 UTC"
-  ), tz = "UTC"),
-  value = c(1000, 1000, 1000, 1000)
-)
-tag_create(id = "xxx", pressure_file = pressure)
+  # You can specify the data manually with
+  pressure <- data.frame(
+    date = as.POSIXct(c(
+      "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
+      "2017-06-20 02:00:00 UTC", "2017-06-20 03:00:00 UTC"
+    ), tz = "UTC"),
+    value = c(1000, 1000, 1000, 1000)
+  )
+  tag_create(id = "xxx", pressure_file = pressure)
+})
 
 }
 \seealso{

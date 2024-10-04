@@ -14,19 +14,20 @@
 #' @return The file pathname is return invisibly
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE)
 #'
-#' # Writing unlabelled tag will initialize the labelling for trainset
-#' tag_label_write(tag)
+#'   # Writing unlabelled tag will initialize the labelling for trainset
+#'   tag_label_write(tag)
 #'
-#' # Writing unlabelled tag will initialize the labelling for trainset
-#' tag <- tag_label_auto(tag)
-#' tag_label_write(tag)
+#'   # Writing unlabelled tag will initialize the labelling for trainset
+#'   tag <- tag_label_auto(tag)
+#'   tag_label_write(tag)
 #'
-#' # Writing labelled tag will use the existing labels
-#' tag <- tag_label(tag)
-#' tag_label_write(tag)
+#'   # Writing labelled tag will use the existing labels
+#'   tag <- tag_label(tag)
+#'   tag_label_write(tag)
+#' })
 #'
 #' @family tag_label
 #' @seealso [GeoPressureManual](https://bit.ly/3QC7IBt)

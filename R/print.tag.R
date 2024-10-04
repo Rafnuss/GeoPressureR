@@ -8,9 +8,9 @@
 #' @return `tag` is returned invisibly and unchanged
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#'
-#' tag <- tag_create("18LX", quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE)
+#' })
 #'
 #' print(tag)
 #'
@@ -34,7 +34,7 @@ print.tag <- function(x, ...) {
     cli::cli_bullets(c("x" = "Sensors data not yet read. Use {.fun tag_create}"))
   } else {
     cli::cli_h3("Sensors data")
-    cli::cli_text("Manufacturer: {tag$param$manufacturer}")
+    cli::cli_text("Manufacturer: {tag$param$tag_create$manufacturer}")
     cli::cli_text("Date range: {tag$pressure$date[1]} to {tail(tag$pressure$date,1)}")
     if ("pressure" %in% names(tag)) {
       cli::cli_bullets(
@@ -54,16 +54,18 @@ print.tag <- function(x, ...) {
         c("*" = "{.field light}: {format(nrow(tag$light), big.mark = ',')} datapoints")
       )
     }
-    if ("temperature" %in% names(tag)) {
+    if ("temperature_external" %in% names(tag)) {
       cli::cli_bullets(
-        c("*" = "{.field temperature}: {format(nrow(tag$temperature), big.mark = ',')} datapoints")
+        c("*" = "{.field temperature_external}:
+          {format(nrow(tag$temperature_external), big.mark = ',')} datapoints")
       )
     }
-    if ("airtemperature" %in% names(tag)) {
+    if ("temperature_internal" %in% names(tag)) {
       cli::cli_bullets(
         c(
           "*" =
-            "{.field airtemperature}: {format(nrow(tag$airtemperature), big.mark = ',')} datapoints"
+            "{.field temperature_internal}:
+          {format(nrow(tag$temperature_internal), big.mark = ',')} datapoints"
         )
       )
     }
@@ -96,13 +98,13 @@ print.tag <- function(x, ...) {
         cli::cli_bullets(c("x" = "No geographical parameters defined yet. Use {.fun tag_set_map}"))
       } else {
         # nolint start
-        geo <- map_expand(tag$param$extent, tag$param$scale)
+        geo <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
         cli::cli_bullets(c(
-          "*" = "Extent (W, E, S, N): {.val {tag$param$extent[1]}}\u00b0, \\
-        {.val {tag$param$extent[2]}}\u00b0, {.val {tag$param$extent[3]}}\u00b0, \\
-        {.val {tag$param$extent[4]}}\u00b0",
+          "*" = "Extent (W, E, S, N): {.val {tag$param$tag_set_map$extent[1]}}\u00b0, \\
+        {.val {tag$param$tag_set_map$extent[2]}}\u00b0, {.val {tag$param$tag_set_map$extent[3]}}\u00b0, \\
+        {.val {tag$param$tag_set_map$extent[4]}}\u00b0",
           "*" = "Dimensions (lat x lon): {.val {geo$dim[1]}} x {.val {geo$dim[2]}} (res. \\
-          {.val {1/tag$param$scale}}\u00b0)"
+          {.val {1/tag$param$tag_set_map$scale}}\u00b0)"
         ))
 
         map_pressure_mismatch <- c("map_pressure_mse", "map_pressure_mask")

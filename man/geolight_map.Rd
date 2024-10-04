@@ -51,25 +51,26 @@ to assume a broader/smoother distribution.
 }
 
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
-# Read geolocator data and build twilight
-tag <- tag_create("18LX", quiet = TRUE) |>
-  tag_label(quiet = TRUE) |>
-  tag_set_map(
-    extent = c(-16, 23, 0, 50),
-    scale = 10,
-    known = data.frame(
-      stap_id = 1,
-      known_lon = 17.05,
-      known_lat = 48.9
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  # Read geolocator data and build twilight
+  tag <- tag_create("18LX", quiet = TRUE) |>
+    tag_label(quiet = TRUE) |>
+    tag_set_map(
+      extent = c(-16, 23, 0, 50),
+      scale = 10,
+      known = data.frame(
+        stap_id = 1,
+        known_lon = 17.05,
+        known_lat = 48.9
+      )
     )
-  )
 
-# Compute the twilight
-tag <- twilight_create(tag) |> twilight_label_read()
+  # Compute the twilight
+  tag <- twilight_create(tag) |> twilight_label_read()
 
-# Compute likelihood map
-tag <- geolight_map(tag, quiet = TRUE)
+  # Compute likelihood map
+  tag <- geolight_map(tag, quiet = TRUE)
+})
 
 plot(tag, type = "map_light")
 }

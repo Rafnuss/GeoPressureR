@@ -4,7 +4,7 @@
 #' Reads the NetCDF files and extract the variable requested along each flight defined by the edges.
 #'
 #' - Time: linear interpolation using the resolution requested with `rounding_interval`
-#' - Space: nearet neighbor interpolation by default or bi-linear with `pracma::interp2` if
+#' - Space: nearest neighbour interpolation by default or bi-linear with `pracma::interp2` if
 #' `interp_spatial_linear=TRUE`
 #' - Pressure/altitude: linear interpolation using the exact `pressure` values
 #'
@@ -16,12 +16,11 @@
 #' @param pressure pressure measurement of the associated `tag` data used to estimate the pressure
 #' level (i.e., altitude) of the bird during the flights. This data.frame needs to contain `date` as
 #' POSIXt and `value` in hPa.
-#' @param variable list of the variables to extract from [the ERA5 pressure level](
-#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9) # nolint
-#' using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`, , `"w"`, `"ciwc"`, `"clwc"`,
-#'  `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `'vo"`.
+#' @param variable list of the variables to extract from [the ERA5 pressure level
+#' ](https://bit.ly/3BrwLBM) using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`,
+#' `"w"`, `"ciwc"`, `"clwc"`, `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `'vo"`.
 #' @param rounding_interval temporal resolution on which to query the variable (min). Default is to
-#' macth ERA5 native resolution (1hr).
+#' match ERA5 native resolution (1hr).
 #' @param interp_spatial_linear logical to interpolate the variable linearly over space, if `FALSE`
 #' takes the nearest neighbour. ERA5 native resolution is 0.25°
 #' @param return_averaged_variable logical to return the variable for each timestep or average for
@@ -74,7 +73,7 @@ edge_add_wind <- function(
   )
 
   # Compute lat-lon coordinate of the grid
-  g <- map_expand(tag_graph$param$extent, tag_graph$param$scale)
+  g <- map_expand(tag_graph$param$tag_set_map$extent, tag_graph$param$tag_set_map$scale)
 
   # Compute flight from stap
   flight <- stap2flight(tag_graph$stap, format = "list")
@@ -119,9 +118,10 @@ edge_add_wind <- function(
     i_stap <- 0
     cli::cli_progress_bar(
       "Compute wind speed for edges of stationary period:",
-      format = "{cli::pb_name} {i_stap}/{length(flight)} {cli::pb_bar} {cli::pb_percent} | \\
-      {cli::pb_eta_str} [{cli::pb_elapsed}]",
-      format_done = "Compute wind speed for edges of stationary periods [{cli::pb_elapsed}]",
+      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_stap}/{length(flight)} \\
+      {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "{cli::col_green(cli::symbol$tick)} Compute wind speed for edges of \\
+      stationary periods {cli::col_white('[', cli::pb_elapsed, ']')}",
       clear = FALSE,
       total = sum(table_edge_s)
     )
@@ -170,10 +170,21 @@ edge_add_wind <- function(
       nc <- ncdf4::nc_open(file(i_s))
 
       # Read data from netCDF file and convert the time of data to posixt
-      time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60,
-        origin = "1900-01-01", tz = "UTC"
-      )
-      pres <- ncdf4::ncvar_get(nc, "level")
+      # Fix to use the correct time variable ("time" until the new CDS, then "valid_time")
+      if ("time" %in% names(nc$dim)) {
+        time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60,
+          origin = "1900-01-01", tz = "UTC"
+        )
+      } else if ("valid_time" %in% names(nc$dim)) {
+        time <- as.POSIXct(ncdf4::ncvar_get(nc, "valid_time"), origin = "1970-01-01", tz = "UTC")
+      } else {
+        cli::cli_abort(c(
+          x = "Time variable not found in {.file {file(i_s)}}",
+          "i" = "Available variable{?s} {?is/are} {.var {names(nc$dim)}}."
+        ))
+      }
+      pres_var <- names(nc$dim)[grepl("*level", names(nc$dim))]
+      pres <- ncdf4::ncvar_get(nc, pres_var)
       lat <- ncdf4::ncvar_get(nc, "latitude")
       dlat <- abs(lat[2] - lat[1])
       lon <- ncdf4::ncvar_get(nc, "longitude")
@@ -202,7 +213,7 @@ edge_add_wind <- function(
       # We assume that the bird is moving with a constant groundspeed between `flight$start` and
       # `flight$end`. Using a linear interpolation, we extract the position (lat, lon) at every hour
       # on `t_q`. Extrapolation outside (before the bird departure or after he arrived) is with a
-      # nearest neighbor.
+      # nearest neighbour.
 
       dlat_se <- (lat_e - lat_s) / fl_s$duration[i_fl]
       dlon_se <- (lon_e - lon_s) / fl_s$duration[i_fl]
@@ -422,7 +433,7 @@ edge_add_wind_check <- function(
   assertthat::assert_that(inherits(tag_graph, "tag") | inherits(tag_graph, "graph"))
 
   # Compute lat-lon coordinate of the grid
-  g <- map_expand(tag_graph$param$extent, tag_graph$param$scale)
+  g <- map_expand(tag_graph$param$tag_set_map$extent, tag_graph$param$tag_set_map$scale)
 
   # Compute flight from stap
   flight <- stap2flight(tag_graph$stap, format = "list")
@@ -460,7 +471,19 @@ edge_add_wind_check <- function(
         ))
       }
 
-      time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60, origin = "1900-01-01", tz = "UTC")
+      # Check that the time is matching
+      if ("time" %in% names(nc$dim)) {
+        time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60,
+          origin = "1900-01-01", tz = "UTC"
+        )
+      } else if ("valid_time" %in% names(nc$dim)) {
+        time <- as.POSIXct(ncdf4::ncvar_get(nc, "valid_time"), origin = "1970-01-01", tz = "UTC")
+      } else {
+        cli::cli_abort(c(
+          x = "Time variable not found in {.file {file(i_s)}}",
+          "i" = "Available variable{?s} {?is/are} {.var {names(nc$dim)}}."
+        ))
+      }
       t_s <- as.POSIXct(format(fl_s$start[i_fl], "%Y-%m-%d %H:00:00"), tz = "UTC")
       t_e <- as.POSIXct(format(fl_s$end[i_fl] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
       if (!(min(time) <= t_e && max(time) >= t_s)) {
@@ -471,7 +494,8 @@ edge_add_wind_check <- function(
         ))
       }
 
-      pres <- ncdf4::ncvar_get(nc, "level")
+      pres_var <- names(nc$dim)[grepl("*level", names(nc$dim))]
+      pres <- ncdf4::ncvar_get(nc, pres_var)
       pres_value <- pressure$value[pressure$date > t_s & pressure$date < t_e]
       if (length(pres_value) == 0 ||
         !(min(pres) <= min(pres_value) &&

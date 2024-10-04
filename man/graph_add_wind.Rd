@@ -23,7 +23,7 @@ level (i.e., altitude) of the bird during the flights. This data.frame needs to 
 POSIXt and \code{value} in hPa.}
 
 \item{rounding_interval}{temporal resolution on which to query the variable (min). Default is to
-macth ERA5 native resolution (1hr).}
+match ERA5 native resolution (1hr).}
 
 \item{interp_spatial_linear}{logical to interpolate the variable linearly over space, if \code{FALSE}
 takes the nearest neighbour. ERA5 native resolution is 0.25°}

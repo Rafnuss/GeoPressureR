@@ -13,17 +13,18 @@
 #' include within `tag`.
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |>
-#'   tag_label(quiet = TRUE) |>
-#'   twilight_create() |>
-#'   twilight_label_read() |>
-#'   tag_set_map(
-#'     extent = c(-16, 23, 0, 50),
-#'     known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
-#'   ) |>
-#'   geopressure_map(quiet = TRUE) |>
-#'   geolight_map(quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     twilight_create() |>
+#'     twilight_label_read() |>
+#'     tag_set_map(
+#'       extent = c(-16, 23, 0, 50),
+#'       known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
+#'     ) |>
+#'     geopressure_map(quiet = TRUE) |>
+#'     geolight_map(quiet = TRUE)
+#' })
 #'
 #' # Create graph
 #' graph <- graph_create(tag, quiet = TRUE)
@@ -108,8 +109,8 @@ graph_marginal <- function(graph, quiet = FALSE) {
 
   marginal <- map_create(
     data = marginal_data,
-    extent = graph$param$extent,
-    scale = graph$param$scale,
+    extent = graph$param$tag_set_map$extent,
+    scale = graph$param$tag_set_map$scale,
     stap = graph$stap,
     id = graph$param$id,
     type = "marginal"

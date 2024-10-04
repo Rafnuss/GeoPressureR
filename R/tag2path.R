@@ -25,15 +25,15 @@
 #' - `lat` Latitude,
 #' - `lon` longitude
 #' @examples
-#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |>
-#'   tag_label(quiet = TRUE) |>
-#'   tag_set_map(
-#'     extent = c(-16, 23, 0, 50),
-#'     scale = 2
-#'   ) |>
-#'   geopressure_map(quiet = TRUE)
-#' setwd(owd)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     tag_set_map(
+#'       extent = c(-16, 23, 0, 50),
+#'       scale = 2
+#'     ) |>
+#'     geopressure_map(quiet = TRUE)
+#' })
 #'
 #' # Extract a path from pressure map
 #' path <- tag2path(tag)
@@ -75,7 +75,7 @@ tag2path <- function(tag,
     path_interp[!is.na(tag$stap$known_lon) & use_known] <- FALSE
 
     # Compute the grid information used for known or interp
-    g <- map_expand(tag$param$extent, tag$param$scale)
+    g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
 
     # Compute the latitude and longitude ind
     lat_ind <- arrayInd(ind, g$dim)[, 1]

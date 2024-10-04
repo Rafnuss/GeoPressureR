@@ -59,7 +59,7 @@ graph_add_wind <- function(
   id <- abs(graph$gs - graph$ws) <= thr_as
 
   # Check that there are always at least one node left by stap
-  g <- map_expand(graph$param$extent, graph$param$scale)
+  g <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)
   edge_s <- arrayInd(graph$s[id], c(g$dim, nrow(graph$stap)))
   sta_pass <- which(!(seq_len(graph$sz[3] - 1) %in% unique(edge_s[, 3])))
   if (length(sta_pass) > 0) {
@@ -74,11 +74,11 @@ graph_add_wind <- function(
   graph$t <- graph$t[id]
   graph$gs <- graph$gs[id]
   graph$ws <- graph$ws[id]
-  graph$param$thr_as <- thr_as
+  graph$param$graph_add_wind$thr_as <- thr_as
   attr(file, "srcref") <- NULL
   attr(file, "srcfile") <- NULL
   environment(file) <- baseenv()
-  graph$param$wind_file <- file
+  graph$param$graph_add_wind$file <- file
 
   return(graph)
 }

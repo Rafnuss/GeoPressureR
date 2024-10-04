@@ -38,12 +38,12 @@ By default, \code{type} is determined in the following order of preference accor
 Refers to these functions for additional parameters and more flexibility in the plotting.
 }
 \examples{
-owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE) |>
-  tag_label(quiet = TRUE) |>
-  twilight_create() |>
-  twilight_label_read()
-setwd(owd)
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |>
+    tag_label(quiet = TRUE) |>
+    twilight_create() |>
+    twilight_label_read()
+})
 
 # By default, plot will display the time series of pressure
 plot(tag)

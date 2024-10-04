@@ -5,52 +5,26 @@ library(GeoPressureR)
 setwd(system.file("extdata", package = "GeoPressureR"))
 
 test_that("workflow | full", {
-  tag <- tag_create("18LX", quiet = TRUE)
-  tag <- tag_label(tag, quiet = TRUE)
+  geopressuretemplate("18LX", quiet = TRUE)
 
-  tag <- twilight_create(tag)
-  twilight_label_write(tag, quiet = TRUE)
-  tag <- twilight_label_read(tag)
-
-  tag <- tag_set_map(tag,
-    extent = c(-16, 23, 0, 50),
-    scale = 1,
-    known = data.frame(
-      stap_id = 1,
-      known_lon = 17.05,
-      known_lat = 48.9
-    )
-  )
-
-  tag <- geopressure_map(tag, quiet = TRUE)
-  tag <- geolight_map(tag, quiet = TRUE)
+  file <- glue::glue("./data/interim/18LX.RData")
+  save_list <- load(file)
+  tag <- get("tag")
+  path_most_likely <- get("path_most_likely")
+  pressurepath <- get("pressurepath_most_likely")
 
   path <- tag2path(tag)
   expect_no_error(tag2path(tag, interp = 0.7))
 
-  graph <- graph_create(tag, quiet = TRUE) |>
-    graph_set_movement()
-
-  marginal <- graph_marginal(graph, quiet = TRUE)
-  path_most_likely <- graph_most_likely(graph, quiet = TRUE)
-  path_simulation <- graph_simulation(graph, quiet = TRUE)
-
-  edge_most_likely <- path2edge(path_most_likely, graph)
-  edge_simulation <- path2edge(path_simulation, graph)
-
-  pressurepath <- pressurepath_create(tag,
-    path_most_likely,
-    era5_dataset = "single-levels", quiet = TRUE
-  )
-
   expect_no_error(print(tag))
-  expect_no_error(print(graph))
-  expect_no_error(print(graph$param))
 
   expect_no_error(plot(tag, type = "pressure"))
   expect_no_error(plot(tag, type = "light"))
   expect_no_error(plot(tag, type = "acceleration"))
+  expect_no_error(plot(tag, type = "acceleration", variable = "pitch"))
   expect_no_error(plot(tag, type = "twilight"))
+  expect_no_error(plot(tag, type = "temperature"))
+  expect_no_error(plot(tag, type = "temperature", variable = "external"))
   expect_no_error(plot(tag, type = "map_pressure"))
   expect_no_error(plot(tag, type = "map_light"))
   expect_no_error(plot(tag, type = "map"))
@@ -58,8 +32,6 @@ test_that("workflow | full", {
   expect_no_error(plot_pressurepath(pressurepath, type = "timeseries"))
   expect_no_error(plot_pressurepath(pressurepath, type = "altitude"))
   expect_no_error(plot_pressurepath(pressurepath, type = "histogram"))
-
-  expect_no_error(plot_graph_movement(graph))
 
   expect_no_error(plot_path(path_most_likely))
   expect_no_error(plot_path(path_most_likely, plot_leaflet = FALSE))

@@ -8,13 +8,13 @@
 #' @return Same `tag` object, updated with the labels `tag$twilight$label`.
 #' @family geolight
 #' @examples
-#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |>
-#'   tag_label(quiet = TRUE) |>
-#'   twilight_create()
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     twilight_create()
 #'
-#' tag_labelled <- twilight_label_read(tag)
-#' setwd(owd)
+#'   tag_labelled <- twilight_label_read(tag)
+#' })
 #'
 #' plot(tag, type = "twilight") + ggplot2::ggtitle("Before label")
 #'
@@ -32,7 +32,7 @@ twilight_label_read <- function(
     timestamp = "twilight"
   )
 
-  tag$param$twilight_file <- file
+  tag$param$twilight_label_read$file <- file
 
   return(tag)
 }

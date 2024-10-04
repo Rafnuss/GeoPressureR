@@ -58,17 +58,18 @@ If the label file does not exist, the function will suggest to create it with
 \code{tag_label_write()} and use \code{tag_label_auto()} if acceleration data exists.
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE)
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE)
 
-print(tag)
+  print(tag)
 
-tag <- tag_label(tag)
+  tag <- tag_label(tag)
 
-print(tag)
+  print(tag)
 
-# The labelled `tag` contains additional column on the sensor data.frame
-str(tag)
+  # The labelled `tag` contains additional column on the sensor data.frame
+  str(tag)
+})
 
 }
 \seealso{

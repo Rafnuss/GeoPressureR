@@ -45,7 +45,7 @@ graph_status <- function(graph) {
 
   status <- c()
 
-  if (assertthat::has_name(graph$param, "movement")) {
+  if (assertthat::has_name(graph$param, "graph_set_movement")) {
     status <- append(status, "movement")
   }
   if (length(graph$s) > 0) {

@@ -18,9 +18,9 @@
 #' - `stap_id` if `stap_id` is present in `light`.
 #'
 #' @examples
-#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
-#' setwd(owd)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+#' })
 #'
 #' # Create twilight data.frame
 #' tag <- twilight_create(tag)
@@ -114,8 +114,8 @@ twilight_create <- function(tag,
 
   tag$twilight <- twilight
   tag$param$twl_transform_light <- transform_light
-  tag$param$twl_offset <- twl_offset
-  tag$param$twl_thr <- twl_thr
+  tag$param$twilight_create$twl_offset <- twl_offset
+  tag$param$twilight_create$twl_thr <- twl_thr
 
   return(tag)
 }

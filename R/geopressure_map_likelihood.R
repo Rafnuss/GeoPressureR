@@ -57,7 +57,7 @@ geopressure_map_likelihood <- function(tag,
 
   # Add known location
   # compute latitude, longitude and dimension
-  g <- map_expand(tag$param$extent, tag$param$scale)
+  g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
   # Add known location only if map_pressure_mse is null
   # (ie., if .known_compute = TRUE in geopressure_map_mse)
   for (stap_id in which(!is.na(tag$stap$known_lat) & sapply(tag$map_pressure_mse$data, is.null))) {
@@ -74,19 +74,20 @@ geopressure_map_likelihood <- function(tag,
   # Create map object
   tag$map_pressure <- map_create(
     data = map_pressure,
-    extent = tag$param$extent,
-    scale = tag$param$scale,
+    extent = tag$param$tag_set_map$extent,
+    scale = tag$param$tag_set_map$scale,
     stap = tag$stap,
     id = tag$param$id,
     type = "pressure"
   )
 
-  tag$param$sd <- sd0
+  tag$param$geopressure_map$sd <- sd0
   attr(log_linear_pooling_weight, "srcref") <- NULL
   attr(log_linear_pooling_weight, "srcfile") <- NULL
   environment(log_linear_pooling_weight) <- baseenv()
-  tag$param$log_linear_pooling_weight <- log_linear_pooling_weight
-  attr(tag$param$log_linear_pooling_weight, "srcref") <- NULL
+  tag$param$geopressure_map$log_linear_pooling_weight <- log_linear_pooling_weight
+  attr(tag$param$geopressure_map$log_linear_pooling_weight, "srcref") <- NULL
+  tag$param$geopressure_map$keep_mse <- keep_mse
 
   # remove mse maps computed by geopressure_map_mismatch()
   if (!keep_mse) {

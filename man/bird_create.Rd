@@ -5,26 +5,29 @@
 \title{Create bird flight traits}
 \usage{
 bird_create(
-  species_name,
+  scientific_name,
   mass = NULL,
   wing_span = NULL,
   wing_aspect = NULL,
   wing_area = NULL,
-  body_frontal_area = NULL
+  body_frontal_area = NULL,
+  species_name = deprecated()
 )
 }
 \arguments{
-\item{species_name}{Scientific name of the species}
+\item{scientific_name}{Scientific name of the species}
 
-\item{mass}{Mass of the bird in kilograms.}
+\item{mass}{Mass of the bird in kilograms}
 
-\item{wing_span}{Wing span in meters.}
+\item{wing_span}{Wing span in meters}
 
-\item{wing_aspect}{Wing aspect ratio (no unit).}
+\item{wing_aspect}{Wing aspect ratio (no unit)}
 
-\item{wing_area}{Wing area in meter square.}
+\item{wing_area}{Wing area in meter square}
 
-\item{body_frontal_area}{Body frontal area in meter square.}
+\item{body_frontal_area}{Body frontal area in meter square}
+
+\item{species_name}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{scientific_name} instead}
 }
 \value{
 List containing mass, wing span, wing aspect ratio, and body frontal area.
@@ -46,7 +49,7 @@ bird_create("Acrocephalus arundinaceus", wing_aspect = 8)
 
 # Import your own bird. You will need mass, and at least two of wing_span,
 # wing_aspect or wing_area.
-bird_create("custum_bird", mass = 1, wing_span = 1, wing_aspect = 4)
+bird_create("Madynuss nutshell", mass = 8, wing_span = 0.2, wing_aspect = 4)
 
 }
 \seealso{

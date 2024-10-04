@@ -37,7 +37,7 @@ path2edge <- function(path, tag_graph) {
   stap <- tag_graph$stap
   assertthat::assert_that(all(unique(path$stap_id) == stap$stap_id))
 
-  g <- map_expand(tag_graph$param$extent, tag_graph$param$scale)
+  g <- map_expand(tag_graph$param$tag_set_map$extent, tag_graph$param$tag_set_map$scale)
 
   # Number of paths
   if ("j" %in% names(path)) {
@@ -122,6 +122,10 @@ path2edge <- function(path, tag_graph) {
 
   # Sort by stap_s
   edge <- edge[order(edge$stap_s), ]
+
+  # Enforce integer for s and t
+  edge$s <- as.integer(edge$s)
+  edge$t <- as.integer(edge$t)
 
   attr(edge, "type") <- attr(path, "type")
 

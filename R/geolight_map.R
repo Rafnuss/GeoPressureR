@@ -33,25 +33,26 @@
 #' @return a `tag` with the likelihood of light as `tag$map_light`
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' # Read geolocator data and build twilight
-#' tag <- tag_create("18LX", quiet = TRUE) |>
-#'   tag_label(quiet = TRUE) |>
-#'   tag_set_map(
-#'     extent = c(-16, 23, 0, 50),
-#'     scale = 10,
-#'     known = data.frame(
-#'       stap_id = 1,
-#'       known_lon = 17.05,
-#'       known_lat = 48.9
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   # Read geolocator data and build twilight
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     tag_set_map(
+#'       extent = c(-16, 23, 0, 50),
+#'       scale = 10,
+#'       known = data.frame(
+#'         stap_id = 1,
+#'         known_lon = 17.05,
+#'         known_lat = 48.9
+#'       )
 #'     )
-#'   )
 #'
-#' # Compute the twilight
-#' tag <- twilight_create(tag) |> twilight_label_read()
+#'   # Compute the twilight
+#'   tag <- twilight_create(tag) |> twilight_label_read()
 #'
-#' # Compute likelihood map
-#' tag <- geolight_map(tag, quiet = TRUE)
+#'   # Compute likelihood map
+#'   tag <- geolight_map(tag, quiet = TRUE)
+#' })
 #'
 #' plot(tag, type = "map_light")
 #' @family geolight
@@ -130,7 +131,7 @@ geolight_map <- function(tag,
   sun <- geolight_solar(twl_clean_comp$twilight)
 
   # Get grid information
-  g <- map_expand(tag$param$extent, tag$param$scale)
+  g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
 
   # construct the grid of latitude and longitude on cell centred
   m <- expand.grid(lat = g$lat, lon = g$lon)
@@ -204,8 +205,8 @@ geolight_map <- function(tag,
   # Create map object
   tag$map_light <- map_create(
     data = lk,
-    extent = tag$param$extent,
-    scale = tag$param$scale,
+    extent = tag$param$tag_set_map$extent,
+    scale = tag$param$tag_set_map$scale,
     stap = tag$stap,
     id = tag$param$id,
     type = "light"
@@ -216,9 +217,12 @@ geolight_map <- function(tag,
   environment(twl_llp) <- baseenv()
 
   # Add parameters
-  tag$param$twl_calib_adjust <- twl_calib_adjust
-  tag$param$twl_llp <- twl_llp
-  tag$param$twl_calib <- twl_calib
+  tag$param$geolight_map <- list(
+    twl_calib_adjust = twl_calib_adjust,
+    twl_llp = twl_llp,
+    compute_known = compute_known,
+    twl_calib = twl_calib
+  )
 
   return(tag)
 }

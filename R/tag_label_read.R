@@ -8,12 +8,13 @@
 #' optionally `tag$acceleration$label`.
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE)
 #'
-#' tag <- tag_label_read(tag)
+#'   tag <- tag_label_read(tag)
 #'
-#' str(tag)
+#'   str(tag)
+#' })
 #' @family tag_label
 #' @seealso [GeoPressureManual](https://bit.ly/45v79gV)
 #' @export

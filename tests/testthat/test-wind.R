@@ -6,27 +6,18 @@ skip("skip graph_add_wind")
 # Set working directory
 setwd(system.file("extdata", package = "GeoPressureR"))
 
-
-tag <- tag_create("18LX", quiet = TRUE) |>
-  tag_label(quiet = TRUE) |>
-  tag_set_map(
-    extent = c(-16, 23, 0, 50),
-    scale = 1,
-    known = data.frame(
-      stap_id = 1,
-      known_lon = 17.05,
-      known_lat = 48.9
-    )
-  ) |>
-  geopressure_map(quiet = TRUE)
+tag <- geopressuretemplate_tag("18LX", quiet = TRUE)
 
 test_that("tag_download_wind() | special setting", {
-  tmp <- tag_download_wind(tag, variable = c("u", "temperature"), include_stap_id = 1)
+  tmp <- tag_download_wind(
+    tag,
+    variable = c("u_component_of_wind", "v_component_of_wind", "temperature"),
+    include_stap_id = 1
+  )
 
-  edge_add_wind_check(tag)
+  GeoPressureR:::edge_add_wind_check(tag)
 })
 
-tag_download_wind(tag)
 
 graph <- graph_create(tag, quiet = TRUE)
 

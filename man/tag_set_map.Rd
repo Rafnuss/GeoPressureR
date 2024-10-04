@@ -64,8 +64,9 @@ model will be more constrained, saving significant computational time. You can c
 using the \code{compute_known} parameter in \code{geopressure_map()}.
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+})
 
 # Default tag
 tag_default <- tag_set_map(tag, c(-16, 23, 0, 50))

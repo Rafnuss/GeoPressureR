@@ -21,7 +21,7 @@
 #' before and after. `pressurepath_create()` does not return measurement for stationary periods
 #' which are not provided in `path` as well as the flight before and after.
 #'
-#' `pressurepath_create()` also return the altitude of the bird along its trajectory. The altitude
+#'  also return the altitude of the bird along its trajectory. The altitude
 #' \eqn{z_{tag}} (a.s.l.) is computed from the tag pressure \eqn{P_{tag}}, using the barometric
 #' equation \deqn{ z_{{tag}}(x)=z_{ERA5}(x) + \frac{T_{ERA5}(x)}{L_b}  \left(
 #' \frac{P_{tag}}{P_{ERA5}(x)} \right)^{\frac{RL_b}{g M}-1},}
@@ -36,6 +36,10 @@
 #' the tag mean pressure measurement as `surface_pressure_norm`.
 #' \deqn{ P_{ERA5,0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{tag}[t]\right) -
 #' \left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\boldsymbol{x})[i]-P_{tag}[i] \right).}
+#'
+#'  `pressurepath_create()` also computes the local sunrise and sunset times for each timestep
+#'  according to the position of the path using `path2twilight()`. Sunrise and sunset are defined
+#'  by the solar depression angle `solar_dep`.
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param path a GeoPressureR `path` data.frame.
@@ -77,8 +81,9 @@
 #' - `...` any other ERA5 variable requested by `variable`
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+#' })
 #'
 #' path <- data.frame(
 #'   stap_id = tag$stap$stap_id,
@@ -283,10 +288,10 @@ pressurepath_create <- function(tag,
     )
   }
 
-
   # Add additional parameter to pressurepath
   attr(pressurepath, "id") <- tag$param$id
   attr(pressurepath, "preprocess") <- preprocess
-  attr(pressurepath, "sd") <- tag$param$sd
+  attr(pressurepath, "sd") <- tag$param$geopressure_map$sd
+  attr(pressurepath, "type") <- attr(path, "type")
   return(pressurepath)
 }

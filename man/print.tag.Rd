@@ -18,9 +18,9 @@
 This function displays the information of a \code{tag} object.
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
-
-tag <- tag_create("18LX", quiet = TRUE)
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE)
+})
 
 print(tag)
 

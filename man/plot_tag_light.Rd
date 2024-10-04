@@ -20,8 +20,9 @@ a plot or ggplotly object.
 This function display a plot of light time series recorded by a tag
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE)
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE)
+})
 
 plot_tag_light(tag)
 

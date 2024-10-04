@@ -39,15 +39,16 @@ If an acceleration data.frame is present and contains a column \code{label}, the
 will be computed from it, otherwise, it uses the pressure data.frame.
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE) |>
-  tag_label_read()
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |>
+    tag_label_read()
 
-tag <- tag_label_stap(tag)
+  tag <- tag_label_stap(tag)
 
-str(tag)
+  str(tag)
 
-str(tag$stap)
+  str(tag$stap)
+})
 }
 \seealso{
 \href{https://bit.ly/45gwcVu}{GeoPressureManual}

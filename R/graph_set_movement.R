@@ -28,18 +28,18 @@
 #' the transition probability
 #'
 #' @examples
-#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |>
-#'   tag_label(quiet = TRUE) |>
-#'   twilight_create() |>
-#'   twilight_label_read() |>
-#'   tag_set_map(
-#'     extent = c(-16, 23, 0, 50),
-#'     known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
-#'   ) |>
-#'   geopressure_map(quiet = TRUE) |>
-#'   geolight_map(quiet = TRUE)
-#' setwd(owd)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     twilight_create() |>
+#'     twilight_label_read() |>
+#'     tag_set_map(
+#'       extent = c(-16, 23, 0, 50),
+#'       known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
+#'     ) |>
+#'     geopressure_map(quiet = TRUE) |>
+#'     geolight_map(quiet = TRUE)
+#' })
 #'
 #' graph <- graph_create(tag, quiet = TRUE)
 #'
@@ -109,7 +109,7 @@ graph_set_movement <- function(graph,
   }
 
   # Add the movement list to the graph
-  graph$param$movement <- mvt
+  graph$param$graph_set_movement <- mvt
 
   # Test that everything is correct
   graph_transition(graph)

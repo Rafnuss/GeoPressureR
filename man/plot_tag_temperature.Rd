@@ -6,6 +6,7 @@
 \usage{
 plot_tag_temperature(
   tag,
+  variable = "external",
   plot_plotly = TRUE,
   label_auto = TRUE,
   min_duration = 30
@@ -13,6 +14,8 @@ plot_tag_temperature(
 }
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object}
+
+\item{variable}{temperature variable to plot \code{"external"} or \code{"internal"}}
 
 \item{plot_plotly}{logical to use \code{plotly}}
 
@@ -29,8 +32,9 @@ a plot or ggplotly object.
 This function display a plot of temperature time series recorded by a tag
 }
 \examples{
-setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE)
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE)
+})
 
 plot_tag_temperature(tag)
 

@@ -11,8 +11,9 @@
 #' @return logical indicating the `tag` object has the relevant element
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+#' })
 #'
 #' tag_assert(tag)
 #'
@@ -117,11 +118,11 @@ tag_status <- function(tag) {
   if (assertthat::has_name(tag, "acceleration")) {
     status <- append(status, c("read", "acceleration"))
   }
-  if (assertthat::has_name(tag, "temperature")) {
-    status <- append(status, c("read", "temperature"))
+  if (assertthat::has_name(tag, "temperature_internal")) {
+    status <- append(status, c("read", "temperature_internal"))
   }
-  if (assertthat::has_name(tag, "airtemperature")) {
-    status <- append(status, c("read", "airtemperature"))
+  if (assertthat::has_name(tag, "temperature_external")) {
+    status <- append(status, c("read", "temperature_external"))
   }
   if (assertthat::has_name(tag, "magnetic")) {
     status <- append(status, c("read", "magnetic"))
@@ -133,7 +134,7 @@ tag_status <- function(tag) {
     assertthat::has_name(tag$stap, "stap_id")) {
     status <- append(status, "stap")
   }
-  if (assertthat::has_name(tag$param, c("extent", "scale")) &&
+  if (assertthat::has_name(tag$param$tag_set_map, c("extent", "scale")) &&
     assertthat::has_name(tag$stap, c("known_lat", "known_lon", "include"))) {
     status <- append(status, "setmap")
   }

@@ -12,9 +12,9 @@
 #' @inheritParams geopressure_map
 #' @return Pressure data.frame without flight and discarded values, on a 1 hour resolution.
 #' @examples
-#' owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
-#' setwd(owd)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+#' })
 #'
 #' pressure_processed <- geopressure_map_preprocess(tag)
 #' str(pressure_processed)

@@ -6,9 +6,7 @@
 #' with the [Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) and through the [`ecmwfr`
 #' R package](https://bluegreen-labs.github.io/ecmwfr/index.html).
 #'
-#' [Any variable available from the ERA5 pressure level](
-#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9) # nolint
-#' can be downloaded.
+#' [Any variable available from the ERA5 pressure level](https://bit.ly/3BrwLBM) can be downloaded.
 #'
 #' The flights are determined from the stationary periods classified `tag$stap`. It request a
 #' single file for each flight using the exact time (hourly basis) and pressure (altitude). To make
@@ -16,10 +14,10 @@
 #' https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests)
 #' is used to download all files at the same time (up to 20 requests in parallel).
 #'
-#' To be able to download data from the Climate Data Store (CDS), you will need to create an account
-#' on [https://cds.climate.copernicus.eu](https://cds.climate.copernicus.eu). Once created, you can
-#' retrieve your API key on [https://cds.climate.copernicus.eu/user/
-#' ](https://cds.climate.copernicus.eu/user/) and save them in your environment file
+#' To be able to download data from the Climate Data Store (CDS), you will need to create an ECMWF
+#' account on [https://www.ecmwf.int/](https://www.ecmwf.int/). Once created, you can
+#' retrieve your Personal Access Token on [https://cds.climate.copernicus.eu/profile
+#' ](https://cds.climate.copernicus.eu/profile) and save them in your environment file
 #' (i.e., `.Renviron`). You can open this file with `usethis::edit_r_environ()` and add:
 #' \code{
 #'   cds_token = "{Personal Access Token}"
@@ -30,13 +28,13 @@
 #' Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.
 #' @param include_stap_id stationary period identifiers of the start of the flight to download.
 #' Default is to download all flights.
-#' @param variable list of variables to download from [the ERA5 pressure level](
-#' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Table9) # nolint
-#' : `"u_component_of_wind"`, `"v_component_of_wind"`,  `"temperature"`, `"fraction_of_cloud_cover"`
-#' , `"relative_humidity"`, , `"vertical_velocity"`, `"specific_cloud_ice_water_content"`,
-#' `"specific_cloud_liquid_water_content"`, `"specific_humidity"`, `"specific_rain_water_content"`,
-#' `"specific_snow_water_content"`, `"divergence"`, `"geopotential"`, `"ozone_mass_mixing_ratio"`,
-#' `"potential_vorticity"`, `'vorticity"`.
+#' @param variable list of variables to download from [the ERA5 pressure level
+#' ](https://bit.ly/3BrwLBM): `"u_component_of_wind"`, `"v_component_of_wind"`,  `"temperature"`,
+#' `"fraction_of_cloud_cover"`, `"relative_humidity"`, , `"vertical_velocity"`,
+#' `"specific_cloud_ice_water_content"`, `"specific_cloud_liquid_water_content"`,
+#' `"specific_humidity"`, `"specific_rain_water_content"`, `"specific_snow_water_content"`,
+#' `"divergence"`, `"geopotential"`, `"ozone_mass_mixing_ratio"`, `"potential_vorticity"`,
+#' `'vorticity"`.
 #' @param cds_token CDS Personal Access Token available from [your user page
 #' ](https://cds.climate.copernicus.eu/user/). See `wf_set_key()`.
 #' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
@@ -53,7 +51,7 @@
 #' @export
 tag_download_wind <- function(
     tag,
-    extent = tag$param$extent,
+    extent = tag$param$tag_set_map$extent,
     include_stap_id = NULL,
     variable = c("u_component_of_wind", "v_component_of_wind"),
     cds_token = Sys.getenv("cds_token"),

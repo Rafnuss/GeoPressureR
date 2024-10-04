@@ -20,6 +20,8 @@ tag <- tag_create("18LX", quiet = TRUE) |>
 graph <- graph_create(tag, quiet = TRUE)
 
 test_that("Check graph output", {
+  expect_no_error(print(graph))
+  expect_no_error(print(graph$param))
   expect_length(graph$s, length(graph$t))
   expect_length(graph$s, length(graph$gs))
   expect_type(graph$gs, "complex")
@@ -30,6 +32,7 @@ test_that("Check graph output", {
   expect_length(graph$equipment, 1)
   expect_true(length(graph$retrieval) > 0)
 })
+
 
 
 
@@ -52,9 +55,11 @@ test_that("Check create_graph() for map_pressure", {
 graph <- graph_set_movement(graph)
 
 test_that("Check graph_set_movement()", {
-  expect_equal(graph$param$movement$type, "gs")
+  expect_equal(graph$param$graph_set_movement$type, "gs")
   graph <- graph_set_movement(graph, method = "logis")
-  expect_equal(graph$param$movement$method, "logis")
+  expect_equal(graph$param$graph_set_movement$method, "logis")
+
+  expect_no_error(plot_graph_movement(graph))
 })
 
 

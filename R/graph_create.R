@@ -44,17 +44,18 @@
 #' - `param`: list of parameters including `thr_likelihood` and `thr_gs` (same as `tag$param`)
 #'
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |>
-#'   tag_label(quiet = TRUE) |>
-#'   twilight_create() |>
-#'   twilight_label_read() |>
-#'   tag_set_map(
-#'     extent = c(-16, 23, 0, 50),
-#'     known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
-#'   ) |>
-#'   geopressure_map(quiet = TRUE) |>
-#'   geolight_map(quiet = TRUE)
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     twilight_create() |>
+#'     twilight_label_read() |>
+#'     tag_set_map(
+#'       extent = c(-16, 23, 0, 50),
+#'       known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
+#'     ) |>
+#'     geopressure_map(quiet = TRUE) |>
+#'     geolight_map(quiet = TRUE)
+#' })
 #'
 #' # Create graph
 #' graph <- graph_create(tag, thr_likelihood = 0.95, thr_gs = 100, quiet = TRUE)
@@ -115,7 +116,7 @@ graph_create <- function(tag,
     ))
   }
 
-  g <- map_expand(tag$param$extent, tag$param$scale)
+  g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
 
   # Approximate resolution of the grid from ° to in km
   # Assume uniform grid in lat-lon
@@ -348,9 +349,11 @@ graph_create <- function(tag,
 
   # Create the param from tag
   graph$param <- tag$param
-  graph$param$likelihood <- likelihood
-  graph$param$thr_likelihood <- thr_likelihood
-  graph$param$thr_gs <- thr_gs
+  graph$param$graph_create <- list(
+    thr_likelihood = thr_likelihood,
+    thr_gs = thr_gs,
+    likelihood = likelihood
+  )
 
   return(graph)
 }

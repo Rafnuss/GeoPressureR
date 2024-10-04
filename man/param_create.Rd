@@ -25,7 +25,7 @@ therefore not be used to set/define parameters ahead of computation. In reality,
 few external case of use for this function.
 }
 \examples{
-param <- param_create("18LX", extent = c(0, 0, 1, 1))
+param <- param_create("18LX", default = TRUE)
 print(param)
 
 }

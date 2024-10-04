@@ -126,12 +126,20 @@ reference:
   - pressurepath_update
   - plot_pressurepath
   - path2elevation
+- title: GeoPressureTemplate
+  desc: Wrapper functions for the full GeoPressureR worflow
+  contents:
+  - geopressuretemplate
+  - geopressuretemplate_tag
+  - geopressuretemplate_graph
+  - geopressuretemplate_pressurepath
+  - geopressuretemplate_config
 - title: Param
   desc: List of parameters used in `tag` and `graph`.
   contents:
   - param_create
   - print.param
-- title: GeoPressureR utilities
+- title: Utilities
   desc: General utility functions of the package.
   contents:
   - stap2flight

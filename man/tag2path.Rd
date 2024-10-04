@@ -43,15 +43,15 @@ is only performed at the centre of the grid cell (defined by the \code{likelihoo
 that it is not possible to interpolate the first and last stationary period.
 }
 \examples{
-owd <- setwd(system.file("extdata", package = "GeoPressureR"))
-tag <- tag_create("18LX", quiet = TRUE) |>
-  tag_label(quiet = TRUE) |>
-  tag_set_map(
-    extent = c(-16, 23, 0, 50),
-    scale = 2
-  ) |>
-  geopressure_map(quiet = TRUE)
-setwd(owd)
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |>
+    tag_label(quiet = TRUE) |>
+    tag_set_map(
+      extent = c(-16, 23, 0, 50),
+      scale = 2
+    ) |>
+    geopressure_map(quiet = TRUE)
+})
 
 # Extract a path from pressure map
 path <- tag2path(tag)

@@ -14,7 +14,7 @@ speed2bearing(
 \item{speed}{speed as complex value}
 
 \item{speed_ref}{reference vector of the angle. Default is the North in order to return bearing.
-Normal trigonometriy should be \code{speed_ref = 1}}
+Use \code{speed_ref = 1} for trigonometric orientation (clockwise from East).}
 
 \item{positive}{logical to ensure the bearing is positive between 0-360 degree.}
 }
@@ -23,5 +23,5 @@ bearing angle in degree
 }
 \description{
 This function convert a speed vector represented in complex number into a bearing angle (0°=N ;
-90°=E...). This conversion is needed because trigonomtric angle are different than bearing.
+90°=E...). This conversion is needed because trigonometric angle are different than bearing.
 }

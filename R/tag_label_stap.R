@@ -22,15 +22,16 @@
 #' @return `tag` is return with (1) a new data.frame of stationary periods `tag$stap` and (2) a new
 #'  column `stap_id` for each sensor data.
 #' @examples
-#' setwd(system.file("extdata", package = "GeoPressureR"))
-#' tag <- tag_create("18LX", quiet = TRUE) |>
-#'   tag_label_read()
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label_read()
 #'
-#' tag <- tag_label_stap(tag)
+#'   tag <- tag_label_stap(tag)
 #'
-#' str(tag)
+#'   str(tag)
 #'
-#' str(tag$stap)
+#'   str(tag$stap)
+#' })
 #' @family tag_label
 #' @seealso [GeoPressureManual](https://bit.ly/45gwcVu)
 #' @export
