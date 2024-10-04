@@ -531,7 +531,7 @@ plot_tag_twilight <- function(tag,
       twl$discard <- FALSE
     }
 
-    # plotly doesn't like much changing color...
+    # plotly doesn't like much changing colour...
     if (plot_plotly) {
       p <- p +
         ggplot2::geom_point(

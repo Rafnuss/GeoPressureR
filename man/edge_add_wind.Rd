@@ -35,7 +35,7 @@ POSIXt and \code{value} in hPa.}
 \code{"w"}, \code{"ciwc"}, \code{"clwc"}, \code{"q"}, \code{"cswc"}, \code{"d"}, \code{"z"}, \code{"o3"}, \code{"pv"}, \verb{'vo"}.}
 
 \item{rounding_interval}{temporal resolution on which to query the variable (min). Default is to
-macth ERA5 native resolution (1hr).}
+match ERA5 native resolution (1hr).}
 
 \item{interp_spatial_linear}{logical to interpolate the variable linearly over space, if \code{FALSE}
 takes the nearest neighbour. ERA5 native resolution is 0.25°}
@@ -73,7 +73,7 @@ A data.frame with columns:
 Reads the NetCDF files and extract the variable requested along each flight defined by the edges.
 \itemize{
 \item Time: linear interpolation using the resolution requested with \code{rounding_interval}
-\item Space: nearet neighbor interpolation by default or bi-linear with \code{pracma::interp2} if
+\item Space: nearest neighbour interpolation by default or bi-linear with \code{pracma::interp2} if
 \code{interp_spatial_linear=TRUE}
 \item Pressure/altitude: linear interpolation using the exact \code{pressure} values
 }

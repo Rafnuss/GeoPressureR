@@ -4,7 +4,7 @@
 #' Reads the NetCDF files and extract the variable requested along each flight defined by the edges.
 #'
 #' - Time: linear interpolation using the resolution requested with `rounding_interval`
-#' - Space: nearet neighbor interpolation by default or bi-linear with `pracma::interp2` if
+#' - Space: nearest neighbour interpolation by default or bi-linear with `pracma::interp2` if
 #' `interp_spatial_linear=TRUE`
 #' - Pressure/altitude: linear interpolation using the exact `pressure` values
 #'
@@ -20,7 +20,7 @@
 #' ](https://bit.ly/3BrwLBM) using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`,
 #' `"w"`, `"ciwc"`, `"clwc"`, `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `'vo"`.
 #' @param rounding_interval temporal resolution on which to query the variable (min). Default is to
-#' macth ERA5 native resolution (1hr).
+#' match ERA5 native resolution (1hr).
 #' @param interp_spatial_linear logical to interpolate the variable linearly over space, if `FALSE`
 #' takes the nearest neighbour. ERA5 native resolution is 0.25°
 #' @param return_averaged_variable logical to return the variable for each timestep or average for
@@ -213,7 +213,7 @@ edge_add_wind <- function(
       # We assume that the bird is moving with a constant groundspeed between `flight$start` and
       # `flight$end`. Using a linear interpolation, we extract the position (lat, lon) at every hour
       # on `t_q`. Extrapolation outside (before the bird departure or after he arrived) is with a
-      # nearest neighbor.
+      # nearest neighbour.
 
       dlat_se <- (lat_e - lat_s) / fl_s$duration[i_fl]
       dlon_se <- (lon_e - lon_s) / fl_s$duration[i_fl]

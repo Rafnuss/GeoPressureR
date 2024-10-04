@@ -51,9 +51,9 @@ geopressuretemplate_tag(
 )
 }
 \arguments{
-\item{id}{A unique identifier for the tag being processed.}
+\item{id}{unique identifier of a tag.}
 
-\item{config}{A configuration object specifying workflow parameters, which is loaded by default
+\item{config}{configuration object specifying workflow parameters, which is loaded by default
 using \code{config::get(config = id)}.}
 
 \item{quiet}{Logical. If \code{TRUE}, suppresses informational messages during execution. The default
@@ -74,16 +74,19 @@ The function returns nothing. Instead, it saves the processed outputs (tag, grap
 pressure paths, etc.) to the specified \code{file}.
 }
 \description{
-The \code{geopressuretemplate} function manages the complete workflow for modeling bird trajectories
-using geospatial pressure and light data. It includes the creation of tag data, likelihood map
-computation (pressure and/or light), graph model construction, trajectory estimation, and
-pressure path computation. The function follows a standard structure as defined by the GitHub
-repository \href{https://github.com/Rafnuss/GeoPressureTemplate}{geopressuretemplate}, which
-separates data and analysis for improved readability, sharability, and reproducibility.
+The \code{geopressuretemplate()} function manages the complete workflow for modelling bird
+trajectories using geolocator data. It includes the creation \code{tag} object, the construction of
+the likelihood maps (pressure and/or light), the creation of the graph model construction, and,
+finally, the estimation of the trajectory products and the pressure path computation. Read the
+\href{https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html}{Workflow chapter in the GeoPressureManual } for more
+information.
+
+To be able to run successfully these function, you will need to have correctly set-up the data
+and configuration files according following the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-project.html}{GeoPressureTemplate standard }.
 }
 \details{
 The \code{geopressuretemplate} function is a high-level entry point that coordinates multiple
-steps for processing geospatial animal movement data. It relies on underlying child
+steps for processing the geolocator data and produce trajectories. It relies on underlying child
 functions for each step:
 \itemize{
 \item \strong{Tag Creation \code{\link[=geopressuretemplate_tag]{geopressuretemplate_tag()}}}: Initializes and labels the \code{tag} object. It
@@ -150,8 +153,21 @@ the \code{geopressuretemplate} workflow.
 \examples{
 \dontrun{
 # Run the complete geopressuretemplate workflow
-geopressuretemplate("18LX", quiet = TRUE)
+geopressuretemplate("18LX")
+
+# Or run step-by-step
+# you can check that all the parameters are correctly set in the config file
+geopressuretemplate_config(id)
+# 1. creation of the tag
+tag <- geopressuretemplate_tag("18LX")
+# 2. creation of the graph
+geopressuretemplate_graph("18LX")
+# 3. Computation of the pressurepath
+geopressuretemplate_pressurepath("18LX")
 }
 
+}
+\seealso{
+\href{https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html}{GeoPressureManual }
 }
 \concept{geopressuretemplate}

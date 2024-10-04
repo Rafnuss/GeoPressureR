@@ -118,7 +118,7 @@ geopressureviz <- function(x,
 
   names(maps) <- names(maps_choices[maps_is_available])
 
-  # Set color of each stationary period
+  # Set colour of each stationary period
   col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(nrow(tag$stap) / 8))
   tag$stap$col <- col[tag$stap$stap_id]
   tag$stap$duration <- stap2duration(tag$stap)

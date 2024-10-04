@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Create a GeoPressureR `tag` object from the data collected by a tracking device. The function
-#' can read data formatted according to three manufacturers SOI, Migratetech or Lun CAnMove, as
+#' can read data formatted according to three manufacturers SOI, Migratetech or Lund CAnMove, as
 #' well as according to the GeoLocator Data package standard and also accept manual data.frame as
 #' input. Pressure data is required for the GeoPressureR workflow but can be allowed to be missing
 #' with `assert_pressure = FALSE`.
@@ -85,7 +85,8 @@
 #'    (i.e. jiggle). In the SOI sensor, it is summarised from 32 measurements at 10Hz
 #'    - `pitch` is the relative position of the bird’s body relative to the z axis. In the SOI
 #'    sensor, it is an average over 32 measurements at 10Hz.
-#' - `magnetic` (optional) data.frame with columns: `date`, `mX`, `mY`, `mZ`, `gX`, `gY` and `gZ`
+#' - `magnetic` (optional) data.frame with columns: `date`, `magnetic_x`, `magnetic_y`, `magnetic_z`
+#'    , `acceleration_x`, `acceleration_y` and `acceleration_z`
 #'
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

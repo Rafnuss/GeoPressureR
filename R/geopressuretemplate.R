@@ -1,29 +1,22 @@
 #' Workflow for GeoPressureR
 #'
 #' @description
-#' The `geopressuretemplate` function manages the complete workflow for modeling bird trajectories
-#' using geospatial pressure and light data. It includes the creation of tag data, likelihood map
-#' computation (pressure and/or light), graph model construction, trajectory estimation, and
-#' pressure path computation. The function follows a standard structure as defined by the GitHub
-#' repository [geopressuretemplate](https://github.com/Rafnuss/GeoPressureTemplate), which
-#' separates data and analysis for improved readability, sharability, and reproducibility.
+#' The `geopressuretemplate()` function manages the complete workflow for modelling bird
+#' trajectories using geolocator data. It includes the creation `tag` object, the construction of
+#' the likelihood maps (pressure and/or light), the creation of the graph model construction, and,
+#' finally, the estimation of the trajectory products and the pressure path computation. Read the
+#' [Workflow chapter in the GeoPressureManual
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html) for more
+#' information.
 #'
-#' @param id A unique identifier for the tag being processed.
-#' @param config A configuration object specifying workflow parameters, which is loaded by default
-#' using `config::get(config = id)`.
-#' @param quiet Logical. If `TRUE`, suppresses informational messages during execution. The default
-#' value is `FALSE`.
-#' @param file A file path to save the intermediate results (e.g., tag, graph, and pressure paths).
-#' Default is `./data/interim/{id}.RData`.
-#' @param assert_graph Logical. If `TRUE`, check that the config is compatible for the creation of
-#' a graph. The default value is `TRUE`. Set to `FALSE` only if you don't want to create a graph
-#' model
-#' @param ... Additional parameters to overwrite default or config values. Always prefer to modify
-#' `config.yml` if possible.
+#' To be able to run successfully these function, you will need to have correctly set-up the data
+#' and configuration files according following the [GeoPressureTemplate standard
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-project.html).
+#'
 #'
 #' @details
 #' The `geopressuretemplate` function is a high-level entry point that coordinates multiple
-#' steps for processing geospatial animal movement data. It relies on underlying child
+#' steps for processing the geolocator data and produce trajectories. It relies on underlying child
 #' functions for each step:
 #'
 #' * **Tag Creation [`geopressuretemplate_tag()`]**: Initializes and labels the `tag` object. It
@@ -67,6 +60,19 @@
 #' Each of these child functions can be called individually or automatically as part of
 #' the `geopressuretemplate` workflow.
 #'
+#' @param id unique identifier of a tag.
+#' @param config configuration object specifying workflow parameters, which is loaded by default
+#' using `config::get(config = id)`.
+#' @param quiet Logical. If `TRUE`, suppresses informational messages during execution. The default
+#' value is `FALSE`.
+#' @param file A file path to save the intermediate results (e.g., tag, graph, and pressure paths).
+#' Default is `./data/interim/{id}.RData`.
+#' @param assert_graph Logical. If `TRUE`, check that the config is compatible for the creation of
+#' a graph. The default value is `TRUE`. Set to `FALSE` only if you don't want to create a graph
+#' model
+#' @param ... Additional parameters to overwrite default or config values. Always prefer to modify
+#' `config.yml` if possible.
+#'
 #'
 #' @return
 #' The function returns nothing. Instead, it saves the processed outputs (tag, graph,
@@ -75,10 +81,22 @@
 #' @examples
 #' \dontrun{
 #' # Run the complete geopressuretemplate workflow
-#' geopressuretemplate("18LX", quiet = TRUE)
+#' geopressuretemplate("18LX")
+#'
+#' # Or run step-by-step
+#' # you can check that all the parameters are correctly set in the config file
+#' geopressuretemplate_config(id)
+#' # 1. creation of the tag
+#' tag <- geopressuretemplate_tag("18LX")
+#' # 2. creation of the graph
+#' geopressuretemplate_graph("18LX")
+#' # 3. Computation of the pressurepath
+#' geopressuretemplate_pressurepath("18LX")
 #' }
 #'
 #' @family geopressuretemplate
+#' @seealso [GeoPressureManual
+#' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html)
 #' @export
 geopressuretemplate <- function(
     id,

@@ -11,7 +11,7 @@
 #' @param stap a data.frame of stationary periods.
 #' @inheritParams tag_create
 #' @param type type of data one of `"unknown"`,`"pressure"`, `"light"`, `"pressure_mse"`,
-#' `"water_mask"`, `"pressure_mask"`, `"marginal"`. Allows for custom color palette on plot.
+#' `"water_mask"`, `"pressure_mask"`, `"marginal"`. Allows for custom colour palette on plot.
 #'
 #' @return A GeoPressure `map` object is returned
 #'

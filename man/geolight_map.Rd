@@ -44,7 +44,7 @@ Calibration requires to have a known position for a least one stationary periods
 
 Instead of calibrating the twilight errors in terms of duration, we directly model the zenith
 angle error. We use a kernel distribution to fit the zenith angle during the known stationary
-period(s). The \code{twl_calib_adjust} parameter allows to mararnually adjust how smooth you want the
+period(s). The \code{twl_calib_adjust} parameter allows to manually adjust how smooth you want the
 fit of the zenith angle to be. Because the zenith angle error model is fitted with data from the
 calibration site only, and we are using it for all locations of the bird’s journey, it is safer
 to assume a broader/smoother distribution.

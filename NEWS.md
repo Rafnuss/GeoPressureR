@@ -28,7 +28,7 @@
 - Update to GeoPressureAPI v2 for `geopressure_timeseries()` https://github.com/Rafnuss/GeoPressureR/pull/103/commits/732d1a02cc241dc7d2dde3401c8747fa860650c6
 - Fix major bug https://github.com/Rafnuss/GeoPressureR/pull/103/commits/05c3203ef1588bbc1f769050377cadf5f1aadcbd
 - Migrate from `httr`to `httr2`
-- Fix major bug with saving enviremnt variable in param https://github.com/Rafnuss/GeoPressureR/commit/9bcbf790a7de133448c738db272bf136dc831f8f
+- Fix major bug with saving environment variable in param https://github.com/Rafnuss/GeoPressureR/commit/9bcbf790a7de133448c738db272bf136dc831f8f
 - Add functions `speed2bearing()` and `windsupport()` https://github.com/Rafnuss/GeoPressureR/commit/fe244f6057db14b6a286c0a77aaaef4c5ec0152c
 - Use interpolated `stap_id` for flight instead of `0` https://github.com/Rafnuss/GeoPressureR/commit/d7491c2a5580c9eeafe598935933727489590a75
 - Create `edge_add_wind()` https://github.com/Rafnuss/GeoPressureR/commit/36412dc8f0fd061798a701ca632766dbe6f069c8

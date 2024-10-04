@@ -5,16 +5,16 @@
 #' power curve: mass, wing span, wing aspect ratio, and body frontal area.
 #'
 #' When any of these variables are missing, we query the
-#' \href{https://doi.org/10.6084/m9.figshare.16586228.v5}{AVONET database} using the scientific
-#' name from \href{https://www.birds.cornell.edu/clementschecklist/}{the Clements Checklist}.
+#' [AVONET database](https://doi.org/10.6084/m9.figshare.16586228.v5) using the scientific
+#' name from [the Clements Checklist](https://www.birds.cornell.edu/clementschecklist/).
 #'
 #'
 #' @param scientific_name Scientific name of the species
-#' @param mass Mass of the bird in kilograms.
-#' @param wing_span Wing span in meters.
-#' @param wing_aspect Wing aspect ratio (no unit).
-#' @param wing_area Wing area in meter square.
-#' @param body_frontal_area Body frontal area in meter square.
+#' @param mass Mass of the bird in kilograms
+#' @param wing_span Wing span in meters
+#' @param wing_aspect Wing aspect ratio (no unit)
+#' @param wing_area Wing area in meter square
+#' @param body_frontal_area Body frontal area in meter square
 #' @param species_name `r lifecycle::badge("deprecated")` Use `scientific_name` instead
 #' @importFrom lifecycle deprecated
 #' @return List containing mass, wing span, wing aspect ratio, and body frontal area.
@@ -27,7 +27,7 @@
 #'
 #' # Import your own bird. You will need mass, and at least two of wing_span,
 #' # wing_aspect or wing_area.
-#' bird_create("custum_bird", mass = 1, wing_span = 1, wing_aspect = 4)
+#' bird_create("Madynuss nutshell", mass = 8, wing_span = 0.2, wing_aspect = 4)
 #'
 #' @family bird
 #' @family movement

@@ -22,7 +22,7 @@ scale on the \href{https://developers.google.com/earth-engine/guides/scale}{Goog
 \item{id}{unique identifier of a tag.}
 
 \item{type}{type of data one of \code{"unknown"},\code{"pressure"}, \code{"light"}, \code{"pressure_mse"},
-\code{"water_mask"}, \code{"pressure_mask"}, \code{"marginal"}. Allows for custom color palette on plot.}
+\code{"water_mask"}, \code{"pressure_mask"}, \code{"marginal"}. Allows for custom colour palette on plot.}
 }
 \value{
 A GeoPressure \code{map} object is returned

@@ -70,12 +70,13 @@ a GeoPressureR \code{tag} object containing
 \item \code{pitch} is the relative position of the bird’s body relative to the z axis. In the SOI
 sensor, it is an average over 32 measurements at 10Hz.
 }
-\item \code{magnetic} (optional) data.frame with columns: \code{date}, \code{mX}, \code{mY}, \code{mZ}, \code{gX}, \code{gY} and \code{gZ}
+\item \code{magnetic} (optional) data.frame with columns: \code{date}, \code{magnetic_x}, \code{magnetic_y}, \code{magnetic_z}
+, \code{acceleration_x}, \code{acceleration_y} and \code{acceleration_z}
 }
 }
 \description{
 Create a GeoPressureR \code{tag} object from the data collected by a tracking device. The function
-can read data formatted according to three manufacturers SOI, Migratetech or Lun CAnMove, as
+can read data formatted according to three manufacturers SOI, Migratetech or Lund CAnMove, as
 well as according to the GeoLocator Data package standard and also accept manual data.frame as
 input. Pressure data is required for the GeoPressureR workflow but can be allowed to be missing
 with \code{assert_pressure = FALSE}.
