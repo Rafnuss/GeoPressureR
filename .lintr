@@ -1,5 +1,6 @@
 linters: linters_with_defaults(
   line_length_linter(100),
+  object_length_linter(35),
   commented_code_linter = NULL,
   # spaces_left_parentheses_linter = NULL,
   # brace_linter = NULL,
