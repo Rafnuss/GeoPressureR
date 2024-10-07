@@ -151,7 +151,7 @@ merge_params <- function(base_param, overlay_param, only_in_base = FALSE) {
       if (!only_in_base || (name %in% base_param)) {
         base <- base_param[[name]]
         overlay <- overlay_param[[name]]
-        if (!is.null(base) && is.list(base) && is.list(overlay)) {
+        if (!is.null(base) && is.list(base)) {
           merged_param[[name]] <- merge_params(base, overlay)
         } else {
           merged_param[[name]] <- NULL
