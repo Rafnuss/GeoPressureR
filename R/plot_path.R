@@ -31,6 +31,9 @@ plot_path <- function(path,
                       provider_options = leaflet::providerTileOptions(),
                       pad = 3,
                       ...) {
+  assertthat::assert_that(is.data.frame(path))
+  assertthat::assert_that(assertthat::has_name(path, c("lat", "lon")))
+
   if (all(c("start", "end") %in% names(path))) {
     path$duration <- stap2duration(path)
   } else {
@@ -107,15 +110,30 @@ plot_path <- function(path,
 plot_path_leaflet <- function(
     map,
     path,
-    polyline = list(
+    polyline = NULL,
+    circle = NULL) {
+  polyline <- merge_params(
+    list(
       stroke = TRUE,
       color = "black",
       weight = 5,
       opacity = 0.7,
       dashArray = NULL
     ),
-    circle = list(
-      radius = stap2duration(path)^(0.25) * 6,
+    polyline
+  )
+
+  if ("start" %in% names(path)) {
+    radius <- stap2duration(path)^(0.25) * 6
+    label <- glue::glue("#{path$stap_id}, {round(stap2duration(path), 1)} days")
+  } else {
+    radius <- 6
+    label <- glue::glue("#{1:nrow(path_light)}")
+  }
+
+  circle <- merge_params(
+    list(
+      radius = radius,
       stroke = TRUE,
       color = "white",
       weight = 2,
@@ -123,8 +141,11 @@ plot_path_leaflet <- function(
       fill = ifelse(is.null(path$interp), TRUE, !path$interp),
       fillColor = "grey",
       fillOpacity = 0.8,
-      label = glue::glue("#{path$stap_id}, {round(stap2duration(path), 1)} days")
-    )) {
+      label = label
+    ),
+    circle
+  )
+
   # Remove position of stap not included/not available
   path_full <- path[!is.na(path$lat), ]
 
