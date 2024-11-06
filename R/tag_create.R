@@ -824,10 +824,9 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
                               {glue::glue_collapse(missing_cols, ', ')}"))
   }
 
-  df$datetime <- as.POSIXct(
-    ifelse(grepl(" ", df$datetime), df$datetime, paste0(df$datetime, " 00:00:00")),
-    format = "%Y-%m-%d %H:%M:%S", tz = "UTC"
-  )
+  # Rename column datetime to date and convert to posixct
+  names(df)[names(df) == "datetime"] <- "date"
+  df$date <- as.POSIXct(strptime(df$date, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC"))
 
   if (!quiet) {
     cli::cli_inform(c("v" = "Read {.file {sensor_path}}"))
