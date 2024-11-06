@@ -441,10 +441,16 @@ tag_create_soi <- function(tag,
   tag$param$tag_create$temperature_internal_file <- temperature_internal_path
   tag$param$tag_create$magnetic_file <- magnetic_path
 
-  setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
-  if (!is.null(setting_path)) {
-    tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
-  }
+  tryCatch(
+    {
+      setting_path <- GeoPressureR:::tag_create_detect("*.settings", directory, quiet = TRUE)
+      tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
+    },
+    error = function(e) {
+      cli::cli_alert_warning("Failed to load {.file {setting_path}}.")
+      message(e$message)
+    }
+  )
 
   return(tag)
 }
