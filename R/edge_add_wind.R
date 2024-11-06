@@ -510,16 +510,18 @@ edge_add_wind_check <- function(
       # Check if spatial extend match
       lat <- ncdf4::ncvar_get(nc, "latitude")
       lon <- ncdf4::ncvar_get(nc, "longitude")
+      nc_extent <- c(min(lon), max(lon), min(lat), max(lat))
       if (min(g$lat) < min(lat) || max(g$lat) > max(lat) ||
         min(g$lon) < min(lon) || max(g$lon) > max(lon)) {
-        cli::cli_abort(c(x = "Spatial extend not matching for {.file {file(i_s)}}"))
+        cli::cli_abort(c(x = "Spatial extend of the grid ({tag_graph$param$tag_set_map$extent}) is
+        not included in the extent of {.file {file(i_s)}} ({nc_extent})"))
       }
 
       # Check if flight duration is
       if (fl_s$start[i_fl] >= fl_s$end[i_fl]) {
         cli::cli_abort(c(
-          x = "Flight starting on stap {fl_s$stap_s[i_fl]} has a start time equal or greater than \\
-                         the end time. Please review your labelling file."
+          x = "Flight starting on stap {fl_s$stap_s[i_fl]} has a start time equal or greater than
+          the end time. Please review your labelling file."
         ))
       }
     }
