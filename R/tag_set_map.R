@@ -86,6 +86,9 @@ tag_set_map <- function(tag,
   assertthat::assert_that(all(stap$stap_id == seq_len(nrow(stap))))
 
   # Check extent and scale
+  if (is.list(extent)) {
+    extent <- unlist(extent)
+  }
   map_expand(extent, scale)
 
   # Check known
