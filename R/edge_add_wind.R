@@ -510,7 +510,7 @@ edge_add_wind_check <- function(
       # Check if spatial extend match
       lat <- ncdf4::ncvar_get(nc, "latitude")
       lon <- ncdf4::ncvar_get(nc, "longitude")
-      nc_extent <- c(min(lon), max(lon), min(lat), max(lat))
+      nc_extent <- c(min(lon), max(lon), min(lat), max(lat)) # nolint
       if (min(g$lat) < min(lat) || max(g$lat) > max(lat) ||
         min(g$lon) < min(lon) || max(g$lon) > max(lon)) {
         cli::cli_abort(c(x = "Spatial extend of the grid ({tag_graph$param$tag_set_map$extent}) is

@@ -1,4 +1,4 @@
-citHeader("To cite GeoPressureR in publications use the following (nussbaumer2022 for the R code and nussbaumer2023a, nussbaumer2023b for the method:)
+citHeader("To cite GeoPressureR in publications use the following (nussbaumer2022 for the R code and nussbaumer2023a, nussbaumer2023b for the method:")
 
 citEntry(
   entry   = "manual",
