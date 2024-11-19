@@ -45,14 +45,18 @@ bird_create <- function(scientific_name,
   }
   if (is.null(mass) || (is.null(wing_aspect) + is.null(wing_area) + is.null(wing_span) > 1)) {
     # Mass, wing length and secondary length are retrieve from the AVONET
-    sp_id <- grep(scientific_name, avonet$species, ignore.case = TRUE)
+    sp_id <- grep(scientific_name, GeoPressureR:::avonet$species, ignore.case = FALSE, fixed = TRUE)
     if (length(sp_id) == 0) {
-      cli::cli_abort("No match for {.val scientific_name}. Please use the exact scientific name.
-                      Closest matches are:
-                      {avonet$species[agrep(scientific_name, avonet$species, ignore.case = TRUE)]}")
-    } else if (length(sp_id) > 1) {
-      cli::cli_abort("Multiple match for {.val scientific_name}. Please use the exact scientific
-      name. {avonet$species[sp_id]}")
+      sp_id <- grep(scientific_name, avonet$species, ignore.case = TRUE)
+      if (length(sp_id) == 0) {
+        cli::cli_abort(
+          "No match for {.val scientific_name}. Please use the exact scientific name. Closest
+        matches are: {avonet$species[agrep(scientific_name, avonet$species, ignore.case = TRUE)]}"
+        )
+      } else if (length(sp_id) > 1) {
+        cli::cli_abort("Multiple match for {.val scientific_name}. Please use the exact scientific
+        name. {avonet$species[sp_id]}")
+      }
     }
     b <- avonet[sp_id, ]
     b$mass <- b$mass / 1000 # g -> kg
