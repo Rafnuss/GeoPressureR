@@ -40,6 +40,9 @@
 #' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
 #' taking as single argument the stationary period identifier.
 #' @param overwrite logical. If `TRUE`, file is overwritten.
+#' @inheritParams ecmwfr::wf_request_batch
+#' @inheritDotParams ecmwfr::wf_request_batch
+#'
 #' @return the path of the downloaded (requested file) or the an R6 object with download/transfer
 #' information
 #'
@@ -56,7 +59,9 @@ tag_download_wind <- function(
     variable = c("u_component_of_wind", "v_component_of_wind"),
     cds_token = Sys.getenv("cds_token"),
     file = \(stap_id) glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
-    overwrite = FALSE) {
+    overwrite = FALSE,
+    workers = 19,
+    ...) {
   tag_assert(tag, "setmap")
 
   stap <- tag$stap
@@ -160,10 +165,8 @@ tag_download_wind <- function(
 
   ecmwfr::wf_request_batch(
     request_list[include_stap_id],
-    workers = 20,
-    # user = ,
+    workers = workers,
     path = directory,
-    # time_out = 3600,
-    # total_timeout = length(request_list) * time_out/workers
+    ...
   )
 }
