@@ -94,7 +94,7 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
   }
 
   if (type == "inform") {
-    cli::cli_inform(msg)
+    cli::cli_bullets(msg)
   } else if (type == "warn") {
     cli::cli_warn(msg)
   } else {

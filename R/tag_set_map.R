@@ -141,7 +141,7 @@ tag_set_map <- function(tag,
     if (chg_known || chg_extent || chg_scale || chg_include) {
       # Only provide option to stop the process if map are already defined
       if (any(c("map_pressure", "map_light") %in% names(tag))) {
-        cli::cli_inform(c("!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) \\
+        cli::cli_bullets(c("!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) \\
           have already been computed on this {.var tag} object with different setmap parameters."))
         res <- utils::askYesNo(
           "Do you want to overwrite the parameters and delete the likelihood maps?"

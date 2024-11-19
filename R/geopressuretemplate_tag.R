@@ -14,7 +14,7 @@ geopressuretemplate_tag <- function(
   # Check if folder exist
   dir_file <- dirname(file)
   if (!dir.exists(dir_file)) {
-    cli::cli_inform(c("!" = "The directory {.file {dir_file}} does not exists."))
+    cli::cli_bullets(c("!" = "The directory {.file {dir_file}} does not exists."))
     res <- utils::askYesNo("Do you want to create it?")
     if (res) {
       dir.create(dir_file)

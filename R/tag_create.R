@@ -608,7 +608,7 @@ tag_create_lund <- function(tag,
     value = xls$`Pressure [hPa]`
   )
   if (!quiet) {
-    cli::cli_inform(c("v" = "Read {.file {pressure_path}}"))
+    cli::cli_bullets(c("v" = "Read {.file {pressure_path}}"))
   }
 
 
@@ -636,7 +636,7 @@ tag_create_lund <- function(tag,
     )
 
     if (!quiet) {
-      cli::cli_inform(c("v" = "Read {.file {acc_light_path}}"))
+      cli::cli_bullets(c("v" = "Read {.file {acc_light_path}}"))
     }
   }
 
@@ -807,7 +807,7 @@ tag_create_dto <- function(sensor_path,
   }
 
   if (!quiet) {
-    cli::cli_inform(c("v" = "Read {.file {sensor_path}}"))
+    cli::cli_bullets(c("v" = "Read {.file {sensor_path}}"))
   }
   return(df)
 }
@@ -829,7 +829,7 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
   df$date <- as.POSIXct(strptime(df$date, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC"))
 
   if (!quiet) {
-    cli::cli_inform(c("v" = "Read {.file {sensor_path}}"))
+    cli::cli_bullets(c("v" = "Read {.file {sensor_path}}"))
   }
 
   return(df)
