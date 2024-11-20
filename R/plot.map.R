@@ -59,8 +59,8 @@
 #' @method plot map
 #' @export
 plot.map <- function(x,
-                     thr_likelihood = 1,
                      path = NULL,
+                     thr_likelihood = 1,
                      plot_leaflet = TRUE,
                      provider = "Esri.WorldTopoMap",
                      provider_options = leaflet::providerTileOptions(),
@@ -178,14 +178,15 @@ plot.map <- function(x,
     if (!is.null(path)) {
       lmap <- plot_path_leaflet(lmap, path)
 
-      for (i in seq_len(nrow(path))) {
-        if (!is.na(path$lon[i])) {
+      for (i in seq_len(max(path$stap_id))) {
+        path_stap_id <- path[path$stap_id == i, ]
+        if (any(!is.na(path_stap_id$lon[i]))) {
           lmap <- leaflet::addCircleMarkers(
             lmap,
-            lng = path$lon[i],
-            lat = path$lat[i],
+            lng = path_stap_id$lon,
+            lat = path_stap_id$lat,
             group = grp[i],
-            radius = stap2duration(path[i, ])^(0.25) * 6,
+            radius = stap2duration(path_stap_id)^(0.25) * 6,
             stroke = TRUE,
             color = "white",
             weight = 2,
@@ -193,7 +194,9 @@ plot.map <- function(x,
             fill = TRUE,
             fillColor = "black",
             fillOpacity = 1,
-            label = glue::glue("#{path$stap_id[i]}, {round(stap2duration(path)[i], 1)} days")
+            label = glue::glue(
+              "#{path_stap_id$stap_id[1]}, {round(stap2duration(path_stap_id)[1], 1)} days"
+            )
           )
         }
       }

@@ -149,33 +149,41 @@ plot_path_leaflet <- function(
   # Remove position of stap not included/not available
   path_full <- path[!is.na(path$lat), ]
 
+  # Get number of path
+  unique_j <- unique(path$j)
+
   # Plot trajectory of all available point in grey
   if (nrow(path_full) < nrow(path)) {
     polyline_full <- polyline
     # polyline_full$weight <- polyline_full$weight/2
     polyline_full$opacity <- polyline_full$opacity / 2
     polyline_full$color <- "grey"
-    map <- do.call(leaflet::addPolylines, c(
-      list(
-        map = map,
-        lng = path_full$lon,
-        lat = path_full$lat,
-        group = path_full$j
-      ),
-      polyline_full
-    ))
+
+    for (j in unique_j) {
+      map <- do.call(leaflet::addPolylines, c(
+        list(
+          map = map,
+          lng = path_full$lon[path_full$j == j],
+          lat = path_full$lat[path_full$j == j],
+          group = path$j[path$j == j]
+        ),
+        polyline_full
+      ))
+    }
   }
 
   # Overlay with trajectory of consecutive position in black.
-  map <- do.call(leaflet::addPolylines, c(
-    list(
-      map = map,
-      lng = path$lon,
-      lat = path$lat,
-      group = path$j
-    ),
-    polyline
-  ))
+  for (j in unique_j) {
+    map <- do.call(leaflet::addPolylines, c(
+      list(
+        map = map,
+        lng = path$lon[path$j == j],
+        lat = path$lat[path$j == j],
+        group = path$j[path$j == j]
+      ),
+      polyline
+    ))
+  }
 
   suppressWarnings({
     map <- do.call(leaflet::addCircleMarkers, c(
