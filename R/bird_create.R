@@ -45,7 +45,7 @@ bird_create <- function(scientific_name,
   }
   if (is.null(mass) || (is.null(wing_aspect) + is.null(wing_area) + is.null(wing_span) > 1)) {
     # Mass, wing length and secondary length are retrieve from the AVONET
-    sp_id <- grep(scientific_name, GeoPressureR:::avonet$species, ignore.case = FALSE, fixed = TRUE)
+    sp_id <- grep(scientific_name, avonet$species, ignore.case = FALSE, fixed = TRUE)
     if (length(sp_id) == 0) {
       sp_id <- grep(scientific_name, avonet$species, ignore.case = TRUE)
       if (length(sp_id) == 0) {

@@ -12,7 +12,9 @@ tag_download_wind(
   cds_token = Sys.getenv("cds_token"),
   file = function(stap_id)
     glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
-  overwrite = FALSE
+  overwrite = FALSE,
+  workers = 19,
+  ...
 )
 }
 \arguments{
@@ -37,6 +39,24 @@ Default is to download all flights.}
 taking as single argument the stationary period identifier.}
 
 \item{overwrite}{logical. If \code{TRUE}, file is overwritten.}
+
+\item{workers}{maximum number of simultaneous request that will be submitted
+to the service. Most ECMWF services are limited to 20 concurrent requests
+(default = 2).}
+
+\item{...}{
+  Arguments passed on to \code{\link[ecmwfr:wf_request]{ecmwfr::wf_request_batch}}
+  \describe{
+    \item{\code{user}}{user (default = "ecmwf") provided by the ECMWF data service,
+used to retrieve the token set by \code{\link[ecmwfr]{wf_set_key}}}
+    \item{\code{path}}{path were to store the downloaded data}
+    \item{\code{time_out}}{how long to wait on a download to start (default =
+\code{3*3600} seconds).}
+    \item{\code{retry}}{polling frequency of submitted request for downloading (default =
+\code{30} seconds).}
+    \item{\code{request_list}}{a list of requests that will be processed in parallel.}
+    \item{\code{total_timeout}}{overall timeout limit for all the requests in seconds.}
+  }}
 }
 \value{
 the path of the downloaded (requested file) or the an R6 object with download/transfer

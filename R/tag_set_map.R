@@ -106,6 +106,9 @@ tag_set_map <- function(tag,
       i = "Modify {.var extent} or {.var known} to match this requirement."
     ))
   }
+  if (anyDuplicated(known$stap_id)) {
+    cli::cli_abort("{.var known} contains duplicate {.field stap_id} values.")
+  }
   # Keep a copy of the original known to keep in param. Useful to keep negative indexing
   known0 <- known
   # Use negative indexing: e.g. replace known$stap_id = -1 to the last stap
@@ -141,8 +144,10 @@ tag_set_map <- function(tag,
     if (chg_known || chg_extent || chg_scale || chg_include) {
       # Only provide option to stop the process if map are already defined
       if (any(c("map_pressure", "map_light") %in% names(tag))) {
-        cli::cli_bullets(c("!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) \\
-          have already been computed on this {.var tag} object with different setmap parameters."))
+        cli::cli_bullets(
+          c("!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) \\
+          have already been computed on this {.var tag} object with different setmap parameters.")
+        )
         res <- utils::askYesNo(
           "Do you want to overwrite the parameters and delete the likelihood maps?"
         )

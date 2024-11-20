@@ -55,7 +55,7 @@ geopressuretemplate_pressurepath <- function(
     }
 
     if ("pressurepath_tag" %in% config$geopressuretemplate$pressurepath &&
-        "path_tag" %in% save_list) {
+      "path_tag" %in% save_list) {
       path_tag <- get("path_tag")
       pressurepath_geopressureviz <- pressurepath_create( # nolint
         tag,
@@ -68,7 +68,7 @@ geopressuretemplate_pressurepath <- function(
     }
 
     if ("pressurepath_simulation" %in% config$geopressuretemplate$pressurepath &&
-        "path_simulation" %in% save_list) {
+      "path_simulation" %in% save_list) {
       path_simulation <- get("path_tag")
       pressurepath_geopressureviz <- pressurepath_create( # nolint
         tag,

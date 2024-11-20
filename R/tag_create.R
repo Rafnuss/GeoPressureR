@@ -443,7 +443,7 @@ tag_create_soi <- function(tag,
 
   tryCatch(
     {
-      setting_path <- GeoPressureR:::tag_create_detect("*.settings", directory, quiet = TRUE)
+      setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
       tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
     },
     error = function(e) {
