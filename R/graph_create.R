@@ -267,8 +267,9 @@ graph_create <- function(tag,
 
       # The minimal distance between grid cell is not from the center of the cell, but from one edge
       # to the other (opposite) edge. So the minimal distance between cell should be reduce by the
-      # grid resolution.
-      dist <- pmax(dist - resolution[s_id[, 1]], 0)
+      # grid resolution. We still want to keep the distance 0 only to the actual same pixel, so we
+      # make the distance at a minimum of 1 if initial distance is greater than 1.
+      dist[dist > 0] <- pmax(dist[dist > 0] - resolution[s_id[, 1]], 1)
 
       # Compute groundspeed
       gs_abs <- dist / flight_duration[i_s]
