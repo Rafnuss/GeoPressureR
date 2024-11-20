@@ -82,7 +82,8 @@ param_create <- function(id, default = FALSE, ...) {
         scale = formals(graph_set_movement)$scale,
         location = formals(graph_set_movement)$location,
         power2prob = formals(graph_set_movement)$power2prob,
-        low_speed_fix = formals(graph_set_movement)$low_speed_fix
+        low_speed_fix = formals(graph_set_movement)$low_speed_fix,
+        zero_speed_ratio = formals(graph_set_movement)$zero_speed_ratio
       ),
       bird = list(
         mass = formals(bird_create)$mass,

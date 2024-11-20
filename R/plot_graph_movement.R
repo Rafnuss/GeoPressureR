@@ -11,7 +11,7 @@
 #' @family movement
 #' @export
 plot_graph_movement <- function(graph,
-                                speed = seq(1, 120),
+                                speed = seq(0, 120),
                                 plot_plotly = FALSE) {
   # Check that graph is correct
   graph_assert(graph, "movement")

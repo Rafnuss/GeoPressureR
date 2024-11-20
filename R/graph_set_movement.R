@@ -15,14 +15,19 @@
 #' @param graph a GeoPressureR `graph` object.
 #' @param type Ground speed `"gs"` or airspeed `"as"`
 #' @param method method used to convert the speed to probability ("gamma", "logis" or "power")
-#' @param shape parameter of the gamma distribution
-#' @param scale  parameter of the gamma and logistic distribution
-#' @param location parameter for the logistic distribution
+#' @param shape parameter of the gamma distribution (km/h)
+#' @param scale  parameter of the gamma and logistic distribution (km/h)
+#' @param location parameter for the logistic distribution (km/h)
 #' @param bird A GeoPressureR `bird` object containing the basic morphological traits necessary:
 #'  mass, wing span, wing aspect ratio, and body frontal area. See `bird_create()`.
 #' @param power2prob function taking power as a single argument and returning a probability
-#' @param low_speed_fix speed below which the probability remains the same. This parameter is used
-#'   to allow short flights covering small distances.
+#' @param low_speed_fix speed below which the probability remains the same, i.e. we assign the same
+#' probability at `low_speed_fix` for any lower speed. This parameter is used to allow short
+#' flights covering small distances. (unit of km/h)
+#' @param zero_speed_ratio multiplicative ratio of the probability for speed zero. This ratio apply
+#' only when the bird is stayin at the same location (fly and come back or stay within pixel size).
+#' This parameter (when greater than 1) is used to favour a bird to stay at the same location rather
+#' than perform short fly.
 #'
 #' @return Graph list with a new list `graph$movement` storing all the parameters needed to compute
 #' the transition probability
@@ -74,7 +79,8 @@ graph_set_movement <- function(graph,
                                location = 40,
                                bird = NULL,
                                power2prob = \(power) (1 / power)^3,
-                               low_speed_fix = 15) {
+                               low_speed_fix = 15,
+                               zero_speed_ratio = 1) {
   graph_assert(graph)
 
   assertthat::assert_that(type == "as" | type == "gs")
@@ -85,11 +91,13 @@ graph_set_movement <- function(graph,
   assertthat::assert_that(is.numeric(scale))
   assertthat::assert_that(is.numeric(location))
   assertthat::assert_that(is.numeric(low_speed_fix))
+  assertthat::assert_that(is.numeric(zero_speed_ratio))
 
   mvt <- list(
     type = type,
     method = method,
-    low_speed_fix = low_speed_fix
+    low_speed_fix = low_speed_fix,
+    zero_speed_ratio = zero_speed_ratio
   )
 
   if (method == "gamma") {
