@@ -99,6 +99,13 @@ tag_set_map <- function(tag,
   assertthat::assert_that(assertthat::has_name(known, "stap_id"))
   assertthat::assert_that(assertthat::has_name(known, "known_lat"))
   assertthat::assert_that(assertthat::has_name(known, "known_lon"))
+  # Only use the required column. Other names can cause issue later...
+  unexpected_cols <- setdiff(names(known), c("stap_id", "known_lat", "known_lon"))
+  if (length(unexpected_cols)) {
+    cli_warn("Unexpected columns found in {.var known}: {paste(unexpected_cols, collapse = ', ')}")
+    known <- known[, c("stap_id", "known_lat", "known_lon")]
+  }
+  known <- known[, c("stap_id", "known_lat", "known_lon")]
   if (!all(known$known_lon >= extent[1] & known$known_lon <= extent[2] &
     known$known_lat >= extent[3] & known$known_lat <= extent[4])) {
     cli::cli_abort(c(
