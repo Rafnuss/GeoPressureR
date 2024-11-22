@@ -444,10 +444,12 @@ tag_create_soi <- function(tag,
   tryCatch(
     {
       setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
-      tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
+      if (!is.null(setting_path)) {
+        tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
+      }
     },
     error = function(e) {
-      cli::cli_alert_warning("Failed to load {.file {setting_path}}.")
+      cli::cli_alert_warning("Failed to load the SOI setting file {.file {setting_path}}.")
       message(e$message)
     }
   )
