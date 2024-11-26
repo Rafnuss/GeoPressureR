@@ -102,7 +102,8 @@ tag_set_map <- function(tag,
   # Only use the required column. Other names can cause issue later...
   unexpected_cols <- setdiff(names(known), c("stap_id", "known_lat", "known_lon"))
   if (length(unexpected_cols)) {
-    cli_warn("Unexpected columns found in {.var known}: {paste(unexpected_cols, collapse = ', ')}")
+    cli::cli_warn("Unexpected columns found in {.var known}: \\
+                  {paste(unexpected_cols, collapse = ', ')}")
     known <- known[, c("stap_id", "known_lat", "known_lon")]
   }
   known <- known[, c("stap_id", "known_lat", "known_lon")]
