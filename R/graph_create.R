@@ -4,7 +4,7 @@
 #' This function returns a trellis graph representing the trajectory of a bird based on filtering
 #' and pruning the likelihood maps provided.
 #'
-#' In the final graph, we only keep the most likely nodes (i.e., position of the bird at each
+#' In the final graph, we only keep the likely nodes (i.e., position of the bird at each
 #' stationary periods) defined as (1) those whose likelihood value are within the threshold of
 #' percentile `thr_likelihood` of the total likelihood map and (2) those which are connected to
 #' at least one edge of the previous and next stationary periods requiring an average ground speed
@@ -120,8 +120,11 @@ graph_create <- function(tag,
 
   # Approximate resolution of the grid from ° to in km
   # Assume uniform grid in lat-lon
-  # Use the smaller resolution assuming 111km/lon and 111*cos(lat)km/lat
-  resolution <- mean(diff(g$lon)) * pmin(cos(g$lat * pi / 180) * 111.320, 110.574)
+  # Use the smaller resolution assuming 110.574km/lon and 111.320*cos(lat)km/lat
+  resolution <- pmin(
+    abs(stats::median(diff(g$lat))) * cos(g$lat * pi / 180) * 111.320,
+    stats::median(diff(g$lon)) * 110.574
+  )
 
   # Construct flight
   flight <- stap2flight(stap)
@@ -265,23 +268,42 @@ graph_create <- function(tag,
         cbind(g$lon[t_id[, 2]], g$lat[t_id[, 1]])
       ) / 1000 # m -> km
 
-      # The minimal distance between grid cell is not from the center of the cell, but from one edge
-      # to the other (opposite) edge. So the minimal distance between cell should be reduce by the
-      # grid resolution. We still want to keep the distance 0 only to the actual same pixel, so we
-      # make the distance at a minimum of 1 if initial distance is greater than 1.
-      dist[dist > 0] <- pmax(dist[dist > 0] - resolution[s_id[, 1]], 1)
-
       # Compute groundspeed
       gs_abs <- dist / flight_duration[i_s]
 
       # filter the transition based on the groundspeed
       id <- gs_abs < thr_gs
+
+      # Check that at least one transition exist
       if (sum(id) == 0) {
-        cli::cli_abort(c(
-          x = "Using the {.var thr_g} of {.val {thr_gs}} km/h provided with the exact distance of \\
-          edges, there are not any nodes left for the stationary period: {.val stap_include[i_s]}"
-        ))
+        # The minimal distance between grid cell is not from the center of the cell, but from one
+        # edge to the other (opposite) edge. So the minimal distance between cell should be reduce
+        # by the grid resolution. We still want to keep the distance 0 only to the actual same
+        # pixel, so we make the distance at a minimum of 1 if initial distance is greater than 1.
+        dist[dist > 0] <- pmax(dist[dist > 0] - resolution[s_id[dist > 0, 1]], 1)
+        gs_abs <- dist / flight_duration[i_s]
+        id <- gs_abs < thr_gs
+
+        if (sum(id) == 0) {
+          cli::cli_abort(c(
+            x = "Using the {.var thr_g} of {.val {thr_gs}} km/h provided with the exact distance of
+            edges, there are not any node combinaison possible between stationary period
+            {.val {stap_include[i_s]}} and {.val {stap_include[i_s + 1]}}.",
+            ">" = "Check flight duration, likelihood map (and labeling) as well as grid resolution."
+          ))
+        } else {
+          cli::cli_warn(c(
+            "!" = "Using the {.var thr_g} of {.val {thr_gs}} km/h provided with the exact distance
+            of edges, there are not any node combinaison possible between stationary period
+            {.val {stap_include[i_s]}} and {.val {stap_include[i_s + 1]}}.",
+            "i" = "We modified the distance by using the minimal distance between cell rather than
+            the distance between the center to fix this issue.",
+            ">" = "Consider using a grid with a higher resolution."
+          ))
+        }
       }
+
+      # Filter for only transitions with smaller groundspeed
       grt <- grt[id, ]
 
       # Compute the bearing of the trajectory
@@ -296,13 +318,6 @@ graph_create <- function(tag,
       gs_arg <- (450 - gs_bearing) %% 360
       grt$gs <- gs_abs[id] * cos(gs_arg * pi / 180) +
         1i * gs_abs[id] * sin(gs_arg * pi / 180)
-
-      if (sum(id) == 0) {
-        cli::cli_abort(c(
-          x = "Using the {.var thr_g} of {.val {thr_gs}} km/h provided with the exact distance of \\
-          edges, there are not any nodes left for the stationary period: {.val {stap_include[i_s]}}"
-        ))
-      }
 
       return(grt)
     }, seed = TRUE)
