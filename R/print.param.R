@@ -79,7 +79,7 @@ print.param <- function(x, ...) {
   bullets(param$graph_set_movement, "shape")
   bullets(param$graph_set_movement, "scale")
   bullets(param$graph_set_movement, "location")
-  bullets(param, "bird")
+  bullets(param, "bird_create")
   bullets(param$graph_set_movement, "power2prob")
   bullets(param$graph_set_movement, "low_speed_fix")
   bullets(param$graph_set_movement, "zero_speed_ratio")
