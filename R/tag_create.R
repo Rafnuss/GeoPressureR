@@ -486,6 +486,8 @@ tag_create_migratetech <- function(tag,
                contains {.val Type:x}, with x>=13."
     )
   }
+  # Retrieve full model number
+  tag$param$migratec_model <- regmatches(line2, regexpr("Type: \\K[\\d.]+", line2, perl = TRUE))
   line16 <- readLines(deg_path, n = 16)[[16]]
   drift <- abs(as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60)
   if (drift > 30) {
