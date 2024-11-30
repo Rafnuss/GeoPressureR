@@ -18,11 +18,11 @@ print.bird <- function(x, ...) {
   bird <- x
   cli::cli_h1("GeoPressureR `bird` object")
   cli::cli_bullets(c(
-    "*" = "Scientific name: {bird$scientific_name}",
-    "*" = "Mass: {round(bird$mass,2)} (kg).",
-    "*" = "Body frontal area: {round(bird$body_frontal_area,1)} (m^2).",
-    "*" = "Wing span: {round(bird$wing_span,1)} (m).",
-    "*" = "Wing aspect: {round(bird$wing_aspect,1)} (-)."
+    "*" = "Scientific name: {bird_create$scientific_name}",
+    "*" = "Mass: {round(bird_create$mass,2)} (kg).",
+    "*" = "Body frontal area: {round(bird_create$body_frontal_area,1)} (m^2).",
+    "*" = "Wing span: {round(bird_create$wing_span,1)} (m).",
+    "*" = "Wing aspect: {round(bird_create$wing_aspect,1)} (-)."
   ))
   return(invisible(bird))
 }
