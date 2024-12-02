@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,19 +34,58 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.3.1/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="3.3.2" id="geopressurer-v332">GeoPressureR v3.3.2<a class="anchor" aria-label="anchor" href="#geopressurer-v332"></a></h2>
+<div class="section level3">
+<h3 id="major-update-3-3-2">Major update<a class="anchor" aria-label="anchor" href="#major-update-3-3-2"></a></h3>
+<ul><li>Change the computation of distance of edges in the graph by removing the fix that added 1 resolution to the distance to account for large grid square and short flight distance. Instead, add warning message in case there might be such an issue (flight distance &lt; grid resolution) <a href="https://github.com/Rafnuss/GeoPressureR/pull/126/commits/ddbd07db195440005f7f1ff96dd134dd43bdd8ae" class="external-link">ddbd07d</a>.</li>
+<li>Add <code>zero_speed_threshold</code> parameter that allow to encourage bird to stay at the same location. This is typically the case for short flight that don’t seems to affect the position. Quite similar to a <code>stap_elev</code> <a href="https://github.com/Rafnuss/GeoPressureR/pull/126/commits/2060790f8508c447a00877c2fc1d86c9d52bfe2e" class="external-link">2060790</a>
+</li>
+<li>Add other type of pressurepath in interim <a href="https://github.com/Rafnuss/GeoPressureR/pull/126/commits/8d7f1d12665608d37f5eafa53fb251554e7f5cdd" class="external-link">8d7f1d1</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-3-3-2">Minor<a class="anchor" aria-label="anchor" href="#minor-3-3-2"></a></h3>
+<ul><li>Plenty of small fixes and minor improvements <a href="https://github.com/Rafnuss/GeoPressureR/pull/126/commits/834155eeffcf04b33effce8d9b9d193c5554cbdf" class="external-link">834155e</a>, <a href="https://github.com/Rafnuss/GeoPressureR/pull/126/commits/152c6e7a2091970b444a47a3ceb0a367a42a9c2a" class="external-link">152c6e7</a>, <a href="https://github.com/Rafnuss/GeoPressureR/pull/126/commits/54aa99589f8e709089a08ae02c5aace821ab7cea" class="external-link">54aa995</a>, <a href="https://github.com/Rafnuss/GeoPressureR/pull/126/commits/3a5ff95774b353c853a32ed63327dad8df82fbbe" class="external-link">3a5ff95</a>, <a href="https://github.com/Rafnuss/GeoPressureR/pull/126/commits/6eedd83802f9377db43cba06c2e4b684b2154452" class="external-link">6eedd83</a>, <a href="https://github.com/Rafnuss/GeoPressureR/pull/126/commits/8797533b49c9cc76a3d81a90824a8ceaabd48692" class="external-link">8797533</a>, <a href="https://github.com/Rafnuss/GeoPressureR/pull/126/commits/1e68260c39bc49816c95095d0f3c3541986a50df" class="external-link">1e68260</a>
+</li>
+</ul><p><strong>Full Changelog</strong>: <a href="https://github.com/Rafnuss/GeoPressureR/compare/v3.3.1" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/compare/v3.3.1</a>…v3.3.2</p>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="3.3.1" id="geopressurer-v331">GeoPressureR v3.3.1<a class="anchor" aria-label="anchor" href="#geopressurer-v331"></a></h2>
+<div class="section level3">
+<h3 id="major-update-3-3-1">Major update<a class="anchor" aria-label="anchor" href="#major-update-3-3-1"></a></h3>
+<ul><li>[Update of param structure to function_name<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mi>a</mi><mi>r</mi><mi>a</mi><msub><mi>m</mi><mi>n</mi></msub><mi>a</mi><mi>m</mi><mi>e</mi><mo stretchy="false" form="postfix">]</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mi>t</mi><mi>t</mi><mi>p</mi><mi>s</mi><mo>:</mo><mi>/</mi><mi>/</mi><mi>g</mi><mi>i</mi><mi>t</mi><mi>h</mi><mi>u</mi><mi>b</mi><mi>.</mi><mi>c</mi><mi>o</mi><mi>m</mi><mi>/</mi><mi>R</mi><mi>a</mi><mi>f</mi><mi>n</mi><mi>u</mi><mi>s</mi><mi>s</mi><mi>/</mi><mi>G</mi><mi>e</mi><mi>o</mi><mi>P</mi><mi>r</mi><mi>e</mi><mi>s</mi><mi>s</mi><mi>u</mi><mi>r</mi><mi>e</mi><mi>R</mi><mi>/</mi><mi>c</mi><mi>o</mi><mi>m</mi><mi>m</mi><mi>i</mi><mi>t</mi><mi>/</mi><mn>2235</mn><mi>e</mi><mn>9</mn><mi>e</mi><mi>c</mi><mn>0</mn><mi>b</mi><mi>c</mi><mi>e</mi><mi>e</mi><mi>f</mi><mn>3</mn><mi>b</mi><mn>49</mn><mi>d</mi><mn>8</mn><mi>e</mi><mn>1887</mn><mi>a</mi><mn>309</mn><mi>b</mi><mn>2048353552</mn><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi><mi>T</mi><mi>h</mi><mi>e</mi><mi>s</mi><mi>t</mi><mi>r</mi><mi>u</mi><mi>c</mi><mi>t</mi><mi>u</mi><mi>r</mi><mi>e</mi><mi>o</mi><mi>f</mi><mi>t</mi><mi>h</mi><mi>e</mi><mi>p</mi><mi>a</mi><mi>r</mi><mi>a</mi><mi>m</mi><mi>h</mi><mi>a</mi><mi>s</mi><mi>b</mi><mi>e</mi><mi>e</mi><mi>n</mi><mi>r</mi><mi>e</mi><mi>o</mi><mi>r</mi><mi>g</mi><mi>a</mi><mi>n</mi><mi>i</mi><mi>s</mi><mi>e</mi><mi>d</mi><mo>:</mo><mi>t</mi><mi>h</mi><mi>i</mi><mi>s</mi><mi>n</mi><mi>a</mi><mi>m</mi><mi>e</mi><mi>d</mi><mi>l</mi><mi>i</mi><mi>s</mi><mi>t</mi><mi>s</mi><mi>t</mi><mi>o</mi><mi>r</mi><mi>e</mi><mi>d</mi><mi>i</mi><mi>n</mi><mi>s</mi><mi>i</mi><mi>d</mi><mi>e</mi><mi>o</mi><mi>f</mi><mi>t</mi><mi>a</mi><mi>g</mi><mi>a</mi><mi>n</mi><mi>d</mi><mi>g</mi><mi>r</mi><mi>a</mi><mi>p</mi><mi>h</mi><mi>s</mi><mi>t</mi><mi>o</mi><mi>r</mi><mi>e</mi><mi>s</mi><mi>p</mi><mi>a</mi><mi>r</mi><mi>a</mi><mi>m</mi><mi>e</mi><mi>t</mi><mi>e</mi><mi>r</mi><mi>s</mi><mi>u</mi><mi>s</mi><mi>e</mi><mi>d</mi><mi>d</mi><mi>u</mi><mi>r</mi><mi>i</mi><mi>n</mi><mi>g</mi><mi>t</mi><mi>h</mi><mi>e</mi><mi>b</mi><mi>u</mi><mi>i</mi><mi>l</mi><mi>d</mi><mi>i</mi><mi>n</mi><mi>g</mi><mi>o</mi><mi>f</mi><mi>t</mi><mi>a</mi><mi>g</mi><mi>a</mi><mi>n</mi><mi>d</mi><mi>g</mi><mi>r</mi><mi>a</mi><mi>p</mi><mi>h</mi><mi>.</mi><mi>W</mi><mi>e</mi><mi>s</mi><mi>t</mi><mi>a</mi><mi>n</mi><mi>d</mi><mi>a</mi><mi>r</mi><mi>d</mi><mi>i</mi><mi>z</mi><mi>e</mi><mi>d</mi><mi>t</mi><mi>h</mi><mi>i</mi><mi>s</mi><mi>s</mi><mi>t</mi><mi>r</mi><mi>u</mi><mi>c</mi><mi>t</mi><mi>u</mi><mi>r</mi><mi>e</mi><mi>a</mi><mi>s</mi><mi>p</mi><mi>a</mi><mi>r</mi><mi>a</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">param_name](https://github.com/Rafnuss/GeoPressureR/commit/2235e9ec0bceef3b49d8e1887a309b2048353552). The structure of the param has been reorganised: this named list stored inside of tag and graph stores parameters used during the building of tag and graph. We standardized this structure as param</annotation></semantics></math>{function_name}${argument_name}. <a href="https://github.com/Rafnuss/GeoPressureR/wiki/Migration-v3.x-%E2%80%90--v3.3" class="external-link">See the migration instructions in the GeoPressureR wiki</a>. This will mean you’ll need to update your config.yml structure - sorry for that.</li>
+<li>
+<a href="https://github.com/Rafnuss/GeoPressureR/commit/b000764ff3c2179eefb48bbf9178c5323c89aa7d" class="external-link">Add geopressuretemplate() functions</a>. The main improvement is related to the use of a single function to run the entire workflow: geopressuretemplate. Read more about this in the <a href="https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html" class="external-link">corresponding chapter of the GeoPressureManual</a>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-3-3-1">Minor<a class="anchor" aria-label="anchor" href="#minor-3-3-1"></a></h3>
+<ul><li><a href="https://github.com/Rafnuss/GeoPressureR/commit/5e1b15fd025f355107a90229779969ad2030d7c7" class="external-link">replace species_name by scientific_name</a></li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/commit/0707ae6041383bff704a4c78511ab2dbd16305ce" class="external-link">crop date UTC</a></li>
+<li><a href="https://github.com/Rafnuss/GeoPressureR/commit/6c12362128c569c05ae49bb0ed40b8a31adc5980" class="external-link">fix new variable name in netcdf</a></li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-contributors-3-3-1">New Contributors<a class="anchor" aria-label="anchor" href="#new-contributors-3-3-1"></a></h3>
+<ul><li>@PabloCapilla made their first contribution in <a href="https://github.com/Rafnuss/GeoPressureR/pull/125" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/pull/125</a>
+</li>
+</ul><p><strong>Full Changelog</strong>: <a href="https://github.com/Rafnuss/GeoPressureR/compare/v3.3.0" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/compare/v3.3.0</a>…v3.3.1</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="3.3" id="geopressurer-v33">GeoPressureR v3.3<a class="anchor" aria-label="anchor" href="#geopressurer-v33"></a></h2>
 <div class="section level3">
 <h3 id="major-3-3">Major<a class="anchor" aria-label="anchor" href="#major-3-3"></a></h3>
 <ul><li>Read all sensors type and allow reading sensor without pressure <code>assert_pressure = FALSE</code> (<a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/d11f8cc4774b4c91c27318c43d438823b681066e" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/pull/123/commits/d11f8cc4774b4c91c27318c43d438823b681066e</a>, <a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/85ffe940ec46af8cd56592c2d641f25d19712129" class="external-link uri">https://github.com/Rafnuss/GeoPressureR/pull/123/commits/85ffe940ec46af8cd56592c2d641f25d19712129</a>)</li>
-<li><a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/4253e04f9ed16e3b06d45edfda0b2a0900d31d0c" class="external-link">Update to ecmwfr v2. Change to cds_token</a></li>
-<li><a href="https://github.com/Rafnuss/GeoPressureR/commit/69c26adf559fc1bc7c2690346de41f6732f9eda5" class="external-link">Improvement of tag_label_auto() with post-processing step</a></li>
 <li>
-<a href="https://github.com/Rafnuss/GeoPressureR/commit/eff97315c5eca3dff03736e7d40efad30b209819" class="external-link">Create path2twilight.R</a> and <a href="https://github.com/Rafnuss/GeoPressureR/commit/b21aa06ceff257ec4473a3af530a8ba7cef5e225" class="external-link">Add twilight_line in plot_twilight</a>
-</li>
+<a href="https://github.com/Rafnuss/GeoPressureR/pull/123/commits/4253e04f9ed16e3b06d45edfda0b2a0900d31d0c" class="external-link">Update to ecmwfr v2. Change to cds_token</a>. We use the Climate Data Store to download the wind data during the flight. They have recently <a href="https://confluence.ecmwf.int/display/CKB/Please+read%3A+CDS+and+ADS+migrating+to+new+infrastructure%3A+Common+Data+Store+%28CDS%29+Engine" class="external-link">updated their infrastructure</a> and their login procedure has changed. You’ll need an ECMF login with an Access Token. See updated procedure in the chapter <a href="https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#download-wind-data" class="external-link">Trajectory with wind of the GeoPressureManual</a>.</li>
+<li>
+<a href="https://github.com/Rafnuss/GeoPressureR/commit/69c26adf559fc1bc7c2690346de41f6732f9eda5" class="external-link">Improvement of tag_label_auto() with post-processing step</a>. Based on a simple classification of prolonged high activity, migratory flight classification was often not very performant, e.g. when a bird was gliding during the flight. I have now added a post-processing step in the automatic classification to fix this. Read more in <a href="https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_auto.html#details">the detail section of tag_label_auto().</a>.</li>
+<li>
+<a href="https://github.com/Rafnuss/GeoPressureR/commit/eff97315c5eca3dff03736e7d40efad30b209819" class="external-link">Create path2twilight.R</a> and <a href="https://github.com/Rafnuss/GeoPressureR/commit/b21aa06ceff257ec4473a3af530a8ba7cef5e225" class="external-link">Add twilight_line in plot_twilight</a>. You can now compute the theoretical twilight of a path, or more interestingly, of a pressurepath. It’s also used in <a href="https://raphaelnussbaumer.com/GeoPressureR/reference/pressurepath_create.html">pressurepath_create()</a>, returning a column with sunrise and sunset. Its original purpose was to be able to check the twilight labeling by comparing it to a path generated, e.g., with GeoPressureviz. See the <a href="https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#check-light-label" class="external-link">last section of the light map chapter</a> for more info.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="minor-3-3">Minor:<a class="anchor" aria-label="anchor" href="#minor-3-3"></a></h3>

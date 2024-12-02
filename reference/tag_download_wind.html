@@ -39,7 +39,7 @@ retrieve your Personal Access Token on https://cds.climate.copernicus.eu/profile
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,7 @@ retrieve your Personal Access Token on https://cds.climate.copernicus.eu/profile
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Download flight data</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.3.1/R/tag_download_wind.R" class="external-link"><code>R/tag_download_wind.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/tag_download_wind.R" class="external-link"><code>R/tag_download_wind.R</code></a></small>
       <div class="d-none name"><code>tag_download_wind.Rd</code></div>
     </div>
 
@@ -91,7 +91,9 @@ retrieve your Personal Access Token on <a href="https://cds.climate.copernicus.e
 <span>  cds_token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"cds_token"</span><span class="op">)</span>,</span>
 <span>  file <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">stap_id</span><span class="op">)</span></span>
 <span>    <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"</span><span class="op">)</span>,</span>
-<span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  workers <span class="op">=</span> <span class="fl">19</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -133,6 +135,38 @@ taking as single argument the stationary period identifier.</p></dd>
 
 <dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
 <dd><p>logical. If <code>TRUE</code>, file is overwritten.</p></dd>
+
+
+<dt id="arg-workers">workers<a class="anchor" aria-label="anchor" href="#arg-workers"></a></dt>
+<dd><p>maximum number of simultaneous request that will be submitted
+to the service. Most ECMWF services are limited to 20 concurrent requests
+(default = 2).</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Arguments passed on to <code><a href="https://rdrr.io/pkg/ecmwfr/man/wf_request.html" class="external-link">ecmwfr::wf_request_batch</a></code></p><dl><dt><code>user</code></dt>
+<dd><p>user (default = "ecmwf") provided by the ECMWF data service,
+used to retrieve the token set by <code><a href="https://rdrr.io/pkg/ecmwfr/man/wf_set_key.html" class="external-link">wf_set_key</a></code></p></dd>
+
+    <dt><code>path</code></dt>
+<dd><p>path were to store the downloaded data</p></dd>
+
+    <dt><code>time_out</code></dt>
+<dd><p>how long to wait on a download to start (default =
+<code>3*3600</code> seconds).</p></dd>
+
+    <dt><code>retry</code></dt>
+<dd><p>polling frequency of submitted request for downloading (default =
+<code>30</code> seconds).</p></dd>
+
+    <dt><code>request_list</code></dt>
+<dd><p>a list of requests that will be processed in parallel.</p></dd>
+
+    <dt><code>total_timeout</code></dt>
+<dd><p>overall timeout limit for all the requests in seconds.</p></dd>
+
+
+</dl></dd>
 
 </dl></div>
     <div class="section level2">
