@@ -8,8 +8,8 @@ message: 'To cite package "GeoPressureR" in publications use:'
 type: software
 license: GPL-3.0-or-later
 title: 'GeoPressureR: Global Positioning by Atmospheric Pressure'
-version: 3.3.1
-doi: 10.1111/2041-210X.14043
+version: 3.3.2
+doi: 10.5281/zenodo.7754457
 abstract: R package to determine the position and trajectory of a bird based on light-weight
   data-logger measuring at lease atmospheric pressure.
 authors:
@@ -22,7 +22,39 @@ authors:
   email: mathieu@mgravey.com
   orcid: https://orcid.org/0000-0002-0871-1507
 preferred-citation:
-  type: article
+  type: manual
+  title: 'GeoPressureR: Global positioning by atmospheric pressure'
+  authors:
+  - family-names: Nussbaumer
+    given-names: Raphael
+    email: rafnuss@gmail.com
+    orcid: https://orcid.org/0000-0002-8185-1020
+  - family-names: Gravey
+    given-names: Mathieu
+    email: mathieu@mgravey.com
+    orcid: https://orcid.org/0000-0002-0871-1507
+  doi: 10.5281/zenodo.7754457
+  url: https://github.com/Rafnuss/GeoPressureR
+  year: '2022'
+repository-code: https://github.com/Rafnuss/GeoPressureR
+url: https://raphaelnussbaumer.com/GeoPressureR/
+contact:
+- family-names: Nussbaumer
+  given-names: Raphaël
+  email: rafnuss@gmail.com
+  orcid: https://orcid.org/0000-0002-8185-1020
+keywords:
+- bird
+- datalogger
+- era5
+- geolocator
+- migration
+- pressure-sensor
+- r
+- tracker
+- windspeed
+references:
+- type: article
   title: Global positioning with animal-borne pressure sensors
   authors:
   - family-names: Nussbaumer
@@ -48,24 +80,6 @@ preferred-citation:
   volume: '14'
   issue: '4'
   start: 1104-1117
-repository-code: https://github.com/Rafnuss/GeoPressureR
-url: https://raphaelnussbaumer.com/GeoPressureR/
-contact:
-- family-names: Nussbaumer
-  given-names: Raphaël
-  email: rafnuss@gmail.com
-  orcid: https://orcid.org/0000-0002-8185-1020
-keywords:
-- bird
-- datalogger
-- era5
-- geolocator
-- migration
-- pressure-sensor
-- r
-- tracker
-- windspeed
-references:
 - type: article
   title: Reconstructing bird trajectories from pressure and wind data using a highly
     optimised hidden Markov model
@@ -98,18 +112,19 @@ references:
   start: '1'
   end: '32'
 - type: manual
-  title: 'GeoPressureR: Global positioning by atmospheric pressure'
+  title: 'GeoPressureManual: Learn how to use GeoPressureR with examples.'
   authors:
   - family-names: Nussbaumer
     given-names: Raphael
     email: rafnuss@gmail.com
     orcid: https://orcid.org/0000-0002-8185-1020
-  - family-names: Gravey
-    given-names: Mathieu
-    email: mathieu@mgravey.com
-    orcid: https://orcid.org/0000-0002-0871-1507
-  url: https://github.com/Rafnuss/GeoPressureR
-  year: '2022'
+  - family-names: Nussbaumer
+    given-names: Améline
+    email: ameline.nussbaumer@gmail.com
+    orcid: https://orcid.org/0000-0003-1308-4154
+  doi: 10.5281/zenodo.10799355
+  url: https://github.com/Rafnuss/GeoPressureManual
+  year: '2024'
 - type: software
   title: 'R: A Language and Environment for Statistical Computing'
   notes: Depends

@@ -41,9 +41,9 @@ tag_label_write <- function(tag,
   if (!assertthat::has_name(tag$pressure, "label")) {
     tag <- tag_label_auto(tag)
     if (!quiet) {
-      cli::cli_inform(c(
+      cli::cli_bullets(c(
         "i" = "No label data.",
-        ">" = "Initialize automatically label using {.fn tag_label_auto}\f"
+        ">" = "Initialize automatically label using {.fn tag_label_auto}"
       ))
     }
   }
@@ -59,9 +59,9 @@ tag_label_write <- function(tag,
   if (assertthat::has_name(tag, "acceleration")) {
     if (!assertthat::has_name(tag$acceleration, "label")) {
       tag <- tag_label_auto(tag)
-      cli::cli_inform(c(
+      cli::cli_bullets(c(
         "i" = "No acceleration label data.",
-        ">" = "Initialize acceleration label with default {.fn tag_label_auto}\f"
+        ">" = "Initialize acceleration label with default {.fn tag_label_auto}"
       ))
     }
     tag$acceleration$series <- "acceleration"

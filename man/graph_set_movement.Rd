@@ -13,7 +13,8 @@ graph_set_movement(
   location = 40,
   bird = NULL,
   power2prob = function(power) (1/power)^3,
-  low_speed_fix = 15
+  low_speed_fix = 15,
+  zero_speed_ratio = 1
 )
 }
 \arguments{
@@ -23,19 +24,25 @@ graph_set_movement(
 
 \item{method}{method used to convert the speed to probability ("gamma", "logis" or "power")}
 
-\item{shape}{parameter of the gamma distribution}
+\item{shape}{parameter of the gamma distribution (km/h)}
 
-\item{scale}{parameter of the gamma and logistic distribution}
+\item{scale}{parameter of the gamma and logistic distribution (km/h)}
 
-\item{location}{parameter for the logistic distribution}
+\item{location}{parameter for the logistic distribution (km/h)}
 
 \item{bird}{A GeoPressureR \code{bird} object containing the basic morphological traits necessary:
 mass, wing span, wing aspect ratio, and body frontal area. See \code{bird_create()}.}
 
 \item{power2prob}{function taking power as a single argument and returning a probability}
 
-\item{low_speed_fix}{speed below which the probability remains the same. This parameter is used
-to allow short flights covering small distances.}
+\item{low_speed_fix}{speed below which the probability remains the same, i.e. we assign the same
+probability at \code{low_speed_fix} for any lower speed. This parameter is used to allow short
+flights covering small distances. (unit of km/h)}
+
+\item{zero_speed_ratio}{multiplicative ratio of the probability for speed zero. This ratio apply
+only when the bird is stayin at the same location (fly and come back or stay within pixel size).
+This parameter (when greater than 1) is used to favour a bird to stay at the same location rather
+than perform short fly.}
 }
 \value{
 Graph list with a new list \code{graph$movement} storing all the parameters needed to compute

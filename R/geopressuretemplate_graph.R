@@ -80,7 +80,7 @@ geopressuretemplate_graph <- function(
       }
     },
     error = function(e) {
-      cli::cli_inform(c(
+      cli::cli_bullets(c(
         "x" = "{e$message}",
         "i" = "Error while defining the movement model.{.var graph} is return.",
         ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
@@ -132,7 +132,7 @@ geopressuretemplate_graph <- function(
       }
     },
     error = function(e) {
-      cli::cli_inform(c(
+      cli::cli_bullets(c(
         "x" = "{e$message}",
         "x" = "Error while computing the outputs. {.var graph} is returned.",
         ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
@@ -144,7 +144,7 @@ geopressuretemplate_graph <- function(
 
   dir_file <- dirname(file)
   if (!dir.exists(dir_file)) {
-    cli::cli_inform(c("!" = "The directory {.file {dir_file}} does not  exists."))
+    cli::cli_bullets(c("!" = "The directory {.file {dir_file}} does not  exists."))
     res <- utils::askYesNo("Do you want to create it?")
     if (res) {
       dir.create(dir_file)

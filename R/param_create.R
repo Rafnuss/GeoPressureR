@@ -82,9 +82,10 @@ param_create <- function(id, default = FALSE, ...) {
         scale = formals(graph_set_movement)$scale,
         location = formals(graph_set_movement)$location,
         power2prob = formals(graph_set_movement)$power2prob,
-        low_speed_fix = formals(graph_set_movement)$low_speed_fix
+        low_speed_fix = formals(graph_set_movement)$low_speed_fix,
+        zero_speed_ratio = formals(graph_set_movement)$zero_speed_ratio
       ),
-      bird = list(
+      bird_create = list(
         mass = formals(bird_create)$mass,
         wing_span = formals(bird_create)$wing_span,
         wing_aspect = formals(bird_create)$wing_aspect,
@@ -151,7 +152,7 @@ merge_params <- function(base_param, overlay_param, only_in_base = FALSE) {
       if (!only_in_base || (name %in% base_param)) {
         base <- base_param[[name]]
         overlay <- overlay_param[[name]]
-        if (!is.null(base) && is.list(base) && is.list(overlay)) {
+        if (!is.null(base) && is.list(base)) {
           merged_param[[name]] <- merge_params(base, overlay)
         } else {
           merged_param[[name]] <- NULL

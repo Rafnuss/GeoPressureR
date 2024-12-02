@@ -86,6 +86,9 @@ tag_set_map <- function(tag,
   assertthat::assert_that(all(stap$stap_id == seq_len(nrow(stap))))
 
   # Check extent and scale
+  if (is.list(extent)) {
+    extent <- unlist(extent)
+  }
   map_expand(extent, scale)
 
   # Check known
@@ -96,12 +99,23 @@ tag_set_map <- function(tag,
   assertthat::assert_that(assertthat::has_name(known, "stap_id"))
   assertthat::assert_that(assertthat::has_name(known, "known_lat"))
   assertthat::assert_that(assertthat::has_name(known, "known_lon"))
+  # Only use the required column. Other names can cause issue later...
+  unexpected_cols <- setdiff(names(known), c("stap_id", "known_lat", "known_lon"))
+  if (length(unexpected_cols)) {
+    cli::cli_warn("Unexpected columns found in {.var known}: \\
+                  {paste(unexpected_cols, collapse = ', ')}")
+    known <- known[, c("stap_id", "known_lat", "known_lon")]
+  }
+  known <- known[, c("stap_id", "known_lat", "known_lon")]
   if (!all(known$known_lon >= extent[1] & known$known_lon <= extent[2] &
     known$known_lat >= extent[3] & known$known_lat <= extent[4])) {
     cli::cli_abort(c(
       x = "The known latitude and longitude are not inside the extent of the map",
       i = "Modify {.var extent} or {.var known} to match this requirement."
     ))
+  }
+  if (anyDuplicated(known$stap_id)) {
+    cli::cli_abort("{.var known} contains duplicate {.field stap_id} values.")
   }
   # Keep a copy of the original known to keep in param. Useful to keep negative indexing
   known0 <- known
@@ -138,8 +152,10 @@ tag_set_map <- function(tag,
     if (chg_known || chg_extent || chg_scale || chg_include) {
       # Only provide option to stop the process if map are already defined
       if (any(c("map_pressure", "map_light") %in% names(tag))) {
-        cli::cli_inform(c("!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) \\
-          have already been computed on this {.var tag} object with different setmap parameters."))
+        cli::cli_bullets(
+          c("!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) \\
+          have already been computed on this {.var tag} object with different setmap parameters.")
+        )
         res <- utils::askYesNo(
           "Do you want to overwrite the parameters and delete the likelihood maps?"
         )

@@ -441,10 +441,18 @@ tag_create_soi <- function(tag,
   tag$param$tag_create$temperature_internal_file <- temperature_internal_path
   tag$param$tag_create$magnetic_file <- magnetic_path
 
-  setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
-  if (!is.null(setting_path)) {
-    tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
-  }
+  tryCatch(
+    {
+      setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
+      if (!is.null(setting_path)) {
+        tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
+      }
+    },
+    error = function(e) {
+      cli::cli_alert_warning("Failed to load the SOI setting file {.file {setting_path}}.")
+      message(e$message)
+    }
+  )
 
   return(tag)
 }
@@ -478,6 +486,8 @@ tag_create_migratetech <- function(tag,
                contains {.val Type:x}, with x>=13."
     )
   }
+  # Retrieve full model number
+  tag$param$migratec_model <- regmatches(line2, regexpr("Type: \\K[\\d.]+", line2, perl = TRUE))
   line16 <- readLines(deg_path, n = 16)[[16]]
   drift <- abs(as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60)
   if (drift > 30) {
@@ -602,7 +612,7 @@ tag_create_lund <- function(tag,
     value = xls$`Pressure [hPa]`
   )
   if (!quiet) {
-    cli::cli_inform(c("v" = "Read {.file {pressure_path}}"))
+    cli::cli_bullets(c("v" = "Read {.file {pressure_path}}"))
   }
 
 
@@ -630,7 +640,7 @@ tag_create_lund <- function(tag,
     )
 
     if (!quiet) {
-      cli::cli_inform(c("v" = "Read {.file {acc_light_path}}"))
+      cli::cli_bullets(c("v" = "Read {.file {acc_light_path}}"))
     }
   }
 
@@ -801,7 +811,7 @@ tag_create_dto <- function(sensor_path,
   }
 
   if (!quiet) {
-    cli::cli_inform(c("v" = "Read {.file {sensor_path}}"))
+    cli::cli_bullets(c("v" = "Read {.file {sensor_path}}"))
   }
   return(df)
 }
@@ -818,13 +828,12 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
                               {glue::glue_collapse(missing_cols, ', ')}"))
   }
 
-  df$datetime <- as.POSIXct(
-    ifelse(grepl(" ", df$datetime), df$datetime, paste0(df$datetime, " 00:00:00")),
-    format = "%Y-%m-%d %H:%M:%S", tz = "UTC"
-  )
+  # Rename column datetime to date and convert to posixct
+  names(df)[names(df) == "datetime"] <- "date"
+  df$date <- as.POSIXct(strptime(df$date, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC"))
 
   if (!quiet) {
-    cli::cli_inform(c("v" = "Read {.file {sensor_path}}"))
+    cli::cli_bullets(c("v" = "Read {.file {sensor_path}}"))
   }
 
   return(df)

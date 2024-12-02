@@ -1,10 +1,39 @@
+# GeoPressureR v3.3.2
+
+## Major update
+* Change the computation of distance of edges in the graph by removing the fix that added 1 resolution to the distance to account for large grid square and short flight distance. Instead, add warning message in case there might be such an issue (flight distance < grid resolution) [ddbd07d](https://github.com/Rafnuss/GeoPressureR/pull/126/commits/ddbd07db195440005f7f1ff96dd134dd43bdd8ae). 
+* Add `zero_speed_threshold` parameter that allow to encourage bird to stay at the same location. This is typically the case for short flight that don't seems to affect the position. Quite similar to a `stap_elev` [2060790](https://github.com/Rafnuss/GeoPressureR/pull/126/commits/2060790f8508c447a00877c2fc1d86c9d52bfe2e)
+* Add other type of pressurepath in interim [8d7f1d1](https://github.com/Rafnuss/GeoPressureR/pull/126/commits/8d7f1d12665608d37f5eafa53fb251554e7f5cdd)
+
+## Minor
+* Plenty of small fixes and minor improvements [834155e](https://github.com/Rafnuss/GeoPressureR/pull/126/commits/834155eeffcf04b33effce8d9b9d193c5554cbdf), [152c6e7](https://github.com/Rafnuss/GeoPressureR/pull/126/commits/152c6e7a2091970b444a47a3ceb0a367a42a9c2a), [54aa995](https://github.com/Rafnuss/GeoPressureR/pull/126/commits/54aa99589f8e709089a08ae02c5aace821ab7cea),  [3a5ff95](https://github.com/Rafnuss/GeoPressureR/pull/126/commits/3a5ff95774b353c853a32ed63327dad8df82fbbe), [6eedd83](https://github.com/Rafnuss/GeoPressureR/pull/126/commits/6eedd83802f9377db43cba06c2e4b684b2154452), [8797533](https://github.com/Rafnuss/GeoPressureR/pull/126/commits/8797533b49c9cc76a3d81a90824a8ceaabd48692), [1e68260](https://github.com/Rafnuss/GeoPressureR/pull/126/commits/1e68260c39bc49816c95095d0f3c3541986a50df)
+
+**Full Changelog**: https://github.com/Rafnuss/GeoPressureR/compare/v3.3.1...v3.3.2
+
+
+# GeoPressureR v3.3.1
+
+## Major update
+* [Update of param structure to function_name$param_name](https://github.com/Rafnuss/GeoPressureR/commit/2235e9ec0bceef3b49d8e1887a309b2048353552). The structure of the param has been reorganised: this named list stored inside of tag and graph stores parameters used during the building of tag and graph. We standardized this structure as param${function_name}${argument_name}. [See the migration instructions in the GeoPressureR wiki](https://github.com/Rafnuss/GeoPressureR/wiki/Migration-v3.x-%E2%80%90--v3.3). This will mean you'll need to update your config.yml structure - sorry for that.
+* [Add geopressuretemplate() functions](https://github.com/Rafnuss/GeoPressureR/commit/b000764ff3c2179eefb48bbf9178c5323c89aa7d). The main improvement is related to the use of a single function to run the entire workflow: geopressuretemplate. Read more about this in the [corresponding chapter of the GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html).
+
+## Minor
+* [replace species_name by scientific_name](https://github.com/Rafnuss/GeoPressureR/commit/5e1b15fd025f355107a90229779969ad2030d7c7)
+* [crop date UTC](https://github.com/Rafnuss/GeoPressureR/commit/0707ae6041383bff704a4c78511ab2dbd16305ce)
+* [fix new variable name in netcdf](https://github.com/Rafnuss/GeoPressureR/commit/6c12362128c569c05ae49bb0ed40b8a31adc5980)
+
+## New Contributors
+* @PabloCapilla made their first contribution in https://github.com/Rafnuss/GeoPressureR/pull/125
+
+**Full Changelog**: https://github.com/Rafnuss/GeoPressureR/compare/v3.3.0...v3.3.1
+
 # GeoPressureR v3.3
 
 ## Major
 - Read all sensors type and allow reading sensor without pressure `assert_pressure = FALSE` (https://github.com/Rafnuss/GeoPressureR/pull/123/commits/d11f8cc4774b4c91c27318c43d438823b681066e, https://github.com/Rafnuss/GeoPressureR/pull/123/commits/85ffe940ec46af8cd56592c2d641f25d19712129)
-- [Update to ecmwfr v2. Change to cds_token](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/4253e04f9ed16e3b06d45edfda0b2a0900d31d0c)
-- [Improvement of tag_label_auto() with post-processing step](https://github.com/Rafnuss/GeoPressureR/commit/69c26adf559fc1bc7c2690346de41f6732f9eda5)
-- [Create path2twilight.R](https://github.com/Rafnuss/GeoPressureR/commit/eff97315c5eca3dff03736e7d40efad30b209819) and [Add twilight_line in plot_twilight](https://github.com/Rafnuss/GeoPressureR/commit/b21aa06ceff257ec4473a3af530a8ba7cef5e225)
+- [Update to ecmwfr v2. Change to cds_token](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/4253e04f9ed16e3b06d45edfda0b2a0900d31d0c). We use the Climate Data Store to download the wind data during the flight. They have recently [updated their infrastructure](https://confluence.ecmwf.int/display/CKB/Please+read%3A+CDS+and+ADS+migrating+to+new+infrastructure%3A+Common+Data+Store+%28CDS%29+Engine) and their login procedure has changed. You’ll need an ECMF login with an Access Token. See updated procedure in the chapter [Trajectory with wind of the GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#download-wind-data).
+- [Improvement of tag_label_auto() with post-processing step](https://github.com/Rafnuss/GeoPressureR/commit/69c26adf559fc1bc7c2690346de41f6732f9eda5). Based on a simple classification of prolonged high activity, migratory flight classification was often not very performant, e.g. when a bird was gliding during the flight. I have now added a post-processing step in the automatic classification to fix this. Read more in [the detail section of tag_label_auto().](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_auto.html#details).
+- [Create path2twilight.R](https://github.com/Rafnuss/GeoPressureR/commit/eff97315c5eca3dff03736e7d40efad30b209819) and [Add twilight_line in plot_twilight](https://github.com/Rafnuss/GeoPressureR/commit/b21aa06ceff257ec4473a3af530a8ba7cef5e225). You can now compute the theoretical twilight of a path, or more interestingly, of a pressurepath. It's also used in [pressurepath_create()](https://raphaelnussbaumer.com/GeoPressureR/reference/pressurepath_create.html), returning a column with sunrise and sunset. Its original purpose was to be able to check the twilight labeling by comparing it to a path generated, e.g., with GeoPressureviz. See the [last section of the light map chapter](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#check-light-label) for more info.
 
 ## Minor:
 - [Fix issue with tag_plot_twilight() when twilight was not yet computed](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/6de3af2a97e27763c5a70a0e570c91921b699f01)

@@ -4,7 +4,7 @@
 \alias{plot_graph_movement}
 \title{Plot movement model of a \code{graph}}
 \usage{
-plot_graph_movement(graph, speed = seq(1, 120), plot_plotly = FALSE)
+plot_graph_movement(graph, speed = seq(0, 120), plot_plotly = FALSE)
 }
 \arguments{
 \item{graph}{a GeoPressureR \code{graph} object.}

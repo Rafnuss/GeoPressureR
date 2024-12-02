@@ -31,6 +31,9 @@ plot_path <- function(path,
                       provider_options = leaflet::providerTileOptions(),
                       pad = 3,
                       ...) {
+  assertthat::assert_that(is.data.frame(path))
+  assertthat::assert_that(assertthat::has_name(path, c("lat", "lon")))
+
   if (all(c("start", "end") %in% names(path))) {
     path$duration <- stap2duration(path)
   } else {
@@ -107,15 +110,30 @@ plot_path <- function(path,
 plot_path_leaflet <- function(
     map,
     path,
-    polyline = list(
+    polyline = NULL,
+    circle = NULL) {
+  polyline <- merge_params(
+    list(
       stroke = TRUE,
       color = "black",
       weight = 5,
       opacity = 0.7,
       dashArray = NULL
     ),
-    circle = list(
-      radius = stap2duration(path)^(0.25) * 6,
+    polyline
+  )
+
+  if ("start" %in% names(path)) {
+    radius <- stap2duration(path)^(0.25) * 6
+    label <- glue::glue("#{path$stap_id}, {round(stap2duration(path), 1)} days")
+  } else {
+    radius <- 6
+    label <- glue::glue("#{1:nrow(path_light)}")
+  }
+
+  circle <- merge_params(
+    list(
+      radius = radius,
       stroke = TRUE,
       color = "white",
       weight = 2,
@@ -123,10 +141,16 @@ plot_path_leaflet <- function(
       fill = ifelse(is.null(path$interp), TRUE, !path$interp),
       fillColor = "grey",
       fillOpacity = 0.8,
-      label = glue::glue("#{path$stap_id}, {round(stap2duration(path), 1)} days")
-    )) {
+      label = label
+    ),
+    circle
+  )
+
   # Remove position of stap not included/not available
   path_full <- path[!is.na(path$lat), ]
+
+  # Get number of path
+  unique_j <- unique(path$j)
 
   # Plot trajectory of all available point in grey
   if (nrow(path_full) < nrow(path)) {
@@ -134,27 +158,32 @@ plot_path_leaflet <- function(
     # polyline_full$weight <- polyline_full$weight/2
     polyline_full$opacity <- polyline_full$opacity / 2
     polyline_full$color <- "grey"
-    map <- do.call(leaflet::addPolylines, c(
-      list(
-        map = map,
-        lng = path_full$lon,
-        lat = path_full$lat,
-        group = path_full$j
-      ),
-      polyline_full
-    ))
+
+    for (j in unique_j) {
+      map <- do.call(leaflet::addPolylines, c(
+        list(
+          map = map,
+          lng = path_full$lon[path_full$j == j],
+          lat = path_full$lat[path_full$j == j],
+          group = path$j[path$j == j]
+        ),
+        polyline_full
+      ))
+    }
   }
 
   # Overlay with trajectory of consecutive position in black.
-  map <- do.call(leaflet::addPolylines, c(
-    list(
-      map = map,
-      lng = path$lon,
-      lat = path$lat,
-      group = path$j
-    ),
-    polyline
-  ))
+  for (j in unique_j) {
+    map <- do.call(leaflet::addPolylines, c(
+      list(
+        map = map,
+        lng = path$lon[path$j == j],
+        lat = path$lat[path$j == j],
+        group = path$j[path$j == j]
+      ),
+      polyline
+    ))
+  }
 
   suppressWarnings({
     map <- do.call(leaflet::addCircleMarkers, c(

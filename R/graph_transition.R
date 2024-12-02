@@ -30,7 +30,10 @@ graph_transition <- function(graph) {
 
 
   if (graph$param$graph_set_movement$type == "as") {
-    transition <- speed2prob(graph$gs - graph$ws, graph$param$graph_set_movement)
+    as <- graph$gs - graph$ws
+    # Set airspeed to zero when distance is zero (groundspeed=0)
+    as[graph$gs == 0] <- 0
+    transition <- speed2prob(as, graph$param$graph_set_movement)
   } else if (graph$param$graph_set_movement$type == "gs") {
     transition <- speed2prob(graph$gs, graph$param$graph_set_movement)
   } else {

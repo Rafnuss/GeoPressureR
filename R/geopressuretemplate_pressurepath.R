@@ -54,6 +54,32 @@ geopressuretemplate_pressurepath <- function(
       save_list <- c(save_list, "pressurepath_geopressureviz")
     }
 
+    if ("pressurepath_tag" %in% config$geopressuretemplate$pressurepath &&
+      "path_tag" %in% save_list) {
+      path_tag <- get("path_tag")
+      pressurepath_geopressureviz <- pressurepath_create( # nolint
+        tag,
+        path = path_tag,
+        variable = config$pressurepath_create$variable,
+        solar_dep = config$pressurepath_create$solar_dep,
+        quiet = quiet
+      )
+      save_list <- c(save_list, "pressurepath_tag")
+    }
+
+    if ("pressurepath_simulation" %in% config$geopressuretemplate$pressurepath &&
+      "path_simulation" %in% save_list) {
+      path_simulation <- get("path_tag")
+      pressurepath_geopressureviz <- pressurepath_create( # nolint
+        tag,
+        path = path_simulation,
+        variable = config$pressurepath_create$variable,
+        solar_dep = config$pressurepath_create$solar_dep,
+        quiet = quiet
+      )
+      save_list <- c(save_list, "pressurepath_simulation")
+    }
+
     # Save the outputs to the specified file
     save(
       list = save_list,

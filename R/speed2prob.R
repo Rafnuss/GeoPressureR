@@ -51,6 +51,7 @@ speed2prob <- function(speed, movement) {
   # The normalization is computed as the sum of probability with a 1km/h unit grid
   norm_speed <- pmax(seq(0, 150), movement$low_speed_fix)
 
+  speed_0 <- speed == 0
   speed <- pmax(speed, movement$low_speed_fix)
 
   if (movement$method == "gamma") {
@@ -75,6 +76,8 @@ speed2prob <- function(speed, movement) {
 
     prob <- movement$power2prob(speed2power(as, movement$bird)) / norm
   }
+
+  prob[speed_0] <- prob[speed_0] * movement$zero_speed_ratio
 
   return(prob)
 }

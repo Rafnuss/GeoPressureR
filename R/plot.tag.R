@@ -196,10 +196,14 @@ plot_tag_pressure <- function(tag,
       value = abs(diff(pres$value)),
       value_avg = utils::head(pres$value, -1) + diff(pres$value) / 2,
       date = utils::head(pres$date, -1) + diff(pres$date) / 2,
+      date_diff = as.numeric(diff(pres$date), units = "hours"),
+      same_stapelev = utils::head(pres$stapelev, -1) == utils::tail(pres$stapelev, -1),
       stap_id = (utils::tail(pres$stap_id, -1) + utils::head(pres$stap_id, -1)) / 2
     )
     # Only keep the 1 hours difference
-    pres_diff <- pres_diff[as.numeric(diff(pres$date), units = "hours") == 1, ]
+    pres_diff <- pres_diff[pres_diff$date_diff == 1, ]
+    # Only keep if belonging to the the same stapelev
+    pres_diff <- pres_diff[pres_diff$same_stapelev, ]
     # Remove diff overlapping between stationary periods/flight
     pres_diff <- pres_diff[(pres_diff$stap_id %% 1) == 0 & pres_diff$stap_id != 0, ]
     # Only keep difference which are above warning limit

@@ -62,7 +62,7 @@ representing the E-W as real and S-N as imaginary
 This function returns a trellis graph representing the trajectory of a bird based on filtering
 and pruning the likelihood maps provided.
 
-In the final graph, we only keep the most likely nodes (i.e., position of the bird at each
+In the final graph, we only keep the likely nodes (i.e., position of the bird at each
 stationary periods) defined as (1) those whose likelihood value are within the threshold of
 percentile \code{thr_likelihood} of the total likelihood map and (2) those which are connected to
 at least one edge of the previous and next stationary periods requiring an average ground speed

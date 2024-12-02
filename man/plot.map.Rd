@@ -6,8 +6,8 @@
 \usage{
 \method{plot}{map}(
   x,
-  thr_likelihood = 1,
   path = NULL,
+  thr_likelihood = 1,
   plot_leaflet = TRUE,
   provider = "Esri.WorldTopoMap",
   provider_options = leaflet::providerTileOptions(),
@@ -21,9 +21,9 @@
 \arguments{
 \item{x}{a \code{\link[terra]{SpatRaster}} or a \code{RasterLayer} object--see \code{\link[raster]{raster}}}
 
-\item{thr_likelihood}{threshold of percentile (see details).}
-
 \item{path}{a GeoPressureR \code{path} data.frame}
+
+\item{thr_likelihood}{threshold of percentile (see details).}
 
 \item{plot_leaflet}{logical to use an interactive \code{leaflet} map instead of \code{terra::plot}}
 
