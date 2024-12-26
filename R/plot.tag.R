@@ -486,7 +486,7 @@ plot_tag_twilight <- function(tag,
   # Use by order of priority: (1) twl_offset provided in this function, (2)
   # tag$param$twilight_create$twl_offset, (3) guess from light data
   if (is.null(twl_offset)) {
-    if ("twl_offset" %in% names(tag$param)) {
+    if ("twl_offset" %in% names(tag$param$twilight_create)) {
       twl_offset <- tag$param$twilight_create$twl_offset
     } else {
       twl_offset <- twilight_create_guess_offset(light)
