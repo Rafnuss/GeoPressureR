@@ -587,7 +587,7 @@ plot_tag_twilight <- function(tag,
     twll$date <- as.Date(twll$twilight)
     time_hour <- as.numeric(substr(format(twll$twilight, "%H:%M"), 1, 2)) +
       as.numeric(substr(format(twll$twilight, "%H:%M"), 4, 5)) / 60
-    time_hour <- time_hour + +24 * (time_hour < mat_time_hour[1])
+    time_hour <- time_hour + 24 * (time_hour < mat_time_hour[1])
     twll$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
     twll$stap_id <- factor(round(twll$stap_id))
 
