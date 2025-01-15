@@ -55,6 +55,34 @@
 #' })
 #'
 #' plot(tag, type = "map_light")
+#'
+#'
+#' # Calibration kernel fit can be retrieved from
+#'
+#' twl_calib <- tag$param$geolight_map$twl_calib
+#'
+#' library(ggplot2)
+#'
+#' x_lim <- range(twl_calib$x[twl_calib$y > .001 * max(twl_calib$y)])
+#'
+#' line_data <- data.frame(
+#'   x = twl_calib$x,
+#'   y = twl_calib$y / max(twl_calib$y) * max(twl_calib$hist_count)
+#' )
+#'
+#' line_data <- line_data[line_data$x >= x_lim[1] & line_data$x <= x_lim[2], ]
+#'
+#' ggplot() +
+#'   geom_bar(aes(x = twl_calib$hist_mids, y = twl_calib$hist_count),
+#'     stat = "identity", fill = "lightblue", color = "blue",
+#'     width = diff(twl_calib$hist_mids)[1]
+#'   ) +
+#'   geom_line(data = line_data, aes(x = x, y = y), color = "red", linewidth = 1) +
+#'   labs(x = "Solor zenith angle", y = "Count of twilights") +
+#'   theme_minimal() +
+#'   xlim(x_lim) +
+#'   theme(legend.position = "none")
+#'
 #' @family geolight
 #' @export
 geolight_map <- function(tag,
@@ -116,6 +144,11 @@ geolight_map <- function(tag,
     )
   }
   twl_calib <- stats::density(z_calib, adjust = twl_calib_adjust, from = 60, to = 120)
+
+  # Compute the histogram
+  hist_vals <- hist(z_calib, plot = FALSE)
+  twl_calib$hist_count <- hist_vals$density * length(z_calib)
+  twl_calib$hist_mids <- hist_vals$mids
 
   # compute the likelihood of observing the zenith angle of each twilight using the calibrated
   # error function for each grid cell.
