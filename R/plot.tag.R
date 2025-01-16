@@ -486,7 +486,7 @@ plot_tag_twilight <- function(tag,
   # Use by order of priority: (1) twl_offset provided in this function, (2)
   # tag$param$twilight_create$twl_offset, (3) guess from light data
   if (is.null(twl_offset)) {
-    if ("twl_offset" %in% names(tag$param)) {
+    if ("twl_offset" %in% names(tag$param$twilight_create)) {
       twl_offset <- tag$param$twilight_create$twl_offset
     } else {
       twl_offset <- twilight_create_guess_offset(light)
@@ -587,7 +587,7 @@ plot_tag_twilight <- function(tag,
     twll$date <- as.Date(twll$twilight)
     time_hour <- as.numeric(substr(format(twll$twilight, "%H:%M"), 1, 2)) +
       as.numeric(substr(format(twll$twilight, "%H:%M"), 4, 5)) / 60
-    time_hour <- time_hour + +24 * (time_hour < mat_time_hour[1])
+    time_hour <- time_hour + 24 * (time_hour < mat_time_hour[1])
     twll$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
     twll$stap_id <- factor(round(twll$stap_id))
 

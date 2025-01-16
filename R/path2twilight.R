@@ -94,6 +94,11 @@ path2twilight <- function(path,
         to = trunc.POSIXt(max(path$end), units = "days") + 60 * 60 * 24 / 2,
         by = "day"
       )
+
+      # Filtering dates for only those in path
+      date <- date[sapply(date, function(d) {
+        any(d >= path$start & d <= path$end)
+      })]
     }
 
     stap_id <- find_stap(path, date)
@@ -104,6 +109,10 @@ path2twilight <- function(path,
       lat = path$lat[round(stap_id)],
       stap_id = stap_id
     )
+  }
+
+  if (is.null(attr(twl$date, "tzone")) || attr(twl$date, "tzone") != "UTC") {
+    cli::cli_warn("The {.val date} is not in UTC which might lead to undesired effect")
   }
 
   if (solar_dep == 0) {

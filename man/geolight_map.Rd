@@ -73,6 +73,34 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 })
 
 plot(tag, type = "map_light")
+
+
+# Calibration kernel fit can be retrieved from
+
+twl_calib <- tag$param$geolight_map$twl_calib
+
+library(ggplot2)
+
+x_lim <- range(twl_calib$x[twl_calib$y > .001 * max(twl_calib$y)])
+
+line_data <- data.frame(
+  x = twl_calib$x,
+  y = twl_calib$y / max(twl_calib$y) * max(twl_calib$hist_count)
+)
+
+line_data <- line_data[line_data$x >= x_lim[1] & line_data$x <= x_lim[2], ]
+
+ggplot() +
+  geom_bar(aes(x = twl_calib$hist_mids, y = twl_calib$hist_count),
+    stat = "identity", fill = "lightblue", color = "blue",
+    width = diff(twl_calib$hist_mids)[1]
+  ) +
+  geom_line(data = line_data, aes(x = x, y = y), color = "red", linewidth = 1) +
+  labs(x = "Solor zenith angle", y = "Count of twilights") +
+  theme_minimal() +
+  xlim(x_lim) +
+  theme(legend.position = "none")
+
 }
 \seealso{
 Other geolight: 

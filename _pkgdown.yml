@@ -4,14 +4,15 @@ template:
   includes:
     in_header: |
        <!-- Global site tag (gtag.js) - Google Analytics -->
-       <script async src="https://www.googletagmanager.com/gtag/js?id=M5FY4BPHTB"#' ></script>
+       <script async src="https://www.googletagmanager.com/gtag/js?id=G-M5FY4BPHTB" ></script>
        <script>
          window.dataLayer = window.dataLayer || [];
          function gtag(){dataLayer.push(arguments);}
          gtag('js', new Date());
 
-         gtag('config', 'M5FY4BPHTB');
+         gtag('config', 'G-M5FY4BPHTB');
        </script>
+       <!-- Google tag (gtag.js) -->
 
 development:
   mode: auto
