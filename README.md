@@ -15,11 +15,20 @@ coverage](https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.s
 stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
 
-> GeoPressureR is a R package which help researchers construct the
-> trajectory of a bird equipped with an atmospheric pressure sensor. The
-> package is a direct implementation of methods presented in Nussbaumer
-> et al. ([2023a](https://doi.org/10.1111/2041-210X.14043)) and
-> Nussbaumer et al. ([2023b](https://doi.org/10.1111/2041-210X.14082)).
+**GeoPressureR** is a R package which help researchers construct the
+trajectory of a bird equipped with an atmospheric pressure sensor. The
+package is a direct implementation of methods presented in Nussbaumer et
+al. ([2023a](https://doi.org/10.1111/2041-210X.14043)) and Nussbaumer et
+al. ([2023b](https://doi.org/10.1111/2041-210X.14082)).
+
+## Installation
+
+The best way to install the GeoPressureR package is through Github
+
+``` r
+# install.packages("pak")
+pak::pkg_install("Rafnuss/GeoPressureR")
+```
 
 ## Learn how to use GeoPressureR
 
@@ -52,7 +61,9 @@ code sharing and troubleshooting, data archiving, work reproducibility.
 <img src="man/figures/cheatsheet-01.png" width="350"/>
 <img src="man/figures/cheatsheet-02.png" width="350"/> </a>
 
-## Contributions
+## How to cite?
 
-Contributions to the code should follow the [Contributor Code of
-Conduct](https://raphaelnussbaumer.com/GeoPressureR/CONTRIBUTING.html).
+Get citation information in R doing `citation("GeoPressureR")`.
+
+Make sure to cite the correct reference (R package, papers of the
+underlying method and/or user guide) according to your use.
