@@ -146,7 +146,7 @@ geolight_map <- function(tag,
   twl_calib <- stats::density(z_calib, adjust = twl_calib_adjust, from = 60, to = 120)
 
   # Compute the histogram
-  hist_vals <- hist(z_calib, plot = FALSE)
+  hist_vals <- graphics::hist(z_calib, plot = FALSE)
   twl_calib$hist_count <- hist_vals$density * length(z_calib)
   twl_calib$hist_mids <- hist_vals$mids
 
