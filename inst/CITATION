@@ -2,7 +2,6 @@ citHeader("To cite GeoPressureR in publications use the following (nussbaumer202
 
 citEntry(
   entry   = "manual",
-  textVersion = "nussbaumer2022",
   title   = "GeoPressureR: Global positioning by atmospheric pressure",
   author  = personList(
     person("Raphael", "Nussbaumer", email = "rafnuss@gmail.com", comment = c(ORCID = "0000-0002-8185-1020")),
@@ -15,7 +14,6 @@ citEntry(
 
 citEntry(
   entry   = "Article",
-  textVersion = "nussbaumer2023a",
   title   = "Global positioning with animal-borne pressure sensors",
   author  = personList(
   person(
@@ -25,7 +23,6 @@ citEntry(
     person("Felix", "Liechti", email = "felix.liechti@vogelwarte.ch", comment = c(ORCID = "0000-0001-9473-0837"))
   ),
   doi     = "10.1111/2041-210X.14043",
-  url     = "https://doi.org/10.1111/2041-210X.14043",
   year    = "2023",
   journal = "Methods in Ecology and Evolution",
   volume  = "14",
@@ -35,7 +32,6 @@ citEntry(
 
 citEntry(
   entry   = "Article",
-  textVersion = "nussbaumer2023b",
   title   = "Reconstructing bird trajectories from pressure and wind data using a highly optimised hidden Markov model",
   author  = personList(
   person(
@@ -46,7 +42,6 @@ citEntry(
     person("Daniel", "Sheldon", comment = c(ORCID = "0000-0002-4257-2432"))
   ),
   doi     = "10.1111/2041-210X.14082",
-  url     = "https://doi.org/10.1111/2041-210X.14082",
   pages   = "1--32",
   year    = "2023",
   journal = "Methods in Ecology and Evolution",
@@ -57,7 +52,6 @@ citEntry(
 
 citEntry(
   entry   = "manual",
-  textVersion = "nussbaumer2024",
   title   = "GeoPressureManual: Learn how to use GeoPressureR with examples.",
   author  = personList(
   person("Raphael", "Nussbaumer", email = "rafnuss@gmail.com", comment = c(ORCID = "0000-0002-8185-1020")),

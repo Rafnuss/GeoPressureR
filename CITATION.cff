@@ -74,7 +74,6 @@ references:
     email: felix.liechti@vogelwarte.ch
     orcid: https://orcid.org/0000-0001-9473-0837
   doi: 10.1111/2041-210X.14043
-  url: https://doi.org/10.1111/2041-210X.14043
   year: '2023'
   journal: Methods in Ecology and Evolution
   volume: '14'
@@ -104,7 +103,6 @@ references:
     given-names: Daniel
     orcid: https://orcid.org/0000-0002-4257-2432
   doi: 10.1111/2041-210X.14082
-  url: https://doi.org/10.1111/2041-210X.14082
   year: '2023'
   journal: Methods in Ecology and Evolution
   volume: '14'
