@@ -1,4 +1,4 @@
-#' Configure the `map` of a `tag` object
+#' Configure the spatial and temporal parameters of the `map` of a `tag` object
 #'
 #' @description
 #' This function adds to `tag` the parameters defining the 3D grid of the map. The spatial

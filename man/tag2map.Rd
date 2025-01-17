@@ -2,7 +2,7 @@
 % Please edit documentation in R/tag2map.R
 \name{tag2map}
 \alias{tag2map}
-\title{Extract a \code{map} from a \code{tag}}
+\title{Extract a likelihood \code{map} from a \code{tag}}
 \usage{
 tag2map(tag, likelihood = NULL)
 }
@@ -18,5 +18,5 @@ value are \code{map_pressure}, \code{map_light}, \code{map_pressure_mse}, \code{
 likelihood map
 }
 \description{
-Extract a \code{map} from a \code{tag}
+Extract a likelihood \code{map} from a \code{tag}
 }

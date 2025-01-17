@@ -1,4 +1,4 @@
-#' Format light data into a matrix
+#' Format light data into a matrix to enable the retrieval of twilights
 #'
 #' @inheritParams twilight_create
 #' @param light data.frame of a `tag`, containing at least `date` and `value`.

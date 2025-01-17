@@ -1,4 +1,4 @@
-#' Extract a `path` from a `tag`
+#' Build a `path` from the likelihood maps of a `tag`
 #'
 #' @description
 #' Find the position of the highest value in a map, typically most probable value in a likelihood

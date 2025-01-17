@@ -1,4 +1,4 @@
-#' Estimate twilight from light data
+#' Estimate twilights from light data
 #'
 #' @description
 #' This function estimate twilight (i.e., datetime of sunrise and sunset) by searching for the first

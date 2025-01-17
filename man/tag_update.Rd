@@ -31,31 +31,13 @@ value.}
 The updated \code{tag} object
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function was deprecated because (1) few people use it, (2) hard to maintain and (3) not
+so slow to use the alternative of creating of new \code{tag} altogether.
+
 When updating the labelling file of a \code{tag}, we often change only a few stationary periods. To
 avoid recomputing the entire workflow, this function identifies which stationary periods have
-been modified and updates only these ones in \code{tag$map_pressure} and \code{pressurepath}.
+been modified and updates only these ones in \code{tag$map_pressure} and \code{tag$map_light}.
 }
-\examples{
-withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
-  tag <- tag_create("18LX", quiet = TRUE) |>
-    tag_label(quiet = TRUE) |>
-    tag_set_map(extent = c(-16, 23, 0, 50), scale = 1) |>
-    geopressure_map(quiet = TRUE)
-
-  print(tag)
-
-  tag <- tag_update(tag,
-    file = "./data/tag-label/18LX-labeled-updated.csv",
-    quiet = TRUE
-  )
-
-  print(tag)
-})
-}
-\seealso{
-Other tag: 
-\code{\link{print.tag}()},
-\code{\link{tag_create}()},
-\code{\link{tag_set_map}()}
-}
-\concept{tag}
+\keyword{internal}

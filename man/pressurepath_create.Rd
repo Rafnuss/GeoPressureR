@@ -11,7 +11,7 @@ pressurepath_create(
   solar_dep = 0,
   era5_dataset = "both",
   preprocess = FALSE,
-  timeout = 60 * 5,
+  timeout = 60 * 10,
   workers = "auto",
   quiet = FALSE,
   debug = FALSE
@@ -136,7 +136,6 @@ plot_pressurepath(pressurepath)
 
 Other pressurepath: 
 \code{\link{geopressure_timeseries}()},
-\code{\link{plot_pressurepath}()},
-\code{\link{pressurepath_update}()}
+\code{\link{plot_pressurepath}()}
 }
 \concept{pressurepath}

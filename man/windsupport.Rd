@@ -2,7 +2,7 @@
 % Please edit documentation in R/windsupport.R
 \name{windsupport}
 \alias{windsupport}
-\title{Compute wind support and drift}
+\title{Compute wind support and drift from a wind and ground speed vectors}
 \usage{
 windsupport(windspeed, groundspeed, drift = FALSE)
 }

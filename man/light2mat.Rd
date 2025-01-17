@@ -2,7 +2,7 @@
 % Please edit documentation in R/light2mat.R
 \name{light2mat}
 \alias{light2mat}
-\title{Format light data into a matrix}
+\title{Format light data into a matrix to enable the retrieval of twilights}
 \usage{
 light2mat(light, twl_offset = 0)
 }
@@ -16,6 +16,6 @@ provided, it uses the middle of all nights.}
 A data.frame with columns \code{date} and \code{value}.
 }
 \description{
-Format light data into a matrix
+Format light data into a matrix to enable the retrieval of twilights
 }
 \concept{twilight}

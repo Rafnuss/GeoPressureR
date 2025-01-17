@@ -19,14 +19,13 @@ pressurepath_update(pressurepath, tag, path = tag2path(tag), quiet = FALSE)
 a list containing the new \code{pressurepath}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function was deprecated because (1) few people use it, (2) hard to maintain and (3) not
+so slow to use the alternative of creating of new \code{pressurepath} altogether.
+
 When updating the labelling file of a tag, often, only a few stationary periods are changing. To
 avoid recomputing the entire workflow, this function figure out which stationary period have
 been changing on only update those in \code{tag$map_pressure} and \code{pressurepath}.
 }
-\seealso{
-Other pressurepath: 
-\code{\link{geopressure_timeseries}()},
-\code{\link{plot_pressurepath}()},
-\code{\link{pressurepath_create}()}
-}
-\concept{pressurepath}
+\keyword{internal}
