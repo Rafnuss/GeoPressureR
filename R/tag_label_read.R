@@ -25,9 +25,7 @@ tag_label_read <- function(tag,
   if ("setmap" %in% tag_status(tag)) {
     cli::cli_abort(c(
       "x" = "{.fun setmap} has already been run on this {.var tag}.",
-      ">" = "It is best practice to start from your raw data again using {.fun tag_create}.",
-      "i" = "You can also use {.fun tag_update} to only change the what needs to be updated \\
-      in {.var tag}."
+      ">" = "It is best practice to start from your raw data again using {.fun tag_create}."
     ))
   }
 

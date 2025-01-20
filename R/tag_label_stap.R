@@ -42,9 +42,7 @@ tag_label_stap <- function(tag,
   if ("setmap" %in% tag_status(tag)) {
     cli::cli_abort(c(
       "x" = "{.fun setmap} has already been run on this {.var tag}.",
-      ">" = "It is best practice to start from your raw data again using {.fun tag_create}.",
-      "i" = "You can also use {.fun tag_update} to only change the what needs to be updated in \\
-      {.var tag}."
+      ">" = "It is best practice to start from your raw data again using {.fun tag_create}."
     ))
   }
 
@@ -56,9 +54,9 @@ tag_label_stap <- function(tag,
     assertthat::has_name(tag$acceleration, "label")) {
     sensor <- tag$acceleration
     if ("flight" %in% tag$pressure$label) {
-      cli::cli_warn("The stationary periods will be estimated from acceleration data and the
-        label {.val flight} from pressure will be ignored. It is best practise to remove
-        {.val flight} in  pressure data if you are using acceleration. Remove label column in
+      cli::cli_warn("The stationary periods will be estimated from acceleration data and the \\
+        label {.val flight} from pressure will be ignored. It is best practise to remove \\
+        {.val flight} in  pressure data if you are using acceleration. Remove label column in \\
         acceleration data to use pressure label.")
     }
   } else {
