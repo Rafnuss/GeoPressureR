@@ -832,12 +832,14 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
     return(file)
   }
 
+  # Find files in directory ending with `file`
   path <- list.files(directory,
     pattern = glue::glue(file, "$"),
     full.names = TRUE
   )
 
-  path <- path[!grepl("~\\$", path)]
+  # Remove temporary file and those with word "test"
+  path <- path[!grepl("~\\$|test|calib", path, ignore.case = TRUE)]
 
   if (length(path) == 0) {
     if (!quiet) {
@@ -883,7 +885,7 @@ tag_create_dto <- function(sensor_path,
 
   if (any(is.na(df$value))) {
     cli::cli_abort(c(
-      x = "Invalid data in {.file {sensor_path)} at line(s): {20 + which(is.na(df$value))}",
+      x = "Invalid data in {.file {sensor_path)} at line(s): {skip + which(is.na(df$value))}",
       i = "Check and fix the corresponding lines"
     ))
   }
