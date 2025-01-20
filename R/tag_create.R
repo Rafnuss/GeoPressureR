@@ -446,6 +446,25 @@ tag_create_soi <- function(tag,
       setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
       if (!is.null(setting_path)) {
         tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
+
+        # Check for drift
+        stop_time_ref <- as.POSIXct(strptime(tag$param$soi_settings$StopTimeReference,
+          tz = "UTC",
+          format = "%d.%m.%Y %H:%M:%S"
+        ))
+        stop_time_rtc <- as.POSIXct(strptime(tag$param$soi_settings$StopTimeRTC,
+          tz = "UTC",
+          format = "%d.%m.%Y %H:%M:%S"
+        ))
+
+        tag$param$drift <- abs(as.numeric(difftime(stop_time_ref, stop_time_rtc, units = "mins")))
+        if (tag$param$drift > 30) {
+          cli::cli_warn(c(
+            "!" = "The SOI setting file {.file {setting_path}} is recording a drift of \\
+            {round(tag$param$drift)} min which seems suspicious.",
+            ">" = "Check for error (e.g. timezone)"
+          ))
+        }
       }
     },
     error = function(e) {
@@ -488,6 +507,7 @@ tag_create_migratetech <- function(tag,
   }
   # Retrieve full model number
   tag$param$migratec_model <- regmatches(line2, regexpr("Type: \\K[\\d.]+", line2, perl = TRUE))
+  # Check for drift
   line16 <- readLines(deg_path, n = 16)[[16]]
   drift <- abs(as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60)
   if (drift > 30) {
