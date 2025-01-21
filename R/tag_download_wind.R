@@ -174,6 +174,7 @@ tag_download_wind <- function(
     request_list[include_stap_id],
     workers = workers,
     path = directory,
+    time_out = 3*3600,
     ...
   )
 }
