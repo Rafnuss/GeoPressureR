@@ -762,13 +762,13 @@ tag_create_prestag <- function(tag,
   }
 
   # Read
-  data_raw <- read.delim(pressure_path, header = FALSE, comment.char = "#", sep = ",")
+  data_raw <- utils::read.delim(pressure_path, header = FALSE, comment.char = "#", sep = ",")
 
   # convert epoch to Posixt
   timestamps <- as.POSIXct(data_raw$V1, origin = "1970-01-01", tz = "UTC")
 
   # Separate pressure and temperature
-  df <- read.table(text = data_raw$V2, sep = ":", col.names = c("sensor", "value"))
+  df <- utils::read.table(text = data_raw$V2, sep = ":", col.names = c("sensor", "value"))
   df$date <- timestamps
 
   # df2 <- read.table(text = data_raw$V3[data_raw$V3!=""],
