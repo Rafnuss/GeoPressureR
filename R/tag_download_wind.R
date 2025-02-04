@@ -65,9 +65,11 @@ tag_download_wind <- function(
     cds_token = deprecated(),
     ...) {
   if (lifecycle::is_present(cds_token)) {
-    lifecycle::deprecate_warn("3.3.4",
-                              "tag_download_wind(cds_token)",
-                              "ecmwfr::wf_set_key(key)")
+    lifecycle::deprecate_warn(
+      "3.3.4",
+      "tag_download_wind(cds_token)",
+      "ecmwfr::wf_set_key(key)"
+    )
     ecmwfr::wf_set_key(key = cds_token)
   }
 
@@ -174,7 +176,7 @@ tag_download_wind <- function(
     request_list[include_stap_id],
     workers = workers,
     path = directory,
-    time_out = 3*3600,
+    time_out = 3 * 3600,
     ...
   )
 }
