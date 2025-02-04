@@ -34,6 +34,8 @@
 #'    - `pressure_file = "*_press.xlsx"`
 #'    - `light_file = "*_acc.xlsx"` (optional)
 #'    - `acceleration_file = "*_acc.xlsx"` (optional)
+#' - [BitTag/PresTag (`prestag`)](https://geoffreymbrown.github.io/ultralight-tags/)
+#'    - `pressure_file = "*.txt"`
 #'
 #' You can also enter the data manually (`manufacturer = "manual"`) by providing the data.frame to
 #' `pressure_file`:
@@ -56,7 +58,8 @@
 #' or post-retrieval data.
 #'
 #' @param id unique identifier of a tag.
-#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"` or `"manual"`
+#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`, `"prestag"` or
+#' `"manual"`.
 #' @param directory path of the directory where the tag files can be read.
 #' @param pressure_file name of the file with pressure data. Full pathname  or finishing
 #' with extensions (e.g., `"*.pressure"`, `"*.deg"` or `"*_press.xlsx"`).
@@ -174,7 +177,10 @@ tag_create <- function(id,
     }
   }
   assertthat::assert_that(is.character(manufacturer))
-  manufacturer_possible <- c("auto", "datapackage", "soi", "migratetech", "bas", "lund", "manual")
+  manufacturer_possible <- c(
+    "auto", "datapackage", "soi", "migratetech", "bas", "prestag",
+    "lund", "manual"
+  )
   if (!any(manufacturer %in% manufacturer_possible)) {
     cli::cli_abort(c(
       "x" = "{.var manufacturer} needs to be one of {.val {manufacturer_possible}}"
@@ -229,6 +235,13 @@ tag_create <- function(id,
       directory = directory,
       pressure_file = pressure_file,
       acceleration_light_file = acceleration_file,
+      quiet = quiet
+    )
+  } else if (manufacturer == "prestag") {
+    tag <- tag_create_prestag(
+      tag,
+      directory = directory,
+      pressure_file = pressure_file,
       quiet = quiet
     )
   } else if (manufacturer == "manual") {
@@ -730,6 +743,51 @@ tag_create_lund <- function(tag,
   return(tag)
 }
 
+# Read PresTag tag files
+#' @noRd
+tag_create_prestag <- function(tag,
+                               directory,
+                               pressure_file = NULL,
+                               quiet) {
+  # Find file path
+  if (is.null(pressure_file)) {
+    pressure_file <- ".txt"
+  }
+  pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
+  if (is.null(pressure_path)) {
+    cli::cli_abort(c(
+      "x" = "There are no file {.val {pressure_path}}",
+      "!" = "{.var pressure_path} is required"
+    ))
+  }
+
+  # Read
+  data_raw <- read.delim(pressure_path, header = FALSE, comment.char = "#", sep = ",")
+
+  # convert epoch to Posixt
+  timestamps <- as.POSIXct(data_raw$V1, origin = "1970-01-01", tz = "UTC")
+
+  # Separate pressure and temperature
+  df <- read.table(text = data_raw$V2, sep = ":", col.names = c("sensor", "value"))
+  df$date <- timestamps
+
+  # df2 <- read.table(text = data_raw$V3[data_raw$V3!=""],
+  #                  sep = ":", col.names = c("sensor", "value"))
+  # df2$date = timestamps[data_raw$V3!=""]
+  # df = rbind(df, df2)
+
+  # Set to NA any negtive value
+  df$value[df$value < 0] <- NA
+
+  # Create sensor data.frame
+  tag$pressure <- df[df$sensor == "P", -which(names(df) == "sensor")]
+  tag$temperature <- df[df$sensor == "T", -which(names(df) == "sensor")]
+
+  # Add parameter information
+  tag$param$tag_create$pressure_file <- pressure_path
+
+  return(tag)
+}
 
 
 # Read Migrate Technology tag files
