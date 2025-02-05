@@ -1,4 +1,4 @@
-#' Extract a `map` from a `tag`
+#' Extract a likelihood `map` from a `tag`
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param likelihood Field of the `tag` list containing the likelihood map (character). Possible

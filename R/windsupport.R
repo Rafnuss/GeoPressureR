@@ -1,4 +1,4 @@
-#' Compute wind support and drift
+#' Compute wind support and drift from a wind and ground speed vectors
 #'
 #' @description
 #' Wind support, or wind profit, is the projection of the wind vector \eqn{\vec{v}_w} onto the

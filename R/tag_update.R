@@ -1,8 +1,14 @@
 #' Update a `tag` object
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' This function was deprecated because (1) few people use it, (2) hard to maintain and (3) not
+#' so slow to use the alternative of creating of new `tag` altogether.
+#'
 #' When updating the labelling file of a `tag`, we often change only a few stationary periods. To
 #' avoid recomputing the entire workflow, this function identifies which stationary periods have
-#' been modified and updates only these ones in `tag$map_pressure` and `pressurepath`.
+#' been modified and updates only these ones in `tag$map_pressure` and `tag$map_light`.
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param file absolute or relative path of the label file.
@@ -15,29 +21,18 @@
 #' @param quiet logical to hide messages about the progress
 #'
 #' @return The updated `tag` object
-#' @examples
-#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
-#'   tag <- tag_create("18LX", quiet = TRUE) |>
-#'     tag_label(quiet = TRUE) |>
-#'     tag_set_map(extent = c(-16, 23, 0, 50), scale = 1) |>
-#'     geopressure_map(quiet = TRUE)
-#'
-#'   print(tag)
-#'
-#'   tag <- tag_update(tag,
-#'     file = "./data/tag-label/18LX-labeled-updated.csv",
-#'     quiet = TRUE
-#'   )
-#'
-#'   print(tag)
-#' })
-#' @family tag
+#' @keywords internal
 #' @export
 tag_update <- function(tag,
                        file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
                        known = NULL,
                        include_stap_id = NULL,
                        quiet = FALSE) {
+  lifecycle::deprecate_warn(
+    "3.3.4", "tag_update()", "tag_create()",
+    details = "Re-create the {.arg tag} entirely, it's not that slow!"
+  )
+
   # Only work if the tag has already been labelled.
   tag_assert(tag, "map_pressure")
 

@@ -1,4 +1,4 @@
-#' Prepare pressure data for geopositioning
+#' Prepare pressure data for `geopressure_map()`
 #'
 #' @description
 #' Performs the follow pre-processing for the pressure data.frame:
@@ -18,6 +18,11 @@
 #'
 #' pressure_processed <- geopressure_map_preprocess(tag)
 #' str(pressure_processed)
+#'
+#' # Plotting pressure displays the raw data (in grey) with the processed data from
+#' # `geopressure_map_preprocess` (as coloured line)
+#' plot_tag_pressure(tag, quiet = TRUE)
+#'
 #' @export
 geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   tag_assert(tag, "label")
@@ -215,6 +220,9 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     cli::cli_warn("The stationary period {.var {stap$stap_id[stap$Freq<3]}} have less \\
                   than 3 datapoints to be used.\f")
   }
+
+  # delete the internal used `date_ireg`
+  pressure_clean$date_ireg <- NULL
 
   rownames(pressure_clean) <- NULL
   return(pressure_clean)

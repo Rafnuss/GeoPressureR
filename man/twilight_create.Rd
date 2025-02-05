@@ -2,7 +2,7 @@
 % Please edit documentation in R/twilight_create.R
 \name{twilight_create}
 \alias{twilight_create}
-\title{Estimate twilight from light data}
+\title{Estimate twilights from light data}
 \usage{
 twilight_create(tag, twl_thr = NULL, twl_offset = NULL, transform_light = TRUE)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/geopressure_map_preprocess.R
 \name{geopressure_map_preprocess}
 \alias{geopressure_map_preprocess}
-\title{Prepare pressure data for geopositioning}
+\title{Prepare pressure data for \code{geopressure_map()}}
 \usage{
 geopressure_map_preprocess(tag, compute_known = FALSE)
 }
@@ -33,4 +33,9 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 
 pressure_processed <- geopressure_map_preprocess(tag)
 str(pressure_processed)
+
+# Plotting pressure displays the raw data (in grey) with the processed data from
+# `geopressure_map_preprocess` (as coloured line)
+plot_tag_pressure(tag, quiet = TRUE)
+
 }

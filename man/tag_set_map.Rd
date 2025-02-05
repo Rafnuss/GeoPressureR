@@ -2,7 +2,7 @@
 % Please edit documentation in R/tag_set_map.R
 \name{tag_set_map}
 \alias{tag_set_map}
-\title{Configure the \code{map} of a \code{tag} object}
+\title{Configure the spatial and temporal parameters of the \code{map} of a \code{tag} object}
 \usage{
 tag_set_map(
   tag,
@@ -94,7 +94,6 @@ print(tag_custom)
 
 Other tag: 
 \code{\link{print.tag}()},
-\code{\link{tag_create}()},
-\code{\link{tag_update}()}
+\code{\link{tag_create}()}
 }
 \concept{tag}

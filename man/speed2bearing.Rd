@@ -2,7 +2,7 @@
 % Please edit documentation in R/speed2bearing.R
 \name{speed2bearing}
 \alias{speed2bearing}
-\title{Compute the bearing of a speed}
+\title{Compute the bearing of a speed vector}
 \usage{
 speed2bearing(
   speed,

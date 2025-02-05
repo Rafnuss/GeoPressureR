@@ -1,0 +1,63 @@
+#
+# Tag Read time: 1732452001
+#
+# Tag Error:     -3.21074e+09
+#
+#             Tag Info
+#
+# Tag Type:    PRESTAG
+# Tag Firmware:PresTagv4, Firmware version 1
+# Board:       PresTagv3
+# Build Date:  Aug 22 2023 : 14:05:31
+# Git Repo:    git@github.com:geoffreymbrown/ultralight-tags.git
+# Source Path: /software/embedded/tags/PresTag
+# Git Hash:    11aa078
+# UUID:        20343341533050020037002C
+# Internal Flash Size:  256KB
+# External Flash Size:  0KB
+# Test Status: TEST_UNSPECIFIED
+#
+#             Configuration
+#
+# Start:       0
+# End:         2147483647
+# Sample Period:   60 seconds
+# Hibernate[0] = {1699484400, 1699484400}
+# Hibernate[1] = {1699484400, 1699484400}
+#
+#             State Log
+#
+# Epoch: 1699484298
+# State: CONFIGURED
+# Entry Code: EVENT_STARTCMD
+# Temperature: 22.9
+# Voltage:     3.29
+# Internal Log Entries: 0
+# External Log Entries: 0
+#
+# Epoch: 1699484298
+# State: RUNNING
+# Entry Code: EVENT_STARTTIM
+# Temperature: 22.3
+# Voltage:     3.29
+# Internal Log Entries: 0
+# External Log Entries: 0
+#
+# Epoch: -1457205121
+# State: ABORTED
+# Entry Code: EVENT_POWERFAIL
+# Temperature: 25.5
+# Voltage:     3.2
+# Internal Log Entries: 514
+# External Log Entries: 2086
+#
+#
+#             Data Log
+#
+1699484358,V:3.28,TC:3.3
+1699484358,P:1012.97
+1699484358,T:21.89
+1699484418,P:1013
+1699484418,T:21.93
+1699484478,P:1013.03
+

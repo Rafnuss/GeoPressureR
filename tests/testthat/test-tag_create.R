@@ -8,6 +8,7 @@ test_that("tag_create() | manufacturer", {
   expect_no_error(tag_create(id = "18LX", quiet = TRUE))
   expect_no_error(tag_create(id = "CB621", quiet = TRUE))
   expect_no_error(tag_create(id = "X19D", quiet = TRUE))
+  expect_no_error(tag_create(id = "C003654", manufacturer = "prestag", quiet = TRUE))
 
   pres <- data.frame(
     date = as.POSIXct(c(

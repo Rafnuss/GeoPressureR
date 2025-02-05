@@ -1,5 +1,11 @@
 #' Update a `pressurepath`
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' This function was deprecated because (1) few people use it, (2) hard to maintain and (3) not
+#' so slow to use the alternative of creating of new `pressurepath` altogether.
+#'
 #' When updating the labelling file of a tag, often, only a few stationary periods are changing. To
 #' avoid recomputing the entire workflow, this function figure out which stationary period have
 #' been changing on only update those in `tag$map_pressure` and `pressurepath`.
@@ -7,12 +13,17 @@
 #' @param pressurepath a GeoPressureR `pressurepath` data.frame
 #' @inheritParams pressurepath_create
 #' @return a list containing the new `pressurepath`.
-#' @family pressurepath
+#' @keywords internal
 #' @export
 pressurepath_update <- function(pressurepath,
                                 tag,
                                 path = tag2path(tag),
                                 quiet = FALSE) {
+  lifecycle::deprecate_warn(
+    "3.3.4", "pressurepath_update()", "pressurepath_create()",
+    details = "Re-create the {.arg pressurepath} entirely, it's not that slow!"
+  )
+
   # Check pressurepath
   assertthat::assert_that(is.data.frame(pressurepath))
   assertthat::assert_that(assertthat::has_name(

@@ -23,7 +23,8 @@ tag_create(
 \arguments{
 \item{id}{unique identifier of a tag.}
 
-\item{manufacturer}{One of \code{NULL}, \code{"soi"}, \code{"migratetech"}, \code{"lund"} or \code{"manual"}}
+\item{manufacturer}{One of \code{NULL}, \code{"soi"}, \code{"migratetech"}, \code{"bas"}, \code{"lund"}, \code{"prestag"} or
+\code{"manual"}.}
 
 \item{crop_start}{remove all data before this date (POSIXct or character in UTC).}
 
@@ -108,11 +109,19 @@ The current implementation can read files from the following three sources:
 \item \code{light_file = "*.lux"} (optional)
 \item \code{acceleration_file = "*.deg"} (optional)
 }
+\item British Antarctic Survey (\code{bas}), aquired by Biotrack Ltd in 2011, \href{https://www.lotek.com/about-us/history/}{renamed Lotek in 2019 }. Only works for light data (\code{assert_pressure = FALSE})
+\itemize{
+\item \code{light_file = "*.lig"}
+}
 \item \href{https://bit.ly/3P6quyi}{Lund CAnMove (\code{lund})}
 \itemize{
 \item \code{pressure_file = "*_press.xlsx"}
 \item \code{light_file = "*_acc.xlsx"} (optional)
 \item \code{acceleration_file = "*_acc.xlsx"} (optional)
+}
+\item \href{https://geoffreymbrown.github.io/ultralight-tags/}{BitTag/PresTag (\code{prestag})}
+\itemize{
+\item \code{pressure_file = "*.txt"}
 }
 }
 
@@ -182,7 +191,6 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 
 Other tag: 
 \code{\link{print.tag}()},
-\code{\link{tag_set_map}()},
-\code{\link{tag_update}()}
+\code{\link{tag_set_map}()}
 }
 \concept{tag}

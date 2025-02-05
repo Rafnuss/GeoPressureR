@@ -141,7 +141,7 @@ path2elevation <- function(path,
     cli::cli_text("Body request file: {.file {temp_file}}")
   }
 
-  req <- httr2::request("glp.mgravey.com/GeoPressure/v2/elevationPath/") |>
+  req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/elevationPath/") |>
     httr2::req_body_json(body, digit = 5) |>
     httr2::req_retry(max_tries = 3) |>
     httr2::req_timeout(timeout)

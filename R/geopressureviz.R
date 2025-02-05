@@ -52,6 +52,7 @@ geopressureviz <- function(x,
       # Avoid CMD error
       path_most_likely <- NULL
       pressurepath <- NULL
+      pressurepath_most_likely <- NULL
       # Load interim data
       load(file)
       # Accept path_most_likely instead of path
@@ -59,6 +60,9 @@ geopressureviz <- function(x,
         path <- path_most_likely
       }
       # Use pressurepath if available over path_most_likely
+      if (!is.null(pressurepath_most_likely)) {
+        pressurepath <- pressurepath_most_likely
+      }
       if (!is.null(pressurepath)) {
         if ("pressure_era5" %in% names(pressurepath)) {
           cli::cli_warn(c(

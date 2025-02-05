@@ -56,8 +56,11 @@ trainset_read <- function(df,
   # use label only if not NA (missing, see below for warning message)
   df[[label]][!is.na(id_match)] <- csv$label[id_match[!is.na(id_match)]]
 
+  # Set to discard all the NA value
+  df[[label]][is.na(df$value)] <- "discard"
+
   # Check for missing data
-  missing_pres <- sum(is.na(id_match))
+  missing_pres <- sum(is.na(id_match) & !is.na(df$value))
 
   if (missing_pres > 0) {
     # nolint start

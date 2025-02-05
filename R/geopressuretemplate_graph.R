@@ -147,7 +147,7 @@ geopressuretemplate_graph <- function(
     cli::cli_bullets(c("!" = "The directory {.file {dir_file}} does not  exists."))
     res <- utils::askYesNo("Do you want to create it?")
     if (res) {
-      dir.create(dir_file)
+      dir.create(dir_file, recursive = TRUE)
     } else {
       return(FALSE)
     }

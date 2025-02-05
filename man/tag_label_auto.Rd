@@ -2,7 +2,7 @@
 % Please edit documentation in R/tag_label_auto.R
 \name{tag_label_auto}
 \alias{tag_label_auto}
-\title{Automatic labelling of a \code{tag}}
+\title{Automatic labelling acceleration data of a \code{tag}}
 \usage{
 tag_label_auto(
   tag,

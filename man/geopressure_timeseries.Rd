@@ -115,7 +115,6 @@ Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecolog
 \seealso{
 Other pressurepath: 
 \code{\link{plot_pressurepath}()},
-\code{\link{pressurepath_create}()},
-\code{\link{pressurepath_update}()}
+\code{\link{pressurepath_create}()}
 }
 \concept{pressurepath}

@@ -33,7 +33,6 @@ reference:
   contents:
   - tag_create
   - tag_set_map
-  - tag_update
 - subtitle: Visualize tag
   desc: Print and plot a `tag` object.
   contents:
@@ -74,10 +73,10 @@ reference:
 - title: GeoLight
   desc: Geopositioning based on light data.
   contents:
-  - geolight_map
   - twilight_create
   - twilight_label_write
   - twilight_label_read
+  - geolight_map
   - light2mat
 - title: Graph
   desc: Constructing the Hidden-Markov model with a `graph` and computing trajectory products.
@@ -124,7 +123,6 @@ reference:
   desc: Data.frame of pressure time series along a path.
   contents:
   - pressurepath_create
-  - pressurepath_update
   - plot_pressurepath
   - path2elevation
 - title: GeoPressureTemplate
