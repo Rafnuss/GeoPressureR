@@ -69,13 +69,15 @@ twilight_create <- function(tag,
   # image(l)
 
   # Find the first light
-  id_sr <- apply(l, 2, which.max)
+  id_sr <- apply(l, 2, function(x) {
+    if (all(is.na(x))) NA else which.max(x)
+  })
   id_sr_r <- id_sr + (seq_len(dim(l)[2]) - 1) * dim(l)[1]
   # check that this value was measured and above the threshold
   id <- mat$value[id_sr_r] >= twl_thr
   id_sr <- id_sr[id]
   id_sr_r <- id_sr_r[id]
-  if (any(id_sr == 1)) {
+  if (any(na.omit(id_sr) == 1)) {
     cli::cli_warn(c(
       "!" = "{sum(id_sr == 1)} twilights are set at midnight (relative to {.var twl_offset}).",
       "i" = "There is likely a problem with {.var twl_offset = {twl_offset}}."
@@ -84,14 +86,16 @@ twilight_create <- function(tag,
   sr <- as.POSIXct(mat$date[id_sr_r], origin = "1970-01-01", tz = "UTC")
 
   # Find the last light
-  # id_ss <- dim(l)[1] - apply(l[nrow(l):1, ], 2, which.max)
-  id_ss <- dim(l)[1] - apply(l[rev(seq_len(nrow(l))), ], 2, which.max)
+  id_ss <- apply(l[rev(seq_len(nrow(l))), ], 2, function(x) {
+    if (all(is.na(x))) NA else dim(l)[1] - which.max(x)
+  })
+
   id_ss_s <- id_ss + (seq_len(dim(l)[2]) - 1) * dim(l)[1]
   # check that this value was measured and above the threshold
   id <- mat$value[id_ss_s + 1] >= twl_thr
   id_ss_s <- id_ss_s[id]
   id_ss <- id_ss[id]
-  if (any(id_ss == dim(l)[1])) {
+  if (any(na.omit(id_ss) == dim(l)[1])) {
     cli::cli_warn(c(
       "!" = "{sum(id_ss == 1)} twilights are set at midnight (relative to {.var twl_offset}).",
       "i" = "There is likely a problem with {.var twl_offset = {twl_offset}}."
