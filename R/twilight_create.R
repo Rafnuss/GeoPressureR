@@ -77,7 +77,7 @@ twilight_create <- function(tag,
   id <- mat$value[id_sr_r] >= twl_thr
   id_sr <- id_sr[id]
   id_sr_r <- id_sr_r[id]
-  if (any(na.omit(id_sr) == 1)) {
+  if (any(stats::na.omit(id_sr) == 1)) {
     cli::cli_warn(c(
       "!" = "{sum(id_sr == 1)} twilights are set at midnight (relative to {.var twl_offset}).",
       "i" = "There is likely a problem with {.var twl_offset = {twl_offset}}."
@@ -95,7 +95,7 @@ twilight_create <- function(tag,
   id <- mat$value[id_ss_s + 1] >= twl_thr
   id_ss_s <- id_ss_s[id]
   id_ss <- id_ss[id]
-  if (any(na.omit(id_ss) == dim(l)[1])) {
+  if (any(stats::na.omit(id_ss) == dim(l)[1])) {
     cli::cli_warn(c(
       "!" = "{sum(id_ss == 1)} twilights are set at midnight (relative to {.var twl_offset}).",
       "i" = "There is likely a problem with {.var twl_offset = {twl_offset}}."

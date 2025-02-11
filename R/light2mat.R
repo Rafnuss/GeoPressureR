@@ -13,7 +13,7 @@ light2mat <- function(light, twl_offset = 0) {
   assertthat::assert_that(is.numeric(twl_offset))
 
   res_vec <- as.numeric(diff(light$date), units = "secs")
-  res <- median(res_vec)
+  res <- stats::median(res_vec)
   if (length(unique(res_vec)) != 1) {
     cli::cli_warn(c(
       x = "Temporal resolution of the light data is not constant. We will use a regular \\

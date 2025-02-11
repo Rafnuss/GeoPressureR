@@ -153,7 +153,7 @@ geopressure_timeseries <- function(lat,
     })
 
   if (debug) {
-    httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
+    req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
   }
 
   # Perform the request and convert the response to json
@@ -176,7 +176,7 @@ geopressure_timeseries <- function(lat,
     httr2::req_retry(max_tries = 3)
 
   if (debug) {
-    httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
+    req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
   }
 
   # Perform request

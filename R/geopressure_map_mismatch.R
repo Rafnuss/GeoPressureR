@@ -64,7 +64,7 @@ geopressure_map_mismatch <- function(tag,
   }
 
   # Request URLS
-  req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/map/") |>
+  req <- httr2::request("https://us-central1-cloud-service-mgravey.cloudfunctions.net/map") |>
     httr2::req_body_json(body) |>
     httr2::req_timeout(timeout) |>
     httr2::req_retry(max_tries = 3) |>
