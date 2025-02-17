@@ -8,11 +8,11 @@ the download more efficient, wf_request_batch()
 is used to download all files at the same time (up to 20 requests in parallel).
 To be able to download data from the Climate Data Store (CDS), you will need to create an ECMWF
 account on https://www.ecmwf.int/. Once created, you can
-retrieve your Personal Access Token on https://cds.climate.copernicus.eu/profile and save them in your environment file
-(i.e., .Renviron). You can open this file with usethis::edit_r_environ() and add:
+retrieve your API Token on https://cds.climate.copernicus.eu/profile and save them in your local keychain with:
 
-  cds_token = "{Personal Access Token}"
-'><meta property="og:description" content='This function download data associated to each flight from the ERA5 hourly pressure levels
+  ecmwfr::wf_set_key("abcd1234-foo-bar-98765431-XXXXXXXXXX")
+
+More information in the GeoPressureManual.'><meta property="og:description" content='This function download data associated to each flight from the ERA5 hourly pressure levels
 with the Climate Data Store (CDS) and through the ecmwfr R package.
 Any variable available from the ERA5 pressure level can be downloaded.
 The flights are determined from the stationary periods classified tag$stap. It request a
@@ -21,11 +21,11 @@ the download more efficient, wf_request_batch()
 is used to download all files at the same time (up to 20 requests in parallel).
 To be able to download data from the Climate Data Store (CDS), you will need to create an ECMWF
 account on https://www.ecmwf.int/. Once created, you can
-retrieve your Personal Access Token on https://cds.climate.copernicus.eu/profile and save them in your environment file
-(i.e., .Renviron). You can open this file with usethis::edit_r_environ() and add:
+retrieve your API Token on https://cds.climate.copernicus.eu/profile and save them in your local keychain with:
 
-  cds_token = "{Personal Access Token}"
-'><meta property="og:image" content="https://raphaelnussbaumer.com/GeoPressureR/logo.png"><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-M5FY4BPHTB"></script><script>
+  ecmwfr::wf_set_key("abcd1234-foo-bar-98765431-XXXXXXXXXX")
+
+More information in the GeoPressureManual.'><meta property="og:image" content="https://raphaelnussbaumer.com/GeoPressureR/logo.png"><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-M5FY4BPHTB"></script><script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
@@ -39,7 +39,7 @@ retrieve your Personal Access Token on https://cds.climate.copernicus.eu/profile
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,11 +74,11 @@ the download more efficient, <a href="https://bluegreen-labs.github.io/ecmwfr/ar
 is used to download all files at the same time (up to 20 requests in parallel).</p>
 <p>To be able to download data from the Climate Data Store (CDS), you will need to create an ECMWF
 account on <a href="https://www.ecmwf.int/" class="external-link">https://www.ecmwf.int/</a>. Once created, you can
-retrieve your Personal Access Token on <a href="https://cds.climate.copernicus.eu/profile" class="external-link">https://cds.climate.copernicus.eu/profile</a> and save them in your environment file
-(i.e., <code>.Renviron</code>). You can open this file with <code>usethis::edit_r_environ()</code> and add:
+retrieve your API Token on <a href="https://cds.climate.copernicus.eu/profile" class="external-link">https://cds.climate.copernicus.eu/profile</a> and save them in your local keychain with:
 <code>
-  cds_token = "{Personal Access Token}"
+  ecmwfr::wf_set_key("abcd1234-foo-bar-98765431-XXXXXXXXXX")
 </code></p>
+<p>More information <a href="https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-wind.html" class="external-link">in the GeoPressureManual</a>.</p>
     </div>
 
     <div class="section level2">
@@ -88,11 +88,11 @@ retrieve your Personal Access Token on <a href="https://cds.climate.copernicus.e
 <span>  extent <span class="op">=</span> <span class="va">tag</span><span class="op">$</span><span class="va">param</span><span class="op">$</span><span class="va">tag_set_map</span><span class="op">$</span><span class="va">extent</span>,</span>
 <span>  include_stap_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  variable <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"u_component_of_wind"</span>, <span class="st">"v_component_of_wind"</span><span class="op">)</span>,</span>
-<span>  cds_token <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"cds_token"</span><span class="op">)</span>,</span>
 <span>  file <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">stap_id</span><span class="op">)</span></span>
 <span>    <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"</span><span class="op">)</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  workers <span class="op">=</span> <span class="fl">19</span>,</span>
+<span>  cds_token <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -124,10 +124,6 @@ Default is to download all flights.</p></dd>
 <code>'vorticity"</code>.</p></dd>
 
 
-<dt id="arg-cds-token">cds_token<a class="anchor" aria-label="anchor" href="#arg-cds-token"></a></dt>
-<dd><p>CDS Personal Access Token available from <a href="https://cds.climate.copernicus.eu/user/" class="external-link">your user page </a>. See <code>wf_set_key()</code>.</p></dd>
-
-
 <dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
 <dd><p>absolute or relative path of the ERA5 wind data file to be downloaded. Function
 taking as single argument the stationary period identifier.</p></dd>
@@ -141,6 +137,11 @@ taking as single argument the stationary period identifier.</p></dd>
 <dd><p>maximum number of simultaneous request that will be submitted
 to the service. Most ECMWF services are limited to 20 concurrent requests
 (default = 2).</p></dd>
+
+
+<dt id="arg-cds-token">cds_token<a class="anchor" aria-label="anchor" href="#arg-cds-token"></a></dt>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Enter the API token with
+<code><a href="https://rdrr.io/pkg/ecmwfr/man/wf_set_key.html" class="external-link">ecmwfr::wf_set_key()</a></code></p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

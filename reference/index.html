@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,13 +58,7 @@
           <code><a href="tag_set_map.html">tag_set_map()</a></code>
 
         </dt>
-        <dd>Configure the <code>map</code> of a <code>tag</code> object</dd>
-      </dl><dl><dt>
-
-          <code><a href="tag_update.html">tag_update()</a></code>
-
-        </dt>
-        <dd>Update a <code>tag</code> object</dd>
+        <dd>Configure the spatial and temporal parameters of the <code>map</code> of a <code>tag</code> object</dd>
       </dl></div><div class="section level2">
 
       <h3 id="visualize-tag">Visualize tag<a class="anchor" aria-label="anchor" href="#visualize-tag"></a></h3>
@@ -140,7 +134,7 @@
           <code><a href="tag_label_auto.html">tag_label_auto()</a></code>
 
         </dt>
-        <dd>Automatic labelling of a <code>tag</code></dd>
+        <dd>Automatic labelling acceleration data of a <code>tag</code></dd>
       </dl><dl><dt>
 
           <code><a href="tag_label_write.html">tag_label_write()</a></code>
@@ -181,13 +175,13 @@
           <code><a href="tag2path.html">tag2path()</a></code>
 
         </dt>
-        <dd>Extract a <code>path</code> from a <code>tag</code></dd>
+        <dd>Build a <code>path</code> from the likelihood maps of a <code>tag</code></dd>
       </dl><dl><dt>
 
           <code><a href="tag2map.html">tag2map()</a></code>
 
         </dt>
-        <dd>Extract a <code>map</code> from a <code>tag</code></dd>
+        <dd>Extract a likelihood <code>map</code> from a <code>tag</code></dd>
       </dl></div><div class="section level2">
       <h2 id="geopressure">GeoPressure<a class="anchor" aria-label="anchor" href="#geopressure"></a></h2>
 
@@ -216,7 +210,7 @@
           <code><a href="geopressure_map_preprocess.html">geopressure_map_preprocess()</a></code>
 
         </dt>
-        <dd>Prepare pressure data for geopositioning</dd>
+        <dd>Prepare pressure data for <code><a href="../reference/geopressure_map.html">geopressure_map()</a></code></dd>
       </dl></div><div class="section level2">
 
       <h3 id="geopressure-time-series">GeoPressure time series<a class="anchor" aria-label="anchor" href="#geopressure-time-series"></a></h3>
@@ -247,16 +241,10 @@
 
       <dl><dt>
 
-          <code><a href="geolight_map.html">geolight_map()</a></code>
-
-        </dt>
-        <dd>Compute likelihood map from twilight</dd>
-      </dl><dl><dt>
-
           <code><a href="twilight_create.html">twilight_create()</a></code>
 
         </dt>
-        <dd>Estimate twilight from light data</dd>
+        <dd>Estimate twilights from light data</dd>
       </dl><dl><dt>
 
           <code><a href="twilight_label_write.html">twilight_label_write()</a></code>
@@ -271,10 +259,16 @@
         <dd>Read a twilight label file</dd>
       </dl><dl><dt>
 
+          <code><a href="geolight_map.html">geolight_map()</a></code>
+
+        </dt>
+        <dd>Compute likelihood map from twilight</dd>
+      </dl><dl><dt>
+
           <code><a href="light2mat.html">light2mat()</a></code>
 
         </dt>
-        <dd>Format light data into a matrix</dd>
+        <dd>Format light data into a matrix to enable the retrieval of twilights</dd>
       </dl></div><div class="section level2">
       <h2 id="graph">Graph<a class="anchor" aria-label="anchor" href="#graph"></a></h2>
 
@@ -498,12 +492,6 @@
         <dd>Create a <code>pressurepath</code></dd>
       </dl><dl><dt>
 
-          <code><a href="pressurepath_update.html">pressurepath_update()</a></code>
-
-        </dt>
-        <dd>Update a <code>pressurepath</code></dd>
-      </dl><dl><dt>
-
           <code><a href="plot_pressurepath.html">plot_pressurepath()</a></code>
 
         </dt>
@@ -582,19 +570,19 @@
           <code><a href="speed2bearing.html">speed2bearing()</a></code>
 
         </dt>
-        <dd>Compute the bearing of a speed</dd>
+        <dd>Compute the bearing of a speed vector</dd>
       </dl><dl><dt>
 
           <code><a href="windsupport.html">windsupport()</a></code>
 
         </dt>
-        <dd>Compute wind support and drift</dd>
+        <dd>Compute wind support and drift from a wind and ground speed vectors</dd>
       </dl><dl><dt>
 
           <code><a href="path2twilight.html">path2twilight()</a></code>
 
         </dt>
-        <dd>Compute astronomical twilight from positions and dates</dd>
+        <dd>Compute exact astronomical twilights from a <code>path</code> (positions and dates)</dd>
       </dl><dl><dt>
 
           <code><a href="geopressureviz.html">geopressureviz()</a></code>
