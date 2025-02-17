@@ -1,4 +1,4 @@
-#' Compute the bearing of a speed
+#' Compute the bearing of a speed vector
 #'
 #' @description
 #' This function convert a speed vector represented in complex number into a bearing angle (0°=N ;

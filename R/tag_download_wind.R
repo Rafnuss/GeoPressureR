@@ -16,12 +16,14 @@
 #'
 #' To be able to download data from the Climate Data Store (CDS), you will need to create an ECMWF
 #' account on [https://www.ecmwf.int/](https://www.ecmwf.int/). Once created, you can
-#' retrieve your Personal Access Token on [https://cds.climate.copernicus.eu/profile
-#' ](https://cds.climate.copernicus.eu/profile) and save them in your environment file
-#' (i.e., `.Renviron`). You can open this file with `usethis::edit_r_environ()` and add:
+#' retrieve your API Token on [https://cds.climate.copernicus.eu/profile
+#' ](https://cds.climate.copernicus.eu/profile) and save them in your local keychain with:
 #' \code{
-#'   cds_token = "{Personal Access Token}"
+#'   ecmwfr::wf_set_key("abcd1234-foo-bar-98765431-XXXXXXXXXX")
 #' }
+#'
+#' More information [in the GeoPressureManual](
+#' https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-wind.html).
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param extent geographical extent of the map on which the likelihood will be computed.
@@ -35,11 +37,11 @@
 #' `"specific_humidity"`, `"specific_rain_water_content"`, `"specific_snow_water_content"`,
 #' `"divergence"`, `"geopotential"`, `"ozone_mass_mixing_ratio"`, `"potential_vorticity"`,
 #' `'vorticity"`.
-#' @param cds_token CDS Personal Access Token available from [your user page
-#' ](https://cds.climate.copernicus.eu/user/). See `wf_set_key()`.
 #' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
 #' taking as single argument the stationary period identifier.
 #' @param overwrite logical. If `TRUE`, file is overwritten.
+#' @param cds_token `r lifecycle::badge("deprecated")` Enter the API token with
+#' [`ecmwfr::wf_set_key()`]
 #' @inheritParams ecmwfr::wf_request_batch
 #' @inheritDotParams ecmwfr::wf_request_batch
 #'
@@ -57,11 +59,20 @@ tag_download_wind <- function(
     extent = tag$param$tag_set_map$extent,
     include_stap_id = NULL,
     variable = c("u_component_of_wind", "v_component_of_wind"),
-    cds_token = Sys.getenv("cds_token"),
     file = \(stap_id) glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
     overwrite = FALSE,
     workers = 19,
+    cds_token = deprecated(),
     ...) {
+  if (lifecycle::is_present(cds_token)) {
+    lifecycle::deprecate_warn(
+      "3.3.4",
+      "tag_download_wind(cds_token)",
+      "ecmwfr::wf_set_key(key)"
+    )
+    ecmwfr::wf_set_key(key = cds_token)
+  }
+
   tag_assert(tag, "setmap")
 
   stap <- tag$stap
@@ -100,8 +111,6 @@ tag_download_wind <- function(
       ">" = "We removed this stationary period."
     ))
   }
-
-  ecmwfr::wf_set_key(key = cds_token)
 
   if (any(file.exists(file(include_stap_id))) && !overwrite) {
     # nolint start
@@ -167,6 +176,7 @@ tag_download_wind <- function(
     request_list[include_stap_id],
     workers = workers,
     path = directory,
+    time_out = 3 * 3600,
     ...
   )
 }

@@ -28,7 +28,6 @@ print(tag)
 \seealso{
 Other tag: 
 \code{\link{tag_create}()},
-\code{\link{tag_set_map}()},
-\code{\link{tag_update}()}
+\code{\link{tag_set_map}()}
 }
 \concept{tag}

@@ -4,6 +4,9 @@ library(GeoPressureR)
 # Set working directory
 setwd(system.file("extdata", package = "GeoPressureR"))
 
+# Accept the warning
+withr::local_options(lifecycle_verbosity = "quiet")
+
 tag <- tag_create("18LX", quiet = TRUE) |>
   tag_label(quiet = TRUE) |>
   tag_set_map(

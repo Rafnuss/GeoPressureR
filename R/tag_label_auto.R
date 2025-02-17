@@ -1,4 +1,4 @@
-#' Automatic labelling of a `tag`
+#' Automatic labelling acceleration data of a `tag`
 #'
 #' This function uses acceleration data to classify migratory flights. The function uses a
 #' `k=2` mean clustering ([`kmeans()`]) to identify high activity periods. Periods of high activity

@@ -2,7 +2,7 @@
 % Please edit documentation in R/tag2path.R
 \name{tag2path}
 \alias{tag2path}
-\title{Extract a \code{path} from a \code{tag}}
+\title{Build a \code{path} from the likelihood maps of a \code{tag}}
 \usage{
 tag2path(tag, likelihood = NULL, interp = FALSE, use_known = TRUE)
 }

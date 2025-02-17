@@ -1,4 +1,4 @@
-#' Format light data into a matrix
+#' Format light data into a matrix to enable the retrieval of twilights
 #'
 #' @inheritParams twilight_create
 #' @param light data.frame of a `tag`, containing at least `date` and `value`.
@@ -12,14 +12,14 @@ light2mat <- function(light, twl_offset = 0) {
   assertthat::assert_that(is.numeric(light$value))
   assertthat::assert_that(is.numeric(twl_offset))
 
-  res <- difftime(utils::tail(light$date, -1), utils::head(light$date, -1), units = "secs")
-  if (length(unique(res)) != 1) {
-    cli::cli_abort(c(
-      x = "Temporal resolution of the light data is not constant.",
-      i = "Use {.fun TwGeos::FindTwilight} instead."
+  res_vec <- as.numeric(diff(light$date), units = "secs")
+  res <- stats::median(res_vec)
+  if (length(unique(res_vec)) != 1) {
+    cli::cli_warn(c(
+      x = "Temporal resolution of the light data is not constant. We will use a regular \\
+      resolution of {.val {res}} seconds."
     ))
   }
-  res <- as.numeric(res[1])
 
   # Pad time to start and finish at 00:00
   date <- seq(
@@ -36,10 +36,36 @@ light2mat <- function(light, twl_offset = 0) {
   date <- date - (date[closest] - light$date[1])
 
   # Match the observation on the new grid
-  value <- rep(NA, length(date))
-  id <- date %in% light$date
-  assertthat::assert_that(any(id))
-  value[id] <- light$value
+  # Convert to numeric for faster computation
+  date_num <- as.numeric(date)
+  light_date_num <- as.numeric(light$date)
+
+  # Sort the light data (if not already sorted)
+  ord <- order(light_date_num)
+  light_date_num <- light_date_num[ord]
+  light_value <- light$value[ord]
+
+  # Function to find the closest value within ±30s
+  closest_value <- function(t) {
+    idx <- findInterval(t, light_date_num) # Approximate closest index
+
+    # Get candidate indices (current and adjacent)
+    candidates <- c(idx, idx + 1)
+    candidates <- candidates[candidates > 0 & candidates <= length(light_date_num)]
+
+    # Filter to those within ±30s
+    candidates <- candidates[abs(light_date_num[candidates] - t) <= 30]
+
+    if (length(candidates) > 0) {
+      closest_idx <- candidates[which.min(abs(light_date_num[candidates] - t))]
+      return(light_value[closest_idx])
+    } else {
+      return(NA)
+    }
+  }
+
+  # Vectorized lookup
+  value <- sapply(date_num, closest_value)
 
   # reshape in matrix format
   mat <- list(

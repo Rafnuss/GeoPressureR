@@ -40,7 +40,7 @@ bird_create <- function(scientific_name,
                         body_frontal_area = NULL,
                         species_name = deprecated()) {
   if (lifecycle::is_present(species_name)) {
-    lifecycle::deprecate_warn("3.4.0", "bird_create(species_name)", "bird_create(scientific_name)")
+    lifecycle::deprecate_warn("3.3.1", "bird_create(species_name)", "bird_create(scientific_name)")
     scientific_name <- species_name
   }
   if (is.null(mass) || (is.null(wing_aspect) + is.null(wing_area) + is.null(wing_span) > 1)) {

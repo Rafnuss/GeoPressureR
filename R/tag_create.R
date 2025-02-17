@@ -27,10 +27,15 @@
 #'    - `pressure_file = "*.deg"`
 #'    - `light_file = "*.lux"` (optional)
 #'    - `acceleration_file = "*.deg"` (optional)
+#' - British Antarctic Survey (`bas`), aquired by Biotrack Ltd in 2011, [renamed Lotek in 2019
+#' ](https://www.lotek.com/about-us/history/). Only works for light data (`assert_pressure = FALSE`)
+#'    - `light_file = "*.lig"`
 #' - [Lund CAnMove (`lund`)](https://bit.ly/3P6quyi)
 #'    - `pressure_file = "*_press.xlsx"`
 #'    - `light_file = "*_acc.xlsx"` (optional)
 #'    - `acceleration_file = "*_acc.xlsx"` (optional)
+#' - [BitTag/PresTag (`prestag`)](https://geoffreymbrown.github.io/ultralight-tags/)
+#'    - `pressure_file = "*.txt"`
 #'
 #' You can also enter the data manually (`manufacturer = "manual"`) by providing the data.frame to
 #' `pressure_file`:
@@ -53,7 +58,8 @@
 #' or post-retrieval data.
 #'
 #' @param id unique identifier of a tag.
-#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"lund"` or `"manual"`
+#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`, `"prestag"` or
+#' `"manual"`.
 #' @param directory path of the directory where the tag files can be read.
 #' @param pressure_file name of the file with pressure data. Full pathname  or finishing
 #' with extensions (e.g., `"*.pressure"`, `"*.deg"` or `"*_press.xlsx"`).
@@ -156,6 +162,8 @@ tag_create <- function(id,
         manufacturer <- "soi"
       } else if (any(grepl("\\.deg$", list.files(directory)))) {
         manufacturer <- "migratetech"
+      } else if (any(grepl("\\.lig$", list.files(directory)))) {
+        manufacturer <- "bas"
       } else if (any(grepl("_press\\.xlsx$", list.files(directory)))) {
         manufacturer <- "lund"
       } else {
@@ -169,7 +177,10 @@ tag_create <- function(id,
     }
   }
   assertthat::assert_that(is.character(manufacturer))
-  manufacturer_possible <- c("auto", "datapackage", "soi", "migratetech", "lund", "manual")
+  manufacturer_possible <- c(
+    "auto", "datapackage", "soi", "migratetech", "bas", "prestag",
+    "lund", "manual"
+  )
   if (!any(manufacturer %in% manufacturer_possible)) {
     cli::cli_abort(c(
       "x" = "{.var manufacturer} needs to be one of {.val {manufacturer_possible}}"
@@ -211,12 +222,26 @@ tag_create <- function(id,
       light_file = light_file,
       quiet = quiet
     )
+  } else if (manufacturer == "bas") {
+    tag <- tag_create_bas(
+      tag,
+      directory = directory,
+      lig_file = light_file,
+      quiet = quiet
+    )
   } else if (manufacturer == "lund") {
     tag <- tag_create_lund(
       tag,
       directory = directory,
       pressure_file = pressure_file,
       acceleration_light_file = acceleration_file,
+      quiet = quiet
+    )
+  } else if (manufacturer == "prestag") {
+    tag <- tag_create_prestag(
+      tag,
+      directory = directory,
+      pressure_file = pressure_file,
       quiet = quiet
     )
   } else if (manufacturer == "manual") {
@@ -446,6 +471,25 @@ tag_create_soi <- function(tag,
       setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
       if (!is.null(setting_path)) {
         tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
+
+        # Check for drift
+        stop_time_ref <- as.POSIXct(strptime(tag$param$soi_settings$StopTimeReference,
+          tz = "UTC",
+          format = "%d.%m.%Y %H:%M:%S"
+        ))
+        stop_time_rtc <- as.POSIXct(strptime(tag$param$soi_settings$StopTimeRTC,
+          tz = "UTC",
+          format = "%d.%m.%Y %H:%M:%S"
+        ))
+
+        tag$param$drift <- abs(as.numeric(difftime(stop_time_ref, stop_time_rtc, units = "mins")))
+        if (tag$param$drift > 30) {
+          cli::cli_warn(c(
+            "!" = "The SOI setting file {.file {setting_path}} is recording a drift of \\
+            {round(tag$param$drift)} min which seems suspicious.",
+            ">" = "Check for error (e.g. timezone)"
+          ))
+        }
       }
     },
     error = function(e) {
@@ -488,6 +532,7 @@ tag_create_migratetech <- function(tag,
   }
   # Retrieve full model number
   tag$param$migratec_model <- regmatches(line2, regexpr("Type: \\K[\\d.]+", line2, perl = TRUE))
+  # Check for drift
   line16 <- readLines(deg_path, n = 16)[[16]]
   drift <- abs(as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60)
   if (drift > 30) {
@@ -587,6 +632,52 @@ tag_create_migratetech <- function(tag,
 }
 
 
+#' Read British Antarctic Survey
+#'
+#' BASTrak (.lig) files
+#' Each line represents a ten minute period. Errors are shown on additional lines.
+#' <ok/suspect>,<DD/MM/YY hh:mm:ss>,<seconds reference>,<light>
+#' where
+#' - <ok/suspect> indicates whether the data is ok or suspect
+#' - <DD/MM/YY hh:mm:ss> is the time stamp
+#' - <seconds reference> is another way of representing the time; it is the number of
+#' seconds elapsed since the reference chosen when the file was processed
+#' - <light> is the maximum light value measured during the previous 10 minutes
+#' @noRd
+tag_create_bas <- function(tag,
+                           directory,
+                           lig_file = NULL,
+                           act_file = NULL,
+                           quiet) {
+  # Read Pressure
+  if (is.null(lig_file)) {
+    lig_file <- "*.lig"
+  }
+  lig_path <- tag_create_detect(lig_file, directory, quiet = quiet)
+  if (is.null(lig_path)) {
+    cli::cli_abort(c(
+      "x" = "There are no file {.val {lig_file}}",
+      "!" = "{.var lig_file} is required!"
+    ))
+  }
+
+  # Read file
+  data_raw <- utils::read.delim(lig_path, sep = ",", header = FALSE)
+  tag$light <- data.frame(
+    date = as.POSIXct(strptime(data_raw[, 2],
+      tz = "UTC",
+      format = "%d/%m/%y %H:%M:%S"
+    )),
+    value = data_raw[, 4]
+  )
+
+  # Add parameter information
+  tag$param$tag_create$light_file <- lig_file
+
+  return(tag)
+}
+
+
 
 # Read Lund tag files
 #' @noRd
@@ -652,6 +743,51 @@ tag_create_lund <- function(tag,
   return(tag)
 }
 
+# Read PresTag tag files
+#' @noRd
+tag_create_prestag <- function(tag,
+                               directory,
+                               pressure_file = NULL,
+                               quiet) {
+  # Find file path
+  if (is.null(pressure_file)) {
+    pressure_file <- ".txt"
+  }
+  pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
+  if (is.null(pressure_path)) {
+    cli::cli_abort(c(
+      "x" = "There are no file {.val {pressure_path}}",
+      "!" = "{.var pressure_path} is required"
+    ))
+  }
+
+  # Read
+  data_raw <- utils::read.delim(pressure_path, header = FALSE, comment.char = "#", sep = ",")
+
+  # convert epoch to Posixt
+  timestamps <- as.POSIXct(data_raw$V1, origin = "1970-01-01", tz = "UTC")
+
+  # Separate pressure and temperature
+  df <- utils::read.table(text = data_raw$V2, sep = ":", col.names = c("sensor", "value"))
+  df$date <- timestamps
+
+  # df2 <- read.table(text = data_raw$V3[data_raw$V3!=""],
+  #                  sep = ":", col.names = c("sensor", "value"))
+  # df2$date = timestamps[data_raw$V3!=""]
+  # df = rbind(df, df2)
+
+  # Set to NA any negtive value
+  df$value[df$value < 0] <- NA
+
+  # Create sensor data.frame
+  tag$pressure <- df[df$sensor == "P", -which(names(df) == "sensor")]
+  tag$temperature <- df[df$sensor == "T", -which(names(df) == "sensor")]
+
+  # Add parameter information
+  tag$param$tag_create$pressure_file <- pressure_path
+
+  return(tag)
+}
 
 
 # Read Migrate Technology tag files
@@ -754,12 +890,14 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
     return(file)
   }
 
+  # Find files in directory ending with `file`
   path <- list.files(directory,
     pattern = glue::glue(file, "$"),
     full.names = TRUE
   )
 
-  path <- path[!grepl("~\\$", path)]
+  # Remove temporary file and those with word "test"
+  path <- path[!grepl("~\\$|test|calib", path, ignore.case = TRUE)]
 
   if (length(path) == 0) {
     if (!quiet) {
@@ -805,7 +943,7 @@ tag_create_dto <- function(sensor_path,
 
   if (any(is.na(df$value))) {
     cli::cli_abort(c(
-      x = "Invalid data in {.file {sensor_path)} at line(s): {20 + which(is.na(df$value))}",
+      x = "Invalid data in {.file {sensor_path)} at line(s): {skip + which(is.na(df$value))}",
       i = "Check and fix the corresponding lines"
     ))
   }

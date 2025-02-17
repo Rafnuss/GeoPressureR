@@ -1,4 +1,4 @@
-#' Compute astronomical twilight from positions and dates
+#' Compute exact astronomical twilights from a `path` (positions and dates)
 #'
 #' @description
 #' This function compute the theoretical twilight (i.e., datetime of sunrise and sunset) at given

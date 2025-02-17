@@ -2,7 +2,7 @@
 % Please edit documentation in R/path2twilight.R
 \name{path2twilight}
 \alias{path2twilight}
-\title{Compute astronomical twilight from positions and dates}
+\title{Compute exact astronomical twilights from a \code{path} (positions and dates)}
 \usage{
 path2twilight(path, date = NULL, solar_dep = 0, return_long = TRUE)
 }

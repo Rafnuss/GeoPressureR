@@ -9,11 +9,11 @@ tag_download_wind(
   extent = tag$param$tag_set_map$extent,
   include_stap_id = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
-  cds_token = Sys.getenv("cds_token"),
   file = function(stap_id)
     glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
   overwrite = FALSE,
   workers = 19,
+  cds_token = deprecated(),
   ...
 )
 }
@@ -33,8 +33,6 @@ Default is to download all flights.}
 \code{"divergence"}, \code{"geopotential"}, \code{"ozone_mass_mixing_ratio"}, \code{"potential_vorticity"},
 \verb{'vorticity"}.}
 
-\item{cds_token}{CDS Personal Access Token available from \href{https://cds.climate.copernicus.eu/user/}{your user page }. See \code{wf_set_key()}.}
-
 \item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
 taking as single argument the stationary period identifier.}
 
@@ -43,6 +41,9 @@ taking as single argument the stationary period identifier.}
 \item{workers}{maximum number of simultaneous request that will be submitted
 to the service. Most ECMWF services are limited to 20 concurrent requests
 (default = 2).}
+
+\item{cds_token}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Enter the API token with
+\code{\link[ecmwfr:wf_set_key]{ecmwfr::wf_set_key()}}}
 
 \item{...}{
   Arguments passed on to \code{\link[ecmwfr:wf_request]{ecmwfr::wf_request_batch}}
@@ -75,11 +76,12 @@ is used to download all files at the same time (up to 20 requests in parallel).
 
 To be able to download data from the Climate Data Store (CDS), you will need to create an ECMWF
 account on \url{https://www.ecmwf.int/}. Once created, you can
-retrieve your Personal Access Token on \url{https://cds.climate.copernicus.eu/profile} and save them in your environment file
-(i.e., \code{.Renviron}). You can open this file with \code{usethis::edit_r_environ()} and add:
+retrieve your API Token on \url{https://cds.climate.copernicus.eu/profile} and save them in your local keychain with:
 \code{
-  cds_token = "{Personal Access Token}"
+  ecmwfr::wf_set_key("abcd1234-foo-bar-98765431-XXXXXXXXXX")
 }
+
+More information \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-wind.html}{in the GeoPressureManual}.
 }
 \seealso{
 \href{https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html}{\code{wf_request_batch()} },
