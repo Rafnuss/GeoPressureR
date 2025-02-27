@@ -91,6 +91,9 @@ graph_add_wind <- function(
   graph$gs <- tmp$gs
   graph$ws <- tmp$ws
 
+  # After pruning some retrieval nodes might not be present anymore.
+  graph$retrieval <- graph$retrieval[graph$retrieval %in% graph$t]
+
   # Update param
   graph$param$graph_add_wind$thr_as <- thr_as
   attr(file, "srcref") <- NULL
