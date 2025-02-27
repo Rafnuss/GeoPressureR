@@ -69,13 +69,13 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   path_s <- Matrix::sparseMatrix(
     rep(1, length(graph$equipment)),
     graph$equipment,
-    x = 1, dims = c(1, n)
+    x = 0, dims = c(1, n)
   )
   # Initiate the same matrix providing the total probability of the current path so far
   path_max <- Matrix::sparseMatrix(
     rep(1, length(graph$equipment)),
     graph$equipment,
-    x = graph$obs[graph$equipment], dims = c(1, n)
+    x = log(graph$obs[graph$equipment]), dims = c(1, n)
   )
 
   # Create a data.frame of all edges information
@@ -85,7 +85,7 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   node <- data.frame(
     s = graph$s,
     t = graph$t,
-    to = trans_obs,
+    to = log(trans_obs),
     stap = arrayInd(graph$s, graph$sz)[, 3]
   )
 
@@ -112,7 +112,7 @@ graph_most_likely <- function(graph, quiet = FALSE) {
     node_i_s <- node_stap[[i_s]]
 
     # compute the probability of all possible transition
-    node_i_s$p <- path_max[node_i_s$s] * node_i_s$to
+    node_i_s$p <- path_max[node_i_s$s] + node_i_s$to
 
     # Find the value of the maximum possible transition for each target node
     max_v <- sapply(split(node_i_s$p, node_i_s$t), max)
