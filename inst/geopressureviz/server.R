@@ -32,11 +32,19 @@ server <- function(input, output, session) {
   )
   origin_proj <- c(median(lonInEPSG3857), median(latInEPSG3857))
 
+  # Convert lat-lon into ind
+  latlon2ind <- function(lat, lon) {
+    lat_ind <- round(stats::approx(g$lat, seq(1, length(g$lat)), lat, rule = 2)$y)
+    lon_ind <- round(stats::approx(g$lon, seq(1, length(g$lon)), lon, rule = 2)$y)
+    ind <- (lon_ind - 1) * g$dim[1] + lat_ind
+    return(ind)
+  }
   session$onSessionEnded(function() {
     stopApp()
   })
 
   observe({
+    # Store current path as path_geopressureviz in global env.
     .GlobalEnv$path_geopressureviz <- reactVal$path
   })
 
@@ -261,6 +269,7 @@ server <- function(input, output, session) {
     }
     if (!input$full_track) {
       reactVal$path[as.numeric(input$stap_id), c("lon", "lat")] <- c(click$lng, click$lat)
+      reactVal$path[as.numeric(input$stap_id), "ind"] <- latlon2ind(click$lat, click$lng)
 
       if (input$edit_position_interpolate) {
         if (idx() != 1) {
@@ -294,11 +303,6 @@ server <- function(input, output, session) {
 
         reactVal$path[stap_prev_to_next, ] <- path_prev_to_next
       }
-
-      lat_ind <- round(stats::approx(g$lat, seq(1, length(g$lat)), reactVal$path$lat, rule = 2)$y)
-      lon_ind <- round(stats::approx(g$lon, seq(1, length(g$lon)), reactVal$path$lon, rule = 2)$y)
-
-      # reactVal$path$ind <- (lon_ind - 1) * g$dim[1] + lat_ind
     }
   })
 
@@ -484,6 +488,7 @@ server <- function(input, output, session) {
     # update lat lon in case over water
     reactVal$path$lon[stap_id] <- pressuretimeseries$lon[1]
     reactVal$path$lat[stap_id] <- pressuretimeseries$lat[1]
+    reactVal$path$ind[stap_id] <- latlon2ind(pressuretimeseries$lat[1], pressuretimeseries$lon[1])
 
     # Merge the two data.frame
     if (nrow(reactVal$pressurepath) > 0) {
