@@ -188,7 +188,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
 
     assertthat::assert_that(all(!is.na(pgi_reg$value)))
 
-    return(pgi_reg)
+    pgi_reg
   })
 
   # Combine into a single data.frame

@@ -58,24 +58,26 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   # number of nodes in the 3d grid
   n <- prod(graph$sz)
 
-  # Compute the matrix TO
+  # Compute the matrix TO (transition * observation)
   if (!quiet) {
     cli::cli_progress_step("Compute movement model")
   }
   trans_obs <- graph_transition(graph) * graph$obs[graph$t]
 
-  # Initiate the matrix providing for each node of the graph, the source id (index of the node)
-  # with the most likely path to get there.
+  # Initiate the sparse 1D matrix providing for each node of the graph, the source id (index of the
+  # node in the 3D grid) with the cumulative max probability to get there.
+  # Start with prob=1 at the equipment site (log = 0)
   path_s <- Matrix::sparseMatrix(
     rep(1, length(graph$equipment)),
     graph$equipment,
-    x = 1, dims = c(1, n)
+    x = 0, dims = c(1, n)
   )
-  # Initiate the same matrix providing the total probability of the current path so far
+  # Initiate the same matrix providing the cumulative total probability of the current path so far
+  # Not sure why x is differently specify, should be the same value for both path_s and path_max
   path_max <- Matrix::sparseMatrix(
     rep(1, length(graph$equipment)),
     graph$equipment,
-    x = graph$obs[graph$equipment], dims = c(1, n)
+    x = log(graph$obs[graph$equipment]), dims = c(1, n)
   )
 
   # Create a data.frame of all edges information
@@ -85,13 +87,14 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   node <- data.frame(
     s = graph$s,
     t = graph$t,
-    to = trans_obs,
+    to = log(trans_obs),
     stap = arrayInd(graph$s, graph$sz)[, 3]
   )
 
-  # Split this data.fram by stationary period (of the source)
+  # Split this data.frame by stationary period (of the source)
   node_stap <- split(node, node$stap)
 
+  # Compute number of nodes per stap
   n_edge <- sapply(node_stap, nrow)
 
   if (!quiet) {
@@ -109,12 +112,14 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   }
 
   for (i_s in seq_len(length(node_stap))) {
+    # Select all nodes of the current stap
     node_i_s <- node_stap[[i_s]]
 
-    # compute the probability of all possible transition
-    node_i_s$p <- path_max[node_i_s$s] * node_i_s$to
+    # Compute the (cum) log probability of all possible transitions
+    node_i_s$p <- path_max[node_i_s$s] + node_i_s$to
 
-    # Find the value of the maximum possible transition for each target node
+    # Find the value of the maximum possible transition for each target node and store it into
+    # path_max
     max_v <- sapply(split(node_i_s$p, node_i_s$t), max)
     max_t <- as.numeric(names(max_v))
     path_max[max_t] <- max_v

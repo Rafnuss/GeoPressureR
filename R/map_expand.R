@@ -77,5 +77,5 @@ map_expand <- function(extent, scale) {
     lon = lon,
     dim = dim
   )
-  return(grid)
+  grid
 }

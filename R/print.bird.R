@@ -24,5 +24,5 @@ print.bird <- function(x, ...) {
     "*" = "Wing span: {round(bird$wing_span,1)} (m).",
     "*" = "Wing aspect: {round(bird$wing_aspect,1)} (-)."
   ))
-  return(invisible(bird))
+  invisible(bird)
 }

@@ -175,7 +175,7 @@ graph_create <- function(tag,
     thr_prob <- ls[id_prob_percentile + 1]
 
     # return matrix if the values are above the threshold
-    return(l >= thr_prob)
+    l >= thr_prob
   })
 
   # Check that there are still values
@@ -361,6 +361,8 @@ graph_create <- function(tag,
   graph$stap <- tag$stap
   graph$equipment <- which(nds[[1]] == TRUE)
   graph$retrieval <- as.integer(which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll)
+  # After pruning some retrieval nodes might not be present anymore.
+  graph$retrieval <- graph$retrieval[graph$retrieval %in% graph$t]
   graph$mask_water <- tag$map_pressure$mask_water
 
   # Create the param from tag
@@ -370,6 +372,11 @@ graph_create <- function(tag,
     thr_gs = thr_gs,
     likelihood = likelihood
   )
+
+  # Check graph validity
+  assertthat::assert_that(all(graph$s[!(graph$s  %in% graph$equipment)] %in% graph$t))
+  assertthat::assert_that(all(graph$equipment %in% graph$s))
+  assertthat::assert_that(all(graph$retrieval %in% graph$t))
 
   return(graph)
 }

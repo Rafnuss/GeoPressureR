@@ -43,5 +43,5 @@ print.map <- function(x, ...) {
   cli::cli_h3("Stationary periods {.field stap} (n={.val {nrow(map$stap)}})")
   cli::cli_text("Run {.code map$stap} to display full table")
 
-  return(invisible(x))
+  invisible(x)
 }

@@ -235,9 +235,9 @@ pressurepath_create <- function(tag,
   # convert here as a NA
   out <- as.data.frame(lapply(resp_data, function(col) {
     if (length(col) == 0) {
-      return(NA)
+      NA
     } else {
-      return(col)
+      col
     }
   }))
 

@@ -51,5 +51,5 @@ graph_status <- function(graph) {
   if (length(graph$s) > 0) {
     status <- append(status, "full")
   }
-  return(status)
+  status
 }

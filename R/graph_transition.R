@@ -43,5 +43,5 @@ graph_transition <- function(graph) {
     ))
   }
 
-  return(transition)
+  transition
 }

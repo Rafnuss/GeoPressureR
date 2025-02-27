@@ -79,7 +79,7 @@ speed2prob <- function(speed, movement) {
 
   prob[speed_0] <- prob[speed_0] * movement$zero_speed_ratio
 
-  return(prob)
+  prob
 }
 
 
@@ -136,5 +136,5 @@ speed2power <- function(as, bird) {
   # Total Mechanical Power (eq 1 of Box 3.4)
   p_mech <- p_ind + p_par + p_pro
 
-  return(p_mech)
+  p_mech
 }

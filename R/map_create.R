@@ -139,13 +139,13 @@ dim.map <- function(x) {
   # Compute value
   z$data <- mapply(\(p, l) {
     if (is.null(p) && is.null(l)) {
-      return(NULL)
+      NULL
     } else if (is.null(p)) {
-      return(l)
+      l
     } else if (is.null(l)) {
-      return(p)
+      p
     } else {
-      return(p * l)
+      p * l
     }
   }, x$data, y$data, SIMPLIFY = FALSE)
 
@@ -157,5 +157,5 @@ dim.map <- function(x) {
 
   z$type <- glue::glue("{x$type} x {y$type}")
 
-  return(z)
+  z
 }

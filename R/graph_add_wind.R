@@ -70,10 +70,31 @@ graph_add_wind <- function(
     ))
   }
 
+  # Filter node
   graph$s <- graph$s[id]
   graph$t <- graph$t[id]
   graph$gs <- graph$gs[id]
   graph$ws <- graph$ws[id]
+
+  # Prune the graph
+  # First, reconstruction the stap list graph for graph_create_prune to work
+  gr <- split(
+    data.frame(s = graph$s, t = graph$t, gs = graph$gs, ws = graph$ws),
+    arrayInd(graph$s, graph$sz)[, 3]
+  )
+  gr <- graph_create_prune(gr)
+  # Convert it back to a full list
+  tmp <- as.list(do.call("rbind", gr))
+  # Overwrite all edges vectors
+  graph$s <- tmp$s
+  graph$t <- tmp$t
+  graph$gs <- tmp$gs
+  graph$ws <- tmp$ws
+
+  # After pruning some retrieval nodes might not be present anymore.
+  graph$retrieval <- graph$retrieval[graph$retrieval %in% graph$t]
+
+  # Update param
   graph$param$graph_add_wind$thr_as <- thr_as
   attr(file, "srcref") <- NULL
   attr(file, "srcfile") <- NULL

@@ -1016,5 +1016,5 @@ tag_create_crop <- function(tag,
       }
     }
   }
-  return(tag)
+  tag
 }

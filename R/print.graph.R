@@ -82,5 +82,5 @@ print.graph <- function(x, ...) {
     cli::cli_bullets(c("x" = "No movement model defined. Use {.fun graph_set_movement}"))
   }
 
-  return(invisible(graph))
+  invisible(graph)
 }
