@@ -129,5 +129,5 @@ path2edge <- function(path, tag_graph) {
 
   attr(edge, "type") <- attr(path, "type")
 
-  return(edge)
+  edge
 }

@@ -151,5 +151,5 @@ tag_status <- function(tag) {
     status <- append(status, "map_light")
   }
 
-  return(status)
+  status
 }

@@ -85,7 +85,7 @@ plot.map <- function(x,
       # Set to NA all value below this threshold
       m[m < thr_prob] <- NA
     }
-    return(m)
+    m
   })
 
   # Convert GeoPressureR map to terra rast object

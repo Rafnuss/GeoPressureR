@@ -185,7 +185,7 @@ pretty_dt <- function(tim) {
   }
 
   # Trim and return
-  return(trimws(duration_str))
+  trimws(duration_str)
 }
 
 #' Find the stationary period corresponding to a date
@@ -213,5 +213,5 @@ find_stap <- function(stap, date) {
 
   assertthat::assert_that(all(!is.na(stap_id)))
 
-  return(stap_id)
+  stap_id
 }

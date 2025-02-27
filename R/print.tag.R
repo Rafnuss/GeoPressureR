@@ -137,5 +137,5 @@ print.tag <- function(x, ...) {
       }
     }
   }
-  return(invisible(tag))
+  invisible(tag)
 }

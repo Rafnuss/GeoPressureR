@@ -175,7 +175,7 @@ graph_create <- function(tag,
     thr_prob <- ls[id_prob_percentile + 1]
 
     # return matrix if the values are above the threshold
-    return(l >= thr_prob)
+    l >= thr_prob
   })
 
   # Check that there are still values
@@ -370,6 +370,9 @@ graph_create <- function(tag,
     thr_gs = thr_gs,
     likelihood = likelihood
   )
+
+  # Check graph validity
+  # all(graph$s[!(graph$s  %in% graph$equipment)] %in% graph$t)
 
   return(graph)
 }

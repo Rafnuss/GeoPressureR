@@ -58,9 +58,9 @@ light2mat <- function(light, twl_offset = 0) {
 
     if (length(candidates) > 0) {
       closest_idx <- candidates[which.min(abs(light_date_num[candidates] - t))]
-      return(light_value[closest_idx])
+      light_value[closest_idx]
     } else {
-      return(NA)
+      NA
     }
   }
 

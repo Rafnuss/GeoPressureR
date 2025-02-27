@@ -472,16 +472,16 @@ server <- function(input, output, session) {
     pressuretimeseries$stap_ref <- stap_id
     pressuretimeseries$col <- stap$col[stap$stap_id == stap_id][1]
 
-    if ("j" %in% names(reactVal$pressurepath)){
+    if ("j" %in% names(reactVal$pressurepath)) {
       pressuretimeseries$j <- reactVal$pressurepath$j[1]
     }
-    if ("ind" %in% names(reactVal$pressurepath)){
+    if ("ind" %in% names(reactVal$pressurepath)) {
       pressuretimeseries$ind <- NA
     }
-    if ("include" %in% names(reactVal$pressurepath)){
+    if ("include" %in% names(reactVal$pressurepath)) {
       pressuretimeseries$include <- reactVal$pressurepath$include[reactVal$pressurepath$stap_id == stap_id][1]
     }
-    if ("known" %in% names(reactVal$pressurepath)){
+    if ("known" %in% names(reactVal$pressurepath)) {
       pressuretimeseries$known <- reactVal$pressurepath$known[reactVal$pressurepath$stap_id == stap_id][1]
     }
 

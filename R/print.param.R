@@ -96,7 +96,7 @@ print.param <- function(x, ...) {
     bullets(param$geopressuretemplate, "pressurepath")
   }
 
-  return(invisible(param))
+  invisible(param)
 }
 
 bullets <- function(param, x) {
