@@ -526,7 +526,7 @@ plot_tag_twilight <- function(tag,
     twl$date <- as.Date(twl$twilight)
     time_hour <- as.numeric(substr(format(twl$twilight, "%H:%M"), 1, 2)) +
       as.numeric(substr(format(twl$twilight, "%H:%M"), 4, 5)) / 60
-    time_hour <- time_hour + +24 * (time_hour < mat_time_hour[1])
+    time_hour <- time_hour + 24 * (time_hour < mat_time_hour[1])
     twl$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
 
     if ("label" %in% names(twl)) {
