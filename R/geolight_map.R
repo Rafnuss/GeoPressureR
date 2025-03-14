@@ -92,113 +92,64 @@ geolight_map <- function(tag,
                          quiet = FALSE) {
   # Check tag
   tag_assert(tag, "setmap")
-
-  # extract for convenience
-  stap <- tag$stap
-
-  if (all(is.na(stap$known_lat))) {
-    cli::cli_abort(c(
-      x = "There are no known location on which to calibrate in {.var stap$known_lat}.",
-      ">" = "Add a the calibration stationary period {.var known} with {.fun tag_set_map}."
-    ))
-  }
-
-  # Check twilight
   tag_assert(tag, "twilight")
 
-  # extract for convenience
   twl <- tag$twilight
-  twl <- stats::na.omit(twl)
 
-  # Add stap_id if missing
-  if (!("stap_id" %in% names(twl))) {
-    twl$stap_id <- find_stap(tag$stap, twl$twilight)
-  }
-
-  # check other
-  assertthat::assert_that(is.numeric(twl_calib_adjust))
-  assertthat::assert_that(is.function(twl_llp))
-
-  # Check if labelled
+  # Warning if not labelled
   if (!("label" %in% names(twl))) {
-    cli::cli_abort(c(
-      x = "There are no {.field label} in {.var tag$twilight}.",
+    cli::cli_warn(c(
+      "!" = "There are no {.field label} in {.var twilight}.",
+      "i" = "We will assume that there are no discarded twilights.",
       ">" = "Make sure to label the twilight with {.fun twilight_label_read}."
     ))
+    twl$label <- ""
   }
 
-  # Remove outlier
-  twl_clean <- twl[twl$label != "discard", ]
+  # Compute a kernel density object containing the fit of the distribution of the twilights at the
+  # known location
+  twl_calib <- geolight_calibration(
+    twl = twl,
+    stap_known = tag$stap, # you can send all stap and the function will filter for those needed
+    twl_calib_adjust = twl_calib_adjust
+  )
 
-  # Calibrate the twilight in term of zenith angle with a kernel density.
-  z_calib <- c()
-  for (istap in which(!is.na(stap$known_lat))) {
-    sun_calib <- geolight_solar(twl_clean$twilight[twl_clean$stap_id == istap])
-    z_calib <- c(
-      z_calib,
-      geolight_refracted(geolight_zenith(
-        sun_calib,
-        stap$known_lon[istap],
-        stap$known_lat[istap]
-      ))
-    )
+  # Find index of twilight to compute: (1) no NA, (2) not discarded, (3)
+  twl_id <- which(complete.cases(twl) & twl$label != "discard")
+  # Only select twilight that we are interested of: not known and/or not in flight
+  if (!compute_known) {
+    twl_id <- twl_id[twl$stap_id[twl_id] %in% tag$stap$stap_id[is.na(tag$stap$known_lat)]]
+  } else {
+    twl_id <- twl_id[twl$stap_id[twl_id] %in% tag$stap$stap_id]
   }
-  twl_calib <- stats::density(z_calib, adjust = twl_calib_adjust, from = 60, to = 120)
-
-  # Compute the histogram
-  hist_vals <- graphics::hist(z_calib, plot = FALSE)
-  twl_calib$hist_count <- hist_vals$density * length(z_calib)
-  twl_calib$hist_mids <- hist_vals$mids
 
   # compute the likelihood of observing the zenith angle of each twilight using the calibrated
   # error function for each grid cell.
 
-  # Only select twilight that we are interested of: not known and/or not in flight
-  if (!compute_known) {
-    twl_clean_comp <- twl_clean[twl_clean$stap_id %in% stap$stap_id[is.na(stap$known_lat)], ]
-  } else {
-    twl_clean_comp <- twl_clean[twl_clean$stap_id %in% stap$stap_id, ]
-  }
 
-  # Compute the sun angle
-  sun <- geolight_solar(twl_clean_comp$twilight)
+  # compute the likelihood of observing the zenith angle of each twilight using the calibrated
+  # error function for each grid cell
 
-  # Get grid information
-  g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
-
-  # construct the grid of latitude and longitude on cell centred
-  m <- expand.grid(lat = g$lat, lon = g$lon)
-  ml <- split(m, seq_len(nrow(m)))
-
-  # Loop through each grid cell (location lat, lon) and compute the likelihood for all twilight
-  if (!quiet) {
-    pgz <- lapply(
-      cli::cli_progress_along(ml, name = "Compute a map for each twilight"),
-      function(i) {
-        z <- geolight_refracted(geolight_zenith(sun, ml[[i]]$lon, ml[[i]]$lat))
-        stats::approx(twl_calib$x, twl_calib$y, z, yleft = 0, yright = 0)$y
-      }
-    )
-  } else {
-    pgz <- lapply(ml, function(i) {
-      z <- geolight_refracted(geolight_zenith(sun, i$lon, i$lat))
-      stats::approx(twl_calib$x, twl_calib$y, z, yleft = 0, yright = 0)$y
-    })
-  }
-
-
-  pgz <- do.call(rbind, pgz)
-
+  pgz <- geolight_map_twilight(
+    twl = twl[twl_id, ],
+    extent = tag$param$tag_set_map$extent,
+    scale = tag$param$tag_set_map$scale,
+    twl_calib = twl_calib,
+    quiet = quiet
+  )
 
   # Group twilight by stap
-  twl_id_stap_id <- split(seq_along(twl_clean_comp$stap_id), twl_clean_comp$stap_id)
+  twl_id_stap_id <- split(seq_along(twl$stap_id[twl_id]), twl$stap_id[twl_id])
 
   # Compute the number of twilight per stap
   ntwl <- unlist(lapply(twl_id_stap_id, length))
   stopifnot(ntwl > 0)
 
+  # Compute grid information
+  g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
+
   # Initialize the likelihood list from stap to make sure all stap are present
-  lk <- replicate(nrow(stap), matrix(1, nrow = g$dim[1], ncol = g$dim[2]), simplify = FALSE)
+  lk <- replicate(nrow(tag$stap), matrix(1, nrow = g$dim[1], ncol = g$dim[2]), simplify = FALSE)
 
   if (!quiet) {
     cli::cli_progress_bar(name = "Combine maps per stationary periods", total = sum(ntwl))
@@ -224,12 +175,12 @@ geolight_map <- function(tag,
 
   # Add known location
   if (!compute_known) {
-    for (stap_id in stap$stap_id[!is.na(stap$known_lat)]) {
+    for (stap_id in tag$stap$stap_id[!is.na(tag$stap$known_lat)]) {
       # Initiate an empty map
       lk[[stap_id]] <- matrix(0, nrow = g$dim[1], ncol = g$dim[2])
       # Compute the index of the known position
-      known_lon_id <- which.min(abs(stap$known_lon[stap_id] - g$lon))
-      known_lat_id <- which.min(abs(stap$known_lat[stap_id] - g$lat))
+      known_lon_id <- which.min(abs(tag$stap$known_lon[stap_id] - g$lon))
+      known_lat_id <- which.min(abs(tag$stap$known_lat[stap_id] - g$lat))
       # Assign a likelihood of 1 for that position
       lk[[stap_id]][known_lat_id, known_lon_id] <- 1
     }
@@ -258,6 +209,101 @@ geolight_map <- function(tag,
   )
 
   return(tag)
+}
+
+
+#' Calibration of twilight based on known location
+#'
+#' @param twl A twilight data.frame as computed by twilight_create.
+#' @param stap_known A stap data.frame with known location
+#' @inheritParams geolight_map
+#' @return A kernel calibration object
+#' @seealso [`geolight_map()`]
+#' @noRd
+geolight_calibration <- function(twl, stap_known, twl_calib_adjust = 1.4) {
+  assertthat::assert_that(is.numeric(twl_calib_adjust))
+
+  # remove any staps without known
+  stap_known <- stap_known[!is.na(stap_known$known_lat) & !is.na(stap_known$known_lon), ]
+
+  if (nrow(stap_known) == 0) {
+    cli::cli_abort(c(
+      x = "There are no known location on which to calibrate in {.var stap_known$known_lat}.",
+      ">" = "Add a the calibration stationary period {.var known} with {.fun tag_set_map}."
+    ))
+  }
+
+  # Remove NA value
+  twl_clean <- stats::na.omit(twl)
+
+  # Remove outlier
+  if ("label" %in% names(twl_clean)) {
+    twl_clean <- twl_clean[twl_clean$label != "discard", ]
+  }
+
+  # Calibrate the twilight in term of zenith angle with a kernel density.
+  z_calib <- c()
+  for (istap in which(!is.na(stap_known$known_lat))) {
+    sun_calib <- geolight_solar(twl_clean$twilight[twl_clean$stap_id == istap])
+    z_calib <- c(
+      z_calib,
+      geolight_refracted(geolight_zenith(
+        sun_calib,
+        stap_known$known_lon[istap],
+        stap_known$known_lat[istap]
+      ))
+    )
+  }
+
+  # Compute the kernel density
+  twl_calib <- stats::density(z_calib, adjust = twl_calib_adjust, from = 60, to = 120)
+
+  # Compute the histogram
+  hist_vals <- graphics::hist(z_calib, plot = FALSE)
+  twl_calib$hist_count <- hist_vals$density * length(z_calib)
+  twl_calib$hist_mids <- hist_vals$mids
+
+  # return the twlight calibration object
+  twl_calib
+}
+
+
+#' Compute the likelihood map of each twilight
+#'
+#' @param twl A twilight data.frame as computed by twilight_create.
+#' @param twl_calib A kernel calibration object
+#' @inheritParams tag_set_map
+#' @inheritParams geolight_map
+#' @return dsd
+#' @seealso [`geolight_map()`]
+#' @noRd
+geolight_map_twilight <- function(twl, extent, scale, twl_calib, quiet = FALSE) {
+  # construct the grid of latitude and longitude on cell centred
+  g <- map_expand(extent, scale)
+  m <- expand.grid(lat = g$lat, lon = g$lon)
+  ml <- split(m, seq_len(nrow(m)))
+
+  # Compute the sun angle
+  sun <- geolight_solar(twl$twilight)
+
+  # Loop through each grid cell (location lat, lon) and compute the likelihood for all twilight
+  if (!quiet) {
+    pgz <- lapply(
+      cli::cli_progress_along(ml, name = "Compute a likelihood map for each twilight"),
+      function(i) {
+        z <- geolight_refracted(geolight_zenith(sun, ml[[i]]$lon, ml[[i]]$lat))
+        stats::approx(twl_calib$x, twl_calib$y, z, yleft = 0, yright = 0)$y
+      }
+    )
+  } else {
+    pgz <- lapply(ml, function(i) {
+      z <- geolight_refracted(geolight_zenith(sun, i$lon, i$lat))
+      stats::approx(twl_calib$x, twl_calib$y, z, yleft = 0, yright = 0)$y
+    })
+  }
+
+  # return the map
+  do.call(rbind, pgz)
 }
 
 
