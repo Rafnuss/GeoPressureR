@@ -64,16 +64,22 @@ jobs:
         run: styler::style_pkg()
         shell: Rscript {0}
 
-      - name: Commit and push changes
+      - name: Commit and create PR
         run: |
           if FILES_TO_COMMIT=($(git diff-index --name-only ${{ github.sha }} \
               | egrep --ignore-case '\.(R|[qR]md|Rmarkdown|Rnw|Rprofile)$'))
           then
             git config --local user.name "$GITHUB_ACTOR"
             git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+            BRANCH_NAME="gha-style-${{ github.run_id }}"
+            git checkout -b "$BRANCH_NAME"
             git commit ${FILES_TO_COMMIT[*]} -m "Style code (GHA)"
-            git pull --ff-only
-            git push origin
+            git push origin "$BRANCH_NAME"
+
+            gh pr create --base master --head "$BRANCH_NAME" --title "Apply styler formatting" --body "This PR applies automated styling fixes."
           else
             echo "No changes to commit."
           fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
