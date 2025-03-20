@@ -222,13 +222,15 @@ geolight_map <- function(tag,
 #' @noRd
 geolight_calibration <- function(twl, stap_known, twl_calib_adjust = 1.4) {
   assertthat::assert_that(is.numeric(twl_calib_adjust))
+  assertthat::assert_that(all(c("known_lat", "known_lon", "stap_id") %in% names(stap_known)))
+  assertthat::assert_that(all(c("twilight", "stap_id") %in% names(twl)))
 
   # remove any staps without known
   stap_known <- stap_known[!is.na(stap_known$known_lat) & !is.na(stap_known$known_lon), ]
 
   if (nrow(stap_known) == 0) {
     cli::cli_abort(c(
-      x = "There are no known location on which to calibrate in {.var stap_known$known_lat}.",
+      x = "There are no known location on which to calibrate in {.var stap_known}.",
       ">" = "Add a the calibration stationary period {.var known} with {.fun tag_set_map}."
     ))
   }
@@ -241,9 +243,15 @@ geolight_calibration <- function(twl, stap_known, twl_calib_adjust = 1.4) {
     twl_clean <- twl_clean[twl_clean$label != "discard", ]
   }
 
+  if (nrow(twl_clean) == 0) {
+    cli::cli_abort(c(
+      x = "There are no twilights left after labeling.",
+    ))
+  }
+
   # Calibrate the twilight in term of zenith angle with a kernel density.
   z_calib <- c()
-  for (istap in which(!is.na(stap_known$known_lat))) {
+  for (istap in stap_known$stap_id[!is.na(stap_known$known_lat)]) {
     sun_calib <- geolight_solar(twl_clean$twilight[twl_clean$stap_id == istap])
     z_calib <- c(
       z_calib,
