@@ -46,6 +46,8 @@
 #'     - `graph_most_likely()`: Computes the most likely path based on the movement model.
 #' 6. If `"simulation"` is in `config$geopressuretemplate$outputs`:
 #'     - `graph_simulation()`: Runs simulations to model multiple possible paths.
+#' 6. If `path_geopressureviz_{id}.csv` exists in `./data/interim/`:
+#'     - Save a data.frame variable `path_geopressureviz` (see below)
 #' 7. `save()`: Saves the computed graph and associated objects in `data/interim/{id}.Rdata`
 #'
 #' * **Pressure Path Processing [`geopressuretemplate_pressurepath()`]**: Computes pressurepaths

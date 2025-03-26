@@ -141,16 +141,11 @@ geopressuretemplate_graph <- function(
     }
   )
 
-
-  dir_file <- dirname(file)
-  if (!dir.exists(dir_file)) {
-    cli::cli_bullets(c("!" = "The directory {.file {dir_file}} does not  exists."))
-    res <- utils::askYesNo("Do you want to create it?")
-    if (res) {
-      dir.create(dir_file, recursive = TRUE)
-    } else {
-      return(FALSE)
-    }
+  # Add path_geopressureviz if it exists as a csv
+  file_path_geopressureviz <- glue::glue("./data/interim/path_geopressureviz_{id}.csv")
+  if (file.exists(file_path_geopressureviz)) {
+    path_geopressureviz <- read.csv(file_path_geopressureviz)
+    save_list <- c(save_list, "path_geopressureviz")
   }
 
   # Save the outputs to the specified file
