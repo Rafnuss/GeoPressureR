@@ -355,8 +355,8 @@ tag_create_dp <- function(tag,
     tag$magnetic <- tag_create_csv(
       magnetic_path,
       col_name = c(
-        "datetime", "acceleration_x", "acceleration_y", "acceleration_z", "magnetic_x",
-        "magnetic_y", "magnetic_z"
+        "datetime", "magnetic_x", "magnetic_y", "magnetic_z", "acceleration_x", "acceleration_y",
+        "acceleration_z"
       ),
       quiet = quiet
     )
@@ -453,8 +453,8 @@ tag_create_soi <- function(tag,
   if (!is.null(magnetic_path)) {
     tag$magnetic <- tag_create_dto(magnetic_path, col = seq(4, 9), quiet = quiet)
     names(tag$magnetic) <- c(
-      "date", "acceleration_x", "acceleration_y", "acceleration_z",
-      "magnetic_x", "magnetic_y", "magnetic_z"
+      "date", "magnetic_x", "magnetic_y", "magnetic_z", "acceleration_x", "acceleration_y",
+      "acceleration_z"
     )
   }
 
