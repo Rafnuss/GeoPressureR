@@ -133,6 +133,10 @@ marginal distributions, most likely paths, and simulation paths can be computed.
 \itemize{
 \item \code{graph_simulation()}: Runs simulations to model multiple possible paths.
 }
+\item If \verb{path_geopressureviz_\{id\}.csv} exists in \verb{./data/interim/}:
+\itemize{
+\item Save a data.frame variable \code{path_geopressureviz} (see below)
+}
 \item \code{save()}: Saves the computed graph and associated objects in \verb{data/interim/\{id\}.Rdata}
 }
 \itemize{

@@ -100,7 +100,7 @@ tag_set_map <- function(tag,
   assertthat::assert_that(assertthat::has_name(known, "known_lat"))
   assertthat::assert_that(assertthat::has_name(known, "known_lon"))
   # Only use the required column. Other names can cause issue later...
-  unexpected_cols <- setdiff(names(known), c("stap_id", "known_lat", "known_lon"))
+  unexpected_cols <- setdiff(names(known), c("stap_id", "known_lat", "known_lon", "start", "end"))
   if (length(unexpected_cols)) {
     cli::cli_warn("Unexpected columns found in {.var known}: \\
                   {paste(unexpected_cols, collapse = ', ')}")
@@ -139,8 +139,8 @@ tag_set_map <- function(tag,
 
   # Check if value are already defined and if they are changing
   # Check if setmap has already been run before (all these condition should always be the same)
-  if ("extent" %in% names(tag) || "known_lat" %in% names(stap) || "scale" %in% names(tag) ||
-    "include" %in% names(stap)) {
+  if ("extent" %in% names(tag$param$tag_set_map) || "scale" %in% names(tag$param$tag_set_map) ||
+    "known_lat" %in% names(stap) || "include" %in% names(stap)) {
     # Check if value are changing
     chg_known <- nrow(known0) != nrow(tag$param$tag_set_map$known) ||
       any(known0 != tag$param$tag_set_map$known)
@@ -149,7 +149,7 @@ tag_set_map <- function(tag,
     chg_scale <- scale != tag$param$tag_set_map$scale
 
     # Check if known has changed
-    if (chg_known || chg_extent || chg_scale || chg_include) {
+    if (isTRUE(chg_known) || isTRUE(chg_extent) || isTRUE(chg_scale) || isTRUE(chg_include)) {
       # Only provide option to stop the process if map are already defined
       if (any(c("map_pressure", "map_light") %in% names(tag))) {
         cli::cli_bullets(

@@ -37,11 +37,14 @@
 #' - [BitTag/PresTag (`prestag`)](https://geoffreymbrown.github.io/ultralight-tags/)
 #'    - `pressure_file = "*.txt"`
 #'
-#' You can also enter the data manually (`manufacturer = "manual"`) by providing the data.frame to
-#' `pressure_file`:
-#'   - `pressure_file`: data.frame with column date and value.
-#'   - `light_file`: (optional) data.frame with column date and value.
-#'   - `acceleration_file`: (optional) data.frame with column date and value.
+#' You can also enter the data manually (`manufacturer = "manual"`) by providing the data.frame:
+#'   - `pressure_file`: data.frame with columns `date` and `value`.
+#'   - `light_file`: (optional) data.frame with columns `date` and `value`.
+#'   - `acceleration_file`: (optional) data.frame with columns `date` and `value`.
+#'   - `temperature_external_file`: (optional) data.frame with columns `date` and `value`.
+#'   - `temperature_internal_file`: (optional) data.frame with columns `date` and `value`.
+#'   - `magnetic_file`: (optional) data.frame with columns `date`, `magnetic_x`, `magnetic_y`,
+#'    `magnetic_z`, `acceleration_x`, `acceleration_y` and `acceleration_z`.
 #'
 #' You can still create a `tag` without pressure data using `assert_pressure = TRUE`. This `tag`
 #' won't be able to run the traditional GeoPressureR workflow, but you can still do some analysis.

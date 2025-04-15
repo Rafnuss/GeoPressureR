@@ -115,7 +115,7 @@ geolight_map <- function(tag,
   )
 
   # Find index of twilight to compute: (1) no NA, (2) not discarded, (3)
-  twl_id <- which(complete.cases(twl) & twl$label != "discard")
+  twl_id <- which(stats::complete.cases(twl) & twl$label != "discard")
   # Only select twilight that we are interested of: not known and/or not in flight
   if (!compute_known) {
     twl_id <- twl_id[twl$stap_id[twl_id] %in% tag$stap$stap_id[is.na(tag$stap$known_lat)]]
@@ -160,7 +160,7 @@ geolight_map <- function(tag,
 
     # Combine with a Log-linear equation express in log
     if (length(id) > 1) {
-      l <- exp(rowSums(twl_llp(length(id)) * log(pgz[, id])))
+      l <- exp(rowSums(twl_llp(length(id)) * log(pgz[, id] + .Machine$double.eps)))
     } else if (length(id) == 1) {
       l <- pgz[, id]
     }
@@ -222,7 +222,7 @@ geolight_map <- function(tag,
 #' @noRd
 geolight_calibration <- function(twl, stap_known, twl_calib_adjust = 1.4) {
   assertthat::assert_that(is.numeric(twl_calib_adjust))
-  assertthat::assert_that(all(c("known_lat", "known_lon", "stap_id") %in% names(stap_known)))
+  assertthat::assert_that(all(c("known_lat", "known_lon", "start", "end") %in% names(stap_known)))
   assertthat::assert_that(all(c("twilight", "stap_id") %in% names(twl)))
 
   # remove any staps without known
@@ -245,20 +245,21 @@ geolight_calibration <- function(twl, stap_known, twl_calib_adjust = 1.4) {
 
   if (nrow(twl_clean) == 0) {
     cli::cli_abort(c(
-      x = "There are no twilights left after labeling.",
+      x = "There are no twilights left after labeling."
     ))
   }
 
   # Calibrate the twilight in term of zenith angle with a kernel density.
   z_calib <- c()
-  for (istap in stap_known$stap_id[!is.na(stap_known$known_lat)]) {
-    sun_calib <- geolight_solar(twl_clean$twilight[twl_clean$stap_id == istap])
+  for (i in seq_len(nrow(stap_known))) {
+    id <- twl_clean$twilight >= stap_known$start[i] & twl_clean$twilight <= stap_known$end[i]
+    sun_calib <- geolight_solar(twl_clean$twilight[id])
     z_calib <- c(
       z_calib,
       geolight_refracted(geolight_zenith(
         sun_calib,
-        stap_known$known_lon[istap],
-        stap_known$known_lat[istap]
+        stap_known$known_lon[i],
+        stap_known$known_lat[i]
       ))
     )
   }

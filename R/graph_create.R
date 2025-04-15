@@ -374,7 +374,7 @@ graph_create <- function(tag,
   )
 
   # Check graph validity
-  assertthat::assert_that(all(graph$s[!(graph$s  %in% graph$equipment)] %in% graph$t))
+  assertthat::assert_that(all(graph$s[!(graph$s %in% graph$equipment)] %in% graph$t))
   assertthat::assert_that(all(graph$equipment %in% graph$s))
   assertthat::assert_that(all(graph$retrieval %in% graph$t))
 
