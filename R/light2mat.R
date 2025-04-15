@@ -45,27 +45,27 @@ light2mat <- function(light, twl_offset = 0) {
   light_date_num <- light_date_num[ord]
   light_value <- light$value[ord]
 
-  # Function to find the closest value within ±30s
-  closest_value <- function(t) {
-    idx <- findInterval(t, light_date_num) # Approximate closest index
+  # Approximate index positions for all date_num
+  idx <- findInterval(date_num, light_date_num)
 
-    # Get candidate indices (current and adjacent)
-    candidates <- c(idx, idx + 1)
-    candidates <- candidates[candidates > 0 & candidates <= length(light_date_num)]
+  # Ensure idx is within bounds (1 to length-1)
+  idx[idx < 1] <- 1
+  idx[idx >= length(light_date_num)] <- length(light_date_num) - 1
 
-    # Filter to those within ±30s
-    candidates <- candidates[abs(light_date_num[candidates] - t) <= 30]
+  # Compare both idx and idx + 1 for closeness
+  delta1 <- abs(light_date_num[idx] - date_num)
+  delta2 <- abs(light_date_num[idx + 1] - date_num)
 
-    if (length(candidates) > 0) {
-      closest_idx <- candidates[which.min(abs(light_date_num[candidates] - t))]
-      light_value[closest_idx]
-    } else {
-      NA
-    }
-  }
+  # Pick the closest one, but only if within 30s
+  use_next <- delta2 < delta1
+  closest_idx <- ifelse(use_next, idx + 1, idx)
 
-  # Vectorized lookup
-  value <- sapply(date_num, closest_value)
+  # Mask values beyond 30s
+  closest_idx[(pmin(delta1, delta2) > 30)] <- NA
+
+  # Final values
+  value <- rep(NA, length(date_num))
+  value[!is.na(closest_idx)] <- light_value[closest_idx[!is.na(closest_idx)]]
 
   # reshape in matrix format
   mat <- list(
