@@ -37,7 +37,7 @@
 #' - [BitTag/PresTag (`prestag`)](https://geoffreymbrown.github.io/ultralight-tags/)
 #'    - `pressure_file = "*.txt"`
 #'
-#' You can also enter the data manually (`manufacturer = "manual"`) by providing the data.frame:
+#' You can also enter the data manually (`manufacturer = "dataframe"`) by providing the data.frame:
 #'   - `pressure_file`: data.frame with columns `date` and `value`.
 #'   - `light_file`: (optional) data.frame with columns `date` and `value`.
 #'   - `acceleration_file`: (optional) data.frame with columns `date` and `value`.
@@ -61,8 +61,8 @@
 #' or post-retrieval data.
 #'
 #' @param id unique identifier of a tag.
-#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`, `"prestag"` or
-#' `"manual"`.
+#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`, `"prestag"`,
+#' `"datapackage"` or `"dataframe"`.
 #' @param directory path of the directory where the tag files can be read.
 #' @param pressure_file name of the file with pressure data. Full pathname  or finishing
 #' with extensions (e.g., `"*.pressure"`, `"*.deg"` or `"*_press.xlsx"`).
@@ -156,7 +156,7 @@ tag_create <- function(id,
 
   if (is.null(manufacturer)) {
     if (is.data.frame(pressure_file)) {
-      manufacturer <- "manual"
+      manufacturer <- "dataframe"
     } else {
       assertthat::assert_that(assertthat::is.dir(directory))
       if (any(grepl("pressure\\.csv$|light\\.csv$", list.files(directory)))) {
@@ -181,7 +181,7 @@ tag_create <- function(id,
   }
   assertthat::assert_that(is.character(manufacturer))
   manufacturer_possible <- c(
-    "datapackage", "soi", "migratetech", "bas", "prestag", "lund", "df"
+    "datapackage", "soi", "migratetech", "bas", "prestag", "lund", "dataframe"
   )
   if (!any(manufacturer %in% manufacturer_possible)) {
     cli::cli_abort(c(
@@ -243,8 +243,8 @@ tag_create <- function(id,
       pressure_file = pressure_file,
       quiet = quiet
     )
-  } else if (manufacturer == "df") {
-    tag <- tag_create_df(
+  } else if (manufacturer == "dataframe") {
+    tag <- tag_create_dataframe(
       id,
       directory = directory,
       pressure_file = pressure_file,

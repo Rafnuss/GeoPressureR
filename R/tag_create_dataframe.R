@@ -1,6 +1,6 @@
 # Create from data.frame
 #' @noRd
-tag_create_df <- function(id,
+tag_create_dataframe <- function(id,
                           directory = glue::glue("./data/raw-tag/{id}"),
                           pressure_file = NULL,
                           light_file = NULL,
