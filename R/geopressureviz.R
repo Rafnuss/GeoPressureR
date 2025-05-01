@@ -157,7 +157,7 @@ geopressureviz <- function(x,
   # Assign the type of path
   attr(path, "type") <- "geopressureviz"
 
-  # out <- tryCatch(GeoPressureR:::edge_add_wind_check(tag), error = function(e) e)
+  # out <- tryCatch(edge_add_wind_check(tag), error = function(e) e)
   # if(any(class(out) == "error")){
   #   file_wind <- NULL
   # } else {

@@ -23,7 +23,7 @@ test_that("tag_label_write() | default", {
 
   # Work under normal condition
   file_labelled <- tag_label_write(tag_classified, file = "./data/tag-label/18LX.csv", quiet = TRUE)
-  csv <- read.csv(file_labelled)
+  csv <- utils::read.csv(file_labelled)
   expect_true(all(c("series", "timestamp", "value", "label") %in% names(csv)))
   expect_true(all(c("pressure", "acceleration") %in% csv$series))
   expect_true("flight" %in% csv$label)

@@ -32,7 +32,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 
   label_file <- twilight_label_write(tag)
 
-  str(read.csv(label_file))
+  str(utils::read.csv(label_file))
 })
 }
 \seealso{

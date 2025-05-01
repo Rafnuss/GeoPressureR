@@ -66,7 +66,7 @@ graph_add_wind <- function(
     cli::cli_abort(c(
       x = "Using the {.val thr_as} of {thr_as} km/h provided with the exact distance of edges, \\
       there are not any nodes left for the stationary period: {sta_pass} with a minimum airspeed \\
-      of {min(abs(as[edge_s[, 3] == sta_pass]))} km/h."
+      of {min(abs(as[edge_s[, 3] %in% sta_pass]))} km/h."
     ))
   }
 

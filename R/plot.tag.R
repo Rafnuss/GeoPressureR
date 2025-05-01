@@ -109,8 +109,8 @@ plot.tag <- function(x, type = NULL, ...) {
   } else {
     cli::cli_abort(c(
       "x" = "The type {.val {type}} is not known",
-      ">" = "{.var type} should be one of {.val {c('pressure', 'acceleration', 'light',
-      'temperature', twilight', 'map', 'map_pressure', 'map_light', 'map_pressure_mse',
+      ">" = "{.var type} should be one of {.val {c('pressure', 'acceleration', 'light', \\
+      'temperature', 'twilight', 'map', 'map_pressure', 'map_light', 'map_pressure_mse', \\
       'map_pressure_mask', 'mask_water')}}"
     ))
   }
@@ -159,7 +159,7 @@ plot_tag_pressure <- function(tag,
     ggplot2::theme(legend.position = "none")
 
   # Only if tag is labelled
-  if ("stap" %in% names(tag)) {
+  if ("label" %in% names(tag$pressure)) {
     # compute the pressure at the hourly scale
     pres <- geopressure_map_preprocess(tag)
 
@@ -526,7 +526,7 @@ plot_tag_twilight <- function(tag,
     twl$date <- as.Date(twl$twilight)
     time_hour <- as.numeric(substr(format(twl$twilight, "%H:%M"), 1, 2)) +
       as.numeric(substr(format(twl$twilight, "%H:%M"), 4, 5)) / 60
-    time_hour <- time_hour + +24 * (time_hour < mat_time_hour[1])
+    time_hour <- time_hour + 24 * (time_hour < mat_time_hour[1])
     twl$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
 
     if ("label" %in% names(twl)) {

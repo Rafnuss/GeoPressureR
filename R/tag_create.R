@@ -37,11 +37,14 @@
 #' - [BitTag/PresTag (`prestag`)](https://geoffreymbrown.github.io/ultralight-tags/)
 #'    - `pressure_file = "*.txt"`
 #'
-#' You can also enter the data manually (`manufacturer = "manual"`) by providing the data.frame to
-#' `pressure_file`:
-#'   - `pressure_file`: data.frame with column date and value.
-#'   - `light_file`: (optional) data.frame with column date and value.
-#'   - `acceleration_file`: (optional) data.frame with column date and value.
+#' You can also enter the data manually (`manufacturer = "dataframe"`) by providing the data.frame:
+#'   - `pressure_file`: data.frame with columns `date` and `value`.
+#'   - `light_file`: (optional) data.frame with columns `date` and `value`.
+#'   - `acceleration_file`: (optional) data.frame with columns `date` and `value`.
+#'   - `temperature_external_file`: (optional) data.frame with columns `date` and `value`.
+#'   - `temperature_internal_file`: (optional) data.frame with columns `date` and `value`.
+#'   - `magnetic_file`: (optional) data.frame with columns `date`, `magnetic_x`, `magnetic_y`,
+#'    `magnetic_z`, `acceleration_x`, `acceleration_y` and `acceleration_z`.
 #'
 #' You can still create a `tag` without pressure data using `assert_pressure = TRUE`. This `tag`
 #' won't be able to run the traditional GeoPressureR workflow, but you can still do some analysis.
@@ -58,8 +61,8 @@
 #' or post-retrieval data.
 #'
 #' @param id unique identifier of a tag.
-#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`, `"prestag"` or
-#' `"manual"`.
+#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`, `"prestag"`,
+#' `"datapackage"` or `"dataframe"`.
 #' @param directory path of the directory where the tag files can be read.
 #' @param pressure_file name of the file with pressure data. Full pathname  or finishing
 #' with extensions (e.g., `"*.pressure"`, `"*.deg"` or `"*_press.xlsx"`).
@@ -153,7 +156,7 @@ tag_create <- function(id,
 
   if (is.null(manufacturer)) {
     if (is.data.frame(pressure_file)) {
-      manufacturer <- "manual"
+      manufacturer <- "dataframe"
     } else {
       assertthat::assert_that(assertthat::is.dir(directory))
       if (any(grepl("pressure\\.csv$|light\\.csv$", list.files(directory)))) {
@@ -178,8 +181,7 @@ tag_create <- function(id,
   }
   assertthat::assert_that(is.character(manufacturer))
   manufacturer_possible <- c(
-    "auto", "datapackage", "soi", "migratetech", "bas", "prestag",
-    "lund", "manual"
+    "datapackage", "soi", "migratetech", "bas", "prestag", "lund", "dataframe"
   )
   if (!any(manufacturer %in% manufacturer_possible)) {
     cli::cli_abort(c(
@@ -187,12 +189,9 @@ tag_create <- function(id,
     ))
   }
 
-  # Create tag
-  tag <- structure(list(param = param_create(id = id)), class = "tag")
-
   if (manufacturer == "datapackage") {
-    tag <- tag_create_dp(
-      tag,
+    tag <- tag_create_datapackage(
+      id,
       directory = directory,
       pressure_file = pressure_file,
       light_file = light_file,
@@ -204,7 +203,7 @@ tag_create <- function(id,
     )
   } else if (manufacturer == "soi") {
     tag <- tag_create_soi(
-      tag,
+      id,
       directory = directory,
       pressure_file = pressure_file,
       light_file = light_file,
@@ -216,7 +215,7 @@ tag_create <- function(id,
     )
   } else if (manufacturer == "migratetech") {
     tag <- tag_create_migratetech(
-      tag,
+      id,
       directory = directory,
       deg_file = pressure_file,
       light_file = light_file,
@@ -224,14 +223,14 @@ tag_create <- function(id,
     )
   } else if (manufacturer == "bas") {
     tag <- tag_create_bas(
-      tag,
+      id,
       directory = directory,
       lig_file = light_file,
       quiet = quiet
     )
   } else if (manufacturer == "lund") {
     tag <- tag_create_lund(
-      tag,
+      id,
       directory = directory,
       pressure_file = pressure_file,
       acceleration_light_file = acceleration_file,
@@ -239,14 +238,14 @@ tag_create <- function(id,
     )
   } else if (manufacturer == "prestag") {
     tag <- tag_create_prestag(
-      tag,
+      id,
       directory = directory,
       pressure_file = pressure_file,
       quiet = quiet
     )
-  } else if (manufacturer == "manual") {
-    tag <- tag_create_manual(
-      tag,
+  } else if (manufacturer == "dataframe") {
+    tag <- tag_create_dataframe(
+      id,
       directory = directory,
       pressure_file = pressure_file,
       light_file = light_file,
@@ -262,620 +261,11 @@ tag_create <- function(id,
     tag_assert(tag, "pressure")
   }
 
-  ## Crop date
+  # Crop date
   tag <- tag_create_crop(tag, crop_start = crop_start, crop_end = crop_end, quiet = quiet)
 
-  # Add parameter information
-  tag$param$tag_create$manufacturer <- manufacturer
-  tag$param$tag_create$crop_start <- crop_start
-  tag$param$tag_create$crop_end <- crop_end
-  tag$param$tag_create$directory <- directory
-
   return(tag)
 }
-
-
-# Read GeoLocator Data Package files
-#' @noRd
-tag_create_dp <- function(tag,
-                          directory,
-                          pressure_file = NULL,
-                          light_file = NULL,
-                          acceleration_file = NULL,
-                          temperature_external_file = NULL,
-                          temperature_internal_file = NULL,
-                          magnetic_file = NULL,
-                          quiet) {
-  # Read Pressure
-  if (is.null(pressure_file)) {
-    pressure_path <- "pressure.csv"
-  }
-  pressure_path <- file.path(directory, "pressure.csv")
-  if (file.exists(pressure_path)) {
-    tag$pressure <- tag_create_csv(pressure_path,
-      col_name = c("datetime", "value"),
-      quiet = quiet
-    )
-  }
-
-  # Read light
-  if (is.null(light_file)) {
-    light_file <- "light.csv"
-  }
-  light_path <- file.path(directory, light_file)
-  if (file.exists(light_path)) {
-    tag$light <- tag_create_csv(light_path,
-      col_name = c("datetime", "value"),
-      quiet = quiet
-    )
-  }
-
-  # Read acceleration
-  if (is.null(acceleration_file)) {
-    acceleration_file <- "acceleration.csv"
-  }
-  acceleration_path <- file.path(directory, acceleration_file)
-  if (file.exists(acceleration_path)) {
-    tag$acceleration <- tag_create_csv(acceleration_path,
-      col_name = c("datetime", "value", "pitch"),
-      quiet = quiet
-    )
-  }
-
-  # Read external temperature
-  if (is.null(temperature_external_file)) {
-    temperature_external_file <- "temperature_external.csv"
-  }
-  temperature_external_path <- file.path(directory, temperature_external_file)
-  if (file.exists(temperature_external_path)) {
-    tag$temperature_external <- tag_create_csv(temperature_external_path,
-      col_name = c("datetime", "value"),
-      quiet = quiet
-    )
-  }
-
-  # Read internal temperature
-  if (is.null(temperature_internal_file)) {
-    temperature_internal_file <- "temperature_internal.csv"
-  }
-  temperature_internal_path <- file.path(directory, temperature_internal_file)
-  if (file.exists(temperature_internal_path)) {
-    tag$temperature_internal <- tag_create_csv(temperature_internal_path,
-      col_name = c("datetime", "value"),
-      quiet = quiet
-    )
-  }
-
-  # Read magnetism
-  if (is.null(magnetic_file)) {
-    magnetic_file <- "magnetic.csv"
-  }
-  magnetic_path <- file.path(directory, magnetic_file)
-  if (file.exists(magnetic_path)) {
-    tag$magnetic <- tag_create_csv(
-      magnetic_path,
-      col_name = c(
-        "datetime", "acceleration_x", "acceleration_y", "acceleration_z", "magnetic_x",
-        "magnetic_y", "magnetic_z"
-      ),
-      quiet = quiet
-    )
-  }
-
-  # Add parameter information
-  tag$param$tag_create$pressure_file <- pressure_path
-  tag$param$tag_create$light_file <- light_path
-  tag$param$tag_create$acceleration_file <- acceleration_path
-  tag$param$tag_create$temperature_external_file <- temperature_external_path
-  tag$param$tag_create$temperature_internal_file <- temperature_internal_path
-  tag$param$tag_create$magnetic_file <- magnetic_path
-
-  return(tag)
-}
-
-
-# Read Swiss Ornithological Institute (SOI) tag files
-#' @noRd
-tag_create_soi <- function(tag,
-                           directory,
-                           pressure_file = NULL,
-                           light_file = NULL,
-                           acceleration_file = NULL,
-                           temperature_external_file = NULL,
-                           temperature_internal_file = NULL,
-                           magnetic_file = NULL,
-                           quiet) {
-  # Read Pressure
-  if (is.null(pressure_file)) {
-    pressure_path <- tag_create_detect("*.pressure", directory, quiet = TRUE)
-  } else {
-    pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
-  }
-  if (!is.null(pressure_path)) {
-    tag$pressure <- tag_create_dto(pressure_path, quiet = quiet)
-  }
-
-  # Read light
-  if (is.null(light_file)) {
-    light_path <- tag_create_detect("*.glf", directory, quiet = TRUE)
-  } else {
-    light_path <- tag_create_detect(light_file, directory, quiet = quiet)
-  }
-  if (!is.null(light_path)) {
-    tag$light <-
-      tag_create_dto(light_path, quiet = quiet)
-  }
-
-  # Read acceleration
-  if (is.null(acceleration_file)) {
-    acceleration_path <- tag_create_detect("*.acceleration", directory, quiet = TRUE)
-  } else {
-    acceleration_path <- tag_create_detect(acceleration_file, directory, quiet = quiet)
-  }
-  if (!is.null(acceleration_path)) {
-    tag$acceleration <- tag_create_dto(acceleration_path, col = c(4, 3), quiet = quiet)
-    names(tag$acceleration) <- c("date", "value", "pitch")
-  }
-
-  # Read External temperature
-  if (is.null(temperature_external_file)) {
-    temperature_external_path <- tag_create_detect("*.temperature", directory, quiet = TRUE)
-    if (is.null(temperature_external_path)) {
-      temperature_external_path <- tag_create_detect("*.airtemperature", directory, quiet = TRUE)
-    }
-  } else {
-    temperature_external_path <- tag_create_detect(temperature_external_file, directory,
-      quiet = quiet
-    )
-  }
-  if (!is.null(temperature_external_path)) {
-    tag$temperature_external <- tag_create_dto(temperature_external_path, col = 3, quiet = quiet)
-  }
-
-  # Read Internal temperature
-  if (is.null(temperature_internal_file)) {
-    temperature_internal_path <- tag_create_detect("*.bodytemperature", directory, quiet = TRUE)
-  } else {
-    temperature_internal_path <- tag_create_detect(temperature_internal_file, directory,
-      quiet = quiet
-    )
-  }
-  if (!is.null(temperature_internal_path)) {
-    tag$temperature_internal <- tag_create_dto(temperature_internal_path, col = 3, quiet = quiet)
-  }
-
-  # Read magnetism
-  if (is.null(magnetic_file)) {
-    magnetic_path <- tag_create_detect("*.magnetic", directory, quiet = TRUE)
-  } else {
-    magnetic_path <- tag_create_detect(magnetic_file, directory, quiet = quiet)
-  }
-  if (!is.null(magnetic_path)) {
-    tag$magnetic <- tag_create_dto(magnetic_path, col = seq(4, 9), quiet = quiet)
-    names(tag$magnetic) <- c(
-      "date", "acceleration_x", "acceleration_y", "acceleration_z",
-      "magnetic_x", "magnetic_y", "magnetic_z"
-    )
-  }
-
-  # Add parameter information
-  tag$param$tag_create$pressure_file <- pressure_path
-  tag$param$tag_create$light_file <- light_path
-  tag$param$tag_create$acceleration_file <- acceleration_path
-  tag$param$tag_create$temperature_external_file <- temperature_external_path
-  tag$param$tag_create$temperature_internal_file <- temperature_internal_path
-  tag$param$tag_create$magnetic_file <- magnetic_path
-
-  tryCatch(
-    {
-      setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
-      if (!is.null(setting_path)) {
-        tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
-
-        # Check for drift
-        stop_time_ref <- as.POSIXct(strptime(tag$param$soi_settings$StopTimeReference,
-          tz = "UTC",
-          format = "%d.%m.%Y %H:%M:%S"
-        ))
-        stop_time_rtc <- as.POSIXct(strptime(tag$param$soi_settings$StopTimeRTC,
-          tz = "UTC",
-          format = "%d.%m.%Y %H:%M:%S"
-        ))
-
-        tag$param$drift <- abs(as.numeric(difftime(stop_time_ref, stop_time_rtc, units = "mins")))
-        if (tag$param$drift > 30) {
-          cli::cli_warn(c(
-            "!" = "The SOI setting file {.file {setting_path}} is recording a drift of \\
-            {round(tag$param$drift)} min which seems suspicious.",
-            ">" = "Check for error (e.g. timezone)"
-          ))
-        }
-      }
-    },
-    error = function(e) {
-      cli::cli_alert_warning("Failed to load the SOI setting file {.file {setting_path}}.")
-      message(e$message)
-    }
-  )
-
-  return(tag)
-}
-
-
-
-# Read Migrate Technology tag files
-#' @noRd
-tag_create_migratetech <- function(tag,
-                                   directory,
-                                   deg_file = NULL,
-                                   light_file = NULL,
-                                   quiet) {
-  # Read Pressure
-  if (is.null(deg_file)) {
-    deg_file <- "*.deg"
-  }
-  deg_path <- tag_create_detect(deg_file, directory, quiet = quiet)
-  if (is.null(deg_path)) {
-    cli::cli_abort(c(
-      "x" = "There are no file {.val {deg_file}}",
-      "!" = "{.var deg_file} is required!"
-    ))
-  }
-  assertthat::assert_that(grepl("Migrate Technology", readLines(deg_path, n = 1)))
-  line2 <- readLines(deg_path, n = 2)[[2]]
-  v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
-  if (v < 13) {
-    cli::cli_abort(
-      "The deg file {.file {deg_path}} is not compatible. Line 2 should \\
-               contains {.val Type:x}, with x>=13."
-    )
-  }
-  # Retrieve full model number
-  tag$param$migratec_model <- regmatches(line2, regexpr("Type: \\K[\\d.]+", line2, perl = TRUE))
-  # Check for drift
-  line16 <- readLines(deg_path, n = 16)[[16]]
-  drift <- abs(as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60)
-  if (drift > 30) {
-    cli::cli_warn(c(
-      "!" = "The deg file {.file {deg_path}} is recording a drift of {round(drift)} min \\
-      (line 16) which seems suspicious.",
-      ">" = "Check for error (e.g. timezone)"
-    ))
-  }
-  # Find column index with pressure
-  hdr <- utils::read.delim(deg_path, skip = 19, nrow = 1, header = FALSE, sep = "")
-  col <- which(hdr == "P(Pa)")
-  if (!(col > 0)) {
-    cli::cli_abort(
-      "The pressure file {.file {deg_path}} is not compatible. Line 20 \\
-              should contains {.val P(Pa)}"
-    )
-  }
-  # Read file
-  tag$pressure <- tag_create_dto(deg_path,
-    skip = 20, col = col,
-    date_format = "%d/%m/%Y %H:%M:%S",
-    quiet = quiet
-  )
-  # convert Pa in hPa
-  tag$pressure$value <- tag$pressure$value / 100
-
-  # Read acceleration
-  col <- which(hdr == "Zact")
-  if (length(col) != 0) {
-    # Read file
-    tag$acceleration <- tag_create_dto(deg_path,
-      skip = 20, col = col,
-      date_format = "%d/%m/%Y %H:%M:%S",
-      quiet = quiet
-    )
-    tag$param$tag_create$acceleration_file <- deg_path
-  }
-
-  # Read temperature
-  col <- which(hdr == "T('C)")
-  if (length(col) != 0) {
-    tag$temperature <- tag_create_dto(deg_path,
-      skip = 20, col = col,
-      date_format = "%d/%m/%Y %H:%M:%S",
-      quiet = quiet
-    )
-    tag$param$tag_create$temperature_external_file <- deg_path
-  }
-
-  # Read light
-  if (is.null(light_file)) {
-    light_path <- tag_create_detect("*.lux", directory, quiet = TRUE)
-  } else {
-    light_path <- tag_create_detect(light_file, directory, quiet = quiet)
-  }
-  if (!is.null(light_path)) {
-    line16 <- readLines(light_path, n = 16)[[16]]
-    drift <- abs(as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60)
-    if (drift > 30) {
-      cli::cli_warn(c(
-        "!" = "The light file {.file {light_path}} is recording a drift of {round(drift)} min \\
-      (line 16) which seems suspicious.",
-        ">" = "Check for error (e.g. timezone)"
-      ))
-    }
-    # find column index with light
-    hdr <- utils::read.delim(light_path, skip = 19, nrow = 1, header = FALSE, sep = "")
-    col <- which(hdr == "light(lux)")
-    if (length(col) == 0) {
-      cli::cli_abort(
-        "The light file {.file {light_path}} is not compatible. Line 20 \\
-              should contains {.val light(lux)}"
-      )
-    }
-    # Read file
-    tag$light <- tag_create_dto(light_path,
-      skip = 20, col = col,
-      date_format = "%d/%m/%Y %H:%M:%S",
-      quiet = quiet
-    )
-
-    if (drift > 5) {
-      cli::cli_warn(c(
-        "!" = "The light file {.file {light_path}} is recording a drift of {round(drift)} min \\
-      (line 16) which is higher than the resolution .",
-        "i" = "Check for error (e.g. timezone)"
-      ))
-    }
-  }
-
-  # Add parameter information
-  tag$param$tag_create$pressure_file <- deg_path
-  tag$param$tag_create$light_file <- light_path
-
-  return(tag)
-}
-
-
-#' Read British Antarctic Survey
-#'
-#' BASTrak (.lig) files
-#' Each line represents a ten minute period. Errors are shown on additional lines.
-#' <ok/suspect>,<DD/MM/YY hh:mm:ss>,<seconds reference>,<light>
-#' where
-#' - <ok/suspect> indicates whether the data is ok or suspect
-#' - <DD/MM/YY hh:mm:ss> is the time stamp
-#' - <seconds reference> is another way of representing the time; it is the number of
-#' seconds elapsed since the reference chosen when the file was processed
-#' - <light> is the maximum light value measured during the previous 10 minutes
-#' @noRd
-tag_create_bas <- function(tag,
-                           directory,
-                           lig_file = NULL,
-                           act_file = NULL,
-                           quiet) {
-  # Read Pressure
-  if (is.null(lig_file)) {
-    lig_file <- "*.lig"
-  }
-  lig_path <- tag_create_detect(lig_file, directory, quiet = quiet)
-  if (is.null(lig_path)) {
-    cli::cli_abort(c(
-      "x" = "There are no file {.val {lig_file}}",
-      "!" = "{.var lig_file} is required!"
-    ))
-  }
-
-  # Read file
-  data_raw <- utils::read.delim(lig_path, sep = ",", header = FALSE)
-  tag$light <- data.frame(
-    date = as.POSIXct(strptime(data_raw[, 2],
-      tz = "UTC",
-      format = "%d/%m/%y %H:%M:%S"
-    )),
-    value = data_raw[, 4]
-  )
-
-  # Add parameter information
-  tag$param$tag_create$light_file <- lig_file
-
-  return(tag)
-}
-
-
-
-# Read Lund tag files
-#' @noRd
-tag_create_lund <- function(tag,
-                            directory,
-                            pressure_file = NULL,
-                            acceleration_light_file = NULL,
-                            quiet) {
-  # Read Pressure
-  if (is.null(pressure_file)) {
-    pressure_file <- "_press.xlsx"
-  }
-  pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
-  if (is.null(pressure_path)) {
-    cli::cli_abort(c(
-      "x" = "There are no file {.val {pressure_path}}",
-      "!" = "{.var pressure_path} is required"
-    ))
-  }
-  xls <- readxl::read_excel(pressure_path, .name_repair = "unique_quiet")
-  tag$pressure <- data.frame(
-    date = as.POSIXct(xls$`Date & time`, tz = "UTC"),
-    value = xls$`Pressure [hPa]`
-  )
-  if (!quiet) {
-    cli::cli_bullets(c("v" = "Read {.file {pressure_path}}"))
-  }
-
-
-  # Read light
-  if (is.null(acceleration_light_file)) {
-    acc_light_path <- tag_create_detect("_acc.xlsx", directory, quiet = TRUE)
-  } else {
-    acc_light_path <- tag_create_detect(acceleration_light_file, directory, quiet = quiet)
-  }
-  if (!is.null(acc_light_path)) {
-    xls <- readxl::read_excel(acc_light_path,
-      sheet = "Light", skip = 1,
-      .name_repair = "unique_quiet"
-    )
-    tag$light <- data.frame(
-      date = as.POSIXct(xls$`Date`, tz = "UTC"),
-      value = xls$`Light`
-    )
-
-    # Read acceleration
-    xls <- readxl::read_excel(acc_light_path, .name_repair = "unique_quiet")
-    tag$acceleration <- data.frame(
-      date = as.POSIXct(xls$`Activity date & time`, tz = "UTC"),
-      value = xls$`Act score`
-    )
-
-    if (!quiet) {
-      cli::cli_bullets(c("v" = "Read {.file {acc_light_path}}"))
-    }
-  }
-
-  # Add parameter information
-  tag$param$tag_create$pressure_file <- pressure_path
-  tag$param$tag_create$light_file <- acc_light_path
-  tag$param$tag_create$acceleration_file <- acc_light_path
-
-  return(tag)
-}
-
-# Read PresTag tag files
-#' @noRd
-tag_create_prestag <- function(tag,
-                               directory,
-                               pressure_file = NULL,
-                               quiet) {
-  # Find file path
-  if (is.null(pressure_file)) {
-    pressure_file <- ".txt"
-  }
-  pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
-  if (is.null(pressure_path)) {
-    cli::cli_abort(c(
-      "x" = "There are no file {.val {pressure_path}}",
-      "!" = "{.var pressure_path} is required"
-    ))
-  }
-
-  # Read
-  data_raw <- utils::read.delim(pressure_path, header = FALSE, comment.char = "#", sep = ",")
-
-  # convert epoch to Posixt
-  timestamps <- as.POSIXct(data_raw$V1, origin = "1970-01-01", tz = "UTC")
-
-  # Separate pressure and temperature
-  df <- utils::read.table(text = data_raw$V2, sep = ":", col.names = c("sensor", "value"))
-  df$date <- timestamps
-
-  # df2 <- read.table(text = data_raw$V3[data_raw$V3!=""],
-  #                  sep = ":", col.names = c("sensor", "value"))
-  # df2$date = timestamps[data_raw$V3!=""]
-  # df = rbind(df, df2)
-
-  # Set to NA any negtive value
-  df$value[df$value < 0] <- NA
-
-  # Create sensor data.frame
-  tag$pressure <- df[df$sensor == "P", -which(names(df) == "sensor")]
-  tag$temperature <- df[df$sensor == "T", -which(names(df) == "sensor")]
-
-  # Add parameter information
-  tag$param$tag_create$pressure_file <- pressure_path
-
-  return(tag)
-}
-
-
-# Read Migrate Technology tag files
-#' @noRd
-tag_create_manual <- function(tag,
-                              directory,
-                              pressure_file = NULL,
-                              light_file = NULL,
-                              acceleration_file = NULL,
-                              temperature_external_file = NULL,
-                              temperature_internal_file = NULL,
-                              magnetic_file = NULL,
-                              quiet) {
-  # Read Pressure
-  if (!is.null(pressure_file)) {
-    assertthat::assert_that(is.data.frame(pressure_file))
-    assertthat::assert_that(assertthat::has_name(pressure_file, c("date", "value")))
-    assertthat::assert_that(inherits(pressure_file$date, "POSIXct"))
-    assertthat::assert_that(assertthat::are_equal(attr(pressure_file$date, "tzone"), "UTC"))
-    if (min(pressure_file$value, na.rm = TRUE) < 250 ||
-      1100 < max(pressure_file$value, na.rm = TRUE)) {
-      cli::cli_warn("Pressure observation should be between 250 hPa (~10000m) and 1100 hPa \\
-    (sea level at 1013hPa). Check unit of pressure data.frame provided.")
-    }
-    tag$pressure <- pressure_file
-    tag$param$tag_create$pressure_file <- "manual"
-  }
-
-  # Read light
-  if (!is.null(light_file)) {
-    assertthat::assert_that(assertthat::has_name(light_file, c("date", "value")))
-    assertthat::assert_that(inherits(light_file$date, "POSIXct"))
-    assertthat::assert_that(assertthat::are_equal(attr(light_file$date, "tzone"), "UTC"))
-    tag$light <- light_file
-    tag$param$tag_create$light_file <- "manual"
-  }
-
-  # Read acceleration
-  if (!is.null(acceleration_file)) {
-    assertthat::assert_that(assertthat::has_name(acceleration_file, c("date", "value")))
-    assertthat::assert_that(inherits(acceleration_file$date, "POSIXct"))
-    assertthat::assert_that(assertthat::are_equal(attr(acceleration_file$date, "tzone"), "UTC"))
-    tag$acceleration <- acceleration_file
-    tag$param$tag_create$acceleration_file <- "manual"
-  }
-
-  # Read acceleration
-  if (!is.null(temperature_external_file)) {
-    assertthat::assert_that(assertthat::has_name(temperature_external_file, c("date", "value")))
-    assertthat::assert_that(inherits(temperature_external_file$date, "POSIXct"))
-    assertthat::assert_that(assertthat::are_equal(
-      attr(temperature_external_file$date, "tzone"),
-      "UTC"
-    ))
-    tag$temperature <- temperature_external_file
-    tag$param$tag_create$temperature_external_file <- "manual"
-  }
-
-  # Read air temperature
-  if (!is.null(temperature_external_file)) {
-    assertthat::assert_that(assertthat::has_name(temperature_external_file, c("date", "value")))
-    assertthat::assert_that(inherits(temperature_external_file$date, "POSIXct"))
-    assertthat::assert_that(assertthat::are_equal(
-      attr(temperature_external_file$date, "tzone"),
-      "UTC"
-    ))
-    tag$airtemperature <- temperature_external_file
-    tag$param$tag_create$temperature_external_file <- "manual"
-  }
-
-  # Read magnetism
-  if (!is.null(magnetic_file)) {
-    assertthat::assert_that(assertthat::has_name(
-      magnetic_file,
-      c(
-        "date", "acceleration_x", "acceleration_y", "acceleration_z", "magnetic_x", "magnetic_y",
-        "magnetic_z"
-      )
-    ))
-    assertthat::assert_that(inherits(magnetic_file$date, "POSIXct"))
-    assertthat::assert_that(assertthat::are_equal(attr(magnetic_file$date, "tzone"), "UTC"))
-    tag$magnetic <- magnetic_file
-    tag$param$tag_create$magnetic_file <- "manual"
-  }
-
-  return(tag)
-}
-
 
 # Detect full path from the argument file.
 #' @noRd
@@ -897,7 +287,8 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
   )
 
   # Remove temporary file and those with word "test"
-  path <- path[!grepl("~\\$|test|calib", path, ignore.case = TRUE)]
+  path <- path[!grepl("~\\$|test", path, ignore.case = TRUE)]
+  path <- path[!grepl("(?i)(?<!mag)calib", path, perl = TRUE)]
 
   if (length(path) == 0) {
     if (!quiet) {
@@ -962,13 +353,22 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
   # Check if all specified columns are present
   missing_cols <- setdiff(col_name, names(df))
   if (length(missing_cols) > 0) {
-    cli::cli_abort(glue::glue("The following columns are missing in {.file {sensor_path}}:\\
-                              {glue::glue_collapse(missing_cols, ', ')}"))
+    cli::cli_abort("The following columns are missing in {.file {sensor_path}}: \\
+                              {glue::glue_collapse(missing_cols, ', ')}")
   }
 
   # Rename column datetime to date and convert to posixct
   names(df)[names(df) == "datetime"] <- "date"
-  df$date <- as.POSIXct(strptime(df$date, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC"))
+  df$date <- as.POSIXct(df$date, format = "%Y-%m-%dT%H:%M", tz = "UTC")
+  if (any(is.na(df$date))){
+    df$date <- as.POSIXct(strptime(df$date, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC"))
+  }
+  if (any(is.na(df$date))){
+    cli::cli_abort(c(
+      x = "Invalid date in {.file {sensor_path}} at line(s): {which(is.na(df$date))}",
+      i = "Check and fix the corresponding lines"
+    ))
+  }
 
   if (!quiet) {
     cli::cli_bullets(c("v" = "Read {.file {sensor_path}}"))
@@ -983,7 +383,7 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
 tag_create_crop <- function(tag,
                             crop_start,
                             crop_end,
-                            quiet) {
+                            quiet = TRUE) {
   for (sensor in c(
     "pressure", "light", "acceleration", "temperature_internal",
     "temperature_external", "magnetic"
@@ -1016,5 +416,10 @@ tag_create_crop <- function(tag,
       }
     }
   }
+
+  # Add parameter information
+  tag$param$tag_create$crop_start <- crop_start
+  tag$param$tag_create$crop_end <- crop_end
+
   tag
 }

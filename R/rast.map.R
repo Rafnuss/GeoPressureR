@@ -45,7 +45,8 @@ rast.map <- function(x, # nolint
   r <- terra::rast(simplify2array(map$data), extent = map$extent, crs = crs, ...)
 
   # add starting date as time
-  terra::time(r) <- map$stap$start
+
+  terra::time(r) <- as.POSIXct(map$stap$start, tz = "UTC")
 
   # Add stap_id as name
   names(r) <- names

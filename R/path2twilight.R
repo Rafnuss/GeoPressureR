@@ -95,10 +95,9 @@ path2twilight <- function(path,
         by = "day"
       )
 
-      # Filtering dates for only those in path
-      date <- date[sapply(date, function(d) {
-        any(d >= path$start & d <= path$end)
-      })]
+      # Filtering dates for only those in path: WHY DOING THIS? I want to keep the twilight during
+      # the flight (e.g. overday flight are excluded)
+      # date <- date[sapply(date, function(d) { any(d >= path$start & d <= path$end) })]
     }
 
     stap_id <- find_stap(path, date)

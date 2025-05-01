@@ -23,8 +23,8 @@ tag_create(
 \arguments{
 \item{id}{unique identifier of a tag.}
 
-\item{manufacturer}{One of \code{NULL}, \code{"soi"}, \code{"migratetech"}, \code{"bas"}, \code{"lund"}, \code{"prestag"} or
-\code{"manual"}.}
+\item{manufacturer}{One of \code{NULL}, \code{"soi"}, \code{"migratetech"}, \code{"bas"}, \code{"lund"}, \code{"prestag"},
+\code{"datapackage"} or \code{"dataframe"}.}
 
 \item{crop_start}{remove all data before this date (POSIXct or character in UTC).}
 
@@ -125,12 +125,15 @@ The current implementation can read files from the following three sources:
 }
 }
 
-You can also enter the data manually (\code{manufacturer = "manual"}) by providing the data.frame to
-\code{pressure_file}:
+You can also enter the data manually (\code{manufacturer = "dataframe"}) by providing the data.frame:
 \itemize{
-\item \code{pressure_file}: data.frame with column date and value.
-\item \code{light_file}: (optional) data.frame with column date and value.
-\item \code{acceleration_file}: (optional) data.frame with column date and value.
+\item \code{pressure_file}: data.frame with columns \code{date} and \code{value}.
+\item \code{light_file}: (optional) data.frame with columns \code{date} and \code{value}.
+\item \code{acceleration_file}: (optional) data.frame with columns \code{date} and \code{value}.
+\item \code{temperature_external_file}: (optional) data.frame with columns \code{date} and \code{value}.
+\item \code{temperature_internal_file}: (optional) data.frame with columns \code{date} and \code{value}.
+\item \code{magnetic_file}: (optional) data.frame with columns \code{date}, \code{magnetic_x}, \code{magnetic_y},
+\code{magnetic_z}, \code{acceleration_x}, \code{acceleration_y} and \code{acceleration_z}.
 }
 
 You can still create a \code{tag} without pressure data using \code{assert_pressure = TRUE}. This \code{tag}

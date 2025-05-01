@@ -128,7 +128,7 @@ plot_path_leaflet <- function(
     label <- glue::glue("#{path$stap_id}, {round(stap2duration(path), 1)} days")
   } else {
     radius <- 6
-    label <- glue::glue("#{1:nrow(path_light)}")
+    label <- glue::glue("#{1:nrow(path)}")
   }
 
   circle <- merge_params(
