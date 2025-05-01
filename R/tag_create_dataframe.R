@@ -1,14 +1,14 @@
 # Create from data.frame
 #' @noRd
 tag_create_dataframe <- function(id,
-                          directory = glue::glue("./data/raw-tag/{id}"),
-                          pressure_file = NULL,
-                          light_file = NULL,
-                          acceleration_file = NULL,
-                          temperature_external_file = NULL,
-                          temperature_internal_file = NULL,
-                          magnetic_file = NULL,
-                          quiet = FALSE) {
+                                 directory = glue::glue("./data/raw-tag/{id}"),
+                                 pressure_file = NULL,
+                                 light_file = NULL,
+                                 acceleration_file = NULL,
+                                 temperature_external_file = NULL,
+                                 temperature_internal_file = NULL,
+                                 magnetic_file = NULL,
+                                 quiet = FALSE) {
   # Create tag
   tag <- structure(list(param = param_create(id = id)), class = "tag")
 

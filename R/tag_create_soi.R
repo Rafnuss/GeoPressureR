@@ -22,15 +22,15 @@ tag_create_soi <- function(id,
       if (!is.null(setting_path)) {
         tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
 
-        if (tag$param$soi_settings$RecordingStop != "timestamp invalid"){
+        if (tag$param$soi_settings$RecordingStop != "timestamp invalid") {
           # Check for drift
           stop_time_ref <- as.POSIXct(strptime(tag$param$soi_settings$StopTimeReference,
-                                               tz = "UTC",
-                                               format = "%d.%m.%Y %H:%M:%S"
+            tz = "UTC",
+            format = "%d.%m.%Y %H:%M:%S"
           ))
           stop_time_rtc <- as.POSIXct(strptime(tag$param$soi_settings$StopTimeRTC,
-                                               tz = "UTC",
-                                               format = "%d.%m.%Y %H:%M:%S"
+            tz = "UTC",
+            format = "%d.%m.%Y %H:%M:%S"
           ))
 
           tag$param$drift <- abs(as.numeric(difftime(stop_time_ref, stop_time_rtc, units = "mins")))
@@ -119,8 +119,9 @@ tag_create_soi <- function(id,
   }
   if (!is.null(magnetic_path) && "soi_settings" %in% names(tag$param)) {
     tag$magnetic <- tag_create_soi_mag(magnetic_path,
-                                       hw_version = tag$param$soi_settings,
-                                       quiet = quiet)
+      hw_version = tag$param$soi_settings,
+      quiet = quiet
+    )
     # Add information
     tag$param$mag_axis <- attr(tag$magnetic, "mag_axis")
     attr(tag$magnetic, "mag_axis") <- NULL
@@ -157,7 +158,6 @@ tag_create_soi <- function(id,
 tag_create_soi_mag <- function(magnetic_path,
                                hw_version,
                                quiet = FALSE) {
-
   assertthat::assert_that(is.logical(quiet))
   assertthat::assert_that(file.exists(magnetic_path))
 
@@ -205,8 +205,10 @@ tag_create_soi_mag <- function(magnetic_path,
   mag <- mag_axes(mag, mag_axis)
 
   # Name variables
-  map <- c(gX="acceleration_x", gY="acceleration_y", gZ="acceleration_z",
-           mX="magnetic_x", mY="magnetic_y", mZ="magnetic_z")
+  map <- c(
+    gX = "acceleration_x", gY = "acceleration_y", gZ = "acceleration_z",
+    mX = "magnetic_x", mY = "magnetic_y", mZ = "magnetic_z"
+  )
   names(mag) <- ifelse(names(mag) %in% names(map), map[names(mag)], names(mag))
 
   return(mag)
