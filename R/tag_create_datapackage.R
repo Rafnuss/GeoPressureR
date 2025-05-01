@@ -43,7 +43,7 @@ tag_create_datapackage <- function(id,
   acceleration_path <- file.path(directory, acceleration_file)
   if (file.exists(acceleration_path)) {
     tag$acceleration <- tag_create_csv(acceleration_path,
-      col_name = c("datetime", "value", "pitch"),
+      col_name = c("datetime", "value"),
       quiet = quiet
     )
   }
