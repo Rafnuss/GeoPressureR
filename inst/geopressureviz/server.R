@@ -456,11 +456,23 @@ server <- function(input, output, session) {
     stap_id <- as.numeric(input$stap_id)
     stap_id <- stap$stap_id[stap_id]
 
-    pressuretimeseries <- geopressure_timeseries(
-      reactVal$path$lat[stap_id],
-      reactVal$path$lon[stap_id],
-      pressure = pressure[pressure$stap_id == stap_id, ]
+    tryCatch(
+      {
+        pressuretimeseries <- geopressure_timeseries(
+          reactVal$path$lat[stap_id],
+          reactVal$path$lon[stap_id],
+          pressure = pressure[pressure$stap_id == stap_id, ]
+        )
+      },
+      error = \(e){
+        cli::cli_alert_warning(c(
+          "!" = "Function 'geopressure_timeseries' did not work.",
+          "i" = conditionMessage(e)
+        ))
+        return()
+      }
     )
+
 
     # Find the new index for linetype
     pressuretimeseries$linetype <- as.factor(ifelse(
