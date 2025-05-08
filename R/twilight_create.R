@@ -61,7 +61,7 @@ twilight_create <- function(tag,
   }
 
   # Use ts2mat() to reshape light into a matrix
-  mat <- ts2mat(light, twl_offset)
+  mat <- ts2mat(light, twl_offset = twl_offset)
   # image(mat$value)
 
   # Compute exceed of light

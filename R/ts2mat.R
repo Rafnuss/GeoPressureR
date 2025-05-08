@@ -6,8 +6,8 @@
 #' @return A data.frame with columns `date` and `value`.
 #' @export
 ts2mat <- function(ts,
-                   value = "value",
-                   twl_offset = 0) {
+                   twl_offset = 0,
+                   value = "value") {
   assertthat::assert_that(is.data.frame(ts))
   assertthat::assert_that(assertthat::has_name(ts, "date"))
   assertthat::assert_that(assertthat::is.time(ts$date))

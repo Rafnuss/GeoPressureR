@@ -4,10 +4,13 @@
 \alias{ts2mat}
 \title{Format timeserie dataframe into a matrix}
 \usage{
-ts2mat(ts, value = "value", twl_offset = 0)
+ts2mat(ts, twl_offset = 0, value = "value")
 }
 \arguments{
 \item{ts}{data.frame of a \code{tag}, containing at least \code{date} and \code{value}.}
+
+\item{twl_offset}{Shift of the middle of the night compared to 00:00 UTC (in hours). If not
+provided, it uses the middle of all nights.}
 
 \item{value}{column name to extract}
 }
@@ -17,4 +20,3 @@ A data.frame with columns \code{date} and \code{value}.
 \description{
 Format timeserie dataframe into a matrix
 }
-\concept{twits}
