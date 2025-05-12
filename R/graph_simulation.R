@@ -99,6 +99,8 @@ graph_simulation <- function(graph,
       Matrix::sparseMatrix(graph$t[id], graph$s[id], x = trans_obs[id], dims = c(n, n))
     # Same as Eq. 3 in Nussbaumer et al. (2023) but with b_k transpose thus TO * b_k instead
     # of b_k * TO
+    # Normalize map_b to prevent numerical underflow
+    map_b[[i_s]] <- map_b[[i_s]] / sum(map_b[[i_s]])
   }
 
   # Initialize the path, stored as index of the 3D grid
@@ -137,6 +139,9 @@ graph_simulation <- function(graph,
     # current one using trans_obs_l
     map_f <- Matrix::sparseMatrix(seq_len(nj), path_ind3d[, i_s - 1], x = 1, dims = c(nj, n)) %*%
       trans_obs_l
+
+    # Normalize each row of map_f to prevent underflow
+    map_f <- map_f / Matrix::rowSums(map_f)
 
     # Combine forward and backward and samples
     if (nj > 1) {
