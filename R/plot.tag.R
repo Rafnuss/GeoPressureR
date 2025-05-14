@@ -691,10 +691,21 @@ plot_tag_actogram <- function(tag,
   )
   df_long$date <- as.Date(df_long$date)
 
+  # Make color scale
   km <- stats::kmeans(acc$value[acc$value > 0], centers = 2)
   acc_low_act <- acc$value[acc$value < mean(km$centers) & acc$value > 0]
+  x <- c(
+    0,
+    min(acc_low_act),
+    mean(acc_low_act),
+    max(acc_low_act),
+    mean(km$centers),
+    max(acc$value)
+  )
+  rng <- range(x, na.rm = TRUE)
+  val <- (x - rng[1]) / diff(rng)
 
-  ggplot2::ggplot() +
+  p <- ggplot2::ggplot() +
     ggplot2::geom_raster(
       data = df_long,
       ggplot2::aes(x = .data$date, y = .data$time, fill = .data$acceleration)
@@ -716,24 +727,13 @@ plot_tag_actogram <- function(tag,
         "#660066", # High activity (purple)
         "#000000" # Continuous activity (black)
       ),
-      values = scales::rescale(c(
-        0,
-        min(acc_low_act),
-        mean(acc_low_act),
-        max(acc_low_act),
-        mean(km$centers),
-        max(acc$value)
-      )),
+      values = val,
       na.value = "grey"
     )
-
-
-  p <- p
 
   if (plot_plotly) {
     return(plotly::ggplotly(p, dynamicTicks = TRUE))
   } else {
-    # Setting the breaks seems to mess up plotly
     return(p)
   }
 }

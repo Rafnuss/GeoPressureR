@@ -182,8 +182,7 @@ tag_create_soi_mag <- function(magnetic_path,
         )
       )
     }
-    mag <- mag
-    return(tag)
+    return(mag)
   }
 
   # Automatically define correction values
@@ -219,7 +218,7 @@ tag_create_soi_mag <- function(magnetic_path,
 #' @noRd
 mag_axes <- function(mag, mag_axis = "auto") {
   if (all(mag_axis == "auto")) {
-    xyz <- c(median(mag$gX), median(mag$gY), median(mag$gZ))
+    xyz <- c(stats::median(mag$gX), stats::median(mag$gY), stats::median(mag$gZ))
 
     mag_axis <- c("", "", "")
 

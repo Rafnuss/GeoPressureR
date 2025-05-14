@@ -27,10 +27,10 @@ server <- function(input, output, session) {
   latInEPSG3857 <- (log(tan((90 + g$lat) * pi / 360)) / (pi / 180)) * (20037508.34 / 180)
   fac_res_proj <- 4
   res_proj <- c(
-    median(diff(lonInEPSG3857)),
-    median(abs(diff(latInEPSG3857))) / fac_res_proj
+    stats::median(diff(lonInEPSG3857)),
+    stats::median(abs(diff(latInEPSG3857))) / fac_res_proj
   )
-  origin_proj <- c(median(lonInEPSG3857), median(latInEPSG3857))
+  origin_proj <- c(stats::median(lonInEPSG3857), stats::median(latInEPSG3857))
 
   # Convert lat-lon into ind
   latlon2ind <- function(lat, lon) {
