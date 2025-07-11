@@ -27,6 +27,7 @@ print.param <- function(x, ...) {
   bullets(param, "GeoPressureR_version")
 
   cli::cli_h3("Sensors data {.fun tag_create}")
+  bullets(param$tag_create, "manufacturer")
   bullets(param$tag_create, "crop_start")
   bullets(param$tag_create, "crop_end")
   bullets(param$tag_create, "directory")
@@ -88,6 +89,7 @@ print.param <- function(x, ...) {
   bullets(param$graph_simulation, "nj")
   bullets(param$pressurepath_create, "variable")
   bullets(param$pressurepath_create, "solar_dep")
+  bullets(param$pressurepath_create, "era5_dataset")
 
   if ("geopressuretemplate" %in% names(param)) {
     cli::cli_h3("GeoPressureTemplate {.fun geopressuretemplate}")
