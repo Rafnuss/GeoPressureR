@@ -114,8 +114,7 @@ plot.tag <- function(x, type = NULL, ...) {
     cli::cli_abort(c(
       "x" = "The type {.val {type}} is not known",
       ">" = "{.var type} should be one of {.val {c('pressure', 'acceleration', 'light', \\
-      'temperature', 'twilight', 'map', 'map_pressure', 'map_light', 'map_pressure_mse', \\
-      'map_pressure_mask', 'mask_water')}}"
+      'temperature', 'twilight', 'actogram', 'map', 'map_*')}}"
     ))
   }
 }
