@@ -25,7 +25,6 @@
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/graph_transition.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/ind2path.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/index.html</loc></url>
-<url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/light2mat.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/map_create.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/map_expand.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/param_create.html</loc></url>
@@ -38,6 +37,7 @@
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/plot_pressurepath.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_acceleration.html</loc></url>
+<url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_actogram.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_light.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_pressure.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_temperature.html</loc></url>
@@ -66,6 +66,7 @@
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_write.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/tag_set_map.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/tag_update.html</loc></url>
+<url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/ts2mat.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_create.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_label_read.html</loc></url>
 <url><loc>https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_label_write.html</loc></url>
