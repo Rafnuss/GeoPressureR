@@ -40,8 +40,9 @@
 #' # Change the `type` to display other sensor
 #' plot(tag, type = "acceleration")
 #' plot(tag, type = "light")
-#' # Twilight is display as an image
+#' plot(tag, type = "temperature")
 #' plot(tag, type = "twilight")
+#' plot(tag, type = "actogram")
 #'
 #' # After you compute any likelihood map, the default will
 #' # become this map (i.e., `type = "map"`)
@@ -477,7 +478,7 @@ plot_tag_twilight <- function(tag,
                               twilight_line = NULL,
                               transform_light = TRUE,
                               twl_offset = NULL,
-                              plot_plotly = FALSE) {
+                              plot_plotly = TRUE) {
   # We need to have light data, if twilight is not yet computed, we can still display the mat image
   tag_assert(tag, "light")
 

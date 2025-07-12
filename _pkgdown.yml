@@ -43,6 +43,7 @@ reference:
   - plot_tag_twilight
   - plot_tag_acceleration
   - plot_tag_temperature
+  - plot_tag_actogram
 - subtitle: Label tag
   desc: Core functions related to labelling a `tag` object.
   contents:

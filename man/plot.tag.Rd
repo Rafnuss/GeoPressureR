@@ -52,8 +52,9 @@ plot(tag)
 # Change the `type` to display other sensor
 plot(tag, type = "acceleration")
 plot(tag, type = "light")
-# Twilight is display as an image
+plot(tag, type = "temperature")
 plot(tag, type = "twilight")
+plot(tag, type = "actogram")
 
 # After you compute any likelihood map, the default will
 # become this map (i.e., `type = "map"`)

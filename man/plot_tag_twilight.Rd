@@ -9,7 +9,7 @@ plot_tag_twilight(
   twilight_line = NULL,
   transform_light = TRUE,
   twl_offset = NULL,
-  plot_plotly = FALSE
+  plot_plotly = TRUE
 )
 }
 \arguments{
