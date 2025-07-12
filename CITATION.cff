@@ -8,7 +8,7 @@ message: 'To cite package "GeoPressureR" in publications use:'
 type: software
 license: GPL-3.0-or-later
 title: 'GeoPressureR: Global Positioning by Atmospheric Pressure'
-version: 3.4.1
+version: 3.4.2
 doi: 10.5281/zenodo.7754457
 abstract: R package to determine the position and trajectory of a bird based on light-weight
   data-logger measuring at lease atmospheric pressure.
@@ -582,15 +582,21 @@ references:
   title: maps
   abstract: 'maps: Draw Geographical Maps'
   notes: Suggests
+  url: https://github.com/adeckmyn/maps
   repository: https://CRAN.R-project.org/package=maps
   authors:
   - family-names: Becker
-    given-names: Original S code by Richard A.
+    given-names: Richard A.
+  - family-names: Wilks
+    given-names: Allan R.
+  - family-names: Brownrigg
+    given-names: Ray
   - family-names: Minka
-    given-names: Allan R. Wilks. R version by Ray Brownrigg. Enhancements by Thomas
-      P
-  - family-names: Deckmyn.
+    given-names: Thomas P.
+  - family-names: Deckmyn
     given-names: Alex
+    email: alex.deckmyn@meteo.be
+    orcid: https://orcid.org/0009-0002-2010-8310
   year: '2025'
   doi: 10.32614/CRAN.package.maps
 - type: software
