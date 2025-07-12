@@ -31,52 +31,40 @@ geopressuretemplate_pressurepath <- function(
     if ("most_likely" %in% config$geopressuretemplate$pressurepath &&
       "path_most_likely" %in% save_list) {
       path_most_likely <- get("path_most_likely")
-      pressurepath_most_likely <- pressurepath_create( # nolint
-        tag,
-        path = path_most_likely,
-        variable = config$pressurepath_create$variable,
-        solar_dep = config$pressurepath_create$solar_dep,
-        quiet = quiet
-      )
+      pressurepath_most_likely <- do.call(pressurepath_create, c( # nolint
+        list(tag = tag, path = path_most_likely, quiet = quiet),
+        config$pressurepath_create
+      ))
       save_list <- c(save_list, "pressurepath_most_likely")
     }
 
     if ("geopressureviz" %in% config$geopressuretemplate$pressurepath &&
       "path_geopressureviz" %in% save_list) {
       path_geopressureviz <- get("path_geopressureviz")
-      pressurepath_geopressureviz <- pressurepath_create( # nolint
-        tag,
-        path = path_geopressureviz,
-        variable = config$pressurepath_create$variable,
-        solar_dep = config$pressurepath_create$solar_dep,
-        quiet = quiet
-      )
+      pressurepath_geopressureviz <- do.call(pressurepath_create, c( # nolint
+        list(tag = tag, path = path_geopressureviz, quiet = quiet),
+        config$pressurepath_create
+      ))
       save_list <- c(save_list, "pressurepath_geopressureviz")
     }
 
-    if ("pressurepath_tag" %in% config$geopressuretemplate$pressurepath &&
+    if ("tag" %in% config$geopressuretemplate$pressurepath &&
       "path_tag" %in% save_list) {
       path_tag <- get("path_tag")
-      pressurepath_geopressureviz <- pressurepath_create( # nolint
-        tag,
-        path = path_tag,
-        variable = config$pressurepath_create$variable,
-        solar_dep = config$pressurepath_create$solar_dep,
-        quiet = quiet
-      )
+      pressurepath_tag <- do.call(pressurepath_create, c( # nolint
+        list(tag = tag, path = path_tag, quiet = quiet),
+        config$pressurepath_create
+      ))
       save_list <- c(save_list, "pressurepath_tag")
     }
 
-    if ("pressurepath_simulation" %in% config$geopressuretemplate$pressurepath &&
+    if ("simulation" %in% config$geopressuretemplate$pressurepath &&
       "path_simulation" %in% save_list) {
       path_simulation <- get("path_tag")
-      pressurepath_geopressureviz <- pressurepath_create( # nolint
-        tag,
-        path = path_simulation,
-        variable = config$pressurepath_create$variable,
-        solar_dep = config$pressurepath_create$solar_dep,
-        quiet = quiet
-      )
+      pressurepath_simulation <- do.call(pressurepath_create, c( # nolint
+        list(tag = tag, path = path_simulation, quiet = quiet),
+        config$pressurepath_create
+      ))
       save_list <- c(save_list, "pressurepath_simulation")
     }
 

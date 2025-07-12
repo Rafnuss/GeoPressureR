@@ -76,9 +76,11 @@ graph_marginal <- function(graph, quiet = FALSE) {
   for (i_s in seq_len(graph$sz[3] - 1)) {
     map_f[1, graph$equipment] <- graph$obs[graph$equipment] # P_0^T O_0 with P_0=1
     map_f <- map_f %*% trans_obs # Eq. 3 in Nussbaumer et al. (2023)
+    map_f <- map_f / sum(map_f) # normalize to prevent underflow
 
     map_b[graph$retrieval, 1] <- 1 # equivalent to map_b[, 1] <- 1 but slower
     map_b <- trans_obs %*% map_b # Eq. 3 in Nussbaumer et al. (2023)
+    map_b <- map_b / sum(map_b) # normalize
   }
   # add the retrieval and equipment at the end to finish it
   map_f[1, graph$equipment] <- graph$obs[graph$equipment]
@@ -105,6 +107,9 @@ graph_marginal <- function(graph, quiet = FALSE) {
     }
     # Normalize the map to the highest value
     marginal_data[[stap_include[i_s]]] <- map_fb_i / max(map_fb, na.rm = TRUE)
+    # Alternative normalization which seems more intuitive but not visually appealing when comparing
+    # different stap.
+    # marginal_data[[stap_include[i_s]]] <- map_fb_i / sum(map_fb_i, na.rm = TRUE)
   }
 
   marginal <- map_create(

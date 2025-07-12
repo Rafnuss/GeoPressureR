@@ -12,14 +12,16 @@
 #' - `"acceleration"`: `plot_tag_acceleration()`
 #' - `"temperature"`: `plot_tag_temperature()`
 #' - `"twilight"`: `plot_tag_twilight()`
+#' - `"actogram"`: `plot_tag_actogram()`
 #' - `"map_*"` : `plot.map()` with `tag$map_*` as first argument.
 #'
 #' Refers to these functions for additional parameters and more flexibility in the plotting.
 #'
 #' @param x a GeoPressureR `tag` object.
 #' @param type type of the plot to display. One of `"pressure"`, `"acceleration"`, `"light"`,
-#' `"temperature"`, `"twilight"`, `"map"`, `"map_pressure"`, `"map_light"`, `"map_pressure_mse"`,
-#' `"map_pressure_mask"`, `"mask_water"`. Map can be combined by providing a vector of type.
+#' `"temperature"`, `"twilight"`, `"actogram"`, `"map"`, `"map_pressure"`, `"map_light"`,
+#' `"map_pressure_mse"`, `"map_pressure_mask"`, `"mask_water"`. Map can be combined by providing a
+#' vector of type.
 #' @param ... additional parameters for `plot_tag_pressure()`, `plot_tag_acceleration()`,
 #' `plot_tag_light()`, `plot_tag_twilight()` or `plot.map()`
 #'
@@ -38,8 +40,9 @@
 #' # Change the `type` to display other sensor
 #' plot(tag, type = "acceleration")
 #' plot(tag, type = "light")
-#' # Twilight is display as an image
+#' plot(tag, type = "temperature")
 #' plot(tag, type = "twilight")
+#' plot(tag, type = "actogram")
 #'
 #' # After you compute any likelihood map, the default will
 #' # become this map (i.e., `type = "map"`)
@@ -93,6 +96,8 @@ plot.tag <- function(x, type = NULL, ...) {
     plot_tag_temperature(tag, ...)
   } else if (type == "twilight") {
     plot_tag_twilight(tag, ...)
+  } else if (type == "actogram") {
+    plot_tag_actogram(tag, ...)
   } else if (grepl("map", type)) {
     # Define optimal color palette based on the type of variable shown
 
@@ -110,8 +115,7 @@ plot.tag <- function(x, type = NULL, ...) {
     cli::cli_abort(c(
       "x" = "The type {.val {type}} is not known",
       ">" = "{.var type} should be one of {.val {c('pressure', 'acceleration', 'light', \\
-      'temperature', 'twilight', 'map', 'map_pressure', 'map_light', 'map_pressure_mse', \\
-      'map_pressure_mask', 'mask_water')}}"
+      'temperature', 'twilight', 'actogram', 'map', 'map_*')}}"
     ))
   }
 }
@@ -474,7 +478,7 @@ plot_tag_twilight <- function(tag,
                               twilight_line = NULL,
                               transform_light = TRUE,
                               twl_offset = NULL,
-                              plot_plotly = FALSE) {
+                              plot_plotly = TRUE) {
   # We need to have light data, if twilight is not yet computed, we can still display the mat image
   tag_assert(tag, "light")
 
@@ -494,7 +498,7 @@ plot_tag_twilight <- function(tag,
   }
 
   # Compute the matrix representation of light
-  mat <- light2mat(light, twl_offset = twl_offset)
+  mat <- ts2mat(light, twl_offset = twl_offset)
 
   # Convert to long format data.fram to be able to plot with ggplot
   df <- as.data.frame(mat$value)
@@ -620,6 +624,116 @@ plot_tag_twilight <- function(tag,
     return(plotly::ggplotly(p, dynamicTicks = TRUE))
   } else {
     # Setting the breaks seems to mess up plotly
+    return(p)
+  }
+}
+
+
+#' Plot Actogram data of a `tag`
+#'
+#' This function display a plot of the acceleration time series recorded by a tag
+#'
+#' @param tag a GeoPressureR `tag` object
+#' @param plot_plotly logical to use `plotly`
+#' @inheritParams twilight_create
+#'
+#' @return a plot object.
+#'
+#' @family plot_tag
+#' @examples
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE)
+#'
+#'   plot_tag_actogram(tag, plot_plotly = TRUE)
+#' })
+#' @export
+plot_tag_actogram <- function(tag,
+                              twl_offset = NULL,
+                              plot_plotly = FALSE) {
+  # We need to have acceleration data
+  tag_assert(tag, "acceleration")
+
+  acc <- tag$acceleration
+
+  # Use by order of priority: (1) twl_offset provided in this function, (2)
+  # tag$param$twilight_create$twl_offset, (3) guess from light data
+  if (is.null(twl_offset)) {
+    if ("twl_offset" %in% names(tag$param$twilight_create)) {
+      twl_offset <- tag$param$twilight_create$twl_offset
+    } else {
+      twl_offset <- twilight_create_guess_offset(acc)
+    }
+  }
+
+  # Compute the matrix representation of light
+  mat <- ts2mat(acc, twl_offset = twl_offset)
+
+  if ("label" %in% names(acc)) {
+    matl <- ts2mat(acc, twl_offset = twl_offset, value = "label")
+    mat$value[matl$value == "flight"] <- max(acc$value) + 1
+  }
+
+  # Convert to long format data.frame to be able to plot with ggplot
+  df <- as.data.frame(mat$value)
+  names(df) <- mat$day
+  mat_time_hour <- as.numeric(substr(mat$time, 1, 2)) + as.numeric(substr(mat$time, 4, 5)) / 60
+  time_hour <- mat_time_hour + 24 * (mat_time_hour < mat_time_hour[1])
+  df$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
+  # as.POSIXct(strptime(mat$time, "%H:%M")) # factor(mat$time, levels = mat$time)
+
+  df_long <- stats::reshape(df,
+    direction = "long",
+    varying = list(utils::head(names(df), -1)),
+    v.names = "acceleration",
+    idvar = "time",
+    timevar = "date",
+    times = utils::head(names(df), -1)
+  )
+  df_long$date <- as.Date(df_long$date)
+
+  # Make color scale
+  km <- stats::kmeans(acc$value[acc$value > 0], centers = 2)
+  acc_low_act <- acc$value[acc$value < mean(km$centers) & acc$value > 0]
+  x <- c(
+    0,
+    min(acc_low_act),
+    mean(acc_low_act),
+    max(acc_low_act),
+    mean(km$centers),
+    max(acc$value)
+  )
+  rng <- range(x, na.rm = TRUE)
+  val <- (x - rng[1]) / diff(rng)
+
+  p <- ggplot2::ggplot() +
+    ggplot2::geom_raster(
+      data = df_long,
+      ggplot2::aes(x = .data$date, y = .data$time, fill = .data$acceleration)
+    ) +
+    ggplot2::theme_bw() +
+    ggplot2::scale_y_datetime(
+      name = "Time",
+      date_breaks = "1 hour",
+      date_labels = "%H:%M",
+      expand = c(0, 0)
+    ) +
+    ggplot2::scale_x_date(name = "Date", expand = c(0, 0)) +
+    ggplot2::scale_fill_gradientn(
+      colours = c(
+        "#FFFFFF", # 0 - No activity
+        "#B2FFB2", # Low activity (light green)
+        "#66FF66", # Medium activity (green)
+        "#33CC33", # Higher activity (darker green),
+        "#660066", # High activity (purple)
+        "#000000" # Continuous activity (black)
+      ),
+      values = val,
+      na.value = "grey"
+    )
+
+  if (plot_plotly) {
+    return(plotly::ggplotly(p, dynamicTicks = TRUE))
+  } else {
     return(p)
   }
 }

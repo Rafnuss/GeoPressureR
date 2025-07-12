@@ -61,15 +61,14 @@ tag2likelihood <- function(tag, likelihood = NULL) {
     likelihood[likelihood == "light"] <- "map_light"
     likelihood[likelihood == "magnetic"] <- "map_magnetic"
 
-    if (any(!(likelihood %in% authorized_lk))) {
+    unknown <- setdiff(likelihood, names(tag))
+    if (length(unknown) > 0) {
       cli::cli_abort(c(
-        "x" = "The likelihood map {.val {likelihood}} {? is/are} not authorized.",
-        ">" = "{.var likelihood} should be one of {.val {authorized_lk}}"
+        "x" = "The likelihood map{?s} {.val {unknown}} {?is/are} not recognized.",
+        ">" = "{.var likelihood} must be one of {.val {authorized_lk}}."
       ))
     }
   }
-
-  assertthat::assert_that(assertthat::has_name(tag, likelihood))
 
   return(likelihood)
 }

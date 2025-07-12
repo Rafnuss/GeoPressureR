@@ -41,6 +41,7 @@ plot_tag_acceleration(tag)
 }
 \seealso{
 Other plot_tag: 
+\code{\link{plot_tag_actogram}()},
 \code{\link{plot_tag_light}()},
 \code{\link{plot_tag_pressure}()},
 \code{\link{plot_tag_temperature}()},

@@ -134,6 +134,9 @@ print.tag <- function(x, ...) {
         if ("map_light" %in% status) {
           cli::cli_bullets(c("v" = "Light likelihood {.field map_light} computed!"))
         }
+        if ("map_magnetic" %in% status) {
+          cli::cli_bullets(c("v" = "Magnetic likelihood {.field map_magnetic} computed!"))
+        }
       }
     }
   }

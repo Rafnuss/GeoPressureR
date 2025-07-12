@@ -360,10 +360,10 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
   # Rename column datetime to date and convert to posixct
   names(df)[names(df) == "datetime"] <- "date"
   df$date <- as.POSIXct(df$date, format = "%Y-%m-%dT%H:%M", tz = "UTC")
-  if (any(is.na(df$date))){
+  if (any(is.na(df$date))) {
     df$date <- as.POSIXct(strptime(df$date, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC"))
   }
-  if (any(is.na(df$date))){
+  if (any(is.na(df$date))) {
     cli::cli_abort(c(
       x = "Invalid date in {.file {sensor_path}} at line(s): {which(is.na(df$date))}",
       i = "Check and fix the corresponding lines"

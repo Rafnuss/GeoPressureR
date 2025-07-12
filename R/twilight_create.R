@@ -60,8 +60,8 @@ twilight_create <- function(tag,
     twl_offset <- twilight_create_guess_offset(light, twl_thr = twl_thr)
   }
 
-  # Use light2mat() to reshape light into a matrix
-  mat <- light2mat(light, twl_offset)
+  # Use ts2mat() to reshape light into a matrix
+  mat <- ts2mat(light, twl_offset = twl_offset)
   # image(mat$value)
 
   # Compute exceed of light
@@ -135,7 +135,7 @@ twilight_create_guess_offset <- function(light, twl_thr = NULL) {
     twl_thr <- min(light$value[light$value > 0], na.rm = TRUE)
   }
 
-  mat <- light2mat(light, twl_offset = 0)
+  mat <- ts2mat(light, twl_offset = 0)
   l <- mat$value >= twl_thr
   tmp <- rowMeans(l, na.rm = TRUE)
   offset_id <- round(sum(tmp * seq_len(dim(mat$value)[1]), na.rm = TRUE) / sum(tmp, na.rm = TRUE))

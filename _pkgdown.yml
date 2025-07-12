@@ -43,6 +43,7 @@ reference:
   - plot_tag_twilight
   - plot_tag_acceleration
   - plot_tag_temperature
+  - plot_tag_actogram
 - subtitle: Label tag
   desc: Core functions related to labelling a `tag` object.
   contents:
@@ -77,7 +78,7 @@ reference:
   - twilight_label_write
   - twilight_label_read
   - geolight_map
-  - light2mat
+  - ts2mat
 - title: Graph
   desc: Constructing the Hidden-Markov model with a `graph` and computing trajectory products.
   contents:

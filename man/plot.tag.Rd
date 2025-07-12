@@ -10,8 +10,9 @@
 \item{x}{a GeoPressureR \code{tag} object.}
 
 \item{type}{type of the plot to display. One of \code{"pressure"}, \code{"acceleration"}, \code{"light"},
-\code{"temperature"}, \code{"twilight"}, \code{"map"}, \code{"map_pressure"}, \code{"map_light"}, \code{"map_pressure_mse"},
-\code{"map_pressure_mask"}, \code{"mask_water"}. Map can be combined by providing a vector of type.}
+\code{"temperature"}, \code{"twilight"}, \code{"actogram"}, \code{"map"}, \code{"map_pressure"}, \code{"map_light"},
+\code{"map_pressure_mse"}, \code{"map_pressure_mask"}, \code{"mask_water"}. Map can be combined by providing a
+vector of type.}
 
 \item{...}{additional parameters for \code{plot_tag_pressure()}, \code{plot_tag_acceleration()},
 \code{plot_tag_light()}, \code{plot_tag_twilight()} or \code{plot.map()}}
@@ -32,6 +33,7 @@ By default, \code{type} is determined in the following order of preference accor
 \item \code{"acceleration"}: \code{plot_tag_acceleration()}
 \item \code{"temperature"}: \code{plot_tag_temperature()}
 \item \code{"twilight"}: \code{plot_tag_twilight()}
+\item \code{"actogram"}: \code{plot_tag_actogram()}
 \item \code{"map_*"} : \code{plot.map()} with \verb{tag$map_*} as first argument.
 }
 
@@ -50,8 +52,9 @@ plot(tag)
 # Change the `type` to display other sensor
 plot(tag, type = "acceleration")
 plot(tag, type = "light")
-# Twilight is display as an image
+plot(tag, type = "temperature")
 plot(tag, type = "twilight")
+plot(tag, type = "actogram")
 
 # After you compute any likelihood map, the default will
 # become this map (i.e., `type = "map"`)
