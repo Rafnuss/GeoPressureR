@@ -130,6 +130,7 @@ graph_create <- function(tag,
   flight <- stap2flight(stap)
   flight_duration <- as.numeric(flight$duration)
   assertthat::assert_that(length(flight_duration) == length(stap_include) - 1)
+  assertthat::assert_that(all(flight_duration > 0))
 
   # Compute size
   sz <- c(g$dim[1], g$dim[2], length(stap_include))
@@ -188,7 +189,7 @@ graph_create <- function(tag,
   }
 
   if (!quiet) {
-    cli::cli_progress_step("Create graph from maps")
+    cli::cli_progress_step("Create nodes from likelihood maps")
   }
 
   # filter the pixels which are not in reach of any location of the previous and next stationary
@@ -220,17 +221,20 @@ graph_create <- function(tag,
   }
 
   # Check that there are still pixel present
-  if (any(unlist(lapply(nds, sum)) == 0)) {
+  nds_sum <- unlist(lapply(nds, sum))
+  if (any(nds_sum == 0)) {
     cli::cli_abort(c(
       x = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance \\
           edges, there are not any nodes left."
     ))
   }
+  if (!quiet) {
+    cli::cli_progress_step("Trim nodes from binary distance. Remaining nodes per staps: {.val {nds_sum}}")
+  }
 
   # Create the graph from nds with the exact groundspeed
 
   # Run each transition in parallel with decreasing order of edges
-  nds_sum <- unlist(lapply(nds, sum))
   nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
   nds_sorted_idx <- order(nds_expend_sum, decreasing = TRUE)
   nds_expend_sum <- sort(nds_expend_sum, decreasing = TRUE)
