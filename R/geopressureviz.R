@@ -131,7 +131,7 @@ geopressureviz <- function(x,
   if (is.null(path)) {
     # path is not defined
     pressurepath <- data.frame()
-    path <- tag2path(tag)
+    path <- tag2path(tag, interp = 1)
   } else if ("pressure_tag" %in% names(path)) {
     # If path is a pressurepath
     pressurepath <- path
