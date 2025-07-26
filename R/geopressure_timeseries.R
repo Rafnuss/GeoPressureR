@@ -139,7 +139,6 @@ geopressure_timeseries <- function(lat,
   req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/timeseries/") |>
     httr2::req_body_json(body) |>
     httr2::req_timeout(timeout) |>
-    httr2::req_retry(max_tries = 3) |>
     httr2::req_error(body = function(resp) {
       if (debug) {
         print(httr2::resp_body_json(resp))
@@ -172,8 +171,7 @@ geopressure_timeseries <- function(lat,
 
   # Prepare request
   req <- httr2::request(resp_data$url) |>
-    httr2::req_timeout(timeout) |>
-    httr2::req_retry(max_tries = 3)
+    httr2::req_timeout(timeout)
 
   if (debug) {
     req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
