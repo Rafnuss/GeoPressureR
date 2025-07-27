@@ -4,36 +4,27 @@
 \alias{graph_add_wind}
 \title{Compute windspeed and airspeed on a \code{graph}}
 \usage{
-graph_add_wind(
-  graph,
-  pressure,
-  rounding_interval = 60,
-  interp_spatial_linear = FALSE,
-  file = function(stap_id)
-    glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
-  thr_as = Inf,
-  quiet = FALSE
-)
+graph_add_wind(graph, thr_as = Inf, ...)
 }
 \arguments{
 \item{graph}{a GeoPressureR graph object.}
 
-\item{pressure}{pressure measurement of the associated \code{tag} data used to estimate the pressure
-level (i.e., altitude) of the bird during the flights. This data.frame needs to contain \code{date} as
-POSIXt and \code{value} in hPa.}
-
-\item{rounding_interval}{temporal resolution on which to query the variable (min). Default is to
-match ERA5 native resolution (1hr).}
-
-\item{interp_spatial_linear}{logical to interpolate the variable linearly over space, if \code{FALSE}
-takes the nearest neighbour. ERA5 native resolution is 0.25°}
-
-\item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
-taking as single argument the stationary period identifier.}
-
 \item{thr_as}{threshold of airspeed (km/h).}
 
-\item{quiet}{logical to hide messages about the progress}
+\item{...}{
+  Arguments passed on to \code{\link[=edge_add_wind]{edge_add_wind}}
+  \describe{
+    \item{\code{pressure}}{pressure measurement of the associated \code{tag} data used to estimate the pressure
+level (i.e., altitude) of the bird during the flights. This data.frame needs to contain \code{date} as
+POSIXt and \code{value} in hPa.}
+    \item{\code{rounding_interval}}{temporal resolution on which to query the variable (min). Default is to
+match ERA5 native resolution (1hr).}
+    \item{\code{interp_spatial_linear}}{logical to interpolate the variable linearly over space, if \code{FALSE}
+takes the nearest neighbour. ERA5 native resolution is 0.25°}
+    \item{\code{quiet}}{logical to hide messages about the progress}
+    \item{\code{file}}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
+taking as single argument the stationary period identifier.}
+  }}
 }
 \value{
 a \code{graph} object with windspeed and airspeed as \code{ws} and \code{as} respectively.

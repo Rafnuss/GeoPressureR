@@ -16,7 +16,7 @@
 #' haversine_bearing)
 #' @param n_coords Number of coordinate pairs to process
 #' @param ... Additional arguments for memory management (for coordinate calculation functions)
-#' @param memory_fraction Fraction of available memory to use (default: 0.05 for 5%).
+#' @param memory_fraction Fraction of available memory to use (default: 0.2 for 20%).
 #' This controls how much of your system's total memory the function will use for calculations.
 #' - 0.05 (5%): Very conservative, good for shared systems or when running other processes
 #' - 0.10 (10%): Moderate usage, balances performance and system stability
@@ -29,7 +29,6 @@
 #' - `graph_create_distance()`: Vector of distances in kilometers
 #' - `graph_create_bearing()`: Vector of bearings in degrees
 #' - `graph_compute_chunk_size()`: Integer chunk size
-#' @name graph_coordinate_calculations
 #' @noRd
 NULL
 
@@ -62,21 +61,21 @@ graph_create_coord_calc <- function(from_coords, to_coords, calc_fun, ...) {
   results
 }
 
-#' @rdname graph_coordinate_calculations
+#' @noRd
 graph_create_distance <- function(from_coords, to_coords, ...) {
   graph_create_coord_calc(
     from_coords, to_coords, haversine_distance, ...
   )
 }
 
-#' @rdname graph_coordinate_calculations
+#' @noRd
 graph_create_bearing <- function(from_coords, to_coords, ...) {
   graph_create_coord_calc(
     from_coords, to_coords, haversine_bearing, ...
   )
 }
 
-#' @rdname graph_coordinate_calculations
+#' @noRd
 graph_compute_chunk_size <- function(n_coords,
                                      memory_fraction = 0.2,
                                      min_memory_mb = 50,
@@ -141,11 +140,10 @@ graph_compute_chunk_size <- function(n_coords,
 #' @return
 #' - `haversine_distance()`: Vector of distances in kilometers
 #' - `haversine_bearing()`: Vector of bearings in degrees (0-360°, where 0° = North, 90° = East)
-#' @name haversine_calculations
 #' @noRd
 NULL
 
-#' @rdname haversine_calculations
+#' @noRd
 haversine_distance <- function(from_coords, to_coords) {
   # Convert to radians
   to_rad <- pi / 180
@@ -173,7 +171,7 @@ haversine_distance <- function(from_coords, to_coords) {
   as.vector(dist)
 }
 
-#' @rdname haversine_calculations
+#' @noRd
 haversine_bearing <- function(from_coords, to_coords) {
   # Convert to radians
   to_rad <- pi / 180
