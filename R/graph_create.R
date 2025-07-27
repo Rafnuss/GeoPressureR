@@ -17,16 +17,13 @@
 #' @param tag a GeoPressureR `tag` object.
 #' @param thr_likelihood threshold of percentile (see details).
 #' @param thr_gs threshold of groundspeed (km/h)  (see details).
-#' @param geosphere_dist function to compute the distance. Usually, either
-#' `geosphere::distHaversine` (fast) or `geosphere::distGeo` (precise but slow). See
-#' https://rspatial.org/raster/sphere/2-distance.html for more options and details.
-#' @param geosphere_bearing function to compute the bearing. Either `geosphere::bearing` (default)
-#' or `geosphere::bearingRhumb`. See https://rspatial.org/raster/sphere/3-direction.html#bearing
-#' for details.
-#' @param workers number of workers used in the computation of edges ground speed. More workers
-#' (up to the limit `future::availableCores()`) usually makes the computation faster, but because
-#' the the number of edges is large, memory will often limit the computation.
 #' @param quiet logical to hide messages about the progress.
+#' @param geosphere_dist `r lifecycle::badge("deprecated")` This argument is no longer used.
+#' Distance calculations now use a custom memory-efficient Haversine implementation.
+#' @param geosphere_bearing `r lifecycle::badge("deprecated")` This argument is no longer used.
+#' Bearing calculations now use a custom memory-efficient implementation.
+#' @param workers `r lifecycle::badge("deprecated")` This argument is no longer used.
+#' Parallel processing has been removed to avoid memory issues.
 #' @inheritParams tag2map
 #'
 #' @return Graph as a list
@@ -73,12 +70,37 @@ graph_create <- function(tag,
                          thr_likelihood = .99,
                          thr_gs = 150,
                          likelihood = NULL,
-                         geosphere_dist = geosphere::distHaversine,
-                         geosphere_bearing = geosphere::bearing,
-                         workers = 1,
-                         quiet = FALSE) {
+                         quiet = FALSE,
+                         geosphere_dist = lifecycle::deprecated(),
+                         geosphere_bearing = lifecycle::deprecated(),
+                         workers = lifecycle::deprecated()) {
+  # Handle deprecated arguments
+  if (lifecycle::is_present(geosphere_dist)) {
+    lifecycle::deprecate_warn(
+      "3.4.0",
+      "graph_create(geosphere_dist)",
+      details = "Distance calculations now use a custom memory-efficient Haversine implementation."
+    )
+  }
+
+  if (lifecycle::is_present(workers)) {
+    lifecycle::deprecate_warn(
+      "3.4.0",
+      "graph_create(workers)",
+      details = "Parallel processing has been removed to avoid memory issues."
+    )
+  }
+
+  if (lifecycle::is_present(geosphere_bearing)) {
+    lifecycle::deprecate_warn(
+      "3.4.0",
+      "graph_create(geosphere_bearing)",
+      details = "Bearing calculations now use a custom memory-efficient implementation."
+    )
+  }
+
   if (!quiet) {
-    cli::cli_progress_step("Check data input")
+    cli::cli_progress_step("Check data input", msg_done = "Data input validated")
   }
 
   # Construct the likelihood map
@@ -118,14 +140,6 @@ graph_create <- function(tag,
 
   g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
 
-  # Approximate resolution of the grid from ° to in km
-  # Assume uniform grid in lat-lon
-  # Use the smaller resolution assuming 110.574km/lon and 111.320*cos(lat)km/lat
-  resolution <- pmin(
-    abs(stats::median(diff(g$lat))) * cos(g$lat * pi / 180) * 111.320,
-    stats::median(diff(g$lon)) * 110.574
-  )
-
   # Construct flight
   flight <- stap2flight(stap)
   flight_duration <- as.numeric(flight$duration)
@@ -135,6 +149,13 @@ graph_create <- function(tag,
   # Compute size
   sz <- c(g$dim[1], g$dim[2], length(stap_include))
   nll <- sz[1] * sz[2]
+
+  if (!quiet) {
+    cli::cli_progress_done()
+    cli::cli_progress_step("Create nodes from likelihood maps",
+      msg_done = "Nodes created from likelihood maps"
+    )
+  }
 
   # Process likelihood map
   # We use here the normalized likelihood assuming that the bird needs to be somewhere at each
@@ -189,16 +210,28 @@ graph_create <- function(tag,
   }
 
   if (!quiet) {
-    cli::cli_progress_step("Create nodes from likelihood maps")
+    cli::cli_progress_done()
+    cli::cli_progress_step("Filter nodes by binary distance",
+      msg_done = "Nodes filtered by binary distance"
+    )
   }
 
   # filter the pixels which are not in reach of any location of the previous and next stationary
   # period
+  # Create resolution matrix for the grid (length(g$lat) x length(g$lon))
+  lat_res <- abs(stats::median(diff(g$lat))) * 111.320
+  lon_res <- stats::median(diff(g$lon)) * 110.574
+  resolution <- outer(g$lat, g$lon, function(lat, lon) {
+    pmin(lat_res, lon_res * cos(lat * pi / 180))
+  })
+
   # The "-1" of distmap accounts for the fact that the shortest distance between two grid cell is
   # not the center of the cell but the side. This should only impact short flight distance/duration.
   for (i_s in seq_len(sz[3] - 1)) {
-    nds[[i_s + 1]] <- (EBImage::distmap(!nds[[i_s]]) - 1) * resolution <
-      flight_duration[i_s] * thr_gs & nds[[i_s + 1]]
+    # Compute distance map and apply resolution matrix
+    dist_map <- EBImage::distmap(!nds[[i_s]]) - 1
+    dist_km <- dist_map * resolution # Element-wise multiplication with resolution matrix
+    nds[[i_s + 1]] <- dist_km < flight_duration[i_s] * thr_gs & nds[[i_s + 1]]
     if (sum(nds[[i_s + 1]]) == 0) {
       cli::cli_abort(c(
         x = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the binary distance \\
@@ -209,8 +242,10 @@ graph_create <- function(tag,
   }
   for (i_sr in seq_len(sz[3] - 1)) {
     i_s <- sz[3] - i_sr + 1
-    nds[[i_s - 1]] <- (EBImage::distmap(!nds[[i_s]]) - 1) * resolution <
-      flight_duration[i_s - 1] * thr_gs & nds[[i_s - 1]]
+    # Compute distance map and apply resolution matrix
+    dist_map <- EBImage::distmap(!nds[[i_s]]) - 1
+    dist_km <- dist_map * resolution # Element-wise multiplication with resolution matrix
+    nds[[i_s - 1]] <- dist_km < flight_duration[i_s - 1] * thr_gs & nds[[i_s - 1]]
     if (sum(nds[[i_s - 1]]) == 0) {
       cli::cli_abort(c(
         x = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance \\
@@ -228,105 +263,163 @@ graph_create <- function(tag,
           edges, there are not any nodes left."
     ))
   }
-  if (!quiet) {
-    cli::cli_progress_step("Trim nodes from binary distance. Remaining nodes per staps: {.val {nds_sum}}")
-  }
-
   # Create the graph from nds with the exact groundspeed
 
-  # Run each transition in parallel with decreasing order of edges
-  nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
-  nds_sorted_idx <- order(nds_expend_sum, decreasing = TRUE)
-  nds_expend_sum <- sort(nds_expend_sum, decreasing = TRUE)
-  assertthat::assert_that(workers > 0 & workers <= future::availableCores())
-  future::plan(future::multisession, workers = workers)
-  f <- list()
+  # Initialize results list
+  n_transitions <- length(nds) - 1
+  gr <- vector("list", n_transitions)
 
   if (!quiet) {
-    i <- 0
+    cli::cli_progress_done()
+    i_s <- 0
+    nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1) # nolint
     cli::cli_progress_step(
-      "Compute the groundspeed for stationary period {i}/{length(nds_expend_sum)} \\
-      ({ round(sum(nds_expend_sum[seq_len(i)])/sum(nds_expend_sum)*100)}% of nodes)",
+      "Compute the groundspeed for stationary period {i_s}/{n_transitions}: \\
+      { round(sum(nds_expend_sum[seq_len(i_s)])/sum(nds_expend_sum)*100)}% of transitions done",
       msg_done = "Compute the groundspeed"
     )
   }
-  for (i in seq_len(length(nds_sorted_idx))) {
-    i_s <- nds_sorted_idx[i]
+
+
+  for (i_s in seq_len(n_transitions)) {
+    # Memory monitoring for debugging
+    if (!quiet) {
+      mem_used <- if (Sys.info()["sysname"] == "Darwin") {
+        # Get memory info on macOS
+        tryCatch(
+          {
+            mem_info <- system("ps -o rss= -p $(echo $$)", intern = TRUE)
+            paste0(round(as.numeric(mem_info) / 1024), " MB")
+          },
+          error = function(e) "unknown"
+        )
+      } else {
+        paste0(round(gc()[2, 2]), " MB")
+      }
+      cat("Processing transition", i_s, "/", n_transitions, "- Memory used:", mem_used, "\n")
+    }
+
     nds_i_s <- which(nds[[i_s]])
     nds_i_s_1 <- which(nds[[i_s + 1]])
-    f[[i_s]] <- future::future(expr = {
-      # find all the possible equipment and target based on nds and expand to all possible
-      # combination
-      grt <- expand.grid(
-        s = as.integer(nds_i_s + (i_s - 1) * nll),
-        t = as.integer(nds_i_s_1 + i_s * nll)
+
+    # Pre-compute coordinates for source and target nodes (more efficient)
+    s_coords <- arrayInd(nds_i_s, c(sz[1], sz[2]))
+    t_coords <- arrayInd(nds_i_s_1, c(sz[1], sz[2]))
+
+    s_lat <- g$lat[s_coords[, 1]]
+    s_lon <- g$lon[s_coords[, 2]]
+    t_lat <- g$lat[t_coords[, 1]]
+    t_lon <- g$lon[t_coords[, 2]]
+
+    # Pre-filter coordinate combinations using rough distance approximation
+    if ((length(s_lat) * length(t_lat)) > 10000) {
+      # Use rough distance approximation
+      max_distance <- thr_gs * flight_duration[i_s] * 1.1 # Add 10% buffer for rough approximation
+
+      # Vectorized pre-filtering using rough distance approximation
+      # Create coordinate matrices and compute distances in one go
+      s_lat_matrix <- matrix(s_lat, nrow = length(s_lat), ncol = length(t_lat))
+      s_lon_matrix <- matrix(s_lon, nrow = length(s_lon), ncol = length(t_lon))
+      t_lat_matrix <- matrix(t_lat, nrow = length(s_lat), ncol = length(t_lat), byrow = TRUE)
+      t_lon_matrix <- matrix(t_lon, nrow = length(s_lon), ncol = length(t_lon), byrow = TRUE)
+
+      # Compute rough distances and filter in one step
+      lat_diff <- abs(t_lat_matrix - s_lat_matrix) * 111.32
+      lon_diff <- abs(t_lon_matrix - s_lon_matrix) * 111.32 *
+        cos((s_lat_matrix + t_lat_matrix) * pi / 360)
+      rough_valid_matrix <- sqrt(lat_diff^2 + lon_diff^2) < max_distance
+
+      # Extract coordinates for only valid combinations
+      valid_indices <- which(rough_valid_matrix, arr.ind = TRUE)
+      from_coords <- cbind(s_lon[valid_indices[, 1]], s_lat[valid_indices[, 1]])
+      to_coords <- cbind(t_lon[valid_indices[, 2]], t_lat[valid_indices[, 2]])
+      combinations <- data.frame(s_idx = valid_indices[, 1], t_idx = valid_indices[, 2])
+
+      # Clean up large matrices immediately (memory management handled here)
+      rm(
+        s_lat_matrix, s_lon_matrix, t_lat_matrix, t_lon_matrix, lat_diff, lon_diff,
+        rough_valid_matrix, valid_indices
       )
+      gc() # Force garbage collection
+    } else {
+      # Direct approach for smaller combinations (no pre-filtering)
+      combinations <- expand.grid(
+        s_idx = seq_along(s_lat),
+        t_idx = seq_along(t_lat)
+      )
+      from_coords <- cbind(s_lon[combinations$s_idx], s_lat[combinations$s_idx])
+      to_coords <- cbind(t_lon[combinations$t_idx], t_lat[combinations$t_idx])
+    }
 
-      # Find the index in lat, lon, stap of those equipment and target
-      s_id <- arrayInd(grt$s, sz)
-      t_id <- arrayInd(grt$t, sz)
+    # Clean up coordinate vectors and force garbage collection
+    rm(s_lat, s_lon, t_lat, t_lon, s_coords, t_coords)
+    gc()
 
-      # compute the groundspeed for all transition
-      dist <- geosphere_dist(
-        cbind(g$lon[s_id[, 2]], g$lat[s_id[, 1]]),
-        cbind(g$lon[t_id[, 2]], g$lat[t_id[, 1]])
-      ) / 1000 # m -> km
+    # Compute the exact groundspeed for remaining transitions
+    # Use memory-efficient distance calculation with automatic method selection
+    gs_abs <- graph_create_distance(from_coords, to_coords) / flight_duration[i_s]
 
-      # Compute groundspeed
+    # Filter the transition based on the groundspeed
+    id <- gs_abs < thr_gs
+
+    # Check that at least one transition exist
+    if (sum(id) == 0) {
+      # The minimal distance between grid cell is not from the center of the cell, but from one
+      # edge to the other (opposite) edge. So the minimal distance between cell should be reduce
+      # by the grid resolution. We still want to keep the distance 0 only to the actual same
+      # pixel, so we make the distance at a minimum of 1 if initial distance is greater than 1.
+
+      # Extract resolution values for source coordinates where distance > 0
+      dist_gt_0 <- dist > 0
+      source_indices <- combinations$s_idx[dist_gt_0]
+      source_coords_subset <- s_coords[source_indices, , drop = FALSE]
+      # Extract resolution for each source coordinate (lat, lon)
+      resolution_values <- resolution[cbind(source_coords_subset[, 1], source_coords_subset[, 2])]
+      dist[dist_gt_0] <- pmax(dist[dist_gt_0] - resolution_values, 1)
+
       gs_abs <- dist / flight_duration[i_s]
-
-      # filter the transition based on the groundspeed
       id <- gs_abs < thr_gs
 
-      # Check that at least one transition exist
       if (sum(id) == 0) {
-        # The minimal distance between grid cell is not from the center of the cell, but from one
-        # edge to the other (opposite) edge. So the minimal distance between cell should be reduce
-        # by the grid resolution. We still want to keep the distance 0 only to the actual same
-        # pixel, so we make the distance at a minimum of 1 if initial distance is greater than 1.
-        dist[dist > 0] <- pmax(dist[dist > 0] - resolution[s_id[dist > 0, 1]], 1)
-        gs_abs <- dist / flight_duration[i_s]
-        id <- gs_abs < thr_gs
-
-        if (sum(id) == 0) {
-          cli::cli_abort(c(
-            x = "Using the {.var thr_g} of {.val {thr_gs}} km/h provided with the exact distance of
+        cli::cli_abort(c(
+          x = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the exact distance of
             edges, there are not any node combinaison possible between stationary period
             {.val {stap_include[i_s]}} and {.val {stap_include[i_s + 1]}}.",
-            ">" = "Check flight duration, likelihood map (and labeling) as well as grid resolution."
-          ))
-        } else {
-          cli::cli_warn(c(
-            "!" = "Using the {.var thr_g} of {.val {thr_gs}} km/h provided with the exact distance
+          ">" = "Check flight duration, likelihood map (and labeling) as well as grid resolution."
+        ))
+      } else {
+        cli::cli_warn(c(
+          "!" = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the exact distance
             of edges, there are not any node combinaison possible between stationary period
             {.val {stap_include[i_s]}} and {.val {stap_include[i_s + 1]}}.",
-            "i" = "We modified the distance by using the minimal distance between cell rather than
+          "i" = "We modified the distance by using the minimal distance between cell rather than
             the distance between the center to fix this issue.",
-            ">" = "Consider using a grid with a higher resolution."
-          ))
-        }
+          ">" = "Consider using a grid with a higher resolution."
+        ))
       }
+    }
 
-      # Filter for only transitions with smaller groundspeed
-      grt <- grt[id, ]
+    # Compute the bearing of the trajectory
+    gs_bearing <- graph_create_bearing(
+      from_coords[id, , drop = FALSE],
+      to_coords[id, , drop = FALSE]
+    )
 
-      # Compute the bearing of the trajectory
-      gs_bearing <- geosphere_bearing(
-        cbind(g$lon[s_id[id, 2]], g$lat[s_id[id, 1]]),
-        cbind(g$lon[t_id[id, 2]], g$lat[t_id[id, 1]])
-      )
-      # bearing is NA if gs==0, fix for computing the complex representation
-      gs_bearing[is.na(gs_bearing)] <- 0
+    # Convert bearing to radians and adjust for GeoPressureR convention
+    # GeoPressureR uses 0° = North, 90° = East
+    gs_bearing <- ((450 - gs_bearing) %% 360) * pi / 180
 
-      # save groundspeed in complex notation
-      gs_arg <- (450 - gs_bearing) %% 360
-      grt$gs <- gs_abs[id] * cos(gs_arg * pi / 180) +
-        1i * gs_abs[id] * sin(gs_arg * pi / 180)
+    # Create the final result with proper node indices
+    gr[[i_s]] <- data.frame(
+      s = as.integer(nds_i_s[combinations$s_idx[id]] + (i_s - 1) * nll),
+      t = as.integer(nds_i_s_1[combinations$t_idx[id]] + i_s * nll),
+      gs = gs_abs[id] * cos(gs_bearing) + 1i * gs_abs[id] * sin(gs_bearing)
+    )
 
-      return(grt)
-    }, seed = TRUE)
+    # Clean up remaining variables from this iteration
+    rm(gs_bearing, from_coords, to_coords)
+    gc()
 
-    # Update progress bar
     if (!quiet) {
       cli::cli_progress_update()
     }
@@ -336,25 +429,36 @@ graph_create <- function(tag,
     cli::cli_progress_done()
   }
 
-  # Retrieve the graph
-  gr <- future::value(f)
-
-  # Explicitly close multisession workers by switching plan
-  future::plan(future::sequential)
-
   # Prune
   gr <- graph_create_prune(gr, quiet = quiet)
 
   if (!quiet) {
-    cli::cli_progress_step("Format graph output")
+    cli::cli_progress_step("Format graph output", msg_done = "Graph formatted")
   }
 
-  # Convert gr to a graph list
-  graph <- as.list(do.call("rbind", gr))
-  # nolint start
-  attr(graph, "out.attrs") <- NULL
-  # nolint end
-  graph <- structure(graph, class = "graph")
+  # Convert gr to a graph list using pre-allocation for efficiency
+  total_rows <- sum(sapply(gr, nrow))
+
+  # Pre-allocate vectors
+  s_vec <- integer(total_rows)
+  t_vec <- integer(total_rows)
+  gs_vec <- complex(total_rows)
+
+  # Fill vectors in chunks
+  start_idx <- 1
+  for (i in seq_along(gr)) {
+    end_idx <- start_idx + nrow(gr[[i]]) - 1
+    s_vec[start_idx:end_idx] <- gr[[i]]$s
+    t_vec[start_idx:end_idx] <- gr[[i]]$t
+    gs_vec[start_idx:end_idx] <- gr[[i]]$gs
+    start_idx <- end_idx + 1
+  }
+
+  # Create graph list with proper class
+  graph <- structure(
+    list(s = s_vec, t = t_vec, gs = gs_vec),
+    class = "graph"
+  )
 
   # Add observation model as matrix
   graph$obs <- do.call(c, lk_norm)
@@ -382,6 +486,10 @@ graph_create <- function(tag,
   assertthat::assert_that(all(graph$equipment %in% graph$s))
   assertthat::assert_that(all(graph$retrieval %in% graph$t))
 
+  if (!quiet) {
+    cli::cli_progress_done()
+  }
+
   return(graph)
 }
 
@@ -405,8 +513,8 @@ graph_create_prune <- function(gr, quiet = FALSE) {
     # nolint start
     i <- 0
     cli::cli_progress_step(
-      "Prune the graph {i}/{(length(gr) - 1) * 2} ",
-      msg_done = "Prune the graph"
+      "Pruning the graph: {i}/{(length(gr) - 1) * 2} transitions (forward and backward).",
+      msg_done = "Graph pruned"
     )
     # nolint end
   }

@@ -102,6 +102,9 @@ edge_add_wind <- function(
   assertthat::assert_that(all(edge_s[, 1] >= 1 & edge_s[, 1] <= g$dim[1]))
   assertthat::assert_that(all(edge_s[, 2] >= 1 & edge_s[, 2] <= g$dim[2]))
 
+  rm(tag_graph)
+  gc()
+
   # Prepare the matrix of speed to return
   if (return_averaged_variable) {
     var <- matrix(NA, nrow = nrow(edge_s), ncol = length(variable))
@@ -148,7 +151,6 @@ edge_add_wind <- function(
     # stopovers.
     ratio_stap <- as.matrix(c(0, cumsum(fl_s$duration) / sum(fl_s$duration)))
 
-
     if (return_averaged_variable) {
       # Prepare the u- and v- windspeed for each flight (row) and edge (col)
       var_stap <- list()
@@ -190,6 +192,11 @@ edge_add_wind <- function(
       lon <- ncdf4::ncvar_get(nc, "longitude")
       dlon <- lon[2] - lon[1]
 
+      # Clean up netCDF file from memory
+      ncdf4::nc_close(nc)
+      rm(nc)
+      gc()
+
       # Find the start and end latitude and longitude of each edge
       lat_s <- g$lat[edge_s[st_id, 1]] +
         ratio_stap[i_fl] * (g$lat[edge_t[st_id, 1]] - g$lat[edge_s[st_id, 1]])
@@ -223,6 +230,9 @@ edge_add_wind <- function(
       w2 <- matrix(w, nrow = length(dlat_se), ncol = length(w), byrow = TRUE)
       lat_int <- lat_s + w2 * replicate(length(w), dlat_se)
       lon_int <- lon_s + w2 * replicate(length(w), dlon_se)
+
+      rm(w2, dlat_se, dlon_se, w, lat_s, lon_s, lat_e, lon_e)
+      gc()
 
       if (TRUE) { # we use w for both return_averaged_variable TRUE and FALSE
         # As we are interesting in the average windspeed experienced during the entire flight, we
@@ -273,6 +283,9 @@ edge_add_wind <- function(
       if (!interp_spatial_linear) {
         lat_int_ind <- matrix(match(as.vector(round(lat_int * 4) / 4), lat), nrow = nrow(lat_int))
         lon_int_ind <- matrix(match(as.vector(round(lon_int * 4) / 4), lon), nrow = nrow(lon_int))
+        # Clean up lat_int and lon_int as they're no longer needed for non-linear interpolation
+        rm(lat_int, lon_int)
+        gc()
       }
 
       # Loop through the 1hr interval
@@ -408,11 +421,17 @@ edge_add_wind <- function(
         var[st_id, var_i] <- colSums(var_stap[[var_i]] * fl_s$duration / sum(fl_s$duration))
       }
     }
-
     if (!quiet) {
       cli::cli_progress_update(set = sum(table_edge_s[seq(1, i_stap)]), force = TRUE)
     }
   }
+
+  # Final cleanup
+  rm(list_st_id, flight, g, var_stap, fl_s, st_id, ratio_stap)
+  if (!quiet) {
+    rm(table_edge_s)
+  }
+  gc()
 
   if (!return_averaged_variable) {
     var <- do.call(rbind, unlist(unlist(var, recursive = FALSE), recursive = FALSE))
