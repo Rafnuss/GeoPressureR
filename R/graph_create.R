@@ -352,7 +352,7 @@ graph_create <- function(tag,
     }
 
     # Clean up coordinate vectors and force garbage collection
-    rm(s_lat, s_lon, t_lat, t_lon, s_coords, t_coords)
+    rm(s_lat, s_lon, t_lat, t_lon, t_coords)
     gc()
 
     # Compute the exact groundspeed for remaining transitions
@@ -370,14 +370,13 @@ graph_create <- function(tag,
       # pixel, so we make the distance at a minimum of 1 if initial distance is greater than 1.
 
       # Extract resolution values for source coordinates where distance > 0
-      dist_gt_0 <- dist > 0
-      source_indices <- combinations$s_idx[dist_gt_0]
+      gs_abs_gt_0 <- gs_abs > 0
+      source_indices <- combinations$s_idx[gs_abs_gt_0]
       source_coords_subset <- s_coords[source_indices, , drop = FALSE]
       # Extract resolution for each source coordinate (lat, lon)
       resolution_values <- resolution[cbind(source_coords_subset[, 1], source_coords_subset[, 2])]
-      dist[dist_gt_0] <- pmax(dist[dist_gt_0] - resolution_values, 1)
+      gs_abs[gs_abs_gt_0] <- pmax(gs_abs[gs_abs_gt_0] - resolution_values / flight_duration[i_s], 1)
 
-      gs_abs <- dist / flight_duration[i_s]
       id <- gs_abs < thr_gs
 
       if (sum(id) == 0) {
@@ -417,7 +416,7 @@ graph_create <- function(tag,
     )
 
     # Clean up remaining variables from this iteration
-    rm(gs_bearing, from_coords, to_coords)
+    rm(gs_bearing, from_coords, to_coords, s_coords)
     gc()
 
     if (!quiet) {
