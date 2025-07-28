@@ -282,23 +282,6 @@ graph_create <- function(tag,
 
 
   for (i_s in seq_len(n_transitions)) {
-    # Memory monitoring for debugging
-    if (!quiet) {
-      mem_used <- if (Sys.info()["sysname"] == "Darwin") {
-        # Get memory info on macOS
-        tryCatch(
-          {
-            mem_info <- system("ps -o rss= -p $(echo $$)", intern = TRUE)
-            paste0(round(as.numeric(mem_info) / 1024), " MB")
-          },
-          error = function(e) "unknown"
-        )
-      } else {
-        paste0(round(gc()[2, 2]), " MB")
-      }
-      cat("Processing transition", i_s, "/", n_transitions, "- Memory used:", mem_used, "\n")
-    }
-
     nds_i_s <- which(nds[[i_s]])
     nds_i_s_1 <- which(nds[[i_s + 1]])
 
