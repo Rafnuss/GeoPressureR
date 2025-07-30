@@ -93,17 +93,18 @@ param_create <- function(id, default = FALSE, ...) {
         body_frontal_area = formals(bird_create)$body_frontal_area
       ),
       graph_add_wind = list(
-        rounding_interval = formals(graph_add_wind)$rounding_interval,
-        interp_spatial_linear = formals(graph_add_wind)$interp_spatial_linear,
         thr_as = formals(graph_add_wind)$thr_as,
-        file = formals(graph_add_wind)$file
+        file = formals(edge_add_wind)$file,
+        rounding_interval = formals(edge_add_wind)$rounding_interval,
+        interp_spatial_linear = formals(edge_add_wind)$interp_spatial_linear
       ),
       graph_simulation = list(
         nj = formals(graph_simulation)$nj
       ),
       pressurepath_create = list(
         variable = formals(pressurepath_create)$variable,
-        solar_dep = formals(pressurepath_create)$solar_dep
+        solar_dep = formals(pressurepath_create)$solar_dep,
+        era5_dataset = formals(pressurepath_create)$era5_dataset
       ),
       GeoPressureR_version = utils::packageVersion("GeoPressureR")
     )
