@@ -232,13 +232,13 @@ pressurepath_create <- function(tag,
 
   # If variable requested does not exist, the API return an empty list, which we
   # convert here as a NA
-  out <- as.data.frame(lapply(resp_data, function(col) {
-    if (length(col) == 0) {
-      NA
-    } else {
-      col
-    }
-  }))
+  out <- as.data.frame(lapply(resp_data, \(x) if (length(x) > 0) x else NA))
+
+  # Check if the response is empty
+  cols_with_na <- names(out)[vapply(out, function(x) any(is.na(x)), logical(1))]
+  if (length(cols_with_na) > 0) {
+    cli::cli_warn("The following columns contain `NA` values: {.val {cols_with_na}}")
+  }
 
   if (!quiet) cli::cli_progress_step("Post-process pressurepath")
 
@@ -254,7 +254,7 @@ pressurepath_create <- function(tag,
   )
 
   # Convert pressure Pa in hPa
-  if ("surface_pressure" %in% names(pressurepath)) {
+  if ("surface_pressure" %in% names(pressurepath) && !all(is.na(pressurepath$surface_pressure))) {
     pressurepath$surface_pressure <- pressurepath$surface_pressure / 100
 
     # Compute surface_pressure_norm
@@ -269,8 +269,14 @@ pressurepath_create <- function(tag,
     pp$stapelev_label[pp$label == "discard"] <- 0
 
     agg <- merge(
-      stats::aggregate(surface_pressure ~ stapelev_label, data = pp, FUN = mean),
-      stats::aggregate(pressure_tag ~ stapelev_label, data = pp, FUN = mean)
+      stats::aggregate(surface_pressure ~ stapelev_label,
+        data = pp,
+        FUN = \(x) mean(x, na.rm = TRUE)
+      ),
+      stats::aggregate(pressure_tag ~ stapelev_label,
+        data = pp,
+        FUN = \(x) mean(x, na.rm = TRUE)
+      )
     )
     id <- match(pp$stapelev, agg$stapelev)
     pressurepath$surface_pressure_norm <- pressurepath$surface_pressure -
