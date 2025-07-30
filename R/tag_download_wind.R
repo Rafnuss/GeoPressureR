@@ -62,7 +62,7 @@ tag_download_wind <- function(
     file = \(stap_id) glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
     overwrite = FALSE,
     workers = 19,
-    cds_token = deprecated(),
+    cds_token = lifecycle::deprecated(),
     ...) {
   if (lifecycle::is_present(cds_token)) {
     lifecycle::deprecate_warn(

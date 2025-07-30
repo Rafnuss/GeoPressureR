@@ -8,7 +8,7 @@ message: 'To cite package "GeoPressureR" in publications use:'
 type: software
 license: GPL-3.0-or-later
 title: 'GeoPressureR: Global Positioning by Atmospheric Pressure'
-version: 3.4.2
+version: 3.4.3
 doi: 10.5281/zenodo.7754457
 abstract: R package to determine the position and trajectory of a bird based on light-weight
   data-logger measuring at lease atmospheric pressure.

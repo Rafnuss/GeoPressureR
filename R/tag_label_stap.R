@@ -150,6 +150,10 @@ tag_label_stap <- function(tag,
                               {warning_flight_duration} hour{?s}."))
     }
   }
+
+  tag$param$tag_label$warning_flight_duration <- warning_flight_duration
+  tag$param$tag_label$warning_stap_duration <- warning_stap_duration
+
   return(tag)
 }
 

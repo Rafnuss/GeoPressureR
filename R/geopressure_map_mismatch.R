@@ -67,7 +67,6 @@ geopressure_map_mismatch <- function(tag,
   req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/map/") |>
     httr2::req_body_json(body) |>
     httr2::req_timeout(timeout) |>
-    httr2::req_retry(max_tries = 3) |>
     httr2::req_error(body = function(resp) {
       if (debug) {
         print(httr2::resp_body_json(resp))
@@ -143,7 +142,6 @@ geopressure_map_mismatch <- function(tag,
       # Request URLS
       req <- httr2::request(urls[i_u]) |>
         httr2::req_timeout(timeout) |>
-        httr2::req_retry(max_tries = 3) |>
         httr2::req_error(is_error = function(resp) FALSE)
 
       if (debug) {

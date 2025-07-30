@@ -16,11 +16,11 @@
 #'   tag_labelled <- twilight_label_read(tag)
 #' })
 #'
-#' plot(tag, type = "twilight") + ggplot2::ggtitle("Before label")
+#' plot(tag, type = "twilight") |> plotly::layout(title = list(text = "Before label"))
 #'
 #' str(tag_labelled$twilight)
 #'
-#' plot(tag_labelled, type = "twilight") + ggplot2::ggtitle("After label")
+#' plot(tag_labelled, type = "twilight") |> plotly::layout(title = list(text = "After label"))
 #' @export
 twilight_label_read <- function(
     tag,

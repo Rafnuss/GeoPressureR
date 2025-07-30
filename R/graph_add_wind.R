@@ -14,7 +14,7 @@
 #'
 #' @param graph a GeoPressureR graph object.
 #' @param thr_as threshold of airspeed (km/h).
-#' @inheritParams edge_add_wind
+#' @inheritDotParams edge_add_wind -tag_graph -edge_s -edge_t -variable -return_averaged_variable
 #'
 #' @return a `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
@@ -28,12 +28,8 @@
 #' @export
 graph_add_wind <- function(
     graph,
-    pressure,
-    rounding_interval = 60,
-    interp_spatial_linear = FALSE,
-    file = \(stap_id) glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
     thr_as = Inf,
-    quiet = FALSE) {
+    ...) {
   graph_assert(graph, "full")
   assertthat::assert_that(is.numeric(thr_as))
   assertthat::assert_that(length(thr_as) == 1)
@@ -43,13 +39,9 @@ graph_add_wind <- function(
   uv <- edge_add_wind(graph,
     edge_s = graph$s,
     edge_t = graph$t,
-    pressure = pressure,
     variable = c("u", "v"),
-    rounding_interval = rounding_interval,
-    interp_spatial_linear = interp_spatial_linear,
     return_averaged_variable = TRUE,
-    file = file,
-    quiet = quiet
+    ...
   )
 
   # save windspeed in complex notation and convert from m/s to km/h
@@ -95,11 +87,24 @@ graph_add_wind <- function(
   graph$retrieval <- graph$retrieval[graph$retrieval %in% graph$t]
 
   # Update param
+  dots <- list(...)
   graph$param$graph_add_wind$thr_as <- thr_as
-  attr(file, "srcref") <- NULL
-  attr(file, "srcfile") <- NULL
-  environment(file) <- baseenv()
-  graph$param$graph_add_wind$file <- file
+
+  # Handle file parameter if provided
+  if ("file" %in% names(dots)) {
+    file <- dots$file
+    attr(file, "srcref") <- NULL
+    attr(file, "srcfile") <- NULL
+    environment(file) <- baseenv()
+    graph$param$graph_add_wind$file <- file
+  } else {
+    # Use default file function if not provided
+    file <- \(stap_id) glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc")
+    attr(file, "srcref") <- NULL
+    attr(file, "srcfile") <- NULL
+    environment(file) <- baseenv()
+    graph$param$graph_add_wind$file <- file
+  }
 
   return(graph)
 }

@@ -71,6 +71,6 @@ tag_label_read <- function(tag,
     }
   }
 
-  tag$param$label_file <- file
+  tag$param$tag_label$file <- file
   return(tag)
 }

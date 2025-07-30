@@ -13,7 +13,7 @@ tag_download_wind(
     glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
   overwrite = FALSE,
   workers = 19,
-  cds_token = deprecated(),
+  cds_token = lifecycle::deprecated(),
   ...
 )
 }

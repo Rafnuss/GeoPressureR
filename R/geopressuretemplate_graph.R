@@ -37,10 +37,7 @@ geopressuretemplate_graph <- function(
   graph <- do.call(graph_create, c(
     list(
       tag = tag,
-      quiet = quiet,
-      geosphere_dist = geosphere::distHaversine,
-      geosphere_bearing = geosphere::bearing,
-      workers = 1
+      quiet = quiet
     ),
     config$graph_create
   ))

@@ -9,10 +9,10 @@ graph_create(
   thr_likelihood = 0.99,
   thr_gs = 150,
   likelihood = NULL,
-  geosphere_dist = geosphere::distHaversine,
-  geosphere_bearing = geosphere::bearing,
-  workers = 1,
-  quiet = FALSE
+  quiet = FALSE,
+  geosphere_dist = lifecycle::deprecated(),
+  geosphere_bearing = lifecycle::deprecated(),
+  workers = lifecycle::deprecated()
 )
 }
 \arguments{
@@ -27,19 +27,16 @@ value are \code{map_pressure}, \code{map_light}, \code{map_pressure_mse}, \code{
 \code{map_pressure_mse}, \code{mask_water}. Default \code{NA} is to take the product of \code{map_pressure} and
 \code{map_light}, or if not available, taking the first of the possible values.}
 
-\item{geosphere_dist}{function to compute the distance. Usually, either
-\code{geosphere::distHaversine} (fast) or \code{geosphere::distGeo} (precise but slow). See
-https://rspatial.org/raster/sphere/2-distance.html for more options and details.}
-
-\item{geosphere_bearing}{function to compute the bearing. Either \code{geosphere::bearing} (default)
-or \code{geosphere::bearingRhumb}. See https://rspatial.org/raster/sphere/3-direction.html#bearing
-for details.}
-
-\item{workers}{number of workers used in the computation of edges ground speed. More workers
-(up to the limit \code{future::availableCores()}) usually makes the computation faster, but because
-the the number of edges is large, memory will often limit the computation.}
-
 \item{quiet}{logical to hide messages about the progress.}
+
+\item{geosphere_dist}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This argument is no longer used.
+Distance calculations now use a custom memory-efficient Haversine implementation.}
+
+\item{geosphere_bearing}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This argument is no longer used.
+Bearing calculations now use a custom memory-efficient implementation.}
+
+\item{workers}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This argument is no longer used.
+Parallel processing has been removed to avoid memory issues.}
 }
 \value{
 Graph as a list

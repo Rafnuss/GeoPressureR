@@ -40,7 +40,7 @@ print.param <- function(x, ...) {
 
 
   cli::cli_h3("Tag label {.fun tag_label}")
-  bullets(param$tag_label, "label_file")
+  bullets(param$tag_label, "file")
 
   cli::cli_h3("Stationary period definition {.fun tag_set_map}")
   bullets(param$tag_set_map, "extent")
@@ -73,8 +73,8 @@ print.param <- function(x, ...) {
   bullets(param$graph_create, "thr_gs")
 
   cli::cli_h3("Movement model & wind {.fun graph_add_wind} {.fun graph_movement}")
-  bullets(param$graph_set_movement, "thr_as")
-  bullets(param$graph_set_movement, "file")
+  bullets(param$graph_add_wind, "thr_as")
+  bullets(param$graph_add_wind, "file")
   bullets(param$graph_set_movement, "type")
   bullets(param$graph_set_movement, "method")
   bullets(param$graph_set_movement, "shape")

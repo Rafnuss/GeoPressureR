@@ -40,7 +40,7 @@ graph_status <- function(graph) {
 
   assertthat::assert_that(assertthat::has_name(graph, c(
     "s", "t", "gs", "obs", "sz", "stap",
-    "equipment", "retrieval", "mask_water"
+    "equipment", "retrieval"
   )))
 
   status <- c()
