@@ -31,8 +31,7 @@ Same data logger list than input \code{tag}, but with the column \code{label} fi
 This function uses acceleration data to classify migratory flights. The function uses a
 \code{k=2} mean clustering (\code{\link[=kmeans]{kmeans()}}) to identify high activity periods. Periods of high activity
 lasting more than \code{min_duration} are then considered to be migratory flight.
-}
-\details{
+
 Additionally, we perform a post-processing step to improve the classification of low-activity
 period happening during a migration flight (e.g. gliding phase):
 \enumerate{
