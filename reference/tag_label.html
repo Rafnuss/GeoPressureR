@@ -29,7 +29,7 @@ tag_label_write() and use tag_label_auto() if acceleration data exists."><meta p
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,7 @@ tag_label_write() and use tag_label_auto() if acceleration data exists."><meta p
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Label a <code>tag</code> object</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.4.2/R/tag_label.R" class="external-link"><code>R/tag_label.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/tag_label.R" class="external-link"><code>R/tag_label.R</code></a></small>
       <div class="d-none name"><code>tag_label.Rd</code></div>
     </div>
 
@@ -188,7 +188,7 @@ grouped by elevation layer (<code>elev_*</code>)</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ param               :List of 4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ id                  : chr "18LX"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ GeoPressureR_version:Classes 'package_version', 'numeric_version'  hidden list of 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int [1:3] 3 4 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int [1:3] 3 4 3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ tag_create          :List of 6</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ pressure_file            : chr "./data/raw-tag/18LX/18LX_20180725.pressure"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ light_file               : chr "./data/raw-tag/18LX/18LX_20180725.glf"</span>
@@ -196,7 +196,10 @@ grouped by elevation layer (<code>elev_*</code>)</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ temperature_external_file: chr "./data/raw-tag/18LX/18LX_20180725.temperature"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ manufacturer             : chr "soi"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ directory                : 'glue' chr "./data/raw-tag/18LX"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ label_file          : 'glue' chr "./data/tag-label/18LX-labeled.csv"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ tag_label           :List of 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ file                   : 'glue' chr "./data/tag-label/18LX-labeled.csv"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ warning_flight_duration: num 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ warning_stap_duration  : num 6</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "class")= chr "param"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ pressure            :'data.frame':	672 obs. of  4 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ date   : POSIXct[1:672], format: "2017-07-27 00:00:00" "2017-07-27 00:30:00" ...</span>

@@ -23,7 +23,7 @@ illustration on how to use it."><meta property="og:image" content="https://rapha
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@ illustration on how to use it."><meta property="og:image" content="https://rapha
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Compute windspeed and airspeed on a <code>graph</code></h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.4.2/R/graph_add_wind.R" class="external-link"><code>R/graph_add_wind.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/graph_add_wind.R" class="external-link"><code>R/graph_add_wind.R</code></a></small>
       <div class="d-none name"><code>graph_add_wind.Rd</code></div>
     </div>
 
@@ -59,16 +59,7 @@ illustration on how to use it.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">graph_add_wind</span><span class="op">(</span></span>
-<span>  <span class="va">graph</span>,</span>
-<span>  <span class="va">pressure</span>,</span>
-<span>  rounding_interval <span class="op">=</span> <span class="fl">60</span>,</span>
-<span>  interp_spatial_linear <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  file <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">stap_id</span><span class="op">)</span></span>
-<span>    <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"</span><span class="op">)</span>,</span>
-<span>  thr_as <span class="op">=</span> <span class="cn">Inf</span>,</span>
-<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">graph_add_wind</span><span class="op">(</span><span class="va">graph</span>, thr_as <span class="op">=</span> <span class="cn">Inf</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -79,33 +70,33 @@ illustration on how to use it.</p>
 <dd><p>a GeoPressureR graph object.</p></dd>
 
 
-<dt id="arg-pressure">pressure<a class="anchor" aria-label="anchor" href="#arg-pressure"></a></dt>
-<dd><p>pressure measurement of the associated <code>tag</code> data used to estimate the pressure
-level (i.e., altitude) of the bird during the flights. This data.frame needs to contain <code>date</code> as
-POSIXt and <code>value</code> in hPa.</p></dd>
-
-
-<dt id="arg-rounding-interval">rounding_interval<a class="anchor" aria-label="anchor" href="#arg-rounding-interval"></a></dt>
-<dd><p>temporal resolution on which to query the variable (min). Default is to
-match ERA5 native resolution (1hr).</p></dd>
-
-
-<dt id="arg-interp-spatial-linear">interp_spatial_linear<a class="anchor" aria-label="anchor" href="#arg-interp-spatial-linear"></a></dt>
-<dd><p>logical to interpolate the variable linearly over space, if <code>FALSE</code>
-takes the nearest neighbour. ERA5 native resolution is 0.25°</p></dd>
-
-
-<dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
-<dd><p>absolute or relative path of the ERA5 wind data file to be downloaded. Function
-taking as single argument the stationary period identifier.</p></dd>
-
-
 <dt id="arg-thr-as">thr_as<a class="anchor" aria-label="anchor" href="#arg-thr-as"></a></dt>
 <dd><p>threshold of airspeed (km/h).</p></dd>
 
 
-<dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Arguments passed on to <code><a href="edge_add_wind.html">edge_add_wind</a></code></p><dl><dt><code>pressure</code></dt>
+<dd><p>pressure measurement of the associated <code>tag</code> data used to estimate the pressure
+level (i.e., altitude) of the bird during the flights. This data.frame needs to contain <code>date</code> as
+POSIXt and <code>value</code> in hPa.</p></dd>
+
+    <dt><code>rounding_interval</code></dt>
+<dd><p>temporal resolution on which to query the variable (min). Default is to
+match ERA5 native resolution (1hr).</p></dd>
+
+    <dt><code>interp_spatial_linear</code></dt>
+<dd><p>logical to interpolate the variable linearly over space, if <code>FALSE</code>
+takes the nearest neighbour. ERA5 native resolution is 0.25°</p></dd>
+
+    <dt><code>quiet</code></dt>
 <dd><p>logical to hide messages about the progress</p></dd>
+
+    <dt><code>file</code></dt>
+<dd><p>absolute or relative path of the ERA5 wind data file to be downloaded. Function
+taking as single argument the stationary period identifier.</p></dd>
+
+
+</dl></dd>
 
 </dl></div>
     <div class="section level2">
