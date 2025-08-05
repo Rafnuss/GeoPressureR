@@ -11,7 +11,7 @@ bird_create(
   wing_aspect = NULL,
   wing_area = NULL,
   body_frontal_area = NULL,
-  species_name = deprecated()
+  species_name = lifecycle::deprecated()
 )
 }
 \arguments{

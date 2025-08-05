@@ -143,7 +143,6 @@ path2elevation <- function(path,
 
   req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/elevationPath/") |>
     httr2::req_body_json(body, digit = 5) |>
-    httr2::req_retry(max_tries = 3) |>
     httr2::req_timeout(timeout)
 
   if (debug) {
