@@ -40,6 +40,7 @@ Using the examples, this user guide takes you through each step of the
 analysis in detail.
 
 <p align="center">
+
 <a href="https://raphaelnussbaumer.com/GeoPressureManual/"><img src="https://github.com/Rafnuss/GeoPressureManual/raw/main/assets/cover.png" style="margin: 0 1rem 0 1rem;box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);" align="center" width="250" height="328"></a>
 </p>
 
@@ -63,7 +64,27 @@ code sharing and troubleshooting, data archiving, work reproducibility.
 
 ## How to cite?
 
-Get citation information in R doing `citation("GeoPressureR")`.
-
 Make sure to cite the correct reference (R package, papers of the
-underlying method and/or user guide) according to your use.
+underlying methods and/or user manual) according to your use:
+
+> Nussbaumer, R., & Gravey, M. (2022). *GeoPressureR: Global positioning
+> by atmospheric pressure.* Zenodo.
+> <https://doi.org/10.5281/zenodo.7754457>. Available at:
+> <https://github.com/Rafnuss/GeoPressureR>
+
+> Nussbaumer, R., Gravey, M., Briedis, M., & Liechti, F. (2023). Global
+> positioning with animal-borne pressure sensors. *Methods in Ecology
+> and Evolution, 14*(4), 1104–1117.
+> <https://doi.org/10.1111/2041-210X.14043>
+
+> Nussbaumer, R., Gravey, M., Briedis, M., Liechti, F., & Sheldon, D.
+> (2023). Reconstructing bird trajectories from pressure and wind data
+> using a highly optimised hidden Markov model. *Methods in Ecology and
+> Evolution, 14*(4), 1–32. <https://doi.org/10.1111/2041-210X.14082>
+
+> Nussbaumer, R., & Nussbaumer, A. (2024). *GeoPressureManual: Learn how
+> to use GeoPressureR with examples.* Zenodo.
+> <https://doi.org/10.5281/zenodo.10799355>. Available at:
+> <https://github.com/Rafnuss/GeoPressureManual>
+
+Get citation information in R with `citation("GeoPressureR")`.
