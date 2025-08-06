@@ -134,6 +134,7 @@ reference:
   - geopressuretemplate_graph
   - geopressuretemplate_pressurepath
   - geopressuretemplate_config
+  - load_interim
 - title: Param
   desc: List of parameters used in `tag` and `graph`.
   contents:
