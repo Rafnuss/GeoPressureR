@@ -37,7 +37,7 @@ tag_create_prestag <- function(id,
   # df2$date = timestamps[data_raw$V3!=""]
   # df = rbind(df, df2)
 
-  # Set to NA any negtive value
+  # Set to NA any negative value
   df$value[df$value < 0] <- NA
 
   # Create sensor data.frame

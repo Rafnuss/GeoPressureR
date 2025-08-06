@@ -21,7 +21,7 @@ vector of type.}
 a plot, ggplotly or leaflet object.
 }
 \description{
-This function plot a GeoPressureR \code{tag} object as a time series or a map.
+This function plots a GeoPressureR \code{tag} object as a time series or a map.
 
 By default, \code{type} is determined in the following order of preference according to availability:
 \code{c("map_pressure", "map_light")}, \code{"map_pressure"}, \code{"map_light"}, \code{"pressure"}.

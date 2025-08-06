@@ -26,7 +26,7 @@ a \code{tag} list containing a new data.frame \code{twilight} with columns:
 }
 }
 \description{
-This function estimate twilight (i.e., datetime of sunrise and sunset) by searching for the first
+This function estimates twilight (i.e., datetime of sunrise and sunset) by searching for the first
 and last light of the day which is defined by the light exceeds or
 falls below the light threshold \code{twl_thr}.
 }

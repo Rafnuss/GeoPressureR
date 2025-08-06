@@ -6,7 +6,7 @@
 #' equivalent of the measurement of variables by sensors equipped on the bird moving along a
 #' specific `path`.
 #'
-#' Any ERA variables can be retrieve but the functions is most notably used to retrieve ERA5
+#' Any ERA variables can be retrieved but the function is most notably used to retrieve ERA5
 #' surface pressure to then be able to compare it to the pressure measured by the tag, and
 #' potentially adjust labelling tag data.
 #'
@@ -52,7 +52,7 @@
 #' sunrise and sunset. If `NULL`, does not compute sunrise sunset.
 #' @param era5_dataset select the dataset to use: `"single-levels"` for [ERA5 hourly data on single
 #' levels](https://doi.org/10.24381/cds.adbb2d47), `"land"` for [ERA5-Land hourly data](
-#' https://doi.org/10.24381/cds.e2161bac) or `"both"` to use land where available and sing-levels
+#' https://doi.org/10.24381/cds.e2161bac) or `"both"` to use land where available and single-levels
 #' otherwise (i.e. over water). LAND has greater precision but is not available on water. Using a
 #' single one makes the query faster.
 #' @param preprocess logical to pre-process pressure data with `geopressure_map_preprocess()`.

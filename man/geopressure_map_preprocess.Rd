@@ -16,7 +16,7 @@ estimated based on twilight or hard defined by the known location \verb{stap$kno
 Pressure data.frame without flight and discarded values, on a 1 hour resolution.
 }
 \description{
-Performs the follow pre-processing for the pressure data.frame:
+Performs the following pre-processing for the pressure data.frame:
 \enumerate{
 \item Remove discarded and flight pressure measurements.
 \item Group pressure measurements by stationary period and elevation level.

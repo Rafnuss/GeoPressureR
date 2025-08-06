@@ -1,7 +1,7 @@
 #' Plot a `tag` object
 #'
 #' @description
-#' This function plot a GeoPressureR `tag` object as a time series or a map.
+#' This function plots a GeoPressureR `tag` object as a time series or a map.
 #'
 #' By default, `type` is determined in the following order of preference according to availability:
 #' `c("map_pressure", "map_light")`, `"map_pressure"`, `"map_light"`, `"pressure"`.
@@ -206,7 +206,7 @@ plot_tag_pressure <- function(tag,
     )
     # Only keep the 1 hours difference
     pres_diff <- pres_diff[pres_diff$date_diff == 1, ]
-    # Only keep if belonging to the the same stapelev
+    # Only keep if belonging to the same stapelev
     pres_diff <- pres_diff[pres_diff$same_stapelev, ]
     # Remove diff overlapping between stationary periods/flight
     pres_diff <- pres_diff[(pres_diff$stap_id %% 1) == 0 & pres_diff$stap_id != 0, ]

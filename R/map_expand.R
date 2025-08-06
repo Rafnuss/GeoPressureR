@@ -5,7 +5,7 @@
 #' and constructs various possible spatial variable of interest for the spatial grid (e.g., grid
 #' dimension, latitude and longitude...)
 #'
-#' This functions is used in multiple functions of GeoPressureR to allow to only store `extent` and
+#' This function is used in multiple functions of GeoPressureR to allow to only store `extent` and
 #' `scale` in `tag` and `graph` while having access to all spatial variables anywhere anytime.
 #'
 #' @inheritParams tag_set_map

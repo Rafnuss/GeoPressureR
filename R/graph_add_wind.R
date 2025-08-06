@@ -16,7 +16,7 @@
 #' @param thr_as threshold of airspeed (km/h).
 #' @inheritDotParams edge_add_wind -tag_graph -edge_s -edge_t -variable -return_averaged_variable
 #'
-#' @return a `graph` object with windspeed and airspeed as `ws` and `as` respectively.
+#' @return A `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
 #' @family graph, movement
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel

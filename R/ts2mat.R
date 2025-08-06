@@ -1,4 +1,4 @@
-#' Format timeserie dataframe into a matrix
+#' Format timeserie data.frame into a matrix
 #'
 #' @param ts data.frame of a `tag`, containing at least `date` and `value`.
 #' @param value column name to extract

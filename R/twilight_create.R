@@ -1,7 +1,7 @@
 #' Estimate twilights from light data
 #'
 #' @description
-#' This function estimate twilight (i.e., datetime of sunrise and sunset) by searching for the first
+#' This function estimates twilight (i.e., datetime of sunrise and sunset) by searching for the first
 #' and last light of the day which is defined by the light exceeds or
 #' falls below the light threshold `twl_thr`.
 #'

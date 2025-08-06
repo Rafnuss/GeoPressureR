@@ -12,7 +12,7 @@
 #' @param return_numeric logical to return the duration as a numeric rather than with a duration
 #' format.
 #'
-#' @return vector of duration
+#' @return Vector of duration
 #'
 #' @examples
 #' # Create fake stap

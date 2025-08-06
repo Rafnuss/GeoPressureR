@@ -2,7 +2,7 @@
 % Please edit documentation in R/ts2mat.R
 \name{ts2mat}
 \alias{ts2mat}
-\title{Format timeserie dataframe into a matrix}
+\title{Format timeserie data.frame into a matrix}
 \usage{
 ts2mat(ts, twl_offset = 0, value = "value")
 }
@@ -18,5 +18,5 @@ provided, it uses the middle of all nights.}
 A data.frame with columns \code{date} and \code{value}.
 }
 \description{
-Format timeserie dataframe into a matrix
+Format timeserie data.frame into a matrix
 }

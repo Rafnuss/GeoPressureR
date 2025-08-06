@@ -25,13 +25,13 @@ scale on the \href{https://developers.google.com/earth-engine/guides/scale}{Goog
 \code{"water_mask"}, \code{"pressure_mask"}, \code{"marginal"}. Allows for custom colour palette on plot.}
 }
 \value{
-A GeoPressure \code{map} object is returned
+A GeoPressure \code{map} object
 }
 \description{
-This function create a GeoPressureR \code{map} object from a spatio-temporal dataset.
-The data needs to be discretized according to \code{scale}, \code{extend} (space) and \code{stap} (time).
+This function creates a GeoPressureR \code{map} object from a spatio-temporal dataset.
+The data needs to be discretized according to \code{scale}, \code{extent} (space) and \code{stap} (time).
 
-This functions is used by \code{geopressure_map} and \code{graph_marginal}.
+This function is used by \code{geopressure_map} and \code{graph_marginal}.
 }
 \examples{
 data <- lapply(1:10, \(x) matrix(runif(5000), nrow = 50, ncol = 100))

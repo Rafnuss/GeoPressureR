@@ -56,7 +56,7 @@ Three methods are currently implemented with two parametric function \code{"gamm
 suitable when wind data is not available and are thus defining the probability of a groundspeed.
 
 If wind data is available, it is recommended to use the \code{"power"} method which rely on the power
-curve equation (energy vs airspeed) to estimate the probability of a airspeed. Read more about
+curve equation (energy vs airspeed) to estimate the probability of an airspeed. Read more about
 this approach in \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0009-title}{section 2.2.5. of Nussbaumer et al. (2023b)}
 }
 \examples{

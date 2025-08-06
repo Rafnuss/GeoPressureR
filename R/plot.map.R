@@ -1,7 +1,7 @@
 #' Plot a `map` object
 #'
 #' @description
-#' This function plot a GeoPressureR `map` object.
+#' This function plots a GeoPressureR `map` object.
 #'
 #' You can plot on top of the `map` a `path`, this uses the `plot_path()` function.
 #'

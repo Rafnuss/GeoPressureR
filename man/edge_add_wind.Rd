@@ -32,7 +32,7 @@ level (i.e., altitude) of the bird during the flights. This data.frame needs to 
 POSIXt and \code{value} in hPa.}
 
 \item{variable}{list of the variables to extract from \href{https://bit.ly/3BrwLBM}{the ERA5 pressure level } using the \code{shortName} notation: \code{"u"}, \code{"v"},  \code{"t"}, \code{"cc"}, \code{"r"},
-\code{"w"}, \code{"ciwc"}, \code{"clwc"}, \code{"q"}, \code{"cswc"}, \code{"d"}, \code{"z"}, \code{"o3"}, \code{"pv"}, \verb{'vo"}.}
+\code{"w"}, \code{"ciwc"}, \code{"clwc"}, \code{"q"}, \code{"cswc"}, \code{"d"}, \code{"z"}, \code{"o3"}, \code{"pv"}, \code{"vo"}.}
 
 \item{rounding_interval}{temporal resolution on which to query the variable (min). Default is to
 match ERA5 native resolution (1hr).}
@@ -70,7 +70,7 @@ A data.frame with columns:
 }
 }
 \description{
-Reads the NetCDF files and extract the variable requested along each flight defined by the edges.
+Reads the NetCDF files and extracts the variable requested along each flight defined by the edges.
 \itemize{
 \item Time: linear interpolation using the resolution requested with \code{rounding_interval}
 \item Space: nearest neighbour interpolation by default or bi-linear with \code{pracma::interp2} if

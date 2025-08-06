@@ -1,7 +1,7 @@
 #' Retrieve ERA5 variable along edge
 #'
 #' @description
-#' Reads the NetCDF files and extract the variable requested along each flight defined by the edges.
+#' Reads the NetCDF files and extracts the variable requested along each flight defined by the edges.
 #'
 #' - Time: linear interpolation using the resolution requested with `rounding_interval`
 #' - Space: nearest neighbour interpolation by default or bi-linear with `pracma::interp2` if
@@ -18,7 +18,7 @@
 #' POSIXt and `value` in hPa.
 #' @param variable list of the variables to extract from [the ERA5 pressure level
 #' ](https://bit.ly/3BrwLBM) using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`,
-#' `"w"`, `"ciwc"`, `"clwc"`, `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `'vo"`.
+#' `"w"`, `"ciwc"`, `"clwc"`, `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `"vo"`.
 #' @param rounding_interval temporal resolution on which to query the variable (min). Default is to
 #' match ERA5 native resolution (1hr).
 #' @param interp_spatial_linear logical to interpolate the variable linearly over space, if `FALSE`
@@ -507,7 +507,7 @@ edge_add_wind_check <- function(
       t_e <- as.POSIXct(format(fl_s$end[i_fl] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
       if (!(min(time) <= t_e && max(time) >= t_s)) {
         cli::cli_abort(c(
-          x = "Time between graph data and the wind file ({.file {file(i_s)}}) are not matching.",
+          x = "Time between graph data and the wind file ({.file {file(i_s)}}) does not match.",
           "!" = "You might have modified your stationary periods without updating your wind file? ",
           ">" = "If so, run {.run tag_download_wind(tag)}"
         ))
@@ -520,19 +520,19 @@ edge_add_wind_check <- function(
         !(min(pres) <= min(pres_value) &&
           max(pres) >= min(1000, max(pres_value)))) {
         cli::cli_abort(c(
-          x = "Time between graph data and the wind file ({.file {file(i_s)}}) are not matching.",
+          x = "Time between graph data and the wind file ({.file {file(i_s)}}) does not match.",
           "!" = "You might have modified your stationary periods without updating your wind file? ",
           ">" = "If so, run {.run tag_download_wind(tag)}"
         ))
       }
 
-      # Check if spatial extend match
+      # Check if spatial extent match
       lat <- ncdf4::ncvar_get(nc, "latitude")
       lon <- ncdf4::ncvar_get(nc, "longitude")
       nc_extent <- c(min(lon), max(lon), min(lat), max(lat)) # nolint
       if (min(g$lat) < min(lat) || max(g$lat) > max(lat) ||
         min(g$lon) < min(lon) || max(g$lon) > max(lon)) {
-        cli::cli_abort(c(x = "Spatial extend of the grid ({tag_graph$param$tag_set_map$extent}) is
+        cli::cli_abort(c(x = "Spatial extent of the grid ({tag_graph$param$tag_set_map$extent}) is
         not included in the extent of {.file {file(i_s)}} ({nc_extent})"))
       }
 

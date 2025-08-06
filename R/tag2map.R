@@ -6,7 +6,7 @@
 #' `map_pressure_mse`, `mask_water`. Default `NA` is to take the product of `map_pressure` and
 #' `map_light`, or if not available, taking the first of the possible values.
 #'
-#' @return likelihood map
+#' @return Likelihood map
 #' @export
 tag2map <- function(tag, likelihood = NULL) {
   likelihood <- tag2likelihood(tag, likelihood)
@@ -26,7 +26,7 @@ tag2map <- function(tag, likelihood = NULL) {
 #
 #' @inheritParams tag2map
 #'
-#' @return likelihood map name
+#' @return Likelihood map name
 #' @noRd
 tag2likelihood <- function(tag, likelihood = NULL) {
   tag_assert(tag)

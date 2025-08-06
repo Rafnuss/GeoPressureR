@@ -1,10 +1,10 @@
 #' Create a `map` object
 #'
 #' @description
-#' This function create a GeoPressureR `map` object from a spatio-temporal dataset.
-#' The data needs to be discretized according to `scale`, `extend` (space) and `stap` (time).
+#' This function creates a GeoPressureR `map` object from a spatio-temporal dataset.
+#' The data needs to be discretized according to `scale`, `extent` (space) and `stap` (time).
 #'
-#' This functions is used by `geopressure_map` and `graph_marginal`.
+#' This function is used by `geopressure_map` and `graph_marginal`.
 #
 #' @param data list of matrices of the same size, one for each stationary period.
 #' @inheritParams tag_set_map
@@ -13,7 +13,7 @@
 #' @param type type of data one of `"unknown"`,`"pressure"`, `"light"`, `"pressure_mse"`,
 #' `"water_mask"`, `"pressure_mask"`, `"marginal"`. Allows for custom colour palette on plot.
 #'
-#' @return A GeoPressure `map` object is returned
+#' @return A GeoPressure `map` object
 #'
 #'
 #' @examples

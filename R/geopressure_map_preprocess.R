@@ -1,7 +1,7 @@
 #' Prepare pressure data for `geopressure_map()`
 #'
 #' @description
-#' Performs the follow pre-processing for the pressure data.frame:
+#' Performs the following pre-processing for the pressure data.frame:
 #'
 #' 1. Remove discarded and flight pressure measurements.
 #' 2. Group pressure measurements by stationary period and elevation level.

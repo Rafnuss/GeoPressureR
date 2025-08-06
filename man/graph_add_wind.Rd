@@ -27,7 +27,7 @@ taking as single argument the stationary period identifier.}
   }}
 }
 \value{
-a \code{graph} object with windspeed and airspeed as \code{ws} and \code{as} respectively.
+A \code{graph} object with windspeed and airspeed as \code{ws} and \code{as} respectively.
 }
 \description{
 Reads the NetCDF files downloaded and interpolate the average windspeed experienced by the

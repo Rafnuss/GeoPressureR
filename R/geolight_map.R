@@ -1,8 +1,8 @@
 #' Compute likelihood map from twilight
 #'
 #' @description
-#' This functions estimate a likelihood map for each stationary period based on twilight data.
-#' The functions performs the following steps:
+#' This function estimates a likelihood map for each stationary period based on twilight data.
+#' The function performs the following steps:
 #'
 #' 1. Perform a calibration on the known stationary period. See below for details
 #' 2. Compute a likelihood map for each twilight using the calibration.

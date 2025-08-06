@@ -15,7 +15,7 @@ value are \code{map_pressure}, \code{map_light}, \code{map_pressure_mse}, \code{
 \code{map_light}, or if not available, taking the first of the possible values.}
 }
 \value{
-likelihood map
+Likelihood map
 }
 \description{
 Extract a likelihood \code{map} from a \code{tag}

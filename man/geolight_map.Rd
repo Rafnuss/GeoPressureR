@@ -28,8 +28,8 @@ estimated based on twilight or hard defined by the known location \verb{stap$kno
 a \code{tag} with the likelihood of light as \code{tag$map_light}
 }
 \description{
-This functions estimate a likelihood map for each stationary period based on twilight data.
-The functions performs the following steps:
+This function estimates a likelihood map for each stationary period based on twilight data.
+The function performs the following steps:
 \enumerate{
 \item Perform a calibration on the known stationary period. See below for details
 \item Compute a likelihood map for each twilight using the calibration.

@@ -16,7 +16,7 @@ See \code{difftime()}}
 format.}
 }
 \value{
-vector of duration
+Vector of duration
 }
 \description{
 This function returns the duration between \code{stap$start} and \code{stap$end}.

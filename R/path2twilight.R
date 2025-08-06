@@ -1,12 +1,12 @@
 #' Compute exact astronomical twilights from a `path` (positions and dates)
 #'
 #' @description
-#' This function compute the theoretical twilight (i.e., datetime of sunrise and sunset) at given
+#' This function computes the theoretical twilight (i.e., datetime of sunrise and sunset) at given
 #' locations and for specific date.
 #'
 #' We use the [suntools](https://github.com/adokter/suntools) package for this.
 #'
-#' By default (`solar_dep=0`), the computation return sunrise and sunset. But, it is also possible
+#' By default (`solar_dep=0`), the computation returns sunrise and sunset. But, it is also possible
 #' to compute different twilights by setting depression angle value greater than 0 (6° for civil,
 #' 12° for nautical and 18° for astronomical).
 #'

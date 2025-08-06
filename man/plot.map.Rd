@@ -53,7 +53,7 @@ the computational cost of the reprojection.}
 a plot or leaflet object.
 }
 \description{
-This function plot a GeoPressureR \code{map} object.
+This function plots a GeoPressureR \code{map} object.
 
 You can plot on top of the \code{map} a \code{path}, this uses the \code{plot_path()} function.
 

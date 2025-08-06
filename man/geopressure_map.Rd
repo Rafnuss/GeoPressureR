@@ -53,7 +53,7 @@ time series.}
 \item{margin}{the margin is used in the mask map to accept measurement errors, small-scale
 topography, and vertical movements of the bird (unit in meters, 1hPa~10m).}
 
-\item{sd}{standard deviation of the pressure error . numeric of length 1 or number of stationary
+\item{sd}{standard deviation of the pressure error. Numeric of length 1 or number of stationary
 periods.}
 
 \item{thr_mask}{threshold of the percentage of data points outside the elevation range to be
@@ -97,7 +97,7 @@ measurements and the ERA5 reanalysis database.
 \item \code{geopressure_map_likelihood()} converts the mismatch maps into a likelihood map.
 }
 
-See below for details.For more background on the method behind these functions, please refer to
+See below for details. For more background on the method behind these functions, please refer to
 Nussbaumer et al. (\href{https://doi.org/10.1111/2041-210X.14043}{2023a}).
 }
 \details{
@@ -119,7 +119,7 @@ This consists of the following steps:
 Earth Engine (GEE) URLs, one for each elevation/stationary period which can be used to compute
 the maps on the GEE server.
 \item \strong{Send the requests}: Call the URLs, which will start the computation on the GEE server.
-At this step, it does not wait for an answer, but send the requests in parallel to be faster.
+At this step, it does not wait for an answer, but sends the requests in parallel to be faster.
 \item \strong{Compute and download the maps}: When all requests are sent, we wait for the GEE server to
 return a geotiff file (map) for each elevation/ stationary period.
 \item \strong{Post-process maps}: Read these geotiff maps as matrix, create the corresponding
@@ -147,12 +147,12 @@ For more details, read the \href{https://raphaelnussbaumer.com/GeoPressureAPI/}{
 
 It is possible to indicate different elevation levels when the bird was spending time at
 locations with different elevations within a general area (~10km), and thus within the same
-stationary period. This can be done by using \code{tag$label="elev_x"}for all measurements of the same
+stationary period. This can be done by using \code{tag$label="elev_x"} for all measurements of the same
 elevation level \emph{x}. See more information on the labelling of elevation levels in \href{https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#elevation-period}{the corresponding section in the GeoPressureManual}.
 
-Behind the scene, each of these elevations levels produce a new requests on the GeoPressureAPI.
+Behind the scene, each of these elevation levels produces a new request on the GeoPressureAPI.
 The mismatch maps of all elevation levels belonging to the same stationary periods are combined
-(as a weighted average) to results in a single mismatch maps per stationary period.
+(as a weighted average) to result in a single mismatch map per stationary period.
 }
 
 \section{Convert mismatch map into likelihood map}{

@@ -222,7 +222,7 @@ mag_axes <- function(mag, mag_axis = "auto") {
 
     mag_axis <- c("", "", "")
 
-    # We assume that the z axis is on the 3rd coordinate an that gravity is going down =)
+    # We assume that the z axis is on the 3rd coordinate and that gravity is going down =)
     mag_axis[3] <- ifelse(xyz[3] > 0, "down", "up")
 
     # The large value between 1st and 2nd coordinate defines the sway (forward-backward) and we

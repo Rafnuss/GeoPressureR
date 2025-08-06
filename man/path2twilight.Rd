@@ -42,12 +42,12 @@ if \code{return_long == FALSE}, a data.frame with the same size of \code{date} w
 }
 }
 \description{
-This function compute the theoretical twilight (i.e., datetime of sunrise and sunset) at given
+This function computes the theoretical twilight (i.e., datetime of sunrise and sunset) at given
 locations and for specific date.
 
 We use the \href{https://github.com/adokter/suntools}{suntools} package for this.
 
-By default (\code{solar_dep=0}), the computation return sunrise and sunset. But, it is also possible
+By default (\code{solar_dep=0}), the computation returns sunrise and sunset. But, it is also possible
 to compute different twilights by setting depression angle value greater than 0 (6° for civil,
 12° for nautical and 18° for astronomical).
 }

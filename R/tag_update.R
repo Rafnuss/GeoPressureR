@@ -79,7 +79,7 @@ tag_update <- function(tag,
     known <- tag$param$tag_set_map$known
   }
 
-  # Check that the the known stap_id have not changed. Only check for stap_id more than 1 to avoid
+  # Check that the known stap_id have not changed. Only check for stap_id more than 1 to avoid
   # comparing negative indexing and 1.
   tmp <- known$stap_id[known$stap_id > 1]
   if (any(stap_new$stap_id[which(stap_new$old_stap_id == tmp)] != tmp)) {
