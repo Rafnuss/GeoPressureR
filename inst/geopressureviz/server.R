@@ -28,7 +28,7 @@ server <- function(input, output, session) {
   fac_res_proj <- 4
   res_proj <- c(
     stats::median(diff(lonInEPSG3857)),
-    stats::median(abs(diff(latInEPSG3857))) / fac_res_proj
+    min(abs(diff(latInEPSG3857))) / fac_res_proj
   )
   origin_proj <- c(stats::median(lonInEPSG3857), stats::median(latInEPSG3857))
 
@@ -64,14 +64,15 @@ server <- function(input, output, session) {
     if (is.null(input$map_source)) {
       return(NA)
     }
-    r <- terra::project(
-      rast.map(.maps[[input$map_source]]),
+    r <- rast.map(.maps[[input$map_source]])
+    r_norm <- (r - terra::minmax(r)[1]) / diff(terra::minmax(r))
+    terra::project(
+      r_norm,
       "epsg:3857",
       method = "near",
       res = res_proj,
       origin = origin_proj
     )
-    return(r)
   }) |> bindEvent(input$map_source)
 
   # list of the stap_id which are above the threashold of duration and included in the model
