@@ -1,6 +1,7 @@
 url: https://raphaelnussbaumer.com/GeoPressureR/
 template:
   bootstrap: 5
+  math-rendering: katex
   includes:
     in_header: |
        <!-- Global site tag (gtag.js) - Google Analytics -->
