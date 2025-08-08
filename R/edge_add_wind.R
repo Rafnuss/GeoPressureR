@@ -1,14 +1,15 @@
 #' Retrieve ERA5 variable along edge
 #'
 #' @description
-#' Reads the NetCDF files and extracts the variable requested along each flight defined by the edges.
+#' Reads the NetCDF files and extracts the variable requested along each flight defined by the
+#' edges.
 #'
 #' - Time: linear interpolation using the resolution requested with `rounding_interval`
 #' - Space: nearest neighbour interpolation by default or bi-linear with `pracma::interp2` if
 #' `interp_spatial_linear=TRUE`
 #' - Pressure/altitude: linear interpolation using the exact `pressure` values
 #'
-#' @param tag_graph either a `tag` or a `graph` GeoPressureR object.
+#' @param graph either a `tag` or a `graph` GeoPressureR object.
 #' @param edge_s a index of the source node of the edge. Either a vector with 3D index or a matrix
 #' of 3 columns, one for each dimension.
 #' @param edge_t a index of the target node of the edge. Either a vector with 3D index or a matrix
@@ -50,7 +51,7 @@
 #' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
 edge_add_wind <- function(
-    tag_graph,
+    graph,
     edge_s,
     edge_t,
     pressure = NULL,
@@ -59,31 +60,31 @@ edge_add_wind <- function(
     interp_spatial_linear = FALSE,
     return_averaged_variable = FALSE,
     file = \(stap_id) glue::glue( # nolint
-      "./data/wind/{tag_graph$param$id}/{tag_graph$param$id}_{stap_id}.nc"
+      "./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"
     ),
     quiet = FALSE) {
-  if (is.null(pressure) && inherits(tag_graph, "tag")) {
-    pressure <- tag_graph$pressure
+  if (is.null(pressure) && inherits(graph, "tag")) {
+    pressure <- graph$pressure
   }
 
-  edge_add_wind_check(tag_graph,
+  edge_add_wind_check(graph,
     pressure = pressure,
     variable = variable,
     file = file
   )
 
   # Compute lat-lon coordinate of the grid
-  g <- map_expand(tag_graph$param$tag_set_map$extent, tag_graph$param$tag_set_map$scale)
+  g <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)
 
   # Compute flight from stap
-  flight <- stap2flight(tag_graph$stap, format = "list")
+  flight <- stap2flight(graph$stap, format = "list")
 
   # Check edges
   if (!is.matrix(edge_s)) {
-    edge_s <- arrayInd(edge_s, c(g$dim, nrow(tag_graph$stap)))
+    edge_s <- arrayInd(edge_s, c(g$dim, nrow(graph$stap)))
   }
   if (!is.matrix(edge_t)) {
-    edge_t <- arrayInd(edge_t, c(g$dim, nrow(tag_graph$stap)))
+    edge_t <- arrayInd(edge_t, c(g$dim, nrow(graph$stap)))
   }
 
   assertthat::assert_that(assertthat::are_equal(dim(edge_s), dim(edge_t)))
@@ -95,15 +96,15 @@ edge_add_wind <- function(
   assertthat::assert_that(assertthat::are_equal(edge_s[, 1], as.integer(edge_s[, 1])))
   assertthat::assert_that(assertthat::are_equal(edge_s[, 2], as.integer(edge_s[, 2])))
   assertthat::assert_that(assertthat::are_equal(edge_s[, 3], as.integer(edge_s[, 3])))
-  assertthat::assert_that(all(edge_t[, 3] > 1 & edge_t[, 3] <= max(tag_graph$stap$stap_id)))
-  assertthat::assert_that(all(edge_s[, 3] >= 1 & edge_s[, 3] < max(tag_graph$stap$stap_id)))
+  assertthat::assert_that(all(edge_t[, 3] > 1 & edge_t[, 3] <= max(graph$stap$stap_id)))
+  assertthat::assert_that(all(edge_s[, 3] >= 1 & edge_s[, 3] < max(graph$stap$stap_id)))
   assertthat::assert_that(all(edge_t[, 1] >= 1 & edge_t[, 1] <= g$dim[1]))
   assertthat::assert_that(all(edge_t[, 2] >= 1 & edge_t[, 2] <= g$dim[2]))
   assertthat::assert_that(all(edge_s[, 1] >= 1 & edge_s[, 1] <= g$dim[1]))
   assertthat::assert_that(all(edge_s[, 2] >= 1 & edge_s[, 2] <= g$dim[2]))
 
   # Keep only the ID for the file function, remove the rest to save memory
-  tag_graph <- list(param = list(id = tag_graph$param$id))
+  graph <- list(param = list(id = graph$param$id))
   gc()
 
   # Prepare the matrix of speed to return
@@ -443,23 +444,23 @@ edge_add_wind <- function(
 
 #' @noRd
 edge_add_wind_check <- function(
-    tag_graph,
+    graph,
     pressure = NULL,
     variable = c("u", "v"),
     file = \(stap_id) {
-      glue::glue("./data/wind/{tag_graph$param$id}/{tag_graph$param$id}_{stap_id}.nc")
+      glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc")
     }) {
-  assertthat::assert_that(inherits(tag_graph, "tag") | inherits(tag_graph, "graph"))
+  assertthat::assert_that(inherits(graph, "tag") | inherits(graph, "graph"))
 
   # Compute lat-lon coordinate of the grid
-  g <- map_expand(tag_graph$param$tag_set_map$extent, tag_graph$param$tag_set_map$scale)
+  g <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)
 
   # Compute flight from stap
-  flight <- stap2flight(tag_graph$stap, format = "list")
+  flight <- stap2flight(graph$stap, format = "list")
 
   # Check pressure
-  if (is.null(pressure) && inherits(tag_graph, "tag")) {
-    pressure <- tag_graph$pressure
+  if (is.null(pressure) && inherits(graph, "tag")) {
+    pressure <- graph$pressure
   }
   assertthat::assert_that(is.data.frame(pressure))
   assertthat::assert_that(assertthat::has_name(pressure, c("date", "value")))
@@ -532,7 +533,7 @@ edge_add_wind_check <- function(
       nc_extent <- c(min(lon), max(lon), min(lat), max(lat)) # nolint
       if (min(g$lat) < min(lat) || max(g$lat) > max(lat) ||
         min(g$lon) < min(lon) || max(g$lon) > max(lon)) {
-        cli::cli_abort(c(x = "Spatial extent of the grid ({tag_graph$param$tag_set_map$extent}) is
+        cli::cli_abort(c(x = "Spatial extent of the grid ({graph$param$tag_set_map$extent}) is
         not included in the extent of {.file {file(i_s)}} ({nc_extent})"))
       }
 
