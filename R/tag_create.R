@@ -13,16 +13,16 @@
 #'    - `pressure_file = "pressure.csv"`(optional)
 #'    - `light_file = "light.csv"` (optional)
 #'    - `acceleration_file = "acceleration.csv"` (optional)
-#'    - `temperature_external_file = "temperature.csv"` (optional)
-#'    - `temperature_external_file = "airtemperature.csv"` (optional)
+#'    - `temperature_external_file = "temperature_external.csv"` (optional)
+#'    - `temperature_external_file = "temperature_external.csv"` (optional)
 #'    - `magnetic_file = "magnetic.csv"` (optional)
 #' - [Swiss Ornithological Institute (`soi`)](https://bit.ly/3QI6tkk)
 #'    - `pressure_file = "*.pressure"`
 #'    - `light_file = "*.glf"` (optional)
 #'    - `acceleration_file = "*.acceleration"` (optional)
-#'    - `temperature = "*.temperature"` (optional)
-#'    - `airtemperature = "*.airtemperature"` (optional)
-#'    - `magnetic = "*.magnetic"` (optional)
+#'    - `temperature_internal_file = "*.temperature"` (optional)
+#'    - `temperature_external_file = "*.airtemperature"` (optional)
+#'    - `magnetic_file = "*.magnetic"` (optional)
 #' - [Migrate Technology (`migratetech`)](http://www.migratetech.co.uk/):
 #'    - `pressure_file = "*.deg"`
 #'    - `light_file = "*.lux"` (optional)
