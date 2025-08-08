@@ -147,8 +147,8 @@ For more details, read the \href{https://raphaelnussbaumer.com/GeoPressureAPI/}{
 
 It is possible to indicate different elevation levels when the bird was spending time at
 locations with different elevations within a general area (~10km), and thus within the same
-stationary period. This can be done by using \code{tag$label="elev_x"} for all measurements of the same
-elevation level \emph{x}. See more information on the labelling of elevation levels in \href{https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#elevation-period}{the corresponding section in the GeoPressureManual}.
+stationary period. This can be done by using \code{tag$label="elev_x"} for all measurements of the
+same elevation level \emph{x}. See more information on the labelling of elevation levels in \href{https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#elevation-period}{the corresponding section in the GeoPressureManual}.
 
 Behind the scene, each of these elevation levels produces a new request on the GeoPressureAPI.
 The mismatch maps of all elevation levels belonging to the same stationary periods are combined

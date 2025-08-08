@@ -79,7 +79,7 @@ geopressuretemplate_graph <- function(
     error = function(e) {
       cli::cli_bullets(c(
         "x" = "{e$message}",
-        "i" = "Error while defining the movement model.{.var graph} is return.",
+        "i" = "Error while defining the movement model. {.var graph} is return.",
         ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
       ))
       graph

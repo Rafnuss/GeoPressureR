@@ -5,7 +5,7 @@
 \title{Retrieve ERA5 variable along edge}
 \usage{
 edge_add_wind(
-  tag_graph,
+  graph,
   edge_s,
   edge_t,
   pressure = NULL,
@@ -14,12 +14,12 @@ edge_add_wind(
   interp_spatial_linear = FALSE,
   return_averaged_variable = FALSE,
   file = function(stap_id)
-    glue::glue("./data/wind/{tag_graph$param$id}/{tag_graph$param$id}_{stap_id}.nc"),
+    glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"),
   quiet = FALSE
 )
 }
 \arguments{
-\item{tag_graph}{either a \code{tag} or a \code{graph} GeoPressureR object.}
+\item{graph}{either a \code{tag} or a \code{graph} GeoPressureR object.}
 
 \item{edge_s}{a index of the source node of the edge. Either a vector with 3D index or a matrix
 of 3 columns, one for each dimension.}
@@ -70,7 +70,8 @@ A data.frame with columns:
 }
 }
 \description{
-Reads the NetCDF files and extracts the variable requested along each flight defined by the edges.
+Reads the NetCDF files and extracts the variable requested along each flight defined by the
+edges.
 \itemize{
 \item Time: linear interpolation using the resolution requested with \code{rounding_interval}
 \item Space: nearest neighbour interpolation by default or bi-linear with \code{pracma::interp2} if

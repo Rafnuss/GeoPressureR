@@ -90,8 +90,8 @@ The current implementation can read files from the following three sources:
 \item \code{pressure_file = "pressure.csv"}(optional)
 \item \code{light_file = "light.csv"} (optional)
 \item \code{acceleration_file = "acceleration.csv"} (optional)
-\item \code{temperature_external_file = "temperature.csv"} (optional)
-\item \code{temperature_external_file = "airtemperature.csv"} (optional)
+\item \code{temperature_external_file = "temperature_external.csv"} (optional)
+\item \code{temperature_external_file = "temperature_external.csv"} (optional)
 \item \code{magnetic_file = "magnetic.csv"} (optional)
 }
 \item \href{https://bit.ly/3QI6tkk}{Swiss Ornithological Institute (\code{soi})}
@@ -99,9 +99,9 @@ The current implementation can read files from the following three sources:
 \item \code{pressure_file = "*.pressure"}
 \item \code{light_file = "*.glf"} (optional)
 \item \code{acceleration_file = "*.acceleration"} (optional)
-\item \code{temperature = "*.temperature"} (optional)
-\item \code{airtemperature = "*.airtemperature"} (optional)
-\item \code{magnetic = "*.magnetic"} (optional)
+\item \code{temperature_internal_file = "*.temperature"} (optional)
+\item \code{temperature_external_file = "*.airtemperature"} (optional)
+\item \code{magnetic_file = "*.magnetic"} (optional)
 }
 \item \href{http://www.migratetech.co.uk/}{Migrate Technology (\code{migratetech})}:
 \itemize{
@@ -127,7 +127,7 @@ The current implementation can read files from the following three sources:
 
 You can also enter the data manually (\code{manufacturer = "dataframe"}) by providing the data.frame:
 \itemize{
-\item \code{pressure_file}: data.frame with columns \code{date} and \code{value}.
+\item \code{pressure_file}: data.frame with columns \code{date} and \code{value} in hPa.
 \item \code{light_file}: (optional) data.frame with columns \code{date} and \code{value}.
 \item \code{acceleration_file}: (optional) data.frame with columns \code{date} and \code{value}.
 \item \code{temperature_external_file}: (optional) data.frame with columns \code{date} and \code{value}.

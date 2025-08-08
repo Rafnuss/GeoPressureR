@@ -58,15 +58,15 @@ tag_create_dataframe <- function(id,
   }
 
   # Read air temperature
-  if (!is.null(temperature_external_file)) {
-    assertthat::assert_that(assertthat::has_name(temperature_external_file, c("date", "value")))
-    assertthat::assert_that(inherits(temperature_external_file$date, "POSIXct"))
+  if (!is.null(temperature_internal_file)) {
+    assertthat::assert_that(assertthat::has_name(temperature_internal_file, c("date", "value")))
+    assertthat::assert_that(inherits(temperature_internal_file$date, "POSIXct"))
     assertthat::assert_that(assertthat::are_equal(
-      attr(temperature_external_file$date, "tzone"),
+      attr(temperature_internal_file$date, "tzone"),
       "UTC"
     ))
-    tag$airtemperature <- temperature_external_file
-    tag$param$tag_create$temperature_external_file <- "df"
+    tag$temperature_internal <- temperature_internal_file
+    tag$param$tag_create$temperature_internal_file <- "df"
   }
 
   # Read magnetism

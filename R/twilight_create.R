@@ -1,9 +1,9 @@
 #' Estimate twilights from light data
 #'
 #' @description
-#' This function estimates twilight (i.e., datetime of sunrise and sunset) by searching for the first
-#' and last light of the day which is defined by the light exceeds or
-#' falls below the light threshold `twl_thr`.
+#' This function estimates twilight (i.e., datetime of sunrise and sunset) by searching for the
+#' first and last light of the day which is defined by the light exceeds or falls below the light
+#' threshold `twl_thr`.
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param twl_thr Light threshold that defines twilight. By default (`NULL`), it uses the smallest
