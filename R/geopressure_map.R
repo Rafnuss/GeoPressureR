@@ -56,8 +56,8 @@
 #'
 #' It is possible to indicate different elevation levels when the bird was spending time at
 #' locations with different elevations within a general area (~10km), and thus within the same
-#' stationary period. This can be done by using `tag$label="elev_x"` for all measurements of the same
-#' elevation level *x*. See more information on the labelling of elevation levels in [the
+#' stationary period. This can be done by using `tag$label="elev_x"` for all measurements of the
+#' same elevation level *x*. See more information on the labelling of elevation levels in [the
 #' corresponding section in the GeoPressureManual](
 #' https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#elevation-period).
 #'

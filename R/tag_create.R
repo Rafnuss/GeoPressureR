@@ -38,7 +38,7 @@
 #'    - `pressure_file = "*.txt"`
 #'
 #' You can also enter the data manually (`manufacturer = "dataframe"`) by providing the data.frame:
-#'   - `pressure_file`: data.frame with columns `date` and `value`.
+#'   - `pressure_file`: data.frame with columns `date` and `value` in hPa.
 #'   - `light_file`: (optional) data.frame with columns `date` and `value`.
 #'   - `acceleration_file`: (optional) data.frame with columns `date` and `value`.
 #'   - `temperature_external_file`: (optional) data.frame with columns `date` and `value`.
