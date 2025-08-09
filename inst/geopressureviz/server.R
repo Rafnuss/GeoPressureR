@@ -524,6 +524,40 @@ server <- function(input, output, session) {
     updateSelectizeInput(session, "stap_id", selected = input$stap_id)
   })
 
+  # Export path functionality
+  observeEvent(input$export_path, {
+    file <- glue::glue("./data/interim/{.tag$param$id}.RData")
+    
+    # Create directory if it doesn't exist
+    dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
+    
+    # Rename to the correct name
+    path_geopressureviz <- reactVal$path
+
+    if (file.exists(file)) {
+      # Load existing file and add path_geopressureviz
+      save_list <- load(file)
+      save_list <- c(save_list, "path_geopressureviz")
+      save(
+        list = save_list,
+        file = file
+      )
+    } else {
+      # Create new file with just path_geopressureviz
+      save(
+        path_geopressureviz,
+        file = file
+      )
+    }
+    
+    # Show notification to user
+    showNotification(
+      paste("Path exported to", file),
+      type = "message",
+      duration = 3
+    )
+  })
+
   # Pressure Graph
   observe({
     if (!input$full_track) {

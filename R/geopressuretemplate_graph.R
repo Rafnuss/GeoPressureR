@@ -138,13 +138,6 @@ geopressuretemplate_graph <- function(
     }
   )
 
-  # Add path_geopressureviz if it exists as a csv
-  file_path_geopressureviz <- glue::glue("./data/interim/path_geopressureviz_{id}.csv")
-  if (file.exists(file_path_geopressureviz)) {
-    path_geopressureviz <- utils::read.csv(file_path_geopressureviz) # nolint
-    save_list <- c(save_list, "path_geopressureviz")
-  }
-
   # Save the outputs to the specified file
   save(
     list = save_list,
