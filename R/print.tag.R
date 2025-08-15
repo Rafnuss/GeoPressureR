@@ -137,6 +137,12 @@ print.tag <- function(x, ...) {
         if ("map_magnetic" %in% status) {
           cli::cli_bullets(c("v" = "Magnetic likelihood {.field map_magnetic} computed!"))
         }
+        if ("map_magnetic_intensity" %in% status) {
+          cli::cli_bullets(c("v" = "Magnetic likelihood {.field map_magnetic_intensity} computed!"))
+        }
+        if ("map_magnetic_inclination" %in% status) {
+          cli::cli_bullets(c("v" = "Magnetic likelihood {.field map_magnetic_inclination} computed!"))
+        }
       }
     }
   }
