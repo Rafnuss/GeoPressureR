@@ -37,8 +37,6 @@
 #' `"specific_humidity"`, `"specific_rain_water_content"`, `"specific_snow_water_content"`,
 #' `"divergence"`, `"geopotential"`, `"ozone_mass_mixing_ratio"`, `"potential_vorticity"`,
 #' `'vorticity"`.
-#' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
-#' taking as single argument the stationary period identifier.
 #' @param overwrite logical. If `TRUE`, file is overwritten.
 #' @param cds_token `r lifecycle::badge("deprecated")` Enter the API token with
 #' [`ecmwfr::wf_set_key()`]
@@ -59,7 +57,7 @@ tag_download_wind <- function(
     extent = tag$param$tag_set_map$extent,
     include_stap_id = NULL,
     variable = c("u_component_of_wind", "v_component_of_wind"),
-    file = \(stap_id) glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
+    file = \(stap_id, tag_id) glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"),
     overwrite = FALSE,
     workers = 19,
     cds_token = lifecycle::deprecated(),
@@ -75,12 +73,14 @@ tag_download_wind <- function(
 
   tag_assert(tag, "setmap")
 
+  tag_id <- tag$param$id
+
   stap <- tag$stap
 
   assertthat::assert_that(length(extent) == 4)
 
   assertthat::assert_that(is.function(file))
-  directory <- dirname(file(1))
+  directory <- dirname(file(1, tag_id))
   if (!file.exists(directory)) {
     dir.create(directory, recursive = TRUE)
     cli::cli_warn(c(
@@ -94,7 +94,7 @@ tag_download_wind <- function(
 
     # Take all stap_id without an existing wind file
     if (!overwrite) {
-      include_stap_id <- include_stap_id[!file.exists(file(include_stap_id))]
+      include_stap_id <- include_stap_id[!file.exists(file(include_stap_id, tag_id))]
     }
   }
   assertthat::assert_that(is.numeric(include_stap_id))
@@ -112,9 +112,9 @@ tag_download_wind <- function(
     ))
   }
 
-  if (any(file.exists(file(include_stap_id))) && !overwrite) {
+  if (any(file.exists(file(include_stap_id, tag_id))) && !overwrite) {
     # nolint start
-    tmp <- file.exists(file(include_stap_id))
+    tmp <- file.exists(file(include_stap_id, tag_id))
     cli::cli_abort(c(
       "x" = "There are already ERA5 data file for stationary periods {.var {include_stap_id[tmp]}}",
       ">" = "Delete the corresponding file or use the argument {.code overwrite = TRUE}."
@@ -168,7 +168,7 @@ tag_download_wind <- function(
       day = sort(unique(format(flight_time, "%d"))),
       time = sort(unique(format(flight_time, "%H:%M"))),
       area = c(extent[4], extent[1], extent[3], extent[2]), # N, W, S, E
-      target = basename(file(i_s))
+      target = basename(file(i_s, tag_id))
     )
   }
 
