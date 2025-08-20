@@ -21,6 +21,7 @@ geopressuretemplate(
 geopressuretemplate_config(
   id,
   config = config::get(config = id),
+  assert_tag = TRUE,
   assert_graph = FALSE,
   ...
 )
@@ -46,7 +47,6 @@ geopressuretemplate_tag(
   config = config::get(config = id),
   quiet = FALSE,
   file = glue::glue("./data/interim/{id}.RData"),
-  assert_graph = FALSE,
   ...
 )
 }
@@ -64,6 +64,9 @@ Default is \verb{./data/interim/\{id\}.RData}.}
 
 \item{...}{Additional parameters to overwrite default or config values. Always prefer to modify
 \code{config.yml} if possible.}
+
+\item{assert_tag}{Logical. If \code{TRUE}, check that the config is compatible for the creation of
+a tag. The default value is \code{TRUE}.}
 
 \item{assert_graph}{Logical. If \code{TRUE}, check that the config is compatible for the creation of
 a graph. The default value is \code{TRUE}. Set to \code{FALSE} only if you don't want to create a graph
@@ -132,10 +135,6 @@ marginal distributions, most likely paths, and simulation paths can be computed.
 \item If \code{"simulation"} is in \code{config$geopressuretemplate$outputs}:
 \itemize{
 \item \code{graph_simulation()}: Runs simulations to model multiple possible paths.
-}
-\item If \verb{path_geopressureviz_\{id\}.csv} exists in \verb{./data/interim/}:
-\itemize{
-\item Save a data.frame variable \code{path_geopressureviz} (see below)
 }
 \item \code{save()}: Saves the computed graph and associated objects in \verb{data/interim/\{id\}.Rdata}
 }

@@ -82,7 +82,8 @@ geopressuretemplate_graph <- function(
         "i" = "Error while defining the movement model. {.var graph} is return.",
         ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
       ))
-      return(graph)
+      # Need to have return otherwise this is not returning to main function
+      return(graph) # nolint
     }
   )
 
@@ -134,7 +135,8 @@ geopressuretemplate_graph <- function(
         "x" = "Error while computing the outputs. {.var graph} is returned.",
         ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
       ))
-      return(graph)
+      # Need to have return otherwise this is not returning to main function
+      return(graph) # nolint
     }
   )
 

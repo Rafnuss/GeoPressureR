@@ -26,9 +26,8 @@
 #' takes the nearest neighbour. ERA5 native resolution is 0.25°
 #' @param return_averaged_variable logical to return the variable for each timestep or average for
 #' the entire flight.
-#' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
-#' taking as arguments (1) the stationary period identifier and (2) the tag_id.
 #' @param quiet logical to hide messages about the progress
+#' @inheritParams tag_download_wind
 #'
 #' @return A data.frame with columns:
 #' - `stap_s` id of the source/origin stationary period
@@ -513,7 +512,8 @@ edge_add_wind_check <- function(
       t_e <- as.POSIXct(format(fl_s$end[i_fl] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
       if (!(min(time) <= t_e && max(time) >= t_s)) {
         cli::cli_abort(c(
-          x = "Time between graph data and the wind file ({.file {file(i_s, tag_id)}}) does not match.",
+          x = "Time between graph data and the wind file ({.file {file(i_s, tag_id)}}) does not
+          match.",
           "!" = "You might have modified your stationary periods without updating your wind file? ",
           ">" = "If so, run {.run tag_download_wind(tag)}"
         ))
@@ -526,7 +526,8 @@ edge_add_wind_check <- function(
         !(min(pres) <= min(pres_value) &&
           max(pres) >= min(1000, max(pres_value)))) {
         cli::cli_abort(c(
-          x = "Time between graph data and the wind file ({.file {file(i_s, tag_id)}}) does not match.",
+          x = "Time between graph data and the wind file ({.file {file(i_s, tag_id)}}) does not
+          match.",
           "!" = "You might have modified your stationary periods without updating your wind file? ",
           ">" = "If so, run {.run tag_download_wind(tag)}"
         ))

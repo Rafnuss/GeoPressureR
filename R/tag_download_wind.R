@@ -37,6 +37,8 @@
 #' `"specific_humidity"`, `"specific_rain_water_content"`, `"specific_snow_water_content"`,
 #' `"divergence"`, `"geopotential"`, `"ozone_mass_mixing_ratio"`, `"potential_vorticity"`,
 #' `'vorticity"`.
+#' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
+#' taking as arguments (1) the stationary period identifier and (2) the tag_id.
 #' @param overwrite logical. If `TRUE`, file is overwritten.
 #' @param cds_token `r lifecycle::badge("deprecated")` Enter the API token with
 #' [`ecmwfr::wf_set_key()`]

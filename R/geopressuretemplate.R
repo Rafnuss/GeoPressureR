@@ -67,6 +67,8 @@
 #' value is `FALSE`.
 #' @param file A file path to save the intermediate results (e.g., tag, graph, and pressure paths).
 #' Default is `./data/interim/{id}.RData`.
+#' @param assert_tag Logical. If `TRUE`, check that the config is compatible for the creation of
+#' a tag. The default value is `TRUE`.
 #' @param assert_graph Logical. If `TRUE`, check that the config is compatible for the creation of
 #' a graph. The default value is `TRUE`. Set to `FALSE` only if you don't want to create a graph
 #' model

@@ -129,7 +129,7 @@ geopressure_map_mismatch <- function(tag,
     i_u <- 1
     cli::cli_progress_step(
       msg = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev \\
-      (on {.val {workers}} workers): {.val {labels[i_u]}} | {i_u}/{length(urls)}",
+      (on {.val {future::nbrOfWorkers()}} workers): {.val {labels[i_u]}} | {i_u}/{length(urls)}",
       msg_done = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev"
     )
     # nolint end
