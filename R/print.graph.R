@@ -30,22 +30,19 @@
 #' @export
 print.graph <- function(x, ...) {
   graph <- x
-
+  cli::cli_div(theme = list(".hint" = list(color = "grey60")))
   cli::cli_h1("GeoPressureR `graph` object for {graph$param$id}")
-  cli::cli_text("{.strong Note}: All {.field green} texts are fields of `graph` (i.e., \\
-                `graph${.field field}`).")
+
+  cli::cli_text("{.hint {.strong Note}: All {.field green} texts are fields of `graph` (i.e., \\
+                `graph${.field field}`).}")
+
 
   # Param
   cli::cli_h3("Parameters {.field param}")
-  cli::cli_text("Run {.code graph$param} to display full table")
+  cli::cli_text("{.hint Run {.code graph$param} to display all parameters}")
 
   cli::cli_h3("Stationary periods {.field stap}")
-  cli::cli_text("{.val {nrow(graph$stap)}} stationary periods")
-  print(utils::head(graph$stap, n = 3))
-  if (nrow(graph$stap) > 3) {
-    cli::cli_text("...")
-    cli::cli_text("Run {.code graph$stap} to see full stap table")
-  }
+  cli_print_tbl(graph$stap)
 
   cli::cli_h3("Map")
   # nolint start
@@ -81,6 +78,6 @@ print.graph <- function(x, ...) {
   } else {
     cli::cli_bullets(c("x" = "No movement model defined. Use {.fun graph_set_movement}"))
   }
-
+  cli::cli_end()
   invisible(graph)
 }
