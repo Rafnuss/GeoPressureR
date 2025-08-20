@@ -6,10 +6,9 @@ geopressuretemplate_tag <- function(
     config = config::get(config = id),
     quiet = FALSE,
     file = glue::glue("./data/interim/{id}.RData"),
-    assert_graph = FALSE,
     ...) {
   # Create the config file
-  config <- geopressuretemplate_config(id, config = config, assert_graph = assert_graph, ...)
+  config <- geopressuretemplate_config(id, config = config, ...)
 
   # Check if folder exist
   dir_file <- dirname(file)
