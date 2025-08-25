@@ -464,64 +464,62 @@ server <- function(input, output, session) {
           reactVal$path$lon[stap_id],
           pressure = pressure[pressure$stap_id == stap_id, ]
         )
+
+
+        # Find the new index for linetype
+        pressuretimeseries$linetype <- as.factor(ifelse(
+          any(reactVal$pressurepath$stap_id == stap_id),
+          max(as.numeric(reactVal$pressurepath$linetype[reactVal$pressurepath$stap_id == stap_id])) + 1,
+          1
+        ))
+
+        pressuretimeseries$stap_ref <- stap_id
+        pressuretimeseries$col <- stap$col[stap$stap_id == stap_id][1]
+
+        if ("j" %in% names(reactVal$pressurepath)) {
+          pressuretimeseries$j <- reactVal$pressurepath$j[1]
+        }
+        if ("ind" %in% names(reactVal$pressurepath)) {
+          pressuretimeseries$ind <- NA
+        }
+        if ("include" %in% names(reactVal$pressurepath)) {
+          pressuretimeseries$include <- reactVal$pressurepath$include[reactVal$pressurepath$stap_id == stap_id][1]
+        }
+        if ("known" %in% names(reactVal$pressurepath)) {
+          pressuretimeseries$known <- reactVal$pressurepath$known[reactVal$pressurepath$stap_id == stap_id][1]
+        }
+
+        # update lat lon in case over water
+        reactVal$path$lon[stap_id] <- pressuretimeseries$lon[1]
+        reactVal$path$lat[stap_id] <- pressuretimeseries$lat[1]
+        reactVal$path$ind[stap_id] <- latlon2ind(pressuretimeseries$lat[1], pressuretimeseries$lon[1])
+
+        # Merge the two data.frame
+        if (nrow(reactVal$pressurepath) > 0) {
+          # Add missing columns with NA values
+          missing_cols <- setdiff(names(reactVal$pressurepath), names(pressuretimeseries))
+          pressuretimeseries[missing_cols] <- NA
+
+          # Remove unwanted columns from pressuretimeseries
+          columns_to_keep <- intersect(names(reactVal$pressurepath), names(pressuretimeseries))
+          pressuretimeseries <- pressuretimeseries[, columns_to_keep]
+
+          reactVal$pressurepath <- rbind(reactVal$pressurepath, pressuretimeseries)
+        } else {
+          reactVal$pressurepath <- pressuretimeseries
+        }
+
+        # ?
+        updateSelectizeInput(session, "stap_id", selected = 1)
+        updateSelectizeInput(session, "stap_id", selected = input$stap_id)
       },
       error = \(e){
         cli::cli_alert_warning(c(
-          "!" = "Function 'geopressure_timeseries' did not work.",
+          "!" = "Function {.fun geopressure_timeseries} did not work.",
           "i" = conditionMessage(e)
         ))
-        return()
       }
     )
-
-
-    # Find the new index for linetype
-    pressuretimeseries$linetype <- as.factor(ifelse(
-      any(reactVal$pressurepath$stap_id == stap_id),
-      max(as.numeric(reactVal$pressurepath$linetype[reactVal$pressurepath$stap_id == stap_id])) + 1,
-      1
-    ))
-
-    pressuretimeseries$stap_ref <- stap_id
-    pressuretimeseries$col <- stap$col[stap$stap_id == stap_id][1]
-
-    if ("j" %in% names(reactVal$pressurepath)) {
-      pressuretimeseries$j <- reactVal$pressurepath$j[1]
-    }
-    if ("ind" %in% names(reactVal$pressurepath)) {
-      pressuretimeseries$ind <- NA
-    }
-    if ("include" %in% names(reactVal$pressurepath)) {
-      pressuretimeseries$include <- reactVal$pressurepath$include[reactVal$pressurepath$stap_id == stap_id][1]
-    }
-    if ("known" %in% names(reactVal$pressurepath)) {
-      pressuretimeseries$known <- reactVal$pressurepath$known[reactVal$pressurepath$stap_id == stap_id][1]
-    }
-
-    # update lat lon in case over water
-    reactVal$path$lon[stap_id] <- pressuretimeseries$lon[1]
-    reactVal$path$lat[stap_id] <- pressuretimeseries$lat[1]
-    reactVal$path$ind[stap_id] <- latlon2ind(pressuretimeseries$lat[1], pressuretimeseries$lon[1])
-
-    # Merge the two data.frame
-    if (nrow(reactVal$pressurepath) > 0) {
-      # Add missing columns with NA values
-      missing_cols <- setdiff(names(reactVal$pressurepath), names(pressuretimeseries))
-      pressuretimeseries[missing_cols] <- NA
-
-      # Remove unwanted columns from pressuretimeseries
-      columns_to_keep <- intersect(names(reactVal$pressurepath), names(pressuretimeseries))
-      pressuretimeseries <- pressuretimeseries[, columns_to_keep]
-
-      reactVal$pressurepath <- rbind(reactVal$pressurepath, pressuretimeseries)
-    } else {
-      reactVal$pressurepath <- pressuretimeseries
-    }
-
-
-    # ?
-    updateSelectizeInput(session, "stap_id", selected = 1)
-    updateSelectizeInput(session, "stap_id", selected = input$stap_id)
   })
 
   # Export path functionality
