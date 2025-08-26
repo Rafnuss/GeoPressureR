@@ -15,7 +15,7 @@ geopressuretemplate_pressurepath <- function(
 
   if ("pressurepath" %in% names(config$geopressuretemplate)) {
     if (!quiet) {
-      cli::cli_h2("Compute pressurepath")
+      cli::cli_h2("Compute pressurepath {.field {id}}")
     }
 
     save_list <- load(file)

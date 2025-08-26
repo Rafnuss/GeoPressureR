@@ -32,7 +32,7 @@ geopressuretemplate_graph <- function(
 
   # Create the geospatial graph using the provided or default parameters
   if (!quiet) {
-    cli::cli_h2("Create Graph")
+    cli::cli_h2("Create Graph {.field {id}}")
   }
   graph <- do.call(graph_create, c(
     list(
