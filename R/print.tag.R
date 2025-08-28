@@ -155,28 +155,34 @@ print.tag <- function(x, ...) {
 #' @noRd
 cli_print_tbl <- function(x) {
   if (!is.data.frame(x)) x <- as.data.frame(x)
-  n <- nrow(x); if (n == 0L) return(invisible())
+  n <- nrow(x)
+  if (n == 0L) {
+    return(invisible())
+  }
 
-  # stringify (Date/POSIXct safe)
-  X <- as.data.frame(lapply(x, function(col) format(col, trim = TRUE)),
-                     stringsAsFactors = FALSE, check.names = FALSE)
+  xx <- as.data.frame(lapply(x, function(col) format(col, trim = TRUE)), check.names = FALSE)
 
   # compute per-column display widths (header vs values)
-  w <- pmax(nchar(names(X), type = "width"),
-            vapply(X, function(col) max(nchar(col, type = "width"), na.rm = TRUE), 0L))
+  w <- pmax(
+    nchar(names(xx), type = "width"),
+    vapply(xx, function(col) max(nchar(col, type = "width"), na.rm = TRUE), 0L)
+  )
 
-  fmt_row <- function(v)
-    paste(mapply(function(val, ww) format(val, width = ww, justify = "left"),
-                 as.list(v), w), collapse = " │ ")
+  fmt_row <- function(v) {
+    paste(mapply(
+      function(val, ww) format(val, width = ww, justify = "left"),
+      as.list(v), w
+    ), collapse = " │ ")
+  }
 
-  cli::cli_verbatim(fmt_row(names(X)))
+  cli::cli_verbatim(fmt_row(names(xx)))
   if (n <= 3L) {
-    for (i in seq_len(n)) cli::cli_verbatim(fmt_row(X[i, , drop = TRUE]))
+    for (i in seq_len(n)) cli::cli_verbatim(fmt_row(xx[i, , drop = TRUE]))
   } else {
-    cli::cli_verbatim(fmt_row(X[1, , drop = TRUE]))
-    cli::cli_verbatim(fmt_row(X[2, , drop = TRUE]))
+    cli::cli_verbatim(fmt_row(xx[1, , drop = TRUE]))
+    cli::cli_verbatim(fmt_row(xx[2, , drop = TRUE]))
     cli::cli_verbatim("…")
-    cli::cli_verbatim(fmt_row(X[n, , drop = TRUE]))
+    cli::cli_verbatim(fmt_row(xx[n, , drop = TRUE]))
     cli::cli_div(theme = list(".hint" = list(color = "grey60")))
     cli::cli_text("{.hint Run {.code tag$stap} to see full stap table}")
     cli::cli_end()
