@@ -91,14 +91,16 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
 
   if (condition %in% status) {
     return(TRUE)
-  }
-
-  if (type == "inform") {
-    cli::cli_bullets(msg)
-  } else if (type == "warn") {
-    cli::cli_warn(msg)
   } else {
-    cli::cli_abort(msg)
+    if (type == "inform") {
+      cli::cli_bullets(msg)
+    } else if (type == "warn") {
+      cli::cli_warn(msg)
+    } else if (type == "abort") {
+      cli::cli_abort(msg)
+    } else {
+      return(FALSE)
+    }
   }
 }
 

@@ -39,7 +39,7 @@ tag_label_stap <- function(tag,
                            quiet = FALSE,
                            warning_flight_duration = 2,
                            warning_stap_duration = 6) {
-  if ("setmap" %in% tag_status(tag)) {
+  if (tag_assert(tag, "setmap", "")) {
     cli::cli_abort(c(
       "x" = "{.fun setmap} has already been run on this {.var tag}.",
       ">" = "It is best practice to start from your raw data again using {.fun tag_create}."
