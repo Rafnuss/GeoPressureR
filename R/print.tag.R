@@ -172,7 +172,7 @@ cli_print_tbl <- function(x) {
     paste(mapply(
       function(val, ww) format(val, width = ww, justify = "left"),
       as.list(v), w
-    ), collapse = " │ ")
+    ), collapse = " | ")
   }
 
   cli::cli_verbatim(fmt_row(names(xx)))
@@ -181,7 +181,7 @@ cli_print_tbl <- function(x) {
   } else {
     cli::cli_verbatim(fmt_row(xx[1, , drop = TRUE]))
     cli::cli_verbatim(fmt_row(xx[2, , drop = TRUE]))
-    cli::cli_verbatim("…")
+    cli::cli_verbatim("...")
     cli::cli_verbatim(fmt_row(xx[n, , drop = TRUE]))
     cli::cli_div(theme = list(".hint" = list(color = "grey60")))
     cli::cli_text("{.hint Run {.code tag$stap} to see full stap table}")

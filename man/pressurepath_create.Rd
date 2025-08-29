@@ -9,7 +9,7 @@ pressurepath_create(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "land",
+  era5_dataset = "both",
   preprocess = FALSE,
   timeout = 60 * 10,
   workers = "auto",
