@@ -22,7 +22,7 @@ tag_label_read <- function(tag,
                            file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv")) {
   tag_assert(tag)
 
-  if ("setmap" %in% tag_status(tag)) {
+  if (tag_assert(tag, "setmap", "")) {
     cli::cli_abort(c(
       "x" = "{.fun setmap} has already been run on this {.var tag}.",
       ">" = "It is best practice to start from your raw data again using {.fun tag_create}."

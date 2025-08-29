@@ -26,8 +26,8 @@
 #' takes the nearest neighbour. ERA5 native resolution is 0.25°
 #' @param return_averaged_variable logical to return the variable for each timestep or average for
 #' the entire flight.
-#' @inheritParams tag_download_wind
 #' @param quiet logical to hide messages about the progress
+#' @inheritParams tag_download_wind
 #'
 #' @return A data.frame with columns:
 #' - `stap_s` id of the source/origin stationary period
@@ -59,13 +59,15 @@ edge_add_wind <- function(
     rounding_interval = 60,
     interp_spatial_linear = FALSE,
     return_averaged_variable = FALSE,
-    file = \(stap_id) glue::glue( # nolint
-      "./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc"
+    file = \(stap_id, tag_id) glue::glue( # nolint
+      "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
     ),
     quiet = FALSE) {
   if (is.null(pressure) && inherits(graph, "tag")) {
     pressure <- graph$pressure
   }
+
+  tag_id <- graph$param$id
 
   edge_add_wind_check(graph,
     pressure = pressure,
@@ -171,7 +173,7 @@ edge_add_wind <- function(
       i_s <- fl_s$stap_s[i_fl]
 
       # Read the netCDF file
-      nc <- ncdf4::nc_open(file(i_s))
+      nc <- ncdf4::nc_open(file(i_s, tag_id))
 
       # Read data from netCDF file and convert the time of data to posixt
       # Fix to use the correct time variable ("time" until the new CDS, then "valid_time")
@@ -183,7 +185,7 @@ edge_add_wind <- function(
         time <- as.POSIXct(ncdf4::ncvar_get(nc, "valid_time"), origin = "1970-01-01", tz = "UTC")
       } else {
         cli::cli_abort(c(
-          x = "Time variable not found in {.file {file(i_s)}}",
+          x = "Time variable not found in {.file {file(i_s, tag_id)}}",
           "i" = "Available variable{?s} {?is/are} {.var {names(nc$dim)}}."
         ))
       }
@@ -447,10 +449,12 @@ edge_add_wind_check <- function(
     graph,
     pressure = NULL,
     variable = c("u", "v"),
-    file = \(stap_id) {
-      glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc")
-    }) {
+    file = \(stap_id, tag_id) glue::glue( # nolint
+      "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
+    )) {
   assertthat::assert_that(inherits(graph, "tag") | inherits(graph, "graph"))
+
+  tag_id <- graph$param$id
 
   # Compute lat-lon coordinate of the grid
   g <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)
@@ -476,10 +480,10 @@ edge_add_wind_check <- function(
     for (i_fl in seq_len(length(fl_s$stap_s))) {
       i_s <- fl_s$stap_s[i_fl]
 
-      if (!file.exists(file(i_s))) {
-        cli::cli_abort(c(x = "No wind file {.file {file(i_s)}}"))
+      if (!file.exists(file(i_s, tag_id))) {
+        cli::cli_abort(c(x = "No wind file {.file {file(i_s, tag_id)}}"))
       }
-      nc <- ncdf4::nc_open(file(i_s))
+      nc <- ncdf4::nc_open(file(i_s, tag_id))
 
       # Check that the variables are present
       available_variable <- names(nc$var)
@@ -500,7 +504,7 @@ edge_add_wind_check <- function(
         time <- as.POSIXct(ncdf4::ncvar_get(nc, "valid_time"), origin = "1970-01-01", tz = "UTC")
       } else {
         cli::cli_abort(c(
-          x = "Time variable not found in {.file {file(i_s)}}",
+          x = "Time variable not found in {.file {file(i_s, tag_id)}}",
           "i" = "Available variable{?s} {?is/are} {.var {names(nc$dim)}}."
         ))
       }
@@ -508,7 +512,8 @@ edge_add_wind_check <- function(
       t_e <- as.POSIXct(format(fl_s$end[i_fl] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
       if (!(min(time) <= t_e && max(time) >= t_s)) {
         cli::cli_abort(c(
-          x = "Time between graph data and the wind file ({.file {file(i_s)}}) does not match.",
+          x = "Time between graph data and the wind file ({.file {file(i_s, tag_id)}}) does not
+          match.",
           "!" = "You might have modified your stationary periods without updating your wind file? ",
           ">" = "If so, run {.run tag_download_wind(tag)}"
         ))
@@ -521,7 +526,8 @@ edge_add_wind_check <- function(
         !(min(pres) <= min(pres_value) &&
           max(pres) >= min(1000, max(pres_value)))) {
         cli::cli_abort(c(
-          x = "Time between graph data and the wind file ({.file {file(i_s)}}) does not match.",
+          x = "Time between graph data and the wind file ({.file {file(i_s, tag_id)}}) does not
+          match.",
           "!" = "You might have modified your stationary periods without updating your wind file? ",
           ">" = "If so, run {.run tag_download_wind(tag)}"
         ))
@@ -534,7 +540,7 @@ edge_add_wind_check <- function(
       if (min(g$lat) < min(lat) || max(g$lat) > max(lat) ||
         min(g$lon) < min(lon) || max(g$lon) > max(lon)) {
         cli::cli_abort(c(x = "Spatial extent of the grid ({graph$param$tag_set_map$extent}) is
-        not included in the extent of {.file {file(i_s)}} ({nc_extent})"))
+        not included in the extent of {.file {file(i_s, tag_id)}} ({nc_extent})"))
       }
 
       # Check if flight duration is

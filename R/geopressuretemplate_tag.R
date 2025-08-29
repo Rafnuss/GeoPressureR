@@ -6,10 +6,9 @@ geopressuretemplate_tag <- function(
     config = config::get(config = id),
     quiet = FALSE,
     file = glue::glue("./data/interim/{id}.RData"),
-    assert_graph = FALSE,
     ...) {
   # Create the config file
-  config <- geopressuretemplate_config(id, config = config, assert_graph = assert_graph, ...)
+  config <- geopressuretemplate_config(id, config = config, ...)
 
   # Check if folder exist
   dir_file <- dirname(file)
@@ -24,14 +23,13 @@ geopressuretemplate_tag <- function(
   }
 
   if (!quiet) {
-    cli::cli_h2("Prepare tag")
+    cli::cli_h2("Prepare tag {.field {id}}")
   }
   # Create a tag object and initialize it with sensor data and other parameters
   tag <- do.call(tag_create, c(
     list(id = id, quiet = quiet),
     config$tag_create
   ))
-
 
   # Label the tag with additional metadata and annotations
   tag <- do.call(tag_label, c(
@@ -44,7 +42,6 @@ geopressuretemplate_tag <- function(
     list(tag = tag),
     config$tag_set_map
   ))
-
 
   # If light mapping is required, process it
   if ("map_light" %in% config$geopressuretemplate$likelihood) {

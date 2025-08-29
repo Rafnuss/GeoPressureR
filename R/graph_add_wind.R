@@ -58,8 +58,8 @@ graph_add_wind <- function(
     as <- abs(graph$gs - graph$ws) # nolint
     edge_s_all <- arrayInd(graph$s, c(g$dim, nrow(graph$stap))) # nolint
     cli::cli_abort(c(
-      x = "Using {.arg thr_as} of {thr_as} km/h,  there are not any nodes left for the stationary \\
-      period: {.field {sta_pass}} with a minimum airspeed of \\
+      x = "Using {.arg thr_as} of {thr_as} km/h,  there are not any nodes left for the stationary
+      period: {.field {sta_pass}} with a minimum airspeed of
       {.val {round(min(as[edge_s_all[, 3] %in% sta_pass]))}} km/h."
     ))
   }

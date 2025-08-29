@@ -127,6 +127,27 @@ test_that("tag_label_stap() | no acceleration", {
   expect_no_error(tag_label_stap(tag_labelled, quiet = TRUE))
 })
 
+test_that("tag_label_stap() | pressure longer than acc", {
+  # Make a copy of a labeled
+  tag_labelled <- tag_label_read(tag, file = "./data/tag-label/18LX-labeled.csv")
+  tag2 <- tag_labelled
+
+  expect_equal(nrow(tag_label_stap(tag2, quiet = TRUE)$stap), 5)
+
+  # Remove some acceleration data
+  tag2$acceleration <- tag2$acceleration[seq(1, 3000), ]
+
+  expect_equal(nrow(tag_label_stap(tag2, quiet = TRUE)$stap), 3)
+
+  # Add some flight label to pressure
+  tag2$pressure$label[600:650] <- "flight"
+
+  expect_equal(nrow(tag_label_stap(tag2, quiet = TRUE)$stap), 4)
+
+  tag2$pressure$label[50:60] <- "flight"
+  expect_warning(tag_label_stap(tag2, quiet = TRUE))
+})
+
 
 test_that("tag_label() | default", {
   expect_no_error(tag_labelled <- tag_label(tag, quiet = TRUE))

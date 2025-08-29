@@ -32,7 +32,7 @@ geopressuretemplate_graph <- function(
 
   # Create the geospatial graph using the provided or default parameters
   if (!quiet) {
-    cli::cli_h2("Create Graph")
+    cli::cli_h2("Create Graph {.field {id}}")
   }
   graph <- do.call(graph_create, c(
     list(
@@ -82,7 +82,8 @@ geopressuretemplate_graph <- function(
         "i" = "Error while defining the movement model. {.var graph} is return.",
         ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
       ))
-      graph
+      # Need to have return otherwise this is not returning to main function
+      return(graph) # nolint
     }
   )
 
@@ -134,16 +135,10 @@ geopressuretemplate_graph <- function(
         "x" = "Error while computing the outputs. {.var graph} is returned.",
         ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
       ))
-      graph
+      # Need to have return otherwise this is not returning to main function
+      return(graph) # nolint
     }
   )
-
-  # Add path_geopressureviz if it exists as a csv
-  file_path_geopressureviz <- glue::glue("./data/interim/path_geopressureviz_{id}.csv")
-  if (file.exists(file_path_geopressureviz)) {
-    path_geopressureviz <- utils::read.csv(file_path_geopressureviz) # nolint
-    save_list <- c(save_list, "path_geopressureviz")
-  }
 
   # Save the outputs to the specified file
   save(

@@ -24,7 +24,7 @@ test_that("pressurepath_create() | single stap", {
   pressurepath <- expect_no_error(
     pressurepath_create(tag, path_i,
       variable = c("altitude", "surface_pressure", "total_precipitation"),
-      era5_dataset = "land",
+      # era5_dataset = "land",
       quiet = TRUE,
     )
   )

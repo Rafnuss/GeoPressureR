@@ -91,14 +91,16 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
 
   if (condition %in% status) {
     return(TRUE)
-  }
-
-  if (type == "inform") {
-    cli::cli_bullets(msg)
-  } else if (type == "warn") {
-    cli::cli_warn(msg)
   } else {
-    cli::cli_abort(msg)
+    if (type == "inform") {
+      cli::cli_bullets(msg)
+    } else if (type == "warn") {
+      cli::cli_warn(msg)
+    } else if (type == "abort") {
+      cli::cli_abort(msg)
+    } else {
+      return(FALSE)
+    }
   }
 }
 
@@ -144,11 +146,23 @@ tag_status <- function(tag) {
   if (assertthat::has_name(tag, "map_pressure_mse")) {
     status <- append(status, "map_pressure_mse")
   }
+  if (assertthat::has_name(tag, "map_pressure_mask")) {
+    status <- append(status, "map_pressure_mask")
+  }
   if (assertthat::has_name(tag, "twilight")) {
     status <- append(status, "twilight")
   }
   if (assertthat::has_name(tag, "map_light")) {
     status <- append(status, "map_light")
+  }
+  if (assertthat::has_name(tag, "map_magnetic")) {
+    status <- append(status, "map_magnetic")
+  }
+  if (assertthat::has_name(tag, "map_magnetic_intensity")) {
+    status <- append(status, "map_magnetic_intensity")
+  }
+  if (assertthat::has_name(tag, "map_magnetic_inclination")) {
+    status <- append(status, "map_magnetic_inclination")
   }
 
   status

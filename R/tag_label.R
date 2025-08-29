@@ -89,7 +89,7 @@ tag_label <- function(tag,
     return(tag)
   } else {
     # Check if label has already been setmap
-    if ("setmap" %in% tag_status(tag)) {
+    if (tag_assert(tag, "setmap", "")) {
       cli::cli_bullets(c("!" = "The setmap has already been defined for {.var tag}."))
       choices <- list(
         "1" = glue::glue("No, return the original `tag`"),

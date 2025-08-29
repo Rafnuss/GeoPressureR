@@ -8,12 +8,12 @@
 #' @param id A character string of length 1 corresponding to the tag identifier used in the
 #' GeoPressureTemplate (e.g., `"18LX"`). The function will look for a file named
 #' `./data/interim/{id}.RData`.
-#' @param ... Additional arguments passed to [base::load()], such as `envir`.
+#' @inheritParams base::load
 #'
 #' @return Invisibly returns the names of the objects loaded (as in [base::load()]).
 #'
 #' @export
-load_interim <- function(id, ...) {
+load_interim <- function(id, envir = parent.frame(), verbose = FALSE) {
   assertthat::assert_that(is.character(id), length(id) == 1)
   file <- glue::glue("./data/interim/{id}.RData")
 
@@ -24,5 +24,5 @@ load_interim <- function(id, ...) {
     ))
   }
 
-  base::load(file, ...)
+  base::load(file, envir = envir, verbose = verbose)
 }

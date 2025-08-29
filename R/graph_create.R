@@ -103,6 +103,9 @@ graph_create <- function(tag,
     cli::cli_progress_step("Check data input", msg_done = "Data input validated")
   }
 
+  # Retrieve likelihood map used
+  likelihood <- tag2likelihood(tag, likelihood)
+
   # Construct the likelihood map
   lk <- tag2map(tag, likelihood = likelihood)
 
@@ -153,7 +156,7 @@ graph_create <- function(tag,
   if (!quiet) {
     cli::cli_progress_done()
     cli::cli_progress_step("Create nodes from likelihood maps",
-      msg_done = "Nodes created from likelihood maps"
+      msg_done = "Nodes created from likelihood maps: {.field {likelihood}}"
     )
   }
 

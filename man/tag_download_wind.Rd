@@ -9,8 +9,8 @@ tag_download_wind(
   extent = tag$param$tag_set_map$extent,
   include_stap_id = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
-  file = function(stap_id)
-    glue::glue("./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"),
+  file = function(stap_id, tag_id)
+    glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"),
   overwrite = FALSE,
   workers = 19,
   cds_token = lifecycle::deprecated(),
@@ -34,7 +34,7 @@ Default is to download all flights.}
 \verb{'vorticity"}.}
 
 \item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
-taking as single argument the stationary period identifier.}
+taking as arguments (1) the stationary period identifier and (2) the tag_id.}
 
 \item{overwrite}{logical. If \code{TRUE}, file is overwritten.}
 

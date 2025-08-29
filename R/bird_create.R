@@ -43,6 +43,7 @@ bird_create <- function(scientific_name,
     lifecycle::deprecate_warn("3.3.1", "bird_create(species_name)", "bird_create(scientific_name)")
     scientific_name <- species_name
   }
+  assertthat::assert_that(is.character(scientific_name))
   if (is.null(mass) || (is.null(wing_aspect) + is.null(wing_area) + is.null(wing_span) > 1)) {
     # Mass, wing length and secondary length are retrieve from the AVONET
     sp_id <- grep(scientific_name, avonet$species, ignore.case = FALSE, fixed = TRUE)
@@ -103,7 +104,6 @@ bird_create <- function(scientific_name,
   }
 
   # Final check of the input and return the list
-  assertthat::assert_that(is.character(scientific_name))
   assertthat::assert_that(is.numeric(mass))
   assertthat::assert_that(mass > 0 & mass < 10)
   assertthat::assert_that(is.numeric(body_frontal_area))

@@ -129,7 +129,7 @@ geopressure_map_mismatch <- function(tag,
     i_u <- 1
     cli::cli_progress_step(
       msg = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev \\
-      (on {.val {workers}} workers): {.val {labels[i_u]}} | {i_u}/{length(urls)}",
+      (on {.val {future::nbrOfWorkers()}} workers): {.val {labels[i_u]}} | {i_u}/{length(urls)}",
       msg_done = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev"
     )
     # nolint end
@@ -138,23 +138,35 @@ geopressure_map_mismatch <- function(tag,
     if (!quiet) {
       cli::cli_progress_update(force = TRUE)
     }
-    f[[i_u]] <- future::future(expr = {
-      # Request URLS
-      req <- httr2::request(urls[i_u]) |>
-        httr2::req_timeout(timeout) |>
-        httr2::req_error(is_error = function(resp) FALSE)
+    url_i <- urls[i_u]
+    f[[i_u]] <- future::future(
+      expr = {
+        # Create request for each url
+        req_i <- httr2::request(url_i) |>
+          httr2::req_timeout(timeout) |>
+          httr2::req_error(is_error = function(resp) FALSE)
 
-      if (debug) {
-        req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
-      }
+        if (debug) {
+          req_i <- httr2::req_verbose(req_i, body_req = TRUE, body_resp = TRUE, info = TRUE)
+        }
 
-      # Perform the request and write the response to file
-      file <- tempfile(fileext = ".geotiff")
-      httr2::req_perform(req, path = file)
+        # Perform the request and write the response to file
+        file <- tempfile(fileext = ".geotiff")
+        httr2::req_perform(req_i, path = file)
 
-      # return the path to the file
-      return(file)
-    }, seed = TRUE)
+        # return the path to the file
+        return(file)
+      },
+      # Without specifying the variable, memoery was getting super large for no reason. I couldn't
+      # figure out which variables was included, but it worked like this
+      globals = list(url_i = url_i, timeout = timeout, debug = debug),
+      envir = baseenv(),
+      seed = TRUE
+    )
+    # gc()
+    # print(f)
+    # utils::capture.output(print(f[[i_u]]))
+    # invisible(f[[i_u]])
   }
 
   # Get maps
