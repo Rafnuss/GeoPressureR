@@ -42,7 +42,7 @@ few external case of use for this function."><meta property="og:image" content="
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Create a <code>param</code> list</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.4.3/R/param_create.R" class="external-link"><code>R/param_create.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/param_create.R" class="external-link"><code>R/param_create.R</code></a></small>
       <div class="d-none name"><code>param_create.Rd</code></div>
     </div>
 
@@ -137,8 +137,8 @@ few external case of use for this function.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Movement model &amp; wind `graph_add_wind()` `graph_movement()` </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">thr_as</span>: <span style="color: #0000BB;">Inf</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">file</span>: `function(stap_id)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc")`</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">file</span>: `function(stap_id, tag_id)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc")`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">type</span>: `ifelse("ws" %in% names(graph), "as", "gs")`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">method</span>: `ifelse("ws" %in% names(graph), "power", "gamma")`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">shape</span>: <span style="color: #0000BB;">7</span></span>
@@ -158,7 +158,7 @@ few external case of use for this function.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">nj</span>: <span style="color: #0000BB;">10</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">variable</span>: `c("altitude", "surface_pressure")`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">solar_dep</span>: <span style="color: #0000BB;">0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">era5_dataset</span>: <span style="color: #0000BB;">"land"</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">era5_dataset</span>: <span style="color: #0000BB;">"both"</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

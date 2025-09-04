@@ -48,7 +48,7 @@ and configuration files according following the GeoPressureTemplate standard .">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Workflow for GeoPressureR</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.4.3/R/geopressuretemplate.R" class="external-link"><code>R/geopressuretemplate.R</code></a>, <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.4.3/R/geopressuretemplate_config.R" class="external-link"><code>R/geopressuretemplate_config.R</code></a>, <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.4.3/R/geopressuretemplate_graph.R" class="external-link"><code>R/geopressuretemplate_graph.R</code></a>, and 2 more</small>
+      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/geopressuretemplate.R" class="external-link"><code>R/geopressuretemplate.R</code></a>, <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/geopressuretemplate_config.R" class="external-link"><code>R/geopressuretemplate_config.R</code></a>, <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/geopressuretemplate_graph.R" class="external-link"><code>R/geopressuretemplate_graph.R</code></a>, and 2 more</small>
       <div class="d-none name"><code>geopressuretemplate.Rd</code></div>
     </div>
 
@@ -76,6 +76,7 @@ and configuration files according following the <a href="https://raphaelnussbaum
 <span><span class="fu">geopressuretemplate_config</span><span class="op">(</span></span>
 <span>  <span class="va">id</span>,</span>
 <span>  config <span class="op">=</span> <span class="fu">config</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/config/reference/get.html" class="external-link">get</a></span><span class="op">(</span>config <span class="op">=</span> <span class="va">id</span><span class="op">)</span>,</span>
+<span>  assert_tag <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  assert_graph <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -101,7 +102,6 @@ and configuration files according following the <a href="https://raphaelnussbaum
 <span>  config <span class="op">=</span> <span class="fu">config</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/config/reference/get.html" class="external-link">get</a></span><span class="op">(</span>config <span class="op">=</span> <span class="va">id</span><span class="op">)</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"./data/interim/{id}.RData"</span><span class="op">)</span>,</span>
-<span>  assert_graph <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -132,6 +132,11 @@ Default is <code>./data/interim/{id}.RData</code>.</p></dd>
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional parameters to overwrite default or config values. Always prefer to modify
 <code>config.yml</code> if possible.</p></dd>
+
+
+<dt id="arg-assert-tag">assert_tag<a class="anchor" aria-label="anchor" href="#arg-assert-tag"></a></dt>
+<dd><p>Logical. If <code>TRUE</code>, check that the config is compatible for the creation of
+a tag. The default value is <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-assert-graph">assert_graph<a class="anchor" aria-label="anchor" href="#arg-assert-graph"></a></dt>
@@ -172,8 +177,6 @@ marginal distributions, most likely paths, and simulation paths can be computed.
 <li><p>If <code>"most_likely"</code> is in <code>config$geopressuretemplate$outputs</code>:</p><ul><li><p><code><a href="graph_most_likely.html">graph_most_likely()</a></code>: Computes the most likely path based on the movement model.</p></li>
 </ul></li>
 <li><p>If <code>"simulation"</code> is in <code>config$geopressuretemplate$outputs</code>:</p><ul><li><p><code><a href="graph_simulation.html">graph_simulation()</a></code>: Runs simulations to model multiple possible paths.</p></li>
-</ul></li>
-<li><p>If <code>path_geopressureviz_{id}.csv</code> exists in <code>./data/interim/</code>:</p><ul><li><p>Save a data.frame variable <code>path_geopressureviz</code> (see below)</p></li>
 </ul></li>
 <li><p><code><a href="https://rdrr.io/r/base/save.html" class="external-link">save()</a></code>: Saves the computed graph and associated objects in <code>data/interim/{id}.Rdata</code></p></li>
 </ol><ul><li><p><strong>Pressure Path Processing <code>geopressuretemplate_pressurepath()</code></strong>: Computes pressurepaths

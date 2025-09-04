@@ -60,7 +60,7 @@ More information in the GeoPressureManual.'><meta property="og:image" content="h
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Download flight data</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.4.3/R/tag_download_wind.R" class="external-link"><code>R/tag_download_wind.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/tag_download_wind.R" class="external-link"><code>R/tag_download_wind.R</code></a></small>
       <div class="d-none name"><code>tag_download_wind.Rd</code></div>
     </div>
 
@@ -88,8 +88,8 @@ retrieve your API Token on <a href="https://cds.climate.copernicus.eu/profile" c
 <span>  extent <span class="op">=</span> <span class="va">tag</span><span class="op">$</span><span class="va">param</span><span class="op">$</span><span class="va">tag_set_map</span><span class="op">$</span><span class="va">extent</span>,</span>
 <span>  include_stap_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  variable <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"u_component_of_wind"</span>, <span class="st">"v_component_of_wind"</span><span class="op">)</span>,</span>
-<span>  file <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">stap_id</span><span class="op">)</span></span>
-<span>    <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"./data/wind/{tag$param$id}/{tag$param$id}_{stap_id}.nc"</span><span class="op">)</span>,</span>
+<span>  file <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">stap_id</span>, <span class="va">tag_id</span><span class="op">)</span></span>
+<span>    <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"</span><span class="op">)</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  workers <span class="op">=</span> <span class="fl">19</span>,</span>
 <span>  cds_token <span class="op">=</span> <span class="fu">lifecycle</span><span class="fu">::</span><span class="fu"><a href="https://lifecycle.r-lib.org/reference/deprecated.html" class="external-link">deprecated</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -126,7 +126,7 @@ Default is to download all flights.</p></dd>
 
 <dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
 <dd><p>absolute or relative path of the ERA5 wind data file to be downloaded. Function
-taking as single argument the stationary period identifier.</p></dd>
+taking as arguments (1) the stationary period identifier and (2) the tag_id.</p></dd>
 
 
 <dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
