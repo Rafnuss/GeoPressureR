@@ -38,6 +38,10 @@ ui <- bootstrapPage(
                          style = "font-weight:bold; line-height: 34px;text-align: right;"), ),
         column(4, style = "padding:0px;", numericInput("min_dur_stap", NULL, min = 0, max = 50,
                                                        value = 0, step = 0.5), ),
+      ),
+      fluidRow(
+        actionButton("export_path", "Export path to interim",
+        style = "background-color: #28a745; color: white; width: 100%;")
       )
     ),
     div(

@@ -3,6 +3,7 @@
 #' @export
 geopressuretemplate_config <- function(id,
                                        config = config::get(config = id),
+                                       assert_tag = TRUE,
                                        assert_graph = FALSE,
                                        ...) {
   # 1. Create the config from the default value
@@ -17,12 +18,14 @@ geopressuretemplate_config <- function(id,
   c <- merge_params(c, list(...))
 
   # Perform check
-  if (!(length(c$geopressuretemplate$likelihood) > 0)) {
-    cli::cli_abort(c(
-      x = "{.var geopressuretemplate$likelihood} needs to be provided.",
-      ">" = "Make sure {.var geopressuretemplate$likelihood} is a list in {.file config.yml} (e.g.
-      {.code ['map_pressure', 'map_light']}."
-    ))
+  if (assert_tag) {
+    if (!(length(c$geopressuretemplate$likelihood) > 0)) {
+      cli::cli_abort(c(
+        x = "{.var geopressuretemplate$likelihood} needs to be provided.",
+        ">" = "Make sure {.var geopressuretemplate$likelihood} is a list in {.file config.yml} (e.g.
+        {.code ['map_pressure', 'map_light']}."
+      ))
+    }
   }
 
   # Additional check to perform only if the workflow needs to run the graph model. This allows to

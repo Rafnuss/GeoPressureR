@@ -46,8 +46,6 @@
 #'     - `graph_most_likely()`: Computes the most likely path based on the movement model.
 #' 6. If `"simulation"` is in `config$geopressuretemplate$outputs`:
 #'     - `graph_simulation()`: Runs simulations to model multiple possible paths.
-#' 6. If `path_geopressureviz_{id}.csv` exists in `./data/interim/`:
-#'     - Save a data.frame variable `path_geopressureviz` (see below)
 #' 7. `save()`: Saves the computed graph and associated objects in `data/interim/{id}.Rdata`
 #'
 #' * **Pressure Path Processing [`geopressuretemplate_pressurepath()`]**: Computes pressurepaths
@@ -69,6 +67,8 @@
 #' value is `FALSE`.
 #' @param file A file path to save the intermediate results (e.g., tag, graph, and pressure paths).
 #' Default is `./data/interim/{id}.RData`.
+#' @param assert_tag Logical. If `TRUE`, check that the config is compatible for the creation of
+#' a tag. The default value is `TRUE`.
 #' @param assert_graph Logical. If `TRUE`, check that the config is compatible for the creation of
 #' a graph. The default value is `TRUE`. Set to `FALSE` only if you don't want to create a graph
 #' model

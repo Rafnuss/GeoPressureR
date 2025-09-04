@@ -138,7 +138,11 @@ plot_path_leaflet <- function(
       color = "white",
       weight = 2,
       opacity = 1,
-      fill = ifelse(is.null(path$interp), TRUE, !path$interp),
+      fill = if (!"interp" %in% names(path)) {
+        rep(TRUE, nrow(path))
+      } else {
+        ifelse(is.na(path$interp), TRUE, !path$interp)
+      },
       fillColor = "grey",
       fillOpacity = 0.8,
       label = label

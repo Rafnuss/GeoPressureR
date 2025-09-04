@@ -39,7 +39,7 @@ tag_label_stap <- function(tag,
                            quiet = FALSE,
                            warning_flight_duration = 2,
                            warning_stap_duration = 6) {
-  if ("setmap" %in% tag_status(tag)) {
+  if (tag_assert(tag, "setmap", "")) {
     cli::cli_abort(c(
       "x" = "{.fun setmap} has already been run on this {.var tag}.",
       ">" = "It is best practice to start from your raw data again using {.fun tag_create}."
@@ -49,18 +49,37 @@ tag_label_stap <- function(tag,
   # Perform test
   tag_assert(tag, "label")
 
-  # If acceleration is present, use acceleration, otherwise pressure
+  # Build activity from acceleration when available
   if (assertthat::has_name(tag, "acceleration") &&
     assertthat::has_name(tag$acceleration, "label")) {
-    sensor <- tag$acceleration
-    if ("flight" %in% tag$pressure$label) {
-      cli::cli_warn("The stationary periods will be estimated from acceleration data and the \\
-        label {.val flight} from pressure will be ignored. It is best practise to remove \\
-        {.val flight} in  pressure data if you are using acceleration. Remove label column in \\
-        acceleration data to use pressure label.")
+    sensor <- tag$acceleration[, c("date", "label")]
+
+    # Append pressure label when acceleration ends
+    if (assertthat::has_name(tag, "pressure")) {
+      # Only use pressure data fire the first or after the last acceleration timestamp
+      out <- tag$pressure$date < min(sensor$date, na.rm = TRUE) |
+        tag$pressure$date > max(sensor$date, na.rm = TRUE)
+      pres_outside_acc <- tag$pressure[out, ]
+
+      if (nrow(pres_outside_acc) > 0) {
+        # combine both data
+        sensor <- rbind(sensor, pres_outside_acc[, c("date", "label")])
+        # order by date
+        sensor <- sensor[order(sensor$date), ]
+      }
+      if ("flight" %in% tag$pressure$label[!out]) {
+        cli::cli_warn(c(
+          "!" = "The label {.val flight} is detected on {.field pressure} while
+        {.field acceleration} is also present.",
+          "i" = "The stationary periods will be estimated from {.field acceleration} data and the
+        {.val flight} label from pressure will be ignored. ",
+          ">" = "It is best practise to remove {.val flight} label in {.field pressure} data when
+        {.field acceleration} is available."
+        ))
+      }
     }
   } else {
-    sensor <- tag$pressure
+    sensor <- tag$pressure[, c("date", "label")]
   }
 
   # Create a table of activities (migration or stationary)
@@ -71,13 +90,16 @@ tag_label_stap <- function(tag,
   # after the labelling respectively. To account for this. We estimate that the bird took off
   # between the previous and first flight label, and landed between the last flight label and next
   # one. We use the temporal resolution to account for this.
-  dt <- stats::median(diff(sensor$date))
+  sensor$dt_prev <- c(as.difftime(0, units = "mins"), diff(sensor$date)) / 2
+  sensor$dt_next <- c(diff(sensor$date), as.difftime(0, units = "mins")) / 2
 
   # construct stationary period table
   tag$stap <- data.frame(
     stap_id = unique(tmp[!is.na(tmp)]),
-    start = do.call(c, lapply(split(sensor$date, tmp), min)) - dt / 2,
-    end = do.call("c", lapply(split(sensor$date, tmp), max)) + dt / 2
+    start = do.call(c, lapply(split(sensor$date, tmp), min)) -
+      do.call(c, lapply(split(sensor$dt_prev, tmp), function(x) x[1])),
+    end = do.call("c", lapply(split(sensor$date, tmp), max)) +
+      do.call(c, lapply(split(sensor$dt_next, tmp), function(x) x[1]))
   )
 
   # Assign to each sensor the stationary period to which it belong to.

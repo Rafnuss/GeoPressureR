@@ -258,7 +258,12 @@ tag_create <- function(id,
   }
 
   if (assert_pressure) {
-    tag_assert(tag, "pressure")
+    if (!assertthat::has_name(tag, "pressure")) {
+      cli::cli_abort(c(
+        "x" = "The {.var tag} object does not contain pressure data.",
+        ">" = "You can set {.code assert_pressure = FALSE} to create a tag without pressure data."
+      ))
+    }
   }
 
   # Crop date

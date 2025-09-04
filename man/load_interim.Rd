@@ -4,14 +4,16 @@
 \alias{load_interim}
 \title{Load an interim RData object}
 \usage{
-load_interim(id, ...)
+load_interim(id, envir = parent.frame(), verbose = FALSE)
 }
 \arguments{
 \item{id}{A character string of length 1 corresponding to the tag identifier used in the
 GeoPressureTemplate (e.g., \code{"18LX"}). The function will look for a file named
 \verb{./data/interim/\{id\}.RData}.}
 
-\item{...}{Additional arguments passed to \code{\link[base:load]{base::load()}}, such as \code{envir}.}
+\item{envir}{the environment where the data should be loaded.}
+
+\item{verbose}{should item names be printed during loading?}
 }
 \value{
 Invisibly returns the names of the objects loaded (as in \code{\link[base:load]{base::load()}}).
