@@ -2,13 +2,13 @@
 # CITATION file created with {cffr} R package
 # See also: https://docs.ropensci.org/cffr/
 # --------------------------------------------
-
+ 
 cff-version: 1.2.0
 message: 'To cite package "GeoPressureR" in publications use:'
 type: software
 license: GPL-3.0-or-later
 title: 'GeoPressureR: Global Positioning by Atmospheric Pressure'
-version: 3.4.3
+version: 3.4.4
 doi: 10.5281/zenodo.7754457
 abstract: R package to determine the position and trajectory of a bird based on light-weight
   data-logger measuring at lease atmospheric pressure.
@@ -331,6 +331,10 @@ references:
     given-names: Bhaskar
   - family-names: Xie
     given-names: Yihui
+  - family-names: Aden-Buie
+    given-names: Garrick
+    email: garrick@posit.co
+    orcid: https://orcid.org/0000-0002-7111-0077
   year: '2025'
   doi: 10.32614/CRAN.package.leaflet
   version: '>= 2.2.0'
