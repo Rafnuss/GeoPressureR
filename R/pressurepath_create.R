@@ -114,7 +114,7 @@ pressurepath_create <- function(tag,
                                 solar_dep = 0,
                                 era5_dataset = "both",
                                 preprocess = FALSE,
-                                timeout = 60 * 10,
+                                timeout = Inf, # 60 * 20, # Align with server
                                 workers = "auto",
                                 quiet = FALSE,
                                 debug = FALSE) {
