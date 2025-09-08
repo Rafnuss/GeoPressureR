@@ -64,11 +64,22 @@ trainset_read <- function(df,
 
   if (missing_pres > 0) {
     # nolint start
-    series_name <- ifelse(is.null(series), "", glue::glue(" of ", series))
+    not_needed <- nrow(csv) - nrow(df) + missing_pres
+
+    series_name <- if (!is.null(series)) paste0(" of {.field ", series, "}") else ""
+
+    msg <- paste0(
+      "The labelization file", series_name,
+      " is missing {.val {missing_pres}} timesteps"
+    )
+
+    if (not_needed > 0) {
+      msg <- paste0(msg, " and includes {.val {not_needed}} timesteps which are not needed")
+    }
+
     cli::cli_warn(c(
-      i = "The labelization file{series_name} is missing {missing_pres} timesteps and includes
-      {nrow(csv) - nrow(df) + missing_pres} timestep which are not nedded. ",
-      ">" = "We assumed no discard during the timestep missing."
+      i = msg,
+      ">" = "We assumed no {.val discard} during the missing timesteps."
     ))
     # nolint end
   }
