@@ -284,6 +284,9 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
   if (file.exists(file)) {
     return(file)
   }
+  if (file == "") {
+    return(NULL)
+  }
 
   # Find files in directory ending with `file`
   path <- list.files(directory,
