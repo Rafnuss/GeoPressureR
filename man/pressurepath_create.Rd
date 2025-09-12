@@ -11,7 +11,7 @@ pressurepath_create(
   solar_dep = 0,
   era5_dataset = "both",
   preprocess = FALSE,
-  timeout = 60 * 10,
+  timeout = Inf,
   workers = "auto",
   quiet = FALSE,
   debug = FALSE

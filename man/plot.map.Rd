@@ -19,7 +19,7 @@
 )
 }
 \arguments{
-\item{x}{a \code{\link[terra]{SpatRaster}} or a \code{RasterLayer} object--see \code{\link[raster]{raster}}}
+\item{x}{a \code{\link[terra:SpatRaster-class]{terra::SpatRaster()}} or a \code{RasterLayer} object--see \code{\link[raster:raster]{raster::raster()}}}
 
 \item{path}{a GeoPressureR \code{path} data.frame}
 

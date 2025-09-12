@@ -329,7 +329,6 @@ geolight_map_twilight <- function(twl, extent, scale, twl_calib, quiet = FALSE) 
 #' - `eqn_time` equation of time (minutes of time)
 #' - `sin_solar_dec` sine of the solar declination
 #' - `cos_solar_dec` cosine of the solar declination
-#' @seealso [`geolight_zenith()`]
 #' @examples
 #' # Current solar time
 #' GeoPressureR::geolight_solar(Sys.time())
@@ -406,12 +405,11 @@ geolight_solar <- function(date) {
 #' `geolight_zenith` uses the solar time and declination calculated by `geolight_solar` to compute
 #' the solar zenith angle for given times and locations, using the same methods as
 #' \url{https://gml.noaa.gov/grad/solcalc/}.  This function does not adjust for atmospheric
-#' refraction see [`geolight_refracted`].
+#' refraction see `GeoPressureR:::geolight_refracted()`.
 #' @param sun List of solar time and declination computed by `geolight_solar`.
 #' @param lon Vector of longitudes.
 #' @param lat Vector latitudes.
 #' @return A vector of solar zenith angles (degrees) for the given locations and times.
-#' @seealso [`geolight_solar()`]
 #' @examples
 #' # Approx location of Sydney Harbour Bridge
 #' lon <- 151.211
@@ -444,12 +442,11 @@ geolight_zenith <- function(sun, lon, lat) {
 
 #' Atmospheric refraction
 #'
-#' Adjust the solar zenith angle computed by [`geolight_zenith`] for the effect of atmospheric
+#' Adjust the solar zenith angle computed by `GeoPressureR:::geolight_zenith()` for the effect of atmospheric
 #' refraction.
 #'
 #' @param zenith Zenith angle (degrees) to adjust.
 #' @return Vector of zenith angles (degrees) adjusted for atmospheric refraction.
-#' @seealso [`geolight_zenith()`]
 #' @noRd
 geolight_refracted <- function(zenith) {
   rad <- pi / 180

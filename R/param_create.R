@@ -128,8 +128,8 @@ param_create <- function(id, default = FALSE, ...) {
 
 #' Merge two parameters list.
 #'
-#' Strongly inspired by [config::merge()] and rmarkdown
-#' [https://github.com/rstudio/rmarkdown/blob/main/R/util.R#L231]
+#' Strongly inspired by [config::merge()] and [rmarkdown/util.R#L231
+#' ](https://github.com/rstudio/rmarkdown/blob/v2.29/R/util.R#L231)
 #'
 #' @param base_param Parameter list to merge values into
 #' @param overlay_param Parameter list to merge values from
