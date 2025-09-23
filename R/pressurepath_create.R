@@ -124,7 +124,15 @@ pressurepath_create <- function(tag,
   # Assert tag
   tag_assert(tag, "stap")
 
-  assertthat::assert_that(all(variable %in% pressurepath_variable))
+  # Validate requested variables against the allowed set
+  unknown_vars <- setdiff(variable, pressurepath_variable)
+  assertthat::assert_that(
+    length(unknown_vars) == 0,
+    msg = paste0(
+      "Unknown variable(s): ", paste(unknown_vars, collapse = ", "),
+      ". Allowed variables are: ", paste(pressurepath_variable, collapse = ", ")
+    )
+  )
 
   assertthat::assert_that(era5_dataset %in% c("single-levels", "land", "both"))
 
