@@ -218,25 +218,22 @@ pretty_dt <- function(tim) {
 #'
 #' @noRd
 find_stap <- function(stap, date) {
-  # Find stap for each date
-  tmp <- mapply(function(start, end) {
-    start <= date & date <= end
-  }, stap$start, stap$end)
 
-  # Find index
-  tmp <- which(tmp, arr.ind = TRUE)
+  # logical matrix: which date falls inside which stap
+  in_mat <- mapply(function(s, e) s <= date & date <= e, stap$start, stap$end)
 
-  # Initiate with 0
-  stap_id <- rep(0, length(date))
+  # rows: date index, cols: stap index
+  matches <- which(in_mat, arr.ind = TRUE)
 
-  # Add known stap_id
-  stap_id[tmp[, 1]] <- tmp[, 2]
+  # anchors: start and end times for each stap (each stap -> two anchors with same id)
+  anchors_t  <- as.numeric(c(rbind(stap$start, stap$end)))
+  anchors_id <- rep(seq_len(nrow(stap)), each = 2)
 
-  # Interpolate linearly in between
-  sequence <- seq_len(length(stap_id))
-  id <- stap_id == 0
-  stap_id[id] <- stats::approx(sequence[!id], stap_id[!id], sequence[id], rule = 2)$y
+  # linear interpolation on the temporal axis
+  stap_id <- stats::approx(x = anchors_t, y = anchors_id,
+                           xout = as.numeric(date), rule = 2)$y
 
+  # Check that all date have a stap_id
   assertthat::assert_that(all(!is.na(stap_id)))
 
   stap_id
