@@ -27,6 +27,8 @@ Data.frame of the edge containing:
 \item \code{end}: start of the flight.
 \item \code{duration}: duration of the flight.
 \item \code{n}: number of flight.
+\item \code{bearing}: Angle of the flight in degree (0° = North, 90° = East), computed with
+\code{geosphere::bearing()}.
 \item \code{gs}: groundspeed vector expressed as a complex number. You can compute the groundspeed value
 (km/h) with \code{abs(gs)}, the W-E and S-N component of the flight with \code{Re(gs)} and \code{Im(gs)}, and
 the angle/direction with \code{Arg(gs)}. If graph provided.

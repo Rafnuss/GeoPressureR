@@ -21,6 +21,8 @@
 #' - `end`: start of the flight.
 #' - `duration`: duration of the flight.
 #' - `n`: number of flight.
+#' - `bearing`: Angle of the flight in degree (0° = North, 90° = East), computed with
+#' `geosphere::bearing()`.
 #' - `gs`: groundspeed vector expressed as a complex number. You can compute the groundspeed value
 #' (km/h) with `abs(gs)`, the W-E and S-N component of the flight with `Re(gs)` and `Im(gs)`, and
 #'  the angle/direction with `Arg(gs)`. If graph provided.
@@ -84,6 +86,8 @@ path2edge <- function(path, tag_graph) {
 
   # Compute the bearing of the trajectory
   edge$bearing <- geosphere::bearing(cbind(edge$lon_s, edge$lat_s), cbind(edge$lon_t, edge$lat_t))
+  # convert from -180:180 to 0:360
+  edge$bearing <- (edge$bearing + 360) %% 360
   # bearing is NA if gs==0, fix for computing the complex representation
   edge$bearing[is.na(edge$bearing) & !is.na(edge$distance)] <- 0
 
