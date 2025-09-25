@@ -428,12 +428,10 @@ edge_add_wind <- function(
     }
   }
 
-  # Final cleanup
-  rm(list_st_id, flight, g, var_stap, fl_s, st_id, ratio_stap)
-  gc()
-  if (!quiet) {
-    rm(table_edge_s)
-  }
+  # Final cleanup: remove only objects that exist (var_stap included unconditionally)
+  rm(list = intersect(c(
+    "list_st_id", "flight", "g", "fl_s", "st_id", "ratio_stap", "var_stap", "table_edge_s"
+  ), ls()))
   gc()
 
   if (!return_averaged_variable) {
