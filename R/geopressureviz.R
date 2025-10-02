@@ -167,6 +167,14 @@ geopressureviz <- function(x,
   file_wind <- NULL
 
   # nolint start
+  # Clean up any existing variables that might conflict
+  if (exists(".tag", .GlobalEnv)) rm(.tag, envir = .GlobalEnv)
+  if (exists(".maps", .GlobalEnv)) rm(.maps, envir = .GlobalEnv)
+  if (exists(".pressurepath", .GlobalEnv)) rm(.pressurepath, envir = .GlobalEnv)
+  if (exists(".path", .GlobalEnv)) rm(.path, envir = .GlobalEnv)
+  if (exists(".file_wind", .GlobalEnv)) rm(.file_wind, envir = .GlobalEnv)
+  
+  # Set global variables
   .GlobalEnv$.tag <- tag
   .GlobalEnv$.maps <- maps
   .GlobalEnv$.pressurepath <- pressurepath

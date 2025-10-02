@@ -194,9 +194,9 @@ server <- function(input, output, session) {
         ggplot2::scale_color_identity()
     }
 
-    plotly::ggplotly(p, dynamicTicks = T, height = 300, tooltip = c("x", "y", "linetype")) |>
+  plotly::ggplotly(p, dynamicTicks = TRUE, height = 300, tooltip = c("x", "y", "linetype")) |>
       plotly::layout(
-        showlegend = F,
+    showlegend = FALSE,
         yaxis = list(title = "Pressure [hPa]")
       )
   })
@@ -214,11 +214,11 @@ server <- function(input, output, session) {
 
   observeEvent(input$full_track, {
     if (input$full_track) {
-      shinyjs::hide(id = "stap_info_view", anim = T)
-      shinyjs::show(id = "track_info_view", anim = T)
+      shinyjs::hide(id = "stap_info_view", anim = TRUE)
+      shinyjs::show(id = "track_info_view", anim = TRUE)
     } else {
-      shinyjs::show(id = "stap_info_view", anim = T)
-      shinyjs::hide(id = "track_info_view", anim = T)
+      shinyjs::show(id = "stap_info_view", anim = TRUE)
+      shinyjs::hide(id = "track_info_view", anim = TRUE)
       if (input$min_dur_stap > 0) {
         shinyjs::show(id = "edit_position_interpolate")
       } else {
@@ -250,11 +250,11 @@ server <- function(input, output, session) {
 
   observeEvent(input$edit_position, {
     if (reactVal$isEdit) {
-      reactVal$isEdit <- F
+  reactVal$isEdit <- FALSE
       updateActionButton(session, "edit_position", label = "Start editing")
       removeClass("edit_position", "primary")
     } else {
-      reactVal$isEdit <- T
+  reactVal$isEdit <- TRUE
       updateActionButton(session, "edit_position", label = "Stop editing")
       addClass("edit_position", "primary")
     }
