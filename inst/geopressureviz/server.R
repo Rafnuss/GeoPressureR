@@ -112,15 +112,19 @@ server <- function(input, output, session) {
     return(HTML(glue::glue("<h3 style='margin:0;'>", .tag$param$id, "</h3>")))
   })
 
+  # Small helper to compute distance (km) and flight duration (hours) between two stap indices
+  compute_segment_stats <- function(from_id, to_id) {
+    dist_km <- geosphere::distGeo(reactVal$path[from_id, c("lon", "lat")], reactVal$path[to_id, c("lon", "lat")]) / 1000
+    fl_dur_hours <- sum(flight$duration[seq(from_id, to_id - 1)])
+    speed_txt <- if (!is.na(fl_dur_hours) && fl_dur_hours > 0) paste0(round(dist_km / fl_dur_hours), "km/h") else "—"
+    list(dist_km = dist_km, fl_dur_hours = fl_dur_hours, speed_txt = speed_txt)
+  }
+
   output$flight_prev_info <- renderUI({
     req(input$stap_id)
     if (idx() != 1) {
       stap_id_prev <- stap_id_include()[idx() - 1]
-      dist <- geosphere::distGeo(
-        reactVal$path[stap_id_prev, c("lon", "lat")],
-        reactVal$path[as.numeric(input$stap_id), c("lon", "lat")]
-      ) / 1000
-      fl_dur_prev <- sum(flight$duration[seq(stap_id_prev, as.numeric(input$stap_id) - 1)])
+      seg <- compute_segment_stats(stap_id_prev, as.numeric(input$stap_id))
       as <- NULL
       if (!is.null(reactVal$edge)) {
         tmp <- reactVal$edge[seq(stap_id_prev, as.numeric(input$stap_id) - 1), ]
@@ -131,9 +135,9 @@ server <- function(input, output, session) {
       HTML(
         "<b>Previous flight:</b><br>",
         as.numeric(input$stap_id) - stap_id_prev, " flights -",
-        round(fl_dur_prev, 1), " hrs<br>",
-        round(dist), " km - ",
-        round(dist / fl_dur_prev), "km/h",
+        round(seg$fl_dur_hours, 1), " hrs<br>",
+        round(seg$dist_km), " km - ",
+        seg$speed_txt,
         ifelse(is.null(as), "", as)
       )
     } else {
@@ -145,11 +149,7 @@ server <- function(input, output, session) {
     req(input$stap_id)
     if (idx() != length(stap_id_include())) {
       stap_id_next <- stap_id_include()[idx() + 1]
-      dist <- geosphere::distGeo(
-        reactVal$path[as.numeric(input$stap_id), c("lon", "lat")],
-        reactVal$path[stap_id_next, c("lon", "lat")]
-      ) / 1000
-      fl_dur_next <- sum(flight$duration[seq(as.numeric(input$stap_id), stap_id_next - 1)])
+      seg <- compute_segment_stats(as.numeric(input$stap_id), stap_id_next)
       as <- NULL
       if (!is.null(reactVal$edge)) {
         tmp <- reactVal$edge[seq(as.numeric(input$stap_id), stap_id_next - 1), ]
@@ -160,9 +160,9 @@ server <- function(input, output, session) {
       HTML(
         "<b>Next flight:</b><br>",
         stap_id_next - as.numeric(input$stap_id), " flights -",
-        round(fl_dur_next, 1), " hrs<br>",
-        round(dist), " km - ",
-        round(dist / fl_dur_next), "km/h",
+        round(seg$fl_dur_hours, 1), " hrs<br>",
+        round(seg$dist_km), " km - ",
+        seg$speed_txt,
         ifelse(is.null(as), "", as)
       )
     } else {
