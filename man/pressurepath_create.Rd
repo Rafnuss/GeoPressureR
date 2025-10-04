@@ -11,7 +11,6 @@ pressurepath_create(
   solar_dep = 0,
   era5_dataset = "both",
   preprocess = FALSE,
-  timeout = Inf,
   workers = "auto",
   quiet = FALSE,
   debug = FALSE
@@ -36,9 +35,6 @@ otherwise (i.e. over water). LAND has greater precision but is not available on 
 single one makes the query faster.}
 
 \item{preprocess}{logical to pre-process pressure data with \code{geopressure_map_preprocess()}.}
-
-\item{timeout}{duration before the code is interrupted both for the request on
-GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 
 \item{workers}{number of parallel requests on GEE. Integer between 1 and 99.}
 

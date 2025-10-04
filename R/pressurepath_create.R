@@ -59,8 +59,6 @@
 #' @param quiet logical to hide messages about the progress
 #' @param workers number of parallel requests on GEE. Integer between 1 and 99.
 #' @param debug logical to display additional information to debug a request
-#' @param timeout duration before the code is interrupted both for the request on
-#' GeoPressureAPI and on GEE (in seconds, see `httr2::req_timeout()`).
 #'
 #' @return A GeoPressureR `pressurepath` data.frame with columns:
 #' - `date` same as `pressure$date`
@@ -114,7 +112,6 @@ pressurepath_create <- function(tag,
                                 solar_dep = 0,
                                 era5_dataset = "both",
                                 preprocess = FALSE,
-                                timeout = Inf, # 60 * 20, # Align with server
                                 workers = "auto",
                                 quiet = FALSE,
                                 debug = FALSE) {
@@ -227,8 +224,7 @@ pressurepath_create <- function(tag,
   }
 
   req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/pressurePath/") |>
-    httr2::req_body_json(body, digit = 5, auto_unbox = FALSE) |>
-    httr2::req_timeout(timeout)
+    httr2::req_body_json(body, digit = 5, auto_unbox = FALSE)
 
   if (debug) {
     req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
