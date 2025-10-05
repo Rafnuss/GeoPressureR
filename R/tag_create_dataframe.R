@@ -1,7 +1,6 @@
 # Create from data.frame
 #' @noRd
 tag_create_dataframe <- function(id,
-                                 directory = glue::glue("./data/raw-tag/{id}"),
                                  pressure_file = NULL,
                                  light_file = NULL,
                                  acceleration_file = NULL,
@@ -85,7 +84,7 @@ tag_create_dataframe <- function(id,
   }
 
   tag$param$tag_create$manufacturer <- "df"
-  tag$param$tag_create$directory <- directory
+  tag$param$tag_create$directory <- "(not used)"
 
   return(tag)
 }

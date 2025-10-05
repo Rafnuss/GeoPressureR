@@ -246,7 +246,6 @@ tag_create <- function(id,
   } else if (manufacturer == "dataframe") {
     tag <- tag_create_dataframe(
       id,
-      directory = directory,
       pressure_file = pressure_file,
       light_file = light_file,
       acceleration_file = acceleration_file,
