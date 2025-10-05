@@ -20,19 +20,8 @@ trainset_read <- function(df,
   assertthat::assert_that(is.character(timestamp))
   assertthat::assert_that(is.character(label))
   assertthat::assert_that(assertthat::has_name(df, timestamp))
-  assertthat::assert_that(is.character(file))
-  assertthat::assert_that(file.exists(file))
 
-  # read the file
-  csv <- utils::read.csv(file)
-
-  # check that the file is in the right format
-  assertthat::assert_that(assertthat::has_name(csv, "series"))
-  assertthat::assert_that(assertthat::has_name(csv, "timestamp"))
-  assertthat::assert_that(assertthat::has_name(csv, "label"))
-
-  # Convert to date format
-  csv$date <- strptime(csv$timestamp, "%FT%T", tz = "UTC")
+  csv <- trainset_read_raw(file)
 
   # Extract only data from the corresponding series
   if (!is.null(series)) {
@@ -85,4 +74,29 @@ trainset_read <- function(df,
   }
 
   return(df)
+}
+
+#' Read raw trainset CSV file
+#'
+#' Internal function to read and parse a trainset CSV file with basic validation.
+#'
+#' @param file Path to the trainset CSV file
+#' @return Data.frame with parsed timestamp as date column
+#' @noRd
+trainset_read_raw <- function(file) {
+  assertthat::assert_that(is.character(file))
+  assertthat::assert_that(file.exists(file))
+
+  # Read trainset file
+  csv <- utils::read.csv(file)
+
+  # check that the file is in the right format
+  assertthat::assert_that(assertthat::has_name(csv, "series"))
+  assertthat::assert_that(assertthat::has_name(csv, "timestamp"))
+  assertthat::assert_that(assertthat::has_name(csv, "label"))
+
+  # Convert to date format
+  csv$date <- as.POSIXct(csv$timestamp, format = "%FT%T", tz = "UTC")
+
+  csv
 }
