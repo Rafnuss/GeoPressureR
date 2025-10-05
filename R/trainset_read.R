@@ -95,6 +95,9 @@ trainset_read_raw <- function(file) {
   assertthat::assert_that(assertthat::has_name(csv, "timestamp"))
   assertthat::assert_that(assertthat::has_name(csv, "label"))
 
+  # Replace NA values in label column with empty strings
+  csv$label[is.na(csv$label)] <- ""
+
   # Convert to date format
   csv$date <- as.POSIXct(csv$timestamp, format = "%FT%T", tz = "UTC")
 
