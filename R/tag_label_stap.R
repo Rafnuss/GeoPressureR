@@ -51,7 +51,7 @@ tag_label_stap <- function(tag,
 
   # Build activity from acceleration when available
   if (assertthat::has_name(tag, "acceleration") &&
-    assertthat::has_name(tag$acceleration, "label")) {
+    assertthat::has_name(tag$acceleration, "label") && nrow(tag$acceleration) > 0) {
     sensor <- tag$acceleration[, c("date", "label")]
 
     # Append pressure label when acceleration ends
@@ -218,20 +218,15 @@ pretty_dt <- function(tim) {
 #'
 #' @noRd
 find_stap <- function(stap, date) {
-
-  # logical matrix: which date falls inside which stap
-  in_mat <- mapply(function(s, e) s <= date & date <= e, stap$start, stap$end)
-
-  # rows: date index, cols: stap index
-  matches <- which(in_mat, arr.ind = TRUE)
-
   # anchors: start and end times for each stap (each stap -> two anchors with same id)
-  anchors_t  <- as.numeric(c(rbind(stap$start, stap$end)))
+  anchors_t <- as.numeric(c(rbind(stap$start, stap$end)))
   anchors_id <- rep(seq_len(nrow(stap)), each = 2)
 
   # linear interpolation on the temporal axis
-  stap_id <- stats::approx(x = anchors_t, y = anchors_id,
-                           xout = as.numeric(date), rule = 2)$y
+  stap_id <- stats::approx(
+    x = anchors_t, y = anchors_id,
+    xout = as.numeric(date), rule = 2
+  )$y
 
   # Check that all date have a stap_id
   assertthat::assert_that(all(!is.na(stap_id)))
