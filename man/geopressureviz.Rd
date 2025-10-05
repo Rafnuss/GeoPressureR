@@ -4,7 +4,13 @@
 \alias{geopressureviz}
 \title{Start the GeoPressureViz shiny app}
 \usage{
-geopressureviz(x, path = NULL, marginal = NULL, launch_browser = TRUE)
+geopressureviz(
+  x,
+  path = NULL,
+  marginal = NULL,
+  launch_browser = TRUE,
+  run_bg = TRUE
+)
 }
 \arguments{
 \item{x}{a GeoPressureR \code{tag} object, a \code{.Rdata} file or the
@@ -17,6 +23,9 @@ unique identifier \code{id} with a \code{.Rdata} file located in \code{"./data/i
 
 \item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on
 Rstudio.}
+
+\item{run_bg}{If true, the app runs in a background R session using the \code{callr} package. This
+allows you to continue using your R session while the app is running.}
 }
 \value{
 The updated path visualized in the app. Can also be retrieved with

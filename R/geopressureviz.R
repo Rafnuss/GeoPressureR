@@ -22,6 +22,8 @@
 #' `path` or `pressurepath` contained in the `.Rdata` file.
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
 #' Rstudio.
+#' @param run_bg If true, the app runs in a background R session using the `callr` package. This
+#' allows you to continue using your R session while the app is running.
 #' @return The updated path visualized in the app. Can also be retrieved with
 #' `.GlobalEnv$path_geopressureviz`
 #'
@@ -31,7 +33,10 @@
 geopressureviz <- function(x,
                            path = NULL,
                            marginal = NULL,
-                           launch_browser = TRUE) {
+                           launch_browser = TRUE,
+                           run_bg = TRUE) {
+  # Suppress R CMD check warnings for global variables used in Shiny app
+  .tag <- .maps <- .pressurepath <- .path <- .file_wind <- NULL
   if (!inherits(x, "tag")) {
     if (is.character(x) && file.exists(x)) {
       file <- x
@@ -166,40 +171,75 @@ geopressureviz <- function(x,
   # }
   file_wind <- NULL
 
-  # nolint start
-  # Clean up any existing variables that might conflict
-  if (exists(".tag", .GlobalEnv)) rm(.tag, envir = .GlobalEnv)
-  if (exists(".maps", .GlobalEnv)) rm(.maps, envir = .GlobalEnv)
-  if (exists(".pressurepath", .GlobalEnv)) rm(.pressurepath, envir = .GlobalEnv)
-  if (exists(".path", .GlobalEnv)) rm(.path, envir = .GlobalEnv)
-  if (exists(".file_wind", .GlobalEnv)) rm(.file_wind, envir = .GlobalEnv)
-  
-  # Set global variables
-  .GlobalEnv$.tag <- tag
-  .GlobalEnv$.maps <- maps
-  .GlobalEnv$.pressurepath <- pressurepath
-  .GlobalEnv$.path <- path
-  .GlobalEnv$.file_wind <- file_wind
-  # nolint end
+  if (run_bg) {
+    p <- callr::r_bg(
+      func = function(tag, maps, pressurepath, path, file_wind) {
+        library(GeoPressureR)
 
-  # delete variable when removed
-  # on.exit(
-  #   rm(
-  #     list = c(".tag_id",".stap", ".pressure", ".maps", ".extent", ".pressurepath", ".path0"),
-  #     envir = .GlobalEnv
-  #  )
-  # )
+        # nolint start
+        # assign inside this session
+        .GlobalEnv$.tag <- tag
+        .GlobalEnv$.maps <- maps
+        .GlobalEnv$.pressurepath <- pressurepath
+        .GlobalEnv$.path <- path
+        .GlobalEnv$.file_wind <- file_wind
+        # nolint end
 
-  if (launch_browser) {
-    launch_browser <- getOption("browser")
+        shiny::runApp(system.file("geopressureviz", package = "GeoPressureR"))
+      },
+      args = list(
+        tag = tag,
+        maps = maps,
+        pressurepath = pressurepath,
+        path = path,
+        file_wind = file_wind
+      )
+    )
+
+    port <- NA
+    while (p$is_alive()) {
+      p$poll_io(1000) # wait up to 1s for new output
+      err <- p$read_error()
+      out <- p$read_output()
+      txt <- paste(err, out, sep = "\n")
+
+      if (grepl("Listening on http://127\\.0\\.0\\.1:[0-9]+", txt)) {
+        port <- sub(".*127\\.0\\.0\\.1:([0-9]+).*", "\\1", txt)
+        cli::cli_alert_success(paste("Detected Shiny port:", port))
+        utils::browseURL(paste0("http://127.0.0.1:", port))
+        break
+      }
+    }
+    return(invisible(p))
   } else {
-    launch_browser <- getOption("shiny.launch.browser", interactive())
+    # nolint start
+    # Clean up any existing variables that might conflict
+    if (exists(".tag", .GlobalEnv)) rm(.tag, envir = .GlobalEnv)
+    if (exists(".maps", .GlobalEnv)) rm(.maps, envir = .GlobalEnv)
+    if (exists(".pressurepath", .GlobalEnv)) rm(.pressurepath, envir = .GlobalEnv)
+    if (exists(".path", .GlobalEnv)) rm(.path, envir = .GlobalEnv)
+    if (exists(".file_wind", .GlobalEnv)) rm(.file_wind, envir = .GlobalEnv)
+
+    # Set global variables
+    .GlobalEnv$.tag <- tag
+    .GlobalEnv$.maps <- maps
+    .GlobalEnv$.pressurepath <- pressurepath
+    .GlobalEnv$.path <- path
+    .GlobalEnv$.file_wind <- file_wind
+    # nolint end
+
+    if (launch_browser) {
+      launch_browser <- getOption("browser")
+    } else {
+      launch_browser <- getOption("shiny.launch.browser", interactive())
+    }
+
+    # Start the app
+    shiny::runApp(system.file("geopressureviz", package = "GeoPressureR"),
+      launch.browser = launch_browser
+    )
   }
 
-  # Start the app
-  shiny::runApp(system.file("geopressureviz", package = "GeoPressureR"),
-    launch.browser = launch_browser
-  )
 
   return(invisible(.GlobalEnv$path_geopressureviz))
 }

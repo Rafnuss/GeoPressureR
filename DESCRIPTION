@@ -39,6 +39,7 @@ Imports:
     terra,
     utils
 Suggests: 
+    callr,
     assertthat,
     BiocManager,
     covr,

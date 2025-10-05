@@ -500,6 +500,21 @@ references:
     address: Vienna, Austria
   year: '2025'
 - type: software
+  title: callr
+  abstract: 'callr: Call R from R'
+  notes: Suggests
+  url: https://callr.r-lib.org
+  repository: https://CRAN.R-project.org/package=callr
+  authors:
+  - family-names: Csárdi
+    given-names: Gábor
+    email: csardi.gabor@gmail.com
+    orcid: https://orcid.org/0000-0001-7098-9676
+  - family-names: Chang
+    given-names: Winston
+  year: '2025'
+  doi: 10.32614/CRAN.package.callr
+- type: software
   title: assertthat
   abstract: 'assertthat: Easy Pre and Post Assertions'
   notes: Suggests
