@@ -24,7 +24,8 @@ pressurepath_create(
 \item{variable}{ERA5 variable/parameters available to download.
 The most commonly used variables:\code{"altitude"}, \code{"surface_pressure"}, \code{"temperature_2m"},
 \code{"u_component_of_wind_10m"}, \code{"v_component_of_wind_10m"}, \code{"u_component_of_wind_100m"},
-\code{"v_component_of_wind_100m"}, \code{"total_cloud_cover"}, \code{"total_precipitation"}, \code{"land_sea_mask"}.
+\code{"v_component_of_wind_100m"}, \code{"total_cloud_cover"}, \code{"total_precipitation_hourly"},
+\code{"land_sea_mask"}.
 All variables can be listed with \code{GeoPressureR:::pressurepath_variable}.}
 
 \item{solar_dep}{a numerical value representing the solar depression angle used to compute

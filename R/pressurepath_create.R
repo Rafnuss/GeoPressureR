@@ -46,7 +46,8 @@
 #' @param variable ERA5 variable/parameters available to download.
 #' The most commonly used variables:`"altitude"`, `"surface_pressure"`, `"temperature_2m"`,
 #' `"u_component_of_wind_10m"`, `"v_component_of_wind_10m"`, `"u_component_of_wind_100m"`,
-#' `"v_component_of_wind_100m"`, `"total_cloud_cover"`, `"total_precipitation"`, `"land_sea_mask"`.
+#' `"v_component_of_wind_100m"`, `"total_cloud_cover"`, `"total_precipitation_hourly"`,
+#' `"land_sea_mask"`.
 #' All variables can be listed with `GeoPressureR:::pressurepath_variable`.
 #' @param solar_dep a numerical value representing the solar depression angle used to compute
 #' sunrise and sunset. If `NULL`, does not compute sunrise sunset.
