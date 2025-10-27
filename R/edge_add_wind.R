@@ -16,7 +16,8 @@
 #' of 3 columns, one for each dimension.
 #' @param pressure pressure measurement of the associated `tag` data used to estimate the pressure
 #' level (i.e., altitude) of the bird during the flights. This data.frame needs to contain `date` as
-#' POSIXt and `value` in hPa.
+#' POSIXt and `value` in hPa. If not provided, uses `graph$pressure`, assuming that argument `graph`
+#'  is a GeoPressureR `tag` object.
 #' @param variable list of the variables to extract from [the ERA5 pressure level
 #' ](https://bit.ly/3BrwLBM) using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`,
 #' `"w"`, `"ciwc"`, `"clwc"`, `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `"vo"`.
@@ -47,6 +48,7 @@
 #' - `gs` groundspeed
 #' - `ws` windspeed (if `graph` provided)
 #'
+#' @family edge
 #' @seealso [GeoPressureManual](
 #' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export

@@ -40,8 +40,6 @@ print(graph)
 Other graph: 
 \code{\link{graph_create}()},
 \code{\link{graph_marginal}()},
-\code{\link{graph_most_likely}()},
-\code{\link{graph_set_movement}()},
-\code{\link{graph_simulation}()}
+\code{\link{graph_set_movement}()}
 }
 \concept{graph}

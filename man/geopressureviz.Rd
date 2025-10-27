@@ -28,8 +28,9 @@ Rstudio.}
 allows you to continue using your R session while the app is running.}
 }
 \value{
-The updated path visualized in the app. Can also be retrieved with
-\code{.GlobalEnv$path_geopressureviz}
+When \code{run_bg = FALSE}: The updated path visualized in the app. Can also be retrieved with
+\code{shiny::getShinyOption("path_geopressureviz")} after the app completes.
+When \code{run_bg = TRUE}: Returns the background process object.
 }
 \description{
 GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
@@ -41,7 +42,8 @@ time series for individual stationary period to test manual what seems the optim
 GeoPressureViz can be started based on a \code{.Rdata} file containing at least \code{tag}, but also
 optionally \code{marginal} and/or \code{path} (\code{path_most_likely} is also accepted).
 
-You can retrieved the edited path from the global environment variable \code{path_geopressureviz}.
+You can retrieve the edited path from the return value of this function (when \code{run_bg = FALSE})
+or with \code{shiny::getShinyOption("path_geopressureviz")} after the app completes.
 
 Learn more about GeoPressureViz in the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual } or with
 this \href{https://rafnuss.shinyapps.io/GeoPressureViz/}{demo of the Great Reed Warbler (18LX)}.

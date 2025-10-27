@@ -28,7 +28,7 @@
 #'  the angle/direction with `Arg(gs)`. If graph provided.
 #' - `ws`: if computed with `graph_add_wind()`, same value as `gs`. Airspeed is computed with
 #' `as = gs - ws` in complex number to keep the vectorial additive properties. If graph provided.
-#' @family path
+#' @family path, edge
 #' @seealso [GeoPressureManual](https://bit.ly/47MhQxN)
 #' @export
 path2edge <- function(path, tag_graph) {

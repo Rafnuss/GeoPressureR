@@ -29,7 +29,8 @@ of 3 columns, one for each dimension.}
 
 \item{pressure}{pressure measurement of the associated \code{tag} data used to estimate the pressure
 level (i.e., altitude) of the bird during the flights. This data.frame needs to contain \code{date} as
-POSIXt and \code{value} in hPa.}
+POSIXt and \code{value} in hPa. If not provided, uses \code{graph$pressure}, assuming that argument \code{graph}
+is a GeoPressureR \code{tag} object.}
 
 \item{variable}{list of the variables to extract from \href{https://bit.ly/3BrwLBM}{the ERA5 pressure level } using the \code{shortName} notation: \code{"u"}, \code{"v"},  \code{"t"}, \code{"cc"}, \code{"r"},
 \code{"w"}, \code{"ciwc"}, \code{"clwc"}, \code{"q"}, \code{"cswc"}, \code{"d"}, \code{"z"}, \code{"o3"}, \code{"pv"}, \code{"vo"}.}
@@ -82,3 +83,4 @@ edges.
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual}
 }
+\concept{edge}

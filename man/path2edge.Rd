@@ -42,10 +42,5 @@ edges can be useful to extract flight information specific to a path.
 }
 \seealso{
 \href{https://bit.ly/47MhQxN}{GeoPressureManual}
-
-Other path: 
-\code{\link{ind2path}()},
-\code{\link{path2elevation}()},
-\code{\link{plot_path}()}
 }
-\concept{path}
+\concept{path, edge}

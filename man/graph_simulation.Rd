@@ -67,11 +67,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \seealso{
 \href{https://bit.ly/3YE83Wn}{GeoPressureManual}
 
-Other graph: 
-\code{\link{graph_create}()},
-\code{\link{graph_marginal}()},
-\code{\link{graph_most_likely}()},
-\code{\link{graph_set_movement}()},
-\code{\link{print.graph}()}
+Other graph, path: 
+\code{\link{graph_most_likely}()}
 }
-\concept{graph}
+\concept{graph, path}

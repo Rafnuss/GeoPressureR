@@ -44,6 +44,7 @@
 #' path <- tag2path(tag, interp = 1)
 #' plot_path(path)
 #'
+#' @family path
 #' @export
 tag2path <- function(tag,
                      likelihood = NULL,
