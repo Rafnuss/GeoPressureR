@@ -331,12 +331,16 @@ tag_create_dto <- function(sensor_path,
                            date_format = "%d.%m.%Y %H:%M",
                            quiet = FALSE) {
   data_raw <- utils::read.delim(sensor_path, skip = skip, sep = "", header = FALSE)
+
+  # Remove Invalid byte: FD from migratech
+  data_raw <- data_raw[!data_raw[, 1] == "Invalid", ]
+
   df <- data.frame(
     date = as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),
       tz = "UTC",
       format = date_format
     )),
-    value = data_raw[, col]
+    value = as.numeric(data_raw[, col])
   )
 
   if (any(is.na(df$value))) {
