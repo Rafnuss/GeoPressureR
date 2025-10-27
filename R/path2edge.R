@@ -86,14 +86,15 @@ path2edge <- function(path, tag_graph) {
 
   # Compute the bearing of the trajectory
   edge$bearing <- geosphere::bearing(cbind(edge$lon_s, edge$lat_s), cbind(edge$lon_t, edge$lat_t))
+  # Overwrite no displacement to bearing of NA
+  edge$bearing[edge$lon_s == edge$lon_t & edge$lat_s == edge$lat_t] <- NA
   # convert from -180:180 to 0:360
   edge$bearing <- (edge$bearing + 360) %% 360
-  # bearing is NA if gs==0, fix for computing the complex representation
-  edge$bearing[is.na(edge$bearing) & !is.na(edge$distance)] <- 0
 
   # save groundspeed in complex notation
   gs_abs <- edge$distance / edge$duration
   gs_arg <- (450 - edge$bearing) %% 360
+  gs_arg[gs_abs == 0] <- 0 # set angle to 0 when no movement
   edge$gs <- gs_abs * cos(gs_arg * pi / 180) + 1i * gs_abs * sin(gs_arg * pi / 180)
 
   if (inherits(tag_graph, "graph")) {
