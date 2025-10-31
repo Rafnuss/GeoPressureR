@@ -340,7 +340,8 @@ tag_create_dto <- function(sensor_path,
       tz = "UTC",
       format = date_format
     )),
-    value = as.numeric(data_raw[, col])
+    # This allows for multiple col index
+    setNames(lapply(data_raw[, col], as.numeric), c("value", rep(NA, length(col) - 1)))
   )
 
   if (any(is.na(df$value))) {
