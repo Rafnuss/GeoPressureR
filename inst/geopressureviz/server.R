@@ -202,9 +202,9 @@ server <- function(input, output, session) {
         ggplot2::scale_color_identity()
     }
 
-  plotly::ggplotly(p, dynamicTicks = TRUE, height = 300, tooltip = c("x", "y", "linetype")) |>
+    plotly::ggplotly(p, dynamicTicks = TRUE, height = 300, tooltip = c("x", "y", "linetype")) |>
       plotly::layout(
-    showlegend = FALSE,
+        showlegend = FALSE,
         yaxis = list(title = "Pressure [hPa]")
       ) |>
       plotly::config(
@@ -277,11 +277,11 @@ server <- function(input, output, session) {
 
   observeEvent(input$edit_position, {
     if (reactVal$isEdit) {
-  reactVal$isEdit <- FALSE
+      reactVal$isEdit <- FALSE
       updateActionButton(session, "edit_position", label = "Start editing")
       removeClass("edit_position", "primary")
     } else {
-  reactVal$isEdit <- TRUE
+      reactVal$isEdit <- TRUE
       updateActionButton(session, "edit_position", label = "Stop editing")
       addClass("edit_position", "primary")
     }
@@ -551,11 +551,11 @@ server <- function(input, output, session) {
 
   # Export path functionality
   observeEvent(input$export_path, {
-    
     file <- glue::glue("./data/interim/{tag$param$id}.RData")
+
     # Create directory if it doesn't exist
     dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
-    
+
     # Rename to the correct name
     path_geopressureviz <- reactVal$path
 
@@ -574,7 +574,7 @@ server <- function(input, output, session) {
         file = file
       )
     }
-    
+
     # Show notification to user
     showNotification(
       paste("Path exported to", file),

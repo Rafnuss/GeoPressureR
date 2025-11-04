@@ -1,21 +1,25 @@
 ui <- bootstrapPage(
+  title = "GeoPressureViz",
   useShinyjs(),
   shiny::tags$head(
-    shiny::tags$link(rel = "shortcut icon",
-              href = "https://raphaelnussbaumer.com/GeoPressureR/favicon-16x16.png"),
+    shiny::tags$link(
+      rel = "shortcut icon",
+      href = "https://raphaelnussbaumer.com/GeoPressureR/favicon-16x16.png"
+    ),
     shiny::tags$link(href = "https://fonts.googleapis.com/css?family=Oswald", rel = "stylesheet"),
     shiny::tags$style(type = "text/css", "html, body {width:100%;height:100%; font-family: Oswald,
                sans-serif;}.primary{background-color:#007bff; color: #fff;}.js-plotly-plot
                .plotly .modebar{left: 0}"),
-    # includeHTML("meta.html"),
   ),
   leaflet::leafletOutput("map", width = "100%", height = "100%"),
   absolutePanel(
     top = 0, left = 0, draggable = FALSE, width = "200px",
     style = "z-index:500; min-width: 300px;padding-left: 50px",
     shiny::tags$h2("GeoPressureViz", style = "color:white;"),
-    shiny::tags$a("About GeoPressureR", href = "https://raphaelnussbaumer.com/GeoPressureR/",
-           style = "display: block;padding-bottom:20px;"),
+    shiny::tags$a("About GeoPressureR",
+      href = "https://raphaelnussbaumer.com/GeoPressureR/",
+      style = "display: block;padding-bottom:20px;"
+    ),
   ),
   absolutePanel(
     top = 0, right = 0, draggable = FALSE, width = "200px",
@@ -34,13 +38,17 @@ ui <- bootstrapPage(
       id = "track_info_view",
       fluidRow(
         column(8, shiny::tags$p("Minimum duration [days]",
-                         style = "font-weight:bold; line-height: 34px;text-align: right;")),
-        column(4, style = "padding:0px;", numericInput("min_dur_stap", NULL, min = 0, max = 50,
-                                                       value = 0, step = 0.5))
+          style = "font-weight:bold; line-height: 34px;text-align: right;"
+        )),
+        column(4, style = "padding:0px;", numericInput("min_dur_stap", NULL,
+          min = 0, max = 50,
+          value = 0, step = 0.5
+        ))
       ),
       fluidRow(
         actionButton("export_path", "Export path to interim",
-        style = "background-color: #28a745; color: white; width: 100%;")
+          style = "background-color: #28a745; color: white; width: 100%;"
+        )
       )
     ),
     div(
@@ -61,11 +69,14 @@ ui <- bootstrapPage(
       sliderInput("speed", "Groundspeed limit [km/h]", min = 0, max = 150, value = 40, step = 10),
       div(
         radioButtons("map_source",
-          label = "Probability map to display", inline = TRUE, choices = names(.maps),
-          selected = tail(names(.maps), 1)
+          label = "Probability map to display", inline = TRUE,
+          choices = names(maps),
+          selected = tail(names(maps), 1)
         ),
         shiny::tags$hr(),
-        shiny::tags$p("Change position by clicking on the map and update the pressure time series."),
+        shiny::tags$p(
+          "Change position by clicking on the map and update the pressure time series."
+        ),
         fluidPage(
           id = "edit_query_position_id",
           fluidRow(
@@ -74,7 +85,8 @@ ui <- bootstrapPage(
           )
         ),
         checkboxInput("edit_position_interpolate",
-                      label = "Interpolate positions between stap", value = FALSE)
+          label = "Interpolate positions between stap", value = FALSE
+        )
       )
     )
   ),
