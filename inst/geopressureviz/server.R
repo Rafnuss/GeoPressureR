@@ -198,6 +198,23 @@ server <- function(input, output, session) {
       plotly::layout(
     showlegend = FALSE,
         yaxis = list(title = "Pressure [hPa]")
+      ) |>
+      plotly::config(
+        scrollZoom = FALSE, # Disable built-in scroll zoom
+        displayModeBar = TRUE,
+        # doubleClick = "reset", # Reset zoom on double click
+        modeBarButtonsToRemove = list(
+          "zoomIn2d",
+          "zoomOut2d",
+          # "autoScale2d",
+          # "resetScale2d",
+          "toImage",
+          "hoverClosestCartesian",
+          "hoverCompareCartesian",
+          "select2d",
+          "lasso2d"
+        ),
+        displaylogo = FALSE
       )
   })
 
