@@ -1,27 +1,35 @@
 # nolint start
 server <- function(input, output, session) {
+  # Update browser tab title with tag ID
+  updateTabsetPanel(session, inputId = NULL)
+  session$sendCustomMessage("updateTitle", glue::glue("GeoPressureViz - {tag$param$id}"))
+
+  session$onSessionEnded(function() {
+    stopApp()
+  })
+
   # Extract shorter name for variable
-  stap <- .tag$stap
-  pressure <- .tag$pressure
+  stap <- tag$stap
+  pressure <- tag$pressure
   flight <- stap2flight(stap)
 
-  if (is.null(.file_wind)) {
+  if (is.null(file_wind)) {
     edge <- NULL
   } else {
-    edge <- path2edge(.path, .tag)
+    edge <- path2edge(path, tag)
 
     uv <- edge_add_wind(
-      .tag,
+      tag,
       edge_s = edge$s,
       edge_t = edge$t,
       return_averaged_variable = TRUE,
-      file = .file_wind
+      file = file_wind
     )
     edge$ws <- (uv[, 1] + 1i * uv[, 2]) / 1000 * 60 * 60
   }
 
   # Compute resolution of projection
-  r <- .maps[[1]]
+  r <- maps[[1]]
   g <- map_expand(r$extent, r$scale)
   lonInEPSG3857 <- (g$lon * 20037508.34 / 180)
   latInEPSG3857 <- (log(tan((90 + g$lat) * pi / 360)) / (pi / 180)) * (20037508.34 / 180)
@@ -44,8 +52,8 @@ server <- function(input, output, session) {
   })
 
   observe({
-    # Store current path as path_geopressureviz in global env.
-    .GlobalEnv$path_geopressureviz <- reactVal$path
+    # Store current path as path_geopressureviz in shiny options
+    shiny::shinyOptions(path_geopressureviz = reactVal$path)
   })
 
 
@@ -53,9 +61,9 @@ server <- function(input, output, session) {
   ## Reactive variable ----
 
   reactVal <- reactiveValues(
-    path = .path,
+    path = path,
     edge = edge,
-    pressurepath = .pressurepath,
+    pressurepath = pressurepath,
     isEdit = FALSE # if editing position
   )
 
@@ -64,7 +72,7 @@ server <- function(input, output, session) {
     if (is.null(input$map_source)) {
       return(NA)
     }
-    r <- rast.map(.maps[[input$map_source]])
+    r <- rast.map(maps[[input$map_source]])
     r_norm <- (r - terra::minmax(r)[1]) / diff(terra::minmax(r))
     terra::project(
       r_norm,
@@ -109,7 +117,7 @@ server <- function(input, output, session) {
       )
   })
   output$tag_id <- renderUI({
-    return(HTML(glue::glue("<h3 style='margin:0;'>", .tag$param$id, "</h3>")))
+    return(HTML(glue::glue("<h3 style='margin:0;'>", tag$param$id, "</h3>")))
   })
 
   # Small helper to compute distance (km) and flight duration (hours) between two stap indices
@@ -252,7 +260,9 @@ server <- function(input, output, session) {
     } else {
       choices <- list()
     }
-    updateSelectizeInput(session, "stap_id", choices = choices)
+    session$onFlushed(function() {
+      updateSelectInput(session, "stap_id", choices = choices)
+    })
   })
 
   observeEvent(input$previous_position, {
@@ -541,8 +551,8 @@ server <- function(input, output, session) {
 
   # Export path functionality
   observeEvent(input$export_path, {
-    file <- glue::glue("./data/interim/{.tag$param$id}.RData")
     
+    file <- glue::glue("./data/interim/{tag$param$id}.RData")
     # Create directory if it doesn't exist
     dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
     
