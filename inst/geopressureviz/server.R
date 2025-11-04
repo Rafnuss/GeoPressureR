@@ -257,12 +257,12 @@ server <- function(input, output, session) {
 
   observeEvent(input$previous_position, {
     idx_new <- min(max(idx() - 1, 1), length(stap_id_include()))
-    updateSelectizeInput(session, "stap_id", selected = stap_id_include()[idx_new])
+    updateSelectInput(session, "stap_id", selected = stap_id_include()[idx_new])
   })
 
   observeEvent(input$next_position, {
     idx_new <- min(max(idx() + 1, 1), length(stap_id_include()))
-    updateSelectizeInput(session, "stap_id", selected = stap_id_include()[idx_new])
+    updateSelectInput(session, "stap_id", selected = stap_id_include()[idx_new])
   })
 
   observeEvent(input$edit_position, {
