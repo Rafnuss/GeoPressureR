@@ -89,6 +89,11 @@ server <- function(input, output, session) {
     which(stap$duration >= min_dur_stap & stap$include)
   }) |> bindEvent(input$min_dur_stap)
 
+  # Precompute flight durations for current included stap ids
+  fl_dur_reactive <- reactive({
+    stap2flight(stap, stap_id_include())$duration
+  }) |> bindEvent(stap_id_include())
+
   # index of the current stap_id in the stap_id_include (so not index in all stap_id, only the one to use)
   idx <- reactive({
     which(stap_id_include() == input$stap_id)
@@ -343,7 +348,7 @@ server <- function(input, output, session) {
       leaflet::clearMarkers()
     stap_model <- stap[stap_id_include(), ]
     path_model <- reactVal$path[stap_id_include(), c("lon", "lat")]
-    fl_dur <- stap2flight(stap, stap_id_include())$duration
+    fl_dur <- fl_dur_reactive()
     if (is.null(fl_dur)) {
       return()
     }
