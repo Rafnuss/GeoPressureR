@@ -47,9 +47,16 @@ server <- function(input, output, session) {
     ind <- (lon_ind - 1) * g$dim[1] + lat_ind
     return(ind)
   }
-  session$onSessionEnded(function() {
-    stopApp()
-  })
+
+  # Initialize future plan for async tasks (once per session)
+  if (isTRUE(future::nbrOfWorkers() <= 1)) {
+    try(
+      {
+        if (future::supportsMultisession()) future::plan(future::multisession)
+      },
+      silent = TRUE
+    )
+  }
 
   observe({
     # Store current path as path_geopressureviz in shiny options
@@ -485,73 +492,92 @@ server <- function(input, output, session) {
     proxy
   }) # |> bindEvent(input$stap_id)
 
+  # Helper to post-process and merge pressure time series results
+  process_pressuretimeseries <- function(pressuretimeseries, stap_id) {
+    # Compute new linetype index
+    pressuretimeseries$linetype <- as.factor(ifelse(
+      any(reactVal$pressurepath$stap_id == stap_id),
+      max(as.numeric(reactVal$pressurepath$linetype[reactVal$pressurepath$stap_id == stap_id])) + 1,
+      1
+    ))
+
+    pressuretimeseries$stap_ref <- stap_id
+    pressuretimeseries$col <- stap$col[stap$stap_id == stap_id][1]
+
+    if ("j" %in% names(reactVal$pressurepath)) pressuretimeseries$j <- reactVal$pressurepath$j[1]
+    if ("ind" %in% names(reactVal$pressurepath)) pressuretimeseries$ind <- NA
+    if ("include" %in% names(reactVal$pressurepath)) pressuretimeseries$include <- reactVal$pressurepath$include[reactVal$pressurepath$stap_id == stap_id][1]
+    if ("known" %in% names(reactVal$pressurepath)) pressuretimeseries$known <- reactVal$pressurepath$known[reactVal$pressurepath$stap_id == stap_id][1]
+
+    # Update path with potentially corrected lat/lon
+    reactVal$path$lon[stap_id] <- pressuretimeseries$lon[1]
+    reactVal$path$lat[stap_id] <- pressuretimeseries$lat[1]
+    reactVal$path$ind[stap_id] <- latlon2ind(pressuretimeseries$lat[1], pressuretimeseries$lon[1])
+
+    # Merge new series into reactive pressurepath, aligning columns
+    if (nrow(reactVal$pressurepath) > 0) {
+      missing_cols <- setdiff(names(reactVal$pressurepath), names(pressuretimeseries))
+      pressuretimeseries[missing_cols] <- NA
+      columns_to_keep <- intersect(names(reactVal$pressurepath), names(pressuretimeseries))
+      pressuretimeseries <- pressuretimeseries[, columns_to_keep]
+      reactVal$pressurepath <- rbind(reactVal$pressurepath, pressuretimeseries)
+    } else {
+      reactVal$pressurepath <- pressuretimeseries
+    }
+
+    # Trigger UI refresh on selection
+    updateSelectInput(session, "stap_id", selected = 1)
+    updateSelectInput(session, "stap_id", selected = input$stap_id)
+
+    invisible(NULL)
+  }
+
   observeEvent(input$query_position, {
-    stap_id <- as.numeric(input$stap_id)
-    stap_id <- stap$stap_id[stap_id]
+    # Prepare inputs outside of the async call to avoid capturing large/reactive objects
+    stap_idx <- as.numeric(input$stap_id)
+    stap_id <- stap$stap_id[stap_idx]
+    lat0 <- reactVal$path$lat[stap_id]
+    lon0 <- reactVal$path$lon[stap_id]
+    pres_df <- pressure[pressure$stap_id == stap_id, ]
+    # Prevent repeat clicks while running
+    try(shinyjs::disable("query_position"), silent = TRUE)
 
-    tryCatch(
-      {
-        pressuretimeseries <- geopressure_timeseries(
-          reactVal$path$lat[stap_id],
-          reactVal$path$lon[stap_id],
-          pressure = pressure[pressure$stap_id == stap_id, ]
-        )
-
-
-        # Find the new index for linetype
-        pressuretimeseries$linetype <- as.factor(ifelse(
-          any(reactVal$pressurepath$stap_id == stap_id),
-          max(as.numeric(reactVal$pressurepath$linetype[reactVal$pressurepath$stap_id == stap_id])) + 1,
-          1
-        ))
-
-        pressuretimeseries$stap_ref <- stap_id
-        pressuretimeseries$col <- stap$col[stap$stap_id == stap_id][1]
-
-        if ("j" %in% names(reactVal$pressurepath)) {
-          pressuretimeseries$j <- reactVal$pressurepath$j[1]
+    if (!requireNamespace("promises", quietly = TRUE)) {
+      # Fallback: synchronous execution if promises is unavailable
+      tryCatch(
+        {
+          pressuretimeseries <- geopressure_timeseries(lat0, lon0, pressure = pres_df)
+          process_pressuretimeseries(pressuretimeseries, stap_id)
+        },
+        error = function(e) {
+          cli::cli_alert_warning(c(
+            "!" = "Function {.fun geopressure_timeseries} did not work.",
+            "i" = conditionMessage(e)
+          ))
         }
-        if ("ind" %in% names(reactVal$pressurepath)) {
-          pressuretimeseries$ind <- NA
-        }
-        if ("include" %in% names(reactVal$pressurepath)) {
-          pressuretimeseries$include <- reactVal$pressurepath$include[reactVal$pressurepath$stap_id == stap_id][1]
-        }
-        if ("known" %in% names(reactVal$pressurepath)) {
-          pressuretimeseries$known <- reactVal$pressurepath$known[reactVal$pressurepath$stap_id == stap_id][1]
-        }
+      )
+      try(shinyjs::enable("query_position"), silent = TRUE)
+      return(invisible())
+    }
 
-        # update lat lon in case over water
-        reactVal$path$lon[stap_id] <- pressuretimeseries$lon[1]
-        reactVal$path$lat[stap_id] <- pressuretimeseries$lat[1]
-        reactVal$path$ind[stap_id] <- latlon2ind(pressuretimeseries$lat[1], pressuretimeseries$lon[1])
-
-        # Merge the two data.frame
-        if (nrow(reactVal$pressurepath) > 0) {
-          # Add missing columns with NA values
-          missing_cols <- setdiff(names(reactVal$pressurepath), names(pressuretimeseries))
-          pressuretimeseries[missing_cols] <- NA
-
-          # Remove unwanted columns from pressuretimeseries
-          columns_to_keep <- intersect(names(reactVal$pressurepath), names(pressuretimeseries))
-          pressuretimeseries <- pressuretimeseries[, columns_to_keep]
-
-          reactVal$pressurepath <- rbind(reactVal$pressurepath, pressuretimeseries)
-        } else {
-          reactVal$pressurepath <- pressuretimeseries
-        }
-
-        # ?
-        updateSelectizeInput(session, "stap_id", selected = 1)
-        updateSelectizeInput(session, "stap_id", selected = input$stap_id)
-      },
-      error = \(e){
+    # Async path: run geopressure_timeseries in a background R session and return a promise
+    promises::future_promise({
+      geopressure_timeseries(lat0, lon0, pressure = pres_df)
+    }) |>
+      promises::then(function(pressuretimeseries) {
+        process_pressuretimeseries(pressuretimeseries, stap_id)
+        try(shinyjs::enable("query_position"), silent = TRUE)
+        invisible(NULL)
+      }) |>
+      promises::catch(function(e) {
         cli::cli_alert_warning(c(
           "!" = "Function {.fun geopressure_timeseries} did not work.",
           "i" = conditionMessage(e)
         ))
-      }
-    )
+        try(shinyjs::enable("query_position"), silent = TRUE)
+        invisible(NULL)
+      }) |>
+      invisible()
   })
 
   # Export path functionality
