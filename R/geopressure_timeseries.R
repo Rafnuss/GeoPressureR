@@ -35,8 +35,6 @@
 #' the time series as POSIXlt.
 #' @param end_time If `pressure` is not provided, `end_time` defines the end time of
 #' the time series as POSIXlt.
-#' @param timeout duration before the code is interrupted both for the request on
-#' GeoPressureAPI and on GEE (in seconds, see `httr2::req_timeout()`).
 #' @param quiet logical to hide messages about the progress
 #' @param debug logical to display additional information to debug a request
 #'
@@ -90,7 +88,6 @@ geopressure_timeseries <- function(lat,
                                    pressure = NULL,
                                    start_time = NULL,
                                    end_time = NULL,
-                                   timeout = 60 * 5,
                                    quiet = FALSE,
                                    debug = FALSE) {
   # Check input
@@ -138,7 +135,6 @@ geopressure_timeseries <- function(lat,
 
   req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/timeseries/") |>
     httr2::req_body_json(body) |>
-    httr2::req_timeout(timeout) |>
     httr2::req_error(body = function(resp) {
       if (debug) {
         print(httr2::resp_body_json(resp))
@@ -170,8 +166,7 @@ geopressure_timeseries <- function(lat,
   if (!quiet) cli::cli_progress_step("Sending request")
 
   # Prepare request
-  req <- httr2::request(resp_data$url) |>
-    httr2::req_timeout(timeout)
+  req <- httr2::request(resp_data$url)
 
   if (debug) {
     req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
