@@ -122,12 +122,10 @@ tag2path <- function(tag,
     mask_water_ind_lon <- (mask_water_ind2 - mask_water_ind_lat) / g$dim[1] + 1
 
     for (i in seq_len(length(lat_ind))) {
-      # if following over water
-      if (tag$map_pressure$mask_water[lat_ind[i], lon_ind[i]]) {
-        # Find the closest non-water
+      if (!is.na(lat_ind[i]) && !is.na(lon_ind[i]) &&
+        tag$map_pressure$mask_water[lat_ind[i], lon_ind[i]]) {
         closest_ind2 <- which.min((mask_water_ind_lat - lat_ind[i])^2 +
           (mask_water_ind_lon - lon_ind[i])^2)
-        # Assign the index in lat lon
         lat_ind[i] <- mask_water_ind_lat[closest_ind2]
         lon_ind[i] <- mask_water_ind_lon[closest_ind2]
       }
