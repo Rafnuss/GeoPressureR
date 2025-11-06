@@ -1,6 +1,10 @@
 list_of_packages <- c("shiny", "shinyjs", "shinyWidgets")
-new_packages <- list_of_packages[!(list_of_packages %in% installed.packages()[, "Package"])]
-if (length(new_packages) > 0) install.packages(new_packages)
+new_packages <- list_of_packages[
+  !(list_of_packages %in% installed.packages()[, "Package"])
+]
+if (length(new_packages) > 0) {
+  install.packages(new_packages)
+}
 
 suppressMessages({
   library(GeoPressureR)
@@ -17,5 +21,7 @@ path <- shiny::getShinyOption("path")
 file_wind <- shiny::getShinyOption("file_wind")
 
 if (is.null(tag) || is.null(maps) || is.null(pressurepath) || is.null(path)) {
-  cli::cli_abort("Required data not found in shiny options. Please restart the app with correct options.")
+  cli::cli_abort(
+    "Required data not found in shiny options. Please restart the app with correct options."
+  )
 }
