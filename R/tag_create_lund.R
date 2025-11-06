@@ -27,6 +27,8 @@ tag_create_lund <- function(id,
     date = as.POSIXct(xls$`Date & time`, tz = "UTC"),
     value = xls$`Pressure [hPa]`
   )
+  # Remove empty value
+  tag$pressure <- tag$pressure[!is.na(tag$pressure$value), ]
   if (!quiet) {
     cli::cli_bullets(c("v" = "Read {.file {pressure_path}}"))
   }
