@@ -141,9 +141,9 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     #   which.min(abs(d - date_reg))
     # })
 
-    id <- stats::approx(
-      x = pgi$date, y = seq_len(nrow(pgi)), xout = date_reg, method = "constant", rule = 2
-    )$y
+    id <- round(stats::approx(
+      x = pgi$date, y = seq_len(nrow(pgi)), xout = date_reg, method = "linear", rule = 2
+    )$y)
 
     # Create a new data.frame of regular pressure
     pgi_reg <- pgi[id, ]
