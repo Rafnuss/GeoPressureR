@@ -46,20 +46,16 @@ tag_create_migratetech <- function(id,
   # Find column index with pressure
   hdr <- utils::read.delim(deg_path, skip = 19, nrow = 1, header = FALSE, sep = "")
   col <- which(hdr == "P(Pa)")
-  if (!(col > 0)) {
-    cli::cli_abort(
-      "The pressure file {.file {deg_path}} is not compatible. Line 20 \\
-              should contains {.val P(Pa)}"
+  if (length(col) > 0) {
+    # Read file
+    tag$pressure <- tag_create_dto(deg_path,
+      skip = 20, col = col,
+      date_format = "%d/%m/%Y %H:%M:%S",
+      quiet = quiet
     )
+    # convert Pa in hPa
+    tag$pressure$value <- tag$pressure$value / 100
   }
-  # Read file
-  tag$pressure <- tag_create_dto(deg_path,
-    skip = 20, col = col,
-    date_format = "%d/%m/%Y %H:%M:%S",
-    quiet = quiet
-  )
-  # convert Pa in hPa
-  tag$pressure$value <- tag$pressure$value / 100
 
   # Read acceleration
   col <- which(hdr == "Zact")
