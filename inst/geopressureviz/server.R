@@ -119,7 +119,11 @@ server <- function(input, output, session) {
   ## Render ----
   output$map <- leaflet::renderLeaflet({
     map <- leaflet::leaflet() |>
-      leaflet::addProviderTiles("CartoDB.DarkMatterNoLabels", group = "Dark Matter") |>
+      leaflet::addMapPane("raster_pane", zIndex = 210) |>
+      leaflet::addProviderTiles(
+        "CartoDB.DarkMatterNoLabels",
+        group = "Dark Matter"
+      ) |>
       # options = providerTileOptions(noWrap = TRUE)
       leaflet::addProviderTiles("Esri.WorldImagery", group = "Satellite") |>
       leaflet::addProviderTiles("Esri.WorldTopoMap", group = "Topography") |>
@@ -390,8 +394,9 @@ server <- function(input, output, session) {
             na.color = "#00000000",
             alpha = TRUE
           ),
-          project = FALSE
-        )
+            project = FALSE,
+            options = leaflet::pathOptions(pane = "raster_pane")
+          )
       }
       proxy <- proxy |>
         leaflet::addPolylines(
