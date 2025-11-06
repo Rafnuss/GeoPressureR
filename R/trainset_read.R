@@ -10,11 +10,13 @@
 #' @return Same data logger list as input, updated with the labels `label`
 #'
 #' @noRd
-trainset_read <- function(df,
-                          file,
-                          series = NULL,
-                          timestamp = "date",
-                          label = "label") {
+trainset_read <- function(
+  df,
+  file,
+  series = NULL,
+  timestamp = "date",
+  label = "label"
+) {
   assertthat::assert_that(is.data.frame(df))
   assertthat::assert_that(nrow(df) > 0)
   assertthat::assert_that(is.character(timestamp))
@@ -55,15 +57,23 @@ trainset_read <- function(df,
     # nolint start
     not_needed <- nrow(csv) - nrow(df) + missing_pres
 
-    series_name <- if (!is.null(series)) paste0(" of {.field ", series, "}") else ""
+    series_name <- if (!is.null(series)) {
+      paste0(" of {.field ", series, "}")
+    } else {
+      ""
+    }
 
     msg <- paste0(
-      "The labelization file", series_name,
+      "The labelization file",
+      series_name,
       " is missing {.val {missing_pres}} timesteps"
     )
 
     if (not_needed > 0) {
-      msg <- paste0(msg, " and includes {.val {not_needed}} timesteps which are not needed")
+      msg <- paste0(
+        msg,
+        " and includes {.val {not_needed}} timesteps which are not needed"
+      )
     }
 
     cli::cli_warn(c(

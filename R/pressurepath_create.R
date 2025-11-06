@@ -107,15 +107,17 @@
 #' @seealso [GeoPressureManual | Pressure
 #' Map](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html)
 #' @export
-pressurepath_create <- function(tag,
-                                path = tag2path(tag),
-                                variable = c("altitude", "surface_pressure"),
-                                solar_dep = 0,
-                                era5_dataset = "both",
-                                preprocess = FALSE,
-                                workers = "auto",
-                                quiet = FALSE,
-                                debug = FALSE) {
+pressurepath_create <- function(
+  tag,
+  path = tag2path(tag),
+  variable = c("altitude", "surface_pressure"),
+  solar_dep = 0,
+  era5_dataset = "both",
+  preprocess = FALSE,
+  workers = "auto",
+  quiet = FALSE,
+  debug = FALSE
+) {
   if (!quiet) {
     cli::cli_progress_step("Prepare pressure")
   }
@@ -127,8 +129,10 @@ pressurepath_create <- function(tag,
   assertthat::assert_that(
     length(unknown_vars) == 0,
     msg = paste0(
-      "Unknown variable(s): ", paste(unknown_vars, collapse = ", "),
-      ". Allowed variables are: ", paste(pressurepath_variable, collapse = ", ")
+      "Unknown variable(s): ",
+      paste(unknown_vars, collapse = ", "),
+      ". Allowed variables are: ",
+      paste(pressurepath_variable, collapse = ", ")
     )
   )
 
@@ -145,12 +149,17 @@ pressurepath_create <- function(tag,
 
   # Assert path
   assertthat::assert_that(is.data.frame(path))
-  assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "stap_id")))
+  assertthat::assert_that(assertthat::has_name(
+    path,
+    c("lat", "lon", "stap_id")
+  ))
   if (nrow(path) == 0) {
     cli::cli_abort("{.var path} is empty.")
   }
   if (!all(path$stap_id %in% pressure$stap_id)) {
-    cli::cli_warn("Some {.field stap_id} of {.var path} are not present in {.var tag$pressure}.")
+    cli::cli_warn(
+      "Some {.field stap_id} of {.var path} are not present in {.var tag$pressure}."
+    )
   }
 
   # Remove pressure for stap not provided in path as well as flight
@@ -158,11 +167,14 @@ pressurepath_create <- function(tag,
   stap_id_interp <- pressure$stap_id
   id <- stap_id_interp == 0
   sequence <- seq_len(nrow(pressure))
-  stap_id_interp[id] <- stats::approx(sequence[!id],
-    stap_id_interp[!id], sequence[id],
+  stap_id_interp[id] <- stats::approx(
+    sequence[!id],
+    stap_id_interp[!id],
+    sequence[id],
     rule = 2
   )$y
-  id <- ceiling(stap_id_interp) %in% path$stap_id[!is.na(path$lon)] &
+  id <- ceiling(stap_id_interp) %in%
+    path$stap_id[!is.na(path$lon)] &
     floor(stap_id_interp) %in% path$stap_id[!is.na(path$lon)]
   pressure_w_path <- pressure[id, ]
 
@@ -182,13 +194,17 @@ pressurepath_create <- function(tag,
   # Interpolate lat lon during flight
   id <- pressurepath$stap_id != round(pressurepath$stap_id)
   sequence <- seq_len(nrow(pressurepath))
-  pressurepath$lat[id] <- stats::approx(sequence[!id],
-    pressurepath$lat[!id], sequence[id],
+  pressurepath$lat[id] <- stats::approx(
+    sequence[!id],
+    pressurepath$lat[!id],
+    sequence[id],
     rule = 1
   )$y
 
-  pressurepath$lon[id] <- stats::approx(sequence[!id],
-    pressurepath$lon[!id], sequence[id],
+  pressurepath$lon[id] <- stats::approx(
+    sequence[!id],
+    pressurepath$lon[!id],
+    sequence[id],
     rule = 1
   )$y
 
@@ -199,7 +215,6 @@ pressurepath_create <- function(tag,
     workers <- max(1, min(90, round(nrow(pressurepath) / 1500)))
   }
   assertthat::assert_that(workers > 0 & workers < 100)
-
 
   # Format query
   body <- list(
@@ -224,11 +239,18 @@ pressurepath_create <- function(tag,
     cli::cli_text("Body request file: {.file {temp_file}}")
   }
 
-  req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/pressurePath/") |>
+  req <- httr2::request(
+    "https://glp.mgravey.com/GeoPressure/v2/pressurePath/"
+  ) |>
     httr2::req_body_json(body, digit = 5, auto_unbox = FALSE)
 
   if (debug) {
-    req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
+    req <- httr2::req_verbose(
+      req,
+      body_req = TRUE,
+      body_resp = TRUE,
+      info = TRUE
+    )
   }
 
   # Perform the request and convert the response to data.frame
@@ -242,10 +264,14 @@ pressurepath_create <- function(tag,
   # Check if the response is empty
   cols_with_na <- names(out)[vapply(out, function(x) any(is.na(x)), logical(1))]
   if (length(cols_with_na) > 0) {
-    cli::cli_warn("The following columns contain `NA` values: {.val {cols_with_na}}")
+    cli::cli_warn(
+      "The following columns contain `NA` values: {.val {cols_with_na}}"
+    )
   }
 
-  if (!quiet) cli::cli_progress_step("Post-process pressurepath")
+  if (!quiet) {
+    cli::cli_progress_step("Post-process pressurepath")
+  }
 
   # Convert time to date
   out$time <- as.POSIXct(out$time, origin = "1970-01-01", tz = "UTC")
@@ -259,14 +285,23 @@ pressurepath_create <- function(tag,
   )
 
   # Convert pressure Pa in hPa
-  if ("surface_pressure" %in% names(pressurepath) && !all(is.na(pressurepath$surface_pressure))) {
+  if (
+    "surface_pressure" %in%
+      names(pressurepath) &&
+      !all(is.na(pressurepath$surface_pressure))
+  ) {
     pressurepath$surface_pressure <- pressurepath$surface_pressure / 100
 
     # Compute surface_pressure_norm
     # Compute average pressure per stap_elev without including discard
     pp <- pressurepath
-    pp$stapelev <- paste(pp$stap_id,
-      ifelse(startsWith(pp$label, "elev_"), gsub("^.*?elev_", "", pp$label), "0"),
+    pp$stapelev <- paste(
+      pp$stap_id,
+      ifelse(
+        startsWith(pp$label, "elev_"),
+        gsub("^.*?elev_", "", pp$label),
+        "0"
+      ),
       sep = "|"
     )
     # trick to exclude discard from agg but still compute the norm value
@@ -274,23 +309,28 @@ pressurepath_create <- function(tag,
     pp$stapelev_label[pp$label == "discard"] <- 0
 
     agg <- merge(
-      stats::aggregate(surface_pressure ~ stapelev_label,
+      stats::aggregate(
+        surface_pressure ~ stapelev_label,
         data = pp,
         FUN = \(x) mean(x, na.rm = TRUE)
       ),
-      stats::aggregate(pressure_tag ~ stapelev_label,
-        data = pp,
-        FUN = \(x) mean(x, na.rm = TRUE)
-      )
+      stats::aggregate(pressure_tag ~ stapelev_label, data = pp, FUN = \(x) {
+        mean(x, na.rm = TRUE)
+      })
     )
     id <- match(pp$stapelev, agg$stapelev)
     pressurepath$surface_pressure_norm <- pressurepath$surface_pressure -
-      agg$surface_pressure[id] + agg$pressure_tag[id]
+      agg$surface_pressure[id] +
+      agg$pressure_tag[id]
   }
 
   if (!is.null(solar_dep)) {
     # Add sunset and sunrise information
-    twl <- path2twilight(pressurepath, solar_dep = solar_dep, return_long = FALSE)
+    twl <- path2twilight(
+      pressurepath,
+      solar_dep = solar_dep,
+      return_long = FALSE
+    )
 
     pressurepath <- merge(
       pressurepath,

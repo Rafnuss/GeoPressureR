@@ -1,11 +1,13 @@
 #' @rdname geopressuretemplate
 #' @family geopressuretemplate
 #' @export
-geopressuretemplate_config <- function(id,
-                                       config = config::get(config = id),
-                                       assert_tag = TRUE,
-                                       assert_graph = FALSE,
-                                       ...) {
+geopressuretemplate_config <- function(
+  id,
+  config = config::get(config = id),
+  assert_tag = TRUE,
+  assert_graph = FALSE,
+  ...
+) {
   # 1. Create the config from the default value
   c <- param_create(id, default = TRUE)
 
@@ -33,8 +35,11 @@ geopressuretemplate_config <- function(id,
   if (assert_graph) {
     # Validate that the likelihood is properly configured to include either
     # pressure or light mapping, or both
-    if (!("map_pressure" %in% c$geopressuretemplate$likelihood ||
-      "map_light" %in% c$geopressuretemplate$likelihood)) {
+    if (
+      !("map_pressure" %in%
+        c$geopressuretemplate$likelihood ||
+        "map_light" %in% c$geopressuretemplate$likelihood)
+    ) {
       cli::cli_abort(c(
         x = "{.var geopressuretemplate$likelihood} needs to contain either  {.field map_pressure} or
         {.field map_light} or both",
@@ -53,7 +58,11 @@ geopressuretemplate_config <- function(id,
     }
 
     # Validate that `nj` is specified if simulation is requested in outputs
-    if ("simulation" %in% config$geopressuretemplate$outputs && !(config$graph_simulation$nj > 0)) {
+    if (
+      "simulation" %in%
+        config$geopressuretemplate$outputs &&
+        !(config$graph_simulation$nj > 0)
+    ) {
       cli::cli_abort(c(
         x = "{.var nj} is required with {.val simulation} in {.var outputs}.",
         ">" = "Make sure {.var geopressuretemplate$nj} is set in {.file config.yml}."

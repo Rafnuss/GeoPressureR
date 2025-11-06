@@ -39,7 +39,8 @@ test_that("Check geolight_map() not working before tag_set_map()", {
 })
 
 tag <- tag_label(tag, quiet = TRUE)
-tag <- tag_set_map(tag,
+tag <- tag_set_map(
+  tag,
   extent = c(-16, 23, 0, 50),
   scale = 4,
   known = data.frame(

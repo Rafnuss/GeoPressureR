@@ -64,25 +64,30 @@
 #' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
 edge_add_wind <- function(
-    graph,
-    edge_s,
-    edge_t,
-    pressure = NULL,
-    variable = c("u", "v"),
-    rounding_interval = 60,
-    interp_spatial_linear = FALSE,
-    return_averaged_variable = FALSE,
-    file = \(stap_id, tag_id) glue::glue( # nolint
+  graph,
+  edge_s,
+  edge_t,
+  pressure = NULL,
+  variable = c("u", "v"),
+  rounding_interval = 60,
+  interp_spatial_linear = FALSE,
+  return_averaged_variable = FALSE,
+  file = \(stap_id, tag_id) {
+    glue::glue(
+      # nolint
       "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
-    ),
-    quiet = FALSE) {
+    )
+  },
+  quiet = FALSE
+) {
   if (is.null(pressure) && inherits(graph, "tag")) {
     pressure <- graph$pressure
   }
 
   tag_id <- graph$param$id
 
-  edge_add_wind_check(graph,
+  edge_add_wind_check(
+    graph,
     pressure = pressure,
     variable = variable,
     file = file
@@ -105,14 +110,36 @@ edge_add_wind <- function(
   assertthat::assert_that(assertthat::are_equal(dim(edge_s), dim(edge_t)))
   assertthat::assert_that(assertthat::are_equal(dim(edge_s)[2], 3))
   assertthat::assert_that(assertthat::are_equal(dim(edge_t)[2], 3))
-  assertthat::assert_that(assertthat::are_equal(edge_t[, 1], as.integer(edge_t[, 1])))
-  assertthat::assert_that(assertthat::are_equal(edge_t[, 2], as.integer(edge_t[, 2])))
-  assertthat::assert_that(assertthat::are_equal(edge_t[, 3], as.integer(edge_t[, 3])))
-  assertthat::assert_that(assertthat::are_equal(edge_s[, 1], as.integer(edge_s[, 1])))
-  assertthat::assert_that(assertthat::are_equal(edge_s[, 2], as.integer(edge_s[, 2])))
-  assertthat::assert_that(assertthat::are_equal(edge_s[, 3], as.integer(edge_s[, 3])))
-  assertthat::assert_that(all(edge_t[, 3] > 1 & edge_t[, 3] <= max(graph$stap$stap_id)))
-  assertthat::assert_that(all(edge_s[, 3] >= 1 & edge_s[, 3] < max(graph$stap$stap_id)))
+  assertthat::assert_that(assertthat::are_equal(
+    edge_t[, 1],
+    as.integer(edge_t[, 1])
+  ))
+  assertthat::assert_that(assertthat::are_equal(
+    edge_t[, 2],
+    as.integer(edge_t[, 2])
+  ))
+  assertthat::assert_that(assertthat::are_equal(
+    edge_t[, 3],
+    as.integer(edge_t[, 3])
+  ))
+  assertthat::assert_that(assertthat::are_equal(
+    edge_s[, 1],
+    as.integer(edge_s[, 1])
+  ))
+  assertthat::assert_that(assertthat::are_equal(
+    edge_s[, 2],
+    as.integer(edge_s[, 2])
+  ))
+  assertthat::assert_that(assertthat::are_equal(
+    edge_s[, 3],
+    as.integer(edge_s[, 3])
+  ))
+  assertthat::assert_that(all(
+    edge_t[, 3] > 1 & edge_t[, 3] <= max(graph$stap$stap_id)
+  ))
+  assertthat::assert_that(all(
+    edge_s[, 3] >= 1 & edge_s[, 3] < max(graph$stap$stap_id)
+  ))
   assertthat::assert_that(all(edge_t[, 1] >= 1 & edge_t[, 1] <= g$dim[1]))
   assertthat::assert_that(all(edge_t[, 2] >= 1 & edge_t[, 2] <= g$dim[2]))
   assertthat::assert_that(all(edge_s[, 1] >= 1 & edge_s[, 1] <= g$dim[1]))
@@ -172,7 +199,11 @@ edge_add_wind <- function(
       # Prepare the u- and v- windspeed for each flight (row) and edge (col)
       var_stap <- list()
       for (var_i in seq_len(length(variable))) {
-        var_stap[[var_i]] <- matrix(NA, nrow = length(fl_s$stap_s), ncol = length(st_id))
+        var_stap[[var_i]] <- matrix(
+          NA,
+          nrow = length(fl_s$stap_s),
+          ncol = length(st_id)
+        )
       }
     } else {
       for (var_i in seq_len(length(variable))) {
@@ -191,11 +222,17 @@ edge_add_wind <- function(
       # Read data from netCDF file and convert the time of data to posixt
       # Fix to use the correct time variable ("time" until the new CDS, then "valid_time")
       if ("time" %in% names(nc$dim)) {
-        time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60,
-          origin = "1900-01-01", tz = "UTC"
+        time <- as.POSIXct(
+          ncdf4::ncvar_get(nc, "time") * 60 * 60,
+          origin = "1900-01-01",
+          tz = "UTC"
         )
       } else if ("valid_time" %in% names(nc$dim)) {
-        time <- as.POSIXct(ncdf4::ncvar_get(nc, "valid_time"), origin = "1970-01-01", tz = "UTC")
+        time <- as.POSIXct(
+          ncdf4::ncvar_get(nc, "valid_time"),
+          origin = "1970-01-01",
+          tz = "UTC"
+        )
       } else {
         cli::cli_abort(c(
           x = "Time variable not found in {.file {file(i_s, tag_id)}}",
@@ -215,18 +252,28 @@ edge_add_wind <- function(
       lon_s <- g$lon[edge_s[st_id, 2]] +
         ratio_stap[i_fl] * (g$lon[edge_t[st_id, 2]] - g$lon[edge_s[st_id, 2]])
       lat_e <- g$lat[edge_s[st_id, 1]] +
-        ratio_stap[i_fl + 1] * (g$lat[edge_t[st_id, 1]] - g$lat[edge_s[st_id, 1]])
+        ratio_stap[i_fl + 1] *
+          (g$lat[edge_t[st_id, 1]] - g$lat[edge_s[st_id, 1]])
       lon_e <- g$lon[edge_s[st_id, 2]] +
-        ratio_stap[i_fl + 1] * (g$lon[edge_t[st_id, 2]] - g$lon[edge_s[st_id, 2]])
+        ratio_stap[i_fl + 1] *
+          (g$lon[edge_t[st_id, 2]] - g$lon[edge_s[st_id, 2]])
 
       # As ERA5 data is available every hour, we build a one hour resolution timeserie including the
       # start and end time of the flight. Thus, we first round the start end end time.
 
       # Round down to the lower n-minute interval
-      t_s <- as.POSIXct(trunc(as.numeric(fl_s$start[i_fl]) / (60 * rounding_interval)) *
-        (60 * rounding_interval), origin = "1970-01-01", tz = "UTC")
-      t_e <- as.POSIXct(ceiling(as.numeric(fl_s$end[i_fl]) / (60 * rounding_interval)) *
-        (60 * rounding_interval), origin = "1970-01-01", tz = "UTC")
+      t_s <- as.POSIXct(
+        trunc(as.numeric(fl_s$start[i_fl]) / (60 * rounding_interval)) *
+          (60 * rounding_interval),
+        origin = "1970-01-01",
+        tz = "UTC"
+      )
+      t_e <- as.POSIXct(
+        ceiling(as.numeric(fl_s$end[i_fl]) / (60 * rounding_interval)) *
+          (60 * rounding_interval),
+        origin = "1970-01-01",
+        tz = "UTC"
+      )
       t_q <- seq(from = t_s, to = t_e, by = 60 * rounding_interval)
 
       # We assume that the bird is moving with a constant groundspeed between `flight$start` and
@@ -236,9 +283,15 @@ edge_add_wind <- function(
 
       dlat_se <- (lat_e - lat_s) / fl_s$duration[i_fl]
       dlon_se <- (lon_e - lon_s) / fl_s$duration[i_fl]
-      w <- pmax(pmin(as.numeric(
-        difftime(t_q, fl_s$start[i_fl], units = "hours")
-      ), fl_s$duration[i_fl]), 0)
+      w <- pmax(
+        pmin(
+          as.numeric(
+            difftime(t_q, fl_s$start[i_fl], units = "hours")
+          ),
+          fl_s$duration[i_fl]
+        ),
+        0
+      )
       w2 <- matrix(w, nrow = length(dlat_se), ncol = length(w), byrow = TRUE)
       lat_int <- lat_s + w2 * replicate(length(w), dlat_se)
       lon_int <- lon_s + w2 * replicate(length(w), dlon_se)
@@ -246,7 +299,8 @@ edge_add_wind <- function(
       rm(w2, dlat_se, dlon_se, w, lat_s, lon_s, lat_e, lon_e)
       gc()
 
-      if (TRUE) { # we use w for both return_averaged_variable TRUE and FALSE
+      if (TRUE) {
+        # we use w for both return_averaged_variable TRUE and FALSE
         # As we are interesting in the average windspeed experienced during the entire flight, we
         # need to find the weights of each 1hr interval extracted from ERA5. We can estimate these
         # weight assuming a linear integration of the time (trapezoidal rule) or a step integration
@@ -256,15 +310,22 @@ edge_add_wind <- function(
         w <- numeric(length(t_q))
         assertthat::assert_that(length(w) > 1)
 
-        alpha <- 1 - as.numeric(difftime(fl_s$start[i_fl], t_q[1], units = "mins")) /
-          rounding_interval
+        alpha <- 1 -
+          as.numeric(difftime(fl_s$start[i_fl], t_q[1], units = "mins")) /
+            rounding_interval
         assertthat::assert_that(alpha >= 0 & alpha <= 1)
         w[c(1, 2)] <- w[c(1, 2)] + c(alpha, 1 - alpha) * alpha
 
-        alpha <- 1 - as.numeric(difftime(utils::tail(t_q, 1), fl_s$end[i_fl], units = "mins")) /
-          rounding_interval
+        alpha <- 1 -
+          as.numeric(difftime(
+            utils::tail(t_q, 1),
+            fl_s$end[i_fl],
+            units = "mins"
+          )) /
+            rounding_interval
         assertthat::assert_that(alpha >= 0 & alpha <= 1)
-        w[length(w) - c(1, 0)] <- w[length(w) - c(1, 0)] + c(1 - alpha, alpha) * alpha
+        w[length(w) - c(1, 0)] <- w[length(w) - c(1, 0)] +
+          c(1 - alpha, alpha) * alpha
 
         if (length(w) >= 4) {
           w[c(2, length(w) - 1)] <- w[c(2, length(w) - 1)] + 0.5
@@ -293,36 +354,75 @@ edge_add_wind <- function(
 
       # Find the index of lat and lon
       if (!interp_spatial_linear) {
-        lat_int_ind <- matrix(match(as.vector(round(lat_int * 4) / 4), lat), nrow = nrow(lat_int))
-        lon_int_ind <- matrix(match(as.vector(round(lon_int * 4) / 4), lon), nrow = nrow(lon_int))
+        lat_int_int <- as.vector(round(lat_int * 4) / 4)
+        lat_int_ind <- matrix(match(lat_int_int, lat), nrow = nrow(lat_int))
+        lon_int_int <- as.vector(round(lon_int * 4) / 4)
+        lon_int_ind <- matrix(match(lon_int_int, lon), nrow = nrow(lon_int))
       }
 
       # Loop through the 1hr interval
       for (i_time in seq_len(length(t_q))) {
         # find the two pressure level to query (one above, one under) based on the geolocator
         # pressure at this timestep
-        p_q[i_time] <- stats::approx(pressure$date, pressure$value, t_q[i_time], rule = 2)$y
-        tmp <- which(pres <= p_q[i_time])
-        id_pres <- tmp[which.min(abs(pres[tmp] - p_q[i_time]))]
-        # if the pressure is higher than the highest level (i.e. bird below the ground level
-        # pressure), we extract only the last layer
-        n_pres <- ifelse(id_pres == length(pres), 1, 2)
+        p_q[i_time] <- stats::approx(
+          pressure$date,
+          pressure$value,
+          t_q[i_time],
+          rule = 2
+        )$y
+        if (p_q[i_time] >= pres[1]) {
+          id_pres <- 1
+          n_pres <- 1
+          if (p_q[i_time] > pres[1] && pres[1] != 1000) {
+            cli::cli_warn(c(
+              "!" = "Pressure is above the highest level while the highest level is not 1000hPa.",
+              "i" = "Stationary period: {i_s}",
+              "i" = "Flight index: {i_fl} of {nrow(fl_s)}",
+              "i" = "Time index: {i_time} of {length(t_q)}",
+              "i" = "Date: {format(t_q[i_time], '%Y-%m-%d %H:%M:%S')}",
+              "i" = "Pressure: {round(p_q[i_time], 2)} hPa",
+              "i" = "Highest available level: {pres[1]} hPa",
+              "i" = "Pressure difference: {round(p_q[i_time] - pres[1], 2)} hPa"
+            ))
+          }
+        } else if (p_q[i_time] <= pres[length(pres)]) {
+          id_pres <- length(pres)
+          n_pres <- 1
+          if (p_q[i_time] < pres[length(pres)]) {
+            cli::cli_warn(
+              "Pressure is below the lowest level. This should never happen!"
+            )
+          }
+        } else {
+          id_pres <- max(which(pres >= p_q[i_time]))
+          n_pres <- 2
+        }
 
         # find the two time step before and after the time step to query in ERA5
         tmp <- which(time <= t_q[i_time])
         id_time <- tmp[which.min(abs(time[tmp] - t_q[i_time]))]
-        n_time <- ifelse(id_time == length(time) | time[id_time] == t_q[i_time], 1, 2)
+        n_time <- ifelse(
+          id_time == length(time) | time[id_time] == t_q[i_time],
+          1,
+          2
+        )
 
         # Find the index of lat and longitude necessary
-        id_lon <- which(lon >= (min(lon_int[, i_time]) - dlon) &
-          (max(lon_int[, i_time]) + dlon) >= lon)
-        id_lat <- which(lat >= (min(lat_int[, i_time]) - dlat) &
-          (max(lat_int[, i_time]) + dlat) >= lat)
+        id_lon <- which(
+          lon >= (min(lon_int[, i_time]) - dlon) &
+            (max(lon_int[, i_time]) + dlon) >= lon
+        )
+        id_lat <- which(
+          lat >= (min(lat_int[, i_time]) - dlat) &
+            (max(lat_int[, i_time]) + dlat) >= lat
+        )
 
         # get the two maps of u- and v-
         var_nc <- list()
         for (var_i in seq_len(length(variable))) {
-          var_nc[[var_i]] <- ncdf4::ncvar_get(nc, variable[var_i],
+          var_nc[[var_i]] <- ncdf4::ncvar_get(
+            nc,
+            variable[var_i],
             start = c(id_lon[1], id_lat[1], id_pres, id_time),
             count = c(length(id_lon), length(id_lat), n_pres, n_time),
             collapse_degen = FALSE
@@ -331,24 +431,33 @@ edge_add_wind <- function(
 
         # Interpolate linearly along time
         if (n_time == 2) {
-          w_time <- as.numeric(difftime(t_q[i_time], time[id_time], units = "hours")) /
-            as.numeric(difftime(time[id_time + 1], time[id_time], units = "hours"))
+          w_time <- as.numeric(difftime(
+            t_q[i_time],
+            time[id_time],
+            units = "hours"
+          )) /
+            as.numeric(difftime(
+              time[id_time + 1],
+              time[id_time],
+              units = "hours"
+            ))
           for (var_i in seq_len(length(variable))) {
-            var_nc[[var_i]] <- var_nc[[var_i]][, , , 1] +
-              w_time * (var_nc[[var_i]][, , , 2] - var_nc[[var_i]][, , , 1])
+            var_nc[[var_i]] <- var_nc[[var_i]][,,, 1] +
+              w_time * (var_nc[[var_i]][,,, 2] - var_nc[[var_i]][,,, 1])
           }
         } else {
           for (var_i in seq_len(length(variable))) {
-            var_nc[[var_i]] <- var_nc[[var_i]][, , , 1]
+            var_nc[[var_i]] <- var_nc[[var_i]][,,, 1]
           }
         }
 
         # Interpolate linearly along altitude/pressure.
         if (n_pres == 2) {
-          w_pres <- (p_q[i_time] - pres[id_pres]) / (pres[id_pres + 1] - pres[id_pres])
+          w_pres <- (p_q[i_time] - pres[id_pres]) /
+            (pres[id_pres + 1] - pres[id_pres])
           for (var_i in seq_len(length(variable))) {
-            var_nc[[var_i]] <- var_nc[[var_i]][, , 1] +
-              w_pres * (var_nc[[var_i]][, , 2] - var_nc[[var_i]][, , 1])
+            var_nc[[var_i]] <- var_nc[[var_i]][,, 1] +
+              w_pres * (var_nc[[var_i]][,, 2] - var_nc[[var_i]][,, 1])
           }
         }
 
@@ -359,8 +468,11 @@ edge_add_wind <- function(
           # unique value that are needed. Then, we give the interpolated value back to all the
           # lat_int lon_int dimension
           # Convert the coordinate to 1d to have a more efficient unique.
-          ll_int_1d <- (round(lat_int[, i_time], 1) + 90) * 10 * 10000 +
-            (round(lon_int[, i_time], 1) + 180) * 10 + 1
+          ll_int_1d <- (round(lat_int[, i_time], 1) + 90) *
+            10 *
+            10000 +
+            (round(lon_int[, i_time], 1) + 180) * 10 +
+            1
           ll_int_1d_uniq <- unique(ll_int_1d)
 
           lat_int_uniq <- ((ll_int_1d_uniq - 1) %/% 10000) / 10 - 90
@@ -373,9 +485,12 @@ edge_add_wind <- function(
           id_uniq <- match(ll_int_1d, ll_int_1d_uniq)
 
           for (var_i in seq_len(length(variable))) {
-            tmp <- pracma::interp2(rev(lat[id_lat]), lon[id_lon],
+            tmp <- pracma::interp2(
+              rev(lat[id_lat]),
+              lon[id_lon],
               var_nc[[var_i]][, rev(seq_len(ncol(var_nc[[var_i]])))],
-              lat_int_uniq, lon_int_uniq,
+              lat_int_uniq,
+              lon_int_uniq,
               method = "linear"
             )
             assertthat::assert_that(all(!is.na(tmp)))
@@ -389,7 +504,9 @@ edge_add_wind <- function(
             lat_int_ind_off <- lat_int_ind[, i_time] - id_lat[1] + 1
 
             # compute the 2d index
-            ind <- (lat_int_ind_off - 1) * nrow(var_nc[[var_i]]) + lon_int_ind_off
+            ind <- (lat_int_ind_off - 1) *
+              nrow(var_nc[[var_i]]) +
+              lon_int_ind_off
 
             # Extract variable
             var_fl[[var_i]][i_time, ] <- var_nc[[var_i]][ind]
@@ -435,22 +552,42 @@ edge_add_wind <- function(
       # Compute the average over all the flight of the transition accounting for the duration of the
       # flight.
       for (var_i in seq_len(length(variable))) {
-        var[st_id, var_i] <- colSums(var_stap[[var_i]] * fl_s$duration / sum(fl_s$duration))
+        var[st_id, var_i] <- colSums(
+          var_stap[[var_i]] * fl_s$duration / sum(fl_s$duration)
+        )
       }
     }
     if (!quiet) {
-      cli::cli_progress_update(set = sum(table_edge_s[seq(1, i_stap)]), force = TRUE)
+      cli::cli_progress_update(
+        set = sum(table_edge_s[seq(1, i_stap)]),
+        force = TRUE
+      )
     }
   }
 
   # Final cleanup: remove only objects that exist (var_stap included unconditionally)
-  rm(list = intersect(c(
-    "list_st_id", "flight", "g", "fl_s", "st_id", "ratio_stap", "var_stap", "table_edge_s"
-  ), ls()))
+  rm(
+    list = intersect(
+      c(
+        "list_st_id",
+        "flight",
+        "g",
+        "fl_s",
+        "st_id",
+        "ratio_stap",
+        "var_stap",
+        "table_edge_s"
+      ),
+      ls()
+    )
+  )
   gc()
 
   if (!return_averaged_variable) {
-    var <- do.call(rbind, unlist(unlist(var, recursive = FALSE), recursive = FALSE))
+    var <- do.call(
+      rbind,
+      unlist(unlist(var, recursive = FALSE), recursive = FALSE)
+    )
   }
 
   return(var)
@@ -459,12 +596,16 @@ edge_add_wind <- function(
 
 #' @noRd
 edge_add_wind_check <- function(
-    graph,
-    pressure = NULL,
-    variable = c("u", "v"),
-    file = \(stap_id, tag_id) glue::glue( # nolint
+  graph,
+  pressure = NULL,
+  variable = c("u", "v"),
+  file = \(stap_id, tag_id) {
+    glue::glue(
+      # nolint
       "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
-    )) {
+    )
+  }
+) {
   assertthat::assert_that(inherits(graph, "tag") | inherits(graph, "graph"))
 
   tag_id <- graph$param$id
@@ -510,19 +651,31 @@ edge_add_wind_check <- function(
 
       # Check that the time is matching
       if ("time" %in% names(nc$dim)) {
-        time <- as.POSIXct(ncdf4::ncvar_get(nc, "time") * 60 * 60,
-          origin = "1900-01-01", tz = "UTC"
+        time <- as.POSIXct(
+          ncdf4::ncvar_get(nc, "time") * 60 * 60,
+          origin = "1900-01-01",
+          tz = "UTC"
         )
       } else if ("valid_time" %in% names(nc$dim)) {
-        time <- as.POSIXct(ncdf4::ncvar_get(nc, "valid_time"), origin = "1970-01-01", tz = "UTC")
+        time <- as.POSIXct(
+          ncdf4::ncvar_get(nc, "valid_time"),
+          origin = "1970-01-01",
+          tz = "UTC"
+        )
       } else {
         cli::cli_abort(c(
           x = "Time variable not found in {.file {file(i_s, tag_id)}}",
           "i" = "Available variable{?s} {?is/are} {.var {names(nc$dim)}}."
         ))
       }
-      t_s <- as.POSIXct(format(fl_s$start[i_fl], "%Y-%m-%d %H:00:00"), tz = "UTC")
-      t_e <- as.POSIXct(format(fl_s$end[i_fl] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
+      t_s <- as.POSIXct(
+        format(fl_s$start[i_fl], "%Y-%m-%d %H:00:00"),
+        tz = "UTC"
+      )
+      t_e <- as.POSIXct(
+        format(fl_s$end[i_fl] + 60 * 60, "%Y-%m-%d %H:00:00"),
+        tz = "UTC"
+      )
       if (!(min(time) <= t_e && max(time) >= t_s)) {
         cli::cli_abort(c(
           x = "Wind file ({.file {file(i_s, tag_id)}}) does not cover the flight time range.",
@@ -555,10 +708,16 @@ edge_add_wind_check <- function(
       lat <- ncdf4::ncvar_get(nc, "latitude")
       lon <- ncdf4::ncvar_get(nc, "longitude")
       nc_extent <- c(min(lon), max(lon), min(lat), max(lat)) # nolint
-      if (min(g$lat) < min(lat) || max(g$lat) > max(lat) ||
-        min(g$lon) < min(lon) || max(g$lon) > max(lon)) {
-        cli::cli_abort(c(x = "Spatial extent of the grid ({graph$param$tag_set_map$extent}) is
-        not included in the extent of {.file {file(i_s, tag_id)}} ({nc_extent})"))
+      if (
+        min(g$lat) < min(lat) ||
+          max(g$lat) > max(lat) ||
+          min(g$lon) < min(lon) ||
+          max(g$lon) > max(lon)
+      ) {
+        cli::cli_abort(c(
+          x = "Spatial extent of the grid ({graph$param$tag_set_map$extent}) is
+        not included in the extent of {.file {file(i_s, tag_id)}} ({nc_extent})"
+        ))
       }
 
       # Check if flight duration is

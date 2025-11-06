@@ -1,10 +1,12 @@
 # Read Migrate Technology tag files
 #' @noRd
-tag_create_migratetech <- function(id,
-                                   directory = glue::glue("./data/raw-tag/{id}"),
-                                   deg_file = NULL,
-                                   light_file = NULL,
-                                   quiet = FALSE) {
+tag_create_migratetech <- function(
+  id,
+  directory = glue::glue("./data/raw-tag/{id}"),
+  deg_file = NULL,
+  light_file = NULL,
+  quiet = FALSE
+) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
 
@@ -22,7 +24,10 @@ tag_create_migratetech <- function(id,
       "!" = "{.var deg_file} is required!"
     ))
   }
-  assertthat::assert_that(grepl("Migrate Technology", readLines(deg_path, n = 1)))
+  assertthat::assert_that(grepl(
+    "Migrate Technology",
+    readLines(deg_path, n = 1)
+  ))
   line2 <- readLines(deg_path, n = 2)[[2]]
   v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
   if (v < 13) {
@@ -32,10 +37,15 @@ tag_create_migratetech <- function(id,
     )
   }
   # Retrieve full model number
-  tag$param$migratec_model <- regmatches(line2, regexpr("Type: \\K[\\d.]+", line2, perl = TRUE))
+  tag$param$migratec_model <- regmatches(
+    line2,
+    regexpr("Type: \\K[\\d.]+", line2, perl = TRUE)
+  )
   # Check for drift
   line16 <- readLines(deg_path, n = 16)[[16]]
-  drift <- abs(as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60)
+  drift <- abs(
+    as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60
+  )
   if (drift > 30) {
     cli::cli_warn(c(
       "!" = "The deg file {.file {deg_path}} is recording a drift of {format_minutes(drift)} \\
@@ -44,12 +54,20 @@ tag_create_migratetech <- function(id,
     ))
   }
   # Find column index with pressure
-  hdr <- utils::read.delim(deg_path, skip = 19, nrow = 1, header = FALSE, sep = "")
+  hdr <- utils::read.delim(
+    deg_path,
+    skip = 19,
+    nrow = 1,
+    header = FALSE,
+    sep = ""
+  )
   col <- which(hdr == "P(Pa)")
   if (length(col) > 0) {
     # Read file
-    tag$pressure <- tag_create_dto(deg_path,
-      skip = 20, col = col,
+    tag$pressure <- tag_create_dto(
+      deg_path,
+      skip = 20,
+      col = col,
       date_format = "%d/%m/%Y %H:%M:%S",
       quiet = quiet
     )
@@ -61,8 +79,10 @@ tag_create_migratetech <- function(id,
   col <- which(hdr == "Zact")
   if (length(col) != 0) {
     # Read file
-    tag$acceleration <- tag_create_dto(deg_path,
-      skip = 20, col = col,
+    tag$acceleration <- tag_create_dto(
+      deg_path,
+      skip = 20,
+      col = col,
       date_format = "%d/%m/%Y %H:%M:%S",
       quiet = quiet
     )
@@ -72,8 +92,10 @@ tag_create_migratetech <- function(id,
   # Read temperature
   col <- which(hdr == "T('C)")
   if (length(col) != 0) {
-    tag$temperature <- tag_create_dto(deg_path,
-      skip = 20, col = col,
+    tag$temperature <- tag_create_dto(
+      deg_path,
+      skip = 20,
+      col = col,
       date_format = "%d/%m/%Y %H:%M:%S",
       quiet = quiet
     )
@@ -88,7 +110,9 @@ tag_create_migratetech <- function(id,
   }
   if (!is.null(light_path)) {
     line16 <- readLines(light_path, n = 16)[[16]]
-    drift <- abs(as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60)
+    drift <- abs(
+      as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60
+    )
     if (drift > 30) {
       cli::cli_warn(c(
         "!" = "The light file {.file {light_path}} is recording a drift of \\
@@ -97,7 +121,13 @@ tag_create_migratetech <- function(id,
       ))
     }
     # find column index with light
-    hdr <- utils::read.delim(light_path, skip = 19, nrow = 1, header = FALSE, sep = "")
+    hdr <- utils::read.delim(
+      light_path,
+      skip = 19,
+      nrow = 1,
+      header = FALSE,
+      sep = ""
+    )
     col <- which(hdr == "light(lux)")
     if (length(col) == 0) {
       cli::cli_abort(
@@ -106,8 +136,10 @@ tag_create_migratetech <- function(id,
       )
     }
     # Read file
-    tag$light <- tag_create_dto(light_path,
-      skip = 20, col = col,
+    tag$light <- tag_create_dto(
+      light_path,
+      skip = 20,
+      col = col,
       date_format = "%d/%m/%Y %H:%M:%S",
       quiet = quiet
     )

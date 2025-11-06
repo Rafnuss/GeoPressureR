@@ -9,10 +9,15 @@ library(GeoPressureR)
 
 # Small synthetic case
 pressure <- data.frame(
-  date = as.POSIXct(c(
-    "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
-    "2017-06-20 02:00:00 UTC", "2017-06-20 03:00:00 UTC"
-  ), tz = "UTC"),
+  date = as.POSIXct(
+    c(
+      "2017-06-20 00:00:00 UTC",
+      "2017-06-20 01:00:00 UTC",
+      "2017-06-20 02:00:00 UTC",
+      "2017-06-20 03:00:00 UTC"
+    ),
+    tz = "UTC"
+  ),
   value = c(1000, 1000, 1000, 1000),
   label = c("", "", "", ""),
   stap_id = c(1, 1, 2, 2)
@@ -30,17 +35,22 @@ known <- data.frame(
   known_lat = .9
 )
 
-tag <- structure(list(
-  param = param_create(id = "18LX"),
-  stap = stap,
-  pressure = pressure
-), class = "tag")
-
+tag <- structure(
+  list(
+    param = param_create(id = "18LX"),
+    stap = stap,
+    pressure = pressure
+  ),
+  class = "tag"
+)
 
 
 test_that("tag_set_map() | no known", {
   tag_no_known <- tag_set_map(tag, extent, scale)
-  expect_true(assertthat::has_name(tag_no_known$param$tag_set_map, c("scale", "extent")))
+  expect_true(assertthat::has_name(
+    tag_no_known$param$tag_set_map,
+    c("scale", "extent")
+  ))
   expect_true(all(tag_no_known$stap$include))
   expect_true(all(is.na(tag_no_known$stap$known_lat)))
 })
@@ -53,7 +63,13 @@ test_that("tag_set_map() | with known", {
     known_lon = .8,
     known_lat = .9
   )
-  expect_warning(tag_overwrite <- tag_set_map(tag_with_known, extent, known = known_overwrite))
+  expect_warning(
+    tag_overwrite <- tag_set_map(
+      tag_with_known,
+      extent,
+      known = known_overwrite
+    )
+  )
   expect_equal(tag_overwrite$stap$known_lon[1], known_overwrite$known_lon)
 })
 

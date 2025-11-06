@@ -25,12 +25,14 @@
 #' @family path
 #' @seealso [plot.map()]
 #' @export
-plot_path <- function(path,
-                      plot_leaflet = TRUE,
-                      provider = "Esri.WorldTopoMap",
-                      provider_options = leaflet::providerTileOptions(),
-                      pad = 3,
-                      ...) {
+plot_path <- function(
+  path,
+  plot_leaflet = TRUE,
+  provider = "Esri.WorldTopoMap",
+  provider_options = leaflet::providerTileOptions(),
+  pad = 3,
+  ...
+) {
   assertthat::assert_that(is.data.frame(path))
   assertthat::assert_that(assertthat::has_name(path, c("lat", "lon")))
 
@@ -40,11 +42,16 @@ plot_path <- function(path,
     path$duration <- 1
   }
 
-  if (!("j" %in% names(path))) path$j <- 1
+  if (!("j" %in% names(path))) {
+    path$j <- 1
+  }
 
   if (plot_leaflet) {
     leaflet::leaflet(height = 600) |>
-      leaflet::addProviderTiles(provider = provider, options = provider_options) |>
+      leaflet::addProviderTiles(
+        provider = provider,
+        options = provider_options
+      ) |>
       plot_path_leaflet(path, ...)
   } else {
     bbox <- list(
@@ -62,35 +69,45 @@ plot_path <- function(path,
         world$lat <= bbox$max_lat,
       "region"
     ])
-    map_data_countries <- ggplot2::map_data("world", region = intersecting_countries)
-
-
+    map_data_countries <- ggplot2::map_data(
+      "world",
+      region = intersecting_countries
+    )
 
     p <- ggplot2::ggplot() +
       ggplot2::geom_polygon(
         data = map_data_countries,
         ggplot2::aes(x = .data$long, y = .data$lat, group = .data$group),
-        fill = "#f7f7f7", color = "#e0e0e0", linewidth = 0.2
+        fill = "#f7f7f7",
+        color = "#e0e0e0",
+        linewidth = 0.2
       )
 
     path_full <- path[!is.na(path$lat), ]
     if (nrow(path_full) < nrow(path)) {
-      p <- p + ggplot2::geom_path(
-        data = path_full,
-        ggplot2::aes(x = .data$lon, y = .data$lat, group = .data$j),
-        color = "black", linewidth = 1, alpha = 0.2
-      )
+      p <- p +
+        ggplot2::geom_path(
+          data = path_full,
+          ggplot2::aes(x = .data$lon, y = .data$lat, group = .data$j),
+          color = "black",
+          linewidth = 1,
+          alpha = 0.2
+        )
     }
 
-    p <- p + ggplot2::geom_path(
-      data = path,
-      ggplot2::aes(x = .data$lon, y = .data$lat, group = .data$j),
-      color = "black", linewidth = 1
-    ) +
+    p <- p +
+      ggplot2::geom_path(
+        data = path,
+        ggplot2::aes(x = .data$lon, y = .data$lat, group = .data$j),
+        color = "black",
+        linewidth = 1
+      ) +
       ggplot2::geom_point(
         data = path_full,
         ggplot2::aes(x = .data$lon, y = .data$lat, size = log(.data$duration)),
-        fill = "#e74c3c", color = "black", shape = 21
+        fill = "#e74c3c",
+        color = "black",
+        shape = 21
       ) +
       ggplot2::coord_fixed(
         ratio = 1.3,
@@ -99,8 +116,6 @@ plot_path <- function(path,
       ) +
       ggplot2::theme_minimal()
 
-
-
     return(p)
   }
 }
@@ -108,10 +123,11 @@ plot_path <- function(path,
 
 #' @noRd
 plot_path_leaflet <- function(
-    map,
-    path,
-    polyline = NULL,
-    circle = NULL) {
+  map,
+  path,
+  polyline = NULL,
+  circle = NULL
+) {
   polyline <- merge_params(
     list(
       stroke = TRUE,
@@ -164,41 +180,50 @@ plot_path_leaflet <- function(
     polyline_full$color <- "grey"
 
     for (j in unique_j) {
-      map <- do.call(leaflet::addPolylines, c(
-        list(
-          map = map,
-          lng = path_full$lon[path_full$j == j],
-          lat = path_full$lat[path_full$j == j],
-          group = path$j[path$j == j]
-        ),
-        polyline_full
-      ))
+      map <- do.call(
+        leaflet::addPolylines,
+        c(
+          list(
+            map = map,
+            lng = path_full$lon[path_full$j == j],
+            lat = path_full$lat[path_full$j == j],
+            group = path$j[path$j == j]
+          ),
+          polyline_full
+        )
+      )
     }
   }
 
   # Overlay with trajectory of consecutive position in black.
   for (j in unique_j) {
-    map <- do.call(leaflet::addPolylines, c(
-      list(
-        map = map,
-        lng = path$lon[path$j == j],
-        lat = path$lat[path$j == j],
-        group = path$j[path$j == j]
-      ),
-      polyline
-    ))
+    map <- do.call(
+      leaflet::addPolylines,
+      c(
+        list(
+          map = map,
+          lng = path$lon[path$j == j],
+          lat = path$lat[path$j == j],
+          group = path$j[path$j == j]
+        ),
+        polyline
+      )
+    )
   }
 
   suppressWarnings({
-    map <- do.call(leaflet::addCircleMarkers, c(
-      list(
-        map = map,
-        lng = path$lon,
-        lat = path$lat,
-        group = path$j
-      ),
-      circle
-    ))
+    map <- do.call(
+      leaflet::addCircleMarkers,
+      c(
+        list(
+          map = map,
+          lng = path$lon,
+          lat = path$lat,
+          group = path$j
+        ),
+        circle
+      )
+    )
   })
   # Legend
   # nolint start

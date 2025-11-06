@@ -83,13 +83,15 @@
 #' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
 #' 1118–1129 <https://doi.org/10.1111/2041-210X.14043>.}
 #' @export
-geopressure_timeseries <- function(lat,
-                                   lon,
-                                   pressure = NULL,
-                                   start_time = NULL,
-                                   end_time = NULL,
-                                   quiet = FALSE,
-                                   debug = FALSE) {
+geopressure_timeseries <- function(
+  lat,
+  lon,
+  pressure = NULL,
+  start_time = NULL,
+  end_time = NULL,
+  quiet = FALSE,
+  debug = FALSE
+) {
   # Check input
   assertthat::assert_that(is.numeric(lon))
   assertthat::assert_that(is.numeric(lat))
@@ -148,7 +150,12 @@ geopressure_timeseries <- function(lat,
     })
 
   if (debug) {
-    req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
+    req <- httr2::req_verbose(
+      req,
+      body_req = TRUE,
+      body_resp = TRUE,
+      info = TRUE
+    )
   }
 
   # Perform the request and convert the response to json
@@ -157,19 +164,28 @@ geopressure_timeseries <- function(lat,
 
   # Check for change in position
   if (resp_data$distInter > 0) {
-    cli::cli_bullets(c("!" = "Requested position is on water and will be move to the closet point \\
+    cli::cli_bullets(c(
+      "!" = "Requested position is on water and will be move to the closet point \\
       on shore \\
       ({.url https://www.google.com/maps/dir/{lat},{lon}/{resp_data$lat},{resp_data$lon}}) \\
-      located {round(resp_data$distInter / 1000)} km away."))
+      located {round(resp_data$distInter / 1000)} km away."
+    ))
   }
 
-  if (!quiet) cli::cli_progress_step("Sending request")
+  if (!quiet) {
+    cli::cli_progress_step("Sending request")
+  }
 
   # Prepare request
   req <- httr2::request(resp_data$url)
 
   if (debug) {
-    req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
+    req <- httr2::req_verbose(
+      req,
+      body_req = TRUE,
+      body_resp = TRUE,
+      info = TRUE
+    )
   }
 
   # Perform request
@@ -209,7 +225,9 @@ geopressure_timeseries <- function(lat,
       )
     }
 
-    if (!quiet) cli::cli_progress_step("Compute normalized ERA5 pressure")
+    if (!quiet) {
+      cli::cli_progress_step("Compute normalized ERA5 pressure")
+    }
 
     # Use a merge to combine all information possible from out into pressure.
     out <- merge(pressure, out, all.x = TRUE)
@@ -237,7 +255,8 @@ geopressure_timeseries <- function(lat,
         id_elev <- pressure$elev == elev_i
         pressure_tag_m <- mean(pressure$value[id_elev & id_norm])
         surface_pressure_m <- mean(out$surface_pressure[id_elev & id_norm])
-        out$surface_pressure_norm[id_elev] <- out$surface_pressure[id_elev] - surface_pressure_m +
+        out$surface_pressure_norm[id_elev] <- out$surface_pressure[id_elev] -
+          surface_pressure_m +
           pressure_tag_m
       }
     }

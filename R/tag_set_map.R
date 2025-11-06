@@ -68,16 +68,18 @@
 #' @family tag
 #' @seealso [GeoPressureManual](https://bit.ly/3QGkf6N)
 #' @export
-tag_set_map <- function(tag,
-                        extent,
-                        scale = 10,
-                        known = data.frame(
-                          stap_id = integer(),
-                          known_lat = double(),
-                          known_lon = double()
-                        ),
-                        include_stap_id = NULL,
-                        include_min_duration = 0) {
+tag_set_map <- function(
+  tag,
+  extent,
+  scale = 10,
+  known = data.frame(
+    stap_id = integer(),
+    known_lat = double(),
+    known_lon = double()
+  ),
+  include_stap_id = NULL,
+  include_min_duration = 0
+) {
   tag_assert(tag, "stap")
 
   # define stap for convenience
@@ -100,15 +102,26 @@ tag_set_map <- function(tag,
   assertthat::assert_that(assertthat::has_name(known, "known_lat"))
   assertthat::assert_that(assertthat::has_name(known, "known_lon"))
   # Only use the required column. Other names can cause issue later...
-  unexpected_cols <- setdiff(names(known), c("stap_id", "known_lat", "known_lon", "start", "end"))
+  unexpected_cols <- setdiff(
+    names(known),
+    c("stap_id", "known_lat", "known_lon", "start", "end")
+  )
   if (length(unexpected_cols)) {
-    cli::cli_warn("Unexpected columns found in {.var known}: \\
-                  {paste(unexpected_cols, collapse = ', ')}")
+    cli::cli_warn(
+      "Unexpected columns found in {.var known}: \\
+                  {paste(unexpected_cols, collapse = ', ')}"
+    )
     known <- known[, c("stap_id", "known_lat", "known_lon")]
   }
   known <- known[, c("stap_id", "known_lat", "known_lon")]
-  if (!all(known$known_lon >= extent[1] & known$known_lon <= extent[2] &
-    known$known_lat >= extent[3] & known$known_lat <= extent[4])) {
+  if (
+    !all(
+      known$known_lon >= extent[1] &
+        known$known_lon <= extent[2] &
+        known$known_lat >= extent[3] &
+        known$known_lat <= extent[4]
+    )
+  ) {
     cli::cli_abort(c(
       x = "The known latitude and longitude are not inside the extent of the map",
       i = "Modify {.var extent} or {.var known} to match this requirement."
@@ -120,7 +133,9 @@ tag_set_map <- function(tag,
   # Keep a copy of the original known to keep in param. Useful to keep negative indexing
   known0 <- known
   # Use negative indexing: e.g. replace known$stap_id = -1 to the last stap
-  known$stap_id[known$stap_id < 0] <- nrow(stap) - 1 - known$stap_id[known$stap_id < 0]
+  known$stap_id[known$stap_id < 0] <- nrow(stap) -
+    1 -
+    known$stap_id[known$stap_id < 0]
   assertthat::assert_that(all(known$stap_id %in% stap$stap_id))
   assertthat::assert_that(all(unique(known$stap_id) == known$stap_id))
 
@@ -130,8 +145,9 @@ tag_set_map <- function(tag,
   }
   assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
   assertthat::assert_that(is.numeric(include_min_duration))
-  include_min_duration_id <- stap$stap_id[stap2duration(stap, units = "hours") >
-    include_min_duration]
+  include_min_duration_id <- stap$stap_id[
+    stap2duration(stap, units = "hours") > include_min_duration
+  ]
 
   # Include stap which are matching the three include constrains
   stap_include <- rep(FALSE, nrow(stap))
@@ -139,8 +155,13 @@ tag_set_map <- function(tag,
 
   # Check if value are already defined and if they are changing
   # Check if setmap has already been run before (all these condition should always be the same)
-  if ("extent" %in% names(tag$param$tag_set_map) || "scale" %in% names(tag$param$tag_set_map) ||
-    "known_lat" %in% names(stap) || "include" %in% names(stap)) {
+  if (
+    "extent" %in%
+      names(tag$param$tag_set_map) ||
+      "scale" %in% names(tag$param$tag_set_map) ||
+      "known_lat" %in% names(stap) ||
+      "include" %in% names(stap)
+  ) {
     # Check if value are changing
     chg_known <- nrow(known0) != nrow(tag$param$tag_set_map$known) ||
       any(known0 != tag$param$tag_set_map$known)
@@ -149,12 +170,19 @@ tag_set_map <- function(tag,
     chg_scale <- scale != tag$param$tag_set_map$scale
 
     # Check if known has changed
-    if (isTRUE(chg_known) || isTRUE(chg_extent) || isTRUE(chg_scale) || isTRUE(chg_include)) {
+    if (
+      isTRUE(chg_known) ||
+        isTRUE(chg_extent) ||
+        isTRUE(chg_scale) ||
+        isTRUE(chg_include)
+    ) {
       # Only provide option to stop the process if map are already defined
       if (any(c("map_pressure", "map_light") %in% names(tag))) {
         cli::cli_bullets(
-          c("!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) \\
-          have already been computed on this {.var tag} object with different setmap parameters.")
+          c(
+            "!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) \\
+          have already been computed on this {.var tag} object with different setmap parameters."
+          )
         )
         res <- utils::askYesNo(
           "Do you want to overwrite the parameters and delete the likelihood maps?"
@@ -214,8 +242,10 @@ tag_set_map <- function(tag,
     include_stap_id = NULL,
     include_min_duration = include_min_duration
   )
-  if (length(include_stap_id) != length(tag$stap$stap_id) ||
-    any(include_stap_id != tag$stap$stap_id)) {
+  if (
+    length(include_stap_id) != length(tag$stap$stap_id) ||
+      any(include_stap_id != tag$stap$stap_id)
+  ) {
     tag$param$tag_set_map$include_stap_id <- include_stap_id
   }
 

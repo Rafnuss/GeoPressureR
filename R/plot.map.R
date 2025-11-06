@@ -58,17 +58,19 @@
 #' @seealso [plot_path()]
 #' @method plot map
 #' @export
-plot.map <- function(x,
-                     path = NULL,
-                     thr_likelihood = 1,
-                     plot_leaflet = TRUE,
-                     provider = "Esri.WorldTopoMap",
-                     provider_options = leaflet::providerTileOptions(),
-                     palette = "auto",
-                     opacity = 0.8,
-                     legend = FALSE,
-                     fac_res_proj = 4,
-                     ...) {
+plot.map <- function(
+  x,
+  path = NULL,
+  thr_likelihood = 1,
+  plot_leaflet = TRUE,
+  provider = "Esri.WorldTopoMap",
+  provider_options = leaflet::providerTileOptions(),
+  palette = "auto",
+  opacity = 0.8,
+  legend = FALSE,
+  fac_res_proj = 4,
+  ...
+) {
   map <- x
 
   # Eliminate unlikely pixel, same as in the creation of graph
@@ -92,8 +94,10 @@ plot.map <- function(x,
   r <- rast.map(map)
 
   if (plot_leaflet) {
-    grp <- glue::glue("#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - \\
-                      {format(map$stap$end , format = '%d %b %H:%M')}")
+    grp <- glue::glue(
+      "#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - \\
+                      {format(map$stap$end , format = '%d %b %H:%M')}"
+    )
 
     lmap <- leaflet::leaflet(height = 600) |>
       leaflet::addProviderTiles(provider = provider, options = provider_options)
@@ -125,7 +129,8 @@ plot.map <- function(x,
     # Compute the resolution for the projection to web Mercator
     g <- map_expand(map$extent, map$scale)
     lon_epsg3857 <- (g$lon * 20037508.34 / 180)
-    lat_epsg3857 <- (log(tan((90 + g$lat) * pi / 360)) / (pi / 180)) * (20037508.34 / 180)
+    lat_epsg3857 <- (log(tan((90 + g$lat) * pi / 360)) / (pi / 180)) *
+      (20037508.34 / 180)
 
     # Define the default resolution of the projection as the median value of the difference of the
     # actual position

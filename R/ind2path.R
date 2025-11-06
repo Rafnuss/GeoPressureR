@@ -42,16 +42,19 @@
 #'
 #' @family path
 #' @export
-ind2path <- function(ind,
-                     tag_graph,
-                     use_known = TRUE) {
-  assertthat::assert_that(inherits(tag_graph, "tag") | inherits(tag_graph, "graph"))
+ind2path <- function(ind, tag_graph, use_known = TRUE) {
+  assertthat::assert_that(
+    inherits(tag_graph, "tag") | inherits(tag_graph, "graph")
+  )
   assertthat::assert_that(is.logical(use_known))
 
   stap <- tag_graph$stap
 
   # Compute the grid information
-  g <- map_expand(tag_graph$param$tag_set_map$extent, tag_graph$param$tag_set_map$scale)
+  g <- map_expand(
+    tag_graph$param$tag_set_map$extent,
+    tag_graph$param$tag_set_map$scale
+  )
 
   # Check path
   assertthat::assert_that(is.numeric(ind))

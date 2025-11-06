@@ -68,15 +68,20 @@
 #'
 #' @family path
 #' @export
-path2elevation <- function(path,
-                           scale = 4,
-                           sampling_scale = scale,
-                           percentile = c(10, 50, 90),
-                           timeout = 60 * 5,
-                           debug = FALSE) {
+path2elevation <- function(
+  path,
+  scale = 4,
+  sampling_scale = scale,
+  percentile = c(10, 50, 90),
+  timeout = 60 * 5,
+  debug = FALSE
+) {
   # Check input
   assertthat::assert_that(is.data.frame(path))
-  assertthat::assert_that(assertthat::has_name(path, c("lon", "lat", "stap_id")))
+  assertthat::assert_that(assertthat::has_name(
+    path,
+    c("lon", "lat", "stap_id")
+  ))
   assertthat::assert_that(is.numeric(scale))
   assertthat::assert_that(scale > 0)
   assertthat::assert_that(is.numeric(sampling_scale))
@@ -97,7 +102,9 @@ path2elevation <- function(path,
   # We only request elevation between the first and last defined position. Basically, if the path
   # is unknown at the end (or start), we just ignore this part
   stap_id_considered <- seq(min(which(!path_interp)), max(which(!path_interp)))
-  stap_id_not_considered <- path$stap_id[!(path$stap_id %in% stap_id_considered)]
+  stap_id_not_considered <- path$stap_id[
+    !(path$stap_id %in% stap_id_considered)
+  ]
   if (length(stap_id_not_considered) > 0) {
     cli::cli_warn(c(
       "!" = "The position are not defined for stationary periods ({.val {stap_id_not_considered}})\\
@@ -118,10 +125,14 @@ path2elevation <- function(path,
 
   # Interpolate the lat and lon separately using `total_flight` as a spacing between position
   path_c$lon[path_interp_c] <- stats::approx(
-    total_flight[!path_interp_c], path_c$lon[!path_interp_c], total_flight[path_interp_c]
+    total_flight[!path_interp_c],
+    path_c$lon[!path_interp_c],
+    total_flight[path_interp_c]
   )$y
   path_c$lat[path_interp_c] <- stats::approx(
-    total_flight[!path_interp_c], path_c$lat[!path_interp_c], total_flight[path_interp_c]
+    total_flight[!path_interp_c],
+    path_c$lat[!path_interp_c],
+    total_flight[path_interp_c]
   )$y
 
   assertthat::assert_that(all(diff(path_c$stap_id) == 1))
@@ -141,12 +152,19 @@ path2elevation <- function(path,
     cli::cli_text("Body request file: {.file {temp_file}}")
   }
 
-  req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/elevationPath/") |>
+  req <- httr2::request(
+    "https://glp.mgravey.com/GeoPressure/v2/elevationPath/"
+  ) |>
     httr2::req_body_json(body, digit = 5) |>
     httr2::req_timeout(timeout)
 
   if (debug) {
-    req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
+    req <- httr2::req_verbose(
+      req,
+      body_req = TRUE,
+      body_resp = TRUE,
+      info = TRUE
+    )
   }
 
   # Perform the request and convert the response to json

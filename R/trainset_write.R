@@ -13,13 +13,15 @@
 #' @param quiet logical to hide messages
 #' @seealso [`tag_label_write()`]
 #' @noRd
-trainset_write <- function(df,
-                           file,
-                           series = "series",
-                           timestamp = "date",
-                           value = "value",
-                           label = "label",
-                           quiet = FALSE) {
+trainset_write <- function(
+  df,
+  file,
+  series = "series",
+  timestamp = "date",
+  value = "value",
+  label = "label",
+  quiet = FALSE
+) {
   assertthat::assert_that(is.data.frame(df))
   assertthat::assert_that(assertthat::has_name(df, c(timestamp, value)))
   assertthat::assert_that(is.character(file))
@@ -35,7 +37,6 @@ trainset_write <- function(df,
   # Convert to character and ensure that there are no dots (trainset doesn't like them)
   df[[label]] <- gsub("\\.", "-", as.character(df[[label]]))
 
-
   # Combine the variable
   df_trainset <- data.frame(
     series = df[[series]],
@@ -47,7 +48,9 @@ trainset_write <- function(df,
   # Check if folder exist
   dir_file <- dirname(file)
   if (!dir.exists(dir_file)) {
-    cli::cli_bullets(c("!" = "The directory {.file {dir_file}} does not exists."))
+    cli::cli_bullets(c(
+      "!" = "The directory {.file {dir_file}} does not exists."
+    ))
     res <- utils::askYesNo("Do you want to create it?")
     if (res) {
       dir.create(dir_file, recursive = TRUE)

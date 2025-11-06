@@ -34,10 +34,12 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html), [`TwGeos::findTwilights()`](
 #' https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html)
 #' @export
-twilight_create <- function(tag,
-                            twl_thr = NULL,
-                            twl_offset = NULL,
-                            transform_light = TRUE) {
+twilight_create <- function(
+  tag,
+  twl_thr = NULL,
+  twl_offset = NULL,
+  transform_light = TRUE
+) {
   tag_assert(tag)
 
   light <- tag$light
@@ -55,6 +57,7 @@ twilight_create <- function(tag,
     twl_thr <- min(
       light$value[light$value > min(light$value, na.rm = TRUE)],
       na.rm = TRUE
+    )
   }
   assertthat::assert_that(is.numeric(twl_thr))
 
@@ -141,7 +144,9 @@ twilight_create_guess_offset <- function(light, twl_thr = NULL) {
   mat <- ts2mat(light, twl_offset = 0)
   l <- mat$value >= twl_thr
   tmp <- rowMeans(l, na.rm = TRUE)
-  offset_id <- round(sum(tmp * seq_len(dim(mat$value)[1]), na.rm = TRUE) / sum(tmp, na.rm = TRUE))
+  offset_id <- round(
+    sum(tmp * seq_len(dim(mat$value)[1]), na.rm = TRUE) / sum(tmp, na.rm = TRUE)
+  )
   twl_offset <- (mat$res * offset_id - 60 * 60 * 12) / 60 / 60
 
   return(twl_offset)

@@ -70,13 +70,13 @@ graph3 <- graph_add_wind(
 plot(abs(graph3$ws), abs(graph2$ws))
 
 
-
-
-
 ###
 
 graph <- graph_add_wind(graph, pressure = tag$pressure)
-graph <- graph_set_movement(graph, bird = bird_create("Acrocephalus arundinaceus"))
+graph <- graph_set_movement(
+  graph,
+  bird = bird_create("Acrocephalus arundinaceus")
+)
 path_most_likely <- graph_most_likely(graph)
 path_simulation <- graph_simulation(graph)
 

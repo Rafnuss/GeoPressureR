@@ -32,21 +32,35 @@
 #' @family bird
 #' @family movement
 #' @export
-bird_create <- function(scientific_name,
-                        mass = NULL,
-                        wing_span = NULL,
-                        wing_aspect = NULL,
-                        wing_area = NULL,
-                        body_frontal_area = NULL,
-                        species_name = lifecycle::deprecated()) {
+bird_create <- function(
+  scientific_name,
+  mass = NULL,
+  wing_span = NULL,
+  wing_aspect = NULL,
+  wing_area = NULL,
+  body_frontal_area = NULL,
+  species_name = lifecycle::deprecated()
+) {
   if (lifecycle::is_present(species_name)) {
-    lifecycle::deprecate_warn("3.3.1", "bird_create(species_name)", "bird_create(scientific_name)")
+    lifecycle::deprecate_warn(
+      "3.3.1",
+      "bird_create(species_name)",
+      "bird_create(scientific_name)"
+    )
     scientific_name <- species_name
   }
   assertthat::assert_that(is.character(scientific_name))
-  if (is.null(mass) || (is.null(wing_aspect) + is.null(wing_area) + is.null(wing_span) > 1)) {
+  if (
+    is.null(mass) ||
+      (is.null(wing_aspect) + is.null(wing_area) + is.null(wing_span) > 1)
+  ) {
     # Mass, wing length and secondary length are retrieve from the AVONET
-    sp_id <- grep(scientific_name, avonet$species, ignore.case = FALSE, fixed = TRUE)
+    sp_id <- grep(
+      scientific_name,
+      avonet$species,
+      ignore.case = FALSE,
+      fixed = TRUE
+    )
     if (length(sp_id) == 0) {
       sp_id <- grep(scientific_name, avonet$species, ignore.case = TRUE)
       if (length(sp_id) == 0) {
@@ -55,8 +69,10 @@ bird_create <- function(scientific_name,
         matches are: {avonet$species[agrep(scientific_name, avonet$species, ignore.case = TRUE)]}"
         )
       } else if (length(sp_id) > 1) {
-        cli::cli_abort("Multiple match for {.val scientific_name}. Please use the exact scientific
-        name. {avonet$species[sp_id]}")
+        cli::cli_abort(
+          "Multiple match for {.val scientific_name}. Please use the exact scientific
+        name. {avonet$species[sp_id]}"
+        )
       }
     }
     b <- avonet[sp_id, ]
@@ -82,7 +98,9 @@ bird_create <- function(scientific_name,
   # Combination of wing area, span and aspect ratio
   if (!is.null(wing_area) && is.null(wing_span) && !is.null(wing_aspect)) {
     wing_span <- sqrt(wing_aspect * wing_area)
-  } else if (!is.null(wing_area) && !is.null(wing_span) && is.null(wing_aspect)) {
+  } else if (
+    !is.null(wing_area) && !is.null(wing_span) && is.null(wing_aspect)
+  ) {
     wing_aspect <- wing_span^2 / wing_area
   }
 
@@ -113,11 +131,14 @@ bird_create <- function(scientific_name,
   assertthat::assert_that(is.numeric(wing_aspect))
   assertthat::assert_that(wing_aspect > 1 & wing_aspect < 100)
 
-  return(structure(list(
-    scientific_name = scientific_name,
-    mass = mass,
-    body_frontal_area = body_frontal_area,
-    wing_span = wing_span,
-    wing_aspect = wing_aspect
-  ), class = "bird"))
+  return(structure(
+    list(
+      scientific_name = scientific_name,
+      mass = mass,
+      body_frontal_area = body_frontal_area,
+      wing_span = wing_span,
+      wing_aspect = wing_aspect
+    ),
+    class = "bird"
+  ))
 }

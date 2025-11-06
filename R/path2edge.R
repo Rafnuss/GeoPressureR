@@ -35,11 +35,16 @@ path2edge <- function(path, tag_graph) {
   assertthat::assert_that(is.data.frame(path))
   assertthat::assert_that(assertthat::has_name(path, c("stap_id")))
 
-  assertthat::assert_that(inherits(tag_graph, "tag") | inherits(tag_graph, "graph"))
+  assertthat::assert_that(
+    inherits(tag_graph, "tag") | inherits(tag_graph, "graph")
+  )
   stap <- tag_graph$stap
   assertthat::assert_that(all(unique(path$stap_id) == stap$stap_id))
 
-  g <- map_expand(tag_graph$param$tag_set_map$extent, tag_graph$param$tag_set_map$scale)
+  g <- map_expand(
+    tag_graph$param$tag_set_map$extent,
+    tag_graph$param$tag_set_map$scale
+  )
 
   # Number of paths
   if ("j" %in% names(path)) {
@@ -47,7 +52,6 @@ path2edge <- function(path, tag_graph) {
   } else {
     nj <- 1
   }
-
 
   # Find stap included
   stap_id_included <- unique(path$stap_id[!is.na(path$lat) & !is.na(path$lon)])
@@ -78,14 +82,22 @@ path2edge <- function(path, tag_graph) {
     lon_t = as.vector(utils::tail(lon, c(nj, -1)))
   )
 
-  edge <- merge(edge, stap2flight(tag_graph$stap, include_stap_id = stap_id_included))
+  edge <- merge(
+    edge,
+    stap2flight(tag_graph$stap, include_stap_id = stap_id_included)
+  )
 
   edge$distance <- geosphere::distGeo(
-    cbind(edge$lon_s, edge$lat_s), cbind(edge$lon_t, edge$lat_t)
-  ) / 1000
+    cbind(edge$lon_s, edge$lat_s),
+    cbind(edge$lon_t, edge$lat_t)
+  ) /
+    1000
 
   # Compute the bearing of the trajectory
-  edge$bearing <- geosphere::bearing(cbind(edge$lon_s, edge$lat_s), cbind(edge$lon_t, edge$lat_t))
+  edge$bearing <- geosphere::bearing(
+    cbind(edge$lon_s, edge$lat_s),
+    cbind(edge$lon_t, edge$lat_t)
+  )
   # Overwrite no displacement to bearing of NA
   edge$bearing[edge$lon_s == edge$lon_t & edge$lat_s == edge$lat_t] <- NA
   # convert from -180:180 to 0:360
@@ -95,14 +107,18 @@ path2edge <- function(path, tag_graph) {
   gs_abs <- edge$distance / edge$duration
   gs_arg <- (450 - edge$bearing) %% 360
   gs_arg[gs_abs == 0] <- 0 # set angle to 0 when no movement
-  edge$gs <- gs_abs * cos(gs_arg * pi / 180) + 1i * gs_abs * sin(gs_arg * pi / 180)
+  edge$gs <- gs_abs *
+    cos(gs_arg * pi / 180) +
+    1i * gs_abs * sin(gs_arg * pi / 180)
 
   if (inherits(tag_graph, "graph")) {
     # Check that all sources and target exist in the graph
-    assertthat::assert_that(all(edge$s %in% tag_graph$s),
+    assertthat::assert_that(
+      all(edge$s %in% tag_graph$s),
       msg = "path is not compatible with the graph."
     )
-    assertthat::assert_that(all(edge$t %in% tag_graph$t),
+    assertthat::assert_that(
+      all(edge$t %in% tag_graph$t),
       msg = "path is not compatible with the graph."
     )
 

@@ -6,7 +6,8 @@ setwd(system.file("extdata", package = "GeoPressureR"))
 
 tag <- tag_create(
   id = "18LX",
-  crop_start = "2017-06-20", crop_end = "2018-05-02",
+  crop_start = "2017-06-20",
+  crop_end = "2018-05-02",
   quiet = TRUE
 )
 
@@ -22,7 +23,11 @@ test_that("tag_label_write() | default", {
   expect_error(tag_label_write("not a tag", quiet = TRUE))
 
   # Work under normal condition
-  file_labelled <- tag_label_write(tag_classified, file = "./data/tag-label/18LX.csv", quiet = TRUE)
+  file_labelled <- tag_label_write(
+    tag_classified,
+    file = "./data/tag-label/18LX.csv",
+    quiet = TRUE
+  )
   csv <- utils::read.csv(file_labelled)
   expect_true(all(c("series", "timestamp", "value", "label") %in% names(csv)))
   expect_true(all(c("pressure", "acceleration") %in% csv$series))
@@ -78,7 +83,8 @@ test_that("tag_label_stap() | default", {
 
 
 test_that("tag_label_stap() | for elev", {
-  tag_elev <- tag_label_read(tag,
+  tag_elev <- tag_label_read(
+    tag,
     file = "./data/tag-label/18LX-labeled-elev.csv"
   )
   expect_true(all(c("elev_1", "elev_2") %in% unique(tag_elev$pressure$label)))
@@ -88,16 +94,22 @@ test_that("tag_label_stap() | for elev", {
 
 
 test_that("tag_label_read() | no acceleration", {
-  expect_no_error(tag <- tag_create(
-    id = "18LX",
-    acceleration_file = NA,
-    light_file = NA,
-    quiet = TRUE
-  ))
-  expect_no_error(tag <- tag_label_read(tag, file = "./data/tag-label/18LX-labeled-no_acc.csv"))
+  expect_no_error(
+    tag <- tag_create(
+      id = "18LX",
+      acceleration_file = NA,
+      light_file = NA,
+      quiet = TRUE
+    )
+  )
+  expect_no_error(
+    tag <- tag_label_read(
+      tag,
+      file = "./data/tag-label/18LX-labeled-no_acc.csv"
+    )
+  )
   expect_no_error(tag_label_stap(tag, quiet = TRUE))
 })
-
 
 
 tag_labelled <- tag_label_stap(tag_labelled, quiet = TRUE)
@@ -112,7 +124,10 @@ test_that("tag_label_stap() | default", {
 
 
 test_that("tag_label_stap() | for elev", {
-  tag_elev <- tag_label_read(tag, file = "./data/tag-label/18LX-labeled-elev.csv")
+  tag_elev <- tag_label_read(
+    tag,
+    file = "./data/tag-label/18LX-labeled-elev.csv"
+  )
   expect_true(all(c("elev_1", "elev_2") %in% unique(tag_elev$pressure$label)))
   tag_label_stap <- tag_label_stap(tag_elev, quiet = TRUE)
   expect_true(all(c("elev_1", "elev_2") %in% unique(tag_elev$pressure$label)))
@@ -121,7 +136,10 @@ test_that("tag_label_stap() | for elev", {
 
 test_that("tag_label_stap() | no acceleration", {
   expect_warning(
-    tag_labelled <- tag_label_read(tag, file = "./data/tag-label/18LX-labeled-no_acc.csv"),
+    tag_labelled <- tag_label_read(
+      tag,
+      file = "./data/tag-label/18LX-labeled-no_acc.csv"
+    ),
     "The labelization file does not contains label for acceleration."
   )
   expect_no_error(tag_label_stap(tag_labelled, quiet = TRUE))
@@ -129,7 +147,10 @@ test_that("tag_label_stap() | no acceleration", {
 
 test_that("tag_label_stap() | pressure longer than acc", {
   # Make a copy of a labeled
-  tag_labelled <- tag_label_read(tag, file = "./data/tag-label/18LX-labeled.csv")
+  tag_labelled <- tag_label_read(
+    tag,
+    file = "./data/tag-label/18LX-labeled.csv"
+  )
   tag2 <- tag_labelled
 
   expect_equal(nrow(tag_label_stap(tag2, quiet = TRUE)$stap), 5)

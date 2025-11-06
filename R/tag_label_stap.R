@@ -35,10 +35,12 @@
 #' @family tag_label
 #' @seealso [GeoPressureManual](https://bit.ly/45gwcVu)
 #' @export
-tag_label_stap <- function(tag,
-                           quiet = FALSE,
-                           warning_flight_duration = 2,
-                           warning_stap_duration = 6) {
+tag_label_stap <- function(
+  tag,
+  quiet = FALSE,
+  warning_flight_duration = 2,
+  warning_stap_duration = 6
+) {
   if (tag_assert(tag, "setmap", "")) {
     cli::cli_abort(c(
       "x" = "{.fun setmap} has already been run on this {.var tag}.",
@@ -50,8 +52,11 @@ tag_label_stap <- function(tag,
   tag_assert(tag, "label")
 
   # Build activity from acceleration when available
-  if (assertthat::has_name(tag, "acceleration") &&
-    assertthat::has_name(tag$acceleration, "label") && nrow(tag$acceleration) > 0) {
+  if (
+    assertthat::has_name(tag, "acceleration") &&
+      assertthat::has_name(tag$acceleration, "label") &&
+      nrow(tag$acceleration) > 0
+  ) {
     sensor <- tag$acceleration[, c("date", "label")]
 
     # Append pressure label when acceleration ends
@@ -103,7 +108,13 @@ tag_label_stap <- function(tag,
   )
 
   # Assign to each sensor the stationary period to which it belong to.
-  for (sensor_df in c("pressure", "acceleration", "light", "twilight", "magnetic")) {
+  for (sensor_df in c(
+    "pressure",
+    "acceleration",
+    "light",
+    "twilight",
+    "magnetic"
+  )) {
     if (assertthat::has_name(tag, sensor_df)) {
       assertthat::assert_that(is.data.frame(tag[[sensor_df]]))
       if ("date" %in% names(tag[[sensor_df]])) {
@@ -111,8 +122,10 @@ tag_label_stap <- function(tag,
       } else if ("twilight" %in% names(tag[[sensor_df]])) {
         date <- tag[[sensor_df]]$twilight
       } else {
-        cli::cli_abort(c("{.field {sensor_df}} needs to have a column {.field date} or \\
-                         {.field twilight}."))
+        cli::cli_abort(c(
+          "{.field {sensor_df}} needs to have a column {.field date} or \\
+                         {.field twilight}."
+        ))
       }
       tag[[sensor_df]]$stap_id <- find_stap(tag$stap, date)
     }
@@ -133,43 +146,48 @@ tag_label_stap <- function(tag,
     stap$duration_time <- stap2duration(stap, return_numeric = FALSE)
 
     stap_warning <- stap[stap$duration_num <= warning_stap_duration, ]
-    cli::cli_rule("Short stationary periods ({.strong <{warning_stap_duration}hr}):")
+    cli::cli_rule(
+      "Short stationary periods ({.strong <{warning_stap_duration}hr}):"
+    )
     if (nrow(stap_warning) > 0) {
       for (i in seq_len(nrow(stap_warning))) {
         # nolint start
         s <- stap_warning[i, ]
         cli::cli_bullets(c(
-          "!" =
-            "Stap {s$stap} ({format(s$start, format='%Y-%m-%d %H:%M')} - \\
+          "!" = "Stap {s$stap} ({format(s$start, format='%Y-%m-%d %H:%M')} - \\
           {format(s$end, format='%Y-%m-%d %H:%M')}) : {pretty_dt(s$duration_time)}"
         ))
         # nolint end
       }
     } else {
-      cli::cli_bullets(c("v" = "All {nrow(stap)} stationary period{?s} duration are above \\
-                             {warning_stap_duration} hour{?s}."))
+      cli::cli_bullets(c(
+        "v" = "All {nrow(stap)} stationary period{?s} duration are above \\
+                             {warning_stap_duration} hour{?s}."
+      ))
     }
 
     # Flight
     flight <- stap2flight(stap, units = "hours", return_numeric = FALSE)
-    flight_warning <- flight[as.numeric(flight$duration, units = "hours") <=
-      warning_flight_duration, ]
+    flight_warning <- flight[
+      as.numeric(flight$duration, units = "hours") <= warning_flight_duration,
+    ]
     cli::cli_rule("Short flights ({.strong <{warning_flight_duration}hr}):")
     if (nrow(flight_warning) > 0) {
       for (i in seq_len(nrow(flight_warning))) {
         # nolint start
         f <- flight_warning[i, ]
         cli::cli_bullets(c(
-          "!" =
-            "Flight {f$stap_s} -> {f$stap_t} ({format(f$start, format='%Y-%m-%d %H:%M')} - \\
+          "!" = "Flight {f$stap_s} -> {f$stap_t} ({format(f$start, format='%Y-%m-%d %H:%M')} - \\
             {format(f$end, format='%Y-%m-%d %H:%M')}) : \\
           {pretty_dt(as.difftime(f$duration, units = 'hours'))}"
         ))
         # nolint end
       }
     } else {
-      cli::cli_bullets(c("v" = "All {nrow(flight)} flight{?s} duration are above \\
-                              {warning_flight_duration} hour{?s}."))
+      cli::cli_bullets(c(
+        "v" = "All {nrow(flight)} flight{?s} duration are above \\
+                              {warning_flight_duration} hour{?s}."
+      ))
     }
   }
 
@@ -224,8 +242,10 @@ find_stap <- function(stap, date) {
 
   # linear interpolation on the temporal axis
   stap_id <- stats::approx(
-    x = anchors_t, y = anchors_id,
-    xout = as.numeric(date), rule = 2
+    x = anchors_t,
+    y = anchors_id,
+    xout = as.numeric(date),
+    rule = 2
   )$y
 
   # Check that all date have a stap_id

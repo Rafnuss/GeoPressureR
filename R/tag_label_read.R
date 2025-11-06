@@ -18,8 +18,10 @@
 #' @family tag_label
 #' @seealso [GeoPressureManual](https://bit.ly/45v79gV)
 #' @export
-tag_label_read <- function(tag,
-                           file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv")) {
+tag_label_read <- function(
+  tag,
+  file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv")
+) {
   tag_assert(tag)
 
   if (tag_assert(tag, "setmap", "")) {
@@ -29,15 +31,15 @@ tag_label_read <- function(tag,
     ))
   }
 
-  tag$pressure <- trainset_read(tag$pressure,
-    file = file,
-    series = "pressure"
-  )
+  tag$pressure <- trainset_read(tag$pressure, file = file, series = "pressure")
 
   # Check that all label are correct
   unique_label <- unique(tag$pressure$label)
-  unique_label <- unique_label[!(unique_label %in% c("flight", "discard", "") |
-    startsWith(unique_label, "elev_"))]
+  unique_label <- unique_label[
+    !(unique_label %in%
+      c("flight", "discard", "") |
+      startsWith(unique_label, "elev_"))
+  ]
   if (length(unique_label) > 0) {
     cli::cli_abort(c(
       x = "The pressure label file contains unknown label: {.val {unique_label}}",
@@ -49,9 +51,13 @@ tag_label_read <- function(tag,
   # Extract acceleration label
   if (assertthat::has_name(tag, "acceleration")) {
     assertthat::assert_that(is.data.frame(tag$acceleration))
-    assertthat::assert_that(assertthat::has_name(tag$acceleration, c("date", "value")))
+    assertthat::assert_that(assertthat::has_name(
+      tag$acceleration,
+      c("date", "value")
+    ))
 
-    tag$acceleration <- trainset_read(tag$acceleration,
+    tag$acceleration <- trainset_read(
+      tag$acceleration,
       file = file,
       series = "acceleration"
     )
@@ -59,8 +65,11 @@ tag_label_read <- function(tag,
     # Check that all label are correct
     if ("label" %in% tag$acceleration) {
       unique_label <- unique(tag$acceleration$label)
-      unique_label <- unique_label[!(unique_label %in% c("flight", "discard", "") |
-        startsWith(unique_label, "elev_"))]
+      unique_label <- unique_label[
+        !(unique_label %in%
+          c("flight", "discard", "") |
+          startsWith(unique_label, "elev_"))
+      ]
       if (length(unique_label) > 0) {
         cli::cli_abort(c(
           x = "The acceleration label file contains unknown label: {.val {unique_label}}",

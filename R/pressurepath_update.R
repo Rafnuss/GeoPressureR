@@ -15,21 +15,33 @@
 #' @return a list containing the new `pressurepath`.
 #' @keywords internal
 #' @export
-pressurepath_update <- function(pressurepath,
-                                tag,
-                                path = tag2path(tag),
-                                quiet = FALSE) {
+pressurepath_update <- function(
+  pressurepath,
+  tag,
+  path = tag2path(tag),
+  quiet = FALSE
+) {
   lifecycle::deprecate_warn(
-    "3.3.4", "pressurepath_update()", "pressurepath_create()",
+    "3.3.4",
+    "pressurepath_update()",
+    "pressurepath_create()",
     details = "Re-create the {.arg pressurepath} entirely, it's not that slow!"
   )
 
   # Check pressurepath
   assertthat::assert_that(is.data.frame(pressurepath))
   assertthat::assert_that(assertthat::has_name(
-    pressurepath, c(
-      "date", "pressure_tag", "label", "stap_id", "surface_pressure", "altitude", "lat",
-      "lon", "surface_pressure_norm"
+    pressurepath,
+    c(
+      "date",
+      "pressure_tag",
+      "label",
+      "stap_id",
+      "surface_pressure",
+      "altitude",
+      "lat",
+      "lon",
+      "surface_pressure_norm"
     )
   ))
 
@@ -48,37 +60,46 @@ pressurepath_update <- function(pressurepath,
 
   # Assert path
   assertthat::assert_that(is.data.frame(path))
-  assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "stap_id")))
+  assertthat::assert_that(assertthat::has_name(
+    path,
+    c("lat", "lon", "stap_id")
+  ))
   if (nrow(path) == 0) {
     cli::cli_abort("{.var path} is empty.")
   }
   if (!all(path$stap_id %in% pressure$stap_id)) {
-    cli::cli_warn("Some {.field stap_id} of {.var path} are not present in {.var tag$pressure}.")
+    cli::cli_warn(
+      "Some {.field stap_id} of {.var path} are not present in {.var tag$pressure}."
+    )
   }
 
-
   # Find the new stap_id for which the corresponding pressure has a different old stap_id
-  tmp <- merge(pressure,
+  tmp <- merge(
+    pressure,
     data.frame(
       date = pressurepath$date,
       stap_id_old = pressurepath$stap_id
     ),
     by = "date"
   )
-  stap_id_recompute_pres <- unique(tmp[tmp$stap_id != tmp$stap_id_old, ]$stap_id)
+  stap_id_recompute_pres <- unique(
+    tmp[tmp$stap_id != tmp$stap_id_old, ]$stap_id
+  )
 
   # Find the new stap_id for which the corresponding path which has a different old stap_id
   pp_path <- unique(pressurepath[, names(pressurepath) %in% names(path)])
   names(pp_path)[names(pp_path) == "lat"] <- "lat_old"
   names(pp_path)[names(pp_path) == "lon"] <- "lon_old"
   tmp <- merge(path, pp_path, by = "stap_id")
-  stap_id_recompute_path <- tmp$stap_id[tmp$lat_old != tmp$lat | tmp$lon_old != tmp$lon |
-    is.na(tmp$lon_old)]
+  stap_id_recompute_path <- tmp$stap_id[
+    tmp$lat_old != tmp$lat | tmp$lon_old != tmp$lon | is.na(tmp$lon_old)
+  ]
 
   stap_id_recompute <- union(stap_id_recompute_path, stap_id_recompute_pres)
 
   if (length(stap_id_recompute) > 0) {
-    pressurepath_diff <- pressurepath_create(tag,
+    pressurepath_diff <- pressurepath_create(
+      tag,
       path = path[path$stap_id %in% stap_id_recompute, ],
       preprocess = preprocess,
       quiet = quiet
@@ -94,7 +115,8 @@ pressurepath_update <- function(pressurepath,
 
   # Update label which are not affecting pressurepath
   pressurepath_new$label <- NULL
-  pressurepath_new <- merge(pressurepath_new,
+  pressurepath_new <- merge(
+    pressurepath_new,
     pressure[, names(pressure) %in% c("date", "label")],
     by = "date"
   )

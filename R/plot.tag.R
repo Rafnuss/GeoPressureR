@@ -146,11 +146,13 @@ plot.tag <- function(x, type = NULL, ...) {
 #'
 #' plot_tag_pressure(tag)
 #' @export
-plot_tag_pressure <- function(tag,
-                              plot_plotly = TRUE,
-                              quiet = FALSE,
-                              warning_pressure_diff = 3,
-                              warning_stap_length = 12) {
+plot_tag_pressure <- function(
+  tag,
+  plot_plotly = TRUE,
+  quiet = FALSE,
+  warning_pressure_diff = 3,
+  warning_stap_length = 12
+) {
   tag_assert(tag)
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
@@ -174,9 +176,12 @@ plot_tag_pressure <- function(tag,
     pres$stapelev <- factor(pres$stapelev)
 
     # Compute number of datapoint per stationary period
-    pressure_length <- merge(stap[stap$include & is.na(stap$known_lat), ],
+    pressure_length <- merge(
+      stap[stap$include & is.na(stap$known_lat), ],
       data.frame(table(pres$stap_id)),
-      by.x = "stap_id", by.y = "Var1", all.x = TRUE
+      by.x = "stap_id",
+      by.y = "Var1",
+      all.x = TRUE
     )
     pressure_length$Freq[is.na(pressure_length$Freq)] <- 0
 
@@ -185,13 +190,17 @@ plot_tag_pressure <- function(tag,
       cli::cli_h3("Pre-processed pressure data length")
       if (length(id_length) > 0) {
         for (i in seq_len(length(id_length))) {
-          cli::cli_bullets(c("!" = "There are only {.val {pressure_length$Freq[id_length[i]]}} \\
+          cli::cli_bullets(c(
+            "!" = "There are only {.val {pressure_length$Freq[id_length[i]]}} \\
             datapoint{?s} for the stationary period \\
-                            {.val {pressure_length$stap_id[id_length[i]]}}"))
+                            {.val {pressure_length$stap_id[id_length[i]]}}"
+          ))
         }
       } else {
-        cli::cli_bullets(c("v" = "All stationary periods have more than \\
-                              {.val {warning_stap_length}} datapoints."))
+        cli::cli_bullets(c(
+          "v" = "All stationary periods have more than \\
+                              {.val {warning_stap_length}} datapoints."
+        ))
       }
     }
 
@@ -201,15 +210,20 @@ plot_tag_pressure <- function(tag,
       value_avg = utils::head(pres$value, -1) + diff(pres$value) / 2,
       date = utils::head(pres$date, -1) + diff(pres$date) / 2,
       date_diff = as.numeric(diff(pres$date), units = "hours"),
-      same_stapelev = utils::head(pres$stapelev, -1) == utils::tail(pres$stapelev, -1),
-      stap_id = (utils::tail(pres$stap_id, -1) + utils::head(pres$stap_id, -1)) / 2
+      same_stapelev = utils::head(pres$stapelev, -1) ==
+        utils::tail(pres$stapelev, -1),
+      stap_id = (utils::tail(pres$stap_id, -1) +
+        utils::head(pres$stap_id, -1)) /
+        2
     )
     # Only keep the 1 hours difference
     pres_diff <- pres_diff[pres_diff$date_diff == 1, ]
     # Only keep if belonging to the same stapelev
     pres_diff <- pres_diff[pres_diff$same_stapelev, ]
     # Remove diff overlapping between stationary periods/flight
-    pres_diff <- pres_diff[(pres_diff$stap_id %% 1) == 0 & pres_diff$stap_id != 0, ]
+    pres_diff <- pres_diff[
+      (pres_diff$stap_id %% 1) == 0 & pres_diff$stap_id != 0,
+    ]
     # Only keep difference which are above warning limit
     pres_diff <- pres_diff[pres_diff$value >= warning_pressure_diff, ]
     # Sort data.frame for displaying top 10 max
@@ -226,20 +240,25 @@ plot_tag_pressure <- function(tag,
         ))
         for (i in seq_len(min(nrow(pres_diff), pressure_diff_max_display))) {
           cli::cli_bullets(
-            c("!" = "{pres_diff$date[i]} | stap: {pres_diff$stap_id[i]} | \\
-                                  {.val {round(pres_diff$value[i],1)}} hPa ")
+            c(
+              "!" = "{pres_diff$date[i]} | stap: {pres_diff$stap_id[i]} | \\
+                                  {.val {round(pres_diff$value[i],1)}} hPa "
+            )
           )
         }
         if (nrow(pres_diff) > pressure_diff_max_display) {
-          cli::cli_bullets(c(">" = "{.val {nrow(pres_diff)-pressure_diff_max_display}} more \\
-                             timestamp{?s} {?is/are} exceeding the threshold."))
+          cli::cli_bullets(c(
+            ">" = "{.val {nrow(pres_diff)-pressure_diff_max_display}} more \\
+                             timestamp{?s} {?is/are} exceeding the threshold."
+          ))
         }
       } else {
-        cli::cli_bullets(c("v" = "All hourly changes in pressure are below \\
-                               {.val {warning_pressure_diff}} hPa."))
+        cli::cli_bullets(c(
+          "v" = "All hourly changes in pressure are below \\
+                               {.val {warning_pressure_diff}} hPa."
+        ))
       }
     }
-
 
     p <- p +
       ggplot2::geom_point(
@@ -254,7 +273,9 @@ plot_tag_pressure <- function(tag,
       ggplot2::geom_point(
         data = pres_diff,
         ggplot2::aes(x = .data$date, y = .data$value_avg),
-        fill = "orange", shape = 24, size = 2
+        fill = "orange",
+        shape = 24,
+        size = 2
       )
   }
 
@@ -287,11 +308,13 @@ plot_tag_pressure <- function(tag,
 #' plot_tag_acceleration(tag)
 #'
 #' @export
-plot_tag_acceleration <- function(tag,
-                                  variable = "activity",
-                                  plot_plotly = TRUE,
-                                  label_auto = TRUE,
-                                  min_duration = 30) {
+plot_tag_acceleration <- function(
+  tag,
+  variable = "activity",
+  plot_plotly = TRUE,
+  label_auto = TRUE,
+  min_duration = 30
+) {
   tag_assert(tag)
   assertthat::assert_that(assertthat::has_name(tag, "acceleration"))
 
@@ -313,7 +336,9 @@ plot_tag_acceleration <- function(tag,
       color = "black"
     ) +
     ggplot2::theme_bw() +
-    ggplot2::scale_y_continuous(name = glue::glue("Acceleration - {variable}")) +
+    ggplot2::scale_y_continuous(
+      name = glue::glue("Acceleration - {variable}")
+    ) +
     ggplot2::theme(legend.position = "none")
 
   if ("label" %in% names(tag$acceleration)) {
@@ -321,7 +346,9 @@ plot_tag_acceleration <- function(tag,
       ggplot2::geom_point(
         data = tag$acceleration[tag$acceleration$label == "flight", ],
         ggplot2::aes(x = .data$date, y = .data[[variable]]),
-        fill = "red", shape = 23, size = 2,
+        fill = "red",
+        shape = 23,
+        size = 2,
       )
   }
 
@@ -352,9 +379,7 @@ plot_tag_acceleration <- function(tag,
 #' plot_tag_light(tag)
 #'
 #' @export
-plot_tag_light <- function(tag,
-                           transform_light = TRUE,
-                           plot_plotly = TRUE) {
+plot_tag_light <- function(tag, transform_light = TRUE, plot_plotly = TRUE) {
   tag_assert(tag)
   assertthat::assert_that(assertthat::has_name(tag, "light"))
 
@@ -384,7 +409,9 @@ plot_tag_light <- function(tag,
         data = twl,
         ggplot2::aes(xintercept = .data$datetime, color = .data$twilight)
       ) +
-      ggplot2::scale_color_manual(values = c("sunrise" = "#FFD700", "sunset" = "#FF4500"))
+      ggplot2::scale_color_manual(
+        values = c("sunrise" = "#FFD700", "sunset" = "#FF4500")
+      )
   }
 
   if (plot_plotly) {
@@ -417,11 +444,13 @@ plot_tag_light <- function(tag,
 #' plot_tag_temperature(tag)
 #'
 #' @export
-plot_tag_temperature <- function(tag,
-                                 variable = "external",
-                                 plot_plotly = TRUE,
-                                 label_auto = TRUE,
-                                 min_duration = 30) {
+plot_tag_temperature <- function(
+  tag,
+  variable = "external",
+  plot_plotly = TRUE,
+  label_auto = TRUE,
+  min_duration = 30
+) {
   tag_assert(tag)
   if (variable == "external" || variable == "temperature_external") {
     assertthat::assert_that(assertthat::has_name(tag, "temperature_external"))
@@ -430,7 +459,9 @@ plot_tag_temperature <- function(tag,
     assertthat::assert_that(assertthat::has_name(tag, "temperature_internal"))
     temp <- tag$temperature_internal
   } else {
-    cli::cli_abort("{.field variable} should be either {.val 'external'} or {.val 'internal'}")
+    cli::cli_abort(
+      "{.field variable} should be either {.val 'external'} or {.val 'internal'}"
+    )
   }
 
   p <- ggplot2::ggplot() +
@@ -474,11 +505,13 @@ plot_tag_temperature <- function(tag,
 #'   plot_tag_twilight(tag)
 #' })
 #' @export
-plot_tag_twilight <- function(tag,
-                              twilight_line = NULL,
-                              transform_light = TRUE,
-                              twl_offset = NULL,
-                              plot_plotly = TRUE) {
+plot_tag_twilight <- function(
+  tag,
+  twilight_line = NULL,
+  transform_light = TRUE,
+  twl_offset = NULL,
+  plot_plotly = TRUE
+) {
   # We need to have light data, if twilight is not yet computed, we can still display the mat image
   tag_assert(tag, "light")
 
@@ -503,12 +536,14 @@ plot_tag_twilight <- function(tag,
   # Convert to long format data.fram to be able to plot with ggplot
   df <- as.data.frame(mat$value)
   names(df) <- mat$day
-  mat_time_hour <- as.numeric(substr(mat$time, 1, 2)) + as.numeric(substr(mat$time, 4, 5)) / 60
+  mat_time_hour <- as.numeric(substr(mat$time, 1, 2)) +
+    as.numeric(substr(mat$time, 4, 5)) / 60
   time_hour <- mat_time_hour + 24 * (mat_time_hour < mat_time_hour[1])
   df$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
   # as.POSIXct(strptime(mat$time, "%H:%M")) # factor(mat$time, levels = mat$time)
 
-  df_long <- stats::reshape(df,
+  df_long <- stats::reshape(
+    df,
     direction = "long",
     varying = list(utils::head(names(df), -1)),
     v.names = "light",
@@ -557,7 +592,11 @@ plot_tag_twilight <- function(tag,
         p <- p +
           ggplot2::geom_point(
             data = twl,
-            ggplot2::aes(x = .data$date, y = .data$time, colour = .data$stap_id),
+            ggplot2::aes(
+              x = .data$date,
+              y = .data$time,
+              colour = .data$stap_id
+            ),
             size = 2,
             shape = 16
           ) +
@@ -572,7 +611,9 @@ plot_tag_twilight <- function(tag,
             size = 2,
             shape = 16
           ) +
-          ggplot2::scale_color_manual(values = c("TRUE" = "lightyellow", "FALSE" = "orange"))
+          ggplot2::scale_color_manual(
+            values = c("TRUE" = "lightyellow", "FALSE" = "orange")
+          )
       }
     }
     p <- p +
@@ -647,9 +688,7 @@ plot_tag_twilight <- function(tag,
 #'   plot_tag_actogram(tag, plot_plotly = TRUE)
 #' })
 #' @export
-plot_tag_actogram <- function(tag,
-                              twl_offset = NULL,
-                              plot_plotly = FALSE) {
+plot_tag_actogram <- function(tag, twl_offset = NULL, plot_plotly = FALSE) {
   # We need to have acceleration data
   tag_assert(tag, "acceleration")
 
@@ -676,12 +715,14 @@ plot_tag_actogram <- function(tag,
   # Convert to long format data.frame to be able to plot with ggplot
   df <- as.data.frame(mat$value)
   names(df) <- mat$day
-  mat_time_hour <- as.numeric(substr(mat$time, 1, 2)) + as.numeric(substr(mat$time, 4, 5)) / 60
+  mat_time_hour <- as.numeric(substr(mat$time, 1, 2)) +
+    as.numeric(substr(mat$time, 4, 5)) / 60
   time_hour <- mat_time_hour + 24 * (mat_time_hour < mat_time_hour[1])
   df$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
   # as.POSIXct(strptime(mat$time, "%H:%M")) # factor(mat$time, levels = mat$time)
 
-  df_long <- stats::reshape(df,
+  df_long <- stats::reshape(
+    df,
     direction = "long",
     varying = list(utils::head(names(df), -1)),
     v.names = "acceleration",

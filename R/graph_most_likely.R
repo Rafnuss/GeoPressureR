@@ -70,14 +70,16 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   path_s <- Matrix::sparseMatrix(
     rep(1, length(graph$equipment)),
     graph$equipment,
-    x = 0, dims = c(1, n)
+    x = 0,
+    dims = c(1, n)
   )
   # Initiate the same matrix providing the cumulative total probability of the current path so far
   # Not sure why x is differently specify, should be the same value for both path_s and path_max
   path_max <- Matrix::sparseMatrix(
     rep(1, length(graph$equipment)),
     graph$equipment,
-    x = log(graph$obs[graph$equipment]), dims = c(1, n)
+    x = log(graph$obs[graph$equipment]),
+    dims = c(1, n)
   )
 
   # Create a data.frame of all edges information
@@ -138,14 +140,17 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   # Construct the most likely path from path_max and path_s
   path_ind3d <- c()
   # Initiate the last position as the maximum of all retrieval node
-  path_ind3d[graph$sz[3]] <- graph$retrieval[which.max(path_max[graph$retrieval])]
+  path_ind3d[graph$sz[3]] <- graph$retrieval[which.max(path_max[
+    graph$retrieval
+  ])]
   # Iteratively find the previous node of the path
   for (i_s in (graph$sz[3] - 1):1) {
     path_ind3d[i_s] <- path_s[path_ind3d[i_s + 1]]
   }
 
   # convert 3D to 2D grid
-  path_ind2d <- path_ind3d - prod(graph$sz[c(1, 2)]) * (seq_len(graph$sz[3]) - 1)
+  path_ind2d <- path_ind3d -
+    prod(graph$sz[c(1, 2)]) * (seq_len(graph$sz[3]) - 1)
 
   # path_ind2d was defined on the modelled stationary period which might be different than the full
   # stap, but we want to generate path at the level of all stationary periods

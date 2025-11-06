@@ -34,8 +34,12 @@ param_create <- function(id, default = FALSE, ...) {
         pressure_file = formals(tag_create)$pressure_file,
         light_file = formals(tag_create)$light_file,
         acceleration_file = formals(tag_create)$acceleration_file,
-        temperature_external_file = formals(tag_create)$temperature_external_file,
-        temperature_internal_file = formals(tag_create)$temperature_internal_file,
+        temperature_external_file = formals(
+          tag_create
+        )$temperature_external_file,
+        temperature_internal_file = formals(
+          tag_create
+        )$temperature_internal_file,
         magnetic_file = formals(tag_create)$magnetic_file,
         assert_pressure = formals(tag_create)$assert_pressure
       ),
@@ -54,7 +58,9 @@ param_create <- function(id, default = FALSE, ...) {
         margin = formals(geopressure_map)$margin,
         sd = formals(geopressure_map)$sd,
         thr_mask = formals(geopressure_map)$thr_mask,
-        log_linear_pooling_weight = formals(geopressure_map)$log_linear_pooling_weight,
+        log_linear_pooling_weight = formals(
+          geopressure_map
+        )$log_linear_pooling_weight,
         compute_known = formals(geopressure_map)$compute_known
       ),
       twilight_create = list(
@@ -120,7 +126,10 @@ param_create <- function(id, default = FALSE, ...) {
   }
 
   if (is.list(param$tag_set_map$known)) {
-    param$tag_set_map$known <- do.call(rbind, lapply(param$tag_set_map$known, as.data.frame))
+    param$tag_set_map$known <- do.call(
+      rbind,
+      lapply(param$tag_set_map$known, as.data.frame)
+    )
   }
 
   return(structure(param, class = "param"))

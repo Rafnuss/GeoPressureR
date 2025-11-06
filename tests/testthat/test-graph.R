@@ -34,12 +34,11 @@ test_that("Check graph output", {
 })
 
 
-
-
 test_that("Check create_graph() for map_pressure", {
   # map of prob 0 are fill up with 1
   tag_tmp <- tag
-  tag_tmp$map_pressure$data[[2]] <- matrix(0,
+  tag_tmp$map_pressure$data[[2]] <- matrix(
+    0,
     nrow = dim(tag$map_pressure)[1],
     ncol = dim(tag$map_pressure)[2]
   )
@@ -48,7 +47,10 @@ test_that("Check create_graph() for map_pressure", {
   # map of prob NA or NULL return an error
   tag_tmp <- tag
   tag_tmp$map_pressure[[2]][TRUE] <- NA
-  expect_error(graph_create(tag_tmp, quiet = TRUE), "*is invalid for the stationary *")
+  expect_error(
+    graph_create(tag_tmp, quiet = TRUE),
+    "*is invalid for the stationary *"
+  )
 })
 
 

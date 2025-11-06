@@ -10,11 +10,13 @@
 #' seconds elapsed since the reference chosen when the file was processed
 #' - <light> is the maximum light value measured during the previous 10 minutes
 #' @noRd
-tag_create_bas <- function(id,
-                           directory = glue::glue("./data/raw-tag/{id}"),
-                           lig_file = NULL,
-                           act_file = NULL,
-                           quiet = FALSE) {
+tag_create_bas <- function(
+  id,
+  directory = glue::glue("./data/raw-tag/{id}"),
+  lig_file = NULL,
+  act_file = NULL,
+  quiet = FALSE
+) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
 
@@ -36,7 +38,8 @@ tag_create_bas <- function(id,
   # Read file
   data_raw <- utils::read.delim(lig_path, sep = ",", header = FALSE)
   tag$light <- data.frame(
-    date = as.POSIXct(strptime(data_raw[, 2],
+    date = as.POSIXct(strptime(
+      data_raw[, 2],
       tz = "UTC",
       format = "%d/%m/%y %H:%M:%S"
     )),

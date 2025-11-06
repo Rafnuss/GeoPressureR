@@ -1,16 +1,18 @@
 #' @family geopressure_map
 #' @rdname geopressure_map
 #' @export
-geopressure_map_mismatch <- function(tag,
-                                     max_sample = 250,
-                                     margin = 30,
-                                     keep_mask = TRUE,
-                                     thr_mask = 0.9,
-                                     timeout = 60 * 5,
-                                     workers = "auto",
-                                     compute_known = FALSE,
-                                     debug = FALSE,
-                                     quiet = FALSE) {
+geopressure_map_mismatch <- function(
+  tag,
+  max_sample = 250,
+  margin = 30,
+  keep_mask = TRUE,
+  thr_mask = 0.9,
+  timeout = 60 * 5,
+  workers = "auto",
+  compute_known = FALSE,
+  debug = FALSE,
+  quiet = FALSE
+) {
   # Check tag
   tag_assert(tag, "setmap")
 
@@ -79,7 +81,12 @@ geopressure_map_mismatch <- function(tag,
     })
 
   if (debug) {
-    req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE, info = TRUE)
+    req <- httr2::req_verbose(
+      req,
+      body_req = TRUE,
+      body_resp = TRUE,
+      info = TRUE
+    )
   }
 
   # Perform the request and convert the response to json
@@ -147,7 +154,12 @@ geopressure_map_mismatch <- function(tag,
           httr2::req_error(is_error = function(resp) FALSE)
 
         if (debug) {
-          req_i <- httr2::req_verbose(req_i, body_req = TRUE, body_resp = TRUE, info = TRUE)
+          req_i <- httr2::req_verbose(
+            req_i,
+            body_req = TRUE,
+            body_resp = TRUE,
+            info = TRUE
+          )
         }
 
         # Perform the request and write the response to file
@@ -200,9 +212,12 @@ geopressure_map_mismatch <- function(tag,
   labels_stap <- as.numeric(sub("\\|.*", "", labels))
 
   # Find the number of sample (datapoint) for each map
-  nb_sample <- pmin(max_sample, unlist(lapply(labels, function(l) {
-    sum(pres$stapelev == l)
-  })))
+  nb_sample <- pmin(
+    max_sample,
+    unlist(lapply(labels, function(l) {
+      sum(pres$stapelev == l)
+    }))
+  )
 
   # Initialize the return list from tag$stap to make sure all stap are present
   mse <- vector("list", nrow(tag$stap))
@@ -222,9 +237,17 @@ geopressure_map_mismatch <- function(tag,
     if (!is.null(map[i_label])) {
       # When elev is present, use an average of the mse and mask maps weighted by the number of
       # sample
-      tmp <- Reduce(`+`, mapply(function(m, w) {
-        w * m
-      }, map[i_label], nb_sample[i_label])) / sum(nb_sample[i_label])
+      tmp <- Reduce(
+        `+`,
+        mapply(
+          function(m, w) {
+            w * m
+          },
+          map[i_label],
+          nb_sample[i_label]
+        )
+      ) /
+        sum(nb_sample[i_label])
 
       # Find pixel below threshold (i.e., -1) in any of the elev and apply to the combined map of
       # mse
@@ -234,7 +257,9 @@ geopressure_map_mismatch <- function(tag,
       # Convert the maps to matrix
       mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE)
       # convert MSE from Pa to hPa
-      mse[[i_stap]][mse[[i_stap]] > 0] <- mse[[i_stap]][mse[[i_stap]] > 0] / 100 / 100
+      mse[[i_stap]][mse[[i_stap]] > 0] <- mse[[i_stap]][mse[[i_stap]] > 0] /
+        100 /
+        100
       if (keep_mask) {
         mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
       }

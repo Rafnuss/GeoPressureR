@@ -10,7 +10,8 @@ extent <- c(0, 10, 0, 5)
 seq(as.Date("2023-01-01"), as.Date("2023-01-10"), by = "day")
 stap <- data.frame(
   stap_id = 1:10,
-  start = seq(as.POSIXct("2023-01-01", tz = "UTC"),
+  start = seq(
+    as.POSIXct("2023-01-01", tz = "UTC"),
     as.POSIXct("2023-01-10 UTC", tz = "UTC"),
     by = "day"
   )
@@ -19,14 +20,16 @@ stap$end <- stap$start + sample(1:10) * 10000
 
 test_that("map_create() | basic", {
   expect_error(map_create())
-  expect_no_error(map <- map_create(
-    data = data,
-    extent = extent,
-    scale = scale,
-    stap = stap,
-    id = "18LX",
-    type = "pressure"
-  ))
+  expect_no_error(
+    map <- map_create(
+      data = data,
+      extent = extent,
+      scale = scale,
+      stap = stap,
+      id = "18LX",
+      type = "pressure"
+    )
+  )
 
   expect_no_error(map_create(
     data = data,
@@ -52,12 +55,14 @@ test_that("map_create() | basic", {
 test_that("map_create() | missing stap", {
   data_tmp <- data
   data_tmp[1] <- vector("list", 1)
-  expect_no_error(map <- map_create(
-    data = data_tmp,
-    extent = extent,
-    scale = scale,
-    stap = stap
-  ))
+  expect_no_error(
+    map <- map_create(
+      data = data_tmp,
+      extent = extent,
+      scale = scale,
+      stap = stap
+    )
+  )
 })
 
 

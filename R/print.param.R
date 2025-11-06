@@ -38,7 +38,6 @@ print.param <- function(x, ...) {
   bullets(param$tag_create, "temperature_internal_file")
   bullets(param$tag_create, "magnetic_file")
 
-
   cli::cli_h3("Tag label {.fun tag_label}")
   bullets(param$tag_label, "file")
 
@@ -49,7 +48,6 @@ print.param <- function(x, ...) {
 
   bullets(param$tag_set_map, "include_stap_id")
   bullets(param$tag_set_map, "include_min_duration")
-
 
   cli::cli_h3("Geopressure {.fun geopressure_map}")
 
@@ -72,7 +70,9 @@ print.param <- function(x, ...) {
   bullets(param$graph_create, "thr_likelihood")
   bullets(param$graph_create, "thr_gs")
 
-  cli::cli_h3("Movement model & wind {.fun graph_add_wind} {.fun graph_movement}")
+  cli::cli_h3(
+    "Movement model & wind {.fun graph_add_wind} {.fun graph_movement}"
+  )
   bullets(param$graph_add_wind, "thr_as")
   bullets(param$graph_add_wind, "file")
   bullets(param$graph_set_movement, "type")
@@ -104,10 +104,14 @@ print.param <- function(x, ...) {
 bullets <- function(param, x) {
   val <- param[[x]]
   if (x == "extent") {
-    cli::cli_bullets(c("*" = "{.field {x}}: [W:{.val {val[1]}}, E:{.val {val[2]}}, \\
-                       S:{.val {val[3]}}, N:{.val {val[4]}}]"))
+    cli::cli_bullets(c(
+      "*" = "{.field {x}}: [W:{.val {val[1]}}, E:{.val {val[2]}}, \\
+                       S:{.val {val[3]}}, N:{.val {val[4]}}]"
+    ))
   } else if (is.call(val) || is.function(val)) {
-    cli::cli_bullets(c("*" = "{.field {x}}: {.code {glue::glue_collapse(deparse(val))}}"))
+    cli::cli_bullets(c(
+      "*" = "{.field {x}}: {.code {glue::glue_collapse(deparse(val))}}"
+    ))
   } else if (is.data.frame(val)) {
     cli::cli_bullets(c("*" = "{.field {x}}:"))
     cli::cat_print(val)

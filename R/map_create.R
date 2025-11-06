@@ -47,32 +47,42 @@
 #'
 #' @family map
 #' @export
-map_create <- function(data,
-                       extent,
-                       scale,
-                       stap,
-                       id = NA,
-                       type = "unknown") {
+map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
   g <- map_expand(extent, scale)
 
   assertthat::assert_that(is.list(data))
   stap_id_null <- sapply(data, is.null)
   lapply(data[!stap_id_null], \(x) assertthat::assert_that(is.matrix(x)))
   data_dim <- sapply(data[!stap_id_null], \(x) dim(x))
-  assertthat::assert_that(length(unique(data_dim[1, ])) == 1 & length(unique(data_dim[2, ])) == 1,
+  assertthat::assert_that(
+    length(unique(data_dim[1, ])) == 1 & length(unique(data_dim[2, ])) == 1,
     msg = "All matrices of data don't have the same size"
   )
   assertthat::assert_that(assertthat::are_equal(length(g$lat), data_dim[1]))
   assertthat::assert_that(assertthat::are_equal(length(g$lon), data_dim[2]))
   assertthat::assert_that(is.data.frame(stap))
-  assertthat::assert_that(assertthat::has_name(stap, c("stap_id", "start", "end")))
+  assertthat::assert_that(assertthat::has_name(
+    stap,
+    c("stap_id", "start", "end")
+  ))
   assertthat::assert_that(assertthat::are_equal(nrow(stap), length(data)))
 
   assertthat::assert_that(is.character(type))
-  assertthat::assert_that(type %in% c(
-    "unknown", "pressure", "light", "magnetic", "pressure_mse", "water_mask",
-    "pressure_mask", "magnetic_intensity", "magnetic_inclination", "marginal"
-  ))
+  assertthat::assert_that(
+    type %in%
+      c(
+        "unknown",
+        "pressure",
+        "light",
+        "magnetic",
+        "pressure_mse",
+        "water_mask",
+        "pressure_mask",
+        "magnetic_intensity",
+        "magnetic_inclination",
+        "marginal"
+      )
+  )
 
   # Define the mask of water
   tmp <- data[[which(!sapply(data, is.null))[1]]]
@@ -83,17 +93,20 @@ map_create <- function(data,
     data[[istap]][data[[istap]] < 0] <- NA
   }
 
-  map <- structure(list(
-    id = id,
-    data = data,
-    mask_water = mask_water,
-    extent = extent,
-    scale = scale,
-    lat = g$lat,
-    lon = g$lon,
-    stap = stap,
-    type = type
-  ), class = "map")
+  map <- structure(
+    list(
+      id = id,
+      data = data,
+      mask_water = mask_water,
+      extent = extent,
+      scale = scale,
+      lat = g$lat,
+      lon = g$lon,
+      stap = stap,
+      type = type
+    ),
+    class = "map"
+  )
 
   return(map)
 }
@@ -137,17 +150,22 @@ dim.map <- function(x) {
   z <- x
 
   # Compute value
-  z$data <- mapply(\(p, l) {
-    if (is.null(p) && is.null(l)) {
-      NULL
-    } else if (is.null(p)) {
-      l
-    } else if (is.null(l)) {
-      p
-    } else {
-      p * l
-    }
-  }, x$data, y$data, SIMPLIFY = FALSE)
+  z$data <- mapply(
+    \(p, l) {
+      if (is.null(p) && is.null(l)) {
+        NULL
+      } else if (is.null(p)) {
+        l
+      } else if (is.null(l)) {
+        p
+      } else {
+        p * l
+      }
+    },
+    x$data,
+    y$data,
+    SIMPLIFY = FALSE
+  )
 
   # Merge the two stap, should have the same nrow
   z$stap <- merge(x$stap, y$stap, all = TRUE)

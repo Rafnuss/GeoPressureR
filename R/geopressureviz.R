@@ -32,11 +32,13 @@
 #' @seealso [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
 #' @export
-geopressureviz <- function(x,
-                           path = NULL,
-                           marginal = NULL,
-                           launch_browser = TRUE,
-                           run_bg = TRUE) {
+geopressureviz <- function(
+  x,
+  path = NULL,
+  marginal = NULL,
+  launch_browser = TRUE,
+  run_bg = TRUE
+) {
   if (!inherits(x, "tag")) {
     if (is.character(x) && file.exists(x)) {
       file <- x
@@ -89,13 +91,14 @@ geopressureviz <- function(x,
         marginal <- marginal0
       }
     } else {
-      cli::cli_abort("The first argument {.var x} needs to be a {.cls tag}, a {.field file} or \\
-                     an {.field id}")
+      cli::cli_abort(
+        "The first argument {.var x} needs to be a {.cls tag}, a {.field file} or \\
+                     an {.field id}"
+      )
     }
   } else {
     tag <- x
   }
-
 
   tag_assert(tag, "setmap")
 
@@ -128,7 +131,10 @@ geopressureviz <- function(x,
   names(maps) <- names(maps_choices[maps_is_available])
 
   # Set colour of each stationary period
-  col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = ceiling(nrow(tag$stap) / 8))
+  col <- rep(
+    RColorBrewer::brewer.pal(8, "Dark2"),
+    times = ceiling(nrow(tag$stap) / 8)
+  )
   tag$stap$col <- col[tag$stap$stap_id]
   tag$stap$duration <- stap2duration(tag$stap)
 
@@ -140,7 +146,8 @@ geopressureviz <- function(x,
   } else if ("pressure_tag" %in% names(path)) {
     # If path is a pressurepath
     pressurepath <- path
-    path <- merge(tag$stap,
+    path <- merge(
+      tag$stap,
       unique(pressurepath[
         pressurepath$stap_id == round(pressurepath$stap_id),
         c("stap_id", "lat", "lon")
@@ -229,7 +236,8 @@ geopressureviz <- function(x,
     }
 
     # Start the app
-    shiny::runApp(system.file("geopressureviz", package = "GeoPressureR"),
+    shiny::runApp(
+      system.file("geopressureviz", package = "GeoPressureR"),
       launch.browser = launch_browser
     )
     # Return the updated path from shiny options

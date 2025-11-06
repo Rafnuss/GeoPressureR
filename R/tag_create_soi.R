@@ -1,14 +1,16 @@
 # Read Swiss Ornithological Institute (SOI) tag files
 #' @noRd
-tag_create_soi <- function(id,
-                           directory = glue::glue("./data/raw-tag/{id}"),
-                           pressure_file = NULL,
-                           light_file = NULL,
-                           acceleration_file = NULL,
-                           temperature_external_file = NULL,
-                           temperature_internal_file = NULL,
-                           magnetic_file = NULL,
-                           quiet = FALSE) {
+tag_create_soi <- function(
+  id,
+  directory = glue::glue("./data/raw-tag/{id}"),
+  pressure_file = NULL,
+  light_file = NULL,
+  acceleration_file = NULL,
+  temperature_external_file = NULL,
+  temperature_internal_file = NULL,
+  magnetic_file = NULL,
+  quiet = FALSE
+) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
 
@@ -24,16 +26,22 @@ tag_create_soi <- function(id,
 
         if (tag$param$soi_settings$RecordingStop != "timestamp invalid") {
           # Check for drift
-          stop_time_ref <- as.POSIXct(strptime(tag$param$soi_settings$StopTimeReference,
+          stop_time_ref <- as.POSIXct(strptime(
+            tag$param$soi_settings$StopTimeReference,
             tz = "UTC",
             format = "%d.%m.%Y %H:%M:%S"
           ))
-          stop_time_rtc <- as.POSIXct(strptime(tag$param$soi_settings$StopTimeRTC,
+          stop_time_rtc <- as.POSIXct(strptime(
+            tag$param$soi_settings$StopTimeRTC,
             tz = "UTC",
             format = "%d.%m.%Y %H:%M:%S"
           ))
 
-          tag$param$drift <- abs(as.numeric(difftime(stop_time_ref, stop_time_rtc, units = "mins")))
+          tag$param$drift <- abs(as.numeric(difftime(
+            stop_time_ref,
+            stop_time_rtc,
+            units = "mins"
+          )))
           if (tag$param$drift > 30) {
             cli::cli_warn(c(
               "!" = "The SOI setting file {.file {setting_path}} is recording a drift of \\
@@ -47,7 +55,9 @@ tag_create_soi <- function(id,
       }
     },
     error = function(e) {
-      cli::cli_alert_warning("Failed to load the SOI setting file {.file {setting_path}}.")
+      cli::cli_alert_warning(
+        "Failed to load the SOI setting file {.file {setting_path}}."
+      )
       message(e$message)
     }
   )
@@ -75,40 +85,76 @@ tag_create_soi <- function(id,
 
   # Read acceleration
   if (is.null(acceleration_file)) {
-    acceleration_path <- tag_create_detect("*.acceleration", directory, quiet = TRUE)
+    acceleration_path <- tag_create_detect(
+      "*.acceleration",
+      directory,
+      quiet = TRUE
+    )
   } else {
-    acceleration_path <- tag_create_detect(acceleration_file, directory, quiet = quiet)
+    acceleration_path <- tag_create_detect(
+      acceleration_file,
+      directory,
+      quiet = quiet
+    )
   }
   if (!is.null(acceleration_path)) {
-    tag$acceleration <- tag_create_dto(acceleration_path, col = c(4, 3), quiet = quiet)
+    tag$acceleration <- tag_create_dto(
+      acceleration_path,
+      col = c(4, 3),
+      quiet = quiet
+    )
     names(tag$acceleration) <- c("date", "value", "pitch")
   }
 
   # Read External temperature
   if (is.null(temperature_external_file)) {
-    temperature_external_path <- tag_create_detect("*.temperature", directory, quiet = TRUE)
+    temperature_external_path <- tag_create_detect(
+      "*.temperature",
+      directory,
+      quiet = TRUE
+    )
     if (is.null(temperature_external_path)) {
-      temperature_external_path <- tag_create_detect("*.airtemperature", directory, quiet = TRUE)
+      temperature_external_path <- tag_create_detect(
+        "*.airtemperature",
+        directory,
+        quiet = TRUE
+      )
     }
   } else {
-    temperature_external_path <- tag_create_detect(temperature_external_file, directory,
+    temperature_external_path <- tag_create_detect(
+      temperature_external_file,
+      directory,
       quiet = quiet
     )
   }
   if (!is.null(temperature_external_path)) {
-    tag$temperature_external <- tag_create_dto(temperature_external_path, col = 3, quiet = quiet)
+    tag$temperature_external <- tag_create_dto(
+      temperature_external_path,
+      col = 3,
+      quiet = quiet
+    )
   }
 
   # Read Internal temperature
   if (is.null(temperature_internal_file)) {
-    temperature_internal_path <- tag_create_detect("*.bodytemperature", directory, quiet = TRUE)
+    temperature_internal_path <- tag_create_detect(
+      "*.bodytemperature",
+      directory,
+      quiet = TRUE
+    )
   } else {
-    temperature_internal_path <- tag_create_detect(temperature_internal_file, directory,
+    temperature_internal_path <- tag_create_detect(
+      temperature_internal_file,
+      directory,
       quiet = quiet
     )
   }
   if (!is.null(temperature_internal_path)) {
-    tag$temperature_internal <- tag_create_dto(temperature_internal_path, col = 3, quiet = quiet)
+    tag$temperature_internal <- tag_create_dto(
+      temperature_internal_path,
+      col = 3,
+      quiet = quiet
+    )
   }
 
   # Read magnetism
@@ -118,7 +164,8 @@ tag_create_soi <- function(id,
     magnetic_path <- tag_create_detect(magnetic_file, directory, quiet = quiet)
   }
   if (!is.null(magnetic_path) && "soi_settings" %in% names(tag$param)) {
-    tag$magnetic <- tag_create_soi_mag(magnetic_path,
+    tag$magnetic <- tag_create_soi_mag(
+      magnetic_path,
       hw_version = tag$param$soi_settings,
       quiet = quiet
     )
@@ -155,9 +202,7 @@ tag_create_soi <- function(id,
 #'
 #' Version is detected automatically from `tag$param$soi_settings`
 #' @noRd
-tag_create_soi_mag <- function(magnetic_path,
-                               hw_version,
-                               quiet = FALSE) {
+tag_create_soi_mag <- function(magnetic_path, hw_version, quiet = FALSE) {
   assertthat::assert_that(is.logical(quiet))
   assertthat::assert_that(file.exists(magnetic_path))
 
@@ -169,7 +214,12 @@ tag_create_soi_mag <- function(magnetic_path,
     key <- intersect(c("HW Version", "HWVersion"), names(hw_version))
     if (length(key) > 0) {
       hw_version <- hw_version[[key[1]]]
-      hw_version <- sub("^(hw_)?GDL3pam[-_]?v?[-_]?", "", hw_version, ignore.case = TRUE)
+      hw_version <- sub(
+        "^(hw_)?GDL3pam[-_]?v?[-_]?",
+        "",
+        hw_version,
+        ignore.case = TRUE
+      )
       hw_version <- as.double(hw_version)
     }
   }
@@ -186,11 +236,13 @@ tag_create_soi_mag <- function(magnetic_path,
   }
 
   # Automatically define correction values
-  if (hw_version <= 2.3) { # LSM303D
+  if (hw_version <= 2.3) {
+    # LSM303D
     corr_m <- 0.00016 # unit G. raw value stored of the ADC (analog-digital converter) to Gauss
     corr_g <- 4 / 65536 # 16-Bit resolution on a full scale of 4g (+/-2g)
     mag_axis <- c("left", "backward", "down")
-  } else { # LSM303AGR
+  } else {
+    # LSM303AGR
     corr_m <- 0.0015 # value stored to Gauss
     corr_g <- 4 / 4096 # 12-Bit resolution on a full scale of 4g (+/-2g)
     mag_axis <- c("backward", "left", "down")
@@ -205,8 +257,12 @@ tag_create_soi_mag <- function(magnetic_path,
 
   # Name variables
   map <- c(
-    gX = "acceleration_x", gY = "acceleration_y", gZ = "acceleration_z",
-    mX = "magnetic_x", mY = "magnetic_y", mZ = "magnetic_z"
+    gX = "acceleration_x",
+    gY = "acceleration_y",
+    gZ = "acceleration_z",
+    mX = "magnetic_x",
+    mY = "magnetic_y",
+    mZ = "magnetic_z"
   )
   names(mag) <- ifelse(names(mag) %in% names(map), map[names(mag)], names(mag))
 
@@ -218,7 +274,11 @@ tag_create_soi_mag <- function(magnetic_path,
 #' @noRd
 mag_axes <- function(mag, mag_axis = "auto") {
   if (all(mag_axis == "auto")) {
-    xyz <- c(stats::median(mag$gX), stats::median(mag$gY), stats::median(mag$gZ))
+    xyz <- c(
+      stats::median(mag$gX),
+      stats::median(mag$gY),
+      stats::median(mag$gZ)
+    )
 
     mag_axis <- c("", "", "")
 
@@ -247,7 +307,11 @@ mag_axes <- function(mag, mag_axis = "auto") {
   }
 
   # We use a forward-right-down system. Which means that the sensor needs to be oriented
-  ref_axis_name <- matrix(c("forward", "backward", "right", "left", "down", "up"), 2, 3)
+  ref_axis_name <- matrix(
+    c("forward", "backward", "right", "left", "down", "up"),
+    2,
+    3
+  )
 
   # Assert that all axis are provided correctly, and on of each direction
   assertthat::assert_that(all(mag_axis %in% ref_axis_name))

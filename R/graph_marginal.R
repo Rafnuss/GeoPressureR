@@ -57,8 +57,11 @@ graph_marginal <- function(graph, quiet = FALSE) {
   n <- prod(graph$sz)
 
   # matrix of transition * observation
-  trans_obs <- Matrix::sparseMatrix(graph$s, graph$t,
-    x = transition * graph$obs[graph$t], dims = c(n, n)
+  trans_obs <- Matrix::sparseMatrix(
+    graph$s,
+    graph$t,
+    x = transition * graph$obs[graph$t],
+    dims = c(n, n)
   )
 
   if (!quiet) {
@@ -97,7 +100,7 @@ graph_marginal <- function(graph, quiet = FALSE) {
   marginal_data <- vector("list", nrow(graph$stap))
   stap_include <- graph$stap$stap_id[graph$stap$include]
   for (i_s in seq_len(graph$sz[3])) {
-    map_fb_i <- map_fb[, , i_s]
+    map_fb_i <- map_fb[,, i_s]
     map_fb_i[graph$mask_water] <- NA
     if (sum(map_fb_i, na.rm = TRUE) == 0) {
       cli::cli_abort(c(

@@ -12,7 +12,11 @@
 #' @return bearing angle in degree
 #'
 #' @export
-speed2bearing <- function(speed, speed_ref = complex(real = 0, imaginary = 1), positive = TRUE) {
+speed2bearing <- function(
+  speed,
+  speed_ref = complex(real = 0, imaginary = 1),
+  positive = TRUE
+) {
   # Compute the angle of the complex notation
   angle_rad <- Arg(speed_ref * Conj(speed))
   # Convert from radian to degree

@@ -25,13 +25,23 @@ test_that("workflow | full", {
   expect_no_error(plot(tag, type = "acceleration"))
   expect_no_error(plot(tag, type = "acceleration", variable = "pitch"))
   expect_no_error(plot(tag, type = "acceleration", plot_plotly = FALSE))
-  expect_no_error(plot(tag, type = "acceleration", variable = "pitch", plot_plotly = FALSE))
+  expect_no_error(plot(
+    tag,
+    type = "acceleration",
+    variable = "pitch",
+    plot_plotly = FALSE
+  ))
   expect_no_error(plot(tag, type = "twilight"))
   expect_no_error(plot(tag, type = "twilight", plot_plotly = FALSE))
   expect_no_error(plot(tag, type = "temperature"))
   expect_no_error(plot(tag, type = "temperature", variable = "external"))
   expect_no_error(plot(tag, type = "temperature", plot_plotly = FALSE))
-  expect_no_error(plot(tag, type = "temperature", variable = "external", plot_plotly = FALSE))
+  expect_no_error(plot(
+    tag,
+    type = "temperature",
+    variable = "external",
+    plot_plotly = FALSE
+  ))
   expect_no_error(plot(tag, type = "actogram"))
   expect_no_error(plot(tag, type = "actogram", plot_plotly = FALSE))
   expect_no_error(plot(tag, type = "map_pressure"))
@@ -53,12 +63,18 @@ test_that("workflow | Missing pressure value", {
 
   tag <- tag_set_map(tag, extent = c(-16, 23, 0, 50), scale = 1)
 
-  expect_warning(expect_warning(
-    tag <- geopressure_map(tag, quiet = TRUE),
-    "*have less than 3 datapoints to be used*"
-  ), "Pressure data is not on a regular interval")
+  expect_warning(
+    expect_warning(
+      tag <- geopressure_map(tag, quiet = TRUE),
+      "*have less than 3 datapoints to be used*"
+    ),
+    "Pressure data is not on a regular interval"
+  )
 
-  expect_equal(sapply(tag$map_pressure$data, is.null), c(TRUE, TRUE, FALSE, FALSE, TRUE))
+  expect_equal(
+    sapply(tag$map_pressure$data, is.null),
+    c(TRUE, TRUE, FALSE, FALSE, TRUE)
+  )
 
   expect_no_error(tag2path(tag))
 
@@ -71,20 +87,21 @@ test_that("workflow | Missing pressure value", {
 
 test_that("workflow | with elev_", {
   tag <- tag_create("18LX", quiet = TRUE)
-  tag <- tag_label(tag, file = "./data/tag-label/18LX-labeled-elev.csv", quiet = TRUE)
-  tag <- tag_set_map(tag,
-    extent = c(-16, 23, 0, 50),
-    scale = 1
+  tag <- tag_label(
+    tag,
+    file = "./data/tag-label/18LX-labeled-elev.csv",
+    quiet = TRUE
   )
+  tag <- tag_set_map(tag, extent = c(-16, 23, 0, 50), scale = 1)
   tag <- geopressure_map(tag, quiet = TRUE)
   expect_equal(length(tag$map_pressure), nrow(tag$stap))
 })
 
 
-
 test_that("workflow | modelled fewer", {
   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
-  tag <- tag_set_map(tag,
+  tag <- tag_set_map(
+    tag,
     extent = c(-16, 23, 0, 50),
     scale = 1,
     include_stap_id = c(2, 4, 5)

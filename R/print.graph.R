@@ -33,9 +33,10 @@ print.graph <- function(x, ...) {
   cli::cli_div(theme = list(".hint" = list(color = "grey60")))
   cli::cli_h1("GeoPressureR `graph` object for {graph$param$id}")
 
-  cli::cli_text("{.hint {.strong Note}: All {.field green} texts are fields of `graph` (i.e., \\
-                `graph${.field field}`).}")
-
+  cli::cli_text(
+    "{.hint {.strong Note}: All {.field green} texts are fields of `graph` (i.e., \\
+                `graph${.field field}`).}"
+  )
 
   # Param
   cli::cli_h3("Parameters {.field param}")
@@ -46,7 +47,10 @@ print.graph <- function(x, ...) {
 
   cli::cli_h3("Map")
   # nolint start
-  geo <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)
+  geo <- map_expand(
+    graph$param$tag_set_map$extent,
+    graph$param$tag_set_map$scale
+  )
   cli::cli_bullets(c(
     "*" = "Extent (W, E, S, N): {.val {graph$param$tag_set_map$extent[1]}}\u00b0,
         {.val {graph$param$tag_set_map$extent[2]}}\u00b0,
@@ -69,14 +73,20 @@ print.graph <- function(x, ...) {
   if ("ws" %in% names(graph)) {
     cli::cli_bullets(c("v" = "Windspeed {.field ws} computed!"))
   } else {
-    cli::cli_bullets(c("!" = "Windspeed not computed. Use {.fun graph_add_wind}"))
+    cli::cli_bullets(c(
+      "!" = "Windspeed not computed. Use {.fun graph_add_wind}"
+    ))
   }
 
   if ("movement" %in% names(graph$param)) {
-    cli::cli_bullets(c("v" = "Movement model defined for
-                      {.field {graph$param$graph_set_movement$type}}"))
+    cli::cli_bullets(c(
+      "v" = "Movement model defined for
+                      {.field {graph$param$graph_set_movement$type}}"
+    ))
   } else {
-    cli::cli_bullets(c("x" = "No movement model defined. Use {.fun graph_set_movement}"))
+    cli::cli_bullets(c(
+      "x" = "No movement model defined. Use {.fun graph_set_movement}"
+    ))
   }
   cli::cli_end()
   invisible(graph)

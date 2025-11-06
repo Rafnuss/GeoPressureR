@@ -101,11 +101,12 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html)
 #' @export
 geopressuretemplate <- function(
-    id,
-    config = config::get(config = id),
-    quiet = FALSE,
-    file = glue::glue("./data/interim/{id}.RData"),
-    ...) {
+  id,
+  config = config::get(config = id),
+  quiet = FALSE,
+  file = glue::glue("./data/interim/{id}.RData"),
+  ...
+) {
   if (!quiet) {
     cli::cli_h1("Running geopressuretemplate for {id}")
   }

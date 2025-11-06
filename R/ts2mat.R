@@ -5,9 +5,7 @@
 #' @inheritParams twilight_create
 #' @return A data.frame with columns `date` and `value`.
 #' @export
-ts2mat <- function(ts,
-                   twl_offset = 0,
-                   value = "value") {
+ts2mat <- function(ts, twl_offset = 0, value = "value") {
   assertthat::assert_that(is.data.frame(ts))
   assertthat::assert_that(assertthat::has_name(ts, "date"))
   assertthat::assert_that(assertthat::is.time(ts$date))
@@ -26,10 +24,16 @@ ts2mat <- function(ts,
 
   # Pad time to start and finish at 00:00
   date <- seq(
-    from = as.POSIXct(format(ts$date[1] - twl_offset * 60 * 60, "%Y-%m-%d"), tz = "UTC"),
-    to = as.POSIXct(format(ts$date[length(ts$date)] - twl_offset * 60 * 60, "%Y-%m-%d"),
+    from = as.POSIXct(
+      format(ts$date[1] - twl_offset * 60 * 60, "%Y-%m-%d"),
       tz = "UTC"
-    ) + 60 * 60 * 24 - res,
+    ),
+    to = as.POSIXct(
+      format(ts$date[length(ts$date)] - twl_offset * 60 * 60, "%Y-%m-%d"),
+      tz = "UTC"
+    ) +
+      60 * 60 * 24 -
+      res,
     by = res
   )
   date <- date + twl_offset * 60 * 60
@@ -78,8 +82,15 @@ ts2mat <- function(ts,
   )
 
   # image(mat$value)
-  mat$day <- as.Date(as.POSIXct(colMeans(mat$date), origin = "1970-01-01", tz = "UTC"))
-  mat$time <- format(as.POSIXct(mat$date[, 1], origin = "1970-01-01", tz = "UTC"), "%H:%M")
+  mat$day <- as.Date(as.POSIXct(
+    colMeans(mat$date),
+    origin = "1970-01-01",
+    tz = "UTC"
+  ))
+  mat$time <- format(
+    as.POSIXct(mat$date[, 1], origin = "1970-01-01", tz = "UTC"),
+    "%H:%M"
+  )
 
   return(mat)
 }
