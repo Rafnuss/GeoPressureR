@@ -5,8 +5,8 @@
 #' edges.
 #'
 #' - Time: linear interpolation using the resolution requested with `rounding_interval`
-#' - Space: nearest neighbour interpolation by default or bi-linear with `pracma::interp2` if
-#' `interp_spatial_linear=TRUE`
+#' - Space: nearest neighbour interpolation by default, or bi-linear with `pracma::interp2` if
+#'   `interp_spatial_linear=TRUE`. Note: spatial interpolation is limited to 0.1° for computational reasons.
 #' - Pressure/altitude: linear interpolation using the exact `pressure` values
 #'
 #' @param graph either a `tag` or a `graph` GeoPressureR object.
@@ -30,7 +30,8 @@
 #' @param quiet logical to hide messages about the progress
 #' @inheritParams tag_download_wind
 #'
-#' @return A data.frame with columns:
+#' @return
+#' If `return_averaged_variable = TRUE`, returns a data.frame with one row per edge and columns:
 #' - `stap_s` id of the source/origin stationary period
 #' - `stap_t` id of the target/destination stationary period
 #' - `s` node id of the source (same as/similar to `edge_s`)
@@ -47,6 +48,16 @@
 #' - `bearing` bearing of the flight
 #' - `gs` groundspeed
 #' - `ws` windspeed (if `graph` provided)
+#'
+#' If `return_averaged_variable = FALSE`, returns a data.frame with one row per time step and edge, and columns:
+#' - `edge_id` edge index
+#' - `val` value of the variable at each time step
+#' - `pressure` pressure at each time step
+#' - `date` datetime of each time step
+#' - `w` weight for averaging
+#' - `var` variable name
+#' - `lat` latitude at each time step
+#' - `lon` longitude at each time step
 #'
 #' @family edge
 #' @seealso [GeoPressureManual](
@@ -354,7 +365,7 @@ edge_add_wind <- function(
 
           lat_int_uniq <- ((ll_int_1d_uniq - 1) %/% 10000) / 10 - 90
           lon_int_uniq <- ((ll_int_1d_uniq - 1) %% 10000) / 10 - 180
-          # CHeck that the transofmration is correct with
+          # Check that the transformation is correct with
           # cbind((round(lat_int[, i_time], 1)+90)*10, (ll_int_1d - 1) %/% 10000)
           # cbind((round(lon_int[, i_time],1)+180)*10, (ll_int_1d - 1) %% 10000)
           # cbind(lat_int_uniq, lon_int_uniq, lat_int[, i_time], lon_int[, i_time])
@@ -401,12 +412,14 @@ edge_add_wind <- function(
             w = rep(w, length(st_id))
           )
           var[[var_i]][[i_stap]][[i_fl]]$var <- variable[var_i]
+
+          # Add lat lon
           if (interp_spatial_linear) {
-            var[[var_i]][[i_stap]][[i_fl]]$lat <- as.vector(round(t(lat_int), 1))
-            var[[var_i]][[i_stap]][[i_fl]]$lon <- as.vector(round(t(lon_int), 1))
+            var[[var_i]][[i_stap]][[i_fl]]$lat <- as.vector(lat_int)
+            var[[var_i]][[i_stap]][[i_fl]]$lon <- as.vector(lon_int)
           } else {
-            var[[var_i]][[i_stap]][[i_fl]]$lat <- as.vector(lat[t(lat_int_ind)])
-            var[[var_i]][[i_stap]][[i_fl]]$lon <- as.vector(lon[t(lon_int_ind)])
+            var[[var_i]][[i_stap]][[i_fl]]$lat <- lat_int_int
+            var[[var_i]][[i_stap]][[i_fl]]$lon <- lon_int_int
           }
         }
       }
@@ -475,8 +488,8 @@ edge_add_wind_check <- function(
   assertthat::assert_that(is.function(file))
 
   # Check that all the files of wind_speed exist and match the data request
-  for (i_stap in seq_len(length(flight))) {
-    fl_s <- flight[[i_stap]]
+  for (i_flight in seq_len(length(flight))) {
+    fl_s <- flight[[i_flight]]
     for (i_fl in seq_len(length(fl_s$stap_s))) {
       i_s <- fl_s$stap_s[i_fl]
 
@@ -512,25 +525,30 @@ edge_add_wind_check <- function(
       t_e <- as.POSIXct(format(fl_s$end[i_fl] + 60 * 60, "%Y-%m-%d %H:00:00"), tz = "UTC")
       if (!(min(time) <= t_e && max(time) >= t_s)) {
         cli::cli_abort(c(
-          x = "Time between graph data and the wind file ({.file {file(i_s, tag_id)}}) does not
-          match.",
+          x = "Wind file ({.file {file(i_s, tag_id)}}) does not cover the flight time range.",
+          "i" = "Wind file: {min(time)} to {max(time)}. Flight: {t_s} to {t_e}.",
           "!" = "You might have modified your stationary periods without updating your wind file? ",
           ">" = "If so, run {.run tag_download_wind(tag)}"
         ))
       }
 
-      pres_var <- names(nc$dim)[grepl("*level", names(nc$dim))]
-      pres <- ncdf4::ncvar_get(nc, pres_var)
+      # Check that the pressure levels are matching
       pres_value <- pressure$value[pressure$date > t_s & pressure$date < t_e]
-      if (length(pres_value) == 0 ||
-        !(min(pres) <= min(pres_value) &&
-          max(pres) >= min(1000, max(pres_value)))) {
-        cli::cli_abort(c(
-          x = "Time between graph data and the wind file ({.file {file(i_s, tag_id)}}) does not
-          match.",
-          "!" = "You might have modified your stationary periods without updating your wind file? ",
-          ">" = "If so, run {.run tag_download_wind(tag)}"
-        ))
+      if (length(pres_value) > 0) {
+        pres_var <- names(nc$dim)[grepl("*level", names(nc$dim))]
+        pres <- ncdf4::ncvar_get(nc, pres_var)
+
+        if (
+          !(min(pres) <= min(pres_value) &&
+            max(pres) >= min(1000, max(pres_value)))
+        ) {
+          cli::cli_abort(c(
+            x = "Wind file ({.file {file(i_s, tag_id)}}) does not cover the flight pressure range.",
+            "i" = "Wind file: {min(pres)} to {max(pres)} hPa. Flight: {min(pres_value)} to {max(pres_value)} hPa.",
+            "!" = "You might have modified your stationary periods without updating your wind file? ",
+            ">" = "If so, run {.run tag_download_wind(tag)}"
+          ))
+        }
       }
 
       # Check if spatial extent match
