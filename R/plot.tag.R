@@ -580,7 +580,7 @@ plot_tag_twilight <- function(
         ggplot2::geom_point(
           data = twl,
           ggplot2::aes(x = .data$date, y = .data$time),
-          colour = "red",
+          colour = "yellow",
           size = 2,
           shape = 16
         )
@@ -623,7 +623,7 @@ plot_tag_twilight <- function(
         size = 3,
         shape = 4,
         stroke = 2,
-        colour = "yellow"
+        colour = "red"
       )
   }
 
