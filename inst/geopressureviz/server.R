@@ -14,7 +14,6 @@ server <- function(input, output, session) {
   # Extract shorter name for variable
   stap <- tag$stap
   pressure <- tag$pressure
-  flight <- stap2flight(stap)
 
   if (is.null(file_wind)) {
     edge <- NULL
@@ -109,7 +108,7 @@ server <- function(input, output, session) {
     bindEvent(input$min_dur_stap)
 
   # Precompute flight durations for current included stap ids
-  fl_dur_reactive <- reactive({
+  flight_dur_reactive <- reactive({
     stap2flight(stap, stap_id_include())$duration
   }) |>
     bindEvent(stap_id_include())
@@ -141,75 +140,50 @@ server <- function(input, output, session) {
   })
 
   # Small helper to compute distance (km) and flight duration (hours) between two stap indices
-  compute_segment_stats <- function(from_id, to_id) {
+  flight_info <- function(idx, nextprev) {
+    nextnext_id <- stap_id_include()[idx + nextprev]
+    curr_id <- as.numeric(input$stap_id)
+    nb_fl <- abs(nextnext_id - curr_id)
+
     dist_km <- geosphere::distGeo(
-      reactVal$path[from_id, c("lon", "lat")],
-      reactVal$path[to_id, c("lon", "lat")]
+      reactVal$path[nextnext_id, c("lon", "lat")],
+      reactVal$path[curr_id, c("lon", "lat")]
     ) /
       1000
-    fl_dur_hours <- sum(flight$duration[seq(from_id, to_id - 1)])
-    speed_txt <- if (!is.na(fl_dur_hours) && fl_dur_hours > 0) {
-      paste0(round(dist_km / fl_dur_hours), "km/h")
+
+    fl_dur <- flight_dur_reactive()[min(idx, idx + nextprev)]
+
+    speed_txt <- if (!is.na(fl_dur) && fl_dur > 0) {
+      paste0(round(dist_km / fl_dur), "km/h")
     } else {
       "—"
     }
-    list(dist_km = dist_km, fl_dur_hours = fl_dur_hours, speed_txt = speed_txt)
+
+    label <- if (nextprev > 0) "Next flight" else "Previous flight"
+
+    return(HTML(
+      glue::glue("<b>{label}:</b><br>"),
+      glue::glue(
+        "{nb_fl} flights - {round(fl_dur, 1)} hrs<br>"
+      ),
+      glue::glue("{round(dist_km)} km - {speed_txt}")
+    ))
   }
 
   output$flight_prev_info <- renderUI({
     req(input$stap_id)
-    if (idx() != 1) {
-      stap_id_prev <- stap_id_include()[idx() - 1]
-      seg <- compute_segment_stats(stap_id_prev, as.numeric(input$stap_id))
-      as <- NULL
-      if (!is.null(reactVal$edge)) {
-        tmp <- reactVal$edge[seq(stap_id_prev, as.numeric(input$stap_id) - 1), ]
-        if (nrow(tmp) == 1) {
-          as <- paste0("as=", round(abs(tmp$gs - tmp$ws)), "km/h")
-        }
-      }
-      HTML(
-        "<b>Previous flight:</b><br>",
-        as.numeric(input$stap_id) - stap_id_prev,
-        " flights -",
-        round(seg$fl_dur_hours, 1),
-        " hrs<br>",
-        round(seg$dist_km),
-        " km - ",
-        seg$speed_txt,
-        ifelse(is.null(as), "", as)
-      )
-    } else {
-      HTML("")
+    if (idx() == 1) {
+      return(HTML(""))
     }
+    flight_info(idx(), -1)
   })
 
   output$flight_next_info <- renderUI({
     req(input$stap_id)
-    if (idx() != length(stap_id_include())) {
-      stap_id_next <- stap_id_include()[idx() + 1]
-      seg <- compute_segment_stats(as.numeric(input$stap_id), stap_id_next)
-      as <- NULL
-      if (!is.null(reactVal$edge)) {
-        tmp <- reactVal$edge[seq(as.numeric(input$stap_id), stap_id_next - 1), ]
-        if (nrow(tmp) == 1) {
-          as <- paste0("as=", round(abs(tmp$gs - tmp$ws)), "km/h")
-        }
-      }
-      HTML(
-        "<b>Next flight:</b><br>",
-        stap_id_next - as.numeric(input$stap_id),
-        " flights -",
-        round(seg$fl_dur_hours, 1),
-        " hrs<br>",
-        round(seg$dist_km),
-        " km - ",
-        seg$speed_txt,
-        ifelse(is.null(as), "", as)
-      )
-    } else {
-      HTML("")
+    if (idx() == length(stap_id_include())) {
+      return(HTML(""))
     }
+    flight_info(idx(), +1)
   })
 
   output$pressure_plot <- plotly::renderPlotly({
@@ -398,7 +372,7 @@ server <- function(input, output, session) {
       leaflet::clearMarkers()
     stap_model <- stap[stap_id_include(), ]
     path_model <- reactVal$path[stap_id_include(), c("lon", "lat")]
-    fl_dur <- fl_dur_reactive()
+    fl_dur <- flight_dur_reactive()
     if (is.null(fl_dur)) {
       return()
     }
@@ -543,7 +517,7 @@ server <- function(input, output, session) {
             lat = path_model$lat[idx() + 1],
             opacity = 1,
             color = stap_model$col[idx() + 1],
-            radius = as.numeric(input$speed) * sum(fl_dur[idx()]) * 1000,
+            radius = as.numeric(input$speed) * fl_dur[idx()] * 1000,
             fillOpacity = 0,
             weight = 2
           )
