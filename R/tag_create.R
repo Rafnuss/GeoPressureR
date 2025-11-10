@@ -165,7 +165,7 @@ tag_create <- function(
         manufacturer <- "datapackage"
       } else if (any(grepl("\\.(pressure|glf)$", list.files(directory)))) {
         manufacturer <- "soi"
-      } else if (any(grepl("\\.deg$", list.files(directory)))) {
+      } else if (any(grepl("\\.(deg|lux)$", list.files(directory)))) {
         manufacturer <- "migratetech"
       } else if (any(grepl("\\.lig$", list.files(directory)))) {
         manufacturer <- "bas"
