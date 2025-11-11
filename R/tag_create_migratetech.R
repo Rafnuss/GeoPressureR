@@ -105,48 +105,56 @@ tag_create_migratetech <- function(
     light_path <- tag_create_detect(light_file, directory, quiet = quiet)
   }
   if (!is.null(light_path)) {
-    line16 <- readLines(light_path, n = 16)[[16]]
-    drift <- abs(
-      as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60
-    )
-    if (drift > 30) {
-      cli::cli_warn(c(
-        "!" = "The light file {.file {light_path}} is recording a drift of \\
-      {format_minutes(drift)}  (line 16) which seems suspicious.",
-        ">" = "Check for error (e.g. timezone)"
-      ))
-    }
-    # find column index with light
-    hdr <- utils::read.delim(
-      light_path,
-      skip = 19,
-      nrow = 1,
-      header = FALSE,
-      sep = ""
-    )
-    col <- which(hdr == "light(lux)")
-    if (length(col) == 0) {
+    # Read first 30 lines for both drift check and header detection
+    first_lines <- readLines(light_path, n = 30)
+
+    # Find the line containing "light(lux)"
+    header_line <- which(grepl("light\\(lux\\)", first_lines))
+
+    if (length(header_line) == 0) {
       cli::cli_abort(
-        "The light file {.file {light_path}} is not compatible. Line 20 \\
-              should contains {.val light(lux)}"
+        "The light file {.file {light_path}} is not compatible. \\
+              Could not find {.val light(lux)} in the first 30 lines"
       )
     }
+
+    header_line <- header_line[1] # Take first occurrence
+
+    # Check for drift (line 16) if available
+    if (length(first_lines) >= 16) {
+      line16 <- first_lines[16]
+      drift_match <- regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))
+      if (length(drift_match) > 0) {
+        drift <- abs(as.numeric(drift_match) / 60)
+        if (drift > 5) {
+          cli::cli_warn(c(
+            "!" = "The light file {.file {light_path}} is recording a drift of \\
+          {format_minutes(drift)} (line 16) which is higher than the resolution.",
+            "i" = "Check for error (e.g. timezone)"
+          ))
+        }
+      }
+    }
+
+    # Extract column index directly from the header line
+    hdr_parts <- strsplit(first_lines[header_line], "\\s+")[[1]]
+    col <- which(hdr_parts == "light(lux)")
+
+    if (length(col) == 0) {
+      cli::cli_abort(
+        "The light file {.file {light_path}} header does not contain \\
+              {.val light(lux)} column"
+      )
+    }
+
     # Read file
     tag$light <- tag_create_dto(
       light_path,
-      skip = 20,
+      skip = header_line,
       col = col,
       date_format = "%d/%m/%Y %H:%M:%S",
       quiet = quiet
     )
-
-    if (drift > 5) {
-      cli::cli_warn(c(
-        "!" = "The light file {.file {light_path}} is recording a drift of \\
-      {format_minutes(drift)} (line 16) which is higher than the resolution.",
-        "i" = "Check for error (e.g. timezone)"
-      ))
-    }
   }
 
   # Add parameter information
