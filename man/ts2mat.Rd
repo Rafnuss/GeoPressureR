@@ -4,7 +4,12 @@
 \alias{ts2mat}
 \title{Format timeserie data.frame into a matrix}
 \usage{
-ts2mat(ts, twl_offset = 0, value = "value")
+ts2mat(
+  ts,
+  twl_offset = 0,
+  value = "value",
+  twl_time_tolerance = formals(twilight_create)$twl_time_tolerance
+)
 }
 \arguments{
 \item{ts}{data.frame of a \code{tag}, containing at least \code{date} and \code{value}.}
@@ -13,6 +18,10 @@ ts2mat(ts, twl_offset = 0, value = "value")
 provided, it uses the middle of all nights.}
 
 \item{value}{column name to extract}
+
+\item{twl_time_tolerance}{Maximum allowed time difference in seconds between observations
+and the regular grid. Observations beyond this threshold will be set to NA. Default is 180
+seconds (3 minutes).}
 }
 \value{
 A data.frame with columns \code{date} and \code{value}.

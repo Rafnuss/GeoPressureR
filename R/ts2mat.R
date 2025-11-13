@@ -2,8 +2,6 @@
 #'
 #' @param ts data.frame of a `tag`, containing at least `date` and `value`.
 #' @param value column name to extract
-#' @param twl_time_tolerance Maximum allowed time difference in seconds between observations
-#'   and the regular grid. Observations beyond this threshold will be set to NA. Default is 30.
 #' @inheritParams twilight_create
 #' @return A data.frame with columns `date` and `value`.
 #' @export
@@ -11,7 +9,7 @@ ts2mat <- function(
   ts,
   twl_offset = 0,
   value = "value",
-  twl_time_tolerance = 30
+  twl_time_tolerance = formals(twilight_create)$twl_time_tolerance
 ) {
   assertthat::assert_that(is.data.frame(ts))
   assertthat::assert_that(assertthat::has_name(ts, "date"))

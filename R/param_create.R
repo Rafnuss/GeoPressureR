@@ -66,7 +66,8 @@ param_create <- function(id, default = FALSE, ...) {
       twilight_create = list(
         twl_thr = formals(twilight_create)$twl_thr,
         twl_offset = formals(twilight_create)$twl_offset,
-        transform_light = formals(twilight_create)$transform_light
+        transform_light = formals(twilight_create)$transform_light,
+        twl_time_tolerance = formals(twilight_create)$twl_time_tolerance
       ),
       twilight_label_read = list(
         file = formals(twilight_label_read)$file
