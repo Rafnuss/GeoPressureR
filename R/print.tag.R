@@ -39,53 +39,50 @@ print.tag <- function(x, ...) {
   } else {
     cli::cli_h3("Sensors data")
     cli::cli_text("Manufacturer: {tag$param$tag_create$manufacturer}")
-    cli::cli_text(
-      "Date range: {tag$pressure$date[1]} to {tail(tag$pressure$date,1)}"
+
+    # Get date range across all sensors
+    all_dates <- list()
+    sensor_names <- c(
+      "pressure",
+      "acceleration",
+      "light",
+      "temperature_external",
+      "temperature_internal",
+      "magnetic"
     )
-    if ("pressure" %in% names(tag)) {
-      cli::cli_bullets(
-        c(
-          "*" = "{.field pressure}: {format(nrow(tag$pressure), big.mark = ',')} datapoints"
-        )
+    for (sensor in sensor_names) {
+      if (sensor %in% names(tag) && "date" %in% names(tag[[sensor]])) {
+        all_dates[[sensor]] <- tag[[sensor]]$date
+      }
+    }
+    if (length(all_dates) > 0) {
+      all_dates_vec <- do.call(c, all_dates)
+      cli::cli_text(
+        "Date range: {min(all_dates_vec)} to {max(all_dates_vec)}"
       )
     }
-    if ("acceleration" %in% names(tag)) {
-      cli::cli_bullets(
-        c(
-          "*" = "{.field acceleration}: {format(nrow(tag$acceleration), big.mark = ',')} datapoints"
-        )
-      )
+
+    # Display each sensor with datapoint count and resolution
+    for (sensor in sensor_names) {
+      if (sensor %in% names(tag)) {
+        n_points <- format(nrow(tag[[sensor]]), big.mark = ",")
+
+        # Calculate resolution
+        if ("date" %in% names(tag[[sensor]]) && nrow(tag[[sensor]]) > 1) {
+          res_vec <- as.numeric(diff(tag[[sensor]]$date), units = "secs")
+          res <- stats::median(res_vec)
+          res_text <- format_minutes(res / 60)
+          cli::cli_bullets(c(
+            "*" = "{.field {sensor}}: {n_points} datapoints ({res_text})"
+          ))
+        } else {
+          cli::cli_bullets(c(
+            "*" = "{.field {sensor}}: {n_points} datapoints"
+          ))
+        }
+      }
     }
-    if ("light" %in% names(tag)) {
-      cli::cli_bullets(
-        c(
-          "*" = "{.field light}: {format(nrow(tag$light), big.mark = ',')} datapoints"
-        )
-      )
-    }
-    if ("temperature_external" %in% names(tag)) {
-      cli::cli_bullets(
-        c(
-          "*" = "{.field temperature_external}:
-          {format(nrow(tag$temperature_external), big.mark = ',')} datapoints"
-        )
-      )
-    }
-    if ("temperature_internal" %in% names(tag)) {
-      cli::cli_bullets(
-        c(
-          "*" = "{.field temperature_internal}:
-          {format(nrow(tag$temperature_internal), big.mark = ',')} datapoints"
-        )
-      )
-    }
-    if ("magnetic" %in% names(tag)) {
-      cli::cli_bullets(
-        c(
-          "*" = "{.field magnetic}: {format(nrow(tag$magnetic), big.mark = ',')} datapoints"
-        )
-      )
-    }
+
     if ("twilight" %in% names(tag)) {
       cli::cli_bullets(
         c(
