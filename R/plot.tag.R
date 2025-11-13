@@ -530,8 +530,18 @@ plot_tag_twilight <- function(
     }
   }
 
+  if ("twl_time_tolerance" %in% names(tag$param$twilight_create)) {
+    twl_time_tolerance <- tag$param$twilight_create$twl_time_tolerance
+  } else {
+    twl_time_tolerance <- 30
+  }
+
   # Compute the matrix representation of light
-  mat <- ts2mat(light, twl_offset = twl_offset)
+  mat <- ts2mat(
+    light,
+    twl_offset = twl_offset,
+    twl_time_tolerance = twl_time_tolerance
+  )
 
   # Convert to long format data.fram to be able to plot with ggplot
   df <- as.data.frame(mat$value)
