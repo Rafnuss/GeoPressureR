@@ -2,10 +2,17 @@
 #'
 #' @param ts data.frame of a `tag`, containing at least `date` and `value`.
 #' @param value column name to extract
+#' @param twl_time_tolerance Maximum allowed time difference in seconds between observations
+#'   and the regular grid. Observations beyond this threshold will be set to NA. Default is 30.
 #' @inheritParams twilight_create
 #' @return A data.frame with columns `date` and `value`.
 #' @export
-ts2mat <- function(ts, twl_offset = 0, value = "value") {
+ts2mat <- function(
+  ts,
+  twl_offset = 0,
+  value = "value",
+  twl_time_tolerance = 30
+) {
   assertthat::assert_that(is.data.frame(ts))
   assertthat::assert_that(assertthat::has_name(ts, "date"))
   assertthat::assert_that(assertthat::is.time(ts$date))
@@ -16,9 +23,19 @@ ts2mat <- function(ts, twl_offset = 0, value = "value") {
   res_vec <- as.numeric(diff(ts$date), units = "secs")
   res <- stats::median(res_vec)
   if (length(unique(res_vec)) != 1) {
+    res_counts <- table(res_vec)
+    res_summary <- paste(
+      names(res_counts),
+      "s (",
+      res_counts,
+      "x)",
+      sep = "",
+      collapse = ", "
+    )
     cli::cli_warn(c(
-      x = "Temporal resolution of the ts data is not constant. We will use a regular \\
-      resolution of {.val {res}} seconds."
+      x = "Temporal resolution of the time series data is not constant.",
+      i = "Found resolutions: {res_summary}",
+      i = "Will use a regular resolution of {format_minutes(res / 60)}."
     ))
   }
 
@@ -63,12 +80,12 @@ ts2mat <- function(ts, twl_offset = 0, value = "value") {
   delta1 <- abs(ts_date_num[idx] - date_num)
   delta2 <- abs(ts_date_num[idx + 1] - date_num)
 
-  # Pick the closest one, but only if within 30s
+  # Pick the closest one
   use_next <- delta2 < delta1
   closest_idx <- ifelse(use_next, idx + 1, idx)
 
-  # Mask values beyond 30s
-  closest_idx[(pmin(delta1, delta2) > 30)] <- NA
+  # Mask values beyond twl_time_tolerance
+  closest_idx[(pmin(delta1, delta2) > twl_time_tolerance)] <- NA
 
   # Final values
   value <- rep(NA, length(date_num))

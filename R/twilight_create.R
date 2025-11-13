@@ -11,6 +11,8 @@
 #' @param twl_offset Shift of the middle of the night compared to 00:00 UTC (in hours). If not
 #' provided, it uses the middle of all nights.
 #' @param transform_light logical to use a log transformation of light
+#' @param twl_time_tolerance Maximum allowed time difference in seconds between observations
+#'   and the regular grid. Observations beyond this threshold will be set to NA. Default is 30.
 #'
 #' @return a `tag` list containing a new data.frame `twilight` with columns:
 #' - `twilight` (date-time of twilight)
@@ -38,7 +40,8 @@ twilight_create <- function(
   tag,
   twl_thr = NULL,
   twl_offset = NULL,
-  transform_light = TRUE
+  transform_light = TRUE,
+  twl_time_tolerance = 30
 ) {
   tag_assert(tag)
 
@@ -63,11 +66,19 @@ twilight_create <- function(
 
   # add padding of time to center if night are not at 00:00 UTC
   if (is.null(twl_offset)) {
-    twl_offset <- twilight_create_guess_offset(light, twl_thr = twl_thr)
+    twl_offset <- twilight_create_guess_offset(
+      light,
+      twl_thr = twl_thr,
+      twl_time_tolerance = twl_time_tolerance
+    )
   }
 
   # Use ts2mat() to reshape light into a matrix
-  mat <- ts2mat(light, twl_offset = twl_offset)
+  mat <- ts2mat(
+    light,
+    twl_offset = twl_offset,
+    max_time_diff = twl_time_tolerance
+  )
   # image(mat$value)
 
   # Compute exceed of light
@@ -136,12 +147,16 @@ twilight_create_transform <- function(value) {
 }
 
 #' @noRd
-twilight_create_guess_offset <- function(light, twl_thr = NULL) {
+twilight_create_guess_offset <- function(
+  light,
+  twl_thr = NULL,
+  twl_time_tolerance = 30
+) {
   if (is.null(twl_thr)) {
     twl_thr <- min(light$value[light$value > 0], na.rm = TRUE)
   }
 
-  mat <- ts2mat(light, twl_offset = 0)
+  mat <- ts2mat(light, twl_offset = 0, max_time_diff = twl_time_tolerance)
   l <- mat$value >= twl_thr
   tmp <- rowMeans(l, na.rm = TRUE)
   offset_id <- round(
