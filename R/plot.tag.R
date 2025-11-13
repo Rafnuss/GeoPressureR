@@ -313,7 +313,7 @@ plot_tag_acceleration <- function(
   variable = "activity",
   plot_plotly = TRUE,
   label_auto = TRUE,
-  min_duration = 30
+  min_duration = formals(tag_label_auto)$min_duration
 ) {
   tag_assert(tag)
   assertthat::assert_that(assertthat::has_name(tag, "acceleration"))
@@ -449,7 +449,7 @@ plot_tag_temperature <- function(
   variable = "external",
   plot_plotly = TRUE,
   label_auto = TRUE,
-  min_duration = 30
+  min_duration = formals(tag_label_auto)$min_duration
 ) {
   tag_assert(tag)
   if (variable == "external" || variable == "temperature_external") {
@@ -533,7 +533,7 @@ plot_tag_twilight <- function(
   if ("twl_time_tolerance" %in% names(tag$param$twilight_create)) {
     twl_time_tolerance <- tag$param$twilight_create$twl_time_tolerance
   } else {
-    twl_time_tolerance <- 30
+    twl_time_tolerance <- formals(twilight_create)$twl_time_tolerance
   }
 
   # Compute the matrix representation of light

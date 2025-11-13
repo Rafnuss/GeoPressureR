@@ -236,7 +236,7 @@ geolight_map <- function(
 #' @return A kernel calibration object
 #' @seealso [`geolight_map()`]
 #' @noRd
-geolight_calibration <- function(twl, stap_known, twl_calib_adjust = 1.4) {
+geolight_calibration <- function(twl, stap_known, twl_calib_adjust = formals(geolight_map)$twl_calib_adjust) {
   assertthat::assert_that(is.numeric(twl_calib_adjust))
   assertthat::assert_that(all(
     c("known_lat", "known_lon", "start", "end") %in% names(stap_known)

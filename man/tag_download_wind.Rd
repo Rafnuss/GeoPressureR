@@ -9,8 +9,10 @@ tag_download_wind(
   extent = tag$param$tag_set_map$extent,
   include_stap_id = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
-  file = function(stap_id, tag_id)
-    glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"),
+  file = function(stap_id, tag_id) {
+    
+    glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc")
+ },
   overwrite = FALSE,
   workers = 19,
   cds_token = lifecycle::deprecated(),

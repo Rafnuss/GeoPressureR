@@ -3,8 +3,8 @@
 #' @export
 geopressure_map_mismatch <- function(
   tag,
-  max_sample = 250,
-  margin = 30,
+  max_sample = formals(geopressure_map)$max_sample,
+  margin = formals(geopressure_map)$margin,
   keep_mask = TRUE,
   thr_mask = 0.9,
   timeout = 60 * 5,

@@ -3,7 +3,7 @@
 #' @export
 geopressure_map_likelihood <- function(
   tag,
-  sd = 1,
+  sd = formals(geopressure_map)$sd,
   log_linear_pooling_weight = \(n) log(n) / n,
   keep_mse = TRUE
 ) {

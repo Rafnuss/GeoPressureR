@@ -93,6 +93,7 @@ param_create <- function(id, default = FALSE, ...) {
         zero_speed_ratio = formals(graph_set_movement)$zero_speed_ratio
       ),
       bird_create = list(
+        scientific_name = formals(bird_create)$scientific_name,
         mass = formals(bird_create)$mass,
         wing_span = formals(bird_create)$wing_span,
         wing_aspect = formals(bird_create)$wing_aspect,
@@ -102,6 +103,7 @@ param_create <- function(id, default = FALSE, ...) {
       graph_add_wind = list(
         thr_as = formals(graph_add_wind)$thr_as,
         file = formals(edge_add_wind)$file,
+        variable = formals(edge_add_wind)$variable,
         rounding_interval = formals(edge_add_wind)$rounding_interval,
         interp_spatial_linear = formals(edge_add_wind)$interp_spatial_linear
       ),
