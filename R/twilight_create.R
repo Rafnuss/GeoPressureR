@@ -77,7 +77,7 @@ twilight_create <- function(
   mat <- ts2mat(
     light,
     twl_offset = twl_offset,
-    max_time_diff = twl_time_tolerance
+    twl_time_tolerance = twl_time_tolerance
   )
   # image(mat$value)
 
@@ -156,7 +156,7 @@ twilight_create_guess_offset <- function(
     twl_thr <- min(light$value[light$value > 0], na.rm = TRUE)
   }
 
-  mat <- ts2mat(light, twl_offset = 0, max_time_diff = twl_time_tolerance)
+  mat <- ts2mat(light, twl_offset = 0, twl_time_tolerance = twl_time_tolerance)
   l <- mat$value >= twl_thr
   tmp <- rowMeans(l, na.rm = TRUE)
   offset_id <- round(
