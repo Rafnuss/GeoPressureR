@@ -21,7 +21,6 @@
 #' estimated. Same unit as `scale`.
 #' @param percentile percentile of the ground elevation distribution found within each grid cell
 #' of the SRTM at the resolution defined by `scale`. `50` corresponds to the median.
-#' @param timeout maximum duration to make the httr request (see `httr2::req_timeout()`)
 #' @param debug logical to display additional information to debug a request
 #'
 #' @return A data.frame containing
@@ -73,7 +72,6 @@ path2elevation <- function(
   scale = 4,
   sampling_scale = scale,
   percentile = c(10, 50, 90),
-  timeout = 60 * 5,
   debug = FALSE
 ) {
   # Check input
@@ -89,8 +87,6 @@ path2elevation <- function(
   assertthat::assert_that(all(is.numeric(percentile)))
   assertthat::assert_that(all(percentile > 0))
   assertthat::assert_that(all(percentile < 100))
-  assertthat::assert_that(is.numeric(timeout))
-  assertthat::assert_that(timeout > 0)
   assertthat::assert_that(is.logical(debug))
 
   # 1. Interpolation of !include
@@ -155,8 +151,7 @@ path2elevation <- function(
   req <- httr2::request(
     "https://glp.mgravey.com/GeoPressure/v2/elevationPath/"
   ) |>
-    httr2::req_body_json(body, digit = 5) |>
-    httr2::req_timeout(timeout)
+    httr2::req_body_json(body, digit = 5)
 
   if (debug) {
     req <- httr2::req_verbose(
