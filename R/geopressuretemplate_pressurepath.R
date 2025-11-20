@@ -33,14 +33,15 @@ geopressuretemplate_pressurepath <- function(
         "path_most_likely" %in% save_list
     ) {
       path_most_likely <- get("path_most_likely")
+      # nolint start
       pressurepath_most_likely <- do.call(
         pressurepath_create,
         c(
-          # nolint
           list(tag = tag, path = path_most_likely, quiet = quiet),
           config$pressurepath_create
         )
       )
+      # nolint end
       save_list <- c(save_list, "pressurepath_most_likely")
     }
 
@@ -50,14 +51,15 @@ geopressuretemplate_pressurepath <- function(
         "path_geopressureviz" %in% save_list
     ) {
       path_geopressureviz <- get("path_geopressureviz")
+      # nolint start
       pressurepath_geopressureviz <- do.call(
         pressurepath_create,
         c(
-          # nolint
           list(tag = tag, path = path_geopressureviz, quiet = quiet),
           config$pressurepath_create
         )
       )
+      # nolint end
       save_list <- c(save_list, "pressurepath_geopressureviz")
     }
 
@@ -67,14 +69,15 @@ geopressuretemplate_pressurepath <- function(
         "path_tag" %in% save_list
     ) {
       path_tag <- get("path_tag")
+      # nolint start
       pressurepath_tag <- do.call(
         pressurepath_create,
         c(
-          # nolint
           list(tag = tag, path = path_tag, quiet = quiet),
           config$pressurepath_create
         )
       )
+      # nolint end
       save_list <- c(save_list, "pressurepath_tag")
     }
 
@@ -84,14 +87,15 @@ geopressuretemplate_pressurepath <- function(
         "path_simulation" %in% save_list
     ) {
       path_simulation <- get("path_tag")
+      # nolint start
       pressurepath_simulation <- do.call(
         pressurepath_create,
         c(
-          # nolint
           list(tag = tag, path = path_simulation, quiet = quiet),
           config$pressurepath_create
         )
       )
+      # nolint end
       save_list <- c(save_list, "pressurepath_simulation")
     }
 

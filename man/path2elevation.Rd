@@ -9,7 +9,6 @@ path2elevation(
   scale = 4,
   sampling_scale = scale,
   percentile = c(10, 50, 90),
-  timeout = 60 * 5,
   debug = FALSE
 )
 }
@@ -25,8 +24,6 @@ estimated. Same unit as \code{scale}.}
 
 \item{percentile}{percentile of the ground elevation distribution found within each grid cell
 of the SRTM at the resolution defined by \code{scale}. \code{50} corresponds to the median.}
-
-\item{timeout}{maximum duration to make the httr request (see \code{httr2::req_timeout()})}
 
 \item{debug}{logical to display additional information to debug a request}
 }

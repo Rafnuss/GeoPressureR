@@ -21,6 +21,7 @@ ts2mat <- function(
   res_vec <- as.numeric(diff(ts$date), units = "secs")
   res <- stats::median(res_vec)
   if (length(unique(res_vec)) != 1) {
+    # nolint start
     res_counts <- table(res_vec)
     res_summary <- paste(
       names(res_counts),
@@ -30,6 +31,7 @@ ts2mat <- function(
       sep = "",
       collapse = ", "
     )
+    # nolint end
     cli::cli_warn(c(
       x = "Temporal resolution of the time series data is not constant.",
       i = "Found resolutions: {res_summary}",

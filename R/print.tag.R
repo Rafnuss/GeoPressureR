@@ -56,7 +56,7 @@ print.tag <- function(x, ...) {
       }
     }
     if (length(all_dates) > 0) {
-      all_dates_vec <- do.call(c, all_dates)
+      all_dates_vec <- do.call(c, all_dates) # nolint
       cli::cli_text(
         "Date range: {min(all_dates_vec)} to {max(all_dates_vec)}"
       )
@@ -65,15 +65,14 @@ print.tag <- function(x, ...) {
     # Display each sensor with datapoint count and resolution
     for (sensor in sensor_names) {
       if (sensor %in% names(tag)) {
-        n_points <- format(nrow(tag[[sensor]]), big.mark = ",")
+        n_points <- format(nrow(tag[[sensor]]), big.mark = ",") # nolint
 
         # Calculate resolution
         if ("date" %in% names(tag[[sensor]]) && nrow(tag[[sensor]]) > 1) {
-          res_vec <- as.numeric(diff(tag[[sensor]]$date), units = "secs")
-          res <- stats::median(res_vec)
-          res_text <- format_minutes(res / 60)
+          res_vec <- as.numeric(diff(tag[[sensor]]$date), units = "secs") # nolint
+          res <- stats::median(res_vec) # nolint
           cli::cli_bullets(c(
-            "*" = "{.field {sensor}}: {n_points} datapoints ({res_text})"
+            "*" = "{.field {sensor}}: {n_points} datapoints ({format_minutes(res / 60)})"
           ))
         } else {
           cli::cli_bullets(c(

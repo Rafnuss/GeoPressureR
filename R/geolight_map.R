@@ -236,7 +236,11 @@ geolight_map <- function(
 #' @return A kernel calibration object
 #' @seealso [`geolight_map()`]
 #' @noRd
-geolight_calibration <- function(twl, stap_known, twl_calib_adjust = formals(geolight_map)$twl_calib_adjust) {
+geolight_calibration <- function(
+  twl,
+  stap_known,
+  twl_calib_adjust = formals(geolight_map)$twl_calib_adjust
+) {
   assertthat::assert_that(is.numeric(twl_calib_adjust))
   assertthat::assert_that(all(
     c("known_lat", "known_lon", "start", "end") %in% names(stap_known)
@@ -480,8 +484,8 @@ geolight_zenith <- function(sun, lon, lat) {
 
 #' Atmospheric refraction
 #'
-#' Adjust the solar zenith angle computed by `GeoPressureR:::geolight_zenith()` for the effect of atmospheric
-#' refraction.
+#' Adjust the solar zenith angle computed by `GeoPressureR:::geolight_zenith()` for the effect of
+#' atmospheric refraction.
 #'
 #' @param zenith Zenith angle (degrees) to adjust.
 #' @return Vector of zenith angles (degrees) adjusted for atmospheric refraction.

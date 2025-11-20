@@ -57,7 +57,9 @@ twilight_create <- function(
   }
 
   if (is.null(twl_thr)) {
-    # Convoluted way to define the twl_thr. I would have been much easier to use the min value and than a strictly greater than (rather than greater or equal to). But to keep consistency with previous versions...
+    # Convoluted way to define the twl_thr. I would have been much easier to use the min value and
+    # than a strictly greater than (rather than greater or equal to). But to keep consistency with
+    # previous versions...
     twl_thr <- min(
       light$value[light$value > min(light$value, na.rm = TRUE)],
       na.rm = TRUE
