@@ -24,7 +24,7 @@
 #' to assume a broader/smoother distribution.
 #'
 #' @param tag a GeoPressureR `tag` object.
-#' @param twl_calib_adjust smoothing parameter for the kernel density (see [`stats::kernel()`]).
+#' @param twl_calib_adjust smoothing parameter for the kernel density (see [`stats::density()`]).
 #' @param twl_llp log-linear pooling aggregation weight.
 #' @param compute_known logical defining if the map(s) for known stationary period should be
 #' estimated based on twilight or hard defined by the known location `stap$known_l**`
@@ -301,6 +301,9 @@ geolight_calibration <- function(
   hist_vals <- graphics::hist(z_calib, plot = FALSE)
   twl_calib$hist_count <- hist_vals$density * length(z_calib)
   twl_calib$hist_mids <- hist_vals$mids
+
+  # Add the adjust parameter
+  twl_calib$adjust <- twl_calib_adjust
 
   # return the twlight calibration object
   twl_calib

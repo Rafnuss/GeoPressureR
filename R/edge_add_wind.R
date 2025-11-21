@@ -6,7 +6,8 @@
 #'
 #' - Time: linear interpolation using the resolution requested with `rounding_interval`
 #' - Space: nearest neighbour interpolation by default, or bi-linear with `pracma::interp2` if
-#'   `interp_spatial_linear=TRUE`. Note: spatial interpolation is limited to 0.1° for computational reasons.
+#'   `interp_spatial_linear=TRUE`. Note: spatial interpolation is limited to 0.1° for computational
+#'   reasons.
 #' - Pressure/altitude: linear interpolation using the exact `pressure` values
 #'
 #' @param graph either a `tag` or a `graph` GeoPressureR object.
@@ -49,7 +50,8 @@
 #' - `gs` groundspeed
 #' - `ws` windspeed (if `graph` provided)
 #'
-#' If `return_averaged_variable = FALSE`, returns a data.frame with one row per time step and edge, and columns:
+#' If `return_averaged_variable = FALSE`, returns a data.frame with one row per time step and edge,
+#' and columns:
 #' - `edge_id` edge index
 #' - `val` value of the variable at each time step
 #' - `pressure` pressure at each time step
@@ -697,8 +699,10 @@ edge_add_wind_check <- function(
         ) {
           cli::cli_abort(c(
             x = "Wind file ({.file {file(i_s, tag_id)}}) does not cover the flight pressure range.",
-            "i" = "Wind file: {min(pres)} to {max(pres)} hPa. Flight: {min(pres_value)} to {max(pres_value)} hPa.",
-            "!" = "You might have modified your stationary periods without updating your wind file? ",
+            "i" = "Wind file: {min(pres)} to {max(pres)} hPa. Flight: {min(pres_value)} to
+            {max(pres_value)} hPa.",
+            "!" = "You might have modified your stationary periods without updating your wind
+            file?",
             ">" = "If so, run {.run tag_download_wind(tag)}"
           ))
         }
