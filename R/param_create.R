@@ -93,7 +93,7 @@ param_create <- function(id, default = FALSE, ...) {
         zero_speed_ratio = formals(graph_set_movement)$zero_speed_ratio
       ),
       bird_create = list(
-        scientific_name = formals(bird_create)$scientific_name,
+        scientific_name = NULL, # required in bird_create
         mass = formals(bird_create)$mass,
         wing_span = formals(bird_create)$wing_span,
         wing_aspect = formals(bird_create)$wing_aspect,
