@@ -16,11 +16,11 @@ stap <- data.frame(
     by = "day"
   )
 )
-stap$end <- stap$start + sample(1:10) * 10000
+stap$end <- stap$start + sample.int(10, ) * 10000
 
 test_that("map_create() | basic", {
   expect_error(map_create())
-  expect_no_error(
+  expect_no_error({
     map <- map_create(
       data = data,
       extent = extent,
@@ -29,14 +29,16 @@ test_that("map_create() | basic", {
       id = "18LX",
       type = "pressure"
     )
-  )
+  })
 
-  expect_no_error(map_create(
-    data = data,
-    extent = extent,
-    scale = scale,
-    stap = stap
-  ))
+  expect_no_error({
+    map2 <- map_create(
+      data = data,
+      extent = extent,
+      scale = scale,
+      stap = stap
+    )
+  })
 
   expect_type(map[1], "list")
   expect_true(inherits(map[[1]], "matrix"))
@@ -55,14 +57,14 @@ test_that("map_create() | basic", {
 test_that("map_create() | missing stap", {
   data_tmp <- data
   data_tmp[1] <- vector("list", 1)
-  expect_no_error(
+  expect_no_error({
     map <- map_create(
       data = data_tmp,
       extent = extent,
       scale = scale,
       stap = stap
     )
-  )
+  })
 })
 
 
@@ -76,7 +78,9 @@ test_that("rast.map() | ", {
     type = "pressure"
   )
 
-  expect_no_error(r <- rast.map(map))
+  expect_no_error({
+    r <- rast.map(map)
+  })
   expect_s4_class(r, "SpatRaster")
   expect_equal(terra::time(r), stap$start)
 })

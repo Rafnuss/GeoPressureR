@@ -338,7 +338,7 @@ edge_add_wind <- function(
         # normalize the weight
         w <- w / sum(w)
 
-        assertthat::assert_that(all(!is.na(w)))
+        assertthat::assert_that(!anyNA(w))
 
         # step integration
         # w <- difftime(pmin(pmax(t_q+60*60/2,fl_s$start[i_fl]),fl_s$end[i_fl]),
@@ -495,7 +495,7 @@ edge_add_wind <- function(
               lon_int_uniq,
               method = "linear"
             )
-            assertthat::assert_that(all(!is.na(tmp)))
+            assertthat::assert_that(!anyNA(tmp))
             var_fl[[var_i]][i_time, ] <- tmp[id_uniq]
           }
         } else {

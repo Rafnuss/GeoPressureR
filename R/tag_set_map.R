@@ -226,7 +226,7 @@ tag_set_map <- function(
   # Add the vector of stap to include
   stap$include <- stap_include
 
-  if (all(!stap$include)) {
+  if (!any(stap$include)) {
     cli::cli_warn(c(
       "x" = "All stationary periods have been excluded from the computation",
       ">" = "Check {.var include_stap_id} {.var include_min_duration}."

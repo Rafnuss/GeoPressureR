@@ -72,7 +72,8 @@ If \code{return_averaged_variable = TRUE}, returns a data.frame with one row per
 \item \code{ws} windspeed (if \code{graph} provided)
 }
 
-If \code{return_averaged_variable = FALSE}, returns a data.frame with one row per time step and edge, and columns:
+If \code{return_averaged_variable = FALSE}, returns a data.frame with one row per time step and edge,
+and columns:
 \itemize{
 \item \code{edge_id} edge index
 \item \code{val} value of the variable at each time step
@@ -90,7 +91,8 @@ edges.
 \itemize{
 \item Time: linear interpolation using the resolution requested with \code{rounding_interval}
 \item Space: nearest neighbour interpolation by default, or bi-linear with \code{pracma::interp2} if
-\code{interp_spatial_linear=TRUE}. Note: spatial interpolation is limited to 0.1° for computational reasons.
+\code{interp_spatial_linear=TRUE}. Note: spatial interpolation is limited to 0.1° for computational
+reasons.
 \item Pressure/altitude: linear interpolation using the exact \code{pressure} values
 }
 }

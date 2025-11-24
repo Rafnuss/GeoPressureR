@@ -31,8 +31,8 @@ extent <- c(0, 1, 0, 1)
 scale <- 1
 known <- data.frame(
   stap_id = 1,
-  known_lon = .5,
-  known_lat = .9
+  known_lon = 0.5,
+  known_lat = 0.9
 )
 
 tag <- structure(
@@ -60,8 +60,8 @@ test_that("tag_set_map() | with known", {
   expect_equal(tag_with_known$stap$known_lon[1], known$known_lon)
   known_overwrite <- data.frame(
     stap_id = 1,
-    known_lon = .8,
-    known_lat = .9
+    known_lon = 0.8,
+    known_lat = 0.9
   )
   expect_warning(
     tag_overwrite <- tag_set_map(

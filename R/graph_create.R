@@ -185,7 +185,7 @@ graph_create <- function(
 
   # Check for invalid map
   stap_id_0 <- sapply(lk_norm, sum) == 0
-  if (any(is.na(stap_id_0))) {
+  if (anyNA(stap_id_0)) {
     cli::cli_abort(c(
       x = "{.var likelihood} is invalid for the stationary period: \\
       {stap_include[which(is.na(stap_id_0))]}"
@@ -486,8 +486,8 @@ graph_create <- function(
   # Add metadata information
   graph$sz <- sz
   graph$stap <- tag$stap
-  graph$equipment <- which(nds[[1]] == TRUE)
-  graph$retrieval <- as.integer(which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll)
+  graph$equipment <- which(nds[[1]])
+  graph$retrieval <- as.integer(which(nds[[sz[3]]]) + (sz[3] - 1) * nll)
   # After pruning some retrieval nodes might not be present anymore.
   graph$retrieval <- graph$retrieval[graph$retrieval %in% graph$t]
   graph$mask_water <- tag$map_pressure$mask_water

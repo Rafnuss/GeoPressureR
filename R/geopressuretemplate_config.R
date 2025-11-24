@@ -21,7 +21,7 @@ geopressuretemplate_config <- function(
 
   # Perform check
   if (assert_tag) {
-    if (!(length(c$geopressuretemplate$likelihood) > 0)) {
+    if (length(c$geopressuretemplate$likelihood) <= 0) {
       cli::cli_abort(c(
         x = "{.var geopressuretemplate$likelihood} needs to be provided.",
         ">" = "Make sure {.var geopressuretemplate$likelihood} is a list in {.file config.yml} (e.g.
@@ -61,7 +61,7 @@ geopressuretemplate_config <- function(
     if (
       "simulation" %in%
         config$geopressuretemplate$outputs &&
-        !(config$graph_simulation$nj > 0)
+        config$graph_simulation$nj <= 0
     ) {
       cli::cli_abort(c(
         x = "{.var nj} is required with {.val simulation} in {.var outputs}.",

@@ -83,20 +83,18 @@ test_that("tag_create() | Migrate Technology", {
 
 
 test_that("tag_create() | no acceleration", {
-  expect_no_error(
-    tag <- tag_create(
-      id = "18LX",
-      acceleration_file = NA,
-      light_file = NA,
-      quiet = TRUE
-    )
+  tag <- tag_create(
+    id = "18LX",
+    acceleration_file = NA,
+    light_file = NA,
+    quiet = TRUE
   )
-  expect_no_error(
-    tag <- tag_label_read(
-      tag,
-      file = "./data/tag-label/18LX-labeled-no_acc.csv"
-    )
+  expect_no_error(tag)
+  tag <- tag_label_read(
+    tag,
+    file = "./data/tag-label/18LX-labeled-no_acc.csv"
   )
+  expect_no_error(tag)
   expect_no_error(tag_label_stap(tag, quiet = TRUE))
 })
 

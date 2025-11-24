@@ -214,7 +214,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     # Remove time without measure
     pgi_reg <- pgi_reg[!is.na(pgi_reg$stap_id), ]
 
-    assertthat::assert_that(all(!is.na(pgi_reg$value)))
+    assertthat::assert_that(!anyNA(pgi_reg$value))
 
     pgi_reg
   })
@@ -232,8 +232,8 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
       i = "Check the input pressure label and stap."
     ))
   }
-  assertthat::assert_that(all(!is.na(pressure_clean$date)))
-  assertthat::assert_that(all(!is.na(pressure_clean$value)))
+  assertthat::assert_that(!anyNA(pressure_clean$date))
+  assertthat::assert_that(!anyNA(pressure_clean$value))
   assertthat::assert_that(all(pressure_clean$stapelev != ""))
 
   # Check number of datapoint per stationary period

@@ -109,7 +109,7 @@ tag_create_migratetech <- function(
     first_lines <- readLines(light_path, n = 30)
 
     # Find the line containing "light(lux)"
-    header_line <- which(grepl("light\\(lux\\)", first_lines))
+    header_line <- grep("light\\(lux\\)", first_lines)
 
     if (length(header_line) == 0) {
       cli::cli_abort(

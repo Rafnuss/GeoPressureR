@@ -210,8 +210,7 @@ plot_tag_pressure <- function(
       value_avg = utils::head(pres$value, -1) + diff(pres$value) / 2,
       date = utils::head(pres$date, -1) + diff(pres$date) / 2,
       date_diff = as.numeric(diff(pres$date), units = "hours"),
-      same_stapelev = utils::head(pres$stapelev, -1) ==
-        utils::tail(pres$stapelev, -1),
+      same_stapelev = utils::head(pres$stapelev, -1) == utils::tail(pres$stapelev, -1),
       stap_id = (utils::tail(pres$stap_id, -1) +
         utils::head(pres$stap_id, -1)) /
         2

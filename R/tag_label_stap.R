@@ -249,7 +249,7 @@ find_stap <- function(stap, date) {
   )$y
 
   # Check that all date have a stap_id
-  assertthat::assert_that(all(!is.na(stap_id)))
+  assertthat::assert_that(!anyNA(stap_id))
 
   stap_id
 }

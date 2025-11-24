@@ -15,7 +15,7 @@ geolight_map(
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object.}
 
-\item{twl_calib_adjust}{smoothing parameter for the kernel density (see \code{\link[stats:kernel]{stats::kernel()}}).}
+\item{twl_calib_adjust}{smoothing parameter for the kernel density (see \code{\link[stats:density]{stats::density()}}).}
 
 \item{twl_llp}{log-linear pooling aggregation weight.}
 

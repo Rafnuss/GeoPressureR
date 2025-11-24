@@ -176,7 +176,7 @@ plot_pressurepath <- function(
     ) +
       ggplot2::geom_histogram(
         ggplot2::aes(fill = .data$sd_ok),
-        binwidth = .4
+        binwidth = 0.4
       ) +
       ggplot2::geom_vline(
         ggplot2::aes(xintercept = .data$warning_m),

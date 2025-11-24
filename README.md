@@ -1,5 +1,5 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- README.md is generated from README.Rmd. Please edit that file and use devtools::build_readme() -->
 
 # GeoPressureR <img src="man/figures/logo.png" align="right" height="139"/>
 
@@ -10,7 +10,8 @@
 [![pkgdown](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master)
-[![lint](https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml)
+[![lint](https://github.com/Rafnuss/GeoPressureR/actions/workflows/jarl-check.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/jarl-check.yaml)
+[![format](https://github.com/Rafnuss/GeoPressureR/actions/workflows/format-check.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/format-check.yaml)
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->

@@ -110,7 +110,7 @@ geopressure_map_mismatch <- function(
       i = "It is probably due to request(s)  made for periods where no data are available. \\
             Note that ERA5 data is usually only available on GEE ~3-5 months after."
     ))
-  } else if (any(is.na(urls))) {
+  } else if (anyNA(urls)) {
     cli::cli_warn(c(
       "!" = "There was no urls returned for stationary periods {.val {labels[is.na(urls)]}}.",
       i = "It is probably due to request(s) made for periods where no data are available. Note \\

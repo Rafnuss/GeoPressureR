@@ -185,7 +185,7 @@ plot.map <- function(
 
       for (i in seq_len(max(path$stap_id))) {
         path_stap_id <- path[path$stap_id == i, ]
-        if (any(!is.na(path_stap_id$lon))) {
+        if (!all(is.na(path_stap_id$lon))) {
           lmap <- leaflet::addCircleMarkers(
             lmap,
             lng = path_stap_id$lon,

@@ -98,9 +98,7 @@ bird_create <- function(
   # Combination of wing area, span and aspect ratio
   if (!is.null(wing_area) && is.null(wing_span) && !is.null(wing_aspect)) {
     wing_span <- sqrt(wing_aspect * wing_area)
-  } else if (
-    !is.null(wing_area) && !is.null(wing_span) && is.null(wing_aspect)
-  ) {
+  } else if (!is.null(wing_area) && !is.null(wing_span) && is.null(wing_aspect)) {
     wing_aspect <- wing_span^2 / wing_area
   }
 

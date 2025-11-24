@@ -163,7 +163,7 @@ tag_download_wind <- function(
     flight_id <- flight_time[1] <= tag$pressure$date &
       tag$pressure$date <= utils::tail(flight_time, 1)
     pres_id_min <- min(
-      sum(!(min(tag$pressure$value[flight_id]) < possible_pressure)),
+      sum(min(tag$pressure$value[flight_id]) >= possible_pressure),
       length(possible_pressure) - 1
     )
     pres_id_max <- min(

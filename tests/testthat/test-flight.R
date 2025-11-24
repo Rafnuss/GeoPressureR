@@ -22,32 +22,32 @@ test_that("check for full custum bird", {
     "custum_bird",
     mass = 1,
     wing_span = 1,
-    wing_area = .1
+    wing_area = 0.1
   ))
   expect_no_error(bird_create(
     "custum_bird",
     mass = 1,
     wing_aspect = 4,
-    wing_area = .1
+    wing_area = 0.1
   ))
   expect_no_error(bird_create(
     "custum_bird",
     mass = 1,
     wing_span = 1,
     wing_aspect = 4,
-    wing_area = .1
+    wing_area = 0.1
   )) # Note that this example is not consistent
   expect_error(bird_create("custum_bird", mass = 1, wing_aspect = 4))
 })
 
 test_that("check hybrid call", {
-  expect_no_error(bird_create("Acrocephalus arundinaceus", mass = .05))
+  expect_no_error(bird_create("Acrocephalus arundinaceus", mass = 0.05))
   expect_no_error(bird_create("Acrocephalus arundinaceus", wing_aspect = 8))
-  expect_no_error(bird_create("Acrocephalus arundinaceus", wing_area = .01))
-  expect_no_error(bird_create("Acrocephalus arundinaceus", wing_span = .25))
+  expect_no_error(bird_create("Acrocephalus arundinaceus", wing_area = 0.01))
+  expect_no_error(bird_create("Acrocephalus arundinaceus", wing_span = 0.25))
   expect_no_error(bird_create(
     "Acrocephalus arundinaceus",
-    body_frontal_area = .003
+    body_frontal_area = 0.003
   ))
 })
 

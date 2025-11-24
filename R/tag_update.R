@@ -111,7 +111,7 @@ tag_update <- function(
 
   # Check that include_stap_id exists
   tmp <- include_stap_id %in% tag_new$stap$stap_id
-  if (any(!tmp)) {
+  if (!all(tmp)) {
     cli::cli_abort(c(
       "x" = "{.field include_stap_id} was specified for {.val {include_stap_id}}, but \\
         {.val {include_stap_id[!tmp]}} is not available with the new label data.",
@@ -150,7 +150,7 @@ tag_update <- function(
   ] <- FALSE
 
   # Check if nothing had changed
-  if (all(!tag_new_include$stap$include)) {
+  if (!any(tag_new_include$stap$include)) {
     cli::cli_warn(c(
       "!" = "There are no changes with the new label file",
       ">" = "the original {.var tag} will be returned."
@@ -215,7 +215,7 @@ tag_update <- function(
 
   if ("map_light" %in% names(tag)) {
     if (
-      any(is.na(stap_new$old_stap_id)) ||
+      anyNA(stap_new$old_stap_id) ||
         any(stap_new$stap_id != stap_new$old_stap_id)
     ) {
       cli::cli_warn(

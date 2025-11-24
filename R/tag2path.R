@@ -83,7 +83,7 @@ tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
     fal <- c(1, length(path_interp))
     if (any(path_interp[fal])) {
       path_interp[fal] <- FALSE
-      if (any(is.na(lat_ind[fal]))) {
+      if (anyNA(lat_ind[fal])) {
         cli::cli_abort(c(
           x = "First and/or last modelled stationary periods ({.val
           {tag$stap$stap_id[fal[is.na(lat_ind[fal])]]}}) don't have a likelihood map."

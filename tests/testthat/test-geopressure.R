@@ -28,8 +28,8 @@ extent <- c(0, 1, 0, 1)
 scale <- 1
 known <- data.frame(
   stap_id = 1,
-  known_lon = .5,
-  known_lat = .9
+  known_lon = 0.5,
+  known_lat = 0.9
 )
 
 tag <- structure(
@@ -102,16 +102,16 @@ test_that("geopressure_map_mismatch() | date too early", {
 
   tag <- tag_set_map(tag, extent, scale = scale)
 
-  expect_error(
+  expect_error({
     # fail for after date
-    expect_warning(
+    expect_warning({
       # warning after date
-      expect_warning(
+      expect_warning({
         # irregular
         tag <- geopressure_map_mismatch(tag, quiet = TRUE)
-      )
-    )
-  )
+      })
+    })
+  })
 })
 
 tag <- geopressure_map_likelihood(tag)
@@ -134,7 +134,9 @@ test_that("geopressure_map_likelihood() | default output", {
 
 test_that("geopressure_map() | default output", {
   tag <- tag_set_map(tag, extent, scale)
-  expect_no_error(tag <- geopressure_map(tag, quiet = TRUE))
+  expect_no_error({
+    tag <- geopressure_map(tag, quiet = TRUE)
+  })
   expect_true(assertthat::has_name(tag, c("stap", "map_pressure", "param")))
   expect_true(assertthat::has_name(
     tag$map_pressure,

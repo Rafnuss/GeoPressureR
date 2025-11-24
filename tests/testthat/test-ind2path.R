@@ -66,13 +66,19 @@ test_that("Check ind2path() output", {
   )
   ind_c <- c(1652, 1603, 1755, 1708, 1607)
 
-  expect_no_error(path_m <- ind2path(ind_m, tag))
+  expect_no_error({
+    path_m <- ind2path(ind_m, tag)
+  })
   expect_true(nrow(path_m) == 50)
 
-  expect_no_error(path_c <- ind2path(ind_c, tag))
+  expect_no_error({
+    path_c <- ind2path(ind_c, tag)
+  })
 
   ind_c_na <- ind_c
   ind_c_na[3] <- NA
-  expect_no_error(path_c_na <- ind2path(ind_c_na, tag))
+  expect_no_error({
+    path_c_na <- ind2path(ind_c_na, tag)
+  })
   expect_true(is.na(path_c_na$ind[3]))
 })

@@ -262,7 +262,7 @@ pressurepath_create <- function(
   out <- as.data.frame(lapply(resp_data, \(x) if (length(x) > 0) x else NA))
 
   # Check if the response is empty
-  cols_with_na <- names(out)[vapply(out, function(x) any(is.na(x)), logical(1))]
+  cols_with_na <- names(out)[vapply(out, function(x) anyNA(x), logical(1))]
   if (length(cols_with_na) > 0) {
     cli::cli_warn(
       "The following columns contain `NA` values: {.val {cols_with_na}}"

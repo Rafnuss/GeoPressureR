@@ -34,7 +34,9 @@ test_that("tag_label_write() | default", {
   expect_true("flight" %in% csv$label)
 
   # Work even if not auto-classified
-  expect_no_error(tag_label_write(tag, tempfile(), quiet = TRUE))
+  expect_no_error({
+    tag_label_write(tag, tempfile(), quiet = TRUE)
+  })
 
   # create new folder
   # expect_no_error(tag_label_write(tag, file.path(tempdir(), "/test/test.csv")))
@@ -42,12 +44,16 @@ test_that("tag_label_write() | default", {
   # Test without pressure
   tag_tmp <- tag
   tag_tmp$acceleration <- NULL
-  expect_no_error(tag_label_write(tag_tmp, tempfile(), quiet = TRUE))
+  expect_no_error({
+    tag_label_write(tag_tmp, tempfile(), quiet = TRUE)
+  })
 
   # Test with ref
   tag_tmp <- tag
   tag_tmp$pressure$value_ref <- tag_tmp$pressure$value + 10
-  expect_no_error(tag_label_write(tag_tmp, tempfile(), quiet = TRUE))
+  expect_no_error({
+    tag_label_write(tag_tmp, tempfile(), quiet = TRUE)
+  })
 })
 
 
@@ -94,21 +100,23 @@ test_that("tag_label_stap() | for elev", {
 
 
 test_that("tag_label_read() | no acceleration", {
-  expect_no_error(
+  expect_no_error({
     tag <- tag_create(
       id = "18LX",
       acceleration_file = NA,
       light_file = NA,
       quiet = TRUE
     )
-  )
-  expect_no_error(
+  })
+  expect_no_error({
     tag <- tag_label_read(
       tag,
       file = "./data/tag-label/18LX-labeled-no_acc.csv"
     )
-  )
-  expect_no_error(tag_label_stap(tag, quiet = TRUE))
+  })
+  expect_no_error({
+    tag_label_stap(tag, quiet = TRUE)
+  })
 })
 
 
@@ -171,5 +179,7 @@ test_that("tag_label_stap() | pressure longer than acc", {
 
 
 test_that("tag_label() | default", {
-  expect_no_error(tag_labelled <- tag_label(tag, quiet = TRUE))
+  expect_no_error({
+    tag_labelled <- tag_label(tag, quiet = TRUE)
+  })
 })
