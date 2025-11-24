@@ -180,7 +180,7 @@ tag_download_wind <- function(
     request_list[[i_s]] <- list(
       dataset_short_name = "reanalysis-era5-pressure-levels",
       product_type = "reanalysis",
-      format = "netcdf",
+      data_format = "netcdf",
       variable = variable,
       pressure_level = possible_pressure[flight_pres_id],
       year = sort(unique(format(flight_time, "%Y"))),
