@@ -1,0 +1,67 @@
+/* Body and general layout */
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Remove default Bootstrap/fluidPage padding */
+.container-fluid {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Custom header styling */
+.custom-header {
+  background-color: #3c8dbc;
+  color: white;
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Control group styling */
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-group label {
+  color: white;
+  font-weight: 500;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.control-group .form-group {
+  margin: 0;
+}
+
+.control-group .selectize-control {
+  margin: 0;
+}
+
+/* Plot container */
+.plot-container {
+  height: calc(100vh - 50px);
+  padding: 0;
+  margin: 0;
+}
