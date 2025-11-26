@@ -60,6 +60,12 @@ tag_label_auto <- function(
     assertthat::assert_that(is.numeric(min_duration))
     assertthat::assert_that(min_duration > 0)
 
+    if (all(tag$acceleration$value == 0)) {
+      warning("All acceleration values are zero. No flight detected.")
+      tag$acceleration$label <- ""
+      return(tag)
+    }
+
     # Run a 2 class k mean clustering
     km <- stats::kmeans(
       tag$acceleration$value[tag$acceleration$value > 0],
