@@ -663,28 +663,45 @@ server <- function(input, output, session) {
     # Rename to the correct name
     path_geopressureviz <- reactVal$path
 
-    if (file.exists(file)) {
-      # Load existing file and add path_geopressureviz
-      save_list <- load(file)
-      save_list <- c(save_list, "path_geopressureviz")
-      save(
-        list = save_list,
-        file = file
-      )
-    } else {
-      # Create new file with just path_geopressureviz
-      save(
-        path_geopressureviz,
-        file = file
+    saved_ok <- tryCatch(
+      {
+        if (file.exists(file)) {
+          # Load existing file into a dedicated env and add path_geopressureviz
+          env <- new.env(parent = emptyenv())
+          save_list <- load(file, envir = env)
+          env$path_geopressureviz <- path_geopressureviz
+          save_list <- unique(c(save_list, "path_geopressureviz"))
+          save(
+            list = save_list,
+            envir = env,
+            file = file
+          )
+        } else {
+          # Create new file with just path_geopressureviz
+          save(
+            path_geopressureviz,
+            file = file
+          )
+        }
+        TRUE
+      },
+      error = function(e) {
+        showNotification(
+          paste("Failed to export path:", conditionMessage(e)),
+          type = "error",
+          duration = 5
+        )
+        FALSE
+      }
+    )
+
+    if (saved_ok) {
+      showNotification(
+        paste("Path exported to", normalizePath(file)),
+        type = "message",
+        duration = 3
       )
     }
-
-    # Show notification to user
-    showNotification(
-      paste("Path exported to", file),
-      type = "message",
-      duration = 3
-    )
   })
 
   # Pressure Graph
