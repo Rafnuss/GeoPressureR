@@ -51,7 +51,9 @@ A path data.frame
 ## See also
 
 Other path:
+[`path2edge()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2edge.md),
 [`path2elevation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2elevation.md),
+[`path2twilight()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2twilight.md),
 [`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md),
 [`tag2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2path.md)
 

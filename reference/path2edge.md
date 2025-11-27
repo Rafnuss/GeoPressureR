@@ -68,3 +68,10 @@ Data.frame of the edge containing:
 ## See also
 
 [GeoPressureManual](https://bit.ly/47MhQxN)
+
+Other path:
+[`ind2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ind2path.md),
+[`path2elevation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2elevation.md),
+[`path2twilight()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2twilight.md),
+[`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md),
+[`tag2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2path.md)

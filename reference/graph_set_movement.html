@@ -46,7 +46,7 @@ this approach in section 2.2.5. of Nussbaumer et al. (2023b)'><meta property="og
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Define the movement model of a <code>graph</code></h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.4.5/R/graph_set_movement.R" class="external-link"><code>R/graph_set_movement.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/graph_set_movement.R" class="external-link"><code>R/graph_set_movement.R</code></a></small>
       <div class="d-none name"><code>graph_set_movement.Rd</code></div>
     </div>
 
@@ -121,7 +121,7 @@ flights covering small distances. (unit of km/h)</p></dd>
 
 <dt id="arg-zero-speed-ratio">zero_speed_ratio<a class="anchor" aria-label="anchor" href="#arg-zero-speed-ratio"></a></dt>
 <dd><p>multiplicative ratio of the probability for speed zero. This ratio apply
-only when the bird is stayin at the same location (fly and come back or stay within pixel size).
+only when the bird is staying at the same location (fly and come back or stay within pixel size).
 This parameter (when greater than 1) is used to favour a bird to stay at the same location rather
 than perform short fly.</p></dd>
 
@@ -136,13 +136,17 @@ the transition probability</p>
     <p>Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 optimized hidden Markov model. <em>Methods in Ecology and Evolution</em>, 14, 1118–1129
-<a href="https://doi.org/10.1111/2041-210X.14082" class="external-link">https://doi.org/10.1111/2041-210X.14082</a>.</p>
+<a href="https://doi.org/10.1111/2041-210X.14082" class="external-link">doi:10.1111/2041-210X.14082</a>
+.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other graph:
+<code><a href="graph_add_wind.html">graph_add_wind()</a></code>,
 <code><a href="graph_create.html">graph_create()</a></code>,
 <code><a href="graph_marginal.html">graph_marginal()</a></code>,
+<code><a href="graph_most_likely.html">graph_most_likely()</a></code>,
+<code><a href="graph_simulation.html">graph_simulation()</a></code>,
 <code><a href="print.graph.html">print.graph()</a></code></p>
 <p>Other movement:
 <code><a href="bird_create.html">bird_create()</a></code>,
