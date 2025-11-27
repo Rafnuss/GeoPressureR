@@ -260,7 +260,7 @@ edge_add_wind <- function(
         ratio_stap[i_fl + 1] *
           (g$lon[edge_t[st_id, 2]] - g$lon[edge_s[st_id, 2]])
 
-      # As ERA5 data is available every hour, we build a one hour resolution timeserie including the
+      # As ERA5 data is available every hour, we build a one hour resolution time series including the
       # start and end time of the flight. Thus, we first round the start end end time.
 
       # Round down to the lower n-minute interval

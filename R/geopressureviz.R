@@ -138,7 +138,7 @@ geopressureviz <- function(
   tag$stap$col <- col[tag$stap$stap_id]
   tag$stap$duration <- stap2duration(tag$stap)
 
-  # Get the pressure timeserie
+  # Get the pressure time series
   if (is.null(path)) {
     # path is not defined
     pressurepath <- data.frame()

@@ -73,5 +73,12 @@ twl <- path2twilight(path)
 }
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html}{GeoPressureManual }, \href{https://github.com/adokter/suntools}{suntools }
+
+Other path: 
+\code{\link{ind2path}()},
+\code{\link{path2edge}()},
+\code{\link{path2elevation}()},
+\code{\link{plot_path}()},
+\code{\link{tag2path}()}
 }
-\concept{path, pressurepath}
+\concept{path}

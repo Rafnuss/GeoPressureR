@@ -88,6 +88,8 @@ points(elevation$distance[id], elevation$X90[id], col = "red")
 \seealso{
 Other path: 
 \code{\link{ind2path}()},
+\code{\link{path2edge}()},
+\code{\link{path2twilight}()},
 \code{\link{plot_path}()},
 \code{\link{tag2path}()}
 }

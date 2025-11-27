@@ -40,7 +40,7 @@ probability at \code{low_speed_fix} for any lower speed. This parameter is used 
 flights covering small distances. (unit of km/h)}
 
 \item{zero_speed_ratio}{multiplicative ratio of the probability for speed zero. This ratio apply
-only when the bird is stayin at the same location (fly and come back or stay within pixel size).
+only when the bird is staying at the same location (fly and come back or stay within pixel size).
 This parameter (when greater than 1) is used to favour a bird to stay at the same location rather
 than perform short fly.}
 }
@@ -96,12 +96,15 @@ plot_graph_movement(graph)
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118–1129
-\url{https://doi.org/10.1111/2041-210X.14082}.}
+\doi{10.1111/2041-210X.14082}.}
 }
 \seealso{
 Other graph: 
+\code{\link{graph_add_wind}()},
 \code{\link{graph_create}()},
 \code{\link{graph_marginal}()},
+\code{\link{graph_most_likely}()},
+\code{\link{graph_simulation}()},
 \code{\link{print.graph}()}
 
 Other movement: 

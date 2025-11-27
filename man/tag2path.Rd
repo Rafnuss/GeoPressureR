@@ -66,7 +66,9 @@ plot_path(path)
 \seealso{
 Other path: 
 \code{\link{ind2path}()},
+\code{\link{path2edge}()},
 \code{\link{path2elevation}()},
+\code{\link{path2twilight}()},
 \code{\link{plot_path}()}
 }
 \concept{path}

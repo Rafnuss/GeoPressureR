@@ -2,7 +2,7 @@ Package: GeoPressureR
 Title: Global Positioning by Atmospheric Pressure
 Version: 3.4.5
 Authors@R: c(
-    person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre"),
+    person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-8185-1020")),
     person("Mathieu", "Gravey", , "mathieu@mgravey.com", role = "aut",
            comment = c(ORCID = "0000-0002-0871-1507"))
@@ -59,4 +59,3 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Language: en-GB
-Year: 2022

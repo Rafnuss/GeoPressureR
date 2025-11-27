@@ -23,11 +23,11 @@
 #'    - `temperature_internal_file = "*.temperature"` (optional)
 #'    - `temperature_external_file = "*.airtemperature"` (optional)
 #'    - `magnetic_file = "*.magnetic"` (optional)
-#' - [Migrate Technology (`migratetech`)](http://www.migratetech.co.uk/):
+#' - [Migrate Technology (`migratetech`)](https://www.migratetech.co.uk/):
 #'    - `pressure_file = "*.deg"`
 #'    - `light_file = "*.lux"` (optional)
 #'    - `acceleration_file = "*.deg"` (optional)
-#' - British Antarctic Survey (`bas`), aquired by Biotrack Ltd in 2011, [renamed Lotek in 2019
+#' - British Antarctic Survey (`bas`), acquired by Biotrack Ltd in 2011, [renamed Lotek in 2019
 #' ](https://www.lotek.com/about-us/history/). Only works for light data (`assert_pressure = FALSE`)
 #'    - `light_file = "*.lig"`
 #' - [Lund CAnMove (`lund`)](https://bit.ly/3P6quyi)

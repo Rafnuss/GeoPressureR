@@ -25,7 +25,7 @@
 #' probability at `low_speed_fix` for any lower speed. This parameter is used to allow short
 #' flights covering small distances. (unit of km/h)
 #' @param zero_speed_ratio multiplicative ratio of the probability for speed zero. This ratio apply
-#' only when the bird is stayin at the same location (fly and come back or stay within pixel size).
+#' only when the bird is staying at the same location (fly and come back or stay within pixel size).
 #' This parameter (when greater than 1) is used to favour a bird to stay at the same location rather
 #' than perform short fly.
 #'
@@ -69,7 +69,7 @@
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
-#' <https://doi.org/10.1111/2041-210X.14082>.}
+#' \doi{10.1111/2041-210X.14082}.}
 #' @export
 graph_set_movement <- function(
   graph,

@@ -46,12 +46,12 @@
 #'
 #' plot_path(path_simulation, plot_leaflet = FALSE)
 #'
-#' @seealso [GeoPressureManual](https://bit.ly/3YE83Wn)
+#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-3-simulated-paths)
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
-#' <https://doi.org/10.1111/2041-210X.14082>.}
-#' @family graph, path
+#' \doi{10.1111/2041-210X.14082}.}
+#' @family graph
 #' @export
 graph_simulation <- function(graph, nj = 10, quiet = FALSE) {
   graph_assert(graph, "full")

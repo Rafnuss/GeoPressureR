@@ -2,7 +2,7 @@
 % Please edit documentation in R/ts2mat.R
 \name{ts2mat}
 \alias{ts2mat}
-\title{Format timeserie data.frame into a matrix}
+\title{Format time series data frame into a matrix}
 \usage{
 ts2mat(
   ts,
@@ -27,5 +27,5 @@ seconds (3 minutes).}
 A data.frame with columns \code{date} and \code{value}.
 }
 \description{
-Format timeserie data.frame into a matrix
+Format time series data frame into a matrix
 }

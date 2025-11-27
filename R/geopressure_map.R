@@ -9,7 +9,7 @@
 #' 2. `geopressure_map_likelihood()` converts the mismatch maps into a likelihood map.
 #'
 #' See below for details. For more background on the method behind these functions, please refer to
-#' Nussbaumer et al. ([2023a](https://doi.org/10.1111/2041-210X.14043)).
+#' Nussbaumer et al. (2023a; \doi{10.1111/2041-210X.14043}).
 #'
 #' @details
 #'
@@ -22,7 +22,7 @@
 #' @section Mismatch map with GeoPressureAPI:
 #'
 #' `geopressure_map_mismatch()` computes the mismatch maps on Google Earth Engine via the map
-#' entry point of the [GeoPressure API](https://raphaelnussbaumer.com/GeoPressureAPI/#description).
+#' entry point of the [GeoPressure API](https://github.com/Rafnuss/GeoPressureAPI).
 #' This consists of the following steps:
 #'
 #' 1. **Pre-process pressure**: the pressure measurements are first smoothed and downscaled to a
@@ -150,7 +150,7 @@
 #'
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
 #' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
-#' 1118–1129 <https://doi.org/10.1111/2041-210X.14043>.}
+#' 1118–1129 \doi{10.1111/2041-210X.14043}.}
 #' @family geopressure_map
 #' @seealso [GeoPressureManual](https://bit.ly/3sg7yFJ)
 #' @export

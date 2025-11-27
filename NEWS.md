@@ -31,9 +31,9 @@
 
 ## Major
 - Read all sensors type and allow reading sensor without pressure `assert_pressure = FALSE` (https://github.com/Rafnuss/GeoPressureR/pull/123/commits/d11f8cc4774b4c91c27318c43d438823b681066e, https://github.com/Rafnuss/GeoPressureR/pull/123/commits/85ffe940ec46af8cd56592c2d641f25d19712129)
-- [Update to ecmwfr v2. Change to cds_token](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/4253e04f9ed16e3b06d45edfda0b2a0900d31d0c). We use the Climate Data Store to download the wind data during the flight. They have recently [updated their infrastructure](https://confluence.ecmwf.int/display/CKB/Please+read%3A+CDS+and+ADS+migrating+to+new+infrastructure%3A+Common+Data+Store+%28CDS%29+Engine) and their login procedure has changed. You’ll need an ECMF login with an Access Token. See updated procedure in the chapter [Trajectory with wind of the GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#download-wind-data).
+- [Update to ecmwfr v2. Change to cds_token](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/4253e04f9ed16e3b06d45edfda0b2a0900d31d0c). We use the Climate Data Store to download the wind data during the flight. They have recently [updated their infrastructure](https://confluence.ecmwf.int/display/CKB/Please+read%3A+CDS+and+ADS+migrating+to+new+infrastructure%3A+Common+Data+Store+%28CDS%29+Engine) and their login procedure has changed. You’ll need an ECMWF login with an Access Token. See updated procedure in the chapter [Trajectory with wind of the GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#download-wind-data).
 - [Improvement of tag_label_auto() with post-processing step](https://github.com/Rafnuss/GeoPressureR/commit/69c26adf559fc1bc7c2690346de41f6732f9eda5). Based on a simple classification of prolonged high activity, migratory flight classification was often not very performant, e.g. when a bird was gliding during the flight. I have now added a post-processing step in the automatic classification to fix this. Read more in [the detail section of tag_label_auto().](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_auto.html#details).
-- [Create path2twilight.R](https://github.com/Rafnuss/GeoPressureR/commit/eff97315c5eca3dff03736e7d40efad30b209819) and [Add twilight_line in plot_twilight](https://github.com/Rafnuss/GeoPressureR/commit/b21aa06ceff257ec4473a3af530a8ba7cef5e225). You can now compute the theoretical twilight of a path, or more interestingly, of a pressurepath. It's also used in [pressurepath_create()](https://raphaelnussbaumer.com/GeoPressureR/reference/pressurepath_create.html), returning a column with sunrise and sunset. Its original purpose was to be able to check the twilight labeling by comparing it to a path generated, e.g., with GeoPressureviz. See the [last section of the light map chapter](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#check-light-label) for more info.
+- [Create path2twilight.R](https://github.com/Rafnuss/GeoPressureR/commit/eff97315c5eca3dff03736e7d40efad30b209819) and [Add twilight_line in plot_twilight](https://github.com/Rafnuss/GeoPressureR/commit/b21aa06ceff257ec4473a3af530a8ba7cef5e225). You can now compute the theoretical twilight of a path, or more interestingly, of a pressurepath. It's also used in [pressurepath_create()](https://raphaelnussbaumer.com/GeoPressureR/reference/pressurepath_create.html), returning a column with sunrise and sunset. Its original purpose was to be able to check the twilight labeling by comparing it to a path generated, e.g., with GeoPresureviz. See the [last section of the light map chapter](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#check-light-label) for more info.
 
 ## Minor:
 - [Fix issue with tag_plot_twilight() when twilight was not yet computed](https://github.com/Rafnuss/GeoPressureR/pull/123/commits/6de3af2a97e27763c5a70a0e570c91921b699f01)
@@ -110,12 +110,12 @@ This new version consists of a significant revamp of the entire code centred aro
 - Use of [cli](https://cli.r-lib.org/index.html) for message and progress bar.
 - Be able to update `tag` and `pressurepath` without re-computing everything.
 
-⚠️ See [#55](https://github.com/Rafnuss/GeoPressureR/issues/55) for details on the functions named change
-⚠️ See the [migration wiki](https://github.com/Rafnuss/GeoPressureR/wiki/Migration-v2-%E2%80%90--v3) for a small guide to transition from v2.
+- See [#55](https://github.com/Rafnuss/GeoPressureR/issues/55) for details on the functions named change
+- See the [migration wiki](https://github.com/Rafnuss/GeoPressureR/wiki/Migration-v2-%E2%80%90--v3) for a small guide to transition from v2.
 
 ## Major
 * Use of GeoPressureR object: `tag`, `graph`, `param`, `bird`
-* Many new plot functions including update of `geopressureviz()`
+* Many new plot functions including update of `geopresureviz()`
 * Transition from `raster` to `terra` #59
 * New label scheme with test and messaging for troubleshooting #67 #73 #83
 * Create `tag_update()` and `pressurepath_update()`
@@ -136,7 +136,7 @@ This new version consists of a significant revamp of the entire code centred aro
 
 ## Minor
 * Improve `graph_download_wind()` #54 
-* GeoPressureViz function in #52
+* GeoPresureviz function in #52
 * Replace `isoutliar` with `isoutlier` in #43
 * Use `assertthat` in #46 and #47
 * Typo of equipment and retrieval in #48
@@ -166,7 +166,7 @@ This new version consists of a significant revamp of the entire code centred aro
 - Read Avonet data as package data https://github.com/Rafnuss/GeoPressureR/commit/c5c8d807f9a7e13a49e3d1565a7b3beffb58022f
 - Update of `r-lib/actions` to v2 https://github.com/Rafnuss/GeoPressureR/commit/3382fb9b7b9970f1c102cf9aabf3a6b06b5d505e
 - https://github.com/Rafnuss/GeoPressureR/commit/8720b6e6032f910f0c702e649a907dcf10bc2258
-- Improvement of GeoPressureViz https://github.com/Rafnuss/GeoPressureR/commit/97be49de4ed6c309b16e23fbedde1d618ae0a04c https://github.com/Rafnuss/GeoPressureR/commit/964b558913de7f7b6ef9915fc9cc41fc0b3dd0d3
+- Improvement of GeoPresureviz https://github.com/Rafnuss/GeoPressureR/commit/97be49de4ed6c309b16e23fbedde1d618ae0a04c https://github.com/Rafnuss/GeoPressureR/commit/964b558913de7f7b6ef9915fc9cc41fc0b3dd0d3
 - Add checks and warning in functions
 - Preparation of the code for CRAN
 
@@ -183,7 +183,7 @@ This new version consists of a significant revamp of the entire code centred aro
 
 ## Minor
 - minor fixes for `sta_id=0` or `NA`
-- minor fixes in `geopressureviz()`
+- minor fixes in `geopresureviz()`
 - add dummy graph test to improve coverage.
 - compute windspeed for short flight happening during the same hour
 - typos, code readability and `stlyer`
@@ -197,7 +197,7 @@ This new version consists of a significant revamp of the entire code centred aro
 - [Major fix of wind computation bearing to angle and m/s -> km/h](https://github.com/Rafnuss/GeoPressureR/commit/0eee443944e0b7ecf86c64901b45cd0f659d3d19)
 - Major fix of twilight uncertainty using kernel density. The gamma fitting was very wrong https://github.com/Rafnuss/GeoPressureR/commit/5acfb136b8cac49d3cfd9633ce9a0a81ccc9b252
 - Major update in the data location to avoid being loaded when using the package. Move all data to `inst/extdata` to avoid having them loaded with https://github.com/Rafnuss/GeoPressureR/commit/65c8f8062cf07fb1471c9f15f6f08757d00951df
-- Add more information on various dataset to be able to load in GeoPressureViz
+- Add more information on various dataset to be able to load in GeoPresureviz
 - Change to the graph https://github.com/Rafnuss/GeoPressureR/commit/4aeed9ab77c8efe15b2da591247700d0ebb0cb5f
 
 ## Minor
@@ -206,7 +206,7 @@ This new version consists of a significant revamp of the entire code centred aro
 - [Re-write `find_twilights`](https://github.com/Rafnuss/GeoPressureR/commit/d52e14e62c4b212a54f31ca78baa5342d372b4c7)
 - [Create function graph_path2edge](https://github.com/Rafnuss/GeoPressureR/commit/db73fcfea317f0db795d6a629bec9d42b9f073fd)
 - [Add energy figure](https://github.com/Rafnuss/GeoPressureR/commit/8b4c4efbce7c029e1a0f0628985bf53616c829a0)
-- Multiple improvement on GeoPressureViz
+- Multiple improvement on GeoPresureviz
 - Add citation and contribution file
 - [use 100 character width](https://github.com/Rafnuss/GeoPressureR/commit/ae97874788658b8684bb3e3fa539c063cc0046ab)
 - Add link to [GeoPressureTemplate](https://github.com/Rafnuss/GeoPressureTemplate)
@@ -219,7 +219,7 @@ This new version consists of a significant revamp of the entire code centred aro
 ## Major
 - New function `geopressure_map2path` with return of index of lat-lon option
 - New function `geopressure_ts_path` to compute multiple `geopressure_ts` function on a full path
-- Update GeoPressureViz (https://rafnuss.shinyapps.io/GeoPressureViz/) to accept `geopressure_ts_path` output
+- Update GeoPresureviz (https://rafnuss.shinyapps.io/GeoPresureviz/) to accept `geopressure_ts_path` output
 
 ## Minor
 - fix flight and avonet database #10

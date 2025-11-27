@@ -98,7 +98,7 @@ measurements and the ERA5 reanalysis database.
 }
 
 See below for details. For more background on the method behind these functions, please refer to
-Nussbaumer et al. (\href{https://doi.org/10.1111/2041-210X.14043}{2023a}).
+Nussbaumer et al. (2023a; \doi{10.1111/2041-210X.14043}).
 }
 \details{
 A map will only be computed for the stationary periods included in \code{tag$stap$include} and without
@@ -110,7 +110,7 @@ position.
 
 
 \code{geopressure_map_mismatch()} computes the mismatch maps on Google Earth Engine via the map
-entry point of the \href{https://raphaelnussbaumer.com/GeoPressureAPI/#description}{GeoPressure API}.
+entry point of the \href{https://github.com/Rafnuss/GeoPressureAPI}{GeoPressure API}.
 This consists of the following steps:
 \enumerate{
 \item \strong{Pre-process pressure}: the pressure measurements are first smoothed and downscaled to a
@@ -210,7 +210,7 @@ plot(tag, type = "map_pressure")
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
 Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14,
-1118–1129 \url{https://doi.org/10.1111/2041-210X.14043}.}
+1118–1129 \doi{10.1111/2041-210X.14043}.}
 }
 \seealso{
 \href{https://bit.ly/3sg7yFJ}{GeoPressureManual}

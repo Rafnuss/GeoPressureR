@@ -49,8 +49,8 @@
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
-#' <https://doi.org/10.1111/2041-210X.14082>.}
-#' @family graph, path
+#' \doi{10.1111/2041-210X.14082}.}
+#' @family graph
 #' @export
 graph_most_likely <- function(graph, quiet = FALSE) {
   graph_assert(graph, "full")

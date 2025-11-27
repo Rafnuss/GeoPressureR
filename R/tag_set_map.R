@@ -66,7 +66,7 @@
 #' print(tag_custom)
 #'
 #' @family tag
-#' @seealso [GeoPressureManual](https://bit.ly/3QGkf6N)
+#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#define-geographical-and-temporal-parameters-of-the-map)
 #' @export
 tag_set_map <- function(
   tag,

@@ -127,8 +127,8 @@ plot.tag <- function(x, type = NULL, ...) {
 #' @param tag a GeoPressureR `tag` object.
 #' @param plot_plotly logical to use `plotly`.
 #' @param quiet logical to hide warning message about label.
-#' @param warning_stap_length Threshold number of pressure datapoints flagged as ️warning (hourly.
-#' @param warning_pressure_diff Threshold of pressure hourly difference marking as ️warning (hPa).
+#' @param warning_stap_length Threshold number of pressure datapoints flagged as warning (hourly).
+#' @param warning_pressure_diff Threshold of pressure hourly difference marking as warning (hPa).
 #'
 #' @return a plot or ggplotly object.
 #'

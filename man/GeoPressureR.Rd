@@ -25,7 +25,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Raphaël Nussbaumer \email{rafnuss@gmail.com} (\href{https://orcid.org/0000-0002-8185-1020}{ORCID})
+\strong{Maintainer}: Raphaël Nussbaumer \email{rafnuss@gmail.com} (\href{https://orcid.org/0000-0002-8185-1020}{ORCID}) [copyright holder]
 
 Authors:
 \itemize{

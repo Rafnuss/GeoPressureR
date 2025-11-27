@@ -103,13 +103,13 @@ The current implementation can read files from the following three sources:
 \item \code{temperature_external_file = "*.airtemperature"} (optional)
 \item \code{magnetic_file = "*.magnetic"} (optional)
 }
-\item \href{http://www.migratetech.co.uk/}{Migrate Technology (\code{migratetech})}:
+\item \href{https://www.migratetech.co.uk/}{Migrate Technology (\code{migratetech})}:
 \itemize{
 \item \code{pressure_file = "*.deg"}
 \item \code{light_file = "*.lux"} (optional)
 \item \code{acceleration_file = "*.deg"} (optional)
 }
-\item British Antarctic Survey (\code{bas}), aquired by Biotrack Ltd in 2011, \href{https://www.lotek.com/about-us/history/}{renamed Lotek in 2019 }. Only works for light data (\code{assert_pressure = FALSE})
+\item British Antarctic Survey (\code{bas}), acquired by Biotrack Ltd in 2011, \href{https://www.lotek.com/about-us/history/}{renamed Lotek in 2019 }. Only works for light data (\code{assert_pressure = FALSE})
 \itemize{
 \item \code{light_file = "*.lig"}
 }

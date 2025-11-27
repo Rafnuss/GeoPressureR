@@ -83,9 +83,6 @@ the likelihood maps (pressure and/or light), the creation of the graph model con
 finally, the estimation of the trajectory products and the pressure path computation. Read the
 \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html}{Workflow chapter in the GeoPressureManual } for more
 information.
-
-To be able to run successfully these function, you will need to have correctly set-up the data
-and configuration files according following the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-project.html}{GeoPressureTemplate standard }.
 }
 \details{
 The \code{geopressuretemplate} function is a high-level entry point that coordinates multiple
