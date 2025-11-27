@@ -53,7 +53,7 @@ $$ P_{ERA5,0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,7 +110,6 @@ $$ P_{ERA5,0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\
 <span>  pressure <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  start_time <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  end_time <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  timeout <span class="op">=</span> <span class="fl">60</span> <span class="op">*</span> <span class="fl">5</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  debug <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -143,11 +142,6 @@ the time series as POSIXlt.</p></dd>
 the time series as POSIXlt.</p></dd>
 
 
-<dt id="arg-timeout">timeout<a class="anchor" aria-label="anchor" href="#arg-timeout"></a></dt>
-<dd><p>duration before the code is interrupted both for the request on
-GeoPressureAPI and on GEE (in seconds, see <code><a href="https://httr2.r-lib.org/reference/req_timeout.html" class="external-link">httr2::req_timeout()</a></code>).</p></dd>
-
-
 <dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
 <dd><p>logical to hide messages about the progress</p></dd>
 
@@ -174,8 +168,8 @@ Global Positioning with Animal‐borne Pressure Sensors. <em>Methods in Ecology 
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other pressurepath:
-<code><a href="plot_pressurepath.html">plot_pressurepath</a>()</code>,
-<code><a href="pressurepath_create.html">pressurepath_create</a>()</code></p></div>
+<code><a href="plot_pressurepath.html">plot_pressurepath()</a></code>,
+<code><a href="pressurepath_create.html">pressurepath_create()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -237,7 +231,7 @@ Global Positioning with Animal‐borne Pressure Sensors. <em>Methods in Ecology 
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

@@ -39,7 +39,7 @@ More information in the GeoPressureManual.'><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,8 +88,10 @@ retrieve your API Token on <a href="https://cds.climate.copernicus.eu/profile" c
 <span>  extent <span class="op">=</span> <span class="va">tag</span><span class="op">$</span><span class="va">param</span><span class="op">$</span><span class="va">tag_set_map</span><span class="op">$</span><span class="va">extent</span>,</span>
 <span>  include_stap_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  variable <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"u_component_of_wind"</span>, <span class="st">"v_component_of_wind"</span><span class="op">)</span>,</span>
-<span>  file <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">stap_id</span>, <span class="va">tag_id</span><span class="op">)</span></span>
-<span>    <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"</span><span class="op">)</span>,</span>
+<span>  file <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">stap_id</span>, <span class="va">tag_id</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    </span>
+<span>    <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"</span><span class="op">)</span></span>
+<span> <span class="op">}</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  workers <span class="op">=</span> <span class="fl">19</span>,</span>
 <span>  cds_token <span class="op">=</span> <span class="fu">lifecycle</span><span class="fu">::</span><span class="fu"><a href="https://lifecycle.r-lib.org/reference/deprecated.html" class="external-link">deprecated</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -180,11 +182,11 @@ information</p>
     <div class="dont-index"><p><a href="https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html" class="external-link"><code>wf_request_batch()</code> </a>,
 <a href="https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html" class="external-link">GeoPressureManual </a></p>
 <p>Other movement:
-<code><a href="bird_create.html">bird_create</a>()</code>,
-<code><a href="graph_set_movement.html">graph_set_movement</a>()</code>,
-<code><a href="graph_transition.html">graph_transition</a>()</code>,
-<code><a href="plot_graph_movement.html">plot_graph_movement</a>()</code>,
-<code><a href="speed2prob.html">speed2prob</a>()</code></p></div>
+<code><a href="bird_create.html">bird_create()</a></code>,
+<code><a href="graph_set_movement.html">graph_set_movement()</a></code>,
+<code><a href="graph_transition.html">graph_transition()</a></code>,
+<code><a href="plot_graph_movement.html">plot_graph_movement()</a></code>,
+<code><a href="speed2prob.html">speed2prob()</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -196,7 +198,7 @@ information</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

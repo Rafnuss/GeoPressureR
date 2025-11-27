@@ -21,7 +21,7 @@ few external case of use for this function."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,7 +82,7 @@ few external case of use for this function.</p>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other param:
-<code><a href="print.param.html">print.param</a>()</code></p></div>
+<code><a href="print.param.html">print.param()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -92,7 +92,7 @@ few external case of use for this function.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">GeoPressureR `param` object for </span><span style="color: #00BB00; font-weight: bold;">id</span><span style="font-weight: bold;">: 18LX</span> <span style="color: #00BBBB;">────────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555; font-weight: bold;">Note</span><span style="color: #555555;">: All </span><span style="color: #00BB00;">green</span> texts are fields of `param` (i.e., `param$<span style="color: #00BB00;">field</span>`).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">GeoPressureR_version</span>: <span style="color: #0000BB;">3.4.4</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">GeoPressureR_version</span>: <span style="color: #0000BB;">3.4.5</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Sensors data `tag_create()` </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">manufacturer</span>:</span>
@@ -137,14 +137,15 @@ few external case of use for this function.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Movement model &amp; wind `graph_add_wind()` `graph_movement()` </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">thr_as</span>: <span style="color: #0000BB;">Inf</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">file</span>: `function(stap_id, tag_id)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc")`</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">file</span>: `function(stap_id, tag_id) {</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc")}`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">type</span>: `ifelse("ws" %in% names(graph), "as", "gs")`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">method</span>: `ifelse("ws" %in% names(graph), "power", "gamma")`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">shape</span>: <span style="color: #0000BB;">7</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">scale</span>: <span style="color: #0000BB;">7</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">location</span>: <span style="color: #0000BB;">40</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> <span style="color: #00BB00;">bird_create</span>:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">scientific_name</span>:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">mass</span>:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">wing_span</span>:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">wing_aspect</span>:</span>
@@ -171,7 +172,7 @@ few external case of use for this function.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

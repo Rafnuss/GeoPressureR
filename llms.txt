@@ -1,0 +1,413 @@
+# GeoPressureR
+
+**GeoPressureR** is a R package which help researchers construct the
+trajectory of a bird equipped with an atmospheric pressure sensor. The
+package is a direct implementation of methods presented in Nussbaumer et
+al. ([2023a](https://doi.org/10.1111/2041-210X.14043)) and Nussbaumer et
+al. ([2023b](https://doi.org/10.1111/2041-210X.14082)).
+
+## Installation
+
+The best way to install the GeoPressureR package is through Github
+
+``` r
+# install.packages("pak")
+pak::pkg_install("Rafnuss/GeoPressureR")
+```
+
+## Learn how to use GeoPressureR
+
+The
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/) is
+a great place to start learning about how to use GeoPressureR.
+
+Using the examples, this user guide takes you through each step of the
+analysis in detail.
+
+[![](https://github.com/Rafnuss/GeoPressureManual/raw/main/assets/cover.png)](https://raphaelnussbaumer.com/GeoPressureManual/)
+
+## Start your own analysis
+
+Once you are familiar with the workflow of the method and want to start
+your own study, we suggest you use
+[GeoPressureTemplate](https://github.com/Rafnuss/GeoPressureTemplate), a
+[github template
+repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository)
+which provides a standard code structure for your analysis.
+
+Using this standardized code structure you will help you on many aspect:
+code sharing and troubleshooting, data archiving, work reproducibility.
+
+## Cheatsheet
+
+[![](reference/figures/cheatsheet-01.png)![](reference/figures/cheatsheet-02.png)](https://github.com/Rafnuss/GeoPressureR/raw/master/man/figures/cheatsheet.pdf)
+
+## How to cite?
+
+Make sure to cite the correct reference (R package, papers of the
+underlying methods and/or user manual) according to your use:
+
+> Nussbaumer, R., & Gravey, M. (2022). *GeoPressureR: Global positioning
+> by atmospheric pressure.* Zenodo.
+> <https://doi.org/10.5281/zenodo.7754457>. Available at:
+> <https://github.com/Rafnuss/GeoPressureR>
+
+> Nussbaumer, R., Gravey, M., Briedis, M., & Liechti, F. (2023). Global
+> positioning with animal-borne pressure sensors. *Methods in Ecology
+> and Evolution, 14*(4), 1104–1117.
+> <https://doi.org/10.1111/2041-210X.14043>
+
+> Nussbaumer, R., Gravey, M., Briedis, M., Liechti, F., & Sheldon, D.
+> (2023). Reconstructing bird trajectories from pressure and wind data
+> using a highly optimised hidden Markov model. *Methods in Ecology and
+> Evolution, 14*(4), 1–32. <https://doi.org/10.1111/2041-210X.14082>
+
+> Nussbaumer, R., & Nussbaumer, A. (2024). *GeoPressureManual: Learn how
+> to use GeoPressureR with examples.* Zenodo.
+> <https://doi.org/10.5281/zenodo.10799355>. Available at:
+> <https://github.com/Rafnuss/GeoPressureManual>
+
+Get citation information in R with `citation("GeoPressureR")`.
+
+# Package index
+
+## Tag
+
+Core functions related to a `tag` object.
+
+- [`tag_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_create.md)
+  :
+
+  Create a `tag` object
+
+- [`tag_set_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_set_map.md)
+  :
+
+  Configure the spatial and temporal parameters of the `map` of a `tag`
+  object
+
+### Visualize tag
+
+Print and plot a `tag` object.
+
+- [`print(`*`<tag>`*`)`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.tag.md)
+  :
+
+  Print a `tag` object
+
+- [`plot(`*`<tag>`*`)`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot.tag.md)
+  :
+
+  Plot a `tag` object
+
+- [`plot_tag_pressure()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_pressure.md)
+  :
+
+  Plot pressure data of a `tag`
+
+- [`plot_tag_light()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_light.md)
+  :
+
+  Plot light data of a `tag`
+
+- [`plot_tag_twilight()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_twilight.md)
+  :
+
+  Plot twilight data of a `tag`
+
+- [`plot_tag_acceleration()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_acceleration.md)
+  :
+
+  Plot acceleration data of a `tag`
+
+- [`plot_tag_temperature()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_temperature.md)
+  :
+
+  Plot temperature data of a `tag`
+
+- [`plot_tag_actogram()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_tag_actogram.md)
+  :
+
+  Plot Actogram data of a `tag`
+
+### Label tag
+
+Core functions related to labelling a `tag` object.
+
+- [`tag_label()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label.md)
+  :
+
+  Label a `tag` object
+
+- [`tag_label_auto()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_auto.md)
+  :
+
+  Automatic labelling acceleration data of a `tag`
+
+- [`tag_label_write()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_write.md)
+  : Write a tag label file
+
+- [`tag_label_read()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_read.md)
+  : Read a tag label file
+
+- [`tag_label_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_stap.md)
+  : Create stationary periods from a tag label
+
+### Tag utilities
+
+Various utility functions related to a `tag` object.
+
+- [`tag_assert()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_assert.md)
+  :
+
+  Assert the status of a `tag`
+
+- [`tag2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2path.md)
+  :
+
+  Build a `path` from the likelihood maps of a `tag`
+
+- [`tag2map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2map.md)
+  :
+
+  Extract a likelihood `map` from a `tag`
+
+## GeoPressure
+
+Core functions of the
+[GeoPressureAPI](https://github.com/Rafnuss/GeoPressureAPI).
+
+### GeoPressure map
+
+Geopositioning based on pressure data.
+
+- [`geopressure_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map.md)
+  [`geopressure_map_likelihood()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map.md)
+  [`geopressure_map_mismatch()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map.md)
+  : Compute likelihood map from pressure data
+
+- [`geopressure_map_preprocess()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map_preprocess.md)
+  :
+
+  Prepare pressure data for
+  [`geopressure_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map.md)
+
+### GeoPressure time series
+
+Retrieving time series pressure at a given location.
+
+- [`geopressure_timeseries()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_timeseries.md)
+  : Request and download pressure time series at a given location
+
+## GeoLight
+
+Geopositioning based on light data.
+
+- [`twilight_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_create.md)
+  : Estimate twilights from light data
+- [`twilight_label_write()`](https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_label_write.md)
+  : Write a twilight label file
+- [`twilight_label_read()`](https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_label_read.md)
+  : Read a twilight label file
+- [`geolight_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.md)
+  : Compute likelihood map from twilight
+- [`ts2mat()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ts2mat.md)
+  : Format timeserie data.frame into a matrix
+
+## Graph
+
+Constructing the Hidden-Markov model with a `graph` and computing
+trajectory products.
+
+- [`graph_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_create.md)
+  :
+
+  Create a `graph` object
+
+### Graph movement
+
+Defining the movement model, optionally using wind data and bird
+morphology.
+
+- [`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md)
+  :
+
+  Define the movement model of a `graph`
+
+- [`graph_transition()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_transition.md)
+  :
+
+  Compute transition probabilities of a `graph`
+
+- [`tag_download_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_download_wind.md)
+  : Download flight data
+
+- [`graph_add_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_add_wind.md)
+  :
+
+  Compute windspeed and airspeed on a `graph`
+
+- [`bird_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/bird_create.md)
+  : Create bird flight traits
+
+- [`print(`*`<bird>`*`)`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.bird.md)
+  :
+
+  Print a `bird` object
+
+- [`speed2prob()`](https://raphaelnussbaumer.com/GeoPressureR/reference/speed2prob.md)
+  : Compute probability of a bird speed
+
+- [`edge_add_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/edge_add_wind.md)
+  : Retrieve ERA5 variable along edge
+
+- [`plot_graph_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_graph_movement.md)
+  :
+
+  Plot movement model of a `graph`
+
+### Graph products
+
+Compute the three main products of the Hidden-Markov model.
+
+- [`graph_most_likely()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_most_likely.md)
+  : Compute the most likely trajectory
+- [`graph_marginal()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_marginal.md)
+  : Compute marginal probability map
+- [`graph_simulation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_simulation.md)
+  : Simulate randomly multiple trajectories
+
+### Graph utilities
+
+Utility functions for a `graph` object
+
+- [`graph_assert()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_assert.md)
+  :
+
+  Assert the status of a `graph`
+
+- [`print(`*`<graph>`*`)`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.graph.md)
+  :
+
+  Print a `graph` object
+
+## Map
+
+Container for spatio-temporal (stationary periods) data.
+
+- [`map_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_create.md)
+  :
+
+  Create a `map` object
+
+- [`print(`*`<map>`*`)`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.map.md)
+  :
+
+  Print a `map` object
+
+- [`plot(`*`<map>`*`)`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot.map.md)
+  :
+
+  Plot a `map` object
+
+- [`rast.map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/rast.map.md)
+  :
+
+  Construct a SpatRaster from a `map`
+
+- [`map_expand()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_expand.md)
+  :
+
+  Construct grid from `extent` and `scale`
+
+## Path
+
+Data.frame of positions defining a bird trajectory.
+
+- [`ind2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ind2path.md)
+  :
+
+  Create a `path` from indices of coordinates
+
+- [`path2edge()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2edge.md)
+  :
+
+  Extract the edges of a `path` from a `graph`
+
+- [`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md)
+  :
+
+  Plot a `path`
+
+## Pressurepath
+
+Data.frame of pressure time series along a path.
+
+- [`pressurepath_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/pressurepath_create.md)
+  :
+
+  Create a `pressurepath`
+
+- [`plot_pressurepath()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_pressurepath.md)
+  :
+
+  Plot a `pressurepath`
+
+- [`path2elevation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2elevation.md)
+  : Download ground elevation along a path
+
+## GeoPressureTemplate
+
+Wrapper functions for the full GeoPressureR worflow
+
+- [`geopressuretemplate()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressuretemplate.md)
+  [`geopressuretemplate_config()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressuretemplate.md)
+  [`geopressuretemplate_graph()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressuretemplate.md)
+  [`geopressuretemplate_pressurepath()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressuretemplate.md)
+  [`geopressuretemplate_tag()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressuretemplate.md)
+  : Workflow for GeoPressureR
+- [`load_interim()`](https://raphaelnussbaumer.com/GeoPressureR/reference/load_interim.md)
+  : Load an interim RData object
+
+## Param
+
+List of parameters used in `tag` and `graph`.
+
+- [`param_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/param_create.md)
+  :
+
+  Create a `param` list
+
+- [`print(`*`<param>`*`)`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.param.md)
+  :
+
+  Print a `param` list
+
+## Utilities
+
+General utility functions of the package.
+
+- [`stap2flight()`](https://raphaelnussbaumer.com/GeoPressureR/reference/stap2flight.md)
+  : Compute flights from stationary periods
+
+- [`stap2duration()`](https://raphaelnussbaumer.com/GeoPressureR/reference/stap2duration.md)
+  : Compute duration of stationary periods
+
+- [`speed2bearing()`](https://raphaelnussbaumer.com/GeoPressureR/reference/speed2bearing.md)
+  : Compute the bearing of a speed vector
+
+- [`windsupport()`](https://raphaelnussbaumer.com/GeoPressureR/reference/windsupport.md)
+  : Compute wind support and drift from a wind and ground speed vectors
+
+- [`path2twilight()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2twilight.md)
+  :
+
+  Compute exact astronomical twilights from a `path` (positions and
+  dates)
+
+- [`geopressureviz()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressureviz.md)
+  : Start the GeoPressureViz shiny app
+
+- [`GeoPressureR`](https://raphaelnussbaumer.com/GeoPressureR/reference/GeoPressureR.md)
+  : GeoPressureR: Global positioning by atmospheric pressure.
+

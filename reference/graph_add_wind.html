@@ -23,7 +23,7 @@ illustration on how to use it."><meta property="og:image" content="https://rapha
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,7 +78,8 @@ illustration on how to use it.</p>
 <dd><p>Arguments passed on to <code><a href="edge_add_wind.html">edge_add_wind</a></code></p><dl><dt><code>pressure</code></dt>
 <dd><p>pressure measurement of the associated <code>tag</code> data used to estimate the pressure
 level (i.e., altitude) of the bird during the flights. This data.frame needs to contain <code>date</code> as
-POSIXt and <code>value</code> in hPa.</p></dd>
+POSIXt and <code>value</code> in hPa. If not provided, uses <code>graph$pressure</code>, assuming that argument <code>graph</code>
+is a GeoPressureR <code>tag</code> object.</p></dd>
 
     <dt><code>rounding_interval</code></dt>
 <dd><p>temporal resolution on which to query the variable (min). Default is to
@@ -124,7 +125,7 @@ optimized hidden Markov model. <em>Methods in Ecology and Evolution</em>, 14, 11
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
