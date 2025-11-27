@@ -8,7 +8,7 @@ message: 'To cite package "GeoPressureR" in publications use:'
 type: software
 license: GPL-3.0-or-later
 title: 'GeoPressureR: Global Positioning by Atmospheric Pressure'
-version: 3.4.5
+version: 3.4.5.9000
 doi: 10.5281/zenodo.7754457
 abstract: R package to determine the position and trajectory of a bird based on light-weight
   data-logger measuring at lease atmospheric pressure.
@@ -33,9 +33,9 @@ preferred-citation:
     given-names: Mathieu
     email: mathieu@mgravey.com
     orcid: https://orcid.org/0000-0002-0871-1507
+  year: '2022'
   doi: 10.5281/zenodo.7754457
   url: https://github.com/Rafnuss/GeoPressureR
-  year: '2022'
 repository-code: https://github.com/Rafnuss/GeoPressureR
 url: https://raphaelnussbaumer.com/GeoPressureR/
 contact:
@@ -73,11 +73,11 @@ references:
     given-names: Felix
     email: felix.liechti@vogelwarte.ch
     orcid: https://orcid.org/0000-0001-9473-0837
-  doi: 10.1111/2041-210X.14043
   year: '2023'
   journal: Methods in Ecology and Evolution
   volume: '14'
   issue: '4'
+  doi: 10.1111/2041-210X.14043
   start: 1104-1117
 - type: article
   title: Reconstructing bird trajectories from pressure and wind data using a highly
@@ -102,11 +102,11 @@ references:
   - family-names: Sheldon
     given-names: Daniel
     orcid: https://orcid.org/0000-0002-4257-2432
-  doi: 10.1111/2041-210X.14082
   year: '2023'
   journal: Methods in Ecology and Evolution
   volume: '14'
   issue: '4'
+  doi: 10.1111/2041-210X.14082
   start: 1108-1129
 - type: manual
   title: 'GeoPressureManual: Learn how to use GeoPressureR with examples.'
@@ -119,9 +119,9 @@ references:
     given-names: Améline
     email: ameline.nussbaumer@gmail.com
     orcid: https://orcid.org/0000-0003-1308-4154
+  year: '2024'
   doi: 10.5281/zenodo.10799355
   url: https://github.com/Rafnuss/GeoPressureManual
-  year: '2024'
 - type: software
   title: 'R: A Language and Environment for Statistical Computing'
   notes: Depends
