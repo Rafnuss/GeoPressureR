@@ -169,7 +169,7 @@ path2elevation <- function(
   out <- as.data.frame(resp_data$percentileData)
 
   # Rename stap_id
-  names(out)[names(out) == "stapId"] <- "stap_id"
+  names(out)[names(out) == "stepId"] <- "stap_id"
 
   # Adjust stap_id
   out$stap_id <- out$stap_id + path_c$stap_id[1]
