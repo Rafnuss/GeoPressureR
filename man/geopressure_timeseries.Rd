@@ -62,7 +62,7 @@ where \eqn{z_{ERA}}, \eqn{T_{ERA}}, and \eqn{P_{ERA}} respectively correspond to
 elevation, temperature at 2m, and ground level pressure of ERA5, \eqn{L_b}  is the standard
 temperature lapse rate, \eqn{R} is the universal gas constant, \eqn{g} is the gravity constant
 and  \eqn{M} is the molar mass of air. See more information at
-\href{https://raphaelnussbaumer.com/GeoPressureAPI/#description-1}{the GeoPressureAPI documentation}.
+\href{https://github.com/Rafnuss/GeoPressureAPI}{the GeoPressureAPI documentation}.
 
 To be able to compare the temporal variation of the retrieved pressure of ERA5 \eqn{P_{ERA}} to
 the geolocator pressure \eqn{P_{gl}}, the function also returns the ERA pressure normalized with
@@ -106,7 +106,7 @@ plot(pressurepath$date, pressurepath$altitude,
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
 Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14,
-1118–1129 \url{https://doi.org/10.1111/2041-210X.14043}.}
+1118–1129 \doi{10.1111/2041-210X.14043}.}
 }
 \seealso{
 Other pressurepath: 

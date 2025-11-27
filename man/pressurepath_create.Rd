@@ -31,7 +31,9 @@ All variables can be listed with \code{GeoPressureR:::pressurepath_variable}.}
 \item{solar_dep}{a numerical value representing the solar depression angle used to compute
 sunrise and sunset. If \code{NULL}, does not compute sunrise sunset.}
 
-\item{era5_dataset}{select the dataset to use: \code{"single-levels"} for \href{https://doi.org/10.24381/cds.adbb2d47}{ERA5 hourly data on single levels}, \code{"land"} for \href{https://doi.org/10.24381/cds.e2161bac}{ERA5-Land hourly data} or \code{"both"} to use land where available and single-levels
+\item{era5_dataset}{select the dataset to use: \code{"single-levels"} for ERA5 hourly data on single
+levels (\doi{10.24381/cds.adbb2d47}), \code{"land"} for ERA5-Land hourly data
+(\doi{10.24381/cds.e2161bac}) or \code{"both"} to use land where available and single-levels
 otherwise (i.e. over water). LAND has greater precision but is not available on water. Using a
 single one makes the query faster.}
 
@@ -73,8 +75,8 @@ Any ERA variables can be retrieved but the function is most notably used to retr
 surface pressure to then be able to compare it to the pressure measured by the tag, and
 potentially adjust labelling tag data.
 
-By default, We use both the \href{https://doi.org/10.24381/cds.e2161bac}{ERA5 LAND} and
-\href{https://doi.org/10.24381/cds.adbb2d47}{ERA5 surface level} if position over water. Available
+By default, We use both the ERA5 LAND (\doi{10.24381/cds.e2161bac}) and
+ERA5 surface level (\doi{10.24381/cds.adbb2d47}) if position over water. Available
 variables can be listed with \code{GeoPressureR:::pressurepath_variable} and details description
 can be found on the \href{https://confluence.ecmwf.int/display/CKB/ERA5\%3A+data+documentation#heading-Parameterlistings}{parameter listings in ERA5 doc}.
 Note that their exact name might be be different as we query them through Google Earth Engine.
@@ -91,7 +93,7 @@ where \eqn{z_{ERA}}, \eqn{T_{ERA}}, and \eqn{P_{ERA}} respectively correspond to
 elevation, temperature at 2m, and ground level pressure of ERA5, \eqn{L_b}  is the standard
 temperature lapse rate, \eqn{R} is the universal gas constant, \eqn{g} is the gravity constant
 and  \eqn{M} is the molar mass of air. See more information at
-\href{https://raphaelnussbaumer.com/GeoPressureAPI/#description-1}{the GeoPressureAPI documentation}.
+\href{https://github.com/Rafnuss/GeoPressureAPI}{the GeoPressureAPI documentation}.
 
 To be able to compare the temporal variation of the retrieved pressure of ERA5 \eqn{P_{ERA}} to
 the tag pressure \eqn{P_{tag}}, the function also returns the ERA pressure normalized with

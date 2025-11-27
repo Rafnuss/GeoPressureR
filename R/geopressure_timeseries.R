@@ -19,7 +19,7 @@
 #' elevation, temperature at 2m, and ground level pressure of ERA5, \eqn{L_b}  is the standard
 #' temperature lapse rate, \eqn{R} is the universal gas constant, \eqn{g} is the gravity constant
 #' and  \eqn{M} is the molar mass of air. See more information at
-#' [the GeoPressureAPI documentation](https://raphaelnussbaumer.com/GeoPressureAPI/#description-1).
+#' [the GeoPressureAPI documentation](https://github.com/Rafnuss/GeoPressureAPI).
 #'
 #' To be able to compare the temporal variation of the retrieved pressure of ERA5 \eqn{P_{ERA}} to
 #' the geolocator pressure \eqn{P_{gl}}, the function also returns the ERA pressure normalized with
@@ -81,7 +81,7 @@
 #' @family pressurepath
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
 #' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
-#' 1118–1129 <https://doi.org/10.1111/2041-210X.14043>.}
+#' 1118–1129 \doi{10.1111/2041-210X.14043}.}
 #' @export
 geopressure_timeseries <- function(
   lat,

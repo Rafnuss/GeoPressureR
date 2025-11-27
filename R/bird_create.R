@@ -5,8 +5,8 @@
 #' power curve: mass, wing span, wing aspect ratio, and body frontal area.
 #'
 #' When any of these variables are missing, we query the
-#' [AVONET database](https://doi.org/10.6084/m9.figshare.16586228.v5) using the scientific
-#' name from [the Clements Checklist](https://www.birds.cornell.edu/clementschecklist/).
+#' AVONET database (\doi{10.6084/m9.figshare.16586228.v5}) using the scientific name from
+#' [the Clements Checklist](https://www.birds.cornell.edu/clementschecklist/).
 #'
 #'
 #' @param scientific_name Scientific name of the species

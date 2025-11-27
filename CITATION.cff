@@ -107,8 +107,7 @@ references:
   journal: Methods in Ecology and Evolution
   volume: '14'
   issue: '4'
-  start: '1'
-  end: '32'
+  start: 1108-1129
 - type: manual
   title: 'GeoPressureManual: Learn how to use GeoPressureR with examples.'
   authors:

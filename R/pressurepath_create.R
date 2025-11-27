@@ -10,8 +10,8 @@
 #' surface pressure to then be able to compare it to the pressure measured by the tag, and
 #' potentially adjust labelling tag data.
 #'
-#' By default, We use both the [ERA5 LAND](https://doi.org/10.24381/cds.e2161bac) and
-#' [ERA5 surface level](https://doi.org/10.24381/cds.adbb2d47) if position over water. Available
+#' By default, We use both the ERA5 LAND (\doi{10.24381/cds.e2161bac}) and
+#' ERA5 surface level (\doi{10.24381/cds.adbb2d47}) if position over water. Available
 #' variables can be listed with `GeoPressureR:::pressurepath_variable` and details description
 #' can be found on the [parameter listings in ERA5 doc](
 #' https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#heading-Parameterlistings).
@@ -29,7 +29,7 @@
 #' elevation, temperature at 2m, and ground level pressure of ERA5, \eqn{L_b}  is the standard
 #' temperature lapse rate, \eqn{R} is the universal gas constant, \eqn{g} is the gravity constant
 #' and  \eqn{M} is the molar mass of air. See more information at
-#' [the GeoPressureAPI documentation](https://raphaelnussbaumer.com/GeoPressureAPI/#description-1).
+#' [the GeoPressureAPI documentation](https://github.com/Rafnuss/GeoPressureAPI).
 #'
 #' To be able to compare the temporal variation of the retrieved pressure of ERA5 \eqn{P_{ERA}} to
 #' the tag pressure \eqn{P_{tag}}, the function also returns the ERA pressure normalized with
@@ -51,9 +51,9 @@
 #' All variables can be listed with `GeoPressureR:::pressurepath_variable`.
 #' @param solar_dep a numerical value representing the solar depression angle used to compute
 #' sunrise and sunset. If `NULL`, does not compute sunrise sunset.
-#' @param era5_dataset select the dataset to use: `"single-levels"` for [ERA5 hourly data on single
-#' levels](https://doi.org/10.24381/cds.adbb2d47), `"land"` for [ERA5-Land hourly data](
-#' https://doi.org/10.24381/cds.e2161bac) or `"both"` to use land where available and single-levels
+#' @param era5_dataset select the dataset to use: `"single-levels"` for ERA5 hourly data on single
+#' levels (\doi{10.24381/cds.adbb2d47}), `"land"` for ERA5-Land hourly data
+#' (\doi{10.24381/cds.e2161bac}) or `"both"` to use land where available and single-levels
 #' otherwise (i.e. over water). LAND has greater precision but is not available on water. Using a
 #' single one makes the query faster.
 #' @param preprocess logical to pre-process pressure data with `geopressure_map_preprocess()`.

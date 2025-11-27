@@ -37,8 +37,8 @@ This function returns a list with the four morphological information necessary t
 power curve: mass, wing span, wing aspect ratio, and body frontal area.
 
 When any of these variables are missing, we query the
-\href{https://doi.org/10.6084/m9.figshare.16586228.v5}{AVONET database} using the scientific
-name from \href{https://www.birds.cornell.edu/clementschecklist/}{the Clements Checklist}.
+AVONET database (\doi{10.6084/m9.figshare.16586228.v5}) using the scientific name from
+\href{https://www.birds.cornell.edu/clementschecklist/}{the Clements Checklist}.
 }
 \examples{
 # Using AVONET dataset
