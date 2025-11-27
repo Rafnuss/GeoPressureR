@@ -1,6 +1,6 @@
-# Format time series data frame into a matrix
+# Format timeserie data.frame into a matrix
 
-Format time series data frame into a matrix
+Format timeserie data.frame into a matrix
 
 ## Usage
 

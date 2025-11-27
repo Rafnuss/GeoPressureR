@@ -26,7 +26,7 @@ Useful links:
 ## Author
 
 **Maintainer**: Raphaël Nussbaumer <rafnuss@gmail.com>
-([ORCID](https://orcid.org/0000-0002-8185-1020)) \[copyright holder\]
+([ORCID](https://orcid.org/0000-0002-8185-1020))
 
 Authors:
 

@@ -81,7 +81,7 @@ graph_set_movement(
 - zero_speed_ratio:
 
   multiplicative ratio of the probability for speed zero. This ratio
-  apply only when the bird is staying at the same location (fly and come
+  apply only when the bird is stayin at the same location (fly and come
   back or stay within pixel size). This parameter (when greater than 1)
   is used to favour a bird to stay at the same location rather than
   perform short fly.
@@ -97,16 +97,13 @@ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and
 Daniel Sheldon. 2023. Reconstructing bird trajectories from pressure and
 wind data using a highly optimized hidden Markov model. *Methods in
 Ecology and Evolution*, 14, 1118–1129
-[doi:10.1111/2041-210X.14082](https://doi.org/10.1111/2041-210X.14082) .
+<https://doi.org/10.1111/2041-210X.14082>.
 
 ## See also
 
 Other graph:
-[`graph_add_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_add_wind.md),
 [`graph_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_create.md),
 [`graph_marginal()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_marginal.md),
-[`graph_most_likely()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_most_likely.md),
-[`graph_simulation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_simulation.md),
 [`print.graph()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.graph.md)
 
 Other movement:

@@ -2,7 +2,7 @@
 
 ## Authors
 
-- **Raphaël Nussbaumer**. Author, maintainer, copyright holder.
+- **Raphaël Nussbaumer**. Author, maintainer.
   [](https://orcid.org/0000-0002-8185-1020)
 
 - **Mathieu Gravey**. Author. [](https://orcid.org/0000-0002-0871-1507)
@@ -10,7 +10,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/Rafnuss/GeoPressureR/blob/master/inst/CITATION)
+[`inst/CITATION`](https://github.com/Rafnuss/GeoPressureR/blob/v3.4.5/inst/CITATION)
 
 Nussbaumer R, Gravey M (2022). *GeoPressureR: Global positioning by
 atmospheric pressure*.
@@ -44,18 +44,19 @@ with animal-borne pressure sensors.” *Methods in Ecology and Evolution*,
 Nussbaumer R, Gravey M, Briedis M, Liechti F, Sheldon D (2023).
 “Reconstructing bird trajectories from pressure and wind data using a
 highly optimised hidden Markov model.” *Methods in Ecology and
-Evolution*, **14**(4), 1108-1129.
+Evolution*, **14**(4), 1–32.
 [doi:10.1111/2041-210X.14082](https://doi.org/10.1111/2041-210X.14082).
 
     @Article{,
       title = {Reconstructing bird trajectories from pressure and wind data using a highly optimised hidden Markov model},
       author = {Raphael Nussbaumer and Mathieu Gravey and Martins Briedis and Felix Liechti and Daniel Sheldon},
       doi = {10.1111/2041-210X.14082},
+      pages = {1--32},
       year = {2023},
       journal = {Methods in Ecology and Evolution},
       volume = {14},
       number = {4},
-      pages = {1108-1129},
+      pages = {1--32},
     }
 
 Nussbaumer R, Nussbaumer A (2024). *GeoPressureManual: Learn how to use

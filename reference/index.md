@@ -141,7 +141,7 @@ Geopositioning based on light data.
 - [`geolight_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.md)
   : Compute likelihood map from twilight
 - [`ts2mat()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ts2mat.md)
-  : Format time series data frame into a matrix
+  : Format timeserie data.frame into a matrix
 
 ## Graph
 

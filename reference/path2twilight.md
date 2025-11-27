@@ -79,13 +79,6 @@ with columns:
 [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html)
 , [suntools](https://github.com/adokter/suntools)
 
-Other path:
-[`ind2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ind2path.md),
-[`path2edge()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2edge.md),
-[`path2elevation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2elevation.md),
-[`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md),
-[`tag2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2path.md)
-
 ## Examples
 
 ``` r

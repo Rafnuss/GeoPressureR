@@ -9,6 +9,12 @@ computation. Read the [Workflow chapter in the
 GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html)
 for more information.
 
+To be able to run successfully these function, you will need to have
+correctly set-up the data and configuration files according following
+the [GeoPressureTemplate
+standard](https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-project.html)
+.
+
 ## Usage
 
 ``` r

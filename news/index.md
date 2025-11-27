@@ -82,7 +82,7 @@
   We use the Climate Data Store to download the wind data during the
   flight. They have recently [updated their
   infrastructure](https://confluence.ecmwf.int/display/CKB/Please+read%3A+CDS+and+ADS+migrating+to+new+infrastructure%3A+Common+Data+Store+%28CDS%29+Engine)
-  and their login procedure has changed. You’ll need an ECMWF login with
+  and their login procedure has changed. You’ll need an ECMF login with
   an Access Token. See updated procedure in the chapter [Trajectory with
   wind of the
   GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#download-wind-data).
@@ -103,7 +103,7 @@
   [pressurepath_create()](https://raphaelnussbaumer.com/GeoPressureR/reference/pressurepath_create.html),
   returning a column with sunrise and sunset. Its original purpose was
   to be able to check the twilight labeling by comparing it to a path
-  generated, e.g., with GeoPresureviz. See the [last section of the
+  generated, e.g., with GeoPressureviz. See the [last section of the
   light map
   chapter](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html#check-light-label)
   for more info.
@@ -215,45 +215,34 @@ This new version consists of a significant revamp of the entire code
 centred around these themes:
 
 - Name more general than SOI sensors (e.g., use `tag` instead of `pam`)
-
 - Focus the workflow on pressure sensor (but still allows for
   acceleration or light data)
-
 - Update the notion of graph into State-Space Model notations
   (e.g. probability -\> likelihood)
-
 - More memory efficient (store minimum graph info) while minimizing
   computational expense of the “slow” functions
-
 - Shorter workflow
   [\#69](https://github.com/Rafnuss/GeoPressureR/issues/69)
-
 - Ease of labelling
   [\#67](https://github.com/Rafnuss/GeoPressureR/issues/67)
-
 - Reproducibility and long-term storage with `param`.
-
 - Use of S3 class object with print and plot generic function.
-
 - Compatible with pipe `|>` or `%>%`
-
 - Use of [cli](https://cli.r-lib.org/index.html) for message and
   progress bar.
-
 - Be able to update `tag` and `pressurepath` without re-computing
   everything.
 
-- See [\#55](https://github.com/Rafnuss/GeoPressureR/issues/55) for
-  details on the functions named change
-
-- See the [migration
-  wiki](https://github.com/Rafnuss/GeoPressureR/wiki/Migration-v2-%E2%80%90--v3)
-  for a small guide to transition from v2.
+⚠️ See [\#55](https://github.com/Rafnuss/GeoPressureR/issues/55) for
+details on the functions named change ⚠️ See the [migration
+wiki](https://github.com/Rafnuss/GeoPressureR/wiki/Migration-v2-%E2%80%90--v3)
+for a small guide to transition from v2.
 
 ### Major
 
 - Use of GeoPressureR object: `tag`, `graph`, `param`, `bird`
-- Many new plot functions including update of `geopresureviz()`
+- Many new plot functions including update of
+  [`geopressureviz()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressureviz.md)
 - Transition from `raster` to `terra`
   [\#59](https://github.com/Rafnuss/GeoPressureR/issues/59)
 - New label scheme with test and messaging for troubleshooting
@@ -289,7 +278,7 @@ centred around these themes:
 
 - Improve `graph_download_wind()`
   [\#54](https://github.com/Rafnuss/GeoPressureR/issues/54)
-- GeoPresureviz function in
+- GeoPressureViz function in
   [\#52](https://github.com/Rafnuss/GeoPressureR/issues/52)
 - Replace `isoutliar` with `isoutlier` in
   [\#43](https://github.com/Rafnuss/GeoPressureR/issues/43)
@@ -340,7 +329,7 @@ centred around these themes:
 - Update of `r-lib/actions` to v2
   <https://github.com/Rafnuss/GeoPressureR/commit/3382fb9b7b9970f1c102cf9aabf3a6b06b5d505e>
 - <https://github.com/Rafnuss/GeoPressureR/commit/8720b6e6032f910f0c702e649a907dcf10bc2258>
-- Improvement of GeoPresureviz
+- Improvement of GeoPressureViz
   <https://github.com/Rafnuss/GeoPressureR/commit/97be49de4ed6c309b16e23fbedde1d618ae0a04c>
   <https://github.com/Rafnuss/GeoPressureR/commit/964b558913de7f7b6ef9915fc9cc41fc0b3dd0d3>
 - Add checks and warning in functions
@@ -369,7 +358,8 @@ centred around these themes:
 ### Minor
 
 - minor fixes for `sta_id=0` or `NA`
-- minor fixes in `geopresureviz()`
+- minor fixes in
+  [`geopressureviz()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressureviz.md)
 - add dummy graph test to improve coverage.
 - compute windspeed for short flight happening during the same hour
 - typos, code readability and `stlyer`
@@ -392,7 +382,7 @@ centred around these themes:
   with
   <https://github.com/Rafnuss/GeoPressureR/commit/65c8f8062cf07fb1471c9f15f6f08757d00951df>
 - Add more information on various dataset to be able to load in
-  GeoPresureviz
+  GeoPressureViz
 - Change to the graph
   <https://github.com/Rafnuss/GeoPressureR/commit/4aeed9ab77c8efe15b2da591247700d0ebb0cb5f>
 
@@ -407,7 +397,7 @@ centred around these themes:
   graph_path2edge](https://github.com/Rafnuss/GeoPressureR/commit/db73fcfea317f0db795d6a629bec9d42b9f073fd)
 - [Add energy
   figure](https://github.com/Rafnuss/GeoPressureR/commit/8b4c4efbce7c029e1a0f0628985bf53616c829a0)
-- Multiple improvement on GeoPresureviz
+- Multiple improvement on GeoPressureViz
 - Add citation and contribution file
 - [use 100 character
   width](https://github.com/Rafnuss/GeoPressureR/commit/ae97874788658b8684bb3e3fa539c063cc0046ab)
@@ -426,7 +416,7 @@ centred around these themes:
   option
 - New function `geopressure_ts_path` to compute multiple
   `geopressure_ts` function on a full path
-- Update GeoPresureviz (<https://rafnuss.shinyapps.io/GeoPresureviz/>)
+- Update GeoPressureViz (<https://rafnuss.shinyapps.io/GeoPressureViz/>)
   to accept `geopressure_ts_path` output
 
 ### Minor
