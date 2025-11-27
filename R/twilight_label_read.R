@@ -23,11 +23,13 @@
 #' plot(tag_labelled, type = "twilight") |> plotly::layout(title = list(text = "After label"))
 #' @export
 twilight_label_read <- function(
-    tag,
-    file = glue::glue("./data/twilight-label/{tag$param$id}-labeled.csv")) {
+  tag,
+  file = glue::glue("./data/twilight-label/{tag$param$id}-labeled.csv")
+) {
   tag_assert(tag, "twilight")
 
-  tag$twilight <- trainset_read(tag$twilight,
+  tag$twilight <- trainset_read(
+    tag$twilight,
     file = file,
     timestamp = "twilight"
   )

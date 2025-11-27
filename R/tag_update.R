@@ -23,13 +23,17 @@
 #' @return The updated `tag` object
 #' @keywords internal
 #' @export
-tag_update <- function(tag,
-                       file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
-                       known = NULL,
-                       include_stap_id = NULL,
-                       quiet = FALSE) {
+tag_update <- function(
+  tag,
+  file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
+  known = NULL,
+  include_stap_id = NULL,
+  quiet = FALSE
+) {
   lifecycle::deprecate_warn(
-    "3.3.4", "tag_update()", "tag_create()",
+    "3.3.4",
+    "tag_update()",
+    "tag_create()",
     details = "Re-create the {.arg tag} entirely, it's not that slow!"
   )
 
@@ -54,8 +58,10 @@ tag_update <- function(tag,
   tag_new <- tag_label_stap(tag_new, quiet = TRUE)
 
   # check length of sd
-  if (length(tag$param$geopressure_map$sd) != 1 &&
-    length(tag$param$geopressure_map$sd) != nrow(tag_new$stap)) {
+  if (
+    length(tag$param$geopressure_map$sd) != 1 &&
+      length(tag$param$geopressure_map$sd) != nrow(tag_new$stap)
+  ) {
     cli::cli_abort(c(
       "x" = "{.var tag$param$geopressure_map$sd} is of length
       {.val {length(tag$param$geopressure_map$sd)}}.",
@@ -105,7 +111,7 @@ tag_update <- function(tag,
 
   # Check that include_stap_id exists
   tmp <- include_stap_id %in% tag_new$stap$stap_id
-  if (any(!tmp)) {
+  if (!all(tmp)) {
     cli::cli_abort(c(
       "x" = "{.field include_stap_id} was specified for {.val {include_stap_id}}, but \\
         {.val {include_stap_id[!tmp]}} is not available with the new label data.",
@@ -115,7 +121,8 @@ tag_update <- function(tag,
   }
 
   # Build the new tag_new as it would look like without using update
-  tag_new <- tag_set_map(tag_new,
+  tag_new <- tag_set_map(
+    tag_new,
     extent = tag$param$tag_set_map$extent,
     scale = tag$param$tag_set_map$scale,
     known = known,
@@ -137,12 +144,13 @@ tag_update <- function(tag,
   # Overwrite include to false to all stap_id which have not changed (ie. no discard_label_chg)
   # and which have not a matching old_stap_id
   tag_new_include$stap$include[
-    !(tag_new_include$stap$stap_id %in% unique(tag_new$pressure$stap_id[discard_label_chg])) &
+    !(tag_new_include$stap$stap_id %in%
+      unique(tag_new$pressure$stap_id[discard_label_chg])) &
       !is.na(stap_new$old_stap_id)
   ] <- FALSE
 
   # Check if nothing had changed
-  if (all(!tag_new_include$stap$include)) {
+  if (!any(tag_new_include$stap$include)) {
     cli::cli_warn(c(
       "!" = "There are no changes with the new label file",
       ">" = "the original {.var tag} will be returned."
@@ -151,7 +159,8 @@ tag_update <- function(tag,
   }
 
   # Build the new map
-  tag_new_include <- geopressure_map(tag_new_include,
+  tag_new_include <- geopressure_map(
+    tag_new_include,
     max_sample = tag$param$geopressure_map$max_sample,
     margin = tag$param$geopressure_map$margin,
     sd = tag$param$geopressure_map$sd,
@@ -184,22 +193,35 @@ tag_update <- function(tag,
 
   if ("map_pressure_mse" %in% names(tag)) {
     tag_new$map_pressure_mse <- tag_new_include$map_pressure_mse
-    tag_new$map_pressure_mse$data[stap_new$stap_id[!tag_new_include$stap$include]] <-
-      tag$map_pressure_mse$data[stap_new$old_stap_id[!tag_new_include$stap$include]]
+    tag_new$map_pressure_mse$data[stap_new$stap_id[
+      !tag_new_include$stap$include
+    ]] <-
+      tag$map_pressure_mse$data[stap_new$old_stap_id[
+        !tag_new_include$stap$include
+      ]]
     tag_new$map_pressure_mse$stap <- tag_new$stap
   }
 
   if ("map_pressure_thr" %in% names(tag)) {
     tag_new$map_pressure_thr <- tag_new_include$map_pressure_thr
-    tag_new$map_pressure_thr$data[stap_new$stap_id[!tag_new_include$stap$include]] <-
-      tag$map_pressure_thr$data[stap_new$old_stap_id[!tag_new_include$stap$include]]
+    tag_new$map_pressure_thr$data[stap_new$stap_id[
+      !tag_new_include$stap$include
+    ]] <-
+      tag$map_pressure_thr$data[stap_new$old_stap_id[
+        !tag_new_include$stap$include
+      ]]
     tag_new$map_pressure_thr$stap <- tag_new$stap
   }
 
   if ("map_light" %in% names(tag)) {
-    if (any(is.na(stap_new$old_stap_id)) || any(stap_new$stap_id != stap_new$old_stap_id)) {
-      cli::cli_warn("Light map {.code tag$map_light} was deleted as some stationary periods have \\
-                    changed.")
+    if (
+      anyNA(stap_new$old_stap_id) ||
+        any(stap_new$stap_id != stap_new$old_stap_id)
+    ) {
+      cli::cli_warn(
+        "Light map {.code tag$map_light} was deleted as some stationary periods have \\
+                    changed."
+      )
       tag_new$map_light <- NULL
       tag_new$twilight <- NULL
     } else {

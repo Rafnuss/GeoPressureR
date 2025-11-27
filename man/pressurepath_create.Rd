@@ -11,7 +11,6 @@ pressurepath_create(
   solar_dep = 0,
   era5_dataset = "both",
   preprocess = FALSE,
-  timeout = 60 * 10,
   workers = "auto",
   quiet = FALSE,
   debug = FALSE
@@ -25,7 +24,8 @@ pressurepath_create(
 \item{variable}{ERA5 variable/parameters available to download.
 The most commonly used variables:\code{"altitude"}, \code{"surface_pressure"}, \code{"temperature_2m"},
 \code{"u_component_of_wind_10m"}, \code{"v_component_of_wind_10m"}, \code{"u_component_of_wind_100m"},
-\code{"v_component_of_wind_100m"}, \code{"total_cloud_cover"}, \code{"total_precipitation"}, \code{"land_sea_mask"}.
+\code{"v_component_of_wind_100m"}, \code{"total_cloud_cover"}, \code{"total_precipitation_hourly"},
+\code{"land_sea_mask"}.
 All variables can be listed with \code{GeoPressureR:::pressurepath_variable}.}
 
 \item{solar_dep}{a numerical value representing the solar depression angle used to compute
@@ -36,9 +36,6 @@ otherwise (i.e. over water). LAND has greater precision but is not available on 
 single one makes the query faster.}
 
 \item{preprocess}{logical to pre-process pressure data with \code{geopressure_map_preprocess()}.}
-
-\item{timeout}{duration before the code is interrupted both for the request on
-GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 
 \item{workers}{number of parallel requests on GEE. Integer between 1 and 99.}
 

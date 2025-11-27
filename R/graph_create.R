@@ -66,14 +66,16 @@
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
 #' <https://doi.org/10.1111/2041-210X.14082>.}
 #' @export
-graph_create <- function(tag,
-                         thr_likelihood = .99,
-                         thr_gs = 150,
-                         likelihood = NULL,
-                         quiet = FALSE,
-                         geosphere_dist = lifecycle::deprecated(),
-                         geosphere_bearing = lifecycle::deprecated(),
-                         workers = lifecycle::deprecated()) {
+graph_create <- function(
+  tag,
+  thr_likelihood = .99,
+  thr_gs = 150,
+  likelihood = NULL,
+  quiet = FALSE,
+  geosphere_dist = lifecycle::deprecated(),
+  geosphere_bearing = lifecycle::deprecated(),
+  workers = lifecycle::deprecated()
+) {
   # Handle deprecated arguments
   if (lifecycle::is_present(geosphere_dist)) {
     lifecycle::deprecate_warn(
@@ -100,7 +102,10 @@ graph_create <- function(tag,
   }
 
   if (!quiet) {
-    cli::cli_progress_step("Check data input", msg_done = "Data input validated")
+    cli::cli_progress_step(
+      "Check data input",
+      msg_done = "Data input validated"
+    )
   }
 
   # Retrieve likelihood map used
@@ -155,7 +160,8 @@ graph_create <- function(tag,
 
   if (!quiet) {
     cli::cli_progress_done()
-    cli::cli_progress_step("Create nodes from likelihood maps",
+    cli::cli_progress_step(
+      "Create nodes from likelihood maps",
       msg_done = "Nodes created from likelihood maps: {.field {likelihood}}"
     )
   }
@@ -179,7 +185,7 @@ graph_create <- function(tag,
 
   # Check for invalid map
   stap_id_0 <- sapply(lk_norm, sum) == 0
-  if (any(is.na(stap_id_0))) {
+  if (anyNA(stap_id_0)) {
     cli::cli_abort(c(
       x = "{.var likelihood} is invalid for the stationary period: \\
       {stap_include[which(is.na(stap_id_0))]}"
@@ -214,7 +220,8 @@ graph_create <- function(tag,
 
   if (!quiet) {
     cli::cli_progress_done()
-    cli::cli_progress_step("Filter nodes by binary distance",
+    cli::cli_progress_step(
+      "Filter nodes by binary distance",
       msg_done = "Nodes filtered by binary distance"
     )
   }
@@ -248,7 +255,8 @@ graph_create <- function(tag,
     # Compute distance map and apply resolution matrix
     dist_map <- EBImage::distmap(!nds[[i_s]]) - 1
     dist_km <- dist_map * resolution # Element-wise multiplication with resolution matrix
-    nds[[i_s - 1]] <- dist_km < flight_duration[i_s - 1] * thr_gs & nds[[i_s - 1]]
+    nds[[i_s - 1]] <- dist_km < flight_duration[i_s - 1] * thr_gs &
+      nds[[i_s - 1]]
     if (sum(nds[[i_s - 1]]) == 0) {
       cli::cli_abort(c(
         x = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance \\
@@ -283,7 +291,6 @@ graph_create <- function(tag,
     )
   }
 
-
   for (i_s in seq_len(n_transitions)) {
     nds_i_s <- which(nds[[i_s]])
     nds_i_s_1 <- which(nds[[i_s + 1]])
@@ -306,12 +313,23 @@ graph_create <- function(tag,
       # Create coordinate matrices and compute distances in one go
       s_lat_matrix <- matrix(s_lat, nrow = length(s_lat), ncol = length(t_lat))
       s_lon_matrix <- matrix(s_lon, nrow = length(s_lon), ncol = length(t_lon))
-      t_lat_matrix <- matrix(t_lat, nrow = length(s_lat), ncol = length(t_lat), byrow = TRUE)
-      t_lon_matrix <- matrix(t_lon, nrow = length(s_lon), ncol = length(t_lon), byrow = TRUE)
+      t_lat_matrix <- matrix(
+        t_lat,
+        nrow = length(s_lat),
+        ncol = length(t_lat),
+        byrow = TRUE
+      )
+      t_lon_matrix <- matrix(
+        t_lon,
+        nrow = length(s_lon),
+        ncol = length(t_lon),
+        byrow = TRUE
+      )
 
       # Compute rough distances and filter in one step
       lat_diff <- abs(t_lat_matrix - s_lat_matrix) * 111.32
-      lon_diff <- abs(t_lon_matrix - s_lon_matrix) * 111.32 *
+      lon_diff <- abs(t_lon_matrix - s_lon_matrix) *
+        111.32 *
         cos((s_lat_matrix + t_lat_matrix) * pi / 360)
       rough_valid_matrix <- sqrt(lat_diff^2 + lon_diff^2) < max_distance
 
@@ -319,12 +337,21 @@ graph_create <- function(tag,
       valid_indices <- which(rough_valid_matrix, arr.ind = TRUE)
       from_coords <- cbind(s_lon[valid_indices[, 1]], s_lat[valid_indices[, 1]])
       to_coords <- cbind(t_lon[valid_indices[, 2]], t_lat[valid_indices[, 2]])
-      combinations <- data.frame(s_idx = valid_indices[, 1], t_idx = valid_indices[, 2])
+      combinations <- data.frame(
+        s_idx = valid_indices[, 1],
+        t_idx = valid_indices[, 2]
+      )
 
       # Clean up large matrices immediately (memory management handled here)
       rm(
-        s_lat_matrix, s_lon_matrix, t_lat_matrix, t_lon_matrix, lat_diff, lon_diff,
-        rough_valid_matrix, valid_indices
+        s_lat_matrix,
+        s_lon_matrix,
+        t_lat_matrix,
+        t_lon_matrix,
+        lat_diff,
+        lon_diff,
+        rough_valid_matrix,
+        valid_indices
       )
       gc() # Force garbage collection
     } else {
@@ -343,7 +370,8 @@ graph_create <- function(tag,
 
     # Compute the exact groundspeed for remaining transitions
     # Use memory-efficient distance calculation with automatic method selection
-    gs_abs <- graph_create_distance(from_coords, to_coords) / flight_duration[i_s]
+    gs_abs <- graph_create_distance(from_coords, to_coords) /
+      flight_duration[i_s]
 
     # Filter the transition based on the groundspeed
     id <- gs_abs < thr_gs
@@ -360,8 +388,14 @@ graph_create <- function(tag,
       source_indices <- combinations$s_idx[gs_abs_gt_0]
       source_coords_subset <- s_coords[source_indices, , drop = FALSE]
       # Extract resolution for each source coordinate (lat, lon)
-      resolution_values <- resolution[cbind(source_coords_subset[, 1], source_coords_subset[, 2])]
-      gs_abs[gs_abs_gt_0] <- pmax(gs_abs[gs_abs_gt_0] - resolution_values / flight_duration[i_s], 1)
+      resolution_values <- resolution[cbind(
+        source_coords_subset[, 1],
+        source_coords_subset[, 2]
+      )]
+      gs_abs[gs_abs_gt_0] <- pmax(
+        gs_abs[gs_abs_gt_0] - resolution_values / flight_duration[i_s],
+        1
+      )
 
       id <- gs_abs < thr_gs
 
@@ -452,8 +486,8 @@ graph_create <- function(tag,
   # Add metadata information
   graph$sz <- sz
   graph$stap <- tag$stap
-  graph$equipment <- which(nds[[1]] == TRUE)
-  graph$retrieval <- as.integer(which(nds[[sz[3]]] == TRUE) + (sz[3] - 1) * nll)
+  graph$equipment <- which(nds[[1]])
+  graph$retrieval <- as.integer(which(nds[[sz[3]]]) + (sz[3] - 1) * nll)
   # After pruning some retrieval nodes might not be present anymore.
   graph$retrieval <- graph$retrieval[graph$retrieval %in% graph$t]
   graph$mask_water <- tag$map_pressure$mask_water
@@ -467,7 +501,9 @@ graph_create <- function(tag,
   )
 
   # Check graph validity
-  assertthat::assert_that(all(graph$s[!(graph$s %in% graph$equipment)] %in% graph$t))
+  assertthat::assert_that(all(
+    graph$s[!(graph$s %in% graph$equipment)] %in% graph$t
+  ))
   assertthat::assert_that(all(graph$equipment %in% graph$s))
   assertthat::assert_that(all(graph$retrieval %in% graph$t))
 
@@ -477,7 +513,6 @@ graph_create <- function(tag,
 
   return(graph)
 }
-
 
 
 #' Prune a graph

@@ -64,22 +64,30 @@ graph_create_coord_calc <- function(from_coords, to_coords, calc_fun, ...) {
 #' @noRd
 graph_create_distance <- function(from_coords, to_coords, ...) {
   graph_create_coord_calc(
-    from_coords, to_coords, haversine_distance, ...
+    from_coords,
+    to_coords,
+    haversine_distance,
+    ...
   )
 }
 
 #' @noRd
 graph_create_bearing <- function(from_coords, to_coords, ...) {
   graph_create_coord_calc(
-    from_coords, to_coords, haversine_bearing, ...
+    from_coords,
+    to_coords,
+    haversine_bearing,
+    ...
   )
 }
 
 #' @noRd
-graph_compute_chunk_size <- function(n_coords,
-                                     memory_fraction = 0.2,
-                                     min_memory_mb = 50,
-                                     max_memory_mb = 1000) {
+graph_compute_chunk_size <- function(
+  n_coords,
+  memory_fraction = 0.2,
+  min_memory_mb = 50,
+  max_memory_mb = 1000
+) {
   # Detect available memory
   total_memory_mb <- if (Sys.info()["sysname"] == "Windows") {
     tryCatch(as.numeric(utils::memory.limit()), error = function(e) 8000)
@@ -101,7 +109,10 @@ graph_compute_chunk_size <- function(n_coords,
     # For other Unix-like systems, try to get available memory using free
     tryCatch(
       {
-        mem_info <- system("free -m 2>/dev/null | awk 'NR==2{print $7}'", intern = TRUE)
+        mem_info <- system(
+          "free -m 2>/dev/null | awk 'NR==2{print $7}'",
+          intern = TRUE
+        )
         if (length(mem_info) > 0 && !is.na(as.numeric(mem_info))) {
           as.numeric(mem_info)
         } else {
@@ -113,7 +124,10 @@ graph_compute_chunk_size <- function(n_coords,
   }
 
   # Calculate memory allocation for chunking with bounds
-  memory_for_chunk_mb <- max(min_memory_mb, min(max_memory_mb, total_memory_mb * memory_fraction))
+  memory_for_chunk_mb <- max(
+    min_memory_mb,
+    min(max_memory_mb, total_memory_mb * memory_fraction)
+  )
 
   # Each coordinate pair uses ~500 bytes (conservative estimate for intermediate calculations)
   coords_per_mb <- 1024^2 / 500 # ~2k coordinate pairs per MB

@@ -37,7 +37,11 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     ))
     id <- pressure$stap_id == 0
     sequence <- seq_len(nrow(pressure))
-    pressure$stap_id[id] <- stats::approx(sequence[!id], pressure$stap_id[!id], sequence[id])$y
+    pressure$stap_id[id] <- stats::approx(
+      sequence[!id],
+      pressure$stap_id[!id],
+      sequence[id]
+    )$y
   }
 
   if (nrow(pressure) < 3) {
@@ -55,8 +59,10 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   }
 
   if (length(unique(diff(pressure$date))) > 1) {
-    cli::cli_warn("Pressure data is not on a regular interval. The code should still
-    technically work, but it might be the cause of an error later.")
+    cli::cli_warn(
+      "Pressure data is not on a regular interval. The code should still
+    technically work, but it might be the cause of an error later."
+    )
   }
 
   # Filter stap to model
@@ -66,18 +72,25 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
 
   # Filter stap which are known
   if (!compute_known && "known_lat" %in% names(stap)) {
-    pressure <- pressure[pressure$stap_id %in% stap$stap_id[is.na(stap$known_lat)], ]
+    pressure <- pressure[
+      pressure$stap_id %in% stap$stap_id[is.na(stap$known_lat)],
+    ]
   }
 
   # Remove flight and discard label
-  id <- pressure$label != "flight" & pressure$label != "discard" &
+  id <- pressure$label != "flight" &
+    pressure$label != "discard" &
     pressure$stap_id == round(pressure$stap_id)
-  tmp <- unique(pressure$stap_id[!(pressure$stap_id %in% pressure$stap_id[id]) &
-    pressure$stap_id == round(pressure$stap_id)])
+  tmp <- unique(pressure$stap_id[
+    !(pressure$stap_id %in% pressure$stap_id[id]) &
+      pressure$stap_id == round(pressure$stap_id)
+  ])
   if (length(tmp) > 0) {
     stap_info <- cli::format_inline({
       for (i in tmp) {
-        cli::cli_text(c("*" = "{.val {i}} ({tag$stap$start[i]} - {tag$stap$end[i]}),"))
+        cli::cli_text(c(
+          "*" = "{.val {i}} ({tag$stap$start[i]} - {tag$stap$end[i]}),"
+        ))
       }
     })
     cli::cli_abort(c(
@@ -90,34 +103,43 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   pressure <- pressure[id, ]
 
   if (max(pressure$date) > Sys.time() - 3 * 30 * 24 * 60 * 60) {
-    cli::cli_warn("There are potentially not yet pressure data on the Google Earth \\
+    cli::cli_warn(
+      "There are potentially not yet pressure data on the Google Earth \\
                            Engine server for the latest stationary period. Please allow for \\
-                           around 3 months before the data becomes available.")
+                           around 3 months before the data becomes available."
+    )
   }
 
-  if (min(pressure$value, na.rm = TRUE) < 250 || 1100 < max(pressure$value, na.rm = TRUE)) {
-    cli::cli_warn("Pressure observation should be between 250 hPa (~10000m) and 1100 hPa \\
-    (sea level at 1013hPa). Check unit returned by {.fun tag_create}.")
+  if (
+    min(pressure$value, na.rm = TRUE) < 250 ||
+      1100 < max(pressure$value, na.rm = TRUE)
+  ) {
+    cli::cli_warn(
+      "Pressure observation should be between 250 hPa (~10000m) and 1100 hPa \\
+    (sea level at 1013hPa). Check unit returned by {.fun tag_create}."
+    )
   }
 
   # Create the stapelev of pressure to query: stationary period and elevation
   pressure$stapelev <- paste(
     pressure$stap_id,
-    ifelse(startsWith(pressure$label, "elev_"),
+    ifelse(
+      startsWith(pressure$label, "elev_"),
       gsub("^.*?elev_", "", pressure$label),
       "0"
     ),
     sep = "|"
   )
 
-
   # Split the data.frame per stapelev
   pressure_stapelev <- split(pressure, pressure$stapelev)
 
   pressure_stapelev_nrow <- lapply(pressure_stapelev, nrow)
   if (any(pressure_stapelev_nrow <= 1)) {
-    cli::cli_abort("There are not enough datapoint in stationary periods {.val \\
-                   {names(pressure_stapelev_nrow)[pressure_stapelev_nrow <= 1]}}.")
+    cli::cli_abort(
+      "There are not enough datapoint in stationary periods {.val \\
+                   {names(pressure_stapelev_nrow)[pressure_stapelev_nrow <= 1]}}."
+    )
   }
 
   # Smooth and downscale each stapelev
@@ -141,9 +163,15 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     #   which.min(abs(d - date_reg))
     # })
 
-    id <- stats::approx(
-      x = pgi$date, y = seq_len(nrow(pgi)), xout = date_reg, method = "constant", rule = 2
-    )$y
+    id <- round(
+      stats::approx(
+        x = pgi$date,
+        y = seq_len(nrow(pgi)),
+        xout = date_reg,
+        method = "linear",
+        rule = 2
+      )$y
+    )
 
     # Create a new data.frame of regular pressure
     pgi_reg <- pgi[id, ]
@@ -186,7 +214,7 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
     # Remove time without measure
     pgi_reg <- pgi_reg[!is.na(pgi_reg$stap_id), ]
 
-    assertthat::assert_that(all(!is.na(pgi_reg$value)))
+    assertthat::assert_that(!anyNA(pgi_reg$value))
 
     pgi_reg
   })
@@ -204,21 +232,26 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
       i = "Check the input pressure label and stap."
     ))
   }
-  assertthat::assert_that(all(!is.na(pressure_clean$date)))
-  assertthat::assert_that(all(!is.na(pressure_clean$value)))
+  assertthat::assert_that(!anyNA(pressure_clean$date))
+  assertthat::assert_that(!anyNA(pressure_clean$value))
   assertthat::assert_that(all(pressure_clean$stapelev != ""))
 
   # Check number of datapoint per stationary period
   stap <- stap[stap$include & is.na(stap$known_lat), ]
-  stap <- merge(stap,
+  stap <- merge(
+    stap,
     as.data.frame(table(pressure_clean$stap_id)),
-    by.x = "stap_id", by.y = "Var1", all.x = TRUE
+    by.x = "stap_id",
+    by.y = "Var1",
+    all.x = TRUE
   )
   stap$Freq[is.na(stap$Freq)] <- 0
 
   if (any(stap$Freq < 3)) {
-    cli::cli_warn("The stationary period {.var {stap$stap_id[stap$Freq<3]}} have less \\
-                  than 3 datapoints to be used.\f")
+    cli::cli_warn(
+      "The stationary period {.var {stap$stap_id[stap$Freq<3]}} have less \\
+                  than 3 datapoints to be used.\f"
+    )
   }
 
   # delete the internal used `date_ireg`

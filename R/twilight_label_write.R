@@ -21,9 +21,11 @@
 #' })
 #' @family geolight
 #' @export
-twilight_label_write <- function(tag,
-                                 file = glue::glue("./data/twilight-label/{tag$param$id}.csv"),
-                                 quiet = FALSE) {
+twilight_label_write <- function(
+  tag,
+  file = glue::glue("./data/twilight-label/{tag$param$id}.csv"),
+  quiet = FALSE
+) {
   # Check twilight
   tag_assert(tag, "twilight")
 
@@ -32,11 +34,14 @@ twilight_label_write <- function(tag,
 
   # Adapt variable
   twilight$series <- ifelse(twilight$rise, "Rise", "Set")
-  twilight$value <- as.numeric(format(twilight$twilight, "%H")) * 60 +
+  twilight$value <- as.numeric(format(twilight$twilight, "%H")) *
+    60 +
     as.numeric(format(twilight$twilight, "%M"))
 
   # Normalize the value with offset to be more smooth
-  twilight$value <- (twilight$value - tag$param$twilight_create$twl_offset * 60) %% (24 * 60)
+  twilight$value <- (twilight$value -
+    tag$param$twilight_create$twl_offset * 60) %%
+    (24 * 60)
 
   if (!assertthat::has_name(twilight, "label")) {
     if (assertthat::has_name(twilight, "stap_id")) {
@@ -46,7 +51,7 @@ twilight_label_write <- function(tag,
     }
   }
 
-  if (any(is.na(twilight$label))) {
+  if (anyNA(twilight$label)) {
     cli::cli_warn(c(
       "!" = "Some twilight label contain NA value",
       "i" = "Check {.code twilight$label} or {.code twilight$stap}",
@@ -54,7 +59,6 @@ twilight_label_write <- function(tag,
     ))
     twilight$label[is.na(twilight$label)] <- "discard"
   }
-
 
   # write a combined data.frame of pressure and acceleration in csv.
   file <- trainset_write(

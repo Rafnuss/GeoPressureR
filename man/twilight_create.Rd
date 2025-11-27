@@ -4,7 +4,13 @@
 \alias{twilight_create}
 \title{Estimate twilights from light data}
 \usage{
-twilight_create(tag, twl_thr = NULL, twl_offset = NULL, transform_light = TRUE)
+twilight_create(
+  tag,
+  twl_thr = NULL,
+  twl_offset = NULL,
+  transform_light = TRUE,
+  twl_time_tolerance = 180
+)
 }
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object}
@@ -16,6 +22,10 @@ value of light (i.e, first and last light of day).}
 provided, it uses the middle of all nights.}
 
 \item{transform_light}{logical to use a log transformation of light}
+
+\item{twl_time_tolerance}{Maximum allowed time difference in seconds between observations
+and the regular grid. Observations beyond this threshold will be set to NA. Default is 180
+seconds (3 minutes).}
 }
 \value{
 a \code{tag} list containing a new data.frame \code{twilight} with columns:

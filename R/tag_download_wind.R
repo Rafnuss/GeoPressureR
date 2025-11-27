@@ -55,15 +55,18 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
 tag_download_wind <- function(
-    tag,
-    extent = tag$param$tag_set_map$extent,
-    include_stap_id = NULL,
-    variable = c("u_component_of_wind", "v_component_of_wind"),
-    file = \(stap_id, tag_id) glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"),
-    overwrite = FALSE,
-    workers = 19,
-    cds_token = lifecycle::deprecated(),
-    ...) {
+  tag,
+  extent = tag$param$tag_set_map$extent,
+  include_stap_id = NULL,
+  variable = c("u_component_of_wind", "v_component_of_wind"),
+  file = \(stap_id, tag_id) {
+    glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc")
+  },
+  overwrite = FALSE,
+  workers = 19,
+  cds_token = lifecycle::deprecated(),
+  ...
+) {
   if (lifecycle::is_present(cds_token)) {
     lifecycle::deprecate_warn(
       "3.3.4",
@@ -96,7 +99,9 @@ tag_download_wind <- function(
 
     # Take all stap_id without an existing wind file
     if (!overwrite) {
-      include_stap_id <- include_stap_id[!file.exists(file(include_stap_id, tag_id))]
+      include_stap_id <- include_stap_id[
+        !file.exists(file(include_stap_id, tag_id))
+      ]
     }
   }
   assertthat::assert_that(is.numeric(include_stap_id))
@@ -128,7 +133,19 @@ tag_download_wind <- function(
   # see https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Levellistings
   # nolint end
   possible_pressure <- c(
-    1, 2, 3, 5, 7, 10, 20, 30, 50, 70, seq(100, 250, 25), seq(300, 750, 50), seq(775, 1000, 25)
+    1,
+    2,
+    3,
+    5,
+    7,
+    10,
+    20,
+    30,
+    50,
+    70,
+    seq(100, 250, 25),
+    seq(300, 750, 50),
+    seq(775, 1000, 25)
   )
 
   # create list of request
@@ -136,7 +153,8 @@ tag_download_wind <- function(
 
   for (i_s in include_stap_id) {
     # Get the time series of the flight on a 1 hour resolution
-    flight_time <- seq(round.POSIXt(stap$end[i_s] - 30 * 60, units = "hours"),
+    flight_time <- seq(
+      round.POSIXt(stap$end[i_s] - 30 * 60, units = "hours"),
       round.POSIXt(stap$start[i_s + 1] + 30 * 60, units = "hours"),
       by = 60 * 60
     )
@@ -145,7 +163,7 @@ tag_download_wind <- function(
     flight_id <- flight_time[1] <= tag$pressure$date &
       tag$pressure$date <= utils::tail(flight_time, 1)
     pres_id_min <- min(
-      sum(!(min(tag$pressure$value[flight_id]) < possible_pressure)),
+      sum(min(tag$pressure$value[flight_id]) >= possible_pressure),
       length(possible_pressure) - 1
     )
     pres_id_max <- min(
@@ -162,7 +180,7 @@ tag_download_wind <- function(
     request_list[[i_s]] <- list(
       dataset_short_name = "reanalysis-era5-pressure-levels",
       product_type = "reanalysis",
-      format = "netcdf",
+      data_format = "netcdf",
       variable = variable,
       pressure_level = possible_pressure[flight_pres_id],
       year = sort(unique(format(flight_time, "%Y"))),

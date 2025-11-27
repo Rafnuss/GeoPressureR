@@ -10,9 +10,11 @@
 #'
 #' @family movement
 #' @export
-plot_graph_movement <- function(graph,
-                                speed = seq(0, 120),
-                                plot_plotly = FALSE) {
+plot_graph_movement <- function(
+  graph,
+  speed = seq(0, 120),
+  plot_plotly = FALSE
+) {
   # Check that graph is correct
   graph_assert(graph, "movement")
 
@@ -20,7 +22,9 @@ plot_graph_movement <- function(graph,
     speed = speed,
     prob = speed2prob(speed, graph$param$graph_set_movement)
   )
-  lsf <- data.frame(low_speed_fix = graph$param$graph_set_movement$low_speed_fix)
+  lsf <- data.frame(
+    low_speed_fix = graph$param$graph_set_movement$low_speed_fix
+  )
 
   if (graph$param$graph_set_movement$type == "as") {
     xlab <- "Airspeed [km/h]"

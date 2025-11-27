@@ -53,7 +53,6 @@ windsupport <- function(windspeed, groundspeed, drift = FALSE) {
   # aw_support = aws*cos(gam)
   # aw_drift = (1i*2-1)*aws*sin(gam)
 
-
   if (drift) {
     w_drift <- (Re(ws) * Re(gs) + Im(ws) * Im(gs)) / abs(ws)
     return(w_drift)

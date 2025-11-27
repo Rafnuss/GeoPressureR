@@ -1,10 +1,12 @@
 #' @family geopressure_map
 #' @rdname geopressure_map
 #' @export
-geopressure_map_likelihood <- function(tag,
-                                       sd = 1,
-                                       log_linear_pooling_weight = \(n) log(n) / n,
-                                       keep_mse = TRUE) {
+geopressure_map_likelihood <- function(
+  tag,
+  sd = formals(geopressure_map)$sd,
+  log_linear_pooling_weight = \(n) log(n) / n,
+  keep_mse = TRUE
+) {
   # Check tag status
   tag_assert(tag, "map_pressure_mse")
 
@@ -60,7 +62,9 @@ geopressure_map_likelihood <- function(tag,
   g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
   # Add known location only if map_pressure_mse is null
   # (ie., if .known_compute = TRUE in geopressure_map_mse)
-  for (stap_id in which(!is.na(tag$stap$known_lat) & sapply(tag$map_pressure_mse$data, is.null))) {
+  for (stap_id in which(
+    !is.na(tag$stap$known_lat) & sapply(tag$map_pressure_mse$data, is.null)
+  )) {
     # Initiate an empty map
     map_pressure[[stap_id]] <- matrix(0, nrow = g$dim[1], ncol = g$dim[2])
     map_pressure[[stap_id]][tag$map_pressure_mse$mask_water] <- NA

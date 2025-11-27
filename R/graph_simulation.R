@@ -51,11 +51,9 @@
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
 #' <https://doi.org/10.1111/2041-210X.14082>.}
-#' @family graph
+#' @family graph, path
 #' @export
-graph_simulation <- function(graph,
-                             nj = 10,
-                             quiet = FALSE) {
+graph_simulation <- function(graph, nj = 10, quiet = FALSE) {
   graph_assert(graph, "full")
 
   if (!is.numeric(nj) || nj <= 0) {
@@ -89,14 +87,20 @@ graph_simulation <- function(graph,
   map_b[[graph$sz[3]]] <- Matrix::sparseMatrix(
     rep(1, length(graph$retrieval)),
     graph$retrieval,
-    x = 1, dims = c(1, n)
+    x = 1,
+    dims = c(1, n)
   )
 
   # Build all map_b in backward order
   for (i_s in (graph$sz[3] - 1):1) {
     id <- s_id[, 3] == i_s
     map_b[[i_s]] <- map_b[[i_s + 1]] %*%
-      Matrix::sparseMatrix(graph$t[id], graph$s[id], x = trans_obs[id], dims = c(n, n))
+      Matrix::sparseMatrix(
+        graph$t[id],
+        graph$s[id],
+        x = trans_obs[id],
+        dims = c(n, n)
+      )
     # Same as Eq. 3 in Nussbaumer et al. (2023) but with b_k transpose thus TO * b_k instead
     # of b_k * TO
     # Normalize map_b to prevent numerical underflow
@@ -112,7 +116,8 @@ graph_simulation <- function(graph,
   map_fb <- map_b[[1]][1:nll] * map_f_0[1:nll]
 
   for (i_j in seq_len(nj)) {
-    path_ind3d[i_j, 1] <- sum(stats::runif(1) > cumsum(map_fb) / sum(map_fb)) + 1
+    path_ind3d[i_j, 1] <- sum(stats::runif(1) > cumsum(map_fb) / sum(map_fb)) +
+      1
   }
 
   # Loop through the simulation along chronological order
@@ -133,11 +138,21 @@ graph_simulation <- function(graph,
     id <- s_id[, 3] == (i_s - 1)
 
     # create the local trans_obs (only edges from previous stap to this stap
-    trans_obs_l <- Matrix::sparseMatrix(graph$s[id], graph$t[id], x = trans_obs[id], dims = c(n, n))
+    trans_obs_l <- Matrix::sparseMatrix(
+      graph$s[id],
+      graph$t[id],
+      x = trans_obs[id],
+      dims = c(n, n)
+    )
 
     # build the forward mapping from the simulated nodes of the previous stationary period to the
     # current one using trans_obs_l
-    map_f <- Matrix::sparseMatrix(seq_len(nj), path_ind3d[, i_s - 1], x = 1, dims = c(nj, n)) %*%
+    map_f <- Matrix::sparseMatrix(
+      seq_len(nj),
+      path_ind3d[, i_s - 1],
+      x = 1,
+      dims = c(nj, n)
+    ) %*%
       trans_obs_l
 
     # Normalize each row of map_f to prevent underflow
@@ -145,12 +160,17 @@ graph_simulation <- function(graph,
 
     # Combine forward and backward and samples
     if (nj > 1) {
-      path_ind2d <- apply(map_f[, nll * (i_s - 1) + (1:nll)], 1, function(map_f_i) {
-        map_fb <- map_f_i * map_b[[i_s]][nll * (i_s - 1) + (1:nll)]
-        sum(stats::runif(1) > cumsum(map_fb) / sum(map_fb)) + 1
-      })
+      path_ind2d <- apply(
+        map_f[, nll * (i_s - 1) + (1:nll)],
+        1,
+        function(map_f_i) {
+          map_fb <- map_f_i * map_b[[i_s]][nll * (i_s - 1) + (1:nll)]
+          sum(stats::runif(1) > cumsum(map_fb) / sum(map_fb)) + 1
+        }
+      )
     } else {
-      map_fb <- map_f[, nll * (i_s - 1) + (1:nll)] * map_b[[i_s]][nll * (i_s - 1) + (1:nll)]
+      map_fb <- map_f[, nll * (i_s - 1) + (1:nll)] *
+        map_b[[i_s]][nll * (i_s - 1) + (1:nll)]
       path_ind2d <- sum(stats::runif(1) > cumsum(map_fb) / sum(map_fb)) + 1
     }
 

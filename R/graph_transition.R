@@ -28,7 +28,6 @@ graph_transition <- function(graph) {
   # Check that movement has been defined
   graph_assert(graph, "movement")
 
-
   if (graph$param$graph_set_movement$type == "as") {
     as <- graph$gs - graph$ws
     # Set airspeed to zero when distance is zero (groundspeed=0)

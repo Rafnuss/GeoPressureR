@@ -138,19 +138,21 @@
 #' @family tag
 #' @seealso [GeoPressureManual](https://bit.ly/4462jpr)
 #' @export
-tag_create <- function(id,
-                       manufacturer = NULL,
-                       crop_start = NULL,
-                       crop_end = NULL,
-                       directory = glue::glue("./data/raw-tag/{id}"),
-                       pressure_file = NULL,
-                       light_file = NULL,
-                       acceleration_file = NULL,
-                       temperature_external_file = NULL,
-                       temperature_internal_file = NULL,
-                       magnetic_file = NULL,
-                       assert_pressure = TRUE,
-                       quiet = FALSE) {
+tag_create <- function(
+  id,
+  manufacturer = NULL,
+  crop_start = NULL,
+  crop_end = NULL,
+  directory = glue::glue("./data/raw-tag/{id}"),
+  pressure_file = NULL,
+  light_file = NULL,
+  acceleration_file = NULL,
+  temperature_external_file = NULL,
+  temperature_internal_file = NULL,
+  magnetic_file = NULL,
+  assert_pressure = TRUE,
+  quiet = FALSE
+) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
 
@@ -163,7 +165,7 @@ tag_create <- function(id,
         manufacturer <- "datapackage"
       } else if (any(grepl("\\.(pressure|glf)$", list.files(directory)))) {
         manufacturer <- "soi"
-      } else if (any(grepl("\\.deg$", list.files(directory)))) {
+      } else if (any(grepl("\\.(deg|lux)$", list.files(directory)))) {
         manufacturer <- "migratetech"
       } else if (any(grepl("\\.lig$", list.files(directory)))) {
         manufacturer <- "bas"
@@ -181,7 +183,13 @@ tag_create <- function(id,
   }
   assertthat::assert_that(is.character(manufacturer))
   manufacturer_possible <- c(
-    "datapackage", "soi", "migratetech", "bas", "prestag", "lund", "dataframe"
+    "datapackage",
+    "soi",
+    "migratetech",
+    "bas",
+    "prestag",
+    "lund",
+    "dataframe"
   )
   if (!any(manufacturer %in% manufacturer_possible)) {
     cli::cli_abort(c(
@@ -246,7 +254,6 @@ tag_create <- function(id,
   } else if (manufacturer == "dataframe") {
     tag <- tag_create_dataframe(
       id,
-      directory = directory,
       pressure_file = pressure_file,
       light_file = light_file,
       acceleration_file = acceleration_file,
@@ -267,7 +274,12 @@ tag_create <- function(id,
   }
 
   # Crop date
-  tag <- tag_create_crop(tag, crop_start = crop_start, crop_end = crop_end, quiet = quiet)
+  tag <- tag_create_crop(
+    tag,
+    crop_start = crop_start,
+    crop_end = crop_end,
+    quiet = quiet
+  )
 
   return(tag)
 }
@@ -284,9 +296,13 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
   if (file.exists(file)) {
     return(file)
   }
+  if (file == "") {
+    return(NULL)
+  }
 
   # Find files in directory ending with `file`
-  path <- list.files(directory,
+  path <- list.files(
+    directory,
     pattern = glue::glue(file, "$"),
     full.names = TRUE
   )
@@ -315,7 +331,6 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
 }
 
 
-
 #' Read data file with a DTO format (Date Time Observation)
 #'
 #' @param sensor_path Full path of the file (directory + file)
@@ -323,21 +338,37 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
 #' @param colIndex of the column of the data to take as observation.
 #' @param date_format Format of the date (see [`strptime()`]).
 #' @noRd
-tag_create_dto <- function(sensor_path,
-                           skip = 6,
-                           col = 3,
-                           date_format = "%d.%m.%Y %H:%M",
-                           quiet = FALSE) {
-  data_raw <- utils::read.delim(sensor_path, skip = skip, sep = "", header = FALSE)
-  df <- data.frame(
-    date = as.POSIXct(strptime(paste(data_raw[, 1], data_raw[, 2]),
-      tz = "UTC",
-      format = date_format
-    )),
-    value = data_raw[, col]
+tag_create_dto <- function(
+  sensor_path,
+  skip = 6,
+  col = 3,
+  date_format = "%d.%m.%Y %H:%M",
+  quiet = FALSE
+) {
+  data_raw <- utils::read.delim(
+    sensor_path,
+    skip = skip,
+    sep = "",
+    header = FALSE
   )
 
-  if (any(is.na(df$value))) {
+  # Remove Invalid byte: FD from migratech
+  data_raw <- data_raw[!data_raw[, 1] == "Invalid", ]
+
+  df <- data.frame(
+    date = as.POSIXct(strptime(
+      paste(data_raw[, 1], data_raw[, 2]),
+      tz = "UTC",
+      format = date_format
+    ))
+  )
+
+  for (i in seq_along(col)) {
+    name <- if (i == 1) "value" else paste0("value", i)
+    df[[name]] <- as.numeric(data_raw[[col[i]]])
+  }
+
+  if (anyNA(df$value)) {
     cli::cli_abort(c(
       x = "Invalid data in {.file {sensor_path)} at line(s): {skip + which(is.na(df$value))}",
       i = "Check and fix the corresponding lines"
@@ -358,17 +389,23 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
   # Check if all specified columns are present
   missing_cols <- setdiff(col_name, names(df))
   if (length(missing_cols) > 0) {
-    cli::cli_abort("The following columns are missing in {.file {sensor_path}}: \\
-                              {glue::glue_collapse(missing_cols, ', ')}")
+    cli::cli_abort(
+      "The following columns are missing in {.file {sensor_path}}: \\
+                              {glue::glue_collapse(missing_cols, ', ')}"
+    )
   }
 
   # Rename column datetime to date and convert to posixct
   names(df)[names(df) == "datetime"] <- "date"
   df$date <- as.POSIXct(df$date, format = "%Y-%m-%dT%H:%M", tz = "UTC")
-  if (any(is.na(df$date))) {
-    df$date <- as.POSIXct(strptime(df$date, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC"))
+  if (anyNA(df$date)) {
+    df$date <- as.POSIXct(strptime(
+      df$date,
+      format = "%Y-%m-%dT%H:%M:%OS",
+      tz = "UTC"
+    ))
   }
-  if (any(is.na(df$date))) {
+  if (anyNA(df$date)) {
     cli::cli_abort(c(
       x = "Invalid date in {.file {sensor_path}} at line(s): {which(is.na(df$date))}",
       i = "Check and fix the corresponding lines"
@@ -385,21 +422,26 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
 
 #' Crop sensor data.frame
 #' @noRd
-tag_create_crop <- function(tag,
-                            crop_start,
-                            crop_end,
-                            quiet = TRUE) {
+tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
   for (sensor in c(
-    "pressure", "light", "acceleration", "temperature_internal",
-    "temperature_external", "magnetic"
+    "pressure",
+    "light",
+    "acceleration",
+    "temperature_internal",
+    "temperature_external",
+    "magnetic"
   )) {
     if (sensor %in% names(tag)) {
       # Crop time
       if (!is.null(crop_start)) {
-        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date >= as.POSIXct(crop_start, tz = "UTC"), ]
+        tag[[sensor]] <- tag[[sensor]][
+          tag[[sensor]]$date >= as.POSIXct(crop_start, tz = "UTC"),
+        ]
       }
       if (!is.null(crop_end)) {
-        tag[[sensor]] <- tag[[sensor]][tag[[sensor]]$date < as.POSIXct(crop_end, tz = "UTC"), ]
+        tag[[sensor]] <- tag[[sensor]][
+          tag[[sensor]]$date < as.POSIXct(crop_end, tz = "UTC"),
+        ]
       }
 
       if (!quiet) {
@@ -407,8 +449,10 @@ tag_create_crop <- function(tag,
         if (length(unique(diff(tag[[sensor]]$date))) > 1) {
           # nolint start
           dtime <- as.numeric(diff(tag[[sensor]]$date))
-          cli::cli_warn("Irregular time spacing for {.field {sensor}}: \\
-                  {tag[[sensor]]$date[which(dtime != dtime[1])]}.")
+          cli::cli_warn(
+            "Irregular time spacing for {.field {sensor}}: \\
+                  {tag[[sensor]]$date[which(dtime != dtime[1])]}."
+          )
           # nolint end
         }
 

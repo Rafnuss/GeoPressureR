@@ -132,12 +132,16 @@ tag_status <- function(tag) {
   if (assertthat::has_name(tag$pressure, "label")) {
     status <- append(status, "label")
   }
-  if (assertthat::has_name(tag, "stap") &&
-    assertthat::has_name(tag$stap, "stap_id")) {
+  if (
+    assertthat::has_name(tag, "stap") &&
+      assertthat::has_name(tag$stap, "stap_id")
+  ) {
     status <- append(status, "stap")
   }
-  if (assertthat::has_name(tag$param$tag_set_map, c("extent", "scale")) &&
-    assertthat::has_name(tag$stap, c("known_lat", "known_lon", "include"))) {
+  if (
+    assertthat::has_name(tag$param$tag_set_map, c("extent", "scale")) &&
+      assertthat::has_name(tag$stap, c("known_lat", "known_lon", "include"))
+  ) {
     status <- append(status, "setmap")
   }
   if (assertthat::has_name(tag, "map_pressure")) {

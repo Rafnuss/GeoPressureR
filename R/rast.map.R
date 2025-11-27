@@ -27,10 +27,13 @@
 #'
 #' @family map
 #' @export
-rast.map <- function(x, # nolint
-                     names = glue::glue("#{map$stap$stap_id}"),
-                     crs = "epsg:4326",
-                     ...) {
+rast.map <- function(
+  # nolint
+  x,
+  names = glue::glue("#{map$stap$stap_id}"),
+  crs = "epsg:4326",
+  ...
+) {
   map <- x
 
   assertthat::assert_that(inherits(map, "map"))
@@ -42,7 +45,12 @@ rast.map <- function(x, # nolint
     map$data[[i]] <- matrix(NA, nrow = dim(map)[1], ncol = dim(map)[2])
   }
 
-  r <- terra::rast(simplify2array(map$data), extent = map$extent, crs = crs, ...)
+  r <- terra::rast(
+    simplify2array(map$data),
+    extent = map$extent,
+    crs = crs,
+    ...
+  )
 
   # add starting date as time
 

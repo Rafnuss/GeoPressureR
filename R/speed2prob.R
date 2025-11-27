@@ -55,24 +55,41 @@ speed2prob <- function(speed, movement) {
   speed <- pmax(speed, movement$low_speed_fix)
 
   if (movement$method == "gamma") {
-    norm <- sum(stats::dgamma(norm_speed, shape = movement$shape, scale = movement$scale))
-    prob <- stats::dgamma(speed, shape = movement$shape, scale = movement$scale) / norm
+    norm <- sum(stats::dgamma(
+      norm_speed,
+      shape = movement$shape,
+      scale = movement$scale
+    ))
+    prob <- stats::dgamma(
+      speed,
+      shape = movement$shape,
+      scale = movement$scale
+    ) /
+      norm
   } else if (movement$method == "logis") {
-    norm <- sum(stats::plogis(norm_speed,
-      location = movement$location, scale = movement$scale,
+    norm <- sum(stats::plogis(
+      norm_speed,
+      location = movement$location,
+      scale = movement$scale,
       lower.tail = FALSE
     ))
-    prob <- stats::plogis(speed,
-      location = movement$location, scale = movement$scale,
+    prob <- stats::plogis(
+      speed,
+      location = movement$location,
+      scale = movement$scale,
       lower.tail = FALSE
-    ) / norm
+    ) /
+      norm
   } else if (movement$method == "power") {
     # `speed2power` is defined in m/s (SI), but the rest of your code is using km/h. This is where
     # we need to convert.
     as <- speed * 1000 / 60 / 60
 
     # We normalize the probability computed by `power2prob`
-    norm <- sum(movement$power2prob(speed2power(norm_speed * 1000 / 60 / 60, movement$bird)))
+    norm <- sum(movement$power2prob(speed2power(
+      norm_speed * 1000 / 60 / 60,
+      movement$bird
+    )))
 
     prob <- movement$power2prob(speed2power(as, movement$bird)) / norm
   }
@@ -103,10 +120,15 @@ speed2power <- function(as, bird) {
   assertthat::assert_that(is.numeric(as))
   assertthat::assert_that(all(as >= 0))
   assertthat::assert_that(inherits(bird, "bird"))
-  assertthat::assert_that(assertthat::has_name(bird, c(
-    "mass", "wing_span", "body_frontal_area",
-    "wing_aspect"
-  )))
+  assertthat::assert_that(assertthat::has_name(
+    bird,
+    c(
+      "mass",
+      "wing_span",
+      "body_frontal_area",
+      "wing_aspect"
+    )
+  ))
 
   # Constant of gravity [ms-2]
   g <- 9.80665
@@ -128,8 +150,13 @@ speed2power <- function(as, bird) {
   p_par <- rho * as^3 * bird$body_frontal_area * c_db / 2
 
   # Profile power due to the local drag on the wings
-  p_am <- 1.05 * k^(3 / 4) * bird$mass^(3 / 2) * g^(3 / 2) *
-    bird$body_frontal_area^(1 / 4) * c_db^(1 / 4) / rho^(1 / 2) /
+  p_am <- 1.05 *
+    k^(3 / 4) *
+    bird$mass^(3 / 2) *
+    g^(3 / 2) *
+    bird$body_frontal_area^(1 / 4) *
+    c_db^(1 / 4) /
+    rho^(1 / 2) /
     bird$wing_span^(3 / 2)
   p_pro <- c_pro / bird$wing_aspect * p_am
 

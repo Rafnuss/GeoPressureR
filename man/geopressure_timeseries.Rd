@@ -10,7 +10,6 @@ geopressure_timeseries(
   pressure = NULL,
   start_time = NULL,
   end_time = NULL,
-  timeout = 60 * 5,
   quiet = FALSE,
   debug = FALSE
 )
@@ -28,9 +27,6 @@ the time series as POSIXlt.}
 
 \item{end_time}{If \code{pressure} is not provided, \code{end_time} defines the end time of
 the time series as POSIXlt.}
-
-\item{timeout}{duration before the code is interrupted both for the request on
-GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 
 \item{quiet}{logical to hide messages about the progress}
 

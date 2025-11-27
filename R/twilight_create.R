@@ -11,6 +11,9 @@
 #' @param twl_offset Shift of the middle of the night compared to 00:00 UTC (in hours). If not
 #' provided, it uses the middle of all nights.
 #' @param transform_light logical to use a log transformation of light
+#' @param twl_time_tolerance Maximum allowed time difference in seconds between observations
+#'   and the regular grid. Observations beyond this threshold will be set to NA. Default is 180
+#'   seconds (3 minutes).
 #'
 #' @return a `tag` list containing a new data.frame `twilight` with columns:
 #' - `twilight` (date-time of twilight)
@@ -34,10 +37,13 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html), [`TwGeos::findTwilights()`](
 #' https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html)
 #' @export
-twilight_create <- function(tag,
-                            twl_thr = NULL,
-                            twl_offset = NULL,
-                            transform_light = TRUE) {
+twilight_create <- function(
+  tag,
+  twl_thr = NULL,
+  twl_offset = NULL,
+  transform_light = TRUE,
+  twl_time_tolerance = 180
+) {
   tag_assert(tag)
 
   light <- tag$light
@@ -51,17 +57,31 @@ twilight_create <- function(tag,
   }
 
   if (is.null(twl_thr)) {
-    twl_thr <- min(light$value[light$value > 0], na.rm = TRUE)
+    # Convoluted way to define the twl_thr. I would have been much easier to use the min value and
+    # than a strictly greater than (rather than greater or equal to). But to keep consistency with
+    # previous versions...
+    twl_thr <- min(
+      light$value[light$value > min(light$value, na.rm = TRUE)],
+      na.rm = TRUE
+    )
   }
   assertthat::assert_that(is.numeric(twl_thr))
 
   # add padding of time to center if night are not at 00:00 UTC
   if (is.null(twl_offset)) {
-    twl_offset <- twilight_create_guess_offset(light, twl_thr = twl_thr)
+    twl_offset <- twilight_create_guess_offset(
+      light,
+      twl_thr = twl_thr,
+      twl_time_tolerance = twl_time_tolerance
+    )
   }
 
   # Use ts2mat() to reshape light into a matrix
-  mat <- ts2mat(light, twl_offset = twl_offset)
+  mat <- ts2mat(
+    light,
+    twl_offset = twl_offset,
+    twl_time_tolerance = twl_time_tolerance
+  )
   # image(mat$value)
 
   # Compute exceed of light
@@ -120,6 +140,7 @@ twilight_create <- function(tag,
   tag$param$twl_transform_light <- transform_light
   tag$param$twilight_create$twl_offset <- twl_offset
   tag$param$twilight_create$twl_thr <- twl_thr
+  tag$param$twilight_create$twl_time_tolerance <- twl_time_tolerance
 
   return(tag)
 }
@@ -130,15 +151,21 @@ twilight_create_transform <- function(value) {
 }
 
 #' @noRd
-twilight_create_guess_offset <- function(light, twl_thr = NULL) {
+twilight_create_guess_offset <- function(
+  light,
+  twl_thr = NULL,
+  twl_time_tolerance = formals(twilight_create)$twl_time_tolerance
+) {
   if (is.null(twl_thr)) {
     twl_thr <- min(light$value[light$value > 0], na.rm = TRUE)
   }
 
-  mat <- ts2mat(light, twl_offset = 0)
+  mat <- ts2mat(light, twl_offset = 0, twl_time_tolerance = twl_time_tolerance)
   l <- mat$value >= twl_thr
   tmp <- rowMeans(l, na.rm = TRUE)
-  offset_id <- round(sum(tmp * seq_len(dim(mat$value)[1]), na.rm = TRUE) / sum(tmp, na.rm = TRUE))
+  offset_id <- round(
+    sum(tmp * seq_len(dim(mat$value)[1]), na.rm = TRUE) / sum(tmp, na.rm = TRUE)
+  )
   twl_offset <- (mat$res * offset_id - 60 * 60 * 12) / 60 / 60
 
   return(twl_offset)

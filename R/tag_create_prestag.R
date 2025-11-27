@@ -1,9 +1,11 @@
 # Read PresTag tag files
 #' @noRd
-tag_create_prestag <- function(id,
-                               directory = glue::glue("./data/raw-tag/{id}"),
-                               pressure_file = NULL,
-                               quiet = FALSE) {
+tag_create_prestag <- function(
+  id,
+  directory = glue::glue("./data/raw-tag/{id}"),
+  pressure_file = NULL,
+  quiet = FALSE
+) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
 
@@ -23,13 +25,22 @@ tag_create_prestag <- function(id,
   }
 
   # Read
-  data_raw <- utils::read.delim(pressure_path, header = FALSE, comment.char = "#", sep = ",")
+  data_raw <- utils::read.delim(
+    pressure_path,
+    header = FALSE,
+    comment.char = "#",
+    sep = ","
+  )
 
   # convert epoch to Posixt
   timestamps <- as.POSIXct(data_raw$V1, origin = "1970-01-01", tz = "UTC")
 
   # Separate pressure and temperature
-  df <- utils::read.table(text = data_raw$V2, sep = ":", col.names = c("sensor", "value"))
+  df <- utils::read.table(
+    text = data_raw$V2,
+    sep = ":",
+    col.names = c("sensor", "value")
+  )
   df$date <- timestamps
 
   # df2 <- read.table(text = data_raw$V3[data_raw$V3!=""],

@@ -45,11 +45,13 @@
 #' ))
 #'
 #' @export
-stap2flight <- function(stap,
-                        include_stap_id = NULL,
-                        format = "df",
-                        units = "hours",
-                        return_numeric = TRUE) {
+stap2flight <- function(
+  stap,
+  include_stap_id = NULL,
+  format = "df",
+  units = "hours",
+  return_numeric = TRUE
+) {
   assertthat::assert_that(is.data.frame(stap))
   assertthat::assert_that(assertthat::has_name(stap, "stap_id"))
   assertthat::assert_that(assertthat::has_name(stap, "start"))
@@ -80,7 +82,11 @@ stap2flight <- function(stap,
     stap_s = utils::head(stap$stap_id, -1),
     stap_t = utils::tail(stap$stap_id, -1)
   )
-  flight_all$duration <- stap2duration(flight_all, units = units, return_numeric = return_numeric)
+  flight_all$duration <- stap2duration(
+    flight_all,
+    units = units,
+    return_numeric = return_numeric
+  )
 
   # Filter flight_all to remove flight before the first include_stap_id or after the last
   # include_stap_id
@@ -100,15 +106,18 @@ stap2flight <- function(stap,
   }
 
   # compute flight duration for each stationary period
-  flight_df <- do.call(rbind, lapply(flight_list, function(f) {
-    data.frame(
-      start = f$start[1],
-      end = utils::tail(f$end, 1),
-      stap_s = f$stap_s[1],
-      stap_t = utils::tail(f$stap_t, 1),
-      duration = sum(f$duration),
-      n = nrow(f)
-    )
-  }))
+  flight_df <- do.call(
+    rbind,
+    lapply(flight_list, function(f) {
+      data.frame(
+        start = f$start[1],
+        end = utils::tail(f$end, 1),
+        stap_s = f$stap_s[1],
+        stap_t = utils::tail(f$stap_t, 1),
+        duration = sum(f$duration),
+        n = nrow(f)
+      )
+    })
+  )
   return(flight_df)
 }

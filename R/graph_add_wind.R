@@ -27,16 +27,18 @@
 #' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
 graph_add_wind <- function(
-    graph,
-    thr_as = Inf,
-    ...) {
+  graph,
+  thr_as = Inf,
+  ...
+) {
   graph_assert(graph, "full")
   assertthat::assert_that(is.numeric(thr_as))
   assertthat::assert_that(length(thr_as) == 1)
   assertthat::assert_that(thr_as >= 0)
 
   # Check that all the files of wind_speed exist and match the data request
-  uv <- edge_add_wind(graph,
+  uv <- edge_add_wind(
+    graph,
     edge_s = graph$s,
     edge_t = graph$t,
     variable = c("u", "v"),
@@ -101,7 +103,9 @@ graph_add_wind <- function(
     graph$param$graph_add_wind$file <- file
   } else {
     # Use default file function if not provided
-    file <- \(stap_id) glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc")
+    file <- \(stap_id) {
+      glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc")
+    }
     attr(file, "srcref") <- NULL
     attr(file, "srcfile") <- NULL
     environment(file) <- baseenv()

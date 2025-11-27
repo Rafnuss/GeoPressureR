@@ -10,29 +10,20 @@
 #' @return Same data logger list as input, updated with the labels `label`
 #'
 #' @noRd
-trainset_read <- function(df,
-                          file,
-                          series = NULL,
-                          timestamp = "date",
-                          label = "label") {
+trainset_read <- function(
+  df,
+  file,
+  series = NULL,
+  timestamp = "date",
+  label = "label"
+) {
   assertthat::assert_that(is.data.frame(df))
   assertthat::assert_that(nrow(df) > 0)
   assertthat::assert_that(is.character(timestamp))
   assertthat::assert_that(is.character(label))
   assertthat::assert_that(assertthat::has_name(df, timestamp))
-  assertthat::assert_that(is.character(file))
-  assertthat::assert_that(file.exists(file))
 
-  # read the file
-  csv <- utils::read.csv(file)
-
-  # check that the file is in the right format
-  assertthat::assert_that(assertthat::has_name(csv, "series"))
-  assertthat::assert_that(assertthat::has_name(csv, "timestamp"))
-  assertthat::assert_that(assertthat::has_name(csv, "label"))
-
-  # Convert to date format
-  csv$date <- strptime(csv$timestamp, "%FT%T", tz = "UTC")
+  csv <- trainset_read_raw(file)
 
   # Extract only data from the corresponding series
   if (!is.null(series)) {
@@ -64,14 +55,61 @@ trainset_read <- function(df,
 
   if (missing_pres > 0) {
     # nolint start
-    series_name <- ifelse(is.null(series), "", glue::glue(" of ", series))
+    not_needed <- nrow(csv) - nrow(df) + missing_pres
+
+    series_name <- if (!is.null(series)) {
+      paste0(" of {.field ", series, "}")
+    } else {
+      ""
+    }
+
+    msg <- paste0(
+      "The labelization file",
+      series_name,
+      " is missing {.val {missing_pres}} timesteps"
+    )
+
+    if (not_needed > 0) {
+      msg <- paste0(
+        msg,
+        " and includes {.val {not_needed}} timesteps which are not needed"
+      )
+    }
+
     cli::cli_warn(c(
-      i = "The labelization file{series_name} is missing {missing_pres} timesteps and includes
-      {nrow(csv) - nrow(df) + missing_pres} timestep which are not nedded. ",
-      ">" = "We assumed no discard during the timestep missing."
+      i = msg,
+      ">" = "We assumed no {.val discard} during the missing timesteps."
     ))
     # nolint end
   }
 
   return(df)
+}
+
+#' Read raw trainset CSV file
+#'
+#' Internal function to read and parse a trainset CSV file with basic validation.
+#'
+#' @param file Path to the trainset CSV file
+#' @return Data.frame with parsed timestamp as date column
+#' @noRd
+trainset_read_raw <- function(file) {
+  assertthat::assert_that(is.character(file))
+  assertthat::assert_that(file.exists(file))
+
+  # Read trainset file
+  csv <- utils::read.csv(file)
+
+  # check that the file is in the right format
+  assertthat::assert_that(assertthat::has_name(csv, "series"))
+  assertthat::assert_that(assertthat::has_name(csv, "timestamp"))
+  assertthat::assert_that(assertthat::has_name(csv, "label"))
+
+  # Replace NA values in label column with empty strings
+  csv$label[is.na(csv$label)] <- ""
+
+  # Convert to date format
+  csv$date <- as.POSIXct(csv$timestamp, format = "%FT%T", tz = "UTC")
+
+  csv
 }

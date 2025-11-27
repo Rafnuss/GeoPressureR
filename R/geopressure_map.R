@@ -154,21 +154,24 @@
 #' @family geopressure_map
 #' @seealso [GeoPressureManual](https://bit.ly/3sg7yFJ)
 #' @export
-geopressure_map <- function(tag,
-                            max_sample = 250,
-                            margin = 30,
-                            sd = 1,
-                            thr_mask = 0.9,
-                            log_linear_pooling_weight = \(n) log(n) / n,
-                            timeout = 60 * 5,
-                            workers = "auto",
-                            keep_mask = FALSE,
-                            keep_mse = FALSE,
-                            compute_known = FALSE,
-                            debug = FALSE,
-                            quiet = FALSE) {
+geopressure_map <- function(
+  tag,
+  max_sample = 250,
+  margin = 30,
+  sd = 1,
+  thr_mask = 0.9,
+  log_linear_pooling_weight = \(n) log(n) / n,
+  timeout = 60 * 5,
+  workers = "auto",
+  keep_mask = FALSE,
+  keep_mse = FALSE,
+  compute_known = FALSE,
+  debug = FALSE,
+  quiet = FALSE
+) {
   # Compute mean square error maps
-  tag <- geopressure_map_mismatch(tag,
+  tag <- geopressure_map_mismatch(
+    tag,
     max_sample = max_sample,
     margin = margin,
     thr_mask = thr_mask,
@@ -181,7 +184,8 @@ geopressure_map <- function(tag,
   )
 
   # Compute likelihood maps from the MSE maps
-  tag <- geopressure_map_likelihood(tag,
+  tag <- geopressure_map_likelihood(
+    tag,
     sd = sd,
     log_linear_pooling_weight = log_linear_pooling_weight,
     keep_mse = keep_mse

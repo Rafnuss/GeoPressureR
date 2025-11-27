@@ -40,10 +40,12 @@
 #' @family tag_label
 #' @seealso [GeoPressureManual](https://bit.ly/45bthNt)
 #' @export
-tag_label_auto <- function(tag,
-                           min_duration = 30,
-                           thr_reclassify = 0.1,
-                           post_proc_window = 2) {
+tag_label_auto <- function(
+  tag,
+  min_duration = 30,
+  thr_reclassify = 0.1,
+  post_proc_window = 2
+) {
   tag_assert(tag)
   if (!assertthat::has_name(tag$pressure, "label")) {
     tag$pressure$label <- ""
@@ -51,12 +53,24 @@ tag_label_auto <- function(tag,
 
   if (assertthat::has_name(tag, "acceleration")) {
     assertthat::assert_that(is.data.frame(tag$acceleration))
-    assertthat::assert_that(assertthat::has_name(tag$acceleration, c("value", "date")))
+    assertthat::assert_that(assertthat::has_name(
+      tag$acceleration,
+      c("value", "date")
+    ))
     assertthat::assert_that(is.numeric(min_duration))
     assertthat::assert_that(min_duration > 0)
 
+    if (all(tag$acceleration$value == 0)) {
+      warning("All acceleration values are zero. No flight detected.")
+      tag$acceleration$label <- ""
+      return(tag)
+    }
+
     # Run a 2 class k mean clustering
-    km <- stats::kmeans(tag$acceleration$value[tag$acceleration$value > 0], centers = 2)
+    km <- stats::kmeans(
+      tag$acceleration$value[tag$acceleration$value > 0],
+      centers = 2
+    )
 
     # classify all datapoints belonging to the high value cluster
     act_mig <- tag$acceleration$value > mean(km$centers)
@@ -65,11 +79,15 @@ tag_label_auto <- function(tag,
     act_id <- c(1, cumsum(diff(as.numeric(act_mig)) != 0) + 1)
 
     # compute the time resolution of the datset
-    dt <- as.double(tag$acceleration$date[2] - tag$acceleration$date[1], units = "mins")
+    dt <- as.double(
+      tag$acceleration$date[2] - tag$acceleration$date[1],
+      units = "mins"
+    )
 
     # Search all activity with high activity and with a duration above
     # min_duration
-    tmp <- sapply(split(act_mig, act_id), unique) & table(act_id) * dt > min_duration
+    tmp <- sapply(split(act_mig, act_id), unique) &
+      table(act_id) * dt > min_duration
 
     is_flight <- as.vector(tmp[act_id])
 
@@ -88,14 +106,18 @@ tag_label_auto <- function(tag,
       seq_along(is_flight)[!is.na(is_flight)],
       is_flight[!is.na(is_flight)],
       seq_along(is_flight)[is.na(is_flight)],
-      method = "constant", rule = 2, f = 0
+      method = "constant",
+      rule = 2,
+      f = 0
     )$y
 
     next_isna <- stats::approx(
       seq_along(is_flight)[!is.na(is_flight)],
       is_flight[!is.na(is_flight)],
       seq_along(is_flight)[is.na(is_flight)],
-      method = "constant", rule = 2, f = 1
+      method = "constant",
+      rule = 2,
+      f = 1
     )$y
 
     # Classify as migratory flight if next or previous is migration.

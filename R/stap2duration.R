@@ -27,9 +27,7 @@
 #' stap2duration(stap, units = "mins", return_numeric = FALSE)
 #'
 #' @export
-stap2duration <- function(stap_path,
-                          units = "days",
-                          return_numeric = TRUE) {
+stap2duration <- function(stap_path, units = "days", return_numeric = TRUE) {
   assertthat::assert_that(is.data.frame(stap_path))
   assertthat::assert_that(assertthat::has_name(stap_path, c("start", "end")))
   dur <- difftime(stap_path$end, stap_path$start, units = units)

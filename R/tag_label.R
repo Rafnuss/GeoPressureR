@@ -47,10 +47,12 @@
 #' @seealso [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html)
 #' @export
-tag_label <- function(tag,
-                      file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
-                      quiet = FALSE,
-                      ...) {
+tag_label <- function(
+  tag,
+  file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
+  quiet = FALSE,
+  ...
+) {
   tag_assert(tag)
   assertthat::assert_that(is.character(file))
 
@@ -74,7 +76,10 @@ tag_label <- function(tag,
       "2" = glue::glue("Yes, in `{file_default}` (default)"),
       "3" = glue::glue("Yes, in `{file_input}` (in input file directory)")
     )
-    res <- as.numeric(names(utils::select.list(choices, title = "Do you want to create it?")))
+    res <- as.numeric(names(utils::select.list(
+      choices,
+      title = "Do you want to create it?"
+    )))
 
     if (res == 2) {
       tag_label_write(tag, file_default, quiet = quiet)
@@ -90,13 +95,20 @@ tag_label <- function(tag,
   } else {
     # Check if label has already been setmap
     if (tag_assert(tag, "setmap", "")) {
-      cli::cli_bullets(c("!" = "The setmap has already been defined for {.var tag}."))
+      cli::cli_bullets(c(
+        "!" = "The setmap has already been defined for {.var tag}."
+      ))
       choices <- list(
         "1" = glue::glue("No, return the original `tag`"),
-        "2" = glue::glue("Yes, read the new label, but start `tag` from scratch")
+        "2" = glue::glue(
+          "Yes, read the new label, but start `tag` from scratch"
+        )
       )
       res <- as.numeric(names(
-        utils::select.list(choices, title = "How to you want to proceed with the new label file?")
+        utils::select.list(
+          choices,
+          title = "How to you want to proceed with the new label file?"
+        )
       ))
 
       if (res == 1) {

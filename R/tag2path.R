@@ -44,11 +44,9 @@
 #' path <- tag2path(tag, interp = 1)
 #' plot_path(path)
 #'
+#' @family path
 #' @export
-tag2path <- function(tag,
-                     likelihood = NULL,
-                     interp = FALSE,
-                     use_known = TRUE) {
+tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
   # Construct the likelihood map
   map <- tag2map(tag, likelihood = likelihood)
 
@@ -85,7 +83,7 @@ tag2path <- function(tag,
     fal <- c(1, length(path_interp))
     if (any(path_interp[fal])) {
       path_interp[fal] <- FALSE
-      if (any(is.na(lat_ind[fal]))) {
+      if (anyNA(lat_ind[fal])) {
         cli::cli_abort(c(
           x = "First and/or last modelled stationary periods ({.val
           {tag$stap$stap_id[fal[is.na(lat_ind[fal])]]}}) don't have a likelihood map."
@@ -107,12 +105,20 @@ tag2path <- function(tag,
 
     # Interpolate the lat and lon indices separately using `total_flight` as a spacing between
     # position
-    lon_ind[path_interp] <- round(stats::approx(
-      total_flight[!path_interp], lon_ind[!path_interp], total_flight[path_interp]
-    )$y)
-    lat_ind[path_interp] <- round(stats::approx(
-      total_flight[!path_interp], lat_ind[!path_interp], total_flight[path_interp]
-    )$y)
+    lon_ind[path_interp] <- round(
+      stats::approx(
+        total_flight[!path_interp],
+        lon_ind[!path_interp],
+        total_flight[path_interp]
+      )$y
+    )
+    lat_ind[path_interp] <- round(
+      stats::approx(
+        total_flight[!path_interp],
+        lat_ind[!path_interp],
+        total_flight[path_interp]
+      )$y
+    )
 
     # Move to the closest non-water position
     # Find the index of lat-lon for all non-water position
@@ -121,19 +127,24 @@ tag2path <- function(tag,
     mask_water_ind_lon <- (mask_water_ind2 - mask_water_ind_lat) / g$dim[1] + 1
 
     for (i in seq_len(length(lat_ind))) {
-      # if following over water
-      if (tag$map_pressure$mask_water[lat_ind[i], lon_ind[i]]) {
-        # Find the closest non-water
-        closest_ind2 <- which.min((mask_water_ind_lat - lat_ind[i])^2 +
-          (mask_water_ind_lon - lon_ind[i])^2)
-        # Assign the index in lat lon
+      if (
+        !is.na(lat_ind[i]) &&
+          !is.na(lon_ind[i]) &&
+          tag$map_pressure$mask_water[lat_ind[i], lon_ind[i]]
+      ) {
+        closest_ind2 <- which.min(
+          (mask_water_ind_lat - lat_ind[i])^2 +
+            (mask_water_ind_lon - lon_ind[i])^2
+        )
         lat_ind[i] <- mask_water_ind_lat[closest_ind2]
         lon_ind[i] <- mask_water_ind_lon[closest_ind2]
       }
     }
 
     # Update in 2d
-    ind[path_interp] <- (lon_ind[path_interp] - 1) * g$dim[1] + lat_ind[path_interp]
+    ind[path_interp] <- (lon_ind[path_interp] - 1) *
+      g$dim[1] +
+      lat_ind[path_interp]
   } else {
     path_interp <- FALSE
   }

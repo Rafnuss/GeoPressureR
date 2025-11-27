@@ -24,7 +24,7 @@
 #' to assume a broader/smoother distribution.
 #'
 #' @param tag a GeoPressureR `tag` object.
-#' @param twl_calib_adjust smoothing parameter for the kernel density (see [`stats::kernel()`]).
+#' @param twl_calib_adjust smoothing parameter for the kernel density (see [`stats::density()`]).
 #' @param twl_llp log-linear pooling aggregation weight.
 #' @param compute_known logical defining if the map(s) for known stationary period should be
 #' estimated based on twilight or hard defined by the known location `stap$known_l**`
@@ -85,11 +85,13 @@
 #'
 #' @family geolight
 #' @export
-geolight_map <- function(tag,
-                         twl_calib_adjust = 1.4,
-                         twl_llp = \(n) log(n) / n,
-                         compute_known = FALSE,
-                         quiet = FALSE) {
+geolight_map <- function(
+  tag,
+  twl_calib_adjust = 1.4,
+  twl_llp = \(n) log(n) / n,
+  compute_known = FALSE,
+  quiet = FALSE
+) {
   # Check tag
   tag_assert(tag, "setmap")
   tag_assert(tag, "twilight")
@@ -118,14 +120,15 @@ geolight_map <- function(tag,
   twl_id <- which(stats::complete.cases(twl) & twl$label != "discard")
   # Only select twilight that we are interested of: not known and/or not in flight
   if (!compute_known) {
-    twl_id <- twl_id[twl$stap_id[twl_id] %in% tag$stap$stap_id[is.na(tag$stap$known_lat)]]
+    twl_id <- twl_id[
+      twl$stap_id[twl_id] %in% tag$stap$stap_id[is.na(tag$stap$known_lat)]
+    ]
   } else {
     twl_id <- twl_id[twl$stap_id[twl_id] %in% tag$stap$stap_id]
   }
 
   # compute the likelihood of observing the zenith angle of each twilight using the calibrated
   # error function for each grid cell.
-
 
   # compute the likelihood of observing the zenith angle of each twilight using the calibrated
   # error function for each grid cell
@@ -149,10 +152,17 @@ geolight_map <- function(tag,
   g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
 
   # Initialize the likelihood list from stap to make sure all stap are present
-  lk <- replicate(nrow(tag$stap), matrix(1, nrow = g$dim[1], ncol = g$dim[2]), simplify = FALSE)
+  lk <- replicate(
+    nrow(tag$stap),
+    matrix(1, nrow = g$dim[1], ncol = g$dim[2]),
+    simplify = FALSE
+  )
 
   if (!quiet) {
-    cli::cli_progress_bar(name = "Combine maps per stationary periods", total = sum(ntwl))
+    cli::cli_progress_bar(
+      name = "Combine maps per stationary periods",
+      total = sum(ntwl)
+    )
   }
   for (i in seq_len(length(twl_id_stap_id))) {
     # find all twilight from this stap
@@ -160,11 +170,17 @@ geolight_map <- function(tag,
 
     # Combine with a Log-linear equation express in log
     if (length(id) > 1) {
-      l <- exp(rowSums(twl_llp(length(id)) * log(pgz[, id] + .Machine$double.eps)))
+      l <- exp(rowSums(
+        twl_llp(length(id)) * log(pgz[, id] + .Machine$double.eps)
+      ))
     } else if (length(id) == 1) {
       l <- pgz[, id]
     }
-    lk[[as.numeric(names(twl_id_stap_id[i]))]] <- matrix(l, nrow = g$dim[1], ncol = g$dim[2])
+    lk[[as.numeric(names(twl_id_stap_id[i]))]] <- matrix(
+      l,
+      nrow = g$dim[1],
+      ncol = g$dim[2]
+    )
     if (!quiet) {
       cli::cli_progress_update(inc = ntwl[[i]])
     }
@@ -220,13 +236,21 @@ geolight_map <- function(tag,
 #' @return A kernel calibration object
 #' @seealso [`geolight_map()`]
 #' @noRd
-geolight_calibration <- function(twl, stap_known, twl_calib_adjust = 1.4) {
+geolight_calibration <- function(
+  twl,
+  stap_known,
+  twl_calib_adjust = formals(geolight_map)$twl_calib_adjust
+) {
   assertthat::assert_that(is.numeric(twl_calib_adjust))
-  assertthat::assert_that(all(c("known_lat", "known_lon", "start", "end") %in% names(stap_known)))
+  assertthat::assert_that(all(
+    c("known_lat", "known_lon", "start", "end") %in% names(stap_known)
+  ))
   assertthat::assert_that(all(c("twilight", "stap_id") %in% names(twl)))
 
   # remove any staps without known
-  stap_known <- stap_known[!is.na(stap_known$known_lat) & !is.na(stap_known$known_lon), ]
+  stap_known <- stap_known[
+    !is.na(stap_known$known_lat) & !is.na(stap_known$known_lon),
+  ]
 
   if (nrow(stap_known) == 0) {
     cli::cli_abort(c(
@@ -252,7 +276,8 @@ geolight_calibration <- function(twl, stap_known, twl_calib_adjust = 1.4) {
   # Calibrate the twilight in term of zenith angle with a kernel density.
   z_calib <- c()
   for (i in seq_len(nrow(stap_known))) {
-    id <- twl_clean$twilight >= stap_known$start[i] & twl_clean$twilight <= stap_known$end[i]
+    id <- twl_clean$twilight >= stap_known$start[i] &
+      twl_clean$twilight <= stap_known$end[i]
     sun_calib <- geolight_solar(twl_clean$twilight[id])
     z_calib <- c(
       z_calib,
@@ -265,12 +290,20 @@ geolight_calibration <- function(twl, stap_known, twl_calib_adjust = 1.4) {
   }
 
   # Compute the kernel density
-  twl_calib <- stats::density(z_calib, adjust = twl_calib_adjust, from = 60, to = 120)
+  twl_calib <- stats::density(
+    z_calib,
+    adjust = twl_calib_adjust,
+    from = 60,
+    to = 120
+  )
 
   # Compute the histogram
   hist_vals <- graphics::hist(z_calib, plot = FALSE)
   twl_calib$hist_count <- hist_vals$density * length(z_calib)
   twl_calib$hist_mids <- hist_vals$mids
+
+  # Add the adjust parameter
+  twl_calib$adjust <- twl_calib_adjust
 
   # return the twlight calibration object
   twl_calib
@@ -286,7 +319,13 @@ geolight_calibration <- function(twl, stap_known, twl_calib_adjust = 1.4) {
 #' @return dsd
 #' @seealso [`geolight_map()`]
 #' @noRd
-geolight_map_twilight <- function(twl, extent, scale, twl_calib, quiet = FALSE) {
+geolight_map_twilight <- function(
+  twl,
+  extent,
+  scale,
+  twl_calib,
+  quiet = FALSE
+) {
   # construct the grid of latitude and longitude on cell centred
   g <- map_expand(extent, scale)
   m <- expand.grid(lat = g$lat, lon = g$lon)
@@ -298,7 +337,10 @@ geolight_map_twilight <- function(twl, extent, scale, twl_calib, quiet = FALSE) 
   # Loop through each grid cell (location lat, lon) and compute the likelihood for all twilight
   if (!quiet) {
     pgz <- lapply(
-      cli::cli_progress_along(ml, name = "Compute a likelihood map for each twilight"),
+      cli::cli_progress_along(
+        ml,
+        name = "Compute a likelihood map for each twilight"
+      ),
       function(i) {
         z <- geolight_refracted(geolight_zenith(sun, ml[[i]]$lon, ml[[i]]$lat))
         stats::approx(twl_calib$x, twl_calib$y, z, yleft = 0, yright = 0)$y
@@ -316,8 +358,6 @@ geolight_map_twilight <- function(twl, extent, scale, twl_calib, quiet = FALSE) 
 }
 
 
-
-
 #' Solar time and declination
 #'
 #' Calculate solar time, the equation of time and the sine and cosine of the solar declination.
@@ -329,7 +369,6 @@ geolight_map_twilight <- function(twl, extent, scale, twl_calib, quiet = FALSE) 
 #' - `eqn_time` equation of time (minutes of time)
 #' - `sin_solar_dec` sine of the solar declination
 #' - `cos_solar_dec` cosine of the solar declination
-#' @seealso [`geolight_zenith()`]
 #' @examples
 #' # Current solar time
 #' GeoPressureR::geolight_solar(Sys.time())
@@ -353,8 +392,10 @@ geolight_solar <- function(date) {
   e <- 0.016708634 - jc * (0.000042037 + 0.0000001267 * jc)
 
   # Equation of centre for the sun (degrees) [L]
-  eqctr <- sin(rad * m) * (1.914602 - jc * (0.004817 + 0.000014 * jc)) +
-    sin(rad * 2 * m) * (0.019993 - 0.000101 * jc) + sin(rad * 3 * m) * 0.000289
+  eqctr <- sin(rad * m) *
+    (1.914602 - jc * (0.004817 + 0.000014 * jc)) +
+    sin(rad * 2 * m) * (0.019993 - 0.000101 * jc) +
+    sin(rad * 3 * m) * 0.000289
 
   # The true longitude of the sun (degrees) [m]
   lambda0 <- l0 + eqctr
@@ -373,11 +414,14 @@ geolight_solar <- function(date) {
 
   # The equation of time (minutes of time) [U,V]
   y <- tan(rad * obliq / 2)^2
-  eqn_time <- 4 / rad * (y * sin(rad * 2 * l0) -
-    2 * e * sin(rad * m) +
-    4 * e * y * sin(rad * m) * cos(rad * 2 * l0) -
-    0.5 * y^2 * sin(rad * 4 * l0) -
-    1.25 * e^2 * sin(rad * 2 * m))
+  eqn_time <- 4 /
+    rad *
+    (y *
+      sin(rad * 2 * l0) -
+      2 * e * sin(rad * m) +
+      4 * e * y * sin(rad * m) * cos(rad * 2 * l0) -
+      0.5 * y^2 * sin(rad * 4 * l0) -
+      1.25 * e^2 * sin(rad * 2 * m))
 
   # The sun's declination (radians) [T]
   solar_dec <- asin(sin(rad * obliq) * sin(rad * lambda))
@@ -406,12 +450,11 @@ geolight_solar <- function(date) {
 #' `geolight_zenith` uses the solar time and declination calculated by `geolight_solar` to compute
 #' the solar zenith angle for given times and locations, using the same methods as
 #' \url{https://gml.noaa.gov/grad/solcalc/}.  This function does not adjust for atmospheric
-#' refraction see [`geolight_refracted`].
+#' refraction see `GeoPressureR:::geolight_refracted()`.
 #' @param sun List of solar time and declination computed by `geolight_solar`.
 #' @param lon Vector of longitudes.
 #' @param lat Vector latitudes.
 #' @return A vector of solar zenith angles (degrees) for the given locations and times.
-#' @seealso [`geolight_solar()`]
 #' @examples
 #' # Approx location of Sydney Harbour Bridge
 #' lon <- 151.211
@@ -429,7 +472,8 @@ geolight_zenith <- function(sun, lon, lat) {
   # hour_angle <- sun$solar_time%%360+lon-180
 
   # Cosine of sun's zenith [AD]
-  cos_zenith <- (sin(rad * lat) * sun$sin_solar_dec +
+  cos_zenith <- (sin(rad * lat) *
+    sun$sin_solar_dec +
     cos(rad * lat) * sun$cos_solar_dec * cos(rad * hour_angle))
 
   # Limit to [-1,1] [!!]
@@ -441,26 +485,33 @@ geolight_zenith <- function(sun, lon, lat) {
 }
 
 
-
 #' Atmospheric refraction
 #'
-#' Adjust the solar zenith angle computed by [`geolight_zenith`] for the effect of atmospheric
-#' refraction.
+#' Adjust the solar zenith angle computed by `GeoPressureR:::geolight_zenith()` for the effect of
+#' atmospheric refraction.
 #'
 #' @param zenith Zenith angle (degrees) to adjust.
 #' @return Vector of zenith angles (degrees) adjusted for atmospheric refraction.
-#' @seealso [`geolight_zenith()`]
 #' @noRd
 geolight_refracted <- function(zenith) {
   rad <- pi / 180
   e <- 90 - zenith
   te <- tan((rad) * e)
   # Atmospheric Refraction [AF]
-  r <- ifelse(e > 85, 0,
-    ifelse(e > 5, 58.1 / te - 0.07 / te^3 + 0.000086 / te^5,
-      ifelse(e > -0.575,
-        1735 + e * (-518.2 + e *
-          (103.4 + e * (-12.79 + e * 0.711))), -20.772 / te
+  r <- ifelse(
+    e > 85,
+    0,
+    ifelse(
+      e > 5,
+      58.1 / te - 0.07 / te^3 + 0.000086 / te^5,
+      ifelse(
+        e > -0.575,
+        1735 +
+          e *
+            (-518.2 +
+              e *
+                (103.4 + e * (-12.79 + e * 0.711))),
+        -20.772 / te
       )
     )
   )

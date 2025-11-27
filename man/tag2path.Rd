@@ -63,3 +63,10 @@ path <- tag2path(tag, interp = 1)
 plot_path(path)
 
 }
+\seealso{
+Other path: 
+\code{\link{ind2path}()},
+\code{\link{path2elevation}()},
+\code{\link{plot_path}()}
+}
+\concept{path}

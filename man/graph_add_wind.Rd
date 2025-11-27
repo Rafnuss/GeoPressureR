@@ -16,7 +16,8 @@ graph_add_wind(graph, thr_as = Inf, ...)
   \describe{
     \item{\code{pressure}}{pressure measurement of the associated \code{tag} data used to estimate the pressure
 level (i.e., altitude) of the bird during the flights. This data.frame needs to contain \code{date} as
-POSIXt and \code{value} in hPa.}
+POSIXt and \code{value} in hPa. If not provided, uses \code{graph$pressure}, assuming that argument \code{graph}
+is a GeoPressureR \code{tag} object.}
     \item{\code{rounding_interval}}{temporal resolution on which to query the variable (min). Default is to
 match ERA5 native resolution (1hr).}
     \item{\code{interp_spatial_linear}}{logical to interpolate the variable linearly over space, if \code{FALSE}

@@ -57,8 +57,8 @@ knitr::kable(head(path, n = 15))
 }
 \seealso{
 Other path: 
-\code{\link{path2edge}()},
 \code{\link{path2elevation}()},
-\code{\link{plot_path}()}
+\code{\link{plot_path}()},
+\code{\link{tag2path}()}
 }
 \concept{path}

@@ -5,9 +5,12 @@
 #' @inheritParams twilight_create
 #' @return A data.frame with columns `date` and `value`.
 #' @export
-ts2mat <- function(ts,
-                   twl_offset = 0,
-                   value = "value") {
+ts2mat <- function(
+  ts,
+  twl_offset = 0,
+  value = "value",
+  twl_time_tolerance = formals(twilight_create)$twl_time_tolerance
+) {
   assertthat::assert_that(is.data.frame(ts))
   assertthat::assert_that(assertthat::has_name(ts, "date"))
   assertthat::assert_that(assertthat::is.time(ts$date))
@@ -18,18 +21,36 @@ ts2mat <- function(ts,
   res_vec <- as.numeric(diff(ts$date), units = "secs")
   res <- stats::median(res_vec)
   if (length(unique(res_vec)) != 1) {
+    # nolint start
+    res_counts <- table(res_vec)
+    res_summary <- paste(
+      names(res_counts),
+      "s (",
+      res_counts,
+      "x)",
+      sep = "",
+      collapse = ", "
+    )
+    # nolint end
     cli::cli_warn(c(
-      x = "Temporal resolution of the ts data is not constant. We will use a regular \\
-      resolution of {.val {res}} seconds."
+      x = "Temporal resolution of the time series data is not constant.",
+      i = "Found resolutions: {res_summary}",
+      i = "Will use a regular resolution of {format_minutes(res / 60)}."
     ))
   }
 
   # Pad time to start and finish at 00:00
   date <- seq(
-    from = as.POSIXct(format(ts$date[1] - twl_offset * 60 * 60, "%Y-%m-%d"), tz = "UTC"),
-    to = as.POSIXct(format(ts$date[length(ts$date)] - twl_offset * 60 * 60, "%Y-%m-%d"),
+    from = as.POSIXct(
+      format(ts$date[1] - twl_offset * 60 * 60, "%Y-%m-%d"),
       tz = "UTC"
-    ) + 60 * 60 * 24 - res,
+    ),
+    to = as.POSIXct(
+      format(ts$date[length(ts$date)] - twl_offset * 60 * 60, "%Y-%m-%d"),
+      tz = "UTC"
+    ) +
+      60 * 60 * 24 -
+      res,
     by = res
   )
   date <- date + twl_offset * 60 * 60
@@ -59,12 +80,12 @@ ts2mat <- function(ts,
   delta1 <- abs(ts_date_num[idx] - date_num)
   delta2 <- abs(ts_date_num[idx + 1] - date_num)
 
-  # Pick the closest one, but only if within 30s
+  # Pick the closest one
   use_next <- delta2 < delta1
   closest_idx <- ifelse(use_next, idx + 1, idx)
 
-  # Mask values beyond 30s
-  closest_idx[(pmin(delta1, delta2) > 30)] <- NA
+  # Mask values beyond twl_time_tolerance
+  closest_idx[(pmin(delta1, delta2) > twl_time_tolerance)] <- NA
 
   # Final values
   value <- rep(NA, length(date_num))
@@ -78,8 +99,15 @@ ts2mat <- function(ts,
   )
 
   # image(mat$value)
-  mat$day <- as.Date(as.POSIXct(colMeans(mat$date), origin = "1970-01-01", tz = "UTC"))
-  mat$time <- format(as.POSIXct(mat$date[, 1], origin = "1970-01-01", tz = "UTC"), "%H:%M")
+  mat$day <- as.Date(as.POSIXct(
+    colMeans(mat$date),
+    origin = "1970-01-01",
+    tz = "UTC"
+  ))
+  mat$time <- format(
+    as.POSIXct(mat$date[, 1], origin = "1970-01-01", tz = "UTC"),
+    "%H:%M"
+  )
 
   return(mat)
 }

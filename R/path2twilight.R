@@ -60,10 +60,12 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html), [suntools
 #' ](https://github.com/adokter/suntools)
 #' @export
-path2twilight <- function(path,
-                          date = NULL,
-                          solar_dep = 0,
-                          return_long = TRUE) {
+path2twilight <- function(
+  path,
+  date = NULL,
+  solar_dep = 0,
+  return_long = TRUE
+) {
   assertthat::assert_that(is.data.frame(path))
 
   # pressurepath
@@ -85,7 +87,10 @@ path2twilight <- function(path,
     )
   } else {
     # path
-    assertthat::assert_that(assertthat::has_name(path, c("lat", "lon", "start", "end")))
+    assertthat::assert_that(assertthat::has_name(
+      path,
+      c("lat", "lon", "start", "end")
+    ))
 
     # if date is not provided
     if (is.null(date)) {
@@ -111,7 +116,9 @@ path2twilight <- function(path,
   }
 
   if (is.null(attr(twl$date, "tzone")) || attr(twl$date, "tzone") != "UTC") {
-    cli::cli_warn("The {.val date} is not in UTC which might lead to undesired effect")
+    cli::cli_warn(
+      "The {.val date} is not in UTC which might lead to undesired effect"
+    )
   }
 
   if (solar_dep == 0) {

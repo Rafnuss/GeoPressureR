@@ -17,7 +17,9 @@ test_that("Check twilight_create()", {
   expect_true(all(c("twilight", "rise") %in% names(tag$twilight)))
   expect_true(nrow(tag$twilight) > 0)
 
-  expect_no_error(tag_off <- twilight_create(tag, twl_offset = 2))
+  expect_no_error({
+    tag_off <- twilight_create(tag, twl_offset = 2)
+  })
   expect_equal(tag_off$param$twilight_create$twl_offset, 2)
 
   expect_no_error(plot_tag_twilight(tag))
@@ -35,11 +37,14 @@ test_that("Check twilight_label_read() is correct", {
 })
 
 test_that("Check geolight_map() not working before tag_set_map()", {
-  expect_error(tag <- geolight_map(tag, quiet = TRUE))
+  expect_error({
+    tag <- geolight_map(tag, quiet = TRUE)
+  })
 })
 
 tag <- tag_label(tag, quiet = TRUE)
-tag <- tag_set_map(tag,
+tag <- tag_set_map(
+  tag,
   extent = c(-16, 23, 0, 50),
   scale = 4,
   known = data.frame(
@@ -50,7 +55,9 @@ tag <- tag_set_map(tag,
 )
 
 test_that("Check geolight_map() with stap", {
-  tag <- geolight_map(tag, quiet = TRUE)
+  expect_no_error({
+    tag <- geolight_map(tag, quiet = TRUE)
+  })
   expect_type(tag$map_light, "list")
   expect_equal(length(dim(tag$map_light[[1]])), 2)
 })

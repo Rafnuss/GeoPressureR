@@ -23,7 +23,8 @@ tag <- tag_create("18LX", quiet = TRUE) |>
 tag <- geopressure_map(tag, keep_mask = TRUE, keep_mse = TRUE, quiet = TRUE)
 tag_old <- tag
 
-tag_new <- tag_update(tag,
+tag_new <- tag_update(
+  tag,
   file = glue::glue("./data/tag-label/{tag$param$id}-labeled-updated.csv"),
   quiet = TRUE
 )
@@ -34,7 +35,10 @@ test_that("tag_update() | default", {
   expect_equal(tag_new$map_pressure$stap, tag_new$stap)
   expect_equal(tag_new$map_pressure$data[[1]], tag_old$map_pressure$data[[1]])
   expect_equal(tag_new$map_pressure$data[[5]], tag_old$map_pressure$data[[5]])
-  expect_equal(tag_new$param$geopressure_map$sd, tag_old$param$geopressure_map$sd)
+  expect_equal(
+    tag_new$param$geopressure_map$sd,
+    tag_old$param$geopressure_map$sd
+  )
 })
 
 

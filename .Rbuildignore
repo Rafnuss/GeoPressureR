@@ -24,3 +24,6 @@
 ^\.RDataTmp$
 ^\.Rhistory$
 ^\.httr-oauth$
+^[.]?air[.]toml$
+^\.vscode$
+^jarl\.yml$

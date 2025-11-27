@@ -71,16 +71,18 @@
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
 #' <https://doi.org/10.1111/2041-210X.14082>.}
 #' @export
-graph_set_movement <- function(graph,
-                               type = ifelse("ws" %in% names(graph), "as", "gs"),
-                               method = ifelse("ws" %in% names(graph), "power", "gamma"),
-                               shape = 7,
-                               scale = 7,
-                               location = 40,
-                               bird = NULL,
-                               power2prob = \(power) (1 / power)^3,
-                               low_speed_fix = 15,
-                               zero_speed_ratio = 1) {
+graph_set_movement <- function(
+  graph,
+  type = ifelse("ws" %in% names(graph), "as", "gs"),
+  method = ifelse("ws" %in% names(graph), "power", "gamma"),
+  shape = 7,
+  scale = 7,
+  location = 40,
+  bird = NULL,
+  power2prob = \(power) (1 / power)^3,
+  low_speed_fix = 15,
+  zero_speed_ratio = 1
+) {
   graph_assert(graph)
 
   assertthat::assert_that(type == "as" | type == "gs")

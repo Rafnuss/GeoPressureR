@@ -13,8 +13,10 @@ edge_add_wind(
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
   return_averaged_variable = FALSE,
-  file = function(stap_id, tag_id)
-    glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"),
+  file = function(stap_id, tag_id) {
+    
+    glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc")
+ },
   quiet = FALSE
 )
 }
@@ -29,7 +31,8 @@ of 3 columns, one for each dimension.}
 
 \item{pressure}{pressure measurement of the associated \code{tag} data used to estimate the pressure
 level (i.e., altitude) of the bird during the flights. This data.frame needs to contain \code{date} as
-POSIXt and \code{value} in hPa.}
+POSIXt and \code{value} in hPa. If not provided, uses \code{graph$pressure}, assuming that argument \code{graph}
+is a GeoPressureR \code{tag} object.}
 
 \item{variable}{list of the variables to extract from \href{https://bit.ly/3BrwLBM}{the ERA5 pressure level } using the \code{shortName} notation: \code{"u"}, \code{"v"},  \code{"t"}, \code{"cc"}, \code{"r"},
 \code{"w"}, \code{"ciwc"}, \code{"clwc"}, \code{"q"}, \code{"cswc"}, \code{"d"}, \code{"z"}, \code{"o3"}, \code{"pv"}, \code{"vo"}.}
@@ -49,7 +52,7 @@ taking as arguments (1) the stationary period identifier and (2) the tag_id.}
 \item{quiet}{logical to hide messages about the progress}
 }
 \value{
-A data.frame with columns:
+If \code{return_averaged_variable = TRUE}, returns a data.frame with one row per edge and columns:
 \itemize{
 \item \code{stap_s} id of the source/origin stationary period
 \item \code{stap_t} id of the target/destination stationary period
@@ -68,17 +71,32 @@ A data.frame with columns:
 \item \code{gs} groundspeed
 \item \code{ws} windspeed (if \code{graph} provided)
 }
+
+If \code{return_averaged_variable = FALSE}, returns a data.frame with one row per time step and edge,
+and columns:
+\itemize{
+\item \code{edge_id} edge index
+\item \code{val} value of the variable at each time step
+\item \code{pressure} pressure at each time step
+\item \code{date} datetime of each time step
+\item \code{w} weight for averaging
+\item \code{var} variable name
+\item \code{lat} latitude at each time step
+\item \code{lon} longitude at each time step
+}
 }
 \description{
 Reads the NetCDF files and extracts the variable requested along each flight defined by the
 edges.
 \itemize{
 \item Time: linear interpolation using the resolution requested with \code{rounding_interval}
-\item Space: nearest neighbour interpolation by default or bi-linear with \code{pracma::interp2} if
-\code{interp_spatial_linear=TRUE}
+\item Space: nearest neighbour interpolation by default, or bi-linear with \code{pracma::interp2} if
+\code{interp_spatial_linear=TRUE}. Note: spatial interpolation is limited to 0.1° for computational
+reasons.
 \item Pressure/altitude: linear interpolation using the exact \code{pressure} values
 }
 }
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual}
 }
+\concept{edge}

@@ -102,8 +102,6 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 Other graph: 
 \code{\link{graph_create}()},
 \code{\link{graph_marginal}()},
-\code{\link{graph_most_likely}()},
-\code{\link{graph_simulation}()},
 \code{\link{print.graph}()}
 
 Other movement: 

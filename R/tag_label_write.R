@@ -32,9 +32,11 @@
 #' @family tag_label
 #' @seealso [GeoPressureManual](https://bit.ly/3QC7IBt)
 #' @export
-tag_label_write <- function(tag,
-                            file = glue::glue("./data/tag-label/{tag$param$id}.csv"),
-                            quiet = FALSE) {
+tag_label_write <- function(
+  tag,
+  file = glue::glue("./data/tag-label/{tag$param$id}.csv"),
+  quiet = FALSE
+) {
   tag_assert(tag)
 
   # Create empty label if it doesn't exit

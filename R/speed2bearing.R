@@ -12,12 +12,16 @@
 #' @return bearing angle in degree
 #'
 #' @export
-speed2bearing <- function(speed, speed_ref = complex(real = 0, imaginary = 1), positive = TRUE) {
+speed2bearing <- function(
+  speed,
+  speed_ref = complex(real = 0, imaginary = 1),
+  positive = TRUE
+) {
   # Compute the angle of the complex notation
   angle_rad <- Arg(speed_ref * Conj(speed))
   # Convert from radian to degree
   angle_deg <- angle_rad * 180 / pi
-  # Ensure the result is positive
+  # Ensure the result is positive (0 North, 90 East, 180 South, 270 West)
   if (positive) {
     angle_deg[angle_deg < 0] <- angle_deg[angle_deg < 0] + 360
   }

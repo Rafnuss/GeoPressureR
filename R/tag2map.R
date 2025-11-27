@@ -32,8 +32,14 @@ tag2likelihood <- function(tag, likelihood = NULL) {
   tag_assert(tag)
 
   authorized_lk <- c(
-    "map_pressure", "map_light", "map_pressure_mse", "map_pressure_mask",
-    "mask_water", "map_marginal", "map_magnetic", "map_magnetic_intensity",
+    "map_pressure",
+    "map_light",
+    "map_pressure_mse",
+    "map_pressure_mask",
+    "mask_water",
+    "map_marginal",
+    "map_magnetic",
+    "map_magnetic_intensity",
     "map_magnetic_inclination"
   )
 

@@ -34,8 +34,12 @@ param_create <- function(id, default = FALSE, ...) {
         pressure_file = formals(tag_create)$pressure_file,
         light_file = formals(tag_create)$light_file,
         acceleration_file = formals(tag_create)$acceleration_file,
-        temperature_external_file = formals(tag_create)$temperature_external_file,
-        temperature_internal_file = formals(tag_create)$temperature_internal_file,
+        temperature_external_file = formals(
+          tag_create
+        )$temperature_external_file,
+        temperature_internal_file = formals(
+          tag_create
+        )$temperature_internal_file,
         magnetic_file = formals(tag_create)$magnetic_file,
         assert_pressure = formals(tag_create)$assert_pressure
       ),
@@ -54,13 +58,16 @@ param_create <- function(id, default = FALSE, ...) {
         margin = formals(geopressure_map)$margin,
         sd = formals(geopressure_map)$sd,
         thr_mask = formals(geopressure_map)$thr_mask,
-        log_linear_pooling_weight = formals(geopressure_map)$log_linear_pooling_weight,
+        log_linear_pooling_weight = formals(
+          geopressure_map
+        )$log_linear_pooling_weight,
         compute_known = formals(geopressure_map)$compute_known
       ),
       twilight_create = list(
         twl_thr = formals(twilight_create)$twl_thr,
         twl_offset = formals(twilight_create)$twl_offset,
-        transform_light = formals(twilight_create)$transform_light
+        transform_light = formals(twilight_create)$transform_light,
+        twl_time_tolerance = formals(twilight_create)$twl_time_tolerance
       ),
       twilight_label_read = list(
         file = formals(twilight_label_read)$file
@@ -86,6 +93,7 @@ param_create <- function(id, default = FALSE, ...) {
         zero_speed_ratio = formals(graph_set_movement)$zero_speed_ratio
       ),
       bird_create = list(
+        scientific_name = NULL, # required in bird_create
         mass = formals(bird_create)$mass,
         wing_span = formals(bird_create)$wing_span,
         wing_aspect = formals(bird_create)$wing_aspect,
@@ -95,6 +103,7 @@ param_create <- function(id, default = FALSE, ...) {
       graph_add_wind = list(
         thr_as = formals(graph_add_wind)$thr_as,
         file = formals(edge_add_wind)$file,
+        variable = formals(edge_add_wind)$variable,
         rounding_interval = formals(edge_add_wind)$rounding_interval,
         interp_spatial_linear = formals(edge_add_wind)$interp_spatial_linear
       ),
@@ -120,7 +129,10 @@ param_create <- function(id, default = FALSE, ...) {
   }
 
   if (is.list(param$tag_set_map$known)) {
-    param$tag_set_map$known <- do.call(rbind, lapply(param$tag_set_map$known, as.data.frame))
+    param$tag_set_map$known <- do.call(
+      rbind,
+      lapply(param$tag_set_map$known, as.data.frame)
+    )
   }
 
   return(structure(param, class = "param"))
@@ -128,8 +140,8 @@ param_create <- function(id, default = FALSE, ...) {
 
 #' Merge two parameters list.
 #'
-#' Strongly inspired by [config::merge()] and rmarkdown
-#' [https://github.com/rstudio/rmarkdown/blob/main/R/util.R#L231]
+#' Strongly inspired by [config::merge()] and [rmarkdown/util.R#L231
+#' ](https://github.com/rstudio/rmarkdown/blob/v2.29/R/util.R#L231)
 #'
 #' @param base_param Parameter list to merge values into
 #' @param overlay_param Parameter list to merge values from

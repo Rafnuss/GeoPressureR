@@ -9,7 +9,7 @@ plot_tag_temperature(
   variable = "external",
   plot_plotly = TRUE,
   label_auto = TRUE,
-  min_duration = 30
+  min_duration = formals(tag_label_auto)$min_duration
 )
 }
 \arguments{
