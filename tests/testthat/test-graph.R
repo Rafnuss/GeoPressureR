@@ -20,8 +20,8 @@ tag <- tag_create("18LX", quiet = TRUE) |>
 graph <- graph_create(tag, quiet = TRUE)
 
 test_that("Check graph output", {
-  expect_no_error(print(graph))
-  expect_no_error(print(graph$param))
+  expect_no_error(invisible(capture.output(print(graph), type = "message")))
+  expect_no_error(invisible(capture.output(print(graph$param), type = "message")))
   expect_length(graph$s, length(graph$t))
   expect_length(graph$s, length(graph$gs))
   expect_type(graph$gs, "complex")

@@ -7,8 +7,7 @@ setwd(system.file("extdata", package = "GeoPressureR"))
 test_that("workflow | full", {
   geopressuretemplate("18LX", quiet = TRUE)
 
-  file <- glue::glue("./data/interim/18LX.RData")
-  save_list <- load(file)
+  save_list <- load_interim("18LX")
   tag <- get("tag")
   path_most_likely <- get("path_most_likely")
   pressurepath <- get("pressurepath_most_likely")
@@ -16,7 +15,7 @@ test_that("workflow | full", {
   path <- tag2path(tag)
   expect_no_error(tag2path(tag, interp = 0.7))
 
-  expect_no_error(print(tag))
+  expect_no_error(invisible(capture.output(print(tag), type = "message")))
 
   expect_no_error(plot(tag, type = "pressure"))
   expect_no_error(plot(tag, type = "pressure", plot_plotly = FALSE))

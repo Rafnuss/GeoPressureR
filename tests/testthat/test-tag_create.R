@@ -38,7 +38,8 @@ test_that("tag_create() | default", {
     quiet = TRUE
   )
 
-  # Check that the return tag is correct
+  # Check that the return tag is correct (suppress CLI output)
+  expect_no_error(invisible(capture.output(print(tag), type = "message")))
   expect_no_error(tag_assert(tag, "pressure"))
   expect_no_error(tag_assert(tag, "light"))
   expect_no_error(tag_assert(tag, "acceleration"))
@@ -70,6 +71,7 @@ test_that("tag_create() | Migrate Technology", {
     quiet = TRUE
     # crop_start = "2017-06-20", crop_end = "2018-05-02"
   )
+  expect_no_error(invisible(capture.output(print(tag), type = "message")))
   expect_gt(nrow(tag$pressure), 0)
   expect_gt(nrow(tag$light), 0)
 
@@ -83,18 +85,23 @@ test_that("tag_create() | Migrate Technology", {
 
 
 test_that("tag_create() | no acceleration", {
-  tag <- tag_create(
-    id = "18LX",
-    acceleration_file = NA,
-    light_file = NA,
-    quiet = TRUE
-  )
-  expect_no_error(tag)
-  tag <- tag_label_read(
-    tag,
-    file = "./data/tag-label/18LX-labeled-no_acc.csv"
-  )
-  expect_no_error(tag)
+  expect_no_error({
+    tag <- tag_create(
+      id = "18LX",
+      acceleration_file = NA,
+      light_file = NA,
+      quiet = TRUE
+    )
+  })
+  expect_no_error(invisible(capture.output(print(tag), type = "message")))
+
+  expect_no_error({
+    tag <- tag_label_read(
+      tag,
+      file = "./data/tag-label/18LX-labeled-no_acc.csv"
+    )
+  })
+  expect_no_error(invisible(capture.output(print(tag), type = "message")))
   expect_no_error(tag_label_stap(tag, quiet = TRUE))
 })
 
