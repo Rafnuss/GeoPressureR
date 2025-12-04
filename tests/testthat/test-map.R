@@ -50,7 +50,7 @@ test_that("map_create() | basic", {
   expect_equal(map$extent, extent)
 
   expect_no_error(plot(map))
-  expect_no_error(invisible(capture.output(print(map), type = "message")))
+  expect_no_error(print(map))
 })
 
 

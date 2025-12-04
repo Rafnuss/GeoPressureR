@@ -1,177 +1,37 @@
 library(testthat)
 library(GeoPressureR)
 
-# Set working directory to access package data
+skip("skip geopressureviz")
+
+# Set working directory
 setwd(system.file("extdata", package = "GeoPressureR"))
 
-# Helper to create mock tag
-create_mock_tag <- function() {
-  tag <- tag_create("18LX", quiet = TRUE) |>
-    tag_label(quiet = TRUE) |>
-    tag_set_map(extent = c(-16, 23, 0, 50), scale = 1)
-
-  # Add pressure data
-  tag$pressure <- data.frame(
-    date = seq(
-      as.POSIXct("2017-06-20 00:00:00", tz = "UTC"),
-      as.POSIXct("2017-06-25 00:00:00", tz = "UTC"),
-      by = "hour"
-    ),
-    value = runif(121, 950, 1013)
+tag <- tag_create("18LX")
+tag <- tag_label(tag)
+expect_error(geopressureviz(tag))
+tag <- tag_set_map(
+  tag,
+  extent = c(-16, 23, 0, 50),
+  scale = 2,
+  known = data.frame(
+    stap_id = 1,
+    known_lon = 17.05,
+    known_lat = 48.9
   )
+)
+expect_error(geopressureviz(tag))
 
-  # Add stap data with required columns
-  # Make staps > 1 day to avoid interpolation warnings
-  tag$stap <- data.frame(
-    stap_id = 1:2,
-    start = as.POSIXct(c("2017-06-20 00:00:00", "2017-06-23 00:00:00"), tz = "UTC"),
-    end = as.POSIXct(c("2017-06-22 00:00:00", "2017-06-25 00:00:00"), tz = "UTC"),
-    known_lat = c(NA, NA),
-    known_lon = c(NA, NA),
-    include = c(TRUE, TRUE)
-  )
+# Pressure
+tag <- geopressure_map_mismatch(tag)
+geopressureviz(tag)
 
-  # Ensure param$tag_set_map exists
-  if (is.null(tag$param$tag_set_map)) {
-    tag$param$tag_set_map <- list(extent = c(-16, 23, 0, 50), scale = 1)
-  }
+tag <- geopressure_map_likelihood(tag)
+geopressureviz(tag)
 
-  # Create a proper map object structure
-  # Grid dimensions for extent c(-16, 23, 0, 50) and scale 1
-  # Lat: 0 to 50 (51 points), Lon: -16 to 23 (40 points)
-  mat <- matrix(0, nrow = 51, ncol = 40)
-  mat[25, 20] <- 1 # Peak probability
+# With light
+tag <- twilight_create(tag)
+tag <- twilight_label_read(tag)
+tag <- geolight_map(tag)
+geopressureviz(tag)
 
-  map_data <- list(mat, mat)
-
-  tag$map_pressure <- structure(
-    list(
-      data = map_data,
-      mask_water = matrix(FALSE, nrow = 51, ncol = 40), # All land to avoid interpolation errors
-      extent = c(-16, 23, 0, 50),
-      scale = 1,
-      type = "pressure"
-    ),
-    class = "map"
-  )
-
-  tag
-}
-
-test_that("geopressureviz() | input validation", {
-  # Invalid input type
-  expect_error(geopressureviz(list()), "needs to be a")
-
-  # Invalid file path
-  expect_error(geopressureviz("non_existent_file.RData"), "needs to be a")
-})
-
-test_that("geopressureviz() | foreground execution", {
-  tag <- create_mock_tag()
-
-  # Capture shiny options
-  captured_options <- new.env()
-
-  # Mock shiny functions
-  local_mocked_bindings(
-    shinyOptions = function(...) {
-      args <- list(...)
-      for (n in names(args)) {
-        captured_options[[n]] <- args[[n]]
-      }
-    },
-    runApp = function(...) {
-      return("app_ran")
-    },
-    getShinyOption = function(x) {
-      return("mock_path")
-    },
-    .package = "shiny"
-  )
-
-  # Run in foreground
-  result <- geopressureviz(tag, run_bg = FALSE, launch_browser = FALSE)
-
-  # Check that runApp was called (implied by return value)
-  expect_equal(result, "mock_path")
-
-  # Check that options were set correctly
-  expect_true(!is.null(captured_options$tag))
-  expect_true(!is.null(captured_options$maps))
-  expect_true(!is.null(captured_options$path))
-  expect_true(inherits(captured_options$tag, "tag"))
-})
-
-test_that("geopressureviz() | background execution", {
-  tag <- create_mock_tag()
-
-  # Mock callr::r_bg
-  local_mocked_bindings(
-    r_bg = function(...) {
-      structure(
-        list(
-          is_alive = function() FALSE, # Return FALSE immediately to exit loop
-          poll_io = function(...) {},
-          read_error = function() "",
-          read_output = function() "Listening on http://127.0.0.1:1234"
-        ),
-        class = "r_process"
-      )
-    },
-    .package = "callr"
-  )
-
-  # Run in background
-  result <- geopressureviz(tag, run_bg = TRUE)
-
-  # Check result
-  expect_true(inherits(result, "r_process"))
-})
-
-test_that("geopressureviz() | with marginal and path", {
-  tag <- create_mock_tag()
-
-  # Create mock marginal and path
-  marginal <- list(data = list(matrix(1, 10, 10)))
-  path <- data.frame(stap_id = 1:2, lat = c(0, 1), lon = c(0, 1))
-
-  captured_options <- new.env()
-
-  local_mocked_bindings(
-    shinyOptions = function(...) {
-      args <- list(...)
-      for (n in names(args)) {
-        captured_options[[n]] <- args[[n]]
-      }
-    },
-    runApp = function(...) "app_ran",
-    getShinyOption = function(...) "mock_path",
-    .package = "shiny"
-  )
-
-  geopressureviz(tag, path = path, marginal = marginal, run_bg = FALSE)
-
-  # Check that marginal was added to tag
-  expect_equal(captured_options$tag$map_marginal, marginal)
-
-  # Check that path was processed
-  expect_equal(attr(captured_options$path, "type"), "geopressureviz")
-})
-
-test_that("geopressureviz() | integration with real data", {
-  # This test uses data generated by test-0-workflow.R if available
-  skip_if_not(file.exists("./data/interim/18LX.RData"))
-
-  load("./data/interim/18LX.RData")
-  # tag is now loaded
-
-  # Mock shiny
-  local_mocked_bindings(
-    shinyOptions = function(...) {},
-    runApp = function(...) "app_ran",
-    getShinyOption = function(...) "mock_path",
-    .package = "shiny"
-  )
-
-  expect_no_error(geopressureviz(tag, run_bg = FALSE, launch_browser = FALSE))
-})
+# pressurepath

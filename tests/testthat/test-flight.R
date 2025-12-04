@@ -8,10 +8,7 @@ test_that("check build from avonet only", {
   expect_error(bird_create("scrocephalus"))
   expect_error(bird_create("Acrocephalus"))
   expect_no_error(bird_create("Acrocephalus arundinaceus"))
-  expect_no_error(invisible(capture.output(
-    print(bird_create("Acrocephalus arundinaceus")),
-    type = "message"
-  )))
+  expect_no_error(print(bird_create("Acrocephalus arundinaceus")))
 })
 
 test_that("check for full custum bird", {
