@@ -29,6 +29,9 @@ The best way to install the GeoPressureR package is through Github
 ``` r
 # install.packages("pak")
 pak::pkg_install("Rafnuss/GeoPressureR")
+
+# Development version:
+pak::pkg_install("Rafnuss/GeoPressureR@dev")
 ```
 
 ## Learn how to use GeoPressureR
