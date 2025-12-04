@@ -14,7 +14,7 @@
 #'
 #' @param graph a GeoPressureR graph object.
 #' @param thr_as threshold of airspeed (km/h).
-#' @inheritDotParams edge_add_wind -graph -edge_s -edge_t -variable -return_averaged_variable
+#' @inheritDotParams edge_add_wind -graph -edge_s -edge_t -return_averaged_variable
 #'
 #' @return A `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
@@ -29,6 +29,7 @@
 graph_add_wind <- function(
   graph,
   thr_as = Inf,
+  variable = c("u", "v"),
   ...
 ) {
   graph_assert(graph, "full")
@@ -41,7 +42,7 @@ graph_add_wind <- function(
     graph,
     edge_s = graph$s,
     edge_t = graph$t,
-    variable = c("u", "v"),
+    variable = variable,
     return_averaged_variable = TRUE,
     ...
   )
