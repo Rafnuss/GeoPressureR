@@ -2,7 +2,7 @@ library(testthat)
 library(GeoPressureR)
 
 # Set working directory
-setwd(system.file("extdata", package = "GeoPressureR"))
+test_with_extdata()
 
 # Small synthetic case
 pressure <- data.frame(

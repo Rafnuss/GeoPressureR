@@ -1,10 +1,9 @@
 library(testthat)
 library(GeoPressureR)
 
-# Set working directory
-setwd(system.file("extdata", package = "GeoPressureR"))
-
 test_that("workflow | full", {
+  test_with_extdata()
+
   geopressuretemplate("18LX", quiet = TRUE)
 
   save_list <- load_interim("18LX")
@@ -57,6 +56,7 @@ test_that("workflow | full", {
 })
 
 test_that("workflow | Missing pressure value", {
+  test_with_extdata()
   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
   tag$pressure <- subset(tag$pressure, stap_id == 3 | stap_id == 4)
 
@@ -93,6 +93,7 @@ test_that("workflow | Missing pressure value", {
 
 
 test_that("workflow | with elev_", {
+  test_with_extdata()
   tag <- tag_create("18LX", quiet = TRUE)
   tag <- tag_label(
     tag,
@@ -106,6 +107,7 @@ test_that("workflow | with elev_", {
 
 
 test_that("workflow | modelled fewer", {
+  test_with_extdata()
   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
   tag <- tag_set_map(
     tag,

@@ -2,7 +2,7 @@ library(testthat)
 library(GeoPressureR)
 
 # Set working directory
-setwd(system.file("extdata", package = "GeoPressureR"))
+test_with_extdata()
 
 test_that("tag_create() | manufacturer", {
   expect_no_error(tag_create(id = "18LX", quiet = TRUE))
@@ -51,15 +51,19 @@ test_that("tag_create() | default", {
   expect_error(expect_warning(suppressMessages(tag_create(
     id = "18LX",
     pressure_file = "wrong_file"
-  )))
-  expect_warning(tag_create(id = "18LX", light_file = "wrong_file"))
+  ))))
+  expect_warning(suppressMessages(tag_create(id = "18LX", light_file = "wrong_file")))
 
-  # Check crop
-  expect_warning(expect_warning(expect_warning(expect_warning(tag_create(
-    id = "18LX",
-    crop_start = "2019-06-20",
-    crop_end = "2018-05-02"
-  )))))
+  # Check crop - should generate warnings for empty datasets
+  expect_warning(expect_warning(expect_warning(expect_warning(
+    suppressMessages(
+      tag_create(
+        id = "18LX",
+        crop_start = "2019-06-20",
+        crop_end = "2018-05-02"
+      )
+    )
+  ))))
 })
 
 test_that("tag_create() | Migrate Technology", {

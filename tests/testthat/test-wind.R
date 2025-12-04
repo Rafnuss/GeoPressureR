@@ -4,7 +4,7 @@ library(GeoPressureR)
 skip("skip graph_add_wind")
 
 # Set working directory
-setwd(system.file("extdata", package = "GeoPressureR"))
+test_with_extdata()
 
 tag <- geopressuretemplate_tag("18LX", quiet = TRUE)
 

@@ -2,7 +2,7 @@ library(testthat)
 library(GeoPressureR)
 
 # Set working directory to access package data
-setwd(system.file("extdata", package = "GeoPressureR"))
+test_with_extdata()
 
 # Helper to create mock tag
 create_mock_tag <- function() {

@@ -2,7 +2,7 @@ library(testthat)
 library(GeoPressureR)
 
 # Set working directory
-setwd(system.file("extdata", package = "GeoPressureR"))
+test_with_extdata()
 
 # Start by computing all the necessary file for the tests
 tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
