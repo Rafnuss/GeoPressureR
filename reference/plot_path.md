@@ -57,7 +57,9 @@ modified map object
 
 Other path:
 [`ind2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ind2path.md),
+[`path2edge()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2edge.md),
 [`path2elevation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2elevation.md),
+[`path2twilight()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2twilight.md),
 [`tag2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2path.md)
 
 ## Examples

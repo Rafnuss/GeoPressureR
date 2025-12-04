@@ -70,6 +70,8 @@ A data.frame containing
 
 Other path:
 [`ind2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ind2path.md),
+[`path2edge()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2edge.md),
+[`path2twilight()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2twilight.md),
 [`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md),
 [`tag2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2path.md)
 
@@ -102,19 +104,14 @@ plot_path(path)
 
 {"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Esri.WorldTopoMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addPolylines","args":[[[[{"lng":[8.470000000000001,9.41,9.01,-0.91,14.24,27.3,34.39,30],"lat":[48.89,44.78,40.07,37.68,17.33,7.32,8.09,-23.13]}]]],null,[1,1,1,1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"black","weight":5,"opacity":0.7,"fill":false,"fillColor":"black","fillOpacity":0.2,"smoothFactor":1,"noClip":false},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addCircleMarkers","args":[[48.89,44.78,40.07,37.68,17.33,7.32,8.09,-23.13],[8.470000000000001,9.41,9.01,-0.91,14.24,27.3,34.39,30],[7.040464112938501,5.647161892331753,7.27946187557618,5.720676213867304,5.463480860513616,7.056527334184535,5.876443933167747,6.005201565352651],null,[1,1,1,1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"white","weight":2,"opacity":1,"fill":[true,true,true,true,true,true,true,true],"fillColor":"grey","fillOpacity":0.8},null,null,null,null,["#1, 1.9 days","#2, 0.8 days","#3, 2.2 days","#4, 0.8 days","#5, 0.7 days","#6, 1.9 days","#7, 0.9 days","#8, 1 days"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[-23.13,48.89],"lng":[-0.91,34.39]}},"evals":[],"jsHooks":[]}
 elevation <- path2elevation(path)
-#> Error in `$<-.data.frame`(`*tmp*`, "stap_id", value = integer(0)): replacement has 0 rows, data has 389
 
 plot(elevation$distance, elevation$X50,
   type = "l",
   ylab = "Elevation (m)", xlab = "Distance from start (km)"
 )
-#> Error: object 'elevation' not found
 lines(elevation$distance, elevation$X10, lty = 5)
-#> Error: object 'elevation' not found
 lines(elevation$distance, elevation$X90, lty = 5)
-#> Error: object 'elevation' not found
 id <- elevation$stap_id %% 1 == 0
-#> Error: object 'elevation' not found
 points(elevation$distance[id], elevation$X90[id], col = "red")
-#> Error: object 'elevation' not found
+
 ```

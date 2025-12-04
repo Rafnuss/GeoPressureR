@@ -48,7 +48,7 @@ sampling_scale."><meta property="og:image" content="https://raphaelnussbaumer.co
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Download ground elevation along a path</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.4.5/R/path2elevation.R" class="external-link"><code>R/path2elevation.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/master/R/path2elevation.R" class="external-link"><code>R/path2elevation.R</code></a></small>
       <div class="d-none name"><code>path2elevation.Rd</code></div>
     </div>
 
@@ -113,6 +113,8 @@ of the SRTM at the resolution defined by <code>scale</code>. <code>50</code> cor
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other path:
 <code><a href="ind2path.html">ind2path()</a></code>,
+<code><a href="path2edge.html">path2edge()</a></code>,
+<code><a href="path2twilight.html">path2twilight()</a></code>,
 <code><a href="plot_path.html">plot_path()</a></code>,
 <code><a href="tag2path.html">tag2path()</a></code></p></div>
     </div>
@@ -145,21 +147,16 @@ of the SRTM at the resolution defined by <code>scale</code>. <code>50</code> cor
 <div id="htmlwidget-4018eef1a407a0df6b52" style="width:700px;height:600px;" class="leaflet html-widget"></div>
 <script type="application/json" data-for="htmlwidget-4018eef1a407a0df6b52">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Esri.WorldTopoMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addPolylines","args":[[[[{"lng":[8.470000000000001,9.41,9.01,-0.91,14.24,27.3,34.39,30],"lat":[48.89,44.78,40.07,37.68,17.33,7.32,8.09,-23.13]}]]],null,[1,1,1,1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"black","weight":5,"opacity":0.7,"fill":false,"fillColor":"black","fillOpacity":0.2,"smoothFactor":1,"noClip":false},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addCircleMarkers","args":[[48.89,44.78,40.07,37.68,17.33,7.32,8.09,-23.13],[8.470000000000001,9.41,9.01,-0.91,14.24,27.3,34.39,30],[7.040464112938501,5.647161892331753,7.27946187557618,5.720676213867304,5.463480860513616,7.056527334184535,5.876443933167747,6.005201565352651],null,[1,1,1,1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"white","weight":2,"opacity":1,"fill":[true,true,true,true,true,true,true,true],"fillColor":"grey","fillOpacity":0.8},null,null,null,null,["#1, 1.9 days","#2, 0.8 days","#3, 2.2 days","#4, 0.8 days","#5, 0.7 days","#6, 1.9 days","#7, 0.9 days","#8, 1 days"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[-23.13,48.89],"lng":[-0.91,34.39]}},"evals":[],"jsHooks":[]}</script><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">elevation</span> <span class="op">&lt;-</span> <span class="fu">path2elevation</span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in `$&lt;-.data.frame`(`*tmp*`, "stap_id", value = integer(0)):</span> replacement has 0 rows, data has 389</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">elevation</span><span class="op">$</span><span class="va">distance</span>, <span class="va">elevation</span><span class="op">$</span><span class="va">X50</span>,</span></span>
 <span class="r-in"><span>  type <span class="op">=</span> <span class="st">"l"</span>,</span></span>
 <span class="r-in"><span>  ylab <span class="op">=</span> <span class="st">"Elevation (m)"</span>, xlab <span class="op">=</span> <span class="st">"Distance from start (km)"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'elevation' not found</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">elevation</span><span class="op">$</span><span class="va">distance</span>, <span class="va">elevation</span><span class="op">$</span><span class="va">X10</span>, lty <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'elevation' not found</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">elevation</span><span class="op">$</span><span class="va">distance</span>, <span class="va">elevation</span><span class="op">$</span><span class="va">X90</span>, lty <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'elevation' not found</span>
 <span class="r-in"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="va">elevation</span><span class="op">$</span><span class="va">stap_id</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span> <span class="fl">1</span> <span class="op">==</span> <span class="fl">0</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'elevation' not found</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">elevation</span><span class="op">$</span><span class="va">distance</span><span class="op">[</span><span class="va">id</span><span class="op">]</span>, <span class="va">elevation</span><span class="op">$</span><span class="va">X90</span><span class="op">[</span><span class="va">id</span><span class="op">]</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'elevation' not found</span>
+<span class="r-plt img"><img src="path2elevation-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

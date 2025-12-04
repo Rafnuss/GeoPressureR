@@ -11,8 +11,9 @@ following two child functions:
     likelihood map.
 
 See below for details. For more background on the method behind these
-functions, please refer to Nussbaumer et al.
-([2023a](https://doi.org/10.1111/2041-210X.14043)).
+functions, please refer to Nussbaumer et al. (2023a;
+[doi:10.1111/2041-210X.14043](https://doi.org/10.1111/2041-210X.14043)
+).
 
 ## Usage
 
@@ -147,8 +148,8 @@ single `1` at the pixel closest to the known position.
 
 `geopressure_map_mismatch()` computes the mismatch maps on Google Earth
 Engine via the map entry point of the [GeoPressure
-API](https://raphaelnussbaumer.com/GeoPressureAPI/#description). This
-consists of the following steps:
+API](https://github.com/Rafnuss/GeoPressureAPI). This consists of the
+following steps:
 
 1.  **Pre-process pressure**: the pressure measurements are first
     smoothed and downscaled to a 1-hour resolution in order to match
@@ -237,7 +238,7 @@ cost significantly.
 Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti.
 2023. Global Positioning with Animal‐borne Pressure Sensors. *Methods in
 Ecology and Evolution*, 14, 1118–1129
-<https://doi.org/10.1111/2041-210X.14043>.
+[doi:10.1111/2041-210X.14043](https://doi.org/10.1111/2041-210X.14043) .
 
 ## See also
 

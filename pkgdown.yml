@@ -2,7 +2,7 @@ pandoc: 3.1.11
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles: {}
-last_built: 2025-11-27T22:42Z
+last_built: 2025-12-04T04:56Z
 urls:
   reference: https://raphaelnussbaumer.com/GeoPressureR/reference
   article: https://raphaelnussbaumer.com/GeoPressureR/articles

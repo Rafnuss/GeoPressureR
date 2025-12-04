@@ -90,7 +90,7 @@ A GeoPressureR `tag` object with:
 
 ## See also
 
-[GeoPressureManual](https://bit.ly/3QGkf6N)
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#define-geographical-and-temporal-parameters-of-the-map)
 
 Other tag:
 [`print.tag()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.tag.md),
