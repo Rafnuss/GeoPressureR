@@ -48,7 +48,7 @@ test_that("tag_create() | default", {
   expect_gt(nrow(tag$light), 0)
   expect_gt(nrow(tag$acceleration), 0)
 
-  expect_error(expect_warning(tag_create(
+  expect_error(expect_warning(suppressMessages(tag_create(
     id = "18LX",
     pressure_file = "wrong_file"
   )))

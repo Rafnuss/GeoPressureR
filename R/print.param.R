@@ -114,7 +114,7 @@ bullets <- function(param, x) {
     ))
   } else if (is.data.frame(val)) {
     cli::cli_bullets(c("*" = "{.field {x}}:"))
-    cli::cat_print(val)
+    cli_print_tbl(val)
   } else if (is.list(val) && length(val) > 1) {
     cli::cli_bullets(c("*" = "{.field {x}}:"))
     for (n in names(val)) {

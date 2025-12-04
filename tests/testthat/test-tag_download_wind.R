@@ -57,7 +57,13 @@ test_that("tag_download_wind() | input validation", {
   expect_error(tag_download_wind(tag, extent = 1:3), "length.*extent.*4")
   expect_error(tag_download_wind(tag, file = "not_func"), "file.*function")
   expect_error(tag_download_wind(tag, variable = 123, file = file_func), "variable.*character")
-  expect_error(tag_download_wind(tag, include_stap_id = 99), "include_stap_id.*stap")
+  # Suppress directory creation warning that happens before validation
+  suppressWarnings(
+    expect_error(
+      tag_download_wind(tag, include_stap_id = 99, file = file_func),
+      "include_stap_id.*stap"
+    )
+  )
 })
 
 test_that("tag_download_wind() | file handling and warnings", {
