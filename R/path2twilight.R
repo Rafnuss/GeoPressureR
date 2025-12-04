@@ -115,13 +115,7 @@ path2twilight <- function(
     )
   }
 
-  tz <- attr(twl$date, "tzone")
-  if (is.null(tz) || length(tz) == 0 || tz[1] == "") {
-    cli::cli_warn(
-      "Timezone not set on {.val date}; assuming UTC."
-    )
-    twl$date <- as.POSIXct(twl$date, tz = "UTC")
-  } else if (tz[1] != "UTC") {
+  if (is.null(attr(twl$date, "tzone")) || attr(twl$date, "tzone") != "UTC") {
     cli::cli_warn(
       "The {.val date} is not in UTC which might lead to undesired effect"
     )

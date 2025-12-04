@@ -1,127 +1,122 @@
 citHeader(
-  "To cite GeoPressureR in publications use the following (nussbaumer2022 for the R code, nussbaumer2024 for the explanation of implementation, and nussbaumer2023a, nussbaumer2023b for the method):"
+  "To cite GeoPressureR in publications use the following (nussbaumer2022 for the R code, nussbaumer2024 for the explanation of implementation,  and nussbaumer2023a, nussbaumer2023b for the method:"
 )
 
-citations <- c(
-  bibentry(
-    bibtype = "Manual",
-    title = "GeoPressureR: Global positioning by atmospheric pressure",
-    author = c(
-      person(
-        "Raphael",
-        "Nussbaumer",
-        email = "rafnuss@gmail.com",
-        comment = c(ORCID = "0000-0002-8185-1020")
-      ),
-      person(
-        "Mathieu",
-        "Gravey",
-        email = "mathieu@mgravey.com",
-        comment = c(ORCID = "0000-0002-0871-1507")
-      )
+citEntry(
+  entry = "manual",
+  title = "GeoPressureR: Global positioning by atmospheric pressure",
+  author = c(
+    person(
+      "Raphael",
+      "Nussbaumer",
+      email = "rafnuss@gmail.com",
+      comment = c(ORCID = "0000-0002-8185-1020")
     ),
-    year = "2022",
-    doi = "10.5281/zenodo.7754457",
-    url = "https://github.com/Rafnuss/GeoPressureR"
+    person(
+      "Mathieu",
+      "Gravey",
+      email = "mathieu@mgravey.com",
+      comment = c(ORCID = "0000-0002-0871-1507")
+    )
   ),
-  bibentry(
-    bibtype = "Article",
-    title = "Global positioning with animal-borne pressure sensors",
-    author = c(
-      person(
-        "Raphael",
-        "Nussbaumer",
-        email = "rafnuss@gmail.com",
-        comment = c(ORCID = "0000-0002-8185-1020")
-      ),
-      person(
-        "Mathieu",
-        "Gravey",
-        email = "mathieu@mgravey.com",
-        comment = c(ORCID = "0000-0002-0871-1507")
-      ),
-      person(
-        "Martins",
-        "Briedis",
-        email = "martins.briedis@vogelwarte.ch",
-        comment = c(ORCID = "0000-0002-9434-9056")
-      ),
-      person(
-        "Felix",
-        "Liechti",
-        email = "felix.liechti@vogelwarte.ch",
-        comment = c(ORCID = "0000-0001-9473-0837")
-      )
-    ),
-    year = "2023",
-    journal = "Methods in Ecology and Evolution",
-    volume = "14",
-    number = "4",
-    pages = "1104-1117",
-    doi = "10.1111/2041-210X.14043"
-  ),
-  bibentry(
-    bibtype = "Article",
-    title = "Reconstructing bird trajectories from pressure and wind data using a highly optimised hidden Markov model",
-    author = c(
-      person(
-        "Raphael",
-        "Nussbaumer",
-        email = "rafnuss@gmail.com",
-        comment = c(ORCID = "0000-0002-8185-1020")
-      ),
-      person(
-        "Mathieu",
-        "Gravey",
-        email = "mathieu@mgravey.com",
-        comment = c(ORCID = "0000-0002-0871-1507")
-      ),
-      person(
-        "Martins",
-        "Briedis",
-        email = "martins.briedis@vogelwarte.ch",
-        comment = c(ORCID = "0000-0002-9434-9056")
-      ),
-      person(
-        "Felix",
-        "Liechti",
-        email = "felix.liechti@vogelwarte.ch",
-        comment = c(ORCID = "0000-0001-9473-0837")
-      ),
-      person(
-        "Daniel",
-        "Sheldon",
-        comment = c(ORCID = "0000-0002-4257-2432")
-      )
-    ),
-    year = "2023",
-    journal = "Methods in Ecology and Evolution",
-    volume = "14",
-    number = "4",
-    pages = "1108-1129",
-    doi = "10.1111/2041-210X.14082"
-  ),
-  bibentry(
-    bibtype = "Manual",
-    title = "GeoPressureManual: Learn how to use GeoPressureR with examples.",
-    author = c(
-      person(
-        "Raphael",
-        "Nussbaumer",
-        email = "rafnuss@gmail.com",
-        comment = c(ORCID = "0000-0002-8185-1020")
-      ),
-      person(
-        "Am\u00e9line",
-        "Nussbaumer",
-        email = "ameline.nussbaumer@gmail.com",
-        comment = c(ORCID = "0000-0003-1308-4154")
-      )
-    ),
-    year = "2024",
-    doi = "10.5281/zenodo.10799355",
-    url = "https://github.com/Rafnuss/GeoPressureManual"
-  )
+  doi = "10.5281/zenodo.7754457",
+  url = "https://github.com/Rafnuss/GeoPressureR",
+  year = "2022"
 )
 
-citations
+citEntry(
+  entry = "Article",
+  title = "Global positioning with animal-borne pressure sensors",
+  author = c(
+    person(
+      "Raphael",
+      "Nussbaumer",
+      email = "rafnuss@gmail.com",
+      comment = c(ORCID = "0000-0002-8185-1020")
+    ),
+    person(
+      "Mathieu",
+      "Gravey",
+      email = "mathieu@mgravey.com",
+      comment = c(ORCID = "0000-0002-0871-1507")
+    ),
+    person(
+      "Martins",
+      "Briedis",
+      email = "martins.briedis@vogelwarte.ch ",
+      comment = c(ORCID = "0000-0002-9434-9056")
+    ),
+    person(
+      "Felix",
+      "Liechti",
+      email = "felix.liechti@vogelwarte.ch",
+      comment = c(ORCID = "0000-0001-9473-0837")
+    )
+  ),
+  doi = "10.1111/2041-210X.14043",
+  year = "2023",
+  journal = "Methods in Ecology and Evolution",
+  volume = "14",
+  number = "4",
+  pages = "1104-1117",
+)
+
+citEntry(
+  entry = "Article",
+  title = "Reconstructing bird trajectories from pressure and wind data using a highly optimised hidden Markov model",
+  author = c(
+    person(
+      "Raphael",
+      "Nussbaumer",
+      email = "rafnuss@gmail.com",
+      comment = c(ORCID = "0000-0002-8185-1020")
+    ),
+    person(
+      "Mathieu",
+      "Gravey",
+      email = "mathieu@mgravey.com",
+      comment = c(ORCID = "0000-0002-0871-1507")
+    ),
+    person(
+      "Martins",
+      "Briedis",
+      email = "martins.briedis@vogelwarte.ch ",
+      comment = c(ORCID = "0000-0002-9434-9056")
+    ),
+    person(
+      "Felix",
+      "Liechti",
+      email = "felix.liechti@vogelwarte.ch",
+      comment = c(ORCID = "0000-0001-9473-0837")
+    ),
+    person("Daniel", "Sheldon", comment = c(ORCID = "0000-0002-4257-2432"))
+  ),
+  doi = "10.1111/2041-210X.14082",
+  year = "2023",
+  journal = "Methods in Ecology and Evolution",
+  volume = "14",
+  number = "4",
+  pages = "1108-1129",
+)
+
+citEntry(
+  entry = "manual",
+  title = "GeoPressureManual: Learn how to use GeoPressureR with examples.",
+  author = c(
+    person(
+      "Raphael",
+      "Nussbaumer",
+      email = "rafnuss@gmail.com",
+      comment = c(ORCID = "0000-0002-8185-1020")
+    ),
+    person(
+      "Améline",
+      "Nussbaumer",
+      email = "ameline.nussbaumer@gmail.com",
+      comment = c(ORCID = "0000-0003-1308-4154")
+    )
+  ),
+  doi = "10.5281/zenodo.10799355",
+  url = "https://github.com/Rafnuss/GeoPressureManual",
+  year = "2024"
+)
