@@ -10,7 +10,7 @@
 [![pkgdown](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/Rafnuss/GeoPressureR/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master)
-[![lint](https://github.com/Rafnuss/GeoPressureR/actions/workflows/jarl-check.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/jarl-check.yaml)
+[![lint](https://github.com/Rafnuss/GeoPressureR/actions/workflows/jarl-check.yml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/jarl-check.yml)
 [![format](https://github.com/Rafnuss/GeoPressureR/actions/workflows/format-check.yaml/badge.svg)](https://github.com/Rafnuss/GeoPressureR/actions/workflows/format-check.yaml)
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
