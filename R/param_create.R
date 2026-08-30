@@ -117,7 +117,7 @@ param_create <- function(id, default = FALSE, ...) {
         nj = formals(graph_simulation)$nj
       ),
       pressurepath_create = list(
-        compute_altitude = formals(pressurepath_create)$compute_altitude,
+        variable = formals(pressurepath_create)$variable,
         solar_dep = formals(pressurepath_create)$solar_dep,
         era5_dataset = formals(pressurepath_create)$era5_dataset
       ),

@@ -15,17 +15,10 @@
 #' is used to download files in parallel. CDS queue limits vary with the current system workload.
 #' If CDS reports that queued requests are temporarily limited, reduce `workers` and try again.
 #'
-#' To be able to download data from the Climate Data Store (CDS), you will need to create an ECMWF
-#' account on [https://www.ecmwf.int/](https://www.ecmwf.int/). Once created, you can
-#' retrieve your API Token on [https://cds.climate.copernicus.eu/profile
-#' ](https://cds.climate.copernicus.eu/profile) and save them in your local keychain with:
-#' \code{
-#'   ecmwfr::wf_set_key("abcd1234-foo-bar-98765431-XXXXXXXXXX")
-#' }
-#'
 #' More information [in the GeoPressureManual](
 #' https://geopressure.org/GeoPressureManual/geopressuretemplate-wind.html).
 #'
+#' @template ecmwf-key
 #' @param tag a GeoPressureR `tag` object.
 #' @param extent geographical extent of the map on which the likelihood will be computed.
 #' Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.

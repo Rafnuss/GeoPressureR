@@ -94,7 +94,7 @@ print.param <- function(x, ...) {
 
   cli::cli_h3("Outputs {.fun graph_simulation} {.fun pressurepath_create}")
   bullets(param$graph_simulation, "nj")
-  bullets(param$pressurepath_create, "compute_altitude")
+  bullets(param$pressurepath_create, "variable")
   bullets(param$pressurepath_create, "solar_dep")
   bullets(param$pressurepath_create, "era5_dataset")
 
