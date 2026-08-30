@@ -24,8 +24,9 @@
 #'
 #' Surface pressure is returned in hPa and normalised to the mean tag pressure within each
 #' stationary-period and elevation-label group. Observations labelled `"discard"` are excluded
-#' from those means. Altitude is computed from tag pressure, ERA5 pressure and temperature, and
-#' surface geopotential. If `solar_dep` is not `NULL`, local sunrise and sunset are added.
+#' from those means. If `solar_dep` is not `NULL`, local sunrise and sunset are added.
+#'
+#' @template pressure-altitude
 #'
 #' @template ecmwf-key
 #' @param tag A GeoPressureR `tag` object.

@@ -25,12 +25,9 @@
 #' time is matched to its closest ERA5 hour and restored after matching; no temporal interpolation
 #' is used. GeoPressureAPI receives the original tag timestamps and performs the matching remotely.
 #'
-#' @section Altitude and pressure normalisation:
-#' When tag pressure is supplied, altitude above mean sea level is
-#' computed with the barometric equation from tag pressure, ERA5 surface pressure, ERA5 2 m
-#' temperature, and surface geopotential. Tag pressure is expected in hPa and altitude is returned
-#' in metres.
+#' @template pressure-altitude
 #'
+#' @section Pressure normalisation:
 #' ERA5 surface pressure is also shifted to the mean tag-pressure level within each elevation-label
 #' group. Flight observations (`stap_id == 0`) and observations labelled `"discard"` are excluded
 #' from the group means. The adjusted series is returned as `surface_pressure_norm`.

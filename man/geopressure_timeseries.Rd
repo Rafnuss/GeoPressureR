@@ -70,12 +70,22 @@ time is matched to its closest ERA5 hour and restored after matching; no tempora
 is used. GeoPressureAPI receives the original tag timestamps and performs the matching remotely.
 }
 
-\section{Altitude and pressure normalisation}{
+\section{Pressure-derived altitude}{
 
-When tag pressure is supplied, altitude above mean sea level is
-computed with the barometric equation from tag pressure, ERA5 surface pressure, ERA5 2 m
-temperature, and surface geopotential. Tag pressure is expected in hPa and altitude is returned
-in metres.
+When altitude is produced, GeoPressureR uses the same barometric relation as
+\href{https://github.com/GeoPressure/GeoPressureAPI}{GeoPressureAPI}:
+\deqn{z_{tag}=z_{ERA5}+\frac{T_{ERA5}}{L_b}\left[\left(
+\frac{P_{tag}}{P_{ERA5}}\right)^{-\frac{R L_b}{g M}}-1\right].}
+Here, \eqn{P_{tag}} is tag pressure, while \eqn{P_{ERA5}}, \eqn{T_{ERA5}}, and \eqn{z_{ERA5}}
+are ERA5 surface pressure, 2 m temperature, and model-surface elevation. Model-surface elevation
+is obtained from ERA5 surface geopotential divided by standard gravity. The constants are the
+standard temperature lapse rate \eqn{L_b=-0.0065} K/m, universal gas constant
+\eqn{R=8.31432} J/(mol K), standard gravity \eqn{g=9.80665} m/s^2, and molar mass of dry air
+\eqn{M=0.0289644} kg/mol. Pressure is converted to Pa internally and altitude is returned in
+metres above mean sea level.
+}
+
+\section{Pressure normalisation}{
 
 ERA5 surface pressure is also shifted to the mean tag-pressure level within each elevation-label
 group. Flight observations (\code{stap_id == 0}) and observations labelled \code{"discard"} are excluded
