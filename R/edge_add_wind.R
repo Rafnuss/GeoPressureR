@@ -424,6 +424,7 @@ edge_add_wind_check <- function(
 
       # Check that the pressure levels are matching
       pres_value <- pressure$value[pressure$date > t_s & pressure$date < t_e]
+      pres_value <- pres_value[is.finite(pres_value)]
       if (length(pres_value) > 0) {
         pres_var <- names(nc$dim)[grepl("*level", names(nc$dim))]
         pres <- ncdf4::ncvar_get(nc, pres_var)
