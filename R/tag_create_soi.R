@@ -69,6 +69,7 @@ tag_create_soi <- function(
   }
   if (!is.null(pressure_path)) {
     tag$pressure <- tag_create_dto(pressure_path, quiet = quiet)
+    tag$pressure$value[tag$pressure$value < 0] <- NA
   }
 
   # Read light
@@ -80,6 +81,7 @@ tag_create_soi <- function(
   if (!is.null(light_path)) {
     tag$light <-
       tag_create_dto(light_path, quiet = quiet)
+    tag$light$value[tag$light$value < 0] <- NA
   }
 
   # Read acceleration
@@ -103,6 +105,7 @@ tag_create_soi <- function(
       quiet = quiet
     )
     names(tag$acceleration) <- c("date", "value", "mean_acceleration_z")
+    tag$acceleration$value[tag$acceleration$value < 0] <- NA
   }
 
   # Read External temperature

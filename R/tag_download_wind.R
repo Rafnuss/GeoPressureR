@@ -162,12 +162,22 @@ tag_download_wind <- function(
     # Find the pressure level needed during this flight
     flight_id <- flight_time[1] <= tag$pressure$date &
       tag$pressure$date <= utils::tail(flight_time, 1)
+    flight_pressure <- tag$pressure$value[flight_id]
+    flight_pressure <- flight_pressure[is.finite(flight_pressure)]
+    if (length(flight_pressure) == 0) {
+      cli::cli_abort(c(
+        "x" = "No finite pressure observations are available for the flight between stationary periods {.val {stap$stap_id[i_s]}} and {.val {stap$stap_id[i_s + 1]}}.",
+        "i" = "Flight period: {.val {format(flight_time[1], '%Y-%m-%d %H:%M UTC')}} to {.val {format(utils::tail(flight_time, 1), '%Y-%m-%d %H:%M UTC')}}.",
+        "i" = "Pressure observations are required to select the ERA5 pressure levels for the wind download.",
+        ">" = "Review the pressure data or exclude this flight with {.arg include_stap_id}."
+      ))
+    }
     pres_id_min <- min(
-      sum(min(tag$pressure$value[flight_id]) >= possible_pressure),
+      sum(min(flight_pressure) >= possible_pressure),
       length(possible_pressure) - 1
     )
     pres_id_max <- min(
-      sum(max(tag$pressure$value[flight_id]) > possible_pressure) + 1,
+      sum(max(flight_pressure) > possible_pressure) + 1,
       length(possible_pressure)
     )
     flight_pres_id <- seq(pres_id_min, pres_id_max)

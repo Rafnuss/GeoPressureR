@@ -908,8 +908,8 @@ server <- function(input, output, session) {
           list(
             yaxis = list(
               range = c(
-                min(pressure_val_stap_id) - 5,
-                max(pressure_val_stap_id) + 5
+                min(pressure_val_stap_id, na.rm = TRUE) - 5,
+                max(pressure_val_stap_id, na.rm = TRUE) + 5
               )
             ),
             xaxis = list(
