@@ -15,7 +15,9 @@
 \code{"temperature_internal"}. Map can be combined by providing a vector of type.}
 
 \item{...}{additional parameters for \code{plot_tag_pressure()}, \code{plot_tag_acceleration()},
-\code{plot_tag_light()}, \code{plot_tag_twilight()} or \code{plot.map()}}
+\code{plot_tag_light()}, \code{plot_tag_twilight()} or \code{plot.map()}. For twilight and actogram plots,
+use \code{flip_axes = TRUE} to place time horizontally and \code{double_plot = TRUE} for a 48-hour
+double plot.}
 }
 \value{
 a plot, ggplotly or leaflet object.

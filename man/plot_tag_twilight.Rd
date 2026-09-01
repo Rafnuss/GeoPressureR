@@ -9,7 +9,9 @@ plot_tag_twilight(
   twilight_line = NULL,
   transform_light = TRUE,
   twl_offset = NULL,
-  plot_plotly = TRUE
+  plot_plotly = TRUE,
+  flip_axes = FALSE,
+  double_plot = FALSE
 )
 }
 \arguments{
@@ -24,9 +26,15 @@ displayed as a line}
 provided, it uses the middle of all nights.}
 
 \item{plot_plotly}{logical to use \code{plotly}}
+
+\item{flip_axes}{logical to place time on the x-axis and dates on the y-axis. Dates increase
+downward in the flipped display.}
+
+\item{double_plot}{logical to display a 48-hour window. The second 24-hour half contains the
+following day's observations.}
 }
 \value{
-a plot object.
+a ggplot or ggplotly object.
 }
 \description{
 This function display a plot of twilight time series recorded by a tag

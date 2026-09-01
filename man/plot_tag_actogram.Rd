@@ -4,7 +4,13 @@
 \alias{plot_tag_actogram}
 \title{Plot Actogram data of a \code{tag}}
 \usage{
-plot_tag_actogram(tag, twl_offset = NULL, plot_plotly = FALSE)
+plot_tag_actogram(
+  tag,
+  twl_offset = NULL,
+  plot_plotly = TRUE,
+  flip_axes = FALSE,
+  double_plot = FALSE
+)
 }
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object}
@@ -13,9 +19,15 @@ plot_tag_actogram(tag, twl_offset = NULL, plot_plotly = FALSE)
 provided, it uses the middle of all nights.}
 
 \item{plot_plotly}{logical to use \code{plotly}}
+
+\item{flip_axes}{logical to place time on the x-axis and dates on the y-axis. Dates increase
+downward in the flipped display.}
+
+\item{double_plot}{logical to display a 48-hour window. The second 24-hour half contains the
+following day's observations.}
 }
 \value{
-a plot object.
+a ggplot or ggplotly object.
 }
 \description{
 This function display a plot of the acceleration time series recorded by a tag
